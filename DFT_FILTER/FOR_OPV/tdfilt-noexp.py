@@ -143,10 +143,9 @@ for line in ftddft.readlines():
         #print cfile,"\n"
 
     if 'Optimized Parameters' in line or timedep==True: converged=True
-
     if timedep==True: converged=True
 
-    if ('Tot=' in line and 'X=' in line and converged==False): # Get the dipole vector for the ground state and length (in Debye)
+    if 'Tot=' in line: # Get the dipole vector and length (in Debye)
         dip_list = line.split()
         x = center("X",10)
         y = center("Y",10)
@@ -156,19 +155,6 @@ for line in ftddft.readlines():
         dy = center(dip_list[3],10)
         dz = center(dip_list[5],10)
         dtot = center(dip_list[7],10)
-        print dx, dy, dz, dtot
-
-    if ('Tot=' in line and 'X=' in line and converged==True): # Get the dipole vector for the first excited state and length (in Debye)
-        dip_list = line.split()
-        x = center("X",10)
-        y = center("Y",10)
-        z = center("Z",10)
-        tot = center("Total",10)
-        d2x = center(dip_list[1],10)
-        d2y = center(dip_list[3],10)
-        d2z = center(dip_list[5],10)
-        d2tot = center(dip_list[7],10)
-        #print d2x, d2y, d2z, d2tot
         
 # Get the occupied and unoccupied levels
 # (after convergence has been assured)
@@ -257,10 +243,6 @@ properties = {
         'mu_x':float(dx),
         'mu_y':float(dy),
         'mu_z':float(dz),
-        'mu2_tot':float(d2tot),
-        'mu2_x':float(d2x),
-        'mu2_y':float(d2y),
-        'mu2_z':float(d2z),
         'total energy':etot,
 }
 
