@@ -1,0 +1,53 @@
+         OpenCubMan - Opensource Cubefile Manipulator
+	                version 0.01 
+                      by M. Haranczyk
+
+
+1. Introduction
+
+OpenCubMan is a set of tools improve visulalization of molecular
+orbitals and the related densities. Orbitals are often plotted
+using a selected contour value (CV). However, it would be more convinient
+in many cases to plot fraction of electron (Fe). 
+The cvtofe program can read an orbital (from Gaussian cube file) and
+calculate Fe for a given CV.
+The fetocv program does the opposite.
+
+OpenCubMan can also perform more advanced operations on orbitals and
+the related electron densities. For example, it can create cross-sections.
+For example of such program, see the example.cpp file provided
+in the OpenCubMan package. There are also some undocumented functions
+present in opencubman.cpp file. These functions will be dicussed
+in the future releases.
+
+For more information please have a look at our article:
+"Visualization of molecular orbitals and the related densities"
+M. Haranczyk & M. Gutowski - J Chem Theor and Comp - in press
+
+If you find our program useful in your reseach project, we kindly ask you 
+to cite the above article. Thank you.
+
+2. Instalation
+
+At the first point files from .tar.gz have to be extracted:
+
+gunzip opencubman_0.01.tar.gz
+
+tar xf opencubman_0.01.tar
+
+Than, the program may be compiled with:
+
+make OPENCUBMAN
+
+The above command will compile fetocv and cvtofe programs. For some of the
+advanced options, please look into example.cpp file.
+
+3. Manual
+
+Please run the programs without parameters to get help.
+If you have any problems or questions, please contact Maciej Haranczyk (maharan@chem.univ.gda.pl).
+
+4. Bugfixes
+
+No bugs reported yet
+
