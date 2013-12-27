@@ -1,8 +1,9 @@
+""" This module defines classes and functions for manipulating molecular "fragments". """
+
 import os,sys,fileinput,random
 from math import *
 
 from basics import *
-
 
 class TransRot:
     def __init__(self):
@@ -147,7 +148,7 @@ class Link:
         self.targetpos += n
 
     def dump(self, return_str=False):
-        s = "link object: %s %d %d"  % (self.type, self.mypos, self.targetpos)
+        s = "link object: type=%s mypos=%d targetpos=%d"  % (self.type, self.mypos, self.targetpos)
         if (return_str):
             return s
         else:
@@ -252,6 +253,17 @@ class Structure:
         f.write(com_templ)
         f.close()
 
+    def write_slurm(self, slurm_template_name, xyz_name, job_name):
+        from string import replace
+        f = file(slurm_template_name)
+        templ = f.read()
+        f.close()
+        templ = replace(templ, "<job_name>", job_name)
+        slurm_name = replace(xyz_name, "xyz", "slurm")
+        f = file(slurm_name, "w")
+        f.write(templ)
+        f.close()
+    
     def write_pbs(self, pbs_template_name, xyz_name, job_name):
         from string import replace
         f = file(pbs_template_name)
@@ -299,7 +311,7 @@ class Structure:
                 tag = ln[4].split("_")
 #                    print tag
 #                if (tag[0] == "term" or tag[0] == "func" or tag[0] == "rg"):
-                if (tag[0] == "term" or tag[0] == "func" or tag[0] == "rg" or tag[0] == "f"):
+                if (tag[0] == "term" or tag[0] == "func" or tag[0] == "rg" or tag[0] == "f" or tag[0] == "termfunc" or tag[0] == "termf"):
 #                        if (tag[0] == "term"):
 #                            at.elmnt = "Al"
                     link = Link(tag[0], cnt, -1)
@@ -437,10 +449,14 @@ class Structure:
         return cnt
 
     def count_funccaps_for(self, target):
+        """ count how many caps there are for particular target func or term
+        Note, including both, they can now (9/25/13) be mixed """
         cnt = 0
         for i in range(0,len(self.atoms)):
             if (self.atoms[i].link != None):
                 if ((self.atoms[i].link.type == "funccap" or self.atoms[i].link.type == "fcap") and self.atoms[i].link.targetpos == target):
+                    cnt += 1
+                elif (self.atoms[i].link.type == "termcap" and self.atoms[i].link.targetpos == target):
                     cnt += 1
         return cnt
 
@@ -516,11 +532,19 @@ class Fragment(Structure):
 
     def get_connectors(self, cap_idx, term_tag, cap_tag):
         import re
-        # return index in structure of term_idx'th atom with tag 'term',
+        """ this function is written in terms of caps. First it finds the cap_idx'th cap
+        of type cap_tag.   This determines a target atom index that this cap is meant to attach
+        to.
+ It returns
+        the term, func, or termfunc index and the cap index corresponding to cap_idx'th
+        
+        """
+
+       # return index in structure of term_idx'th atom with tag 'term',
         # and index of its corresponding 'cap'
 
-#        print "term atom idx = ", term_atom_idx
-## first find func_idx'th cap of the right type
+#        print "capidx, term_tag, cap_tag ", cap_idx, term_tag, cap_tag
+## first find cap_idx'th cap of the right type
         cap_atom_idx = None
         capcnt = 0
         for i in range(0,len(self.atoms)):
@@ -538,30 +562,37 @@ class Fragment(Structure):
 #        print "cap atom idx = ", cap_atom_idx
 
         
-## Now find target func/term atom that this cap attaches to.
-        term_atom_idx = None
-        for i in range(0,len(self.atoms)):
-#            if (self.atoms[i].link != None):
-#                print "looking for term_tag, term_idx", term_tag, term_idx
-#                self.atoms[i].link.dump()
-            if (self.atoms[i].link != None and self.atoms[i].link.type in term_tag and self.atoms[cap_atom_idx].link.targetpos == i):
-                term_atom_idx = i
-                break
+## Now find target func/term/termfunc atom that this cap attaches to.
+##        term_atom_idx = None
+##        for i in range(0,len(self.atoms)):
+###            if (self.atoms[i].link != None):
+###                print "looking for term_tag, term_idx", term_tag, term_idx
+###                self.atoms[i].link.dump()
+##            if (self.atoms[i].link != None and self.atoms[i].link.type in term_tag and self.atoms[cap_atom_idx].link.targetpos == i):
+##                term_atom_idx = i
+##                break
         
-        if (term_atom_idx == None):
-            print "target terminal %d for cap index %d not found in fragment, expect crash!" % (self.atoms[cap_atom_idx].link.targetpos, cap_idx)
+##        if (term_atom_idx == None):
+##            print "target terminal %d for cap index %d not found in fragment, expect crash!" % (self.atoms[cap_atom_idx].link.targetpos, cap_idx)
      
+##        print "equal ?",  term_atom_idx, self.atoms[cap_atom_idx].link.targetpos
+        ## above can be done directly:
+        term_atom_idx = self.atoms[cap_atom_idx].link.targetpos
+        if (self.atoms[term_atom_idx].link == None):
+            raise ValueError, "target term/func/termfunc index does not have a link!"
+        if (self.atoms[term_atom_idx].link.type not in term_tag):
+            raise ValueError, "target term/fun/termfunc index'th link type (%s) mismatch (%s)" %(str(self.atoms[term_atom_idx].link.type), str(term_tag)) 
+
         return term_atom_idx, cap_atom_idx
 
     def get_term(self, term_idx):
-        return self.get_connectors(term_idx, ["term"], ["termcap"])
+        return self.get_connectors(term_idx, ["term","termfunc","termf"], ["termcap"])
     def get_func(self, term_idx):
-        return self.get_connectors(term_idx, ["func"], ["funccap"])
+        return self.get_connectors(term_idx, ["func","termfunc"], ["funccap"])
     def get_f(self, term_idx):
-        return self.get_connectors(term_idx, ["f"], ["fcap"])
+        return self.get_connectors(term_idx, ["f","termf"], ["fcap"])
     def get_rgroup(self, term_idx):
         return self.get_connectors(term_idx, ["rg"], ["rgcap"])
-
 
     def find_neighbors(self, exclude=[]):
         # find all neighbors of all atoms
