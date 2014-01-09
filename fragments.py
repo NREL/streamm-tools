@@ -253,6 +253,29 @@ class Structure:
         f.write(com_templ)
         f.close()
 
+
+
+    def write_com_restart(self, com_template_name, xyz_name, job_name, basis, nstates):
+        from string import replace
+
+        # Parse out extension
+        tmp=com_template_name.split('.')
+        tmp2=tmp[-1]                  # picks out eg 'r1'
+        extensionName="com." + tmp2   # constructs eg "com.r1"
+
+        f = file(com_template_name)
+        com_templ = f.read()
+        f.close()
+        com_templ = replace(com_templ, "<structure_name>", job_name)
+        com_templ = replace(com_templ, "<basis>", basis)
+        com_templ = replace(com_templ, "<nstates>", "%d" % nstates)
+        com_name = xyz_name
+        com_name = replace(com_name, "xyz", extensionName)
+        f = file(com_name, "w")
+        f.write(com_templ)
+        f.close()
+
+
     def write_slurm(self, slurm_template_name, xyz_name, job_name):
         from string import replace
         f = file(slurm_template_name)

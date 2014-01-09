@@ -678,6 +678,11 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         frag.write_xyz(xyz_name)
         frag.write_com("donoracceptor.com.template",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
         frag.write_pbs("donoracceptor.pbs.template",  xyz_name, job_name)
+
+        # SWS: adding new file templates explicitly for restart com files
+        frag.write_com_restart("donoracceptor.com.template.r1",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+        frag.write_com_restart("donoracceptor.com.template.r2",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+
         d = build_meta(frag, short_name, base_input_str, bblocks, options)
         d['metadata']['number'] = number
         d['metadata']['n'] = number
