@@ -254,14 +254,13 @@ class Structure:
         f.close()
 
 
-
     def write_com_restart(self, com_template_name, xyz_name, job_name, basis, nstates):
         from string import replace
 
         # Parse out extension
         tmp=com_template_name.split('.')
-        tmp2=tmp[-1]                  # picks out eg 'r1'
-        extensionName="com." + tmp2   # constructs eg "com.r1"
+        tmp2=tmp[-1]                     # picks out eg 'r1'
+        extensionName=tmp2 + ".com"      # constructs eg "r1.com"
 
         f = file(com_template_name)
         com_templ = f.read()
