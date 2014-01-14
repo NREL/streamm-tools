@@ -440,7 +440,14 @@ def main():
                 except IOError:
 		    fchk_file = struct_dir + job_name + "-ZMAT/" + job_name + ".fchk"
                     if( options.verbose ):
-                        print "    file  ",fchk_file," does not exist trying ZMAT file ",fchk_file
+                        print "    file  ",fchk_file," does not exist trying ZMAT file ",
+			
+		    try:
+			with open(fchk_file) as f:
+			    read_fchk = 1
+		    except IOError:
+			print " no fchk file found "
+			sys.exit("no reference file ")
 			
                     
                 run_qm = 0
