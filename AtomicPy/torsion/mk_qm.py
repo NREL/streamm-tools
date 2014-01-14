@@ -356,7 +356,7 @@ def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_
                 pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
 
 def main():
-    import string, os 
+    import string, os , sys 
     # atomicpy
     import gaussian, elements, xmol , file_io , cluster 
     from string import replace
