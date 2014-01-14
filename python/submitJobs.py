@@ -65,13 +65,18 @@ usage = """
 
         The method to be edited for different "code finished" conditions is
          
-           def isJobDone(jobdir):
+           def isJobDone(jobdir, jobscript):
                ...
                ...
                return (True/False)
 
-        where 'jobdir' is the path to the run directory and the method needs to return
+        where 'jobdir' is the path to the run directory and jobscript is the name
+        of the job submission script. the method needs to return
         'True' if the code finished successfully and 'False' otherwise
+        The derived class from from the JobStatus class overrides the isJobDone method
+        with application specific code.
+        status.py should be in PYTHONPATH and the correct object should be chosen below.
+        Look for JobStatus: note in submitJobs.py script
 
 """
 parser.set_usage(usage)
@@ -265,17 +270,24 @@ goodJobs=0
 failJobs=0
 
 #
+# JobStatus:
 # Pick the correct derived class supplying the
 # isJobDone method depending on code application
 #
-# js=JobStatus()
+js=JobStatus()
 try:
     from status import GaussianJobStatus
     js=GaussianJobStatus()
     print "Gaussian job status module found"
 except:
     print "status for Gaussian not found"
-    sys.exit(3)
+try:
+    from status import ChargeTransJobStatus
+    js=ChargeTransJobStatus()
+    print "ChargeTrans job status module found"
+except:
+    print "status for ChargeTrans not found"
+
 
 # Main submit jobs section
 if (options_set):
