@@ -346,6 +346,48 @@ class Job:
         else:
             print "Scriptfile editor not set. ", self.script, " is unchanged"
             sys.exit(1)
+
+
+
+
+#######################################################################
+#
+# Class containing members needed to inquire about job status once
+# already created and populated by necessary files/scripts
+#
+#######################################################################
+class JobStatus:
+
+    # Constructor
+    def __init__(self, verbose=False):
+        self.verbose = verbose       # Flag for debug printing
+
+    # Destructor
+    def __del__(self):
+        if (self.verbose):
+            print "Destructor called"
+
+    ################################################################
+    #
+    # Finds 'code specific' finish condition for a particular run.
+    # Assumes that call is made from correct run directory
+    #
+    # This method can be redefined for other 'finish' criteria
+    # It must be defined as
+    #
+    #     def isJobDone(jobdir, jobscript):
+    #        ...
+    #        ...
+    #        return isDone (True/False)
+    #
+    # Note: This call is defaulting to a job NOT being finished if
+    #       a specific isJobDone is not defined for a given applic.
+    ################################################################
+    def isJobDone(self, jobdir, jobscript):
+        print "No JobStatus:isJobDone method defined... set job to NOT done"
+        return False
+
+
 #######################################################################################
 
 

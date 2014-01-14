@@ -9,9 +9,17 @@
 ######################################################################
 try:
     from runjobs import *
-    import numpy
 except:
     print "Error: runjobs module not found, check PYTHONPATH for runjobs install"
+    print "Try adding the following to your .bashrc file"
+    print "   PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
+    print "   export PYTHONPATH"
+    sys.exit(3)
+
+try:
+    import numpy
+except:
+    print "Error: numpy module not found, check PYTHONPATH for numpy install or module version"
     print "Try adding the following to your .bashrc file"
     print "   PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
     print "   export PYTHONPATH"
@@ -170,7 +178,10 @@ def getJobInfo(td, ptn):
         job=[]
         jobPath = os.path.dirname(f)    # test-runs/runDir1/runDir-1.1
         jobScript = os.path.basename(f) # job.mb
-        jobDone = isJobDone(jobPath)    # Determine is job finished
+        # Determine is job finished
+#        jobDone = isJobDone(jobPath, jobScript)
+        jobDone = js.isJobDone(jobPath, jobScript)
+
         job.append(jobPath)             # .
         job.append(jobScript)           # ..
         job.append(jobDone)             # job = (test-runs/runDir1/runDir-1.1, job.mb, True/False)
@@ -203,7 +214,7 @@ def manageJob(scriptName):
     global goodJobIO
 
     # Set submit command
-    msubcommand = "msub " + scriptName
+    msubcommand = "qsub " + scriptName
     
     # If dry run test return with 'fail' code
     if dryrun:
@@ -240,51 +251,6 @@ def manageJob(scriptName):
     return return_code
 
 
-
-################################################################
-#
-# Finds 'code specific' finish condition for a particular run.
-# Assumes that call is made from correct run directory
-#
-# This method can be redefined for other 'finish' criteria
-# It must be defined as
-#
-#     def isJobDone(jobdir):
-#        ...
-#        ...
-#        return isDone (True/False)
-#
-################################################################
-def isJobDone(jobdir):
-
-    # If output file doesnt not exist, exit as not finished
-    fullPath = os.path.join(jobdir,"runData-chgr.dat")
-    if (not os.path.exists(fullPath)):
-            return False
-
-    # Run external bash line-count
-    finishCmd="wc -l " + fullPath
-    proc=subprocess.Popen(finishCmd, shell=True,
-                          stderr=subprocess.PIPE,
-                          stdout=subprocess.PIPE)
-
-    # Success code from cmd above
-    return_code = proc.wait()
-
-    # Parse out #-of lines and compare
-    for line in proc.stdout:
-        stripStr = line.lstrip(' ')
-        splstr = stripStr.split(' ')
-        fileLines = int(splstr[0])
-
-    # Specific success condition
-    if (fileLines == 26):
-        return True
-    else:
-        return False
-
-
-
 #####################################################################
 #                              main                                 #
 #####################################################################
@@ -298,6 +264,18 @@ goodJobIO=None
 goodJobs=0
 failJobs=0
 
+#
+# Pick the correct derived class supplying the
+# isJobDone method depending on code application
+#
+# js=JobStatus()
+try:
+    from status import GaussianJobStatus
+    js=GaussianJobStatus()
+    print "Gaussian job status module found"
+except:
+    print "status for Gaussian not found"
+    sys.exit(3)
 
 # Main submit jobs section
 if (options_set):
