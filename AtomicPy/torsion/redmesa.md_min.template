@@ -1,0 +1,38 @@
+#!/bin/bash
+#SBATCH --time=12:00:00             # WALLTIME - USER INPUT PARAMETER
+#SBATCH -N <npros>                  # Single node for serial jobs - DO NOT CHANGE
+#SBATCH --job-name <calc_id>
+#SBATCH --account STP000 # see RedMesaQueues section for details 
+
+#module load gromacs/4.5.4
+#module load gromacs/4.6.1 
+#module load libraries/mkl/13.3.163 
+
+gromacs_dir="/home/twkempe/Software/gromacs-4.6.3_install/bin/"
+
+
+INGRO=out.gro 
+
+SUF='_d' #_mpi
+RNID=min_f
+TOP=out_fit.top  #<top_file>
+cp min.mdp ${RNID}.mdp
+
+rm $RNID.tpr
+${gromacs_dir}grompp${SUF} -f ${RNID}.mdp -c $INGRO -p $TOP -o $RNID
+${gromacs_dir}mdrun${SUF}  -v -s $RNID.tpr -x $RNID -c $RNID -g $RNID -o $RNID   -e $RNID
+
+
+INGRO=min_f.gro
+
+SUF='_d' #_mpi
+RNID=min_c
+cp min.mdp ${RNID}.mdp
+TOP=out_const.top  #<top_file>
+rm $RNID.tpr
+${gromacs_dir}grompp${SUF} -f ${RNID}.mdp -c $INGRO -p $TOP -o $RNID
+${gromacs_dir}mdrun${SUF}  -v -s $RNID.tpr -x $RNID -c $RNID -g $RNID -o $RNID   -e $RNID
+
+
+
+
