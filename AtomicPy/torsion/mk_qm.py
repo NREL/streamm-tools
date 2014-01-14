@@ -438,8 +438,10 @@ def main():
                     with open(fchk_file) as f:
                         read_fchk = 1
                 except IOError:
+		    fchk_file = struct_dir + job_name + "-ZMAT/" + job_name + ".fchk"
                     if( options.verbose ):
-                        print "    file  ",fchk_file," does not exist "
+                        print "    file  ",fchk_file," does not exist trying ZMAT file ",fchk_file
+			
                     
                 run_qm = 0
                 if( read_fchk ):
