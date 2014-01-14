@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -l walltime=2:00:00             # WALLTIME limit
+#PBS -l nodes=1:ppn=<npros>         # Number of nodes, put 16 processes on each
+#PBS -l pmem=<pmem>
+#PBS -M Travis.Kemper@nrel.gov
+#PBS -m e
+#PBS -N <calc_id>
+
+
+
+#module load gromacs/4.5.4
+#module load gromacs/4.6.1 
+#module load libraries/mkl/13.3.163 
+
+lammps_dir="/home/tkemper/Software/lammps-24Apr13/src/"
+lammps_src="lmp_serial"
+
+cd "/home/tkemper/OPV_gen/<run_dir>"
+
+${lammps_dir}/${lammps_src} < full_sp.in > lmp.out 
+mv log.lammps full_sp.log
+
+${lammps_dir}/${lammps_src} < d0_sp.in > lmp.out 
+mv log.lammps d0_sp.log
+
+${lammps_dir}/${lammps_src} < rest.in > lmp.out 
+mv log.lammps rest.log
+
+${lammps_dir}/${lammps_src} < fit.in > lmp.out 
+mv log.lammps fit.log
+
+
+

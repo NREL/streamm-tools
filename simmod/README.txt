@@ -1,6 +1,4 @@
-Separate directory for Travis python script development
-
-
+simmod 
 ===========
 
 Is a set of tools to create and modify structure files for atomic and molecular simulations. 
@@ -35,4 +33,4 @@ Contains scripts calculating  torsional potentials for use in classical force-fi
 
 
 
-
+ 
