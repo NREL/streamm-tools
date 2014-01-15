@@ -184,7 +184,6 @@ def getJobInfo(td, ptn):
         jobPath = os.path.dirname(f)    # test-runs/runDir1/runDir-1.1
         jobScript = os.path.basename(f) # job.mb
         # Determine is job finished
-#        jobDone = isJobDone(jobPath, jobScript)
         jobDone = js.isJobDone(jobPath, jobScript)
 
         job.append(jobPath)             # .
