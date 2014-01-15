@@ -70,7 +70,7 @@ def get_options():
 
     return options, args
 
-def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options):
+def opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options):
     import os, sys
     import  gaussian, top, gromacs ,lammps , file_io, prop, atom_types, gaussian
     import numpy as np
@@ -86,6 +86,11 @@ def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,C
 
     # Intialize optimize as positions as the input positions 
     R_opt = R
+    
+    R_i = []
+    for atom_i in range( len(ELN) ):
+	R_i.append( R[atom_i] )
+    
  
     # Loop over all groups 
     for g_indx in range( len(group_index_i) - 1):
@@ -112,7 +117,7 @@ def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,C
 		    ELECTRONS_i += ELN[i]
 		    N_i.append( i )
 		    
-		    print i,ELN[i]
+		    # print i,ELN[i]
 	    else:
 		ELECTRONS_i += ELN[i]
 		N_i.append( i )
@@ -175,28 +180,39 @@ def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,C
 	    
 	    # Create input files
 	    g_id = "min_"+str(g_indx)
-	    g_com = g_id + '.com'
-	    g_chk = g_id + '.chk'
-	    g_fchk = g_id + '.fchk'
-	    g_log = g_id + '.log'
+	    g_com = g_id+"/"+g_id + '.com'
+	    g_chk = g_id+"/"+g_id + '.chk'
+	    g_fchk = g_id+"/"+g_id + '.fchk'
+	    g_log = g_id+"/"+g_id + '.log'
+	    
+	    run_calc = gaussian.check_fchk( g_fchk )
+	    
+	    # Run calculation if results are there or not 
+	    if( not options.restart ): run_calc = 1
+	    
+	    if( run_calc  ):
+		if( options.verbose ): print " running ",g_id,options.restart
+    
+		if( file_io.file_exists(g_com) ): os.remove(g_com)
+		if( file_io.file_exists(g_chk) ): os.remove(g_chk)
+		if( file_io.file_exists(g_fchk) ): os.remove(g_fchk)
+		if( file_io.file_exists(g_log) ): os.remove(g_log)
+		
+	    
+		ELECTRONS_j = 0
+		for atom_j in range(len(ELN_j)):
+		    ELECTRONS_j += ELN_j[atom_j] 
+		
+		gaussian.print_com( g_id, ASYMB_j,R_j,ATYPE_j,CHARGES_j,ELECTRONS_j,options)
+		gaussian.run(options,g_id)
+		
+		#fchk_file = g_id +"/"+g_fchk
+		
+		
+		
+	    NA, ELN_k, R_k, TOTAL_ENERGY_k = gaussian.parse_fchk( g_fchk )
 
-	    if( file_io.file_exists(g_com) ): os.remove(g_com)
-	    if( file_io.file_exists(g_chk) ): os.remove(g_chk)
-	    if( file_io.file_exists(g_fchk) ): os.remove(g_fchk)
-	    if( file_io.file_exists(g_log) ): os.remove(g_log)
-            
-	
-	    ELECTRONS_j = 0
-	    for atom_j in range(len(ELN_j)):
-		ELECTRONS_j += ELN_j[atom_j] 
-	    
-	    gaussian.print_com( g_id, ASYMB_j,R_j,ATYPE_j,CHARGES_j,ELECTRONS_j,options)
-	    gaussian.run(options,g_id)
-	    
-	    fchk_file = g_id +"/"+g_fchk
-	    
-	    NA, ELN_k, R_k, TOTAL_ENERGY_k = gaussian.parse_fchk( fchk_file )
-	    
+			
 	#
 	#elif( options.ff_software == "lammps" ):
 	#    
@@ -218,6 +234,25 @@ def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,C
 	    if( GHOST_j[atom_j] == 0 ):
 		atom_i = REF_j[atom_j]
 		R[atom_i] = R_k[atom_j]
+			
+
+
+    
+	    
+    # update VS positions
+    if( options.rm_VS ):
+	for atom_i in range( len(ELN) ):
+	    if( int(ELN[atom_i]) <= 0 ):
+		N_o = NBINDEX[atom_i ]
+		N_f = NBINDEX[atom_i+ 1 ] - 1
+		for indx_j in range( N_o,N_f+1):
+		    atom_j = NBLIST[indx_j]
+		    #print "  j - ",ATYPE[atom_j] ,R_i[atom_j] ,R[atom_j]
+		    dr =   R[atom_j] - R_i[atom_j]
+			
+		    #print "    i- " ,atom_i,ATYPE[atom_i],R[atom_i] ,dr
+		    R[atom_i] = R[atom_i] + dr
+		    #print "      r_i new ",R[atom_i]
 			
     return R
     
@@ -268,12 +303,17 @@ def main():
     # Find groups
     if( options.group_ptma ):
         if( options.verbose ): print "  Find groups of TEMPO "
-        group_index_i,group_list_i,group_numb = groups.tempo(  ATYPE,ELN,NBLIST,NBINDEX, options )
+        group_index_i,group_list_i,group_numb,group_cnt = groups.tempo(  ATYPE,ELN,NBLIST,NBINDEX, options )
     
     if( options.opt_groups ):
         if( options.verbose ): print "  Print groups into structure files"
         R_opt = opt_groups(group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options)
-        
+
+    # Update virtual site postions if 
+    if( options.group_ptma and options.software == "gaussian" ):
+        if( options.verbose ): print "  Update virtual site postions "
+        group_index_i,group_list_i,group_numb,group_cnt = groups.tempo(  ATYPE,ELN,NBLIST,NBINDEX, options )
+            
     ##os.chdir(work_dir)
     #options.out_gro = "min_groups.gro"
     if( options.out_gro ):
