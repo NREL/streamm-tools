@@ -83,7 +83,7 @@ parser.set_usage(usage)
 
 parser.add_option("-s","--search",
                   dest="searchPattern",
-                  default='.mb',
+                  default='.pbs',
                   type="string",
                   help="Search pattern for submission scripts (eg .slurm, .mb) \n")
 
