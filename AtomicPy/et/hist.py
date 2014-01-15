@@ -259,6 +259,7 @@ def main():
     print "   Total: "
     print "     sum rho g_v ",SUM_rhog_v
     print "     sum r^2 rho g_v ",SUM_rsq_rhog_v
+    print "     sum r^4 rho g_v ",SUM_rqd_rhog_v
     ave_l_sq = SUM_rqd_rhog_v/SUM_rsq_rhog_v
     ave_l = math.sqrt(ave_l_sq )
     print "     <l^2> ",SUM_rsq_rhog_v/SUM_rhog_v,ave_l
@@ -273,6 +274,7 @@ def main():
     print "   Inter molecular pair : ", N_pairs_inter,N_Aq_inter,"  x10^-{19}/cm^3  ",100.0*N_pairs_inter/N_pairs
     print "     sum rho g_v ",SUM_rhog_v_inter
     print "     sum r^2 rho g_v ",SUM_rsq_rhog_v_inter
+    print "     sum r^4 rho g_v ",SUM_rqd_rhog_v_inter
     ave_l_sq = SUM_rqd_rhog_v_inter/SUM_rsq_rhog_v_inter
     ave_l = math.sqrt(ave_l_sq )
     print "     <l^2> ",ave_l_sq,ave_l
@@ -287,6 +289,7 @@ def main():
     print "   Intra molecular pair : ", N_pairs_intra,N_Aq_intra,"  x10^-{19}/cm^3 ",100.0*N_pairs_intra/N_pairs
     print "     sum rho g_v ",SUM_rhog_v_intra
     print "     sum r^2 rho g_v ",SUM_rsq_rhog_v_intra
+    print "     sum r^4 rho g_v ",SUM_rqd_rhog_v_intra
     ave_l_sq = SUM_rqd_rhog_v_intra/SUM_rsq_rhog_v_intra
     ave_l = math.sqrt(ave_l_sq )
     print "     <l^2> ",ave_l_sq,ave_l
