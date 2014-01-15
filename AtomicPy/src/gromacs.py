@@ -871,7 +871,7 @@ def print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BOND
                 F.write(  ff_line )
                 
     F.close()
-    debug = 0 
+    debug = 1 
     if(debug): sys.exit('print_itp')
 
     return  ( AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST )
