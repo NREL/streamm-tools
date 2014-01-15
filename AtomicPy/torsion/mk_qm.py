@@ -356,7 +356,7 @@ def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_
                 pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
 
 def main():
-    import string, os 
+    import string, os , sys 
     # atomicpy
     import gaussian, elements, xmol , file_io , cluster 
     from string import replace
@@ -438,8 +438,17 @@ def main():
                     with open(fchk_file) as f:
                         read_fchk = 1
                 except IOError:
+		    fchk_file = struct_dir + job_name + "-ZMAT/" + job_name +"-ZMAT"+ ".fchk"
                     if( options.verbose ):
-                        print "    file  ",fchk_file," does not exist "
+                        print "    file  ",fchk_file," does not exist trying ZMAT file ",
+			
+		    try:
+			with open(fchk_file) as f:
+			    read_fchk = 1
+		    except IOError:
+			print " no fchk file found "
+			sys.exit("no reference file ")
+			
                     
                 run_qm = 0
                 if( read_fchk ):
