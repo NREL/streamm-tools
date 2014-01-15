@@ -17,11 +17,12 @@ def get_options():
     parser = OptionParser(usage=usage)
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+    parser.add_option("-r","--restart", dest="restart", default= False ,action="store_true" , help="Check for finished calculations and use previous results")
 
     parser.add_option("--cluster_host", dest="cluster_host",type="string", default="",help=" name of cluster ")
-
     parser.add_option("--pbcs",  dest="pbcs", default= True , help=" Use periodic boundry conditions ")
     parser.add_option("--npros", dest="npros", type="int",default="1", help="Number of processors to run calculations")
+
 
     # Group 
     parser.add_option("--h_term", dest="h_term", default=True, help=" Hydrogen terminate dangeling bonds of group")
@@ -68,6 +69,157 @@ def get_options():
     (options, args) = parser.parse_args()
 
     return options, args
+
+def ff_opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options):
+    import os, sys
+    import  gaussian, top, gromacs ,lammps , file_io, prop, atom_types, gaussian
+    import numpy as np
+    import datetime
+
+    # Set debug 
+    debug = 0
+    p_time = 0
+    
+    # Read in parameter file
+    
+    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.ff_file)
+
+    # Intialize optimize as positions as the input positions 
+    R_opt = R
+ 
+    # Loop over all groups 
+    for g_indx in range( len(group_index_i) - 1):
+	
+        # Get group index range
+        N_o = group_index_i[g_indx]
+        N_f = group_index_i[g_indx + 1 ] - 1
+        NA_g = N_f - N_o + 1
+        if( options.verbose ): print "        Printing gaussian input for group ",g_indx," with atoms ",NA_g
+	
+        F_id = "g_" + str(g_indx) 
+
+        # Record id
+        group_id = F_id
+	
+	
+        # Place group into local array
+	N_i = []
+        ELECTRONS_i = 0 
+        for a_indx in range( N_o,N_f+1):
+            i = group_list_i[a_indx]
+	    if( options.rm_VS  ):
+		if( int(ELN[i]) > 0 ):
+		    ELECTRONS_i += ELN[i]
+		    N_i.append( i )
+		    
+		    print i,ELN[i]
+	    else:
+		ELECTRONS_i += ELN[i]
+		N_i.append( i )
+        
+	# Extract group topology information
+	ELN_j,ASYMB_j,R_j,ATYPE_j,GTYPE_j,CHARGES_j,RESID_j,RESN_j,CHARN_j,AMASS_j,BONDS_j,ANGLES_j,DIH_j,IMPS_j,REF_j,GHOST_j = top.pass_i(N_i,ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH,options)
+	
+	if( options.zero_q ):    
+	    for atom_i in range( len(CHARGES_j)):
+		CHARGES_j[atom_i] = 0.0 
+	    
+
+	#print_oniom(  id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,Q,M,FIX,ONMTAG,options)
+	if( options.software == "gromacs"):
+
+	    # Create input files
+	    g_id = "min_"+str(g_indx)
+	    g_top = g_id + '.top'
+	    g_gro = g_id + '.gro'
+	    g_mdp = g_id + '.mdp'
+	    g_log = g_id + '.log'
+	    rm_bck = "rm \"#\"*"
+	    s_suf = options.gromacs_sufix + '_d'
+
+	    if( file_io.file_exists(g_top) ): os.remove(g_top)
+	    if( file_io.file_exists(g_gro) ): os.remove(g_gro)
+	    if( file_io.file_exists(g_mdp) ): os.remove(g_mdp)
+	    if( file_io.file_exists(g_log) ): os.remove(g_log)
+	    os.system(rm_bck)
+
+	    gromacs.print_gro(g_gro,GTYPE_j,RESID_j,RESN_j,R_j,LV)
+
+	    # Identify total number of atom types for lammps output 
+	    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ATYPE_j,AMASS_j,BONDS_j,ANGLES_j,DIH_j)
+
+	    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+	    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+	    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options)	    
+	    IMPTYPE_F  = top.imp_parameters()
+
+	    const = []
+	    angle = []
+
+	    gromacs.print_top( g_top,ASYMB_j , ELN_j,ATYPE_j, GTYPE_j, CHARN_j , CHARGES_j, AMASS_j,RESN_j, RESID_j ,BONDS_j , ANGLES_j , DIH_j , IMPS_j
+		    ,const,angle
+		    ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+		    ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+
+	    gromacs.print_min_nopbcs(g_mdp)
+
+	    #sys.exit(" debug gro ")
+
+	    # Run minimization 
+	    ff_energy_f = gromacs.run_gromacs(g_gro,g_top,g_mdp,s_suf,options )
+
+	    # Get optimize positions 
+	    R_k = gromacs.get_coord(g_id,options)
+	
+	elif( options.software == "gaussian" ):
+	    
+	    # Create input files
+	    g_id = "min_"+str(g_indx)
+	    g_com = g_id + '.com'
+	    g_chk = g_id + '.chk'
+	    g_fchk = g_id + '.fchk'
+	    g_log = g_id + '.log'
+
+	    if( file_io.file_exists(g_com) ): os.remove(g_com)
+	    if( file_io.file_exists(g_chk) ): os.remove(g_chk)
+	    if( file_io.file_exists(g_fchk) ): os.remove(g_fchk)
+	    if( file_io.file_exists(g_log) ): os.remove(g_log)
+            
+	
+	    ELECTRONS_j = 0
+	    for atom_j in range(len(ELN_j)):
+		ELECTRONS_j += ELN_j[atom_j] 
+	    
+	    gaussian.print_com( g_id, ASYMB_j,R_j,ATYPE_j,CHARGES_j,ELECTRONS_j,options)
+	    gaussian.run(options,g_id)
+	    
+	    fchk_file = g_id +"/"+g_fchk
+	    
+	    NA, ELN_k, R_k, TOTAL_ENERGY_k = gaussian.parse_fchk( fchk_file )
+	    
+	#
+	#elif( options.ff_software == "lammps" ):
+	#    
+	#    rest_file = 'rest.in'
+	#    data_file = "out.data"
+	#    lammps.print_rest(rest_file,data_file,DIH_CONST_ANGLE,DIH_ATOMS[cent_indx],options)
+	#    
+	#    # Print lammps structure file 
+	#    data_file = "out.data"
+	#    lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+	#       BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+	#       ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+	#       DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+	#       RESN,ATYPE_IND,CHARGES,R , ATYPE,
+	#       BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+	#    
+	# Update positions of non ghost atoms 
+	for atom_j in range(len(ELN_j)):
+	    if( GHOST_j[atom_j] == 0 ):
+		atom_i = REF_j[atom_j]
+		R[atom_i] = R_k[atom_j]
+			
+    return R
     
 def main():
     import os, sys
@@ -120,7 +272,7 @@ def main():
     
     if( options.opt_groups ):
         if( options.verbose ): print "  Print groups into structure files"
-        R_opt = groups.ff_opt_groups(group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options)
+        R_opt = opt_groups(group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHARN,AMASS,RESID,RESN,BONDS,ANGLES,DIH ,LV,NBLIST,NBINDEX,options)
         
     ##os.chdir(work_dir)
     #options.out_gro = "min_groups.gro"
