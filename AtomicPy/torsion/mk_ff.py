@@ -1,0 +1,670 @@
+
+def submit_job( struct_dir, pbs_id ,options):
+    import sys, os
+
+    print " submitting job " , pbs_id
+    #submit = "sbatch " + pbs_id
+    submit = options.submit_command +" "+ pbs_id
+
+    #print " sumitting ",submit
+    #sys.exit(' submit_job ')
+    
+    os.system(submit)
+ 
+    return 
+    #sys.exit('test job')
+
+def build_nablist(ELN,BONDS):
+    import sys,numpy
+
+    debug = 0
+    NNAB = 0
+
+    maxnnab = len(BONDS)*2 + 1
+    NBLIST = numpy.empty( maxnnab,  dtype=int )
+    NBINDEX = numpy.empty( maxnnab,  dtype=int )
+
+    if(debug ):
+	for b in range( len(BONDS) ) :
+	    bnd_i = BONDS[b][0]
+	    bnd_j = BONDS[b][1]
+	    print b, bnd_i,bnd_j
+	    
+    for i in range(len(ELN)):
+	NBINDEX[i] = NNAB + 1
+	for b in range( len(BONDS) ) :
+	    bnd_i = BONDS[b][0]
+	    bnd_j = BONDS[b][1]
+	    if ( i == bnd_i ):
+		NNAB = NNAB + 1
+		NBLIST[NNAB] =  bnd_j
+		if(debug): print " adding bnd_i",i,b,bnd_i,bnd_j,len(NBLIST),NBINDEX[i]
+	
+	    if ( i == bnd_j ):
+		NNAB = NNAB + 1
+		NBLIST[NNAB] =  bnd_i
+		if(debug): print " adding bnd_j",i,b,bnd_i,bnd_j,len(NBLIST),NBINDEX[i]
+		    
+    #if(debug): sys.exit('debug')
+    
+    # Account for final atom position
+    NBINDEX[i+1] =  NNAB + 1
+
+    debug = 0
+    if ( debug ):
+       print ' total nbs ',NNAB,' total bonds ',len(BONDS)
+       for i in range(len(ELN)):
+	    N_o = NBINDEX[ i  ]
+	    N_f = NBINDEX[ i + 1 ] - 1
+	    NNAB = N_f - N_o + 1
+	    print ' atom ', i,' ',ELN[i],NNAB,N_o
+    
+	    #
+	    # Find number of elements
+	    #
+	    #ELCNT = numpy.zeros(120)
+	    for indx in range( N_o,N_f+1):
+		j = NBLIST[indx]
+		print ELN[j],j
+		#    el_j = ELN[j]
+		#    ELCNT[j] = ELCNT[j] + 1
+
+       sys.exit('debug')
+
+
+    return (NBLIST,NBINDEX)
+
+
+def read_dihlist(dlist_name):
+    
+    
+    DIH_ID = []
+    DIH_VAL = []
+    DIH_ATOMS = []
+    DIH_TAG = []
+    
+    # get lines 
+    f = open(dlist_name,'r')
+    Lines = f.readlines()
+    f.close()
+    
+    
+    for line in Lines: 
+        col = line.split()
+        if( col[0] == "dih" and len(col) >= 11 ):
+            dih_indx = col[1]
+            DIH_TAG.append( col[2] )
+            DIH_ID.append( col[3] )
+            DIH_VAL.append(  col[4] )
+            a_l = int( col[5] ) - 1
+            a_i = int( col[6] ) - 1
+            a_j = int( col[7] ) - 1
+            a_k = int( col[8] ) - 1
+            DIH_ATOMS.append( [ a_l,a_i,a_j,a_k ] )
+        
+  
+    return (  DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS )
+    
+def write_esp_com(calc_id,ASYMB,R):
+    
+    esp_com = calc_id +  ".com"
+    
+    f = file(esp_com, "w")
+    f.write(  '%chk='+str(calc_id)+'.chk' + '\n' )
+    #lines_opt =  '#P B3LYP/6-31+g**  OPT nosym '
+    lines_opt =  '#P HF/3-21g  SP  POP=MK'
+    lines_opt = lines_opt + '\n' + ' '
+    lines_opt = lines_opt + '\n' + str(calc_id) + " esp fit "
+    lines_opt = lines_opt + '\n' + ' ' 
+    lines_opt = lines_opt + '\n' + '0 1 ' + '\n' 
+    f.write(lines_opt)
+
+    for atom_i in range( len(ASYMB) ):
+        f.write( " %5s %12.6f %12.6f %12.6f \n" % ( ASYMB[atom_i],R[atom_i][0], R[atom_i][1], R[atom_i][2] ))
+        
+    f.write( ' ' + '\n')
+    f.close()
+    
+def check_dihedrals( dih_a, dih_b ):
+    
+    ij_same = 0
+    kl_same = 0
+    dih_same = 0 
+    if( dih_a[1] == dih_b[1]   and  dih_a[2] == dih_b[2] ):
+	ij_same = 1 
+    if( dih_a[1] == dih_b[2]   and  dih_a[2] == dih_b[1] ):
+	ij_same = 1 
+    if( ij_same ):
+	    
+	if( dih_a[0] == dih_b[0]   and  dih_a[3] == dih_b[3] ):
+	    kl_same = 1 
+	if( dih_a[0] == dih_b[3]   and  dih_a[3] == dih_b[0] ):
+	    kl_same = 1
+	if( kl_same ):
+	    dih_same = 1
+	    
+    return dih_same
+	
+    
+def main():
+    import sys, os 
+    import tor_options, string  
+    import file_io, gaussian, elements, gromacs, lammps , ff, ffconvert, atom_types, xmol 
+    from string import replace
+    
+    options, args = tor_options.get_options()
+
+    #
+    if( options.cluster_host == "peregrine" ):
+	load_gaussian = "module load gaussian/.g09_C.01 "
+        user = 'tkemper'
+	md_min_template = "peregrine.md_min.template"
+	lammps_min_template = "peregrine.lmp_min.template"
+	
+        f = open("peregrine.pbs.template",'r') # redmesa.slurm.template	
+	pbs_templ = f.read()
+	f.close()
+    
+    elif( options.cluster_host == "redmesa" ):
+	load_gaussian = "module load gaussian/g09/C.01"
+        user = 'twkempe'
+	md_min_template = "redmesa.md_min.template"
+	lammps_min_template = "redmesa.lmp_min.template"
+	f = open("redmesa.slurm.template",'r')
+	pbs_templ = f.read()
+	f.close()
+
+    if( options.ff_software == "gromacs"):	
+	f = open(md_min_template,'r')
+	md_min_templ = f.read()
+	f.close()
+    elif( options.ff_software == "lammps" ):	
+	f = open(lammps_min_template,'r')
+	md_min_templ = f.read()
+	f.close()
+	
+    # sufix for force field calcs to run multiple ff types or excultions, such as q(i) = 0.00 
+    ff_type_id = "_fit"
+    
+    # Read in ff file
+    ff_file = "ff.itp"
+    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(ff_file)
+    LAT_CONST = []
+    LAT_CONST.append( [ 50.0 , 0.0 , 0.0 ] )
+    LAT_CONST.append( [ 0.0 , 50.0 , 0.0 ] )
+    LAT_CONST.append( [ 0.0 , 0.0 , 50.0 ] )
+
+    # Store working dir  
+    work_dir = os.getcwd()
+    
+    # Read index files from args
+    for indx_file in args:
+        # Get lines of index file   
+        f = open(indx_file,'r')
+        Lines = f.readlines()
+        f.close()
+        for gen_line in Lines:
+            col = gen_line.split()
+            if( len(col) >= 4 and col[0] == "gen" ):
+                mol_id = col[1].strip()
+                main_dir = col[2].strip()
+                mol_dir = col[3].strip()
+                mol_repeat = int(col[4])
+                
+                # File info
+                struct_dir = main_dir + "/" + mol_dir + "/"
+                job_name = mol_id + "_n" + str(mol_repeat)
+                
+		print "   Running job ",struct_dir,job_name
+
+		# Get geometry from ZMAT
+                calc_id = job_name + "-ZMAT"
+		log_file = struct_dir +'/' + calc_id +"/"+calc_id+".log"
+		fchk_file = struct_dir +'/' + calc_id +"/"+calc_id+".fchk"
+		    
+		zmat_finished = 0 
+		esp_finished = 0 
+		if( file_io.file_exists( fchk_file) ):
+                    if( options.verbose ):
+			print  '    Get results from ', fchk_file
+			    
+		    # Read in from zmatrix optimization 
+		    NA, ELN, R, TOTAL_ENERGY   = gaussian.parse_fchk2( fchk_file )
+		    ASYMB = elements.eln_asymb(ELN)
+		    
+		    # Get bonds from log file 
+		    log_lines = gaussian.read_log(log_file)
+		    BONDS = gaussian.bonds(log_lines)
+		    NBLIST,NBINDEX = build_nablist(ELN,BONDS)
+		    zmat_finished = 1
+    
+		    # pars zmatirix file
+		    comz_name = struct_dir+'/'+ job_name +  "-ZMAT.com"
+		    f = open(comz_name,'r')
+		    zmatrix_lines = f.readlines()
+		    f.close()
+		    
+		    # need to change to reading out of connections 
+		    #DIH_ID,DIH_ATOMS = get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
+		    # Find rings 
+		    RINGLIST, RINGINDEX , RING_NUMB = ff.find_rings(ELN,NBLIST,NBINDEX)
+		    RING_CONNECT  = ff.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+
+		    #DIH_ID,DIH_ATOMS,zmatrix = gaussian.get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
+		    
+		    zmatrix = gaussian.com_zmatrix(comz_name)    
+		    DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id2( zmatrix)
+    
+				
+		else:
+		    print "  could not find ",fchk_file
+
+		    
+		if( zmat_finished ):
+		    # Run esp fit
+		    calc_id_esp = job_name + "-ESP"
+		    input_file = calc_id_esp + ".com"
+		    log_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".log"
+		    fchk_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".fchk"
+		    
+		    # Run esp fit if not finished
+		    if( not file_io.file_exists( fchk_file_esp) ):
+                        # Make esp input file
+			if( options.verbose ):
+			    print  '    Writing esp fit input file ',calc_id_esp," in ",struct_dir
+			
+					    
+			os.chdir(struct_dir)
+			write_esp_com(calc_id_esp,ASYMB,R)
+    
+                        if( options.submit ):
+                            if( options.verbose ):
+                                print "     Submitting ESP optimization to queue "
+                            # Print pbs script
+                            pbs_id = calc_id_esp+'.pbs'
+                            pbs_name = pbs_id
+                            pbs_dih = pbs_templ
+                            pbs_dih = replace(pbs_dih,"<calc_id>",calc_id_esp)
+                            pbs_dih = replace(pbs_dih,"<input_file>",input_file)
+                            pbs_dih = replace(pbs_dih,"<nnodes>",str( options.nnodes) )
+                            pbs_dih = replace(pbs_dih,"<pmem>",str( options.pmem) )
+                            pbs_dih = replace(pbs_dih,"<npros>",str( options.npros) )
+                            f = file(pbs_name, "w")
+                            f.write(pbs_dih)
+                            f.close()
+                            # Submit job
+                            submit_job( struct_dir, pbs_id ,options )
+                            
+                        elif( options.localrun ):
+                            if( options.verbose ):
+				print  '    Running ESP fit '
+                            gaussian.run1(options, calc_id_esp)
+			    
+                        else:
+                            print " Please mark either qsub or runloc options as True to run qm"	
+			
+			os.chdir(work_dir)
+			    
+		    # Check if finished
+		    #   basicaly if local run is done or should just skip over if submitted to queue
+		    if(  file_io.file_exists( fchk_file_esp) ):
+			if( options.verbose ):
+			    print "    Getting charges from esp fit ",log_file_esp
+			log_lines_esp = gaussian.read_log(log_file_esp)
+			NA = gaussian.na(log_lines_esp)
+			CHARGES = gaussian.charges(NA,log_lines_esp)
+			esp_finished = 1
+			    
+
+		dlist_exists = 0 
+		if( zmat_finished and  esp_finished ):
+		    
+
+		    os.chdir(struct_dir)
+
+                    dlist_name = job_name + "_dih.list"
+
+                    dlist_exists = file_io.file_exists( dlist_name )
+                    if ( dlist_exists ):                    
+                        if( options.verbose ):
+                            print "       Writing input files for all loop dihedrals "
+                            print "         Nodes ",options.nnodes
+                            print "         Processors  ",options.npros
+                        DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
+    			    
+		    else:
+			print os.getcwd()
+			print " NEED ",dlist_name," which should have been generated by mk_qm.py "
+			sys.exit("no dih list file ")
+			
+		    os.chdir(work_dir)
+		    
+		os.chdir(work_dir)
+			
+		if ( dlist_exists ):    
+		    ANGLES = ff.nblist_angles(NA,NBLIST, NBINDEX)
+		    DIH = ff.nblist_dih(NA,NBLIST, NBINDEX)
+		    IMPS = ff.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+		    
+		    GTYPE = ffconvert.initialize_gtype( ELN )
+		    RESID = ffconvert.initialize_resid( ELN )
+		    RESN = ffconvert.initialize_resn( ELN )
+		    CHARN = ffconvert.initialize_charn( ELN )
+		    
+		    ASYMB = elements.eln_asymb(ELN)
+		    AMASS = elements.eln_amass(ELN)
+		
+		    RINGLIST, RINGINDEX , RING_NUMB = ff.find_rings(ELN,NBLIST,NBINDEX)
+		    RING_CONNECT  = ff.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+    
+
+		    # Asign oplsaa atom types 
+		    ATYPE , CHARGES = atom_types.oplsaa( options, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		    ATYPE , CHARGES = atom_types.biaryl_types(options, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		    #Refind inter ring types
+		    ATYPE , CHARGES  = atom_types.interring_types(options, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		   
+		    
+		
+		    if( options.zero_charges ):
+			for indx in range( len(CHARGES)):
+			    CHARGES[indx] = 0.0 
+			
+		    # Set charge groups
+		    CHARN = ff.set_chargegroups(CHARN,ATYPE,ASYMB,ELN,NBLIST,NBINDEX, RING_NUMB)
+
+		    # Identify total number of atom types for lammps output 
+		    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+		    # Check atom types to be sure each atom of the same type has the same number of neighbors 
+		    ATYPE_NNAB = ffconvert.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+		
+		    # Modify dih potentials
+		    ## FF_DIHTYPES = mod_dih( ATYPE_IND
+		
+		    # Print new itp file with only used atom types and interactions
+		    if( options.ff_software == "gromacs"):
+			AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+		
+		    # Print output
+		    os.chdir(struct_dir)
+		    
+		    out_xyz =  job_name + "-ff.xyz"
+		    xmol.write_xyz(ASYMB,R,out_xyz)
+		    ff.print_cgxyz(CHARN,R)
+		    job_gro = job_name +  ".gro"
+		    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R)
+		    
+		    ATYPE_EP, ATYPE_SIG = ff.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+		    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = ff.bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+		    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = ff.angle_parameters(ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+		    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = ff.dih_parameters(DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB,options  )
+		    IMPTYPE_F  = ff.imp_parameters()
+		    
+		    if( options.ff_software == "gromacs"):
+			top_file =  job_name +  ".top"
+			const = []
+			angle = []
+			gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+				       ,const,angle
+				       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+				       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+			
+		    elif( options.ff_software == "lammps" ):
+			data_file = "out.data" 
+			lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+			      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+			      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+			      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+			      RESN,ATYPE_IND,CHARGES,R , ATYPE,
+			      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+			#sys.exit("lammps test")
+		
+		
+                    dlist_name = job_name + "_dih.list"
+
+                    dlist_exists = file_io.file_exists( dlist_name )
+                    if ( dlist_exists ):                    
+                        if( options.verbose ):
+                            print "       Writing input files for all loop dihedrals "
+                            print "         Nodes ",options.nnodes
+                            print "         Processors  ",options.npros
+                        DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
+    
+			# Add fixed dihedrals to fix list
+			DIH_CONST_ANGLE = [] #float( cent_angle )
+			DIH_CONST_ATOMS =[] # DIH_ATOMS			
+
+			for indx_c in range(len(DIH_ID)):
+			    if( DIH_TAG[indx_c].strip() == "fix" ):
+			
+				dih_i = DIH_ATOMS[indx_c][0] + 1
+				dih_j = DIH_ATOMS[indx_c][1] + 1
+				dih_k = DIH_ATOMS[indx_c][2] + 1
+				dih_l = DIH_ATOMS[indx_c][3] + 1
+				
+				DIH_CONST_ATOMS.append( [dih_i,dih_j,dih_k,dih_l] )
+				DIH_CONST_ANGLE.append( DIH_VAL[indx_c] )
+				
+			# Add loop as last fixed dihedral 
+			for indx_c in range(len(DIH_ID)):
+			    if( DIH_TAG[indx_c].strip() == "loop" ):
+			
+				dih_i = DIH_ATOMS[indx_c][0] + 1
+				dih_j = DIH_ATOMS[indx_c][1] + 1
+				dih_k = DIH_ATOMS[indx_c][2] + 1
+				dih_l = DIH_ATOMS[indx_c][3] + 1
+				
+				DIH_CONST_ATOMS.append( [dih_i,dih_j,dih_k,dih_l] )
+				DIH_CONST_ANGLE.append( DIH_VAL[indx_c] )
+				
+				
+			# find compents of dihedral not in connection
+			debug = 0
+			DIH_fit = []
+			DIHTYPE_F_fit = []
+			DTYPE_IND_fit  = []
+			
+			# Fitted
+			dih_comp_name = job_name + "_fit.list"
+			f = open(dih_comp_name,'w')
+			DIH_fitset = []
+			
+			for indx_dih in range( len(DIH) ):
+			    dih_i = DIH[indx_dih][0] + 1
+			    dih_j = DIH[indx_dih][1] + 1
+			    dih_k = DIH[indx_dih][2] + 1
+			    dih_l = DIH[indx_dih][3] + 1
+			    #dih_real = [dih_i,dih_j,dih_k,dih_l]
+			    add_dih = 1
+			    if( debug ): print " checking ",indx_dih,DIH[indx_dih]
+			    for indx_c in range(len(DIH_ID)):
+				if( DIH_TAG[indx_c].strip() == "loop" ):
+				    if( debug ): print "   against loop atoms ",indx_c,DIH_ATOMS[indx_c]
+				    #same_dih = check_dihedrals(DIH[indx_dih],DIH_ATOMS[indx_c] )
+				    #if( same_dih ):
+				    #	add_dih = 0
+				    
+				    fix_j = DIH_ATOMS[indx_c][1] + 1 
+				    fix_k = DIH_ATOMS[indx_c][2] + 1 
+				    
+				    print " checking DIH ",dih_j,dih_k
+				    print " against looperf ",fix_j,fix_k
+				    
+				    fix_comp = 0
+				    if( dih_j == fix_j and dih_k == fix_k ):
+					fix_comp = 1
+				    if( dih_j == fix_k and dih_k == fix_j ):
+					fix_comp = 1
+					
+				    if( fix_comp ):
+					DIH_fitset.append( [ dih_i-1,dih_j-1,dih_k-1,dih_l-1 ])
+					f.write( " dihedral %8d  %8d  %8d  %8d %s %s %s %s  \n" % ( dih_i,dih_j,dih_k,dih_l,ATYPE[dih_i-1],ATYPE[dih_j-1],ATYPE[dih_k-1],ATYPE[dih_l-1]))
+					add_dih = 0
+
+					print "      dih ",dih_i,dih_j,dih_k,dih_l," part of fitting ",ATYPE[dih_i-1],ATYPE[dih_j-1],ATYPE[dih_k-1],ATYPE[dih_l-1]
+
+
+			    if( add_dih ):
+				if( debug ): print "   adding non loop atoms to DIH_FIT ",DIH[indx_dih]
+				DIH_fit.append( DIH[indx_dih] )
+				DTYPE_IND_fit.append( DTYPE_IND[indx_dih] )
+				
+
+			f.close()
+
+		    os.chdir(work_dir)
+
+		    # Loop of dihedrals calculated at the qm level
+		    for qm_dih_line in Lines:
+			qm_dih_col = qm_dih_line.split()
+			if( len(qm_dih_col) >= 4 and qm_dih_col[0] == "qm_dih" and qm_dih_col[2] == job_name.strip() ):
+			    
+			    dih_id = qm_dih_col[3].strip() 
+			    a_k  = int(  qm_dih_col[4].strip() )
+			    a_i  = int(  qm_dih_col[5].strip() )
+			    a_j  = int(  qm_dih_col[6].strip() )
+			    a_l  = int(  qm_dih_col[7].strip() )
+			    cent_min  = int(  qm_dih_col[8].strip() )
+			    cent_max = int(  qm_dih_col[9].strip() )
+			    cent_step = int(  qm_dih_col[10].strip() )
+			    
+			    if( options.verbose ):
+				print "    Writing input files for ",options.ff_software ," torsion: ",cent_min,cent_max,cent_step
+
+			    # Print calculation information     
+			    file_info = open( indx_file,'a')
+			    file_info.write( "\n ff_dih  %s %s  %s %s %s %8d %8d %8d %8d %d %d %d " %( struct_dir,job_name,options.ff_software, ff_type_id,dih_id, a_k,a_i, a_j ,a_l,cent_min,cent_max,cent_step))
+			    file_info.close()				
+
+			    # Loop over angels of central dihedrals
+			    cent_indx = 0
+			    for cent_angle in range(cent_min,cent_max,cent_step):
+			        ff_id =   job_name  + '-' + dih_id + '_' + str(cent_angle) + '_ff' + options.ff_software + ff_type_id
+			        qm_id =   job_name  + '-' + dih_id + '_' + str(cent_angle) + '_auxfix'
+	    
+				# Check to see if finished
+				    
+				fchk_file = struct_dir +  qm_id +"/"+qm_id+".fchk"
+				
+				if( options.verbose ):
+				    print "      Checking ",fchk_file
+				    
+				if( file_io.file_exists( fchk_file) ):
+				    if( options.verbose ):
+					print  '        Get results from ', fchk_file
+					
+				    # Get energy 
+				    NA, ELN, R, TOTAL_ENERGY   = gaussian.parse_fchk2( fchk_file )
+							
+				    ff_dir =  struct_dir + ff_id 
+				    if (not os.path.isdir(ff_dir)):
+					os.mkdir(ff_dir)
+				    
+				    print 'making ff data'
+				    
+				    os.chdir(ff_dir)
+
+				    if( options.ff_software == "gromacs"):
+
+					gro_file =  "out.gro"
+					gromacs.print_gro(gro_file,GTYPE,RESID,RESN,R)
+
+					# make ff input
+					top_file = 'out.top'
+					
+					const = []
+					angle = []
+					
+					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+					       ,const,angle
+					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					
+					top_file = 'out_dih.top'
+					
+					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+					       ,const,angle
+					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					
+					DIH_CONST_ANGLE = float( cent_angle )
+			
+					top_file = 'out_const.top'
+					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+					       ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
+					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					
+					top_file = 'out_fit.top'
+					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH_fit , IMPS
+					       ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
+					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					       ,DTYPE_IND_fit, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					
+					top_file = 'out_zero.top'
+					const = []
+					angle = []
+					
+					BONDS_z = []
+					ANGLES_z  = []
+					DIH_z  = []
+					IMPS_z = []
+					
+					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS_z , ANGLES_z , DIH_z , IMPS_z
+					       ,const,angle
+					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					
+					
+					AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+		    
+		    
+				    elif( options.ff_software == "lammps" ):
+					
+					last_index = len(DIH_CONST_ANGLE) - 1
+					
+					DIH_CONST_ANGLE[last_index] = float(cent_angle)
+
+					# Print lammps input file with dihedral restraint 
+					rest_file = 'full_sp.in'
+					data_file = "out.data"
+					lammps.print_sp(rest_file,data_file,options)
+					
+					rest_file = 'd0_sp.in'
+					data_file = "fit.data"
+					lammps.print_sp(rest_file,data_file,options)
+					
+					rest_file = 'rest.in'
+					data_file = "out.data"
+					lammps.print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options)
+					
+					rest_file = 'fit.in'
+					data_file = "fit.data"
+					lammps.print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options)
+					
+					# Print lammps structure file 
+					data_file = "out.data"
+					lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+					   BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+					   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+					   DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+					   RESN,ATYPE_IND,CHARGES,R , ATYPE,
+					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+					
+					# Print lammps structure file without considered dihedrals 
+					data_file = "fit.data"
+					lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+					   BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+					   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+					   DIH_fit,DTYPE_IND_fit,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+					   RESN,ATYPE_IND,CHARGES,R , ATYPE,
+					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+					
+				    os.chdir(work_dir)
+				
+		os.chdir(work_dir)
+
+if __name__=="__main__":
+    main() 
+
