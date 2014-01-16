@@ -800,7 +800,6 @@ def check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX):
 
     return ATYPE_NNAB
              
-	     
 
 def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
     import sys
@@ -811,7 +810,7 @@ def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
     ATYPE_EP = []
     ATYPE_SIG = []
 
-    debug = 0
+    debug = 1
 
     # Find atom type parameters
     for ind in range( len(ATYPE_REF) ):
@@ -828,7 +827,7 @@ def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
                 if( debug):  print  float( FF_i[5]) ,float( FF_i[6])         
                 break
         if check :
-            print ' atom type ',ind,AT_i,'  not in ff'
+            print ' atom type ',AT_i,'  not in ff ;  index ',ind
             print ' grep "',AT_i,'" ','ff.itp'
             sys.exit(' unknow ff specification ')
 
