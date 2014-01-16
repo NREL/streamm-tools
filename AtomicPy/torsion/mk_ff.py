@@ -1,3 +1,92 @@
+#! /usr/bin/env python
+# Make input files for torsional potential energy surface 
+
+# Dr. Travis Kemper
+# NREL
+# 12/09/2013
+# travis.kemper@nrel.gov
+
+def get_options():
+    import os, os.path
+    from optparse import OptionParser
+    usage = "usage: %prog [options] [input_files] \n"
+    usage = usage + "Input files \n"
+    usage = usage + "  specify the destination name of an option followed by the value"
+    parser = OptionParser(usage=usage)
+    
+
+    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    
+    # Cluster options
+    parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
+
+
+    parser.set_defaults(submit=False)
+    parser.add_option("--submit", dest="submit",action="store_true",help=" submit calculations to the queue ")
+    parser.set_defaults(localrun=False)
+    parser.add_option("--localrun", dest="localrun",action="store_true",help=" Run calculations locally, ment to use if scripts included in submitted job")
+ 
+    parser.set_defaults(submit_command="qsub")
+    parser.add_option("--submit_command", dest="submit_command",type="string",help=" command used to submit script to the queue ")
+
+    # Torsion
+    parser.add_option("--cent_min", dest="cent_min", type="int", default="0",help=" Initial torsional angle ")
+    parser.add_option("--cent_max", dest="cent_max", type="int", default="180",help=" Final torsional angle ")
+    parser.add_option("--cent_step", dest="cent_step", type="int", default="5",help=" Step size torsional angle ")
+    
+
+    # QM calculation options 
+    parser.set_defaults(qm_software="gaussian")
+    parser.add_option("--qm_software", dest="qm_software",type="string",help=" what software to use for the qm calculations   ")
+    
+    # Force field generation options     
+    parser.set_defaults(ff_software="gromacs")
+    parser.add_option("--ff_software", dest="ff_software",type="string",help=" what software to use for the ff calculations   ")
+
+    parser.add_option("--itp", dest="itp_file",  type="string", default="oplsaa_biaryl.itp",help="gromacs force field parameter file")
+    parser.set_defaults(set_pmma=False)
+
+    parser.set_defaults(ff_charges=False)
+    parser.add_option("--ff_charges", dest="ff_charges",action="store_true",help=" Use ff charges ")
+    
+    parser.set_defaults(zero_charges=False)
+    parser.add_option("--zero_charges", dest="zero_charges",action="store_true",help=" Zero charges ")
+    
+    parser.set_defaults(norm_dihparam=False)
+    parser.add_option("--norm_dihparam", dest="norm_dihparam",action="store_true",help=" divide dihedral parameters in ff itp file by 4 ")
+
+    # Gromacs related options 
+    parser.add_option("--gromacs_dir", dest="gromacs_dir",type="string",default="",help=" Directory of gromacs run files   ")
+    parser.add_option("--gromacs_sufix", dest="gromacs_sufix",type="string",default="",help=" sufix for gromacs such as _d or _mpi  ")
+    
+    # Lammps options 
+    parser.set_defaults(lammp_dir="$HOME/Software/lammps/src/")
+    parser.add_option("--lammp_dir", dest="lammp_dir",type="string",help=" Directory of lammps run files  ")
+
+    parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
+    parser.add_option("--npros", dest="npros", type="int", default="4",help=" Number of processors ")
+    parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
+
+    parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
+    parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
+
+    # Output options 
+    parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
+
+    (options, args) = parser.parse_args()
+
+    # Set options based on cluster 
+    if( options.cluster_host == "peregrine" ):
+        options.npros = options.nnodes* 24
+        if( options.qm_software == "gaussian" ):
+            options.qm_load = "module load gaussian/.g09_C.01"
+    elif( options.cluster_host == "redmesa" ):
+        options.npros = options.nnodes *8
+        if( options.qm_software == "gaussian" ):
+            options.qm_load = "module load gaussian/g09/C.01"
+	    
+	    
+    return options, args
 
 def submit_job( struct_dir, pbs_id ,options):
     import sys, os
@@ -69,7 +158,7 @@ def build_nablist(ELN,BONDS):
 		#    el_j = ELN[j]
 		#    ELCNT[j] = ELCNT[j] + 1
 
-       sys.exit('debug')
+       sys.exit('mk_ff.build_nablist')
 
 
     return (NBLIST,NBINDEX)
@@ -148,12 +237,12 @@ def check_dihedrals( dih_a, dih_b ):
     
 def main():
     import sys, os 
-    import tor_options, string  
-    import file_io, gaussian, elements, gromacs, lammps , ff, ffconvert, atom_types, xmol 
+    import string  , numpy 
     from string import replace
+    import file_io, gaussian, elements, gromacs, lammps , top, atom_types, xmol 
     
-    options, args = tor_options.get_options()
-
+    options, args = get_options()
+    
     #
     if( options.cluster_host == "peregrine" ):
 	load_gaussian = "module load gaussian/.g09_C.01 "
@@ -187,12 +276,13 @@ def main():
     ff_type_id = "_fit"
     
     # Read in ff file
-    ff_file = "ff.itp"
-    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(ff_file)
-    LAT_CONST = []
-    LAT_CONST.append( [ 50.0 , 0.0 , 0.0 ] )
-    LAT_CONST.append( [ 0.0 , 50.0 , 0.0 ] )
-    LAT_CONST.append( [ 0.0 , 0.0 , 50.0 ] )
+    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
+    
+    LAT_CONST = numpy.zeros( (3,3) )
+    
+    LAT_CONST[0][0] = 50.0
+    LAT_CONST[1][1] = 50.0
+    LAT_CONST[2][2] = 50.0
 
     # Store working dir  
     work_dir = os.getcwd()
@@ -229,31 +319,31 @@ def main():
 			print  '    Get results from ', fchk_file
 			    
 		    # Read in from zmatrix optimization 
-		    NA, ELN, R, TOTAL_ENERGY   = gaussian.parse_fchk2( fchk_file )
+		    NA, ELN, R, TOTAL_ENERGY, Q_ESP   = gaussian.parse_fchk( fchk_file )
 		    ASYMB = elements.eln_asymb(ELN)
 		    
 		    # Get bonds from log file 
-		    log_lines = gaussian.read_log(log_file)
-		    BONDS = gaussian.bonds(log_lines)
+		    BONDS, ANGLES, DIH  = gaussian.read_optlog(log_file)
 		    NBLIST,NBINDEX = build_nablist(ELN,BONDS)
 		    zmat_finished = 1
     
 		    # pars zmatirix file
-		    comz_name = struct_dir+'/'+ job_name +  "-ZMAT.com"
+		    comz_name = struct_dir+'/'+ job_name+'-ZMAT/'+ job_name +  "-ZMAT.com"
 		    f = open(comz_name,'r')
 		    zmatrix_lines = f.readlines()
 		    f.close()
 		    
 		    # need to change to reading out of connections 
 		    #DIH_ID,DIH_ATOMS = get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
-		    # Find rings 
-		    RINGLIST, RINGINDEX , RING_NUMB = ff.find_rings(ELN,NBLIST,NBINDEX)
-		    RING_CONNECT  = ff.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+		    # Find rings		    
+		    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+		    
+		    RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
 
 		    #DIH_ID,DIH_ATOMS,zmatrix = gaussian.get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
 		    
 		    zmatrix = gaussian.com_zmatrix(comz_name)    
-		    DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id2( zmatrix)
+		    DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
     
 				
 		else:
@@ -309,10 +399,9 @@ def main():
 		    #   basicaly if local run is done or should just skip over if submitted to queue
 		    if(  file_io.file_exists( fchk_file_esp) ):
 			if( options.verbose ):
-			    print "    Getting charges from esp fit ",log_file_esp
-			log_lines_esp = gaussian.read_log(log_file_esp)
-			NA = gaussian.na(log_lines_esp)
-			CHARGES = gaussian.charges(NA,log_lines_esp)
+			    print "    Getting charges from esp fit ",fchk_file_esp
+			NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
+			    
 			esp_finished = 1
 			    
 
@@ -342,42 +431,64 @@ def main():
 		os.chdir(work_dir)
 			
 		if ( dlist_exists ):    
-		    ANGLES = ff.nblist_angles(NA,NBLIST, NBINDEX)
-		    DIH = ff.nblist_dih(NA,NBLIST, NBINDEX)
-		    IMPS = ff.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+		    ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+		    DIH = top.nblist_dih(NA,NBLIST, NBINDEX)
+		    IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
 		    
-		    GTYPE = ffconvert.initialize_gtype( ELN )
-		    RESID = ffconvert.initialize_resid( ELN )
-		    RESN = ffconvert.initialize_resn( ELN )
-		    CHARN = ffconvert.initialize_charn( ELN )
+		    GTYPE = top.initialize_gtype( ELN )
+		    RESID = top.initialize_resid( ELN )
+		    RESN = top.initialize_resn( ELN )
+		    CHARN = top.initialize_charn( ELN )
 		    
 		    ASYMB = elements.eln_asymb(ELN)
 		    AMASS = elements.eln_amass(ELN)
 		
-		    RINGLIST, RINGINDEX , RING_NUMB = ff.find_rings(ELN,NBLIST,NBINDEX)
-		    RING_CONNECT  = ff.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+		    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+		    RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
     
 
 		    # Asign oplsaa atom types 
-		    ATYPE , CHARGES = atom_types.oplsaa( options, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-		    ATYPE , CHARGES = atom_types.biaryl_types(options, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-		    #Refind inter ring types
-		    ATYPE , CHARGES  = atom_types.interring_types(options, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-		   
+		    # ATYPE , CHARGES = atom_types.oplsaa( options, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
 		    
-		
+
+		    ATYPE, CHARGES = atom_types.oplsaa(  options.ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )
+		    
+		    ATYPE , CHARGES = atom_types.biaryl_types( options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		    #Refind inter ring types
+		    ATYPE , CHARGES  = atom_types.interring_types(options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		   
 		    if( options.zero_charges ):
 			for indx in range( len(CHARGES)):
 			    CHARGES[indx] = 0.0 
 			
 		    # Set charge groups
-		    CHARN = ff.set_chargegroups(CHARN,ATYPE,ASYMB,ELN,NBLIST,NBINDEX, RING_NUMB)
+				    
+		    #
+		    # Set charge groups
+		    #
+		    CG_SET = []
+		    one = 1
+		    for i in range( len(ELN) ):
+			CG_SET.append(one)
+			
+		    #CHARN = top.set_chargegroups(CHARN,ATYPE,ASYMB,ELN,NBLIST,NBINDEX, RING_NUMB)
+		    CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+
+		    
+		    debug = 0
+		    if( debug):
+			for i in range( len(ELN) ):
+			    print i,ELN[i],ASYMB[i],ATYPE[i],CHARGES[i] # , CHARGES[i]
+			    
+			sys.exit( 'mk_ff')
+			
+		
 
 		    # Identify total number of atom types for lammps output 
-		    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH)
+		    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
 
 		    # Check atom types to be sure each atom of the same type has the same number of neighbors 
-		    ATYPE_NNAB = ffconvert.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+		    ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
 		
 		    # Modify dih potentials
 		    ## FF_DIHTYPES = mod_dih( ATYPE_IND
@@ -391,15 +502,16 @@ def main():
 		    
 		    out_xyz =  job_name + "-ff.xyz"
 		    xmol.write_xyz(ASYMB,R,out_xyz)
-		    ff.print_cgxyz(CHARN,R)
+		    xmol.print_cgxyz(CHARN,R)
 		    job_gro = job_name +  ".gro"
-		    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R)
+		    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LAT_CONST)
 		    
-		    ATYPE_EP, ATYPE_SIG = ff.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-		    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = ff.bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-		    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = ff.angle_parameters(ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-		    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = ff.dih_parameters(DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB,options  )
-		    IMPTYPE_F  = ff.imp_parameters()
+		    ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+		    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+		    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+		    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+		    
+		    IMPTYPE_F  = top.imp_parameters(options.itp_file)
 		    
 		    if( options.ff_software == "gromacs"):
 			top_file =  job_name +  ".top"
@@ -555,7 +667,7 @@ def main():
 					print  '        Get results from ', fchk_file
 					
 				    # Get energy 
-				    NA, ELN, R, TOTAL_ENERGY   = gaussian.parse_fchk2( fchk_file )
+				    NA, ELN, R, TOTAL_ENERGY, Q_ESP   = gaussian.parse_fchk( fchk_file )
 							
 				    ff_dir =  struct_dir + ff_id 
 				    if (not os.path.isdir(ff_dir)):

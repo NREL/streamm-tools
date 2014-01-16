@@ -62,7 +62,7 @@ def atoms(Lines,options):
                     include_atom  = 0
                     
             if( include_atom ):
-                NA = NA + 1
+                NA +=  1
                 PDB_IND[atom_numb  ] = NA - 1
                 ATYPE.append( ATYPE_loc )
                 GTYPE.append( GTYPE_loc )
@@ -103,7 +103,7 @@ def nablist(Lines,EXCLUSIONS,PDB_IND,ATYPE):
     numb_atoms = 0        
     for line in Lines :
         if ( line[0:6] == 'CONECT' ):
-            maxnnab = maxnnab + 1
+            maxnnab += 1
         if ( line[0:4] == 'ATOM' ):
             numb_atoms = int(line[5:11])
     maxnnab = maxnnab + 1
@@ -115,6 +115,7 @@ def nablist(Lines,EXCLUSIONS,PDB_IND,ATYPE):
 
     if(debug):
         print " max nnab ",maxnnab
+        
 
     NNAB = 0
     for line in Lines :
@@ -135,7 +136,7 @@ def nablist(Lines,EXCLUSIONS,PDB_IND,ATYPE):
                 for line_j in line[11:].split() :
                     j = int(line_j.strip())
                     include_conect = 1
-                    for indx_ex in range( len(EXCLUSIONS)):
+                    for indx_ex in range( len(EXCLUSIONS) ):
                         ex_atom = int(EXCLUSIONS[indx_ex])
                         if ( j == ex_atom ):
                             include_conect = 0
@@ -153,6 +154,10 @@ def nablist(Lines,EXCLUSIONS,PDB_IND,ATYPE):
     NBINDEX[i+1] =  NNAB + 1
 
     if(debug):
+        for i in range( len(ATYPE) ):
+            Nabs = NBINDEX[i+1] - NBINDEX[i]
+            print i,ATYPE[i],Nabs
+        
         sys.exit(" ex_atom debug in nablistd ")
 
     return (NBLIST, NBINDEX)

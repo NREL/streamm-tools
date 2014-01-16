@@ -37,6 +37,9 @@ def get_options():
     parser.set_defaults(ff_charges=False)
     parser.add_option("--ff_charges", dest="ff_charges",action="store_true",
                                     help=" set charges to ff values described in atom_types.py ")
+
+    parser.set_defaults(norm_dihparam=False)
+    parser.add_option("--norm_dihparam", dest="norm_dihparam",action="store_true",help=" divide dihedral parameters in ff itp file by 4 ")
       
     parser.add_option("--exclusions", dest="exclusions",type="string", default="",
                                     help=" exclude some atom types, ids or symbols from read in ")
@@ -148,10 +151,10 @@ def main():
             for i in range( NA):                
                 N_o = NBINDEX[ i  ]
                 N_f = NBINDEX[  i+1  ] - 1
-                print " atom ",i+1,ATYPE[i], N_f - N_o + 1
+                print " atom ",i,i+1,ATYPE[i], N_f - N_o + 1
                 for indx in range( N_o,N_f+1):
                     j = NBLIST[indx]
-                    print "   connected to ",ATYPE[j]
+                    print "   connected to ",ATYPE[j],j
             sys.exit(" nab list debug")
         debug = 0
         
@@ -175,15 +178,14 @@ def main():
     RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
 
     # Asign oplsaa atom types
-    ATYPE = atom_types.oplsaa(  options.ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
+    ATYPE, CHARGES = atom_types.oplsaa(  options.ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
     
     #
     # Set charge groups
     #
     CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
     #clean_ids()
-     
-     
+    
     # Optional atom type specificatons 
     if( options.set_ptma ):
         residue = 'PTMA'
@@ -236,9 +238,6 @@ def main():
                     GTYPE[i] = "LP"+str(lp_cnt)
                 print ' bad gtype ',[i]
 
-
-       
-
     debug=0
     if( debug ):
         print NA
@@ -263,14 +262,11 @@ def main():
 
 
     # Identify total number of atom types for lammps output 
-    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH)
+    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
 
 
     # Check atom types to be sure each atom of the same type has the same number of neighbors 
-    ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
-
-    # Print new itp file with only used atom types and interactions 
-    AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    #ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
 
     # Print output
     out_xyz = "out.xyz"
@@ -281,14 +277,17 @@ def main():
     
     ATYPE_EP, ATYPE_SIG = top.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
     
-    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options)	    
+    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
     
     IMPTYPE_F  = top.imp_parameters()
     
     if( options.set_ptma ):        
         IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
+
+    # Print new itp file with only used atom types and interactions 
+    AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
     
     # set_chargeneutral()
     #
@@ -306,12 +305,21 @@ def main():
                        ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
                        ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)    
 
-    lammps.print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
-              BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
-              ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-              DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,
-              RESN,ATYPE_IND,CHARGES,R , ATYPE,
-              BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+    #lammps.print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+    #          BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+    #          ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+    #          DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,
+    #          RESN,ATYPE_IND,CHARGES,R , ATYPE,
+    #          BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+    
+
+    data_file = "out.data" 
+    lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+          BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+          ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+          DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+          RESN,ATYPE_IND,CHARGES,R , ATYPE,
+          BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
 
     
 if __name__=="__main__":

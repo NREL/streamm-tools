@@ -21,6 +21,22 @@ def initialize_atype( ELN ):
             
     return ATYPE
 
+def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
+    import sys,top 
+        
+        
+    residue = 'PTMA'
+
+    debug = 0
+    
+    
+    NA = len(ELN)
+
+
+    
+    charge_total = options.sys_q
+    update_chr = options.ff_charges
+
 def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
     import sys,top
     
@@ -109,7 +125,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
                     ATYPE[atom_i] = 'CZ'
             if int(NNAB) == 1 :
                 ATYPE[atom_i] = '' # Aromatic C
-                print " WARNING!!! carbon bonded to single atom "
+                print " WARNING!!! carbon index ",atom_i," bonded to single atom "
         #
         # label oxygens
         #
@@ -324,7 +340,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
             print ' atom ', atom_i , ELN[atom_i],' unknow '
             sys.exit(' Unknow atom ')
          
-    return ATYPE
+    return (ATYPE,CHARGES)
 
 def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
     import sys,top 
@@ -813,3 +829,131 @@ def set_pmmatypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST
 
     return ( ATYPE,RESID,CHARGES)
                     
+
+def biaryl_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES ):
+		    #Refind inter ring types
+    import sys,top
+    
+    NA = len(ELN)
+    
+    debug = 1
+
+    #
+    # label carbons 
+    #
+    
+    if( debug): print "biaryl_types"
+    n_rings = 0
+    for atom_i in range(NA):
+        rnumb_i = RING_NUMB[atom_i]
+        if ( rnumb_i > n_rings ): n_rings = rnumb_i
+    
+    for r_numb in range( 1,n_rings+1 ):
+        nring = top.ring_natoms(r_numb,RINGINDEX)
+        ELCNT = top.calc_elcnt(r_numb,ELN,RINGLIST,RINGINDEX)
+        
+        if( debug ): print 'ring ',r_numb
+
+        Nr_o = RINGINDEX[r_numb]
+        Nr_f = RINGINDEX[r_numb+1] - 1
+        for r_indx in range(Nr_o,Nr_f+1):
+            atom_i = RINGLIST[r_indx]
+            NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX)
+            ELCNT_i = top.calc_elcnt(atom_i,ELN,NBLIST,NBINDEX)
+            N_o = NBINDEX[ atom_i ]
+            N_f = NBINDEX[ atom_i + 1 ] - 1
+            NNAB_i_intra = 0
+            for indx_j in range( N_o,N_f+1):
+                atom_j = NBLIST[indx_j]
+                if( RING_NUMB[atom_j] == r_numb and ELN[atom_j] != 1 ):
+                    NNAB_i_intra = NNAB_i_intra +  1
+                    
+            if( debug ): print " atom ",atom_i,ATYPE[atom_i],r_numb,NNAB_i,NNAB_i_intra
+            if(  NNAB_i_intra == 2 ):
+                # edge
+                if( ELN[atom_i] == 6  and NNAB_i == 3 ):
+                    if( ELCNT_i[16] == 1 and ELCNT_i[6] == 1 and ELCNT_i[1] == 1  ):
+                        ATYPE[atom_i] = 'CP'
+                    elif( ELCNT_i[7] == 1 and ELCNT_i[6] == 1 and ELCNT_i[1] == 1  ):
+                        ATYPE[atom_i] = 'CW'
+                    elif( ELCNT_i[7] == 1 and ELCNT_i[6] == 1  ):
+                        ATYPE[atom_i] = 'CW'
+                    elif( ELCNT_i[8] == 1 and ELCNT_i[6] == 1 and ELCNT_i[1] == 1  ):
+                        ATYPE[atom_i] = 'CW'
+                    elif( ELCNT_i[16] == 1 and ELCNT_i[6] == 2 ):
+                        ATYPE[atom_i] = 'CP'
+                    elif( ELCNT_i[6] == 2 ):
+                        ATYPE[atom_i] = 'CA'
+                if( ELN[atom_i] == 16  and NNAB_i == 2 and  ELCNT_i[6] == 2 ):
+                    ATYPE[atom_i] = 'S'
+                if( ELN[atom_i] == 7 and  NNAB_i == 3 and  ELCNT_i[6] == 3 ):
+                    ATYPE[atom_i] = 'NS'
+                if( ELN[atom_i] == 7 and  NNAB_i == 3 and  ELCNT_i[6] == 2 and  ELCNT_i[1] == 1 ):
+                    ATYPE[atom_i] = 'NA'
+                        
+            if(  NNAB_i_intra == 3 ):
+                # fussed 
+                if( ELN[atom_i] == 6  and NNAB_i == 3 ):
+                        ATYPE[atom_i] = 'CB'
+                        
+            if( debug ):
+                print " atom ",atom_i,ATYPE[atom_i],NNAB_i,NNAB_i_intra
+                        
+        for r_indx in range(Nr_o,Nr_f+1):
+            # relable secondary atoms 
+            atom_i = RINGLIST[r_indx]
+            NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX)
+            ELCNT_i = top.calc_elcnt(atom_i,ELN,NBLIST,NBINDEX)
+            N_o = NBINDEX[ atom_i ]
+            N_f = NBINDEX[ atom_i + 1 ] - 1
+            NNAB_i_intra = 0
+            CP_cnt = 0 
+            CW_cnt = 0 
+            for indx_j in range( N_o,N_f+1):
+                atom_j = NBLIST[indx_j]
+                if( RING_NUMB[atom_j] == r_numb and  ELN[atom_j] != 1  ):
+                    NNAB_i_intra = NNAB_i_intra +  1
+                    if( ATYPE[atom_j] == "CP" ): CP_cnt = CP_cnt  + 1
+                    if( ATYPE[atom_j] == "CW" ): CW_cnt = CW_cnt  + 1
+                    
+            if(  NNAB_i_intra == 2 ):
+                if( ELN[atom_i] == 6  and NNAB_i == 3 ):
+                    if( CP_cnt > 0  or  CW_cnt > 0 ):
+                        ATYPE[atom_i] = 'CS'
+                        
+            if( debug ):
+                print "    relable atom ",atom_i,ATYPE[atom_i],NNAB_i,NNAB_i_intra,CP_cnt,CW_cnt
+        
+    debug = 0         
+    if( debug ):
+        sys.exit('atom_types.biaryl_types')
+    return ( ATYPE , CHARGES )
+
+def interring_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES ):
+    import sys,top
+      
+    NA = len(ELN)
+    
+    # Find Ring linkers
+    debug = 0
+    for atom_i in range(NA):
+        NNAB = top.calc_nnab(atom_i,NBLIST,NBINDEX)
+        ELCNT = top.calc_elcnt(atom_i,ELN,NBLIST,NBINDEX)
+        N_o = NBINDEX[ atom_i ]
+        N_f = NBINDEX[ atom_i + 1 ] - 1
+        if ( ELN[atom_i] == 6 ) :
+            if( NNAB == 3 ):  # if sp2
+                for indx_j in range( N_o,N_f+1):
+                    atom_j = NBLIST[indx_j]
+                    if ( ELN[atom_i] == 6 )  :
+                        NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX)
+                        if( NNAB_j == 3 ):  # if sp2
+                            if(  RING_NUMB[atom_i] !=  RING_NUMB[atom_j] and RING_NUMB[atom_i] != 0 and RING_NUMB[atom_j] != 0): # ring linker
+                                if(debug):
+                                    print atom_i,' and ',atom_j,' link ',ATYPE[atom_i],ATYPE[atom_j]
+                                    print ' ', RING_NUMB[atom_i] , RING_NUMB[atom_j]
+                                ATYPE[atom_i] = 'C!'
+                                ATYPE[atom_j] = 'C!'
+                                
+    return ( ATYPE , CHARGES ) 
+

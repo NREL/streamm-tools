@@ -254,7 +254,7 @@ def pars_zmatrix(calc_id):
     #Parse fchk
     fchk_file = calc_id +"/"+calc_id+".fchk"
     print " fchk_file" , fchk_file
-    NA, ELN, R, TOTAL_ENERGY = gaussian.parse_fchk( fchk_file )
+    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
     
     # Parse log file 
     BONDS   , ANGLES, DIH = gaussian.read_optlog(log_name)
@@ -452,7 +452,7 @@ def main():
                     
                 run_qm = 0
                 if( read_fchk ):
-                    NA, ELN, R, TOTAL_ENERGY = gaussian.parse_fchk( fchk_file )
+                    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
                     run_qm = 1
 
                 # Poppulate other atomic values                

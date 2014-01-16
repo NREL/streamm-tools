@@ -117,7 +117,7 @@ def main():
 			    print  '    Get results from ', fchk_file
 			    
 			# Get energy 
-			NA, ELN, R, TOTAL_ENERGY   = gaussian.parse_fchk( fchk_file )
+			NA, ELN, R, TOTAL_ENERGY , Q_ESP  = gaussian.parse_fchk( fchk_file )
 			ASYMB = elements.eln_asymb(ELN)
 
 			# Place 0.0 value as place holder
