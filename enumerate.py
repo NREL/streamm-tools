@@ -262,6 +262,10 @@ class BuildingBlockEnumerator(BuildingBlocks):
             print t
         self.reset_counters()
 
+        if "D" in classes:
+            self.try_class([good_don], [0], allthespacers, options)
+        if "A" in classes:
+            self.try_class([good_acc], [0], allthespacers, options)
         if "DA" in classes:
             self.try_class([good_don, good_acc], [0,1], allthespacers, options)
         if "ADA" in classes:
