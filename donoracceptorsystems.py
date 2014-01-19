@@ -721,7 +721,7 @@ def get_options():
     parser.add_option("-p", "--pattern", dest="alternation_pattern",  type="string", default=None, help="fragment rotation pattern (list of angles)")
 
     # these are really for enumerator, but they share options
-    parser.add_option("-c", "--class", dest="struct_class",  type="string", default="DA", help="space separated string of classes of donor acceptor systems to enumerate, among DA ADA DAD DD AA, e.g. \"DA DAD\"")
+    parser.add_option("-c", "--class", dest="struct_class",  type="string", default="DA", help="space separated string of classes of donor acceptor systems to enumerate, among DA ADA DAD DD AA DAD DDA, e.g. \"DA DAD\"")
     parser.add_option("-e", "--equal_blocks_ok", dest="equal_blocks_ok", help="generate DiADi cases, etc", action="store_true", default=False)
 
     (options, args) = parser.parse_args()

@@ -266,8 +266,12 @@ class BuildingBlockEnumerator(BuildingBlocks):
             self.try_class([good_don, good_acc], [0,1], allthespacers, options)
         if "ADA" in classes:
             self.try_class([good_acc, good_don], [0,1,0], allthespacers, options)
+        if "AAD" in classes:
+            self.try_class([good_acc, good_don], [1,1,0], allthespacers, options)
         if "DAD" in classes:
             self.try_class([good_don, good_acc], [0,1,0], allthespacers, options)
+        if "DDA" in classes:
+            self.try_class([good_don, good_acc], [0,0,1], allthespacers, options)
         if "ADA2" in classes:
             self.try_class([good_acc, good_don, good_acc2], [0,1,2], allthespacers, options)
         if "DAD2" in classes:
