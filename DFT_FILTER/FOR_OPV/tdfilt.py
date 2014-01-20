@@ -146,7 +146,7 @@ for line in ftddft.readlines():
 
     if timedep==True: converged=True
 
-    if ('Tot=' in line and 'X=' in line and converged==False): # Get the dipole vector for the ground state and length (in Debye)
+    if ('Tot=' in line and 'X=' in line and converged==True): # Get the dipole vector for the ground state and length (in Debye)
         dip_list = line.split()
         x = center("X",10)
         y = center("Y",10)
@@ -158,7 +158,7 @@ for line in ftddft.readlines():
         dtot = center(dip_list[7],10)
         print dx, dy, dz, dtot
 
-    if ('Tot=' in line and 'X=' in line and converged==True): # Get the dipole vector for the first excited state and length (in Debye)
+    if ('Tot=' in line and 'X=' in line and converged==True and timedep==True): # Get the dipole vector for the first excited state and length (in Debye)
         dip_list = line.split()
         x = center("X",10)
         y = center("Y",10)
