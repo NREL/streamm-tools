@@ -210,7 +210,7 @@ def opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHAR
 		
 		
 		
-	    NA, ELN_k, R_k, TOTAL_ENERGY_k = gaussian.parse_fchk( g_fchk )
+	    NA, ELN_k, R_k, TOTAL_ENERGY_k , Q_ESP = gaussian.parse_fchk( g_fchk )
 
 			
 	#
