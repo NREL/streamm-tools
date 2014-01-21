@@ -119,7 +119,7 @@ def write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS ):
 def print_dih_com( options,job_name,struct_dir,fix_templ,cent_indx, cent_angle ,DIH_ID,DIH_TAG,DIH_VAL, zmatrix ):
     from string import replace
 
-    cent_name =   job_name  + '-' + DIH_ID[cent_indx] + '_' + str(cent_angle) + '_auxfix'
+    cent_name =   job_name  + '-' + DIH_ID[cent_indx].strip() + '_' + str(cent_angle) + '_auxfix'
     cent_tor_cord = 'tor_cord '+str(cent_angle) + '_auxfix'
     calc_id =  cent_name
     cent_id = DIH_ID[cent_indx]
