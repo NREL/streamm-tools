@@ -729,7 +729,7 @@ def get_options():
     print "nstates = ", options.nstates
     print "molecules base output directory = ", options.mols_dir
     print "using building blocks in ", options.bblocks_dir
-    options.subsets_file = "subset.txt"
+    # options.subsets_file = "subset.txt"
     if (options.subsets_file != None):
         print "Using subsets of building blocks specified in ", options.subsets_file
     else:
