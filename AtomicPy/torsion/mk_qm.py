@@ -422,7 +422,7 @@ def main():
 		
                 mol_dir = col[1].strip()
                 mol_id = col[2].strip()
-                mol_repeat = int(col[3])
+                mol_repeat = int(col[3].strip() )
                 mol_acc = col[4].strip()
                 
                 # File info
