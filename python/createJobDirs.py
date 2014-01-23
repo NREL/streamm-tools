@@ -147,19 +147,17 @@ def runCreateJobsDirs(jobj, jobEditorList, scriptEditor):
 ##########################################################################################
 ##########################################################################################
 
-####################################################################################
+########################################################################################
 #
 # USER-Editable: Main parameters
 # 
-####################################################################################################
+########################################################################################
+repoDirPath='./jobrun-template'           # Path to repo for common files
+execName='transport-intel'                # Name of executable binary in repo
+inputName='transport.in'                  # Name of input file (template) in repo
+scriptName='script-chg.mb'                # Name of script for PBS (template) in repo
+########################################################################################
 
-# repoDirPath='/home/ssides/charge-repo'          # Path to repo for common files
-repoDirPath='./test-repo'                         # Path to repo for common files
-repoDirPath='/home/ssides/charge-repo'           # Path to repo for common files
-execName='transport-intel'                        # Name of executable binary in repo
-inputName='transport.in'                          # Name of input file (template) in repo
-scriptName='script-chg.mb'                        # Name of script for PBS (template) in repo
-####################################################################################################
 
 ####################################################################################################
 #
@@ -173,7 +171,7 @@ try:
 except:
     print "Error: editors module not found, check PYTHONPATH for editors install \n"
     print "Try adding the following to your .bashrc file"
-    print "    PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
+    print "    PYTHONPATH='path-to-editors.py':$PYTHONPATH'"
     print "    export PYTHONPATH"
     sys.exit(3)
 
