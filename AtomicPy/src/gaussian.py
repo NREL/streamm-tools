@@ -132,12 +132,14 @@ def check_fchk( fchk_file ):
 
 
 def parse_fchk( fchk_file ):
+    import sys, numpy 
     
     bohr2angstrom = 0.5291772086
 
     R = []
     R_all = []
     ELN = []
+    Q_ESP = []
 
     F = open(fchk_file,'r')
     Lines = F.readlines()
@@ -145,6 +147,7 @@ def parse_fchk( fchk_file ):
 
     read_r = 0
     read_eln = 0
+    read_esp = 0 
     for line in Lines :
         col = line.split()
 
@@ -153,7 +156,8 @@ def parse_fchk( fchk_file ):
                 read_r = 0
                 for atom_i in range(NA):
                     #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]
-                    R.append( R_all[atom_i*3:atom_i*3+3] )
+		    vec_r_i =  numpy.array(  R_all[atom_i*3:atom_i*3+3] )
+                    R.append(vec_r_i)
                 
             else:
                 for r_i in  map(float,col) :
@@ -166,7 +170,15 @@ def parse_fchk( fchk_file ):
                 for eln_i in  map(int,col):
                     ELN.append( eln_i )
 
-        
+        if( read_esp ):
+            if ( len( Q_ESP ) == NA ):
+                read_esp = 0
+            else:
+                for q_i in  map(float,col):
+                    Q_ESP.append( q_i )
+		    
+		    
+		    print "  q_i ",q_i
         
         if( len(col) > 2 ):
             if( col[0] == "Total" and col[1] == "Energy" ):
@@ -183,9 +195,13 @@ def parse_fchk( fchk_file ):
         if( len(col) > 2  ):
             if( col[0] == "Atomic" and col[1] == "numbers"   ):
                 read_eln = 1
+		
+        if( len(col) > 2  ):
+            if( col[0] == "ESP" and col[1] == "Charges"   ):
+                read_esp = 1
                 
-    return ( NA, ELN, R, TOTAL_ENERGY  )
-
+		
+    return ( NA, ELN, R, TOTAL_ENERGY , Q_ESP  )
 
 
 def com_zmatrix(com_name):

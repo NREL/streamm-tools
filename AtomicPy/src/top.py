@@ -13,6 +13,20 @@ NM_ANG = 10.0
 
 
 
+
+def  initialize_gtype(ELN):
+    import sys,elements
+    
+    GTYPE = []
+    #
+    elsymbol = elements.set_elsymbol()
+    for atom_i in range( len(ELN) ):
+        el_i = ELN[atom_i]
+        atomic_symbol = elsymbol[el_i]
+        GTYPE.append( atomic_symbol + str(atom_i+1) )
+         
+    return GTYPE
+
 def initialize_resid( ELN ):
 
     RESID = []
@@ -145,128 +159,6 @@ def nblist_dih(NA,NBLIST, NBINDEX):
                                 DIH.append([atom_k,atom_i,atom_j,atom_l])
 
     return DIH
-
-
-def find_rings(ELN,NBLIST,NBINDEX):
-    import sys
-        
-    RINGLIST = []
-    RINGINDEX = []
-    RING_NUMB = []
-
-    debug = 0
-    print
-    print ' finding rings '
-
-    IN_RING = []
-    
-    one = 0 
-    zero = 0 
-    ring_cnt = 0
-    a_cnt = 0
-    # relabel based on neighbors
-    NA = len(ELN)
-    for i in range(NA):
-        IN_RING.append(one)
-        RINGLIST.append(zero)
-        RING_NUMB.append(zero)
-        RINGINDEX.append(zero)
-        
-    RINGLIST.append(zero)
-    RINGINDEX.append(zero)
-        
-        
-    # relabel based on neighbors
-    for i in range(NA):
-        RING_ATOMS = id_ring(i,ELN,NBLIST,NBINDEX)
-            
-        if ( len(RING_ATOMS) > 1 ):
-            # If member of ring alread part of another ring add new ring to existing ring
-            r_numb = 0 
-            for ring_a in range(len(RING_ATOMS)):
-                j = RING_ATOMS[ring_a]
-                if( RING_NUMB[j] != 0 ):
-                    r_numb = RING_NUMB[j]
-            if( r_numb == 0 ):
-                ring_cnt = ring_cnt + 1
-                r_numb = ring_cnt 
-                print ' new ring ',ring_cnt
-                 
-            for ring_a in range(len(RING_ATOMS)):
-                j = RING_ATOMS[ring_a]
-                if( RING_NUMB[j] == 0 ): 
-                    a_cnt = a_cnt + 1
-                    RING_NUMB[j] = r_numb
-
-    a_cnt = 0
-    for r_numb in range(1,ring_cnt+1):
-        RINGINDEX[r_numb] = a_cnt + 1
-        for i in range(NA):
-            if( RING_NUMB[i] == r_numb ):
-                a_cnt = a_cnt + 1
-                RINGLIST[a_cnt] = i
-                
-    RINGINDEX[ring_cnt+1] = a_cnt + 1
-
-    debug = 0
-    if(debug):
-        print ring_cnt , " rings found "
-        for r_numb in range(1,ring_cnt+1):
-            N_o = RINGINDEX[r_numb]
-            N_f = RINGINDEX[r_numb+1] - 1
-            print ' Ring ', r_numb
-            for r_indx in range(N_o,N_f+1):
-                i = RINGLIST[r_indx]
-                print ' type ',ELN[i],' or ',i,RING_NUMB[i]
-                #sys.exit('find_rings')
-                
-        for atom_i in range( len(ELN)):
-            print ' atom  ',atom_i,ELN[atom_i],RING_NUMB[atom_i]
-
-
-    return ( RINGLIST, RINGINDEX , RING_NUMB )
-
-
-def find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB):
-    import sys, numpy 
-           
-    RING_CONNECT = []
-    debug = 0
-    NA = len(ELN)
-    ADDED =  numpy.zeros(NA, dtype=int )    
-    # Find Ring linkers
-    for i in range(NA):
-        
-        if ( ELN[i] == 6 ) :
-          NNAB = calc_nnab(i,NBLIST,NBINDEX)
-          if( NNAB == 3 ):  # if sp2
-              ELCNT = calc_elcnt(i,ELN,NBLIST,NBINDEX)
-              N_o = NBINDEX[ i  ]
-              N_f = NBINDEX[  i+1  ] - 1
-              for indx in range( N_o,N_f+1):
-                  j = NBLIST[indx]
-                  if ( ADDED[j] == 0 ):
-                      NNAB_j = calc_nnab(j,NBLIST,NBINDEX)
-                      if( NNAB_j == 3 ):  # if sp2
-                          if(  RING_NUMB[i] !=  RING_NUMB[j] ): # ring linker
-                              ADDED[i] = 1
-                              ADDED[j] = 1
-                              if(debug):
-                                  print i,' and ',j,' link ',ELN[i],ELN[j]
-                                  print ' ', RING_NUMB[i] , RING_NUMB[j]
-                              RING_CONNECT.append( [i,j])
-
-    return RING_CONNECT
-
-
-def ring_natoms(r_numb,RINGINDEX):
-
-    RN_o = RINGINDEX[r_numb]
-    RN_f = RINGINDEX[r_numb+1] - 1
-    nring = RN_f - RN_o + 1
-    
-    return nring 
-
 
 def nblist_imp(NA,NBLIST, NBINDEX,ELN):
     import sys
@@ -451,7 +343,7 @@ def find_rings(ELN,NBLIST,NBINDEX):
 		
 	    
 
-    debug = 0
+    debug = 1
     if(debug):
         print ring_cnt , " rings found "
         for r_numb in range(1,ring_cnt+1):
@@ -465,7 +357,8 @@ def find_rings(ELN,NBLIST,NBINDEX):
                 
         for atom_i in range( len(ELN)):
             print ' atom  ',atom_i,ELN[atom_i],RING_NUMB[atom_i]
-
+	    
+	#sys.exit('top.find_rings')
 
     return ( RINGLIST, RINGINDEX , RING_NUMB )
 
@@ -500,6 +393,15 @@ def find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB):
                               RING_CONNECT.append( [i,j])
 
     return RING_CONNECT
+
+
+def ring_natoms(r_numb,RINGINDEX):
+
+    RN_o = RINGINDEX[r_numb]
+    RN_f = RINGINDEX[r_numb+1] - 1
+    nring = RN_f - RN_o + 1
+    
+    return nring 
 
 
 
@@ -594,7 +496,7 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
                 CHARN[i] = n_groups
                 for j_indx in range( N_o,N_f+1):
                     j = NBLIST[j_indx]
-                    if ( ASYMB[j].strip() == 'O' ):
+                    if ( ELN[j] == 8 ):
                         CHARN[j] = n_groups
                         CG_SET[j] = 0
 
@@ -616,7 +518,8 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
             N_o = NBINDEX[i]
             N_f = NBINDEX[i+1] - 1
 	    
-            if( ELN[i] == 6 ):  #
+	    
+            if( ELN[i] == 6 or ELN[i] == 8 ):  #
 		q_g = 0 
                 for j_indx in range( N_o,N_f+1):
 		    j = NBLIST[j_indx]
@@ -650,7 +553,7 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
             ELCNT = calc_elcnt(i,ELN,NBLIST,NBINDEX)
             N_o = NBINDEX[i]
             N_f = NBINDEX[i+1] - 1
-            if ( ELN[i] == 1 ):
+            if ( ELN[i] == 1 or  ELN[i] == 9 ):
                 j_set = 0
                 for j_indx in range( N_o,N_f+1):
                     j = NBLIST[j_indx]
@@ -661,7 +564,7 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
                     CHARN[i] = n_groups
                     CG_SET[i] = 0
                 else :
-                    print ' hydrogen connected to unset atom '
+                    print ASYMB[i],' connected to unset atom '
                     print ASYMB[i], " - ",ASYMB[j]
                     print ATYPE[j],ASYMB[j]
                     for i in range(NA):
@@ -719,7 +622,10 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
 	    for i in range(NA):
 		if( CHARN[i] == q_g ):
 		    atom_cnt += 1
-		    if( R[i][0] < r_x_min  ): r_x_min = R[i][0] 
+		    
+		    print R[i]
+		    
+		    if( R[i][0] < r_x_min  ): r_x_min = R[i][0]
 		    if( R[i][1] < r_y_min  ): r_y_min = R[i][1] 
 		    if( R[i][2] < r_z_min  ): r_z_min = R[i][2] 
 		    if( R[i][0] > r_x_max  ): r_x_max = R[i][0] 
@@ -799,10 +705,8 @@ def check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX):
     if(debug): sys.exit('check_types')
 
     return ATYPE_NNAB
-             
-	     
 
-def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
+def atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
     import sys
 
     global GRO_SIG,KJ_KCAL,NM_ANG
@@ -812,8 +716,9 @@ def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
     ATYPE_SIG = []
 
     debug = 0
-
+    #
     # Find atom type parameters
+    #
     for ind in range( len(ATYPE_REF) ):
         if( debug): print ATYPE_REF[ind]
         AT_i =  ATYPE_REF[ind]
@@ -828,13 +733,14 @@ def atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
                 if( debug):  print  float( FF_i[5]) ,float( FF_i[6])         
                 break
         if check :
-            print ' atom type ',ind,AT_i,'  not in ff'
-            print ' grep "',AT_i,'" ','ff.itp'
-            sys.exit(' unknow ff specification ')
+            print ' atom type ',AT_i,'  not in ff ;  index ',ind
+            print ' grep "',AT_i,'" ',itp_file
+	    print 'unknow ff specification '
+            sys.exit(' top.atom_parameters ')
 
     return (ATYPE_EP, ATYPE_SIG)
 
-def bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES):
+def bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES):
     import sys
     global GRO_SIG,KJ_KCAL,NM_ANG
 
@@ -862,8 +768,9 @@ def bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES):
             
         if check :
             print ' bond ',ind,' ',AT_i,' - ',AT_j,'  not in ff'
-            print ' grep "',AT_i,'" ','ff.itp',' | grep "',AT_j
-            sys.exit(' unknow ff specification ')
+            print ' grep "',AT_i,'" ',itp_file,' | grep "',AT_j , ' " '
+	    print 'unknow ff specification '	    
+            sys.exit(' top.bond_parameters ')
         else:
             func_type = int(FF_l[2])
             BONDTYPE_F.append( func_type )
@@ -872,11 +779,12 @@ def bond_parameters(BTYPE_IND , BTYPE_REF,FF_BONDTYPES):
                 BONDTYPE_K.append( float(FF_l[4]) *KJ_KCAL/NM_ANG/NM_ANG/2 )
             else :
                 print ' Bond type ', func_type , ' unknown '
-                sys.exit(' unknow ff specification ')
+		print 'unknow ff specification '	    
+		sys.exit(' top.bond_parameters ')
             
     return ( BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K )
 
-def angle_parameters( ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES):
+def angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES):
     import sys
     global GRO_SIG,KJ_KCAL,NM_ANG
 
@@ -905,9 +813,10 @@ def angle_parameters( ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES):
             
         if check :
             print ' angle ',ind,' ',AT_i,' - ',AT_j,' - ',AT_k,'  not in ff'
-            print ' grep "',AT_i,'" ','ff.itp',' | grep "',AT_j ,'" | grep "',AT_k,'"'
-            print ' grep "',AT_i,'" ','ff.itp',' | grep "',AT_j ,'" | grep "',AT_k,'"'
-            sys.exit(' unknow ff specification ')
+            print ' grep "',AT_i,'" ',itp_file,' | grep "',AT_j ,'" | grep "',AT_k,'"'
+            print ' grep "',AT_i,'" ',itp_file,' | grep "',AT_j ,'" | grep "',AT_k,'"'
+	    print 'unknow ff specification '	
+            sys.exit(' top.angle_parameters ')
         else:
             func_type = int(FF_l[3])
             ANGLETYPE_F.append( func_type )
@@ -916,11 +825,12 @@ def angle_parameters( ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES):
                 ANGLETYPE_K.append( float(FF_l[5])*KJ_KCAL/2 )
             else :
                 print ' Angle type ', func_type , ' unknown '
-                sys.exit(' unknow ff specification ')
+	        print 'unknow ff specification '	
+		sys.exit(' top.angle_parameters ')
             
     return ( ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K )
 
-def dih_parameters( DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options ):
+def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB ):
     import sys
     global GRO_SIG,KJ_KCAL,NM_ANG
 
@@ -971,13 +881,29 @@ def dih_parameters( DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options ):
 	    
 
         if check :
-            print ' dih ',ind,' ',AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l,'  not in ff'
+            print ' dih ',ind,' ',AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l,'  not in ff',itp_file 
             # print  FF_DIHTYP[ff_i]
-            sys.exit(' unknow ff specification ')
+	    print 'unknow ff specification '
+            sys.exit(' top.dih_parameters ')
         else:
             
             dihen_norm = 1.0
 	    
+            if( norm_dihparam ):
+                # normalize by number of nieghbors
+                if(debug): print " finding types for ",AT_j,AT_k
+                for ind in range( len(ATYPE_REF) ):
+                    if( debug): print ATYPE_REF[ind]
+                    AT_ref =  ATYPE_REF[ind].strip()
+                    if(debug): print " checking ",AT_ref
+                    if( AT_ref == AT_j ):
+                        if(debug): print "  found j",AT_j,ind
+                        NNAB_i = ATYPE_NNAB[ind] - 1
+                    if( AT_ref == AT_k ):
+                        if(debug): print "  found  k",AT_k,ind
+                        NNAB_j = ATYPE_NNAB[ind] - 1
+                dihen_norm = float( NNAB_i + NNAB_j)
+                
             func_type = int(FF_l[4])
             DIHTYPE_F.append( func_type )
             if( func_type == 1 or func_type == 9 ):  # Harmonic
@@ -1000,8 +926,9 @@ def dih_parameters( DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options ):
                 DIHTYPE_C.append( [ F1,F2,F3,F4 ]  )        # (deg)
             else :
                 print ' Dihedral type ', func_type , ' unknown '
-                sys.exit(' unknow ff specification ')
-                
+		print 'unknow ff specification '
+		sys.exit(' top.dih_parameters ')
+	    
         if(debug): print ' dih ',ind,' ',func_type,AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l
     
     
@@ -1011,7 +938,7 @@ def dih_parameters( DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,options ):
     return ( DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C )
 
 
-def imp_parameters():
+def imp_parameters(itp_file):
     import sys
     global GRO_SIG,KJ_KCAL,NM_ANG
 

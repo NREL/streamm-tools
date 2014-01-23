@@ -460,3 +460,37 @@ def multiplicity(ELN,Q):
         M = 2
         
     return M
+
+
+def getDihedral(a,b,c,d):
+    import numpy 
+    
+    debug = 0
+    if(debug):
+        print " a ",a 
+        print " b ",b
+        print " c ",c
+        print " d ",d
+        
+    v1 = getNormedVector(a, b)
+    v2 = getNormedVector(b, c)
+    v3 = getNormedVector(c, d)
+    v1v2 = numpy.cross(v1,v2)
+    v2v3 = numpy.cross(v2,v3)
+    return getAngle(v1v2,v2v3)
+
+def getNormedVector(a,b):
+    import numpy 
+
+    delta_ba = b-a
+    return (delta_ba)/numpy.linalg.norm(delta_ba)
+
+def getAngle(a,b):
+    import numpy 
+
+    a_norm = a/numpy.linalg.norm(a)
+    b_norm = b/numpy.linalg.norm(b) 
+    dot_ab = numpy.dot(a_norm,b_norm)
+    cos_ang = numpy.arccos(dot_ab )
+    ang_deg = numpy.rad2deg( cos_ang )
+    return ang_deg

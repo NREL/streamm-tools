@@ -7,7 +7,7 @@
 # travis.kemper@nrel.gov
 
 
-def lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH):
+def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
     import sys 
     #
     # for lammmps files
@@ -28,7 +28,7 @@ def lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH):
     #
     NA = len(ATYPE)
     TYPE_CNT = -1 # so array is 0-N
-    debug = 0
+    debug = 1
     for i in range(NA):
         new_type = 1
         for ind in range( len(ATYPE_REF) ):
@@ -36,14 +36,14 @@ def lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH):
                 new_type = 0
                 
                 ATYPE_IND.append( ind  )
-                if(debug): print ' maches previous ',i,ATYPE[i],ATYPE_REF[ind],ind
+                #if(debug): print ' maches previous ',i,ATYPE[i],ATYPE_REF[ind],ind
         if( new_type ):
             ATYPE_REF.append( ATYPE[i] )
             ATYPE_MASS.append( float(AMASS[i]) )
 
             TYPE_CNT = TYPE_CNT + 1
             ATYPE_IND.append( TYPE_CNT )
-            print ' new type found ',ATYPE[i],TYPE_CNT,ATYPE_MASS[TYPE_CNT-1]
+            print ' new type found ',i,ELN[i],ATYPE[i],TYPE_CNT,ATYPE_MASS[TYPE_CNT],len(ATYPE_REF)
 
     debug = 0
     if(debug): sys.exit('lmp_types')
@@ -233,10 +233,10 @@ def lmp_types(ATYPE,AMASS,BONDS,ANGLES,DIH):
 
     return ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF 
 
-def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+def print_lmp(data_file, ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
               BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
               ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-              DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,
+              DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
               RESN,ATYPE_IND,CHARGES,R , ATYPE,
               BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST):
     
@@ -265,7 +265,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
     bmn_z = LAT_CONST[2][2]/-2.0
     bmx_z = LAT_CONST[2][2]/2.0
 
-    F = open( 'out.data' , 'w' )
+    F = open( data_file, 'w' )
     F.write('  Lammps data file \n')
     F.write('\n')
     F.write( "%10d  atoms \n" % NA )
@@ -334,7 +334,11 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
             pn = DIHTYPE_PN[d_ind]
             F.write( "%10d %16.8f %5d %10d  # %5s %5s  %5s %5s  \n" % (d_ind + 1, k ,phase , pn , AT_i, AT_j, AT_k ,AT_l  ) )
         elif( func_type == 3 ): # Ryckert-Bellemans
-            F.write( "%10d  # %5s %5s  %5s %5s \n" % (d_ind + 1, AT_i, AT_j, AT_k ,AT_l  ) ) # DIHTYPE_C[d_ind][0:3]  ) )
+            F1 = DIHTYPE_C[d_ind][0]
+            F2 = DIHTYPE_C[d_ind][1]
+            F3 = DIHTYPE_C[d_ind][2]
+            F4 = DIHTYPE_C[d_ind][3]
+            F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (d_ind + 1,F1,F2,F3,F4, AT_i, AT_j, AT_k ,AT_l  ) ) # DIHTYPE_C[d_ind][0:3]  ) )
             
     F.write('\n')
     F.write(' Improper Coeffs \n')
@@ -355,7 +359,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
     F.write('\n')
     TOTAL_CHARGE = 0.0
     for i in range(NA):
-        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (i+1,RESN[i],ATYPE_IND[i],CHARGES[i],R[i][0],R[i][1],R[i][2] , ATYPE[i] )  )
+        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (i+1,RESN[i],ATYPE_IND[i]+1,CHARGES[i],R[i][0],R[i][1],R[i][2] , ATYPE[i] )  )
         TOTAL_CHARGE = TOTAL_CHARGE + float( CHARGES[i] )
         
     print ' Total charge = ',TOTAL_CHARGE
@@ -370,7 +374,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
         AT_i =  ATYPE[a_i]
         AT_j =  ATYPE[a_j]
         #
-        b_ind = BTYPE_IND[i]
+        b_ind = BTYPE_IND[i]  + 1 
         F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (i+1,b_ind,a_i+1,a_j+1 , AT_i, AT_j ) )
     F.write('\n')
     F.write(' Angles \n')
@@ -379,7 +383,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
         a_i = ANGLES[i][0] + 1
         a_j = ANGLES[i][1] + 1
         a_k = ANGLES[i][2] + 1
-        a_ind = ANGTYPE_IND[i]
+        a_ind = ANGTYPE_IND[i]+ 1 
         F.write(  '%9d %8d %9d %9d %9d \n' % (i+1,a_ind,a_i,a_j,a_k) )
     F.write(  '\n' )
     F.write(' Dihedrals \n')
@@ -389,7 +393,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
         a_j = DIH[i][1] + 1
         a_k = DIH[i][2] + 1
         a_l = DIH[i][3] + 1
-        d_ind = DTYPE_IND[i]
+        d_ind = DTYPE_IND[i]+ 1 
         if( DIHTYPE_F[d_ind - 1] != 2 ):
             F.write(  '%9d %8d %9d %9d %9d  %9d \n' % (i+1,d_ind,a_i,a_j,a_k,a_l) )
     F.write( '\n' )
@@ -399,7 +403,7 @@ def print_lmp(ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
         a_j = DIH[i][1] + 1
         a_k = DIH[i][2] + 1
         a_l = DIH[i][3] + 1
-        d_ind = DTYPE_IND[i]
+        d_ind = DTYPE_IND[i]+ 1 
         if( DIHTYPE_F[d_ind - 1] == 2 ):
             F.write(  '%9d %8d %9d %9d %9d  %9d \n' % (i+1,d_ind,a_i,a_j,a_k,a_l) )
             
@@ -456,4 +460,214 @@ def print_rest(rest_file,data_file,cent_angle,dih_indx,options):
     f.write(input_lines)
     f.close()
 
+    return
+
+def print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options):
+    
+    # LAMMPS input: minimization w/ soft potential  
+    input_lines = ' units 		real ' 
+    input_lines = input_lines + '\n'+ ' boundary 	p p p	'
+    input_lines = input_lines + '\n'+ ' newton          on  # use off for np>4 '
+    input_lines = input_lines + '\n'+ ' atom_style	full	'
+    input_lines = input_lines + '\n'+ ' bond_style      harmonic'
+    input_lines = input_lines + '\n'+ ' angle_style     harmonic'
+    input_lines = input_lines + '\n'+ ' #dihedral_style  harmonic # hybrid multi/harmonic'
+    input_lines = input_lines + '\n'+ ' dihedral_style opls'
+    input_lines = input_lines + '\n'+ ' improper_style  harmonic	'
+    if( options.zero_charges ):
+        input_lines = input_lines + '\n'+ ' pair_style 	lj/cut  20.0'
+    else:
+        input_lines = input_lines + '\n'+ ' pair_style 	lj/cut/coul/long 20.0'
+        input_lines = input_lines + '\n'+ ' kspace_style    pppm    1.0e-5'
+    input_lines = input_lines + '\n'+ ' pair_modify     mix geometric '
+    input_lines = input_lines + '\n'+ ' # special_bonds lj/coul 0.0 0.0 0.5 #angle yes dihedral yes    '
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' neighbor        2.0     bin'
+    input_lines = input_lines + '\n'+ ' neigh_modify    delay   5'
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' read_data ' + data_file
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' fix TFIX all langevin 0.0 0.0 100 24601'
+    
+    for d_indx in range(len(DIH_CONST_ANGLE)):
+        dihindx_line = ""
+        dih_atoms =    DIH_CONST_ATOMS[d_indx]
+        for a_indx in dih_atoms:
+            dihindx_line += " "+str(a_indx)
+        dih_angle = DIH_CONST_ANGLE[d_indx]
+    
+        fix_id = "REST"+str(d_indx)
+        input_lines = input_lines + '\n'+ ' fix '+fix_id+' all restrain dihedral ' + dihindx_line + ' 2000.0 5000.0  '+str(float(dih_angle))
+        input_lines = input_lines + '\n'+ ' fix_modify '+fix_id+' energy no'
+        
+        
+    input_lines = input_lines + '\n'+ ' run 10000'
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' dump 1 all xyz 1 fit.xyz '
+    input_lines = input_lines + '\n'+ ' compute 1 all pe'
+    input_lines = input_lines + '\n'+ ' thermo_style custom step temp pe etotal press vol'
+    input_lines = input_lines + '\n'+ ' write_data  out_'  + data_file 
+    input_lines = input_lines + '\n'+ ' # sanity check for convergence'
+    input_lines = input_lines + '\n'+ ' minimize 1e-6 1e-9 1 100000'
+    
+    
+    f = open(rest_file,'w')
+    f.write(input_lines)
+    f.close()
+
     return 
+
+def print_sp(rest_file,data_file,options):
+        
+    # LAMMPS input: minimization w/ soft potential  
+    input_lines = ' units 		real ' 
+    input_lines = input_lines + '\n'+ ' boundary 	p p p	'
+    input_lines = input_lines + '\n'+ ' newton          on  # use off for np>4 '
+    input_lines = input_lines + '\n'+ ' atom_style	full	'
+    input_lines = input_lines + '\n'+ ' bond_style      harmonic'
+    input_lines = input_lines + '\n'+ ' angle_style     harmonic'
+    input_lines = input_lines + '\n'+ ' #dihedral_style  harmonic # hybrid multi/harmonic'
+    input_lines = input_lines + '\n'+ ' dihedral_style opls'
+    input_lines = input_lines + '\n'+ ' improper_style  harmonic	'
+    
+    if( options.zero_charges ):
+        input_lines = input_lines + '\n'+ ' pair_style 	lj/cut  20.0'
+    else:
+        input_lines = input_lines + '\n'+ ' pair_style 	lj/cut/coul/long 20.0'
+        input_lines = input_lines + '\n'+ ' kspace_style    pppm    1.0e-5'
+        
+    input_lines = input_lines + '\n'+ ' pair_modify     mix geometric '
+    input_lines = input_lines + '\n'+ ' # special_bonds lj/coul 0.0 0.0 0.5 #angle yes dihedral yes    '
+    input_lines = input_lines + '\n'+ ' # kspace_style    pppm    1.0e-5'
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' neighbor        2.0     bin'
+    input_lines = input_lines + '\n'+ ' neigh_modify    delay   5'
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' read_data ' + data_file
+    input_lines = input_lines + '\n'+ ' '
+    input_lines = input_lines + '\n'+ ' fix TFIX all langevin 0.0 0.0 100 24601'
+    input_lines = input_lines + '\n'+ ' thermo_style custom step temp pe etotal press vol'
+    input_lines = input_lines + '\n'+ ' run 0'
+
+    f = open(rest_file,'w')
+    f.write(input_lines)
+    f.close()
+
+    return 
+
+def run_lmp(lammps_dir,lammps_src,lmp_in):
+    import sys, os
+    from string import replace
+    
+    run_id = replace(lmp_in,'.in','')
+
+    run_line = lammps_dir + lammps_src + " < " + lmp_in + " > lmp.out "
+    print run_line 
+    os.system(run_line)
+    mv_line = "mv log.lammps " + run_id+".log"
+    os.system(mv_line)
+    
+    return
+
+
+def get_pe(log_file):
+    import sys, os
+
+    KCALtoEV = 0.04336411
+
+    debug = 0
+
+    pe = []
+    
+    # Open log file and get energy
+    print " reading in ",log_file
+    f = open(log_file,'r')
+    Lines = f.readlines()
+    f.close()
+    
+    
+    read_line = 0
+    pot_en = "na"
+    for line in Lines :
+        col = line.split()
+        
+        if( len(col) > 4 ):
+            if( col[0] == "Loop" and col[1] == "time"  ):
+                read_line = 0
+                
+        if( read_line ):
+            print " readin in energy ",col[2] 
+            pot_en = float( col[2] )*KCALtoEV
+            pe.append( pot_en )
+            
+        if( len(col) > 4 ):
+            if( col[2] == "PotEng" ):
+                read_line = 1
+                
+                
+    
+    if(debug):
+        print " potential energies ",pot_en
+        for indx in range( len(pe)):
+            print indx , pe[indx]
+            
+        sys.exit("get_pe")
+
+    return pot_en
+
+
+def last_xmol(xmol_file,options):
+
+    debug = 0
+    
+    F = open(xmol_file,'r')
+    Lines = F.readlines()
+    F.close()
+    
+    col = Lines[0].split()
+    NA = int( col[0] ) 
+
+    R = []
+    line_cnt = 0 
+    for line in Lines :
+        col = line.split()
+        line_cnt = line_cnt + 1
+        if( line_cnt > (NA + 2 ) ):
+            line_cnt = 1
+            R = []
+            if( debug ): print " restarting ", line
+        if( line_cnt > 2 ):
+            R.append( [ float( col[1]), float( col[2]), float( col[3]) ])
+            if( debug ): print float( col[1]), float( col[2]), float( col[3]) 
+        
+    if( debug ):
+        for indx in range( len(R)): 
+            print indx,R[indx]
+        sys.exit("last_xmol")
+        
+    return R
+
+    
+def get_dihangle(R,angle_indx,options):
+    import numpy , prop
+    
+    debug = 0
+    if( debug ):
+        for indx in range( len(R)): 
+            print indx,R[indx]
+            
+    i = angle_indx[0]
+    a = numpy.array( [ R[i][0],R[i][1],R[i][2] ] ) 
+    j = angle_indx[1]
+    b= numpy.array( [ R[j][0],R[j][1],R[j][2] ] ) 
+    k = angle_indx[2]
+    c= numpy.array(  [ R[k][0],R[k][1],R[k][2] ] ) 
+    l = angle_indx[3]
+    d= numpy.array(  [ R[l][0],R[l][1],R[l][2] ] ) 
+    
+    
+    angle = prop.getDihedral(a,b,c,d)
+    
+    return angle
+
+    

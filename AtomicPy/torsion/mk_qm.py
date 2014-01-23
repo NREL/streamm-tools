@@ -119,7 +119,7 @@ def write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS ):
 def print_dih_com( options,job_name,struct_dir,fix_templ,cent_indx, cent_angle ,DIH_ID,DIH_TAG,DIH_VAL, zmatrix ):
     from string import replace
 
-    cent_name =   job_name  + '-' + DIH_ID[cent_indx] + '_' + str(cent_angle) + '_auxfix'
+    cent_name =   job_name  + '-' + DIH_ID[cent_indx].strip() + '_' + str(cent_angle) + '_auxfix'
     cent_tor_cord = 'tor_cord '+str(cent_angle) + '_auxfix'
     calc_id =  cent_name
     cent_id = DIH_ID[cent_indx]
@@ -254,7 +254,7 @@ def pars_zmatrix(calc_id):
     #Parse fchk
     fchk_file = calc_id +"/"+calc_id+".fchk"
     print " fchk_file" , fchk_file
-    NA, ELN, R, TOTAL_ENERGY = gaussian.parse_fchk( fchk_file )
+    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
     
     # Parse log file 
     BONDS   , ANGLES, DIH = gaussian.read_optlog(log_name)
@@ -356,7 +356,7 @@ def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_
                 pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
 
 def main():
-    import string, os 
+    import string, os , sys 
     # atomicpy
     import gaussian, elements, xmol , file_io , cluster 
     from string import replace
@@ -422,7 +422,7 @@ def main():
 		
                 mol_dir = col[1].strip()
                 mol_id = col[2].strip()
-                mol_repeat = int(col[3])
+                mol_repeat = int(col[3].strip() )
                 mol_acc = col[4].strip()
                 
                 # File info
@@ -438,12 +438,21 @@ def main():
                     with open(fchk_file) as f:
                         read_fchk = 1
                 except IOError:
+		    fchk_file = struct_dir + job_name + "-ZMAT/" + job_name +"-ZMAT"+ ".fchk"
                     if( options.verbose ):
-                        print "    file  ",fchk_file," does not exist "
+                        print "    file  ",fchk_file," does not exist trying ZMAT file ",
+			
+		    try:
+			with open(fchk_file) as f:
+			    read_fchk = 1
+		    except IOError:
+			print " no fchk file found "
+			sys.exit("no reference file ")
+			
                     
                 run_qm = 0
                 if( read_fchk ):
-                    NA, ELN, R, TOTAL_ENERGY = gaussian.parse_fchk( fchk_file )
+                    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
                     run_qm = 1
 
                 # Poppulate other atomic values                

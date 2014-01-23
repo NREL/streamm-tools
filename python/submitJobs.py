@@ -83,7 +83,7 @@ parser.set_usage(usage)
 
 parser.add_option("-s","--search",
                   dest="searchPattern",
-                  default='.mb',
+                  default='.pbs',
                   type="string",
                   help="Search pattern for submission scripts (eg .slurm, .mb) \n")
 
@@ -184,7 +184,6 @@ def getJobInfo(td, ptn):
         jobPath = os.path.dirname(f)    # test-runs/runDir1/runDir-1.1
         jobScript = os.path.basename(f) # job.mb
         # Determine is job finished
-#        jobDone = isJobDone(jobPath, jobScript)
         jobDone = js.isJobDone(jobPath, jobScript)
 
         job.append(jobPath)             # .
