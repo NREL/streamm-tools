@@ -37,10 +37,10 @@ def createEditors(editType):
     #
     tagValDictTpl=dict()
     tagValDictTpl['EDIT_rundir'] = "rundirName"
-    tagValDictTpl['EDIT_walltime'] = "48:00:00"
+    tagValDictTpl['EDIT_walltime'] = "00:00:30"
     tagValDictTpl['EDIT_nodes'] = 1
-    tagValDictTpl['EDIT_ppn']   = 16
-    tagValDictTpl['EDIT_procs'] = 16
+    tagValDictTpl['EDIT_ppn']   = 4
+    tagValDictTpl['EDIT_procs'] = 4
     scriptFileEditor=FileEditorWithTags(tagValDictTpl)
     tagValDictTpl=None
 
@@ -54,13 +54,13 @@ def createEditors(editType):
     # target distw = 0.005, 0.0125, 0.025, 0.05, 0.10
     #
     tagValDictTpl=dict()
-    tagValDictTpl['EDIT_ribsize'] = 48
+    tagValDictTpl['EDIT_ribsize'] = 20
     tagValDictTpl['EDIT_radius']  = 10.0
     tagValDictTpl['EDIT_distw']   = 0.005
     tagValDictTpl['EDIT_temp' ]   = 273.15
     inFileEditor=FileEditorWithTags(tagValDictTpl)
 
-    params=u.getList(10, 0.1, 26)
+    params=u.getList(10, 1.0, 26)
     inEditors=inFileEditor.getParamSweeps('EDIT_radius', params)
     jobEditorList.extend(inEditors)
 
@@ -70,27 +70,7 @@ def createEditors(editType):
     # internal dictionary editor 
     # 
     inFileEditor.setDictTplValue("EDIT_distw=0.0125")
-    params=u.getList(10, 0.1, 26)
-    inEditors=inFileEditor.getParamSweeps('EDIT_radius', params)
-    jobEditorList.extend(inEditors)
-
-    #
-    # Set input file editor explicitly with an
-    # assignment string that is parsed to edit to
-    # internal dictionary editor 
-    # 
-    inFileEditor.setDictTplValue("EDIT_distw=0.025")
-    params=u.getList(10, 0.1, 26)
-    inEditors=inFileEditor.getParamSweeps('EDIT_radius', params)
-    jobEditorList.extend(inEditors)
-
-    #
-    # Set input file editor explicitly with an
-    # assignment string that is parsed to edit to
-    # internal dictionary editor 
-    # 
-    inFileEditor.setDictTplValue("EDIT_distw=0.05")
-    params=u.getList(10, 0.1, 26)
+    params=u.getList(10, 1.0, 26)
     inEditors=inFileEditor.getParamSweeps('EDIT_radius', params)
     jobEditorList.extend(inEditors)
 
