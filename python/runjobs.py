@@ -366,6 +366,14 @@ class JobStatus:
     def __del__(self):
         if (self.verbose):
             print "Destructor called"
+    
+    #
+    # This method will be inherited by derived classes as all
+    # jobs are assumed to be in queueing system and running jobs
+    # will have same signature
+    #
+    def isJobRunning(self, jobdir, jobscript):
+        print "Must check queue"
 
     ################################################################
     #
