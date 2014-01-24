@@ -103,9 +103,13 @@ def showInfo():
     print "    # Top-level dir where runs will be created  - topRunDir   = ", topRunDir
     print "    # Verbosity switch                          - jverbosity  = ", jverbosity
     print " "
+    import editors
+    print "Compiled job edit module found at ", editors.__file__
+    print " "
 
 
 ###################################################################
+#
 # Job directory names default to "run-00001, run-00002..."
 #
 # jobj          -- is a properly initialized Job() object
