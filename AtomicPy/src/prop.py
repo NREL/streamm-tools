@@ -189,19 +189,28 @@ def volume( LV ):
     return vol
 
 
-def vecdensity(  AMASS,LV ):
+def total_mass(  AMASS ):
     import numpy
-    
-    volume_i = volume( LV )
     
     # Sum mass, charges
     total_mass = 0.0
     for atom_i in range( len(AMASS) ):
 	total_mass += AMASS[atom_i]
 	
+    return total_mass
+
+def vecdensity(  AMASS,LV ):
+    import numpy
+    
+    volume_i = volume( LV )
+    
+    # Sum mass, charges
+    total_mass = total_mass(  AMASS )
+
     density_i = total_mass/volume_i/const_avo*10.0
 	
     return density_i
+
 
 
 def build_nablist(ELN,R):
