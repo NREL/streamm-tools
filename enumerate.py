@@ -206,7 +206,9 @@ class BuildingBlockEnumerator(BuildingBlocks):
         if ("BB" in classes):
             save_decorated_bb = True
             print "Generating input for lone donor and acceptor calcs"
-            
+
+        print "Before self.allspacername = ", self.allspacername
+
         good_don = self.try_set(self.alldon, self.alldonname, "donor", options, write_inputs=save_decorated_bb, fluorinate = False)
         good_acc = self.try_set(self.allacc, self.allaccname, "acceptor", options, write_inputs=save_decorated_bb, fluorinate = False)
         good_term = self.try_set(self.allterm, self.alltermname, "terminal", options, write_inputs=save_decorated_bb, fluorinate = False)
@@ -224,14 +226,23 @@ class BuildingBlockEnumerator(BuildingBlocks):
         good_spacerf = self.try_set(self.allspacer, self.allspacername, "spacer", options, write_inputs=False, fluorinate = True)
 
         use_decorated_spacers = True
-        print "good spacer: ", good_spacer
-        print "good spacerf: ", good_spacerf
-        print "allspacername: ", self.allspacername
-        if (use_decorated_spacers):
-            allthespacers = good_spacer + good_spacerf + self.allspacername
-        else:
+        print "good_spacer        = ", good_spacer
+        print "good_spacerf       = ", good_spacerf
+        print "self.allspacername = ", self.allspacername
+#       Commented line from old-version with if statement on use_decorated_spacers
+#       allthespacers = good_spacer + good_spacerf + self.allspacername
+
+        # When decorating this line prevents redundant spacer listings
+        allthespacers = good_spacer + good_spacerf
+        print "length allthespacers = ", len(allthespacers)
+
+        # If no spacers listed this sets a default of allthespacers = ['']
+        # so entire enumerate doenst fail
+        if (len(allthespacers) == 0):
             allthespacers = self.allspacername
+
         print "All spacers: ", allthespacers
+
         ## exit here if we're JUST doing building blocks
         if ("BB" in classes and len(classes)==1):
             print "Generating JUST input for lone donor and acceptor calcs, returning"
