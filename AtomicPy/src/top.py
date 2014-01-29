@@ -1120,3 +1120,46 @@ def pass_i(N_i,ELN_i,ASYMB_i,R_i,ATYPE_i,GTYPE_i,CHARGES_i,CHARN_i,AMASS_i,RESID
     return (ELN_j,ASYMB_j,R_j,ATYPE_j,GTYPE_j,CHARGES_j,RESID_j,RESN_j,CHARN_j,AMASS_j,BONDS_j,ANGLES_j,DIH_j,IMPS_j,REF_j,GHOST_j)
 	    
 	    
+def zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose):
+    import numpy 
+    #
+    # Sum exsessive charges into carbon atoms 
+    #
+    CHARGES_unit = numpy.zeros( len(ELN)  )			
+    for atom_i in range( len(ELN) ):
+	print atom_i+1,CHARGES[atom_i]
+	# Find each terminal hydrogen
+	if( tag2[atom_i] == "X" ):
+	    term = atom_i 
+	    # Check to be sure hydrogen
+	    if( ELN[atom_i] != 1 ):
+		print " Non hydrogen used as terminal group "
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) terminal group ")
+	    if( verbose ):
+		print " Terminal atom found ",atom_i+1," ",ATYPE[atom_i]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+	    N_o = NBINDEX[atom_i]
+	    N_f = NBINDEX[atom_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+		atom_j = NBLIST[j_indx]
+		term_con_cnt = 0 # Terminal connections count
+		if( tag2[atom_j].strip() == "T" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " Terminal connection found ",atom_j+1," ",ATYPE[atom_j]
+		    term_con = atom_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt < 1 ):
+		print " No terminal connections found "
+		sys.exit(" Error in terminal connects ")
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt > 1 ):
+		print " Multiple terminal connections found "
+		sys.exit(" Error in terminal connects ")
+	    # Sum charges into base monomer unit
+	    CHARGES[term_con] = CHARGES[term_con]  + CHARGES[term] 
+	    CHARGES[term]  = 0.0
+	    
+    return CHARGES 
