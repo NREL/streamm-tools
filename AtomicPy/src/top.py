@@ -100,7 +100,7 @@ def build_covnablist(ELN,R):
     import sys, elements, numpy 
     import datetime
 
-    debug = 1
+    debug = 0
     p_time = 0
     
     na = len( ELN )
@@ -119,14 +119,14 @@ def build_covnablist(ELN,R):
 
     if( p_time ): t_i = datetime.datetime.now()
 
-    for atom_i in range(na-1):
+    for atom_i in range(na):
         NBINDEX[atom_i] = NNAB + 1
         el_i = ELN[atom_i]
         r_i = numpy.array( R[atom_i] )
 	rc_i = radi_cov[el_i]*cov_buffer
 	
 	NNAB_i = NNAB 
-        for atom_j in range( atom_i+1, na ):
+        for atom_j in range( na ):
             if( atom_i != atom_j ):
                 el_j = ELN[atom_j]
                 r_j = numpy.array( R[atom_j] )
@@ -135,30 +135,28 @@ def build_covnablist(ELN,R):
                 #r_ij = delta_r(r_i,r_j)
                 r_cov = rc_i + radi_cov[el_j]*cov_buffer
 		
-		    
-		if( debug ):
-		    print '    atom i/j ', atom_i+1,atom_j+1,el_i,el_j
-		    print '       cov radi ', radi_cov[el_i] , radi_cov[el_j]
-		    print '       r_i ',r_i
-		    print '       r_j ',r_j
-		    print '       r_ij ',r_ij 
-		    print '       |r_ij| ',mag_dr 
-		    print '       r_cov ',r_cov
-    
+
     
                 if( mag_dr <= r_cov ):
                     NNAB = NNAB + 1
                     NBLIST[NNAB] =  atom_j
-			
+						
 		    if( debug ):
-			print '      BONDED '
-			
+			print '    atom i/j ', atom_i+1,atom_j+1,el_i,el_j
+			print '       cov radi ', radi_cov[el_i] , radi_cov[el_j]
+			print '       r_i ',r_i
+			print '       r_j ',r_j
+			print '       r_ij ',r_ij 
+			print '       |r_ij| ',mag_dr 
+			print '       r_cov ',r_cov
+	
 		    
 		    
 		    
 	if( debug ):
-	    print "  atom ",atom_i + 1 ,ELN[atom_i], " has ",NNAB - NNAB_i + 1 ," bonded nieghbors "
+	    print "  atom ",atom_i + 1 ,ELN[atom_i], " has ",NNAB - NNAB_i  ," bonded nieghbors "
 		    
+	
     if( p_time ):
 	t_f = datetime.datetime.now()
 	dt_sec  = t_f.second - t_i.second
@@ -172,7 +170,7 @@ def build_covnablist(ELN,R):
     NBINDEX[atom_i+1] =  NNAB + 1
 
 
-    debug = 1
+    debug = 0
     if ( debug ):
         for i in range(len(ELN)):
             N_o = NBINDEX[ i  ]
@@ -549,10 +547,10 @@ def special_types(ATYPE, ASYMB , ELN , atom_types):
     return ( ASYMB,ELN )
 
 
-def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV):
+def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV):
     import sys, prop
     
-    if( options.verbose ):
+    if( verbose ):
 	print "   Setting charge groups "
     
     NA = len(ATYPE) 
@@ -702,7 +700,7 @@ def set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
    
                
     # Check for unset atoms
-    if ( options.verbose ):
+    if ( verbose ):
 	print "    Charge groups ",max(CHARN)
 	a_max = 0
 	a_min = 1e16
@@ -1221,16 +1219,15 @@ def pass_i(N_i,ELN_i,ASYMB_i,R_i,ATYPE_i,GTYPE_i,CHARGES_i,CHARN_i,AMASS_i,RESID
     return (ELN_j,ASYMB_j,R_j,ATYPE_j,GTYPE_j,CHARGES_j,RESID_j,RESN_j,CHARN_j,AMASS_j,BONDS_j,ANGLES_j,DIH_j,IMPS_j,REF_j,GHOST_j)
 	    
 	    
-def zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose):
+def zero_unitq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose,zero_term,zero_func):
     import numpy 
     #
     # Sum exsessive charges into carbon atoms 
     #
     CHARGES_unit = numpy.zeros( len(ELN)  )			
     for atom_i in range( len(ELN) ):
-	print atom_i+1,CHARGES[atom_i]
 	# Find each terminal hydrogen
-	if( tag2[atom_i] == "X" ):
+	if( tag2[atom_i] == "X"  and zero_term  ):
 	    term = atom_i 
 	    # Check to be sure hydrogen
 	    if( ELN[atom_i] != 1 ):
@@ -1255,12 +1252,107 @@ def zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose):
 	    if( term_con_cnt < 1 ):
 		print " No terminal connections found "
 		sys.exit(" Error in terminal connections ")
-	    # Check to be sure multiple atoms not found
 	    if( term_con_cnt > 1 ):
 		print " Multiple terminal connections found "
 		sys.exit(" Error in terminal connections ")
+		
 	    # Sum charges into base monomer unit
 	    CHARGES[term_con] = CHARGES[term_con]  + CHARGES[term] 
 	    CHARGES[term]  = 0.0
 	    
-    return CHARGES 
+	# Find each functional hydrogen
+	if( tag2[atom_i] == "R"  and zero_func ):
+	    term = atom_i 
+	    # Check to be sure hydrogen
+	    if( ELN[atom_i] != 1 ):
+		print " Non hydrogen used as functional group "
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) functional group ")
+	    if( verbose ):
+		print " Functional atom found ",atom_i+1," ",ATYPE[atom_i]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+	    N_o = NBINDEX[atom_i]
+	    N_f = NBINDEX[atom_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+		atom_j = NBLIST[j_indx]
+		term_con_cnt = 0 # Terminal connections count
+		if( tag2[atom_j].strip() == "F" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " functional connection found ",atom_j+1," ",ATYPE[atom_j]
+		    term_con = atom_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt  < 1 ):
+		print " No functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt > 1 ):
+		print " Multiple functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Sum charges into base monomer unit
+	    CHARGES[term_con] = CHARGES[term_con]  + CHARGES[term] 
+	    CHARGES[term]  = 0.0
+	    
+    return CHARGES
+
+
+def set_cply_tags(verbose, ELN, CTYPE ,NBLIST, NBINDEX ):
+
+    cply_tag = []
+    for atom_i in range( len(ELN) ):
+	cply_tag.append("")
+    
+    if( verbose): print "    setting cply tags "
+    for atom_i in range( len(ELN) ):
+	i_n = atom_i + 1
+
+	print "CHECKING CTYPE ",atom_i,i_n, CTYPE[atom_i] ,  ELN[atom_i]
+	
+	# Set terminal attached carbons 
+	if( CTYPE[atom_i] == "T" and ELN[atom_i] == 6 ):
+	    cply_tag[atom_i] = "term_C(" + str(i_n) + ")"
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    #
+	    # Find terminal hydrogen
+	    #		    
+	    N_o = NBINDEX[atom_i]
+	    N_f = NBINDEX[atom_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+		atom_j = NBLIST[j_indx]
+		j_n = atom_j + 1
+		if( CTYPE[atom_j] == "X" and ELN[atom_j] == 1 ):
+		    term_con_cnt += 1
+		    cply_tag[atom_j] = "termcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+		    
+	    if( term_con_cnt > 1 ):
+		print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
+		sys.exit(" Error in terminal connections ")
+
+    
+	# Set functional attached carbons 
+	if( CTYPE[atom_i] == "F" and ELN[atom_i] == 6 ):
+	    cply_tag[atom_i] = "func_C(" + str(i_n) + ")"
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    # 
+	    # Find function hydrogen
+	    # 
+	    N_o = NBINDEX[atom_i]
+	    N_f = NBINDEX[atom_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+		atom_j = NBLIST[j_indx]
+		j_n = atom_j + 1
+		print " ",atom_j,j_n,CTYPE[atom_j],ELN[atom_j]
+		if( CTYPE[atom_j] == "R" and ELN[atom_j] == 1 ):
+		    term_con_cnt += 1
+		    cply_tag[atom_j] = "funccap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+		    
+		    print " func found ", cply_tag[atom_j] 
+	    
+	    if( term_con_cnt != 1 ):
+		print " Number of functional atoms attached to atom ",i_n," not equal to 1 "
+		sys.exit(" Error in functional connections ")
+		
+    return cply_tag
