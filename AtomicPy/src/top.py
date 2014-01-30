@@ -93,6 +93,107 @@ def calc_elcnt(i,ELN,NBLIST,NBINDEX):
 
     return ELCNT 
 
+def build_covnablist(ELN,R):
+    #
+    # Build covalent neighbor list from elements and positions 
+    #
+    import sys, elements, numpy 
+    import datetime
+
+    debug = 1
+    p_time = 0
+    
+    na = len( ELN )
+    maxnnab = na*12
+
+    cov_buffer = 1.25
+    
+    radi_cov =  []
+    NBLIST = numpy.empty( maxnnab,  dtype=int )
+    NBINDEX = numpy.empty( maxnnab,  dtype=int )
+
+    radi_cov =  elements.covalent_radi()
+
+
+    NNAB = 0
+
+    if( p_time ): t_i = datetime.datetime.now()
+
+    for atom_i in range(na-1):
+        NBINDEX[atom_i] = NNAB + 1
+        el_i = ELN[atom_i]
+        r_i = numpy.array( R[atom_i] )
+	rc_i = radi_cov[el_i]*cov_buffer
+	
+	NNAB_i = NNAB 
+        for atom_j in range( atom_i+1, na ):
+            if( atom_i != atom_j ):
+                el_j = ELN[atom_j]
+                r_j = numpy.array( R[atom_j] )
+		r_ij = r_j - r_i
+		mag_dr =  numpy.linalg.norm(r_ij)
+                #r_ij = delta_r(r_i,r_j)
+                r_cov = rc_i + radi_cov[el_j]*cov_buffer
+		
+		    
+		if( debug ):
+		    print '    atom i/j ', atom_i+1,atom_j+1,el_i,el_j
+		    print '       cov radi ', radi_cov[el_i] , radi_cov[el_j]
+		    print '       r_i ',r_i
+		    print '       r_j ',r_j
+		    print '       r_ij ',r_ij 
+		    print '       |r_ij| ',mag_dr 
+		    print '       r_cov ',r_cov
+    
+    
+                if( mag_dr <= r_cov ):
+                    NNAB = NNAB + 1
+                    NBLIST[NNAB] =  atom_j
+			
+		    if( debug ):
+			print '      BONDED '
+			
+		    
+		    
+		    
+	if( debug ):
+	    print "  atom ",atom_i + 1 ,ELN[atom_i], " has ",NNAB - NNAB_i + 1 ," bonded nieghbors "
+		    
+    if( p_time ):
+	t_f = datetime.datetime.now()
+	dt_sec  = t_f.second - t_i.second
+	dt_min  = t_f.minute - t_i.minute
+	if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+	print "  build_nablist dt ",dt_min,dt_sec
+
+    if(debug): sys.exit('debug build_covnablist')
+    
+    # Account for final atom position
+    NBINDEX[atom_i+1] =  NNAB + 1
+
+
+    debug = 1
+    if ( debug ):
+        for i in range(len(ELN)):
+            N_o = NBINDEX[ i  ]
+            N_f = NBINDEX[ i + 1 ] - 1
+            NNAB = N_f - N_o + 1
+            print ' atom ', i,' ',ELN[i],NNAB,N_o    
+            #
+            # Find number of elements
+            #
+            #ELCNT = numpy.zeros(120)
+            for indx in range( N_o,N_f+1):
+                j = NBLIST[indx]
+                print ELN[j],j
+                #    el_j = ELN[j]
+                #    ELCNT[j] = ELCNT[j] + 1
+
+        sys.exit('debug build_covnablist')
+
+
+    return (NBLIST, NBINDEX)
+
 
 def nblist_bonds(NA,NBLIST, NBINDEX):
     import sys
@@ -1153,11 +1254,11 @@ def zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose):
 	    # Check to be sure multiple atoms not found
 	    if( term_con_cnt < 1 ):
 		print " No terminal connections found "
-		sys.exit(" Error in terminal connects ")
+		sys.exit(" Error in terminal connections ")
 	    # Check to be sure multiple atoms not found
 	    if( term_con_cnt > 1 ):
 		print " Multiple terminal connections found "
-		sys.exit(" Error in terminal connects ")
+		sys.exit(" Error in terminal connections ")
 	    # Sum charges into base monomer unit
 	    CHARGES[term_con] = CHARGES[term_con]  + CHARGES[term] 
 	    CHARGES[term]  = 0.0

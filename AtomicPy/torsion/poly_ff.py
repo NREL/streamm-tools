@@ -15,7 +15,7 @@ def get_options():
     parser = OptionParser(usage=usage)
     
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    parser.add_option("-v","--verbose", dest="verbose", default=True,action="store_true", help="Verbose output ")
     
     # Cluster options
     parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
@@ -412,6 +412,16 @@ def main():
 			if( options.verbose ):
 			    print "    Getting charges from esp fit ",fchk_file_esp
 			NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
+			
+			debug = 0
+			if( debug):
+			    print len(ELN)
+			    print ""
+			    for i in range( len(ELN)):
+				print ELN[i],R[i][0],R[i][1],R[i][2]
+			    
+			    sys.exit("debug pol_ff R")
+			    
 			    
 			esp_finished = 1
 			
@@ -496,7 +506,7 @@ def main():
 				#print col[4]
 				u = int( col[4] ) 
 				unit.append( u )
-				tag1.append( col[5] )
+				tag1.append( "" )
 				tag2.append( col[6] )
 				
 				
@@ -544,6 +554,64 @@ def main():
 			# Sum terminal hydrogen charges into carbon atoms 
 			#
 			CHARGES = top.zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,options.verbose)
+			
+			#
+			# Set tag1 for cply output
+			#
+			if( options.verbose): print "    setting cply tags "
+			for atom_i in range( len(ELN) ):
+			    i_n = atom_i + 1
+			    # Set terminal attached carbons 
+			    if( tag2[atom_i] == "T" and ELN[atom_i] == 6 ):
+				tag1[atom_i] = "term_C(" + str(i_n) + ")"
+				#
+				term_con_cnt = 0 # Terminal connections count
+				#
+				# Find terminal hydrogen
+				#		    
+				N_o = NBINDEX[atom_i]
+				N_f = NBINDEX[atom_i+1] - 1
+				for j_indx in range( N_o,N_f+1):
+				    atom_j = NBLIST[j_indx]
+				    j_n = atom_j + 1
+				    if( tag2[atom_j] == "X" and ELN[atom_j] == 1 ):
+					term_con_cnt += 1
+					tag1[atom_j] = "termcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+					
+				if( term_con_cnt > 1 ):
+				    print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
+				    sys.exit(" Error in terminal connections ")
+
+			
+			    # Set functional attached carbons 
+			    if( tag2[atom_i] == "F" and ELN[atom_i] == 6 ):
+				tag1[atom_i] = "f_C(" + str(i_n) + ")"
+				#
+				term_con_cnt = 0 # Terminal connections count
+				#
+				# Find function hydrogen
+				#
+				
+				
+				
+				N_o = NBINDEX[atom_i]
+				N_f = NBINDEX[atom_i+1] - 1
+				for j_indx in range( N_o,N_f+1):
+				    atom_j = NBLIST[j_indx]
+				    j_n = atom_j + 1
+				    print " ",atom_j,j_n,tag2[atom_j],ELN[atom_j]
+				    if( tag2[atom_j] == "R" and ELN[atom_j] == 1 ):
+					term_con_cnt += 1
+					tag1[atom_j] = "fcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+					
+					print " func found ", tag1[atom_j] 
+				
+				if( term_con_cnt != 1 ):
+				    print " Number of functional atoms attached to atom ",i_n," not equal to 1 "
+				    sys.exit(" Error in functional connections ")
+
+			
+			
     
 			# Identify total number of atom types for lammps output 
 			ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
@@ -599,6 +667,33 @@ def main():
 				  DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 				  RESN,ATYPE_IND,CHARGES,R , ATYPE,
 				  BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+			    
+			#
+			# Print new building block with charges 
+			#
+			bb_dir = "BuildingBlock_local"
+			if (not os.path.isdir(bb_dir)):
+			    os.mkdir(bb_dir)
+			    
+			for bb_subdir in ( "acceptors","donors","functional_groups","spacers","terminals" ):
+			    mk_dir  = bb_dir +"/"+bb_subdir
+			    if (not os.path.isdir(mk_dir)):
+			        os.mkdir(mk_dir)
+			
+			    
+			bb_dir = "BuildingBlock_local/donors"
+			    
+			os.chdir(bb_dir)
+
+			bb_file = job_name + ".cply"
+			F = open(bb_file,'w')
+			F.write('D(f1)')
+			for atom_i in range( len(ELN) ):
+			    print ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],tag1[atom_i],tag2[atom_i]
+			    F.write('\n %s %16.6f %16.6f %16.6f %16.6f %s %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],str( tag2[atom_i]),str( tag1[atom_i]) ) )
+			
+			F.close()
+			
 
 		os.chdir(work_dir)
 
