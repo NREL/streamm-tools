@@ -156,8 +156,42 @@ def main():
                 # File info
                 struct_dir = mol_dir + "/" + mol_id + "/"
                 job_name = mol_acc + "_" + mol_id + "_n" + str(mol_repeat)
-		
-		print "   Running job ",struct_dir,job_name
+
+		# Read data from json file
+		json_name = struct_dir +"/" + job_name +".json"
+		if(  file_io.file_exists( json_name) ):
+		    if( options.verbose ):
+			print "     Getting atomic data from  ",json_name
+					    
+		    f = open(json_name, 'r')
+		    json_data = json.load(f)
+		    f.close()
+		    
+		    ELN = []
+		    ASYMB = []
+		    ATYPE = []
+		    CTYPE = []
+		    CHARGES = []
+		    R = []
+		    CHARN = []
+		    UNITNUMB = [] 
+		    
+		    natoms = json_data['metadata']["atomic"]["natoms"]  
+		    print "       Number of atoms found in json file ",natoms
+		    for atom_i in range( natoms ):
+			ELN.append( json_data['metadata']["atomic"]["element"][atom_i]  )
+			ASYMB.append( json_data['metadata']["atomic"]["asymb"][atom_i]  )
+			ATYPE.append( json_data['metadata']["atomic"]["atype"][atom_i]  )
+			CTYPE.append( json_data['metadata']["atomic"]["ctype"][atom_i]  )
+			CHARGES.append( json_data['metadata']["atomic"]["q"][atom_i]  )
+			CHARN.append( json_data['metadata']["atomic"]["qgroup"][atom_i]  )
+			UNITNUMB.append( json_data['metadata']["atomic"]["unitnumb"][atom_i]  )
+			pos_str = json_data['metadata']["atomic"]["pos"][atom_i].split()
+			r_i = numpy.array( [float(pos_str[0]),float(pos_str[1]),float(pos_str[2])] )
+			R.append( r_i )
+		else:
+		    print "   json file ",json_name," does not exist. "
+		    sys.exit("error in json read  ")
 
 		# Get geometry from optimized structure 
                 calc_id = job_name
@@ -168,232 +202,76 @@ def main():
 		esp_finished = 0 
 		if( file_io.file_exists( fchk_file) ):
                     if( options.verbose ):
-			print  '    Get results from ', fchk_file
+			print  '    Get optimized geometry from ', fchk_file
 			    
 		    # Read in from zmatrix optimization 
 		    NA, ELN, R, TOTAL_ENERGY, Q_ESP   = gaussian.parse_fchk( fchk_file )
-		    ASYMB = elements.eln_asymb(ELN)
 		    
-		    #   Build covalent nieghbor list for bonded information 
-		    NBLIST, NBINDEX = top.build_covnablist(ELN,R)
 		    opt_finished = 1
-    
-		    # pars zmatirix file
-		    #comz_name = struct_dir+'/'+ job_name+'-ZMAT/'+ job_name +  "-ZMAT.com"
-		    #f = open(comz_name,'r')
-		    #zmatrix_lines = f.readlines()
-		    #f.close()
+		    # Update json data
+		    #atomic_data["pos"] = []
+		    for atom_i in range( len(ELN) ):				
+			pos_str = str( "%f %f %f "% (R[atom_i][0],R[atom_i][1],R[atom_i][2]) )
+			json_data['metadata']["atomic"]["pos"][atom_i] =  pos_str 
+				
 		    
-		    # need to change to reading out of connections 
-		    #DIH_ID,DIH_ATOMS = get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
-		    # Find rings		    
-		    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
-		    
-		    RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
-
-		    #DIH_ID,DIH_ATOMS,zmatrix = gaussian.get_dih_id( RING_CONNECT,RING_NUMB, zmatrix_lines )
-		    
-		    #zmatrix = gaussian.com_zmatrix(comz_name)    
-		    #DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
-    
 				
 		else:
 		    print "  could not find ",fchk_file
 
 		    
-		if( opt_finished ):
-		    # Run esp fit
-		    calc_id_esp = job_name + "-ESP"
-		    input_file = calc_id_esp + ".com"
-		    log_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".log"
-		    fchk_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".fchk"
+		# Get ESP chages 
+		calc_id_esp = job_name + "-ESP"
+		#    input_file = calc_id_esp + ".com"
+		#    log_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".log"
+		fchk_file_esp = struct_dir +'/' + calc_id_esp +"/"+calc_id_esp+".fchk"
 		    
-		    # Run esp fit if not finished
-		    if( not file_io.file_exists( fchk_file_esp) ):
-                        # Make esp input file
-			if( options.verbose ):
-			    print  '    Writing esp fit input file ',calc_id_esp," in ",struct_dir
-			
-                        else:
-			    print " esp fit results do  not exist "
-                            print " Please mark either qsub or runloc options as True to run qm"	
-			    sys.exit(" Need esp fit ")
-			    
-			os.chdir(work_dir)
-			    
-		    # Check if finished
-		    #   basicaly if local run is done or should just skip over if submitted to queue
-		    if(  file_io.file_exists( fchk_file_esp) ):
-			if( options.verbose ):
-			    print "    Getting charges from esp fit ",fchk_file_esp
-			NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
-			ASYMB = elements.eln_asymb(ELN)
-			
-			debug = 0
-			if( debug):
-			    print len(ELN)
-			    print ""
-			    for i in range( len(ELN)):
-				print ELN[i],R[i][0],R[i][1],R[i][2]
-			    
-			    sys.exit("debug pol_ff R")
-			    
-			    
-			esp_finished = 1
-			
-		    if(  esp_finished ):
-			    
-			# Read data from json file
-			
-				    
-			json_name = struct_dir +"/" + job_name +".json"
-			if(  file_io.file_exists( json_name) ):
-			    if( options.verbose ):
-				print "    Getting atomic data from  ",json_name
-						    
-			    f = open(json_name, 'r')
-			    json_data = json.load(f)
-			    f.close()
-			    
-			    
-			    
-			    
-			    print json_data['metadata']["atomic"]["atype"] 
-			    
-			    sys.exit("gen_struct json read debug  ")
-			
+		if( file_io.file_exists( fchk_file_esp) ):
+                    
+		    if( options.verbose ):
+			print "    Getting charges from esp fit ",fchk_file_esp
+		    NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
 
-	    		# Update atomic information	
-			CHARN = top.set_chargegroups(options.options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
-			unit_max = max( unit )
-			print "  unit_max ",unit_max
-			unit_q = numpy.zeros( unit_max )
-			unit_cnt = numpy.zeros( unit_max )
-			unit_q_exs = numpy.zeros( unit_max )
-			#unit_cnt_exs = numpy.zeros( unit_max )
-			
-			
-			
-			for u in range(unit_max):
-			    for i in range( len(ELN) ):
-				if( u ==  unit[i] -1  ):
-				    unit_q[u] += CHARGES[i]
-				    
-				    if(  tag2[i].strip() == 'U' ):
-					unit_cnt[u] += 1
-				    else:
-					unit_q_exs[u] += CHARGES[i]
-					
-				    #print i,unit[i] ,u,CHARGES[i],unit_q[u]
-
-			#sys.exit( 'mk_ff 1 - 2 ' )
-				 
-			n_chrgrp =  max( CHARN )
-			q_chrgrp = numpy.zeros( n_chrgrp )
-			print "   n_chrgrp ",n_chrgrp
-			
-			for i in range( len(ELN) ):
-			    print i,ELN[i],ASYMB[i],ATYPE[i],CHARGES[i] ,CHARN[i], unit[i],tag1[i],tag2[i]
-			    q_n = CHARN[i] - 1
-			    q_chrgrp[q_n] += CHARGES[i]
-			
-			q_exs_u = numpy.zeros( unit_max )
-			for u in range(unit_max):
-			    q_exs_u[u] = unit_q[u] - unit_q_exs[u]
-			    print u , " ",unit_q[u] , unit_q_exs[u]
-			    print "      excess per atom ",q_exs_u[u]/unit_cnt[u] 
-			
-			
-			#
-			# Sum terminal hydrogen charges into carbon atoms 
-			#
-			# This step has be trasfered to donoracceptorsystems py 
-			#CHARGES = top.zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,options.verbose)
-			
-			#
-			# Set tag1 for cply output
-			#
-			if( options.verbose): print "    setting cply tags "
-			for atom_i in range( len(ELN) ):
-			    i_n = atom_i + 1
-			    # Set terminal attached carbons 
-			    if( tag2[atom_i] == "T" and ELN[atom_i] == 6 ):
-				tag1[atom_i] = "term_C(" + str(i_n) + ")"
-				#
-				term_con_cnt = 0 # Terminal connections count
-				#
-				# Find terminal hydrogen
-				#		    
-				N_o = NBINDEX[atom_i]
-				N_f = NBINDEX[atom_i+1] - 1
-				for j_indx in range( N_o,N_f+1):
-				    atom_j = NBLIST[j_indx]
-				    j_n = atom_j + 1
-				    if( tag2[atom_j] == "X" and ELN[atom_j] == 1 ):
-					term_con_cnt += 1
-					tag1[atom_j] = "termcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
-					
-				if( term_con_cnt > 1 ):
-				    print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
-				    sys.exit(" Error in terminal connections ")
-
-			
-			    # Set functional attached carbons 
-			    if( tag2[atom_i] == "F" and ELN[atom_i] == 6 ):
-				tag1[atom_i] = "func_C(" + str(i_n) + ")"
-				#
-				term_con_cnt = 0 # Terminal connections count
-				#
-				# Find function hydrogen
-				#
 				
-				
-				
-				N_o = NBINDEX[atom_i]
-				N_f = NBINDEX[atom_i+1] - 1
-				for j_indx in range( N_o,N_f+1):
-				    atom_j = NBLIST[j_indx]
-				    j_n = atom_j + 1
-				    print " ",atom_j,j_n,tag2[atom_j],ELN[atom_j]
-				    if( tag2[atom_j] == "R" and ELN[atom_j] == 1 ):
-					term_con_cnt += 1
-					tag1[atom_j] = "funccap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
-					
-					print " func found ", tag1[atom_j] 
-				
-				if( term_con_cnt != 1 ):
-				    print " Number of functional atoms attached to atom ",i_n," not equal to 1 "
-				    sys.exit(" Error in functional connections ")
+		else:
+		    print "  could not find ",fchk_file_esp
 
-			
-						
-			    
-			#
-			# Print new building block with charges 
-			#
-			bb_dir = "BuildingBlock_local"
-			if (not os.path.isdir(bb_dir)):
-			    os.mkdir(bb_dir)
-			    
-			for bb_subdir in ( "acceptors","donors","functional_groups","spacers","terminals" ):
-			    mk_dir  = bb_dir +"/"+bb_subdir
-			    if (not os.path.isdir(mk_dir)):
-			        os.mkdir(mk_dir)
-			
-			    
-			bb_dir = "BuildingBlock_local/donors"
-			    
-			os.chdir(bb_dir)
+		    
+		#   Build covalent nieghbor list for bonded information 
+		NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+		
+		#
+		# Set cply_tag for cply output
+		#
+		cply_tag = top.set_cply_tags(  options.verbose, ELN, CTYPE ,NBLIST, NBINDEX )
+		#
+		# Print new building block with charges 
+		#
+		
+		if( options.verbose): print "    Creating BuildingBlock_local directories "
+		bb_dir = struct_dir + "BuildingBlock_local"
+		if (not os.path.isdir(bb_dir)):
+		    os.mkdir(bb_dir)
+		    
+		for bb_subdir in ( "acceptors","donors","functional_groups","spacers","terminals" ):
+		    mk_dir  = bb_dir +"/"+bb_subdir
+		    if (not os.path.isdir(mk_dir)):
+			os.mkdir(mk_dir)
+		    
+		bb_dir_donor =  struct_dir + "BuildingBlock_local/donors"
+		    
+		bb_file = bb_dir_donor +"/" + job_name + ".cply"
+		
+		if( options.verbose): print "    Creating BuildingBlock_local file ",bb_file
+		
+		F = open(bb_file,'w')
+		F.write('D()')
+		for atom_i in range( len(ELN) ):
+		    F.write('\n %s %16.6f %16.6f %16.6f %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],str( cply_tag[atom_i]) ) )			
+		F.close()
+		
 
-			bb_file = job_name + ".cply"
-			F = open(bb_file,'w')
-			F.write('D(R1)')
-			for atom_i in range( len(ELN) ):
-			    F.write('\n %s %16.6f %16.6f %16.6f %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],str( tag1[atom_i]) ) )			
-			F.close()
-			
-
-			    
+		    
 		os.chdir(work_dir)
 
 if __name__=="__main__":
