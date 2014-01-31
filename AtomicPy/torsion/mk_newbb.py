@@ -231,8 +231,9 @@ def main():
 		    if( options.verbose ):
 			print "    Getting charges from esp fit ",fchk_file_esp
 		    NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
-
-				
+		    for atom_i in range( len(ELN) ):				
+			json_data['metadata']["atomic"]["q"][atom_i] =  CHARGES[atom_i] 
+		
 		else:
 		    print "  could not find ",fchk_file_esp
 
@@ -243,9 +244,11 @@ def main():
 		#
 		# Set cply_tag for cply output
 		#
-		cply_tag = top.set_cply_tags(  options.verbose, ELN, CTYPE ,NBLIST, NBINDEX )
+		cply_tag = top.set_cply_tags(  options.verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX )
+		# !!!! need to update CTYPES to show connections made !!!!
+		
 		#
-		# Print new building block with charges 
+		# Print new building block with optimized geometry  
 		#
 		
 		if( options.verbose): print "    Creating BuildingBlock_local directories "
@@ -257,10 +260,10 @@ def main():
 		    mk_dir  = bb_dir +"/"+bb_subdir
 		    if (not os.path.isdir(mk_dir)):
 			os.mkdir(mk_dir)
-		    
+		
 		bb_dir_donor =  struct_dir + "BuildingBlock_local/donors"
-		    
-		bb_file = bb_dir_donor +"/" + job_name + ".cply"
+
+		bb_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".cply"
 		
 		if( options.verbose): print "    Creating BuildingBlock_local file ",bb_file
 		
@@ -269,8 +272,21 @@ def main():
 		for atom_i in range( len(ELN) ):
 		    F.write('\n %s %16.6f %16.6f %16.6f %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],str( cply_tag[atom_i]) ) )			
 		F.close()
+		#
+		# Print new json with updated atomic charges 
+		#
 		
-
+		# Need to merge with opv-project to get general json file write_meta
+		#frag.write_meta(json_data, xyz_name)
+		json_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".json"
+		
+		if( options.verbose): print "    Creating new json file ",json_file
+		
+		f = open(json_file, 'w')
+		json.dump(json_data, f, indent=2)
+		f.close()
+		
+		
 		    
 		os.chdir(work_dir)
 
