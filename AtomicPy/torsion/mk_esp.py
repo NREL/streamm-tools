@@ -78,7 +78,7 @@ def main():
     pmem = options.pmem
 
     # Read in template files 
-    f = open(options.dih_temp,'r')
+    f = open(options.com_temp,'r')
     fix_templ = f.read()
     f.close()
 
