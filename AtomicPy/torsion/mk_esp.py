@@ -135,6 +135,10 @@ def main():
 		    if( options.verbose ):
 			
 			print "    Optimization finished  ",fchk_file
+			
+		    NA, ELN, R, TOTAL_ENERGY, Q_ESP    = gaussian.parse_fchk( fchk_file )
+		    ASYMB = elements.eln_asymb(ELN)
+		    
 
 		    # Run esp fit
 		    calc_id_esp = job_name + "-ESP"
