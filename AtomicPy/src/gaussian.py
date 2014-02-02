@@ -203,7 +203,6 @@ def parse_fchk( fchk_file ):
 		
     return ( NA, ELN, R, TOTAL_ENERGY , Q_ESP  )
 
-
 def com_zmatrix(com_name):
     # Get zmatrix from gaussian input file
 
@@ -231,7 +230,7 @@ def com_zmatrix(com_name):
     
     return zmatrix
 
-def  get_dih_id( zmatrix ):
+def get_dih_id( zmatrix ):
     # find dihedral id's atoms and values from zmatrix 
     import sys
     
@@ -459,3 +458,26 @@ def chk2fchk( options , calc_id ):
             print " no chk file ",chk_file
             sys.exit(' file not found ')
         
+
+
+def write_esp_com(calc_id,ASYMB,R):
+    
+    esp_com = calc_id +  ".com"
+    
+    f = file(esp_com, "w")
+    f.write(  '%chk='+str(calc_id)+'.chk' + '\n' )
+    #lines_opt =  '#P B3LYP/6-31+g**  OPT nosym '
+    lines_opt =  '#P HF/3-21g  SP  POP=MK'
+    lines_opt = lines_opt + '\n' + ' '
+    lines_opt = lines_opt + '\n' + str(calc_id) + " esp fit "
+    lines_opt = lines_opt + '\n' + ' ' 
+    lines_opt = lines_opt + '\n' + '0 1 ' + '\n' 
+    f.write(lines_opt)
+
+    for atom_i in range( len(ASYMB) ):
+        f.write( " %5s %12.6f %12.6f %12.6f \n" % ( ASYMB[atom_i],R[atom_i][0], R[atom_i][1], R[atom_i][2] ))
+        
+    f.write( ' ' + '\n')
+    f.close()
+    
+    	
