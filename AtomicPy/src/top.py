@@ -1220,7 +1220,9 @@ def pass_i(N_i,ELN_i,ASYMB_i,R_i,ATYPE_i,GTYPE_i,CHARGES_i,CHARN_i,AMASS_i,RESID
 	    
 	    
 def zero_unitq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose,zero_term,zero_func):
-    import numpy 
+    import numpy
+    import sys 
+    
     #
     # Sum exsessive charges into carbon atoms 
     #
@@ -1297,8 +1299,11 @@ def zero_unitq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose,zero_term,zero_func
     return CHARGES
 
 
-def set_cply_tags(verbose, ELN, CTYPE ,NBLIST, NBINDEX ):
-
+def set_cply_tags(verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX ):
+    #
+    #  Set tags for new cply file 
+    #     Use ctype tag and bonding enviroment
+    #
     cply_tag = []
     for atom_i in range( len(ELN) ):
 	cply_tag.append("")
@@ -1311,7 +1316,6 @@ def set_cply_tags(verbose, ELN, CTYPE ,NBLIST, NBINDEX ):
 	
 	# Set terminal attached carbons 
 	if( CTYPE[atom_i] == "T" and ELN[atom_i] == 6 ):
-	    cply_tag[atom_i] = "term_C(" + str(i_n) + ")"
 	    #
 	    term_con_cnt = 0 # Terminal connections count
 	    #
@@ -1323,17 +1327,19 @@ def set_cply_tags(verbose, ELN, CTYPE ,NBLIST, NBINDEX ):
 		atom_j = NBLIST[j_indx]
 		j_n = atom_j + 1
 		if( CTYPE[atom_j] == "X" and ELN[atom_j] == 1 ):
-		    term_con_cnt += 1
-		    cply_tag[atom_j] = "termcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
-		    
+		    # Check to see if it has been bonded to another unit 
+		    if( UNITNUMB[atom_i] ==  UNITNUMB[atom_j] ):
+			term_con_cnt += 1
+			cply_tag[atom_j] = "termcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+		      
+	    if(   term_con_cnt == 1 ):
+		cply_tag[atom_i] = "term_C(" + str(i_n) + ")"
 	    if( term_con_cnt > 1 ):
 		print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
 		sys.exit(" Error in terminal connections ")
-
-    
+	    
 	# Set functional attached carbons 
 	if( CTYPE[atom_i] == "F" and ELN[atom_i] == 6 ):
-	    cply_tag[atom_i] = "func_C(" + str(i_n) + ")"
 	    #
 	    term_con_cnt = 0 # Terminal connections count
 	    # 
@@ -1346,13 +1352,112 @@ def set_cply_tags(verbose, ELN, CTYPE ,NBLIST, NBINDEX ):
 		j_n = atom_j + 1
 		print " ",atom_j,j_n,CTYPE[atom_j],ELN[atom_j]
 		if( CTYPE[atom_j] == "R" and ELN[atom_j] == 1 ):
-		    term_con_cnt += 1
-		    cply_tag[atom_j] = "funccap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
-		    
-		    print " func found ", cply_tag[atom_j] 
-	    
-	    if( term_con_cnt != 1 ):
+		    # Check to see if it has been bonded to another unit 
+		    if( UNITNUMB[atom_i] ==  UNITNUMB[atom_j] ):
+			term_con_cnt += 1
+			cply_tag[atom_j] = "funccap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+
+	    if( term_con_cnt == 1 ):
+		cply_tag[atom_i] = "func_C(" + str(i_n) + ")"
+		
+	    if( term_con_cnt > 1 ):
 		print " Number of functional atoms attached to atom ",i_n," not equal to 1 "
 		sys.exit(" Error in functional connections ")
 		
     return cply_tag
+
+
+def print_ff_files(ELN,R,CHARGES,LV):
+	
+    
+    AMASS = elements.eln_amass(ELN)
+    RESID = top.initialize_resid( ELN )
+    
+    #   Initialize  topology values
+    GTYPE = top.initialize_gtype( ELN )
+    RESID = top.initialize_resid( ELN )
+    RESN = top.initialize_resn( ELN )
+    CHARN = top.initialize_charn( ELN )
+    
+    
+    #   Build covalent nieghbor list for bonded information 
+    NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+    
+    #
+    # Set charge groups
+    #
+    CG_SET = []
+    one = 1
+    for i in range( len(ELN) ):
+	CG_SET.append(one)
+    #
+    d_mass = 0
+    d_charge = 0
+    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+    
+    # Asign oplsaa atom types
+    ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
+    
+    ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+    #Refind inter ring types
+    ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+    
+    #
+    # Set charge groups
+    #
+    CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)        
+    
+    # Identify total number of atom types for lammps output 
+    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+    
+    # Check atom types to be sure each atom of the same type has the same number of neighbors 
+    ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+    # Modify dih potentials
+    ## FF_DIHTYPES = mod_dih( ATYPE_IND 
+    
+    # Print new itp file with only used atom types and interactions
+    if( options.ff_software == "gromacs"):
+	#AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    
+    # Print output
+    os.chdir(struct_dir)
+    
+    out_xyz =  job_name + "-ff.xyz"
+    job_gro = job_name +  ".gro"
+    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LAT_CONST)
+    
+    ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    
+    IMPTYPE_F  = top.imp_parameters(options.itp_file)
+    
+    if( options.ff_software == "gromacs"):
+	top_file =  job_name +  ".top"
+	const = []
+	angle = []
+	gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+		       ,const,angle
+		       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+		       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+    
+	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    
+			
+	
+    elif( options.ff_software == "lammps" ):
+	
+	data_file = "out.data"
+	
+	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
+	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+    
+    
+	

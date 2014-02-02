@@ -44,71 +44,9 @@ def get_options():
     return options, args
 
 
-def build_nablist(ELN,BONDS):
-    import sys,numpy
-
-    debug = 0
-    NNAB = 0
-
-    maxnnab = len(BONDS)*2 + 1
-    NBLIST = numpy.empty( maxnnab,  dtype=int )
-    NBINDEX = numpy.empty( maxnnab,  dtype=int )
-
-    if(debug ):
-	for b in range( len(BONDS) ) :
-	    bnd_i = BONDS[b][0]
-	    bnd_j = BONDS[b][1]
-	    print b, bnd_i,bnd_j
-	    
-    for i in range(len(ELN)):
-	NBINDEX[i] = NNAB + 1
-	for b in range( len(BONDS) ) :
-	    bnd_i = BONDS[b][0]
-	    bnd_j = BONDS[b][1]
-	    if ( i == bnd_i ):
-		NNAB = NNAB + 1
-		NBLIST[NNAB] =  bnd_j
-		if(debug): print " adding bnd_i",i,b,bnd_i,bnd_j,len(NBLIST),NBINDEX[i]
-	
-	    if ( i == bnd_j ):
-		NNAB = NNAB + 1
-		NBLIST[NNAB] =  bnd_i
-		if(debug): print " adding bnd_j",i,b,bnd_i,bnd_j,len(NBLIST),NBINDEX[i]
-		    
-    #if(debug): sys.exit('debug')
-    
-    # Account for final atom position
-    NBINDEX[i+1] =  NNAB + 1
-
-    debug = 0
-    if ( debug ):
-       print ' total nbs ',NNAB,' total bonds ',len(BONDS)
-       for i in range(len(ELN)):
-	    N_o = NBINDEX[ i  ]
-	    N_f = NBINDEX[ i + 1 ] - 1
-	    NNAB = N_f - N_o + 1
-	    print ' atom ', i,' ',ELN[i],NNAB,N_o
-    
-	    #
-	    # Find number of elements
-	    #
-	    #ELCNT = numpy.zeros(120)
-	    for indx in range( N_o,N_f+1):
-		j = NBLIST[indx]
-		print ELN[j],j
-		#    el_j = ELN[j]
-		#    ELCNT[j] = ELCNT[j] + 1
-
-       sys.exit('mk_ff.build_nablist')
-
-
-    return (NBLIST,NBINDEX)
-
-
-    
 def main():
     import sys, os 
-    import string  , numpy  , json 
+    import string, numpy, jsonapy , json 
     from string import replace
     import file_io, gaussian, elements, gromacs, lammps , top, atom_types, xmol 
     
@@ -126,8 +64,6 @@ def main():
     elif( options.cluster_host == "macbook" ):
 	load_gaussian = ""
         user = 'tkemper'
-
-
 	
     # sufix for force field calcs to run multiple ff types or excultions, such as q(i) = 0.00 
     ff_type_id = "_fit"
@@ -163,43 +99,17 @@ def main():
 		# Read data from json file
 		json_name = struct_dir +"/" + job_name +".json"
 		json_atomicdata = 0
-		if(  file_io.file_exists( json_name) ):
+		json_data,json_success = jsonapy.read_jsondata(json_name)
+		if(  json_success ):
 		    if( options.verbose ):
 			print "     Getting atomic data from  ",json_name
-
-		    f = open(json_name, 'r')
-		    json_data = json.load(f)
-		    f.close()
-		    
-		    if ( len(json_data['metadata']["atomic"]) > 0  ):
-			
-			ELN = []
-			ASYMB = []
-			ATYPE = []
-			CTYPE = []
-			CHARGES = []
-			R = []
-			CHARN = []
-			UNITNUMB = [] 
-			TAG3 = []
-			
-			natoms = json_data['metadata']["atomic"]["natoms"]  
-			print "       Number of atoms found in json file ",natoms
-			for atom_i in range( natoms ):
-			    ELN.append( json_data['metadata']["atomic"]["element"][atom_i]  )
-			    ASYMB.append( json_data['metadata']["atomic"]["asymb"][atom_i]  )
-			    ATYPE.append( json_data['metadata']["atomic"]["atype"][atom_i]  )
-			    CTYPE.append( json_data['metadata']["atomic"]["ctype"][atom_i]  )
-			    CHARGES.append( json_data['metadata']["atomic"]["q"][atom_i]  )
-			    CHARN.append( json_data['metadata']["atomic"]["qgroup"][atom_i]  )
-			    UNITNUMB.append( json_data['metadata']["atomic"]["unitnumb"][atom_i]  )
-			    pos_str = json_data['metadata']["atomic"]["pos"][atom_i].split()
-			    r_i = numpy.array( [float(pos_str[0]),float(pos_str[1]),float(pos_str[2])] )
-			    R.append( r_i )
-				
-			    json_atomicdata = 1
+    
+		    ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success  = jsonapy.read_atomic(json_data)
+		    if( success ):
+			json_atomicdata = 1
 		    else:
-			print "   json file ",json_name," exist but dones not contain atomic information"
+			 print "   json file ",json_name," exist, but does not contain any atomic data . "
+		    
 		else:
 		    print "   json file ",json_name," does not exist. "
 		#
@@ -214,7 +124,7 @@ def main():
 			print  '    Get optimized geometry from ', fchk_file
 			    
 		    # Read in from zmatrix optimization 
-		    NA, ELN, R, TOTAL_ENERGY, CHARGES   = gaussian.parse_fchk( fchk_file )
+		    NA, ELN, R, TOTAL_ENERGY, Q_ESP    = gaussian.parse_fchk( fchk_file )
 		    
 		    opt_finished = 1
 		    
@@ -232,10 +142,12 @@ def main():
 		    if( options.verbose ):
 			print "    Getting charges from esp fit ",fchk_file_esp
 			print "        these charges will be used unless the ff_charges option is set to true "
-		    NA, ELN, R, TOTAL_ENERGY , CHARGES  = gaussian.parse_fchk( fchk_file_esp )
+		    NA, ELN, R, TOTAL_ENERGY , Q_ESP  = gaussian.parse_fchk( fchk_file_esp )
+		    CHARGES = Q_ESP 
 		    
 		else:
 		    print "  could not find esp calc ",fchk_file_esp
+		    
 		#
 		# If atomic information is found make new files 
 		#
@@ -245,93 +157,77 @@ def main():
 		    #
 		    NBLIST, NBINDEX = top.build_covnablist(ELN,R)
 		    
-		    if( not no_json_data ):
+		    if( not esp_finished ):
+			if( options.verbose ):
+			    print " Initialize charges to zero  since no ESP charges found "
 			#
-			#  If no atomic data is found in the json file at some qm calc finished use
-			#      qm calc to make atomic information
+			# Initialize charges to zero 
 			#
-			#  Get atomic symbols and masses 
-			ASYMB = elements.eln_asymb(ELN)
-			AMASS = elements.eln_amass(ELN)
-			#   Initialize charge group #
-			CHARN = top.initialize_charn( ELN )
+			CHARGES = top.initialize_charges( ELN )
 
-			RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
-			RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+		    #  Get atomic symbols and masses 
+		    ASYMB = elements.eln_asymb(ELN)
+		    AMASS = elements.eln_amass(ELN)
+		    #   Initialize charge group #
+		    CHARN = top.initialize_charn( ELN )
 
-			# Asign oplsaa atom types
-			ATYPE, CHARGES = atom_types.oplsaa(  options.ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )
-			# Asign biaryl_types
-			ATYPE , CHARGES = atom_types.biaryl_types( options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-			#Refind inter ring types
-			ATYPE , CHARGES  = atom_types.interring_types(options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-		       	
-			#
-			# Set charge groups
-			#
-			CG_SET = []
-			CTYPE = []
-			UNITNUMB = []
-			one = 1
-			for i in range( len(ELN) ):
-			    CG_SET.append(one)
-			    CTYPE = "U"
-			    UNITNUMB = 1 
+		    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+		    RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+
+		    # Asign oplsaa atom types
+		    ATYPE, CHARGES = atom_types.oplsaa(  options.ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )
+		    # Asign biaryl_types
+		    ATYPE , CHARGES = atom_types.biaryl_types( options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+		    #Refind inter ring types
+		    ATYPE , CHARGES  = atom_types.interring_types(options.ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+
+		    #
+		    # Set charge groups
+		    #
+		    CG_SET = []
+		    one = 1
+		    for i in range( len(ELN) ):
+			CG_SET.append(one)			    
+		    CHARN = top.set_chargegroups(options.verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+		    
+					    
+		    if( not json_atomicdata ):
+			
+			if( options.verbose ):
+			    print " Initialize ctype and "
 			    
-			CHARN = top.set_chargegroups(options.verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
 			#
 			# Set unknowns to some default value 
 			#
 			CTYPE = []
 			UNITNUMB = []
+			UNITTYPE = []
 			one = 1
 			for i in range( len(ELN) ):
-			    CTYPE.append("U") 
+			    CTYPE.append("UNKNOWN") 
 			    UNITNUMB.append(one)
-			
-			# Write new atomic properties to json file
-			atomic_data = {}
-			json_data['metadata']["atomic"] = atomic_data
-			atomic_data["natoms"] = len(ELN) 
-			atomic_data["element"] = []
-			atomic_data["asymb"] = []
-			atomic_data["atype"] = []
-			atomic_data["q"] = []
-			atomic_data["ctype"] = []        
-			atomic_data["qgroup"] = []
-			atomic_data["unitnumb"] = []
-			atomic_data["pos"] = []
-			for atom_i in range( len(ELN) ):
-			    atomic_data["element"].append( ELN[atom_i] )
-			    atomic_data["asymb"].append( ASYMB[atom_i] )
-			    atomic_data["atype"].append( ATYPE[atom_i] )
-			    atomic_data["ctype"].append( CTYPE[atom_i] )
-			    atomic_data["q"].append(CHARGES[atom_i])
-			    atomic_data["qgroup"].append(CHARN[atom_i])
-			    atomic_data["unitnumb"].append( UNITNUMB[atom_i] )
-			    pos_str = str( "%f %f %f "% (R[atom_i][0],R[atom_i][1],R[atom_i][2]) )
-			    atomic_data["pos"].append( pos_str )
-		    elif( opt_finished or esp_finished  ):
-			#
-			# Update json data with new atomic information
-			#
-			for atom_i in range( len(ELN) ):				
-			    pos_str = str( "%f %f %f "% (R[atom_i][0],R[atom_i][1],R[atom_i][2]) )
-			    json_data['metadata']["atomic"]["pos"][atom_i] =  pos_str 
-			for atom_i in range( len(ELN) ):				
-			    json_data['metadata']["atomic"]["q"][atom_i] =  CHARGES[atom_i] 	
+			    UNITTYPE.append("UNKNOWN")
 			    
+			
+		    # Write new atomic properties to json file
+
+		    json_data = jsonapy.append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R)
+		    
 #                   Print new info files 
 		    #
 		    # Set cply_tag for cply output
 		    #
 		    cply_tag = top.set_cply_tags(  options.verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX )
 		    # !!!! need to update CTYPES to show connections made !!!!
-		    
 		    #
-		    # Print new building block with optimized geometry  
+		    # Zero unit charges need to figure out though 
 		    #
-		    
+		    zero_term = 1
+		    zero_func = 1 
+		    CHARGES = top.zero_unitq(ELN,ATYPE,CHARGES,CTYPE,NBINDEX,NBLIST,options.verbose,zero_term,zero_func) 
+		    #
+		    # Print new building block with optimized geometry   and charges "qply" file type 
+		    #
 		    if( options.verbose): print "    Creating BuildingBlock_local directories "
 		    bb_dir = struct_dir + "BuildingBlock_local"
 		    if (not os.path.isdir(bb_dir)):
@@ -342,8 +238,8 @@ def main():
 			if (not os.path.isdir(mk_dir)):
 			    os.mkdir(mk_dir)
 		    
+		    
 		    bb_dir_donor =  struct_dir + "BuildingBlock_local/donors"
-    
 		    bb_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".cply"
 		    if( options.verbose): print "    Creating BuildingBlock_local file ",bb_file
 		    F = open(bb_file,'w')
@@ -354,23 +250,22 @@ def main():
 		    #
 		    # Prin qply file for building large oligomers for MD simulations
 		    #
-		    
-		    bb_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".qply"
+		    bb_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".cply"
 		    if( options.verbose): print "    Creating BuildingBlock_local file ",bb_file
 		    F = open(bb_file,'w')
 		    F.write('D()')
 		    for atom_i in range( len(ELN) ):
-			F.write('\n %s %16.6f %16.6f %16.6f %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],UNITNUMB[atom_i],TAG3[atom_i],str( cply_tag[atom_i]) ) )			
+			#                                                              0           1            2             3              4              5                6                   7   
+			F.write('\n %s %16.6f %16.6f %16.6f %16.6f %d %s %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],UNITNUMB[atom_i],UNITTYPE[atom_i],str( cply_tag[atom_i]) ) )			
 		    F.close()
 		    #
 		    # Print new json with updated atomic charges 
 		    #
-		    
 		    # Need to merge with opv-project to get general json file write_meta
 		    #frag.write_meta(json_data, xyz_name)
 		    json_file = bb_dir_donor +"/" + mol_id + "n" + str(mol_repeat) + ".json"
 		    
-		    if( options.verbose): print "    Creating new json file ",json_file
+		    if( options.verbose): print "    Creating new json file ",json_file 
 		    
 		    f = open(json_file, 'w')
 		    json.dump(json_data, f, indent=2)
