@@ -66,6 +66,19 @@ def get_options():
 	    
     return options, args
 
+def submit_job( struct_dir, pbs_id ,options):
+    import sys, os
+
+    print " submitting job " , pbs_id
+    #submit = "sbatch " + pbs_id
+    submit = options.submit_command +" "+ pbs_id
+
+    #print " sumitting ",submit
+    #sys.exit(' submit_job ')
+    
+    os.system(submit)
+ 
+ 
 def main():
     import string, os , sys 
     # atomicpy
