@@ -29,21 +29,15 @@ def get_options():
     parser.set_defaults(submit_command="qsub")
     parser.add_option("--submit_command", dest="submit_command",type="string",help=" command used to submit script to the queue ")
 
-    # Torsion
-    parser.add_option("--cent_min", dest="cent_min", type="int", default="0",help=" Initial torsional angle ")
-    parser.add_option("--cent_max", dest="cent_max", type="int", default="180",help=" Final torsional angle ")
-    parser.add_option("--cent_step", dest="cent_step", type="int", default="5",help=" Step size torsional angle ")
-    
-
     # QM calculation options 
     parser.set_defaults(qm_software="gaussian")
     parser.add_option("--qm_software", dest="qm_software",type="string",help=" what software to use for the qm calculations   ")
     parser.add_option("--qm_load", dest="qm_load",type="string",help=" string to load qm software module  ")
 
-    parser.add_option("--qm_method", dest="qm_method", type="string",default="B3LYP", help="Method of QM calculation ")
-    parser.add_option("--qm_basis", dest="qm_basis", type="string",default="6-31G**", help="Basis set of QM calculation ")
+    parser.add_option("--qm_method", dest="qm_method", type="string",default="HF", help="Method of QM calculation ")
+    parser.add_option("--qm_basis", dest="qm_basis", type="string",default="3-21G", help="Basis set of QM calculation ")
     parser.add_option("--qm_kywd", dest="qm_kywd", type="string",default="", help="Key words for QM calculation ")
-    parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
+    parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="",help=" sufix of qm data file  ")
     parser.add_option("--qm_charge", type="int",action="append", default="0",help="Input gaussain log file ")
     parser.add_option("--qm_mult", dest="qm_mult", type="int",default="0", help=" Shift in default spin multiplicity ( singlet,doublet) QM calculation, allows for triplets ")
     
@@ -52,7 +46,7 @@ def get_options():
     parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
 
     parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
-    parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
+    parser.add_option("--com_temp", dest="com_temp", type="string", default="esp.com.template",help=" Template for Links of dihedral calculation ")
 
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
