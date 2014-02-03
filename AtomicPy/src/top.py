@@ -370,8 +370,10 @@ def find_rings(ELN,NBLIST,NBINDEX):
     RING_NUMB = []
 
     debug = 0
+    
     print
     print ' finding rings '
+    print
 
     IN_RING = []
     
@@ -442,7 +444,7 @@ def find_rings(ELN,NBLIST,NBINDEX):
 		
 	    
 
-    debug = 1
+    debug = 0
     if(debug):
         print ring_cnt , " rings found "
         for r_numb in range(1,ring_cnt+1):
@@ -685,7 +687,14 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
                     print ATYPE[j],ASYMB[j]
                     sys.exit('charge group error')
                     
-                    
+
+		
+    debug = 1
+    if( debug ):
+        for i in range(NA):
+             print i,ASYMB[i],CG_SET[i],CHARN[i],  RING_NUMB[i]
+	     
+	     
     # Check for unset atoms 
     for i in range(NA):
         if( CG_SET[i] ):
@@ -722,7 +731,7 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
 		if( CHARN[i] == q_g ):
 		    atom_cnt += 1
 		    
-		    print R[i]
+		    #print R[i]
 		    
 		    if( R[i][0] < r_x_min  ): r_x_min = R[i][0]
 		    if( R[i][1] < r_y_min  ): r_y_min = R[i][1] 
@@ -757,7 +766,7 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
 	print "    Min atoms in group ",a_min
 	print "    Max dr and dV ",dr_x_max, dV_max
 	
-		
+	
     for i in range(NA):
         if( CG_SET[i] ):
             NNAB = calc_nnab(i,NBLIST,NBINDEX)
@@ -768,16 +777,9 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
 	    sys.exit('charge group error')
             #else :
             # print ASYMB[i],ATYPE[i],NNAB,ELCNT[6],ELCNT[1],GTYPE[i],' set '
-      
-   
-
    
     # set others
     debug = 0
-    if( debug ):
-        for i in range(NA):
-             print i,ASYMB[i],CHARN[i],  RING_NUMB[i]
-             
     if(debug): sys.exit('set_chargegroups')
 
     return CHARN
@@ -1428,10 +1430,6 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     #Refind inter ring types
     ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
     
-    #
-    # Set charge groups
-    #
-    CHARN = set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)        
     
     # Identify total number of atom types for lammps output 
     ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
@@ -1458,6 +1456,13 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     IMPTYPE_F  = imp_parameters(itp_file)
     
     if( ff_software == "gromacs"):
+	#
+	# Set charge groups
+	#
+	CHARN = set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
+	#
+	# Write top file
+	#
 	top_file =  calc_id +  ".top"
 	const = []
 	angle = []
