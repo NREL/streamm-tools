@@ -1367,7 +1367,7 @@ def set_cply_tags(verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX ):
     return cply_tag
 
 
-def print_ff_files(struct_dir, short_name, number,verbose,ff_charges,ELN,R,CHARGES,LV):
+def print_ff_files(ff_prefix,verbose,ff_charges,ELN,R,CHARGES,LV):
     
     import elements , lammps ,gromacs , atom_types
     
@@ -1376,8 +1376,8 @@ def print_ff_files(struct_dir, short_name, number,verbose,ff_charges,ELN,R,CHARG
     norm_dihparam =  1
     
     
-    calc_id = "%s/%s_n%d" % (struct_dir, short_name, number)
-     
+    calc_id = ff_prefix
+    
     
     # Read in ff file
     FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
