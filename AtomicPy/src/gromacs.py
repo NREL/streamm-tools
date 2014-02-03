@@ -61,7 +61,6 @@ def read_top(options,top_infile):
                 else:
                     Lines.append(line)
 
-                    
     #
     # Get moleculetypes and count 
     #
@@ -813,6 +812,12 @@ def print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF
                 AT_l = ATYPE[ DIH[i][3] ]
                 FF_l = FF_DIHTYPES[ff_i] #.split()
     
+                if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == AT_l and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == AT_i   ):
+                    check = 0
+                    break
                 if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
                     check = 0
                     break

@@ -1367,22 +1367,22 @@ def set_cply_tags(verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX ):
     return cply_tag
 
 
-def print_ff_files(ff_prefix,verbose,ff_charges,ELN,R,CHARGES,LV):
+def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihparam,ELN,R,CHARGES,LV):
     
     import elements , lammps ,gromacs , atom_types
-    
-    itp_file ='oplsaa_biaryl.itp'
-    ff_software = 'lammps'
-    norm_dihparam =  1
     
     
     calc_id = ff_prefix
     
     
     # Read in ff file
+    if( verbose ):
+	print "   Read in parameters from ",itp_file
     FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
     
     
+    if( verbose ):
+	print "      Setting atomic data "
     ASYMB = elements.eln_asymb(ELN)
     AMASS = elements.eln_amass(ELN)
     RESID = initialize_resid( ELN )
@@ -1393,6 +1393,8 @@ def print_ff_files(ff_prefix,verbose,ff_charges,ELN,R,CHARGES,LV):
     RESN = initialize_resn( ELN )
     CHARN = initialize_charn( ELN )
     
+    if( verbose ):
+	print "      Setting bonded data ",itp_file
     
     #   Build covalent nieghbor list for bonded information 
     NBLIST, NBINDEX = build_covnablist(ELN,R)
@@ -1411,6 +1413,10 @@ def print_ff_files(ff_prefix,verbose,ff_charges,ELN,R,CHARGES,LV):
     for i in range( len(ELN) ):
 	CG_SET.append(one)
     #
+    
+    if( verbose ):
+	print "      Finding atom types  "
+	
     d_mass = 0
     d_charge = 0
     RINGLIST, RINGINDEX , RING_NUMB = find_rings(ELN,NBLIST,NBINDEX)
@@ -1459,9 +1465,7 @@ def print_ff_files(ff_prefix,verbose,ff_charges,ELN,R,CHARGES,LV):
 		       ,const,angle
 		       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
 		       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-    
-	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
-    
+       
 			
 	
     elif( ff_software == "lammps" ):
