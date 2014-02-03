@@ -1367,22 +1367,42 @@ def set_cply_tags(verbose, ELN, CTYPE,UNITNUMB ,NBLIST, NBINDEX ):
     return cply_tag
 
 
-def print_ff_files(ELN,R,CHARGES,LV):
-	
+def print_ff_files(struct_dir, short_name, number,verbose,ff_charges,ELN,R,CHARGES,LV):
     
+    import elements , lammps ,gromacs , atom_types
+    
+    itp_file ='oplsaa_biaryl.itp'
+    ff_software = 'lammps'
+    norm_dihparam =  1
+    
+    
+    calc_id = "%s/%s_n%d" % (struct_dir, short_name, number)
+     
+    
+    # Read in ff file
+    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+    
+    
+    ASYMB = elements.eln_asymb(ELN)
     AMASS = elements.eln_amass(ELN)
-    RESID = top.initialize_resid( ELN )
+    RESID = initialize_resid( ELN )
     
     #   Initialize  topology values
-    GTYPE = top.initialize_gtype( ELN )
-    RESID = top.initialize_resid( ELN )
-    RESN = top.initialize_resn( ELN )
-    CHARN = top.initialize_charn( ELN )
+    GTYPE = initialize_gtype( ELN )
+    RESID = initialize_resid( ELN )
+    RESN = initialize_resn( ELN )
+    CHARN = initialize_charn( ELN )
     
     
     #   Build covalent nieghbor list for bonded information 
-    NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+    NBLIST, NBINDEX = build_covnablist(ELN,R)
     
+    NA = len(ELN)
+    BONDS = nblist_bonds(NA,NBLIST, NBINDEX)
+    ANGLES = nblist_angles(NA,NBLIST, NBINDEX)
+    DIH = nblist_dih(NA,NBLIST, NBINDEX)
+    IMPS = nblist_imp(NA,NBLIST, NBINDEX,ELN)
+			
     #
     # Set charge groups
     #
@@ -1393,7 +1413,7 @@ def print_ff_files(ELN,R,CHARGES,LV):
     #
     d_mass = 0
     d_charge = 0
-    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+    RINGLIST, RINGINDEX , RING_NUMB = find_rings(ELN,NBLIST,NBINDEX)
     
     # Asign oplsaa atom types
     ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
@@ -1405,59 +1425,55 @@ def print_ff_files(ELN,R,CHARGES,LV):
     #
     # Set charge groups
     #
-    CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)        
+    CHARN = set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)        
     
     # Identify total number of atom types for lammps output 
     ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
     
     # Check atom types to be sure each atom of the same type has the same number of neighbors 
-    ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    ATYPE_NNAB = check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
     
     # Modify dih potentials
     ## FF_DIHTYPES = mod_dih( ATYPE_IND 
     
     # Print new itp file with only used atom types and interactions
-    if( options.ff_software == "gromacs"):
+    if( ff_software == "gromacs"):
 	#AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
 	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
     
-    # Print output
-    os.chdir(struct_dir)
+	job_gro = calc_id +  ".gro"
+	gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LV)
     
-    out_xyz =  job_name + "-ff.xyz"
-    job_gro = job_name +  ".gro"
-    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LAT_CONST)
+    ATYPE_EP, ATYPE_SIG = atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
     
-    ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    IMPTYPE_F  = imp_parameters(itp_file)
     
-    IMPTYPE_F  = top.imp_parameters(options.itp_file)
-    
-    if( options.ff_software == "gromacs"):
-	top_file =  job_name +  ".top"
+    if( ff_software == "gromacs"):
+	top_file =  calc_id +  ".top"
 	const = []
 	angle = []
 	gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
 		       ,const,angle
 		       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-		       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+		       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
     
 	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
     
 			
 	
-    elif( options.ff_software == "lammps" ):
+    elif( ff_software == "lammps" ):
 	
-	data_file = "out.data"
+	data_file = calc_id + ".data"
 	
 	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
 	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
 	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
 	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
-	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
     
     
 	

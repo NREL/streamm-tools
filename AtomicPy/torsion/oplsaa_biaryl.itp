@@ -1,3 +1,4 @@
+
 ;  biaryl 
 ; J. Chem. Inf. Model. 2013, 53, 1191−1199
 
@@ -438,3 +439,33 @@ CB CS HA 1 123.1 292.88 ; CP CS HA
   CT     OS     C      O       3     20.92000   0.00000 -20.92000   0.00000   0.00000   0.00000 ; benzoic acids & esters 
   O      C     OS      CT       3     20.92000   0.00000 -20.92000   0.00000   0.00000   0.00000 ; benzoic acids & esters 
   CT     OS     C      HC      3     31.20637  -9.76754 -21.43881   0.00000   0.00000   0.00000 ; esters
+
+
+; poply thiophene
+  [ angletypes ]
+   C!     S     C!     1     92.2 585.76
+
+
+
+; alkane   oplsaa.itp  NA = NS from purines 
+[ bondtypes ] 
+  CT    CT      1    0.15290   224262.4   ; CHARMM 22 parameter file
+
+[ angletypes ]
+  CT     CT     OS      1   109.500    418.400   ; 
+  CT     CT     HC      1   110.700    313.800   ; CHARMM 22 parameter file
+  CT     CT     NS      1   111.200    669.440   ;   CT     CT     NA  
+  CT     CT     CT      1   112.700    488.273   ; CHARMM 22 parameter file
+
+ [ dihedraltypes ] 
+  CT     CT     CT     CT      3      2.92880  -1.46440   0.20920  -1.67360   0.00000   0.00000 ; hydrocarbon all-atom
+  CA     OS     CT     CT      3      1.71544   2.84512   1.04600  -5.60656   0.00000   0.00000 ; ethers AA
+  CT     CT     CT     OS      3      2.87441   0.58158   2.09200  -5.54799   0.00000   0.00000 ; alcohols, ethers AA
+  HC     CT     CT     OS      3      0.97905   2.93716   0.00000  -3.91622   0.00000   0.00000 ; alcohols, ethers AA
+  CT     CT     CT     HC      3      0.62760   1.88280   0.00000  -2.51040   0.00000   0.00000 ; hydrocarbon all-atom
+  HC     CT     CT     HC      3      0.62760   1.88280   0.00000  -2.51040   0.00000   0.00000 ; hydrocarbon *new* 11/99
+  CT     CT     NS     CW      3      0.00000   0.00000   0.00000   0.00000   0.00000   0.00000 ; (From wildcard) heterocycles   CT     CT     NA     CW     
+  CT     CT     CT     NS      3      5.77183  -2.67148   0.95814  -4.05848   0.00000   0.00000 ;  CT     CT     CT     NA   
+  HC     CT     CT     NS      3      0.00000   0.00000   0.00000   0.00000   0.00000   0.00000 ; (From wildcard) heterocycles   CT     CT     NA     CW     
+
+
