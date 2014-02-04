@@ -689,7 +689,7 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
                     
 
 		
-    debug = 1
+    debug = 0
     if( debug ):
         for i in range(NA):
              print i,ASYMB[i],CG_SET[i],CHARN[i],  RING_NUMB[i]

@@ -250,7 +250,7 @@ def main():
 	
 	if( options.ff_software == "gromacs"):
 	    md_min_template = "peregrine.md_min.template"
-	    f = open(md_min_template,"w")
+	    f = open(md_min_template,"r")
 	    md_min_templ = f.read()
 	    f.close()
 	elif( options.ff_software == "lammps" ):	
@@ -269,8 +269,8 @@ def main():
         user = 'twkempe'
 	
 	if( options.ff_software == "gromacs"):
-	    f = open(md_min_template,"w")
 	    md_min_template = "redmesa.md_min.template"
+	    f = open(md_min_template,"r")
 	    md_min_templ = f.read()
 	    f.close()
 	elif( options.ff_software == "lammps" ):	
