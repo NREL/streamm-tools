@@ -17,10 +17,15 @@ def get_options():
     parser = OptionParser(usage=usage)
     
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
 
     # Cluster options
     parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
+
+
+    parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
+    parser.add_option("--npros", dest="npros", type="int", default="4",help=" Number of processors ")
+    parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
 
 
     parser.set_defaults(submit=False)
@@ -114,9 +119,10 @@ def main():
 	lammps_src="lmp_mactk"
 				
 	    		    
-    
+     
     # Read index files from args
     for indx_file in args:
+	print " Reading ",indx_file
         # Get lines of index file   
         f = open(indx_file,'r')
         Lines = f.readlines()
@@ -124,6 +130,9 @@ def main():
         for line in Lines:
             col = line.split()
             if( len(col) >= 4 and col[0] == "ff_dih" ):
+		
+		print " ff_dh  line ",line
+		
                 struct_dir = col[1].strip()
                 job_name = col[2].strip()
                 ff_software = col[3].strip()
@@ -216,7 +225,8 @@ def main():
 				f.write(pbs_dih)
 				f.close()
 				mols_dir_ff = ""
-				submit_job( mols_dir_ff, pbs_id,options )
+				#submit_job( mols_dir_ff, pbs_id,options )
+                                cluster.submit_job( mols_dir_ff, pbs_id ,options )
 				
 			    elif ( options.localrun ):
 				
