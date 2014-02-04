@@ -24,7 +24,7 @@ def get_options():
 
 
     parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
-    parser.add_option("--npros", dest="npros", type="int", default="4",help=" Number of processors ")
+    parser.add_option("--npros", dest="npros", type="int", default="16",help=" Number of processors ")
     parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
 
 
@@ -59,9 +59,6 @@ def get_options():
     if( options.cluster_host == "peregrine" ):
         if( options.qm_software == "gaussian" ):
             options.qm_load = "module load gaussian/.g09_C.01"
-    elif( options.cluster_host == "redmesa" ):
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/g09/C.01"
 
     return options, args
 
@@ -81,38 +78,9 @@ def main():
 	md_min_template = "peregrine.md_min.template"
 	lammps_min_template = "peregrine.lmp_min.template"
 	
-
-	lammps_dir= options.lammp_dir 
-	lammps_src="lmp_serial"
-				
-	if( options.ff_software == "gromacs"):	
-	    f = open(md_min_template,'r')
-	    md_min_templ = f.read()
-	    f.close()
-	elif( options.ff_software == "lammps" ):	
-	    f = open(lammps_min_template,'r')
-	    md_min_templ = f.read()
-	    f.close()
-	    	
-    elif( options.cluster_host == "redmesa" ):
-	load_gaussian = "module load gaussian/g09/C.01"
-        user = 'twkempe'
-	md_min_template = "redmesa.md_min.template"
-	lammps_min_template = "redmesa.lmp_min.template"
-    
-
 	lammps_dir= options.lammp_dir 
 	lammps_src="lmp_serial"
 	
-	if( options.ff_software == "gromacs"):	
-	    f = open(md_min_template,'r')
-	    md_min_templ = f.read()
-	    f.close()
-	elif( options.ff_software == "lammps" ):	
-	    f = open(lammps_min_template,'r')
-	    md_min_templ = f.read()
-	    f.close()
-
     if( options.cluster_host == "macbook" ):
         user = 'tkemper'
 	lammps_dir= '/Users/'+user+'/Software/lammps-24Apr13/src/'
@@ -147,7 +115,19 @@ def main():
 		cent_max = int(  col[11].strip() )
 		cent_step = int(  col[12].strip() )
 		
-
+			    
+		if( ff_software == "gromacs"):
+		    
+		    f = open(md_min_template,'r')
+		    md_min_templ = f.read()
+		    f.close()
+			    
+		if( ff_software == "lammps" ):
+		    f = open(lammps_min_template,'r')
+		    md_min_templ = f.read()
+		    f.close()
+			    
+			    
 		# Loop over angels of central dihedrals
 		cent_indx = 0
 		for cent_angle in range(cent_min,cent_max,cent_step):
@@ -160,6 +140,7 @@ def main():
 			os.chdir(ff_dir)
 			if( ff_software == "gromacs"):
 	    
+
 			    g_top = 'out_const.top'
 			    g_gro = 'out.gro'
 			    input_correct = gromacs.check_input( g_gro,g_top,options )
@@ -212,9 +193,10 @@ def main():
 				print ' error in ff input files '
 				
 			elif( ff_software == "lammps" ):
-	
+						
 			    if( options.submit ):
 				
+
 				md_min_id =  ff_id+'md_min'
 				pbs_id = md_min_id+'.pbs'
 				pbs_name = pbs_id
