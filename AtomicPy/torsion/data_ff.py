@@ -120,7 +120,7 @@ def main():
 		if( options.verbose ):
 		    print "  Writing data file ",dih_ff
 		ff_out = open(dih_ff,'w')
-		ff_out.write( '# cent_indx, cent_angle, ff_energy ')
+		ff_out.write( '# cent_indx,cent_angle,ff_sp_full (eV) ,ff_sp_d0 (eV) ,ff_energy_f (eV) ,ff_energy_c (eV) ,n_angles,dih_angles ')
 		
 		# xmol 
 		xmol_ff = struct_dir +'/' +job_name + '-' + dih_id + "_ff" + ff_software + ff_type_id +".xmol"
