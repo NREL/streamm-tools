@@ -651,13 +651,12 @@ def print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, R
 
     return
 
-
-def print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES):
+def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES):
     import sys,top
     #
     # ' checking connections '
     #
-    F = open( 'ff-new.itp','w')
+    F = open( new_itp,'w')
     F.write(';  new ff parameters \n')
     F.write(' \n ')
     #
@@ -796,46 +795,28 @@ def print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF
             if ( AT_i == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  AT_l == FF_l[3]   ):
                 check = 0
                 break
-            if ( AT_l == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  AT_i == FF_l[3]   ):
+            if ( AT_l == FF_l[0] and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  AT_i == FF_l[3]   ):
                 check = 0
                 break
-            
-        
-        if check :
-            #print " searching for alternatives X-i-j-X "
-                
-            for ff_i in range (len(FF_DIHTYPES)):
-                # print BONDS[i]
-                AT_i = ATYPE[ DIH[i][0] ]
-                AT_j = ATYPE[ DIH[i][1] ]
-                AT_k = ATYPE[ DIH[i][2] ]
-                AT_l = ATYPE[ DIH[i][3] ]
-                FF_l = FF_DIHTYPES[ff_i] #.split()
-    
-                if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == AT_l and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == AT_i   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == 'X'   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_i   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
-                    check = 0
-                    break
-                if ( FF_l[0] == AT_l and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
-                    check = 0
-                    break
+
+            if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                check = 0
+                break
+            if ( FF_l[0] == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == 'X'   ):
+                check = 0
+                break
+            if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
+                check = 0
+                break
+            if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_i   ):
+                check = 0
+                break
+            if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                check = 0
+                break
+            if ( FF_l[0] == AT_l and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                check = 0
+                break    
             
         if check :
             print ' dih ',i,' ',AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l,'  not in ff'
@@ -855,41 +836,46 @@ def print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF
                 DIH_LIST.append( [ FF_l[0] ,FF_l[1] ,FF_l[2] ,FF_l[3] ] )
                 
                 #
-                #atom_i =  DIH[i][1]  
-                #atom_j =  DIH[i][2] 
-                #NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX) - 1
-                #NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX) - 1
-                #n_mod = float( NNAB_i + NNAB_j)
-                #FF_DIHTYPES_mod = []
-                #if(debug):
-                #    print ''
-                #    print ' pre mod ',FF_DIHTYPES[ff_i]
-                #    print n_mod 
+                # If dihedrals in reference itp file are for single set of atoms 
                 #
-                #mod_val = -1
-                #ind_max = 12
-                #if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
-                #if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
-                #FF_DIHTYPES_mod =[]
-                #for indx_dihff in range (len(FF_DIHTYPES[ff_i])):
-                #    if( debug): print ' index ',indx_dihff,ind_max
-                #    if ( indx_dihff > 4 and mod_val < 0 ):
-                #        mod_val = 1
-                #    if ( FF_DIHTYPES[ff_i][indx_dihff] == ';' or indx_dihff > ind_max ):
-                #        mod_val = 0
-                #    if( mod_val == 1 ):
-                #        if(debug):
-                #            print indx_dihff
-                #            print " val to mod ", FF_DIHTYPES[ff_i][indx_dihff] 
-                #        FF_DIHTYPES_mod.append( str( " %16.8f " % (float( FF_DIHTYPES[ff_i][indx_dihff]  ) /n_mod)))
-                #    else:
-                #        FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
-                #         
-                #if(debug):  print ' post mod ',FF_DIHTYPES_mod 
+                if( norm_dihparam ):
+                    atom_i =  DIH[i][1]  
+                    atom_j =  DIH[i][2] 
+                    NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX) - 1
+                    NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX) - 1
+                    n_mod = float( NNAB_i + NNAB_j)
+                    FF_DIHTYPES_mod = []
+                    if(debug):
+                        print ''
+                        print ' pre mod ',FF_DIHTYPES[ff_i]
+                        print n_mod 
+                    
+                    mod_val = -1
+                    ind_max = 12
+                    if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
+                    if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
+                    FF_DIHTYPES_mod =[]
+                    for indx_dihff in range (len(FF_DIHTYPES[ff_i])):
+                        if( debug): print ' index ',indx_dihff,ind_max
+                        if ( indx_dihff > 4 and mod_val < 0 ):
+                            mod_val = 1
+                        if ( FF_DIHTYPES[ff_i][indx_dihff] == ';' or indx_dihff > ind_max ):
+                            mod_val = 0
+                        if( mod_val == 1 ):
+                            if(debug):
+                                print indx_dihff
+                                print " val to mod ", FF_DIHTYPES[ff_i][indx_dihff] 
+                            FF_DIHTYPES_mod.append( str( " %16.8f " % (float( FF_DIHTYPES[ff_i][indx_dihff]  ) /n_mod)))
+                        else:
+                            FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
+                             
+                    if(debug):  print ' post mod ',FF_DIHTYPES_mod
+                    ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES_mod ) )
+                else:
+                    ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
                 
                 #ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES[ff_i][0:5] ) )
-                #ff_line = '%s  \n' % ' '.join(map(str, FF_DIHTYPES_mod ) )
-                ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
+                #ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
                 #ff_line = '\n %s  %s  %s  %s  %s ' % ,AT_i,AT_j,AT_k,AT_l
                 F.write(  '\n %s  ;  %s - %s - %s - %s ' % (ff_line,AT_i,AT_j,AT_k,AT_l  ) )
 

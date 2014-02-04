@@ -942,7 +942,8 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
     DIHTYPE_PN = []
     DIHTYPE_C = []
 
-    debug = 0
+    debug = 0 
+    if(debug): print "   norm_dihparam = ",norm_dihparam
 
     # Find dihedral type parameters
     for ind in range( len( DTYPE_REF ) ):
@@ -1003,7 +1004,9 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
                     if( AT_ref == AT_k ):
                         if(debug): print "  found  k",AT_k,ind
                         NNAB_j = ATYPE_NNAB[ind] - 1
+		
                 dihen_norm = float( NNAB_i + NNAB_j)
+		if(debug): print " dihen_norm ",dihen_norm
                 
             func_type = int(FF_l[4])
             DIHTYPE_F.append( func_type )
@@ -1442,8 +1445,9 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     
     # Print new itp file with only used atom types and interactions
     if( ff_software == "gromacs"):
+	new_itp = "ff-test.itp"
 	#AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
-	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
     
 	job_gro = calc_id +  ".gro"
 	gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LV)
