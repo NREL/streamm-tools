@@ -103,7 +103,7 @@ def main():
 
 	lammps_dir= options.lammp_dir 
 	lammps_src="lmp_serial"
-				
+	
 	if( options.ff_software == "gromacs"):	
 	    f = open(md_min_template,'r')
 	    md_min_templ = f.read()
@@ -190,7 +190,9 @@ def main():
 					f = file(pbs_name, "w")
 					f.write(pbs_dih)
 					f.close()
-					submit_job( mols_dir_ff, pbs_id,options )
+					
+					#submit_job( mols_dir_ff, pbs_id,options )
+					
 				    elif ( options.localrun):
 					
 					g_top = 'out_fit.top'
