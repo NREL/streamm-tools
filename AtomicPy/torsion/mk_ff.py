@@ -15,8 +15,9 @@ def get_options():
     parser = OptionParser(usage=usage)
     
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
-    
+
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+        
     # Cluster options
     parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
 
@@ -52,8 +53,7 @@ def get_options():
     parser.set_defaults(zero_charges=False)
     parser.add_option("--zero_charges", dest="zero_charges",action="store_true",help=" Zero charges ")
     
-    parser.set_defaults(norm_dihparam=False)
-    parser.add_option("--norm_dihparam", dest="norm_dihparam",action="store_true",help=" divide dihedral parameters in ff itp file by 4 ")
+    parser.add_option("--norm_dihparam", dest="norm_dihparam", help="Normalize dihedral potential terms if single dihedral is specified in itp file  ", default=1)
 
     # Gromacs related options 
     parser.add_option("--gromacs_dir", dest="gromacs_dir",type="string",default="",help=" Directory of gromacs run files   ")
@@ -233,8 +233,7 @@ def check_dihedrals( dih_a, dih_b ):
 	    dih_same = 1
 	    
     return dih_same
-	
-    
+
 def main():
     import sys, os 
     import string  , numpy 
@@ -247,9 +246,19 @@ def main():
     if( options.cluster_host == "peregrine" ):
 	load_gaussian = "module load gaussian/.g09_C.01 "
         user = 'tkemper'
-	md_min_template = "peregrine.md_min.template"
-	lammps_min_template = "peregrine.lmp_min.template"
 	
+	
+	if( options.ff_software == "gromacs"):
+	    md_min_template = "peregrine.md_min.template"
+	    md_min_templ = f.read()
+	    f.close()
+	elif( options.ff_software == "lammps" ):	
+	    lammps_min_template = "peregrine.lmp_min.template"
+	    f = open(lammps_min_template,'r')
+	    md_min_templ = f.read()
+	    f.close()
+	
+	    
         f = open("peregrine.pbs.template",'r') # redmesa.slurm.template	
 	pbs_templ = f.read()
 	f.close()
@@ -257,20 +266,26 @@ def main():
     elif( options.cluster_host == "redmesa" ):
 	load_gaussian = "module load gaussian/g09/C.01"
         user = 'twkempe'
-	md_min_template = "redmesa.md_min.template"
-	lammps_min_template = "redmesa.lmp_min.template"
+	
+	if( options.ff_software == "gromacs"):
+	    md_min_template = "redmesa.md_min.template"
+	    md_min_templ = f.read()
+	    f.close()
+	elif( options.ff_software == "lammps" ):	
+	    lammps_min_template = "redmesa.lmp_min.template"
+	    f = open(lammps_min_template,'r')
+	    md_min_templ = f.read()
+	    f.close()
+	
+	    
 	f = open("redmesa.slurm.template",'r')
 	pbs_templ = f.read()
 	f.close()
 
-    if( options.ff_software == "gromacs"):	
-	f = open(md_min_template,'r')
-	md_min_templ = f.read()
-	f.close()
-    elif( options.ff_software == "lammps" ):	
-	f = open(lammps_min_template,'r')
-	md_min_templ = f.read()
-	f.close()
+    elif( options.cluster_host == "macbook" ):
+	load_gaussian = ""
+        user = 'tkemper'
+
 	
     # sufix for force field calcs to run multiple ff types or excultions, such as q(i) = 0.00 
     ff_type_id = "_fit"
@@ -278,11 +293,11 @@ def main():
     # Read in ff file
     FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
     
-    LAT_CONST = numpy.zeros( (3,3) )
+    LV = numpy.zeros( (3,3) )
     
-    LAT_CONST[0][0] = 50.0
-    LAT_CONST[1][1] = 50.0
-    LAT_CONST[2][2] = 50.0
+    LV[0][0] = 50.0
+    LV[1][1] = 50.0
+    LV[2][2] = 50.0
 
     # Store working dir  
     work_dir = os.getcwd()
@@ -296,15 +311,18 @@ def main():
         for gen_line in Lines:
             col = gen_line.split()
             if( len(col) >= 4 and col[0] == "gen" ):
-                mol_id = col[1].strip()
-                main_dir = col[2].strip()
-                mol_dir = col[3].strip()
-                mol_repeat = int(col[4])
+		
+                mol_dir = col[1].strip()
+                mol_id = col[2].strip()
+                mol_repeat = int(col[3].strip() )
+                mol_acc = col[4].strip()
                 
+		
                 # File info
-                struct_dir = main_dir + "/" + mol_dir + "/"
-                job_name = mol_id + "_n" + str(mol_repeat)
-                
+                struct_dir = mol_dir + "/" + mol_id + "/"
+                job_name = mol_acc + "_" + mol_id + "_n" + str(mol_repeat)
+		
+		
 		print "   Running job ",struct_dir,job_name
 
 		# Get geometry from ZMAT
@@ -388,7 +406,7 @@ def main():
                         elif( options.localrun ):
                             if( options.verbose ):
 				print  '    Running ESP fit '
-                            gaussian.run1(options, calc_id_esp)
+                            gaussian.run(options, calc_id_esp)
 			    
                         else:
                             print " Please mark either qsub or runloc options as True to run qm"	
@@ -472,7 +490,7 @@ def main():
 			CG_SET.append(one)
 			
 		    #CHARN = top.set_chargegroups(CHARN,ATYPE,ASYMB,ELN,NBLIST,NBINDEX, RING_NUMB)
-		    CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+		    CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
 
 		    
 		    debug = 0
@@ -495,8 +513,10 @@ def main():
 		
 		    # Print new itp file with only used atom types and interactions
 		    if( options.ff_software == "gromacs"):
-			AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
-		
+			##AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+			new_itp = "ff-new.itp"
+			AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(new_itp,options.norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+
 		    # Print output
 		    os.chdir(struct_dir)
 		    
@@ -504,7 +524,7 @@ def main():
 		    xmol.write_xyz(ASYMB,R,out_xyz)
 		    xmol.print_cgxyz(CHARN,R)
 		    job_gro = job_name +  ".gro"
-		    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LAT_CONST)
+		    gromacs.print_gro(job_gro,GTYPE,RESID,RESN,R,LV)
 		    
 		    ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
 		    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
@@ -520,7 +540,7 @@ def main():
 			gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
 				       ,const,angle
 				       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-				       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+				       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
 			
 		    elif( options.ff_software == "lammps" ):
 			data_file = "out.data" 
@@ -529,7 +549,7 @@ def main():
 			      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
 			      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 			      RESN,ATYPE_IND,CHARGES,R , ATYPE,
-			      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+			      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 			#sys.exit("lammps test")
 		
 		
@@ -630,16 +650,18 @@ def main():
 		    # Loop of dihedrals calculated at the qm level
 		    for qm_dih_line in Lines:
 			qm_dih_col = qm_dih_line.split()
-			if( len(qm_dih_col) >= 4 and qm_dih_col[0] == "qm_dih" and qm_dih_col[2] == job_name.strip() ):
+			
+			
+			if( len(qm_dih_col) >= 4 and qm_dih_col[0] == "qm_dih" and qm_dih_col[2] == mol_id.strip() ):
 			    
-			    dih_id = qm_dih_col[3].strip() 
-			    a_k  = int(  qm_dih_col[4].strip() )
-			    a_i  = int(  qm_dih_col[5].strip() )
-			    a_j  = int(  qm_dih_col[6].strip() )
-			    a_l  = int(  qm_dih_col[7].strip() )
-			    cent_min  = int(  qm_dih_col[8].strip() )
-			    cent_max = int(  qm_dih_col[9].strip() )
-			    cent_step = int(  qm_dih_col[10].strip() )
+			    dih_id = qm_dih_col[5].strip() 
+			    a_k  = int(  qm_dih_col[6].strip() )
+			    a_i  = int(  qm_dih_col[7].strip() )
+			    a_j  = int(  qm_dih_col[8].strip() )
+			    a_l  = int(  qm_dih_col[9].strip() )
+			    cent_min  = int(  qm_dih_col[10].strip() )
+			    cent_max = int(  qm_dih_col[11].strip() )
+			    cent_step = int(  qm_dih_col[12].strip() )
 			    
 			    if( options.verbose ):
 				print "    Writing input files for ",options.ff_software ," torsion: ",cent_min,cent_max,cent_step
@@ -680,7 +702,7 @@ def main():
 				    if( options.ff_software == "gromacs"):
 
 					gro_file =  "out.gro"
-					gromacs.print_gro(gro_file,GTYPE,RESID,RESN,R)
+					gromacs.print_gro(gro_file,GTYPE,RESID,RESN,R,LV)
 
 					# make ff input
 					top_file = 'out.top'
@@ -691,14 +713,14 @@ def main():
 					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
 					       ,const,angle
 					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
 					
 					top_file = 'out_dih.top'
 					
 					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
 					       ,const,angle
 					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
 					
 					DIH_CONST_ANGLE = float( cent_angle )
 			
@@ -706,13 +728,13 @@ def main():
 					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
 					       ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
 					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
 					
 					top_file = 'out_fit.top'
 					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH_fit , IMPS
 					       ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
 					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-					       ,DTYPE_IND_fit, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					       ,DTYPE_IND_fit, DIHTYPE_F, IMPTYPE_F,LV)
 					
 					top_file = 'out_zero.top'
 					const = []
@@ -726,11 +748,13 @@ def main():
 					gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS_z , ANGLES_z , DIH_z , IMPS_z
 					       ,const,angle
 					       ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST)
+					       ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
 					
 					
-					AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
-		    
+					#AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+					new_itp = "ff-new.itp"
+					AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(new_itp,options.norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+
 		    
 				    elif( options.ff_software == "lammps" ):
 					
@@ -762,7 +786,7 @@ def main():
 					   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
 					   DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 					   RESN,ATYPE_IND,CHARGES,R , ATYPE,
-					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 					
 					# Print lammps structure file without considered dihedrals 
 					data_file = "fit.data"
@@ -771,7 +795,7 @@ def main():
 					   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
 					   DIH_fit,DTYPE_IND_fit,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 					   RESN,ATYPE_IND,CHARGES,R , ATYPE,
-					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
+					   BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 					
 				    os.chdir(work_dir)
 				
