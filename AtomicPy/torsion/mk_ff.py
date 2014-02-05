@@ -17,7 +17,7 @@ def get_options():
 
 
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
-        
+    
     # Cluster options
     parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
 
@@ -53,7 +53,7 @@ def get_options():
     parser.set_defaults(zero_charges=False)
     parser.add_option("--zero_charges", dest="zero_charges",action="store_true",help=" Zero charges ")
     
-    parser.add_option("--norm_dihparam", dest="norm_dihparam", help="Normalize dihedral potential terms if single dihedral is specified in itp file  ", default=1)
+    parser.add_option("--norm_dihparam", dest="norm_dihparam", help="Normalize dihedral potential terms if single dihedral is specified in itp file  ", default=0)
 
     # Gromacs related options 
     parser.add_option("--gromacs_dir", dest="gromacs_dir",type="string",default="",help=" Directory of gromacs run files   ")
@@ -259,7 +259,6 @@ def main():
 	    md_min_templ = f.read()
 	    f.close()
 	
-	    
         f = open("peregrine.pbs.template",'r') # redmesa.slurm.template	
 	pbs_templ = f.read()
 	f.close()
