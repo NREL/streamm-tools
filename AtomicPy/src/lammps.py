@@ -8,7 +8,9 @@
 
 
 def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
-    import sys 
+    import sys
+    
+    debug  = 0 
     #
     # for lammmps files
     #
@@ -28,7 +30,7 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
     #
     NA = len(ATYPE)
     TYPE_CNT = -1 # so array is 0-N
-    debug = 1
+    debug = 0
     for i in range(NA):
         new_type = 1
         for ind in range( len(ATYPE_REF) ):
@@ -43,7 +45,7 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
 
             TYPE_CNT = TYPE_CNT + 1
             ATYPE_IND.append( TYPE_CNT )
-            print ' new type found ',i,ELN[i],ATYPE[i],TYPE_CNT,ATYPE_MASS[TYPE_CNT],len(ATYPE_REF)
+            if(debug): print ' new type found ',i,ELN[i],ATYPE[i],TYPE_CNT,ATYPE_MASS[TYPE_CNT],len(ATYPE_REF)
 
     debug = 0
     if(debug): sys.exit('lmp_types')
@@ -57,7 +59,7 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
         AT_j = ATYPE[ BONDS[0][1] ]
         BTYPE_IND.append( TYPE_CNT )
         BTYPE_REF.append( [ AT_i ,  AT_j ] )
-        print ' New bond type ',AT_i ,  AT_j
+        if(debug): print ' New bond type ',AT_i ,  AT_j
             
         debug = 0
         for b_indx in range(  1,len(BONDS) ):
@@ -81,7 +83,7 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
                 TYPE_CNT = TYPE_CNT + 1
                 BTYPE_IND.append( TYPE_CNT )
                 BTYPE_REF.append( [ AT_i ,  AT_j ] )
-                print ' New bond type ',AT_i ,  AT_j,' type ',TYPE_CNT
+                if(debug): print ' New bond type ',AT_i ,  AT_j,' type ',TYPE_CNT
                 
             if(debug): print b_indx,AT_i ,  AT_j,' type ',BTYPE_IND[b_indx],a_i,a_j
 
@@ -121,12 +123,14 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
                 a_i = ANGLES[ang_indx][0]
                 a_j = ANGLES[ang_indx][1]
                 a_k = ANGLES[ang_indx][2]
-                print  ' new angle type ',AT_i ,  AT_j , AT_k
-                print '         ',a_i ,a_j,a_k#,GTYPE[a_i],GTYPE[a_j],GTYPE[a_k]
+                if(debug):
+                    print  ' new angle type ',AT_i ,  AT_j , AT_k
+                    print '         ',a_i ,a_j,a_k#,GTYPE[a_i],GTYPE[a_j],GTYPE[a_k]
 
     #
     # Count dihedrals types
     #
+    debug = 0
     if( len(DIH) > 0 ):
         TYPE_CNT = 0
         AT_i = ATYPE[ DIH[0][0] ]
@@ -137,7 +141,7 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
         DTYPE_IND.append( TYPE_CNT )
         DTYPE_REF.append( [ AT_i ,  AT_j , AT_k , AT_l ] )
         
-        print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l
+        if(debug): print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l
         #
             
         for dih_indx in range( 1,len(DIH) ):
@@ -147,22 +151,11 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
             AT_k = ATYPE[ DIH[dih_indx][2] ]
             AT_l = ATYPE[ DIH[dih_indx][3] ]
     
-            print "  Checking ",AT_i ,  AT_j , AT_k , AT_l 
+            if(debug):
+                print "  Checking ",AT_i ,  AT_j , AT_k , AT_l 
     
             for ind in range( len( DTYPE_REF ) ):
                 if ( DTYPE_REF[ind][0] == AT_i   and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and  AT_l == DTYPE_REF[ind][3]   ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
-                if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
-                if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_l   ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
-                if ( DTYPE_REF[ind][0] == AT_i and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
                     new_type = 0
                     DTYPE_IND.append( ind )
                     break
@@ -170,30 +163,54 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
                     new_type = 0
                     DTYPE_IND.append( ind )
                     break
-                if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
-                if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_i  ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
-                if ( DTYPE_REF[ind][0] == AT_l and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
-                    new_type = 0
-                    DTYPE_IND.append( ind )
-                    break
                 
+            if( new_type ):
+                for ind in range( len( DTYPE_REF ) ):
+                    
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_l   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == AT_i and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+    
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_i  ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == AT_l and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                        
             # If new 
             if( new_type ):
                 TYPE_CNT += 1
                 DTYPE_IND.append( TYPE_CNT )
                 DTYPE_REF.append( [ AT_i ,  AT_j , AT_k , AT_l ] )
             
-                if( debug ):print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l #," = ",DTYPE_REF[ind]
+                if( debug ):
+                    print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l #," = ",DTYPE_REF[ind
+                    #print '     '
+                
             else:
             #   print '      dihedral type ',ind,AT_i ,  AT_j , AT_k , AT_l ," = ",DTYPE_REF[ind]
                 if( debug ):print '  type found ',DTYPE_IND[dih_indx],DIH[dih_indx],ind,DTYPE_REF[ind]
              
+             
+    if( debug ):
+        sys.exit( "  checkin dih types ")
+            
     debug = 0
     if( debug ):
         
@@ -613,7 +630,7 @@ def get_pe(log_file):
             
         sys.exit("get_pe")
 
-    return pot_en
+    return pot_en   # in eV 
 
 
 def last_xmol(xmol_file,options):
