@@ -1,7 +1,32 @@
 #! /usr/bin/env python
+# Find volume for a set of molecules to give a specified density 
 
+# Dr. Travis Kemper
+# NREL
+# Initial Date 10/28/2013
+# travis.kemper@nrel.gov
+
+
+
+
+
+def get_options():
+    import os, os.path
+    from optparse import OptionParser
+    usage = "usage: %prog <file to convert> [options] "
+    parser = OptionParser(usage=usage)
+    
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+
+    (options, args) = parser.parse_args()
+
+    return options, args
+
+  
 def main():
-    import sys, gromacs
+    import sys, gromacs, prop
+
+    options, args = get_options()
 
     N_a_mag = 6.022141129 
 
@@ -25,13 +50,13 @@ def main():
     AMASS = []
 
     gro_file = sys.argv[1]
-    top_file = sys.argv[2]
+    top_infile = sys.argv[2]
     target_density_gcm = float(sys.argv[3])  #'g/cm^3'
     mol_mult = float(sys.argv[4])  # number of molecules 
     target_density_amunm = target_density_gcm*N_a_mag*100.0
 
-    ATYPE,RESNR,RESIDU,GTYPE,CGNR,CHARGE,AMASS = gromacs.r_atoms_top(top_file)
-    mol_mass_amu = gromacs.density( AMASS )
+    ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST= gromacs.read_top(options,top_infile)
+    mol_mass_amu = prop.total_mass( AMASS )
     mass_amu = mol_mass_amu*mol_mult
     
     volume_target_nm = mass_amu/target_density_amunm
