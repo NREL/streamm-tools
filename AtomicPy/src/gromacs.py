@@ -681,6 +681,8 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     F.write(' \n [ defaults ] ')
     F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
     F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
+    F.write(' \n ')
+    F.write(' \n ')
     
 
     
