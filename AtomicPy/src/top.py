@@ -11,9 +11,6 @@ KJ_KCAL = 0.23901
 GRO_SIG = 5.61230943
 NM_ANG = 10.0
 
-
-
-
 def  initialize_gtype(ELN):
     import sys,elements
     
@@ -958,28 +955,33 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
             if ( FF_l[0]  == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == AT_l ):
                 check = 0
                 break
-            if ( FF_l[0]  == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == AT_l ):
-                check = 0
-                break
-            if ( FF_l[0]  == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == 'X' ):
-                check = 0
-                break
-            if ( FF_l[0]  == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == 'X' ):
-                check = 0
-                break
-	    
             if ( FF_l[0]  == AT_l and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == AT_i ):
                 check = 0
                 break
-            if ( FF_l[0]  == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == AT_i ):
-                check = 0
-                break
-            if ( FF_l[0]  == AT_l and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == 'X' ):
-                check = 0
-                break
-            if ( FF_l[0]  == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == 'X' ):
-                check = 0
-                break
+	    
+	if( check ):
+	    for ff_i in range (len(FF_DIHTYPES)):
+		FF_l = FF_DIHTYPES[ff_i] #.split()
+		
+		if ( FF_l[0]  == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == AT_l ):
+		    check = 0
+		    break
+		if ( FF_l[0]  == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == 'X' ):
+		    check = 0
+		    break
+		if ( FF_l[0]  == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  FF_l[3] == 'X' ):
+		    check = 0
+		    break
+		
+		if ( FF_l[0]  == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == AT_i ):
+		    check = 0
+		    break
+		if ( FF_l[0]  == AT_l and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == 'X' ):
+		    check = 0
+		    break
+		if ( FF_l[0]  == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  FF_l[3] == 'X' ):
+		    check = 0
+		    break
 	    
 
         if check :
@@ -992,6 +994,7 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
             dihen_norm = 1.0
 	    
             if( norm_dihparam ):
+		print " Normalizing dihedral potential "
                 # normalize by number of nieghbors
                 if(debug): print " finding types for ",AT_j,AT_k
                 for ind in range( len(ATYPE_REF) ):
