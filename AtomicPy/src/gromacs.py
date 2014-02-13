@@ -542,9 +542,6 @@ def print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, R
     # write atoms 
     #
     F.write('; top file for gromacs \n ')
-    F.write(' [  defaults ] \n' )
-    F.write(' ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ  \n')
-    F.write(' 1               2               yes             0.5     0.8333 \n')
     F.write('\n')
     F.write('; force field file \n')
     F.write('#include "ff-new.itp"  \n')
@@ -659,6 +656,34 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     F = open( new_itp,'w')
     F.write(';  new ff parameters \n')
     F.write(' \n ')
+    
+    ff_type = "oplsaa"
+    if( ff_type == "oplsaa" ):
+            
+        nbfunc = 1
+        combrule = 3
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.5
+        
+    elif( ff_type == "amber" ):
+
+        nbfunc = 1
+        combrule = 2
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.8333
+        
+    else:
+        print " force-field type unknown  "
+        
+
+    F.write(' \n [ defaults ] ')
+    F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
+    
+
+    
     #
     # Check atom types 
     #
@@ -846,6 +871,8 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
             #
             # If dihedrals in reference itp file are for single set of atoms 
             #
+            FF_DIHTYPES_mod = [ AT_i,AT_j,AT_k,AT_l ]
+            #
             if( norm_dihparam ):
                 atom_i =  DIH[i][1]  
                 atom_j =  DIH[i][2] 
@@ -863,7 +890,6 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
                 ind_max = 12
                 if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
                 if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
-                FF_DIHTYPES_mod =[ AT_i,AT_j,AT_k,AT_l ]
                 for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
                     if( debug): print ' index ',indx_dihff,ind_max
                     if ( indx_dihff > 4 and mod_val < 0 ):
@@ -877,11 +903,14 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
                         FF_DIHTYPES_mod.append( str( " %16.8f " % (float( FF_DIHTYPES[ff_i][indx_dihff]  ) /n_mod)))
                     else:
                         FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
-                         
+                    
                 if(debug):  print ' post mod ',FF_DIHTYPES_mod
                 ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES_mod ) )
             else:
-                ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
+                for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
+                    FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] )
+                    
+                ff_line =  '%s ' % ' ' .join(map(str, FF_DIHTYPES_mod ) )
             
             #ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES[ff_i][0:5] ) )
             #ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
