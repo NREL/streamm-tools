@@ -96,7 +96,8 @@ def main():
     #
     if( options.nb_list ):
 	print "  Creating neighbor list"
-	NBLIST, NBINDEX = top.build_covnablist(ELN,R)	    
+	#NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+	NBLIST,NBINDEX  = groups.build_nablist_bonds(ELN,BONDS)
     #
     # Find  atom groups k-i-j
     #
