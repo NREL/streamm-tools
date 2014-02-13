@@ -813,6 +813,10 @@ def atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
     ATYPE_EP = []
     ATYPE_SIG = []
 
+    ff_type = "oplsaa"
+    
+    if( ff_type == "oplsaa" ): combrule = 3 
+    
     debug = 0
     #
     # Find atom type parameters
@@ -825,7 +829,10 @@ def atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
         for ff_i in range (len(FF_ATOMTYPES)):
             FF_i = FF_ATOMTYPES[ff_i] #.split() 
             if ( AT_i == FF_i[0] ):
-                ATYPE_SIG.append( float( FF_i[5]) * GRO_SIG )
+		if( combrule == 2 ):
+                    ATYPE_SIG.append( float( FF_i[5]) * GRO_SIG )
+    		if( combrule == 3 ):
+		    ATYPE_SIG.append( float( FF_i[5]) * NM_ANG )
                 ATYPE_EP.append( float( FF_i[6]) *  KJ_KCAL )
                 check = 0
                 if( debug):  print  float( FF_i[5]) ,float( FF_i[6])         
