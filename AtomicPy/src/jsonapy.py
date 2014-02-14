@@ -26,6 +26,38 @@ def read_jsondata(json_name):
     
     return json_data,success
 
+
+def read_meta(json_data):
+    import json , numpy 
+    
+    success = 0
+
+    #print json_data['metadata']["atomic
+    metadata_found,atomicdata_found = check_atomic(json_data)
+    
+	
+    if (  metadata_found  ):
+	print " Reading meta data from json file "
+	accuracy = json_data['metadata']['accuracy']
+	donor_substituents = json_data['metadata']['donor_substituents']
+	donors = json_data['metadata']['donors']
+	acceptor_substituents = json_data['metadata']['acceptor_substituents']
+	basis = json_data['metadata']['basis']
+	method = "b3lyp" # Not in json file yet 
+	terminal_substituents = json_data['metadata']['terminal_substituents']
+	number = json_data['metadata']['number']
+	spacers = json_data['metadata']['spacers']
+	terminals = json_data['metadata']['terminals']
+	tag = json_data['metadata']['tag']
+	n_units = json_data['metadata']['n']
+	spacer_substituents = json_data['metadata']['spacer_substituents']
+	acceptors = json_data['metadata']['acceptors']
+
+	success = 1
+	    
+    return (tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,success)
+
+
 def check_atomic(json_data):
     
     
