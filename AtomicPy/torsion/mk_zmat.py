@@ -23,6 +23,7 @@ def get_options():
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
+    parser.add_option("--pbs_template", dest="pbs_template",type="string",default="",help=" Template for job submission  ")
 
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
@@ -51,6 +52,11 @@ def get_options():
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
 
     (options, args) = parser.parse_args()
+    
+    
+    if( options.host == "peregrine" and options.submit ):
+	option.pbs_template = "peregrine.pbs.template"
+	
 	    
     return options, args
 
