@@ -683,9 +683,6 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
     F.write(' \n ')
     F.write(' \n ')
-    
-
-    
     #
     # Check atom types 
     #
@@ -1036,6 +1033,63 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     return  ( AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST )
 
 
+def print_sp(g_mdp):
+
+    min_lines =' title               =  fixed dih calc '
+    min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
+    min_lines = min_lines + '\n'  + 'constraints         =  none '
+    min_lines = min_lines + '\n'  + 'integrator          =  md'
+    min_lines = min_lines + '\n'  + 'pbc                 =  xyz'
+    min_lines = min_lines + '\n'  + 'periodic_molecules  =  no '
+    min_lines = min_lines + '\n'  + 'nsteps              =  0 '
+    min_lines = min_lines + '\n'  + 'nstlist             =  1 '
+    min_lines = min_lines + '\n'  + 'ns_type             =  grid'
+    min_lines = min_lines + '\n'  + ';Particle-mesh Ewald'
+    min_lines = min_lines + '\n'  + 'coulombtype         =  PME'
+    min_lines = min_lines + '\n'  + 'rvdw                =  2.0'
+    min_lines = min_lines + '\n'  + 'rlist               =  2.0'
+    min_lines = min_lines + '\n'  + 'rcoulomb            =  2.0'
+    min_lines = min_lines + '\n'  + 'fourierspacing      =  0.12'
+    min_lines = min_lines + '\n'  + 'pme_order           =  5'
+    min_lines = min_lines + '\n'  + 'ewald_rtol          =  1e-5'
+    
+    f = open(g_mdp,'w')
+    f.write(min_lines)
+    f.close()
+
+    return
+
+def print_min(g_mdp):
+
+    min_lines =' title               =  fixed dih calc '
+    min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
+    min_lines = min_lines + '\n'  + 'constraints         =  none '
+    min_lines = min_lines + '\n'  + 'integrator          =  steep'
+    min_lines = min_lines + '\n'  + 'pbc                 =  xyz'
+    min_lines = min_lines + '\n'  + 'periodic_molecules  =  no '
+    min_lines = min_lines + '\n'  + 'nsteps              =  1000000 ; total 0.5ns '
+    min_lines = min_lines + '\n'  + 'nstlist             =  10'
+    min_lines = min_lines + '\n'  + 'ns_type             =  grid'
+    min_lines = min_lines + '\n'  + ';Particle-mesh Ewald'
+    min_lines = min_lines + '\n'  + 'coulombtype         =  PME'
+    min_lines = min_lines + '\n'  + 'rvdw                =  2.0'
+    min_lines = min_lines + '\n'  + 'rlist               =  2.0'
+    min_lines = min_lines + '\n'  + 'rcoulomb            =  2.0'
+    min_lines = min_lines + '\n'  + 'fourierspacing      =  0.12'
+    min_lines = min_lines + '\n'  + 'pme_order           =  5'
+    min_lines = min_lines + '\n'  + 'ewald_rtol          =  1e-5'
+    min_lines = min_lines + '\n'  + ';dihedral restraints'
+    min_lines = min_lines + '\n'  + 'dihre               =  yes'
+    min_lines = min_lines + '\n'  + 'dihre_fc            =  10000     ; or whatever value you desire'
+    min_lines = min_lines + '\n'  + 'emtol  = 0.001'
+    min_lines = min_lines + '\n'  + 'emstep = 0.0001 '
+    
+    f = open(g_mdp,'w')
+    f.write(min_lines)
+    f.close()
+
+    return
+
 def print_min_nopbcs(g_mdp):
 
     min_lines =' title               =  fixed dih calc '
@@ -1170,3 +1224,35 @@ def get_coord(run_id,options):
             
     return R
     
+    
+def check_input(g_gro,g_top,options ):
+    import sys, os
+    import file_io 
+
+    s_suf = options.gromacs_sufix
+
+    load_gromacs = 'module load gromacs/4.5.4'
+    os.system(load_gromacs)
+
+    run_id = 'test'
+    g_mdp =  run_id+'.mdp'
+    g_tpr =  run_id+'.tpr'
+    print_min(g_mdp)
+
+    # Remove files so not to rerun previous 
+    g_clean = 'rm ' + g_tpr
+    os.system(g_clean)
+
+    # Compile gromacs thingy
+    g_gromp = options.gromacs_dir+'grompp'+s_suf +' -f '+g_mdp+' -c '+g_gro+' -p '+g_top+' -o '+run_id
+    os.system(g_gromp)
+
+    print g_gromp
+
+    if( file_io.file_exists( g_tpr )  ):
+        test_calc = 1
+    else:
+        test_calc = 0
+        
+
+    return test_calc

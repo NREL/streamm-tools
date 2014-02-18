@@ -107,7 +107,7 @@ def main():
 		    #
 		    # 
 		    #
-		    zmat_fchk = "%s%s/%s%s" % ( calc_id , "-ZMATOPT",job_name,".fchk" )
+		    zmat_fchk = "%s/%s%s" % ( calc_id ,job_name,"-ZMATOPT.fchk" )
 		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
                     zmat_finished = file_io.file_exists( zmat_fchk )
 		    

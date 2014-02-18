@@ -38,12 +38,14 @@ def read_meta(json_data):
 	
     if (  metadata_found  ):
 	print " Reading meta data from json file "
+	mol_dir = json_data['metadata']['mol_dir']
 	accuracy = json_data['metadata']['accuracy']
 	donor_substituents = json_data['metadata']['donor_substituents']
 	donors = json_data['metadata']['donors']
 	acceptor_substituents = json_data['metadata']['acceptor_substituents']
 	basis = json_data['metadata']['basis']
-	method = "b3lyp" # Not in json file yet 
+	method = json_data['metadata']['method']
+	
 	terminal_substituents = json_data['metadata']['terminal_substituents']
 	number = json_data['metadata']['number']
 	spacers = json_data['metadata']['spacers']
@@ -55,7 +57,7 @@ def read_meta(json_data):
 
 	success = 1
 	    
-    return (tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,success)
+    return (mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,success)
 
 
 def check_atomic(json_data):
@@ -168,3 +170,77 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
             json_data['metadata']["atomic"]["unittype"][atom_i]  = UNITTYPE[atom_i] 
     
     return json_data
+
+
+def read_qm_tor(json_data):
+    
+    dih_id_list = []
+    cent_min_list  = []
+    cent_max_list = []
+    cent_step_list = []
+    a_k = []
+    a_i = [] 
+    a_j = []
+    a_l = []
+    
+    qmtor_found = 0
+    
+    #
+    # Check for metadata section 
+    #
+    for data in json_data:
+	if( data == 'metadata' ):
+	    
+	    for meta_data in json_data['metadata']:
+	        if ( meta_data == "qm_tor_data" ):
+		    qmtor_found = 1
+		    
+		    dih_id_list = json_data['metadata']["qm_tor_data"]["cent_id"]
+		    cent_min_list = json_data['metadata']["qm_tor_data"]["cent_min"]
+		    cent_max_list = json_data['metadata']["qm_tor_data"]["cent_max"]
+		    cent_step_list = json_data['metadata']["qm_tor_data"]["cent_step"]
+		    a_k_list = json_data['metadata']["qm_tor_data"]["a_k"]
+		    a_i_list = json_data['metadata']["qm_tor_data"]["a_i"]
+		    a_j_list = json_data['metadata']["qm_tor_data"]["a_j"]
+		    a_l_list = json_data['metadata']["qm_tor_data"]["a_l"]
+		    
+		
+    return ( dih_id_list ,cent_min_list ,cent_max_list ,cent_step_list,a_k_list, a_i_list, a_j_list, a_l_list, qmtor_found )
+
+
+def read_ff_tor(json_data):
+    
+    dih_id_list = []
+    cent_min_list  = []
+    cent_max_list = []
+    cent_step_list = []
+    a_k = []
+    a_i = [] 
+    a_j = []
+    a_l = []
+    ff_type_list = []
+    
+    success  = 0
+    
+    #
+    # Check for metadata section 
+    #
+    for data in json_data:
+	if( data == 'metadata' ):
+	    
+	    for meta_data in json_data['metadata']:
+	        if ( meta_data == "ff_tor_data" ):
+		    success = 1
+		    
+		    dih_id_list = json_data['metadata']["ff_tor_data"]["cent_id"]
+		    cent_min_list = json_data['metadata']["ff_tor_data"]["cent_min"]
+		    cent_max_list = json_data['metadata']["ff_tor_data"]["cent_max"]
+		    cent_step_list = json_data['metadata']["ff_tor_data"]["cent_step"]
+		    a_k_list = json_data['metadata']["ff_tor_data"]["a_k"]
+		    a_i_list = json_data['metadata']["ff_tor_data"]["a_i"]
+		    a_j_list = json_data['metadata']["ff_tor_data"]["a_j"]
+		    a_l_list = json_data['metadata']["ff_tor_data"]["a_l"]
+		    ff_type_list  = json_data['metadata']["ff_tor_data"]["ff_type"]
+		    
+		
+    return ( dih_id_list ,cent_min_list ,cent_max_list ,cent_step_list,a_k_list, a_i_list, a_j_list, a_l_list, ff_type_list, success )

@@ -77,7 +77,7 @@ def main():
 	    if(  json_success ):
 		
 		mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
-		dih_id_list ,cent_min_list ,cent_max_list ,cent_step_list,qmtor_found = jsonapy.read_qm_tor(json_data)
+		dih_id_list ,cent_min_list ,cent_max_list ,cent_step_list,a_k_list, a_i_list, a_j_list, a_l_list,qmtor_found = jsonapy.read_qm_tor(json_data)
 		#
 		# Need meta data to proceed 
 		#      		    

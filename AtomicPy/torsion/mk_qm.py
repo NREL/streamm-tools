@@ -63,7 +63,6 @@ def get_options():
 	    
     return options, args
 
-
 def read_dihlist(dlist_name):
     
     
@@ -342,7 +341,7 @@ def write_input( options,  json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_
 	    #
 	    # Append torsional information 
 	    #
-			    
+	    
 	    qm_tor_data["cent_id"].append( cent_id )
 	    qm_tor_data["a_k"].append( a_k )
 	    qm_tor_data["a_i"].append( a_i )
@@ -452,9 +451,11 @@ def main():
 		    
 		    if( options.verbose ):
 			print " Meta data found will use specified method and basis unless others are specified in the options "
+		    
 		    #
 		    # Construct file names 
 		    #
+		    
 		    #short_name = "acc%d_%s_n%d" % (accuracy, tag, number )
 		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
 		    struct_dir = "%s/%s/" % (mol_dir, tag )
@@ -493,6 +494,8 @@ def main():
 			if( options.verbose ):
 			    print "       Parsing Z-matrix file to creat input files for run  "
 			    
+			
+	                os.chdir(struct_dir)
 			    
 			# Check to see if list of dihedrals to loop over has been creaeted
 			dlist_name = job_name + "_dih.list"
@@ -519,8 +522,6 @@ def main():
 			    options.qm_kywd = " popt=Zmat  nosym "
 			    
 
-	                    os.chdir(struct_dir)
-			    
 			    write_input(options, json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ,work_dir)
 			    options.qm_kywd = qm_kywd_o
 			    
