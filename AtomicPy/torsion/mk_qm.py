@@ -464,7 +464,7 @@ def main():
 		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
 		    
 		    zmat_finished = 0
-		    if( check_fchk( zmat_fchk ) == 0 ): zmat_finished =1 
+		    if( gaussian.check_fchk( zmat_fchk ) == 0 ): zmat_finished =1 
                     #zmat_finished =  file_io.file_exists( zmat_fchk )
 		    
 		    if( zmat_finished  ):
