@@ -351,8 +351,11 @@ def run(options,calc_id):
         user = 'tkemper'
         
             
-        scratch_dir = "/gscratch1/"+ user+"/GAUSSIAN-"+calc_id+'-'+str(random_numb)
+        scratch_dir = "/scratch/"+ user+"/GAUSSIAN-"+calc_id+'-'+str(random_numb)
         mk_scratch = "mkdir " + scratch_dir
+
+        print mk_scratch
+
         rm_temp = "rm -rf /dev/shm/*"
         ex_scratch =  "export GAUSS_SCRDIR="+scratch_dir
         rm_scratch =  "rm -rf "+scratch_dir
@@ -367,24 +370,6 @@ def run(options,calc_id):
         com_new = com_new + "\n" + com_lines
         
         
-    elif( options.cluster_host == "redmesa" ):
-	load_gaussian = "module load gaussian/g09/C.01"
-        user = 'twkempe'
-        
-        scratch_dir = "/gscratch1/"+ user+"/GAUSSIAN-"+calc_id+'-'+str(random_numb)
-        mk_scratch = "mkdir " + scratch_dir
-        rm_temp = "rm -rf /dev/shm/*"
-        ex_scratch =  "export GAUSS_SCRDIR="+scratch_dir
-        rm_scratch =  "rm -rf "+scratch_dir
-    
-        os.system(load_gaussian)
-        os.system(mk_scratch)
-        os.system(ex_scratch) 
-        os.system(rm_temp)
-            
-        com_new = "%NoSave" 
-        com_new = com_new + "\n" + "%RWF=/dev/shm/,1500MB,"+scratch_dir+"/,-1"
-        com_new = com_new + "\n" + com_lines
     else:
         load_gaussian = ""
         com_new = com_lines
@@ -397,15 +382,13 @@ def run(options,calc_id):
         os.chdir(calc_id)
 
         
-    log_name = replace(com_file, "com", "log")
-
     # Print default route file
     f = file("Default.Route", "w")
     f.write("  -P-  %d " % (options.npros ))
     f.close()
 
 
-    run_gaus=" g09 < "+str(com_file)+ " > "+ str(log_name)
+    run_gaus=" g09 < "+str(com_file)+ " > "+ str(log_file)
     print run_gaus
 
     f = file(com_file, "w")
@@ -420,7 +403,7 @@ def run(options,calc_id):
        sys.exit(' sp ')
        
     #Format chk
-    if( check_log(log_name) == 0 ):
+    if( check_log(log_file) == 0 ):
         chk2fchk( options , calc_id )
 
     os.chdir(work_dir)
@@ -435,10 +418,10 @@ def chk2fchk( options , calc_id ):
     import sys, os
     import file_io
 
-    if( options.cluster_host == "peregrine" ):
+    if( options.host == "peregrine" ):
 	load_gaussian = "module load gaussian/.g09_C.01 "
         os.system(load_gaussian)
-    elif( options.cluster_host == "redmesa" ):
+    elif( options.host == "redmesa" ):
 	load_gaussian = "module load gaussian/g09/C.01"
         os.system(load_gaussian)
 	
