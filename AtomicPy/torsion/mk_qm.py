@@ -20,7 +20,6 @@ def get_options():
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
     
-    
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
 
@@ -463,7 +462,10 @@ def main():
 		    
 		    zmat_fchk = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.fchk" )
 		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
-                    zmat_finished = file_io.file_exists( zmat_fchk )
+		    
+		    zmat_finished = 0
+		    if( check_fchk( zmat_fchk ) == 0 ): zmat_finished =1 
+                    #zmat_finished =  file_io.file_exists( zmat_fchk )
 		    
 		    if( zmat_finished  ):
 
@@ -526,7 +528,7 @@ def main():
 			    options.qm_kywd = qm_kywd_o
 			    
 	            else:
-                    	print " zmatrix file not optimized "
+                    	print " zmatrix file not optimized ",zmat_fchk
 	
                 os.chdir(work_dir)
         
