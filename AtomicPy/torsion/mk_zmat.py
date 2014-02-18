@@ -195,15 +195,15 @@ def main():
 				    print "      Writing xyz file of fchk geometry ",options.out_xyz
 				xmol.write_xyz(ASYMB,R,options.out_xyz)
 		    
-		    
-			    # Print com
-			    calc_id_temp = calc_id + "-temp"
-			    gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
-			    #  geometry z-matrix opt input files
-			    gaussian.com2zmat(calc_id_temp,calc_id,options)
-			    
 			    os.chdir(struct_dir)
 			    job_id =  "%s%s" % (job_name,"-ZMATOPT" )
+		    
+			    # Print com
+			    calc_id_temp = job_id + "-temp"
+			    gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
+			    #  geometry z-matrix opt input files
+			    gaussian.com2zmat(calc_id_temp,job_id,options)
+			    
 			    # Run optimization
 			    if( options.submit ):
 				input_file =  "%s%s" % ( job_id,".com" )
