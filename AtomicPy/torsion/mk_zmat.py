@@ -82,7 +82,8 @@ def main():
 	f.close()
 
 
-	
+    work_dir = os.getcwd()
+
 	
     json_files = options.json.split(',')
     print json_files
@@ -201,24 +202,28 @@ def main():
 			    #  geometry z-matrix opt input files
 			    gaussian.com2zmat(calc_id_temp,calc_id,options)
 			    
+			    os.chdir(struct_dir)
+			    job_id =  "%s%s" % (job_name,"-ZMATOPT" )
 			    # Run optimization
 			    if( options.submit ):
-				input_file =  "%s%s" % ( job_name,"-ZMATOPT.com" )
+				input_file =  "%s%s" % ( job_id,".com" )
 				if( options.verbose ):
 				    print "     Submitting Z-matrix optimization to queue "
 				    print "         nodes        ",options.nnodes
 				    print "         memory/node  ",options.pmem
 				# Print pbs script
-				pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
+				pbs_id = cluster.write_pbs(pbs_templ,job_id,input_file,options)
 				cluster.submit_job( struct_dir, pbs_id ,options )
 				
 			    elif( options.localrun ):
 				if( options.verbose ):
 				    print "       Running Z-matrix optimization  "
-				gaussian.run(options, calc_id)
+				gaussian.run(options, job_id)
 			    else:
 				print " Please mark either qsub or runloc options as True to run qm"
-						    
+				
+			    os.chdir(work_dir)
+
 			    options.qm_kywd = qm_kywd_o
 			
 			    
