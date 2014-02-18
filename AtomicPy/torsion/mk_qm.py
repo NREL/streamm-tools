@@ -525,7 +525,9 @@ def main():
 			    write_input(options, json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ,work_dir)
 			    options.qm_kywd = qm_kywd_o
 			    
-		
+	            else:
+                    	print " zmatrix file not optimized "
+	
                 os.chdir(work_dir)
         
     
