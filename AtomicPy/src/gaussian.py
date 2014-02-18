@@ -272,17 +272,17 @@ def get_dih_id( zmatrix ):
     return ( DIH_ID, DIH_VAL, DIH_ATOMS)
     
         
-def print_com( id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options):
+def print_com( id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,qm_method,qm_basis,qm_kywd,qm_charge,qm_mult):
     from string import replace
     
     # Check multiplicity = 2 S + 1
     #   where S is the total spin of the system
-    e_total = ELECTRONS_i - options.qm_charge 
+    e_total = ELECTRONS_i - qm_charge 
     e_unpaired =  e_total % 2  
     if( e_unpaired == 0 ):
-        multiplicity = 1 + options.qm_mult
+        multiplicity = 1 + qm_mult
     elif( e_unpaired == 1 ):
-        multiplicity = 2 + options.qm_mult
+        multiplicity = 2 + qm_mult
         
         
     # set options 
@@ -292,11 +292,11 @@ def print_com( id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options):
     f = open(F_name,'w')
     f.write( "%s%s" % ("%chk=", chk_name))
     #f.write( "\n%snpros=%d " % ("%",options.qm_npros))
-    f.write( "\n# P %s/%s  %s" % (options.qm_method,options.qm_basis,options.qm_kywd))
+    f.write( "\n# P %s/%s  %s" % (qm_method,qm_basis,qm_kywd))
     f.write( "\n ")
     f.write( "\n %s " % (id_name))
     f.write( "\n ")
-    f.write( "\n  %d %d " % (options.qm_charge,multiplicity))
+    f.write( "\n  %d %d " % (qm_charge,multiplicity))
     for i in range( len(ASYMB)):
         f.write("\n  %5s %16.8f %16.8f %16.8f " % (ASYMB[i],R[i][0],R[i][1],R[i][2]) )
     f.write( "\n ")
