@@ -28,6 +28,8 @@ def get_options():
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
     parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
     parser.add_option("--submit_command", dest="submit_command",type="string", default="qsub",help=" command used to submit script to the queue ")
+
+    parser.add_option("--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
     
     # QM calculation options 
     parser.set_defaults(qm_software="gaussian")
@@ -77,130 +79,135 @@ def main():
 	    # Get lines of index file
 		
 	    
-	    #
-	    # Split json file to get struct_dir and job_name
-	    #    This assumes 
-	    #
-	    json_dir_col = json_file.split('/')
-	    struct_dir = ""
-	    for dir_indx in range( len(json_dir_col) - 1 ):
-		dir = json_dir_col[dir_indx]
-		struct_dir = struct_dir + dir +'/'
-		
-	    json_file_col  = json_dir_col[len(json_dir_col)-1].split('.')
-	    job_name = json_file_col[0]
-	    
-	    
-	    
 	    # Verbose output
 	    if( options.verbose ):
 		print "The molecules specified in json file ",options.json," will be read in "
     
-	
-    
-	    json_atomicdata = 0
 	    json_data,json_success = jsonapy.read_jsondata(json_file)
 	    if(  json_success ):
 		
-		tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
+		mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
 		
-
-		
-		if( options.verbose ):
-		    print "     Getting atomic data from  ",json_file
-    
-		ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success  = jsonapy.read_atomic(json_data)
-		if( success ):
-		    json_atomicdata = 1
-		else:
-		    
-		    print "   json file ",json_file," exist, but does not contain any atomic data . "
-		    
-		     
-		
-	    else:
-		print "   json file ",json_file," does not exist. "
-		
-	    #
-	    # Asign method and basis 
-	    #
-	    if( metadata_found ):
-		if( options.verbose ):
-		    print " Meta data found will use specified method and basis unless others are specified in the options "
-
-		if( len( options.qm_method) == 0 ):
-		    options.qm_method = method		    
-		if( len( options.qm_basis) == 0 ):
-		    options.qm_basis = basis
-	    else:
-		# If no meta data is found set accordingly 
-		if( len( options.qm_method) == 0 ):
-		    options.qm_method = default_method		    
-		if( len( options.qm_basis) == 0 ):
-		    options.qm_basis = default_basis
-
-	    if( not  json_atomicdata ):
 		#
-		# If no atomic data try getting it from fchk file 
-		#
+		# Need meta data to proceed 
+		#      		    
+		if( metadata_found ):
+		    json_atomicdata = 0
+		    fchk_atomicdata = 0
+		    
+		    if( options.verbose ):
+			print " Meta data found will use specified method and basis unless others are specified in the options "
+		    #
+		    # Construct file names 
+		    #
+		    #short_name = "acc%d_%s_n%d" % (accuracy, tag, number )
+		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
+		    struct_dir = "%s/%s/" % (mol_dir, tag )
+		    calc_id = "%s/%s%s" % (struct_dir, job_name , "-ZMATOPT" )
+		    #
+		    # 
+		    #
+		    zmat_fchk = "%s%s/%s%s" % ( calc_id , "-ZMATOPT",job_name,".fchk" )
+		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
+                    zmat_finished = file_io.file_exists( zmat_fchk )
+		    
+		    if( not zmat_finished or options.recalc ):
+			
+			#
+			# Asign method and basis 
+			#      	
+			if( len( options.qm_method) == 0 ):
+			    options.qm_method = method		    
+			if( len( options.qm_basis) == 0 ):
+			    options.qm_basis = basis
+			#
+			# Get atomic data 
+			#      
+			if( options.verbose ):
+			    print "     Getting atomic data from  ",json_file
 	    
-		print " checking fchk files in ",struct_dir, " job name ",job_name
-		
-		fchk_file = struct_dir + job_name + '/' + job_name + ".fchk"
-		
-		fchk_atomicdata = 0
-		if( file_io.file_exists(fchk_file) ):
-		    if( options.verbose ):
-			print " Reading atomic data from ",fchk_file
-		    NA, ELN, R, TOTAL_ENERGY , Q_ESP = gaussian.parse_fchk(fchk_file)
-		    fchk_atomicdata = 1
+			ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success  = jsonapy.read_atomic(json_data)
+			
+			if( success ):
+			    json_atomicdata = 1
+			else:
+			    print "   json file ",json_file," exist, but does not contain any atomic data . "
+			    #
+			    # If no atomic data try getting it from fchk file 
+			    #
+			
+			    print " checking fchk files in ",struct_dir, " job name ",job_name
+			    
+			    fchk_file = struct_dir + job_name + '/' + job_name + ".fchk"
+			    
+			    fchk_atomicdata = 0
+			    if( file_io.file_exists(fchk_file) ):
+				if( options.verbose ):
+				    print " Reading atomic data from ",fchk_file
+				NA, ELN, R, TOTAL_ENERGY , Q_FCHK = gaussian.parse_fchk(fchk_file)
+				fchk_atomicdata = 1
+				
+					    
+				# Poppulate other atomic values                
+				ASYMB = elements.eln_asymb(ELN)
+				CHARGES = []
+				for atom_i in range(NA):
+				    CHARGES.append( -100.0 )
+					    
+				
+			if( json_atomicdata or fchk_atomicdata ):
+			    
+			    ATYPE = []
+			    ELECTRONS_i = 0
+			    for atom_i in range( len(ELN) ):
+				ATYPE.append( ASYMB[atom_i] )
+				ELECTRONS_i += ELN[atom_i] 
+			    
+		    
+			    # Optimize z-matrix to get bonding information
+			    qm_kywd_o = options.qm_kywd 
+			    options.qm_kywd = qm_kywd_o + " OPT POP=MK "
+			    #
+			    # Print calculation information 
+			    #
+			    if( options.verbose ):
+				print " Atomic data has been found creating zmatrix input files "
+				print "   Method   ",options.qm_method
+				print "   Basis    ",options.qm_basis
+				print "   Keywords ",options.qm_kywd
+	    
+			    if( options.out_xyz ):
+				if( options.verbose ):
+				    print "      Writing xyz file of fchk geometry ",options.out_xyz
+				xmol.write_xyz(ASYMB,R,options.out_xyz)
 		    
 		    
-	    if( json_atomicdata or fchk_atomicdata ):
-		
-		# Optimize z-matrix to get bonding information
-		qm_kywd_o = options.qm_kywd 
-		options.qm_kywd = qm_kywd_o + " OPT"
-		#
-		# Print calculation information 
-		#
-		if( options.verbose ):
-		    print " Atomic data has been found creating zmatrix input files "
-		    print "   Method   ",options.qm_method
-		    print "   Basis    ",options.qm_basis
-		    print "   Keywords ",options.qm_kywd
-
-                if( options.out_xyz ):
-                    if( options.verbose ):
-                        print "      Writing xyz file of fchk geometry ",options.out_xyz
-                    xmol.write_xyz(ASYMB,R,options.out_xyz)
-	
-		# Print com
-		calc_id_temp = 
-		gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,qm_charge,qm_mult)
-		#  geometry z-matrix opt input files
-		gaussian.com2zmat(calc_id_temp,calc_id,options)
-		
-		# Run optimization
-		if( options.submit ):
-		    if( options.verbose ):
-			print "     Submitting Z-matrix optimization to queue "
-			print "         nodes        ",options.nnodes
-			print "         memory/node  ",options.pmem
-		    # Print pbs script
-		    pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
-		    cluster.submit_job( struct_dir, pbs_id ,options )
-		    
-		elif( options.localrun ):
-		    if( options.verbose ):
-			print "       Running Z-matrix optimization  "
-		    gaussian.run(options, calc_id)
-		else:
-		    print " Please mark either qsub or runloc options as True to run qm"
-					
-		options.qm_kywd = qm_kywd_o
-		
-		    
+			    # Print com
+			    calc_id_temp = calc_id + "-temp"
+			    gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
+			    #  geometry z-matrix opt input files
+			    gaussian.com2zmat(calc_id_temp,calc_id,options)
+			    
+			    # Run optimization
+			    if( options.submit ):
+				if( options.verbose ):
+				    print "     Submitting Z-matrix optimization to queue "
+				    print "         nodes        ",options.nnodes
+				    print "         memory/node  ",options.pmem
+				# Print pbs script
+				pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
+				cluster.submit_job( struct_dir, pbs_id ,options )
+				
+			    elif( options.localrun ):
+				if( options.verbose ):
+				    print "       Running Z-matrix optimization  "
+				gaussian.run(options, calc_id)
+			    else:
+				print " Please mark either qsub or runloc options as True to run qm"
+						    
+			    options.qm_kywd = qm_kywd_o
+			
+			    
 		
 		    
     else:

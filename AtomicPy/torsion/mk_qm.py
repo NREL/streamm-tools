@@ -15,25 +15,28 @@ def get_options():
     parser = OptionParser(usage=usage)
     
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+    
+    # json files to act on
+    parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
+    
     
     # Cluster options
-    parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
+    parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
 
+    # How to run the needed calculations 
+    parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
+    parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
+    parser.add_option("--submit_command", dest="submit_command",type="string", default="qsub",help=" command used to submit script to the queue ")
 
-    parser.set_defaults(submit=False)
-    parser.add_option("--submit", dest="submit",action="store_true",help=" submit calculations to the queue ")
-    parser.set_defaults(localrun=False)
-    parser.add_option("--localrun", dest="localrun",action="store_true",help=" Run calculations locally, ment to use if scripts included in submitted job")
- 
-    parser.set_defaults(submit_command="qsub")
-    parser.add_option("--submit_command", dest="submit_command",type="string",help=" command used to submit script to the queue ")
+    parser.add_option("--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
 
     # Torsion
     parser.add_option("--cent_min", dest="cent_min", type="int", default="0",help=" Initial torsional angle ")
     parser.add_option("--cent_max", dest="cent_max", type="int", default="180",help=" Final torsional angle ")
     parser.add_option("--cent_step", dest="cent_step", type="int", default="5",help=" Step size torsional angle ")
-    
+
+    parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
 
     # QM calculation options 
     parser.set_defaults(qm_software="gaussian")
@@ -46,31 +49,20 @@ def get_options():
     parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
     parser.add_option("--qm_charge", type="int",action="append", default="0",help="Input gaussain log file ")
     parser.add_option("--qm_mult", dest="qm_mult", type="int",default="0", help=" Shift in default spin multiplicity ( singlet,doublet) QM calculation, allows for triplets ")
+
+    parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
     
     parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
     parser.add_option("--npros", dest="npros", type="int", default="4",help=" Number of processors ")
     parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
 
-    parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
-    parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
-
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
 
     (options, args) = parser.parse_args()
-
-    # Set options based on cluster 
-    if( options.cluster_host == "peregrine" ):
-        options.npros = options.nnodes* 24
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/.g09_C.01"
-    elif( options.cluster_host == "redmesa" ):
-        options.npros = options.nnodes *8
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/g09/C.01"
-	    
 	    
     return options, args
+
 
 def read_dihlist(dlist_name):
     
@@ -239,20 +231,21 @@ def build_nablist(ELN,BONDS):
 
     return (NBLIST,NBINDEX)
 
-def pars_zmatrix(calc_id):
+def pars_zmatrix( calc_id, job_name ):
     from string import replace
     # atomicpy
     import gaussian, top
     
-    log_name = calc_id +"/"+calc_id+".log"
-    com_name = calc_id +"/"+calc_id+".com"
+    log_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.log" )
+    com_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.com" )
     # Get lines of log file     
     f = open(log_name,'r')
     Lines = f.readlines()
     f.close()
 
     #Parse fchk
-    fchk_file = calc_id +"/"+calc_id+".fchk"
+    fchk_file = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.fchk" )
+
     print " fchk_file" , fchk_file
     NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
     
@@ -311,13 +304,27 @@ def write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS ):
         
     flist.close()
 
-def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ,indx_file ,work_dir):
-    import cluster
+def write_input( options,  json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ ,work_dir):
+    import cluster, json 
     
-    # File info
-    struct_dir = mol_dir + "/" + mol_id + "/"
-    job_name = mol_acc + "_" + mol_id + "_n" + str(mol_repeat)
+    json_file_loc = "%s%s" % ( job_name , ".json" )
 
+    
+    #append_qm_tor_json
+    qm_tor_data = {}
+    json_data['metadata']["qm_tor_data"] = qm_tor_data
+    
+
+    qm_tor_data["cent_id"] = []
+    qm_tor_data["a_k"] =  []
+    qm_tor_data["a_i"] =  []
+    qm_tor_data["a_j"] =  []
+    qm_tor_data["a_l"] =  []
+    qm_tor_data["cent_min"] =  []
+    qm_tor_data["cent_max"] =  []
+    qm_tor_data["cent_step"] = []
+			
+			    
     # Loop over central dihedrals 
     for cent_indx in range(len(DIH_ID)):
         print DIH_TAG[cent_indx].strip() 
@@ -332,13 +339,20 @@ def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_
             cent_id = DIH_ID[cent_indx].strip()
             print " The connection between ", a_k,a_i, a_j ,a_l, " is ", cent_id, DIH_ATOMS[cent_indx]
     
-    
-            # Print calculation information
-            dir_indx_file = work_dir +"/"+ indx_file
-            file_info = open( dir_indx_file,'a')
-            file_info.write( "\n qm_dih  %s %s %d %s %s %8d %8d %8d %8d %d %d %d " %( mol_dir,mol_id,mol_repeat,mol_acc,cent_id, a_k,a_i, a_j ,a_l,options.cent_min,options.cent_max+options.cent_step,options.cent_step))
-            file_info.close()
-
+	    #
+	    # Append torsional information 
+	    #
+			    
+	    qm_tor_data["cent_id"].append( cent_id )
+	    qm_tor_data["a_k"].append( a_k )
+	    qm_tor_data["a_i"].append( a_i )
+	    qm_tor_data["a_j"].append( a_j )
+	    qm_tor_data["a_l"].append( a_l )
+	    qm_tor_data["cent_min"].append( options.cent_min )
+	    qm_tor_data["cent_max"].append( options.cent_max+options.cent_step )
+	    qm_tor_data["cent_step"].append( options.cent_step )
+			    
+				    
             # Loop over angels of central dihedrals
             for cent_angle in range(options.cent_min,options.cent_max+options.cent_step,options.cent_step):
                 cent_name =   job_name  + '-' + cent_id + '_' + str(cent_angle) + '_auxfix'
@@ -353,11 +367,19 @@ def write_input( options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_
                 f.write(com_dih)
                 f.close()
                 
-                pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
+		if( options.host == "peregrine" ):
+		    pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
 
+
+    f = open(json_file_loc	, 'w')
+    json.dump(json_data, f, indent=2)
+    f.close()
+    
+    
 def main():
     import string, os , sys 
     # atomicpy
+    import jsonapy 
     import gaussian, elements, xmol , file_io , cluster 
     from string import replace
     
@@ -365,16 +387,11 @@ def main():
     
     # Verbose output
     if( options.verbose ):
-        print "The molecules specified in index files ",args," will be read in "
         print "   Calculations (sufix): "
-        print "     Z-matrix optimization (-ZMAT) "
-        print "     ESP fit (-ESP) "
+        print "     Z-matrix optimization with ESP charges  (-ZMATOPT) "
         if( options.submit):
             print "  Calculations "
         print "  Please load module ",options.qm_load
-
-    # Set options
-    pmem = options.pmem
 
     # Read in template files 
     f = open(options.dih_temp,'r')
@@ -382,16 +399,17 @@ def main():
     f.close()
 
     # 
-    if( options.cluster_host == "peregrine" ):
+    if( options.host == "peregrine" ):
 	f = open("peregrine.pbs.template",'r') # redmesa.slurm.template
-    elif( options.cluster_host == "redmesa" ):
-	f = open("redmesa.slurm.template",'r')
-    else:
-        # HACK !!!
-        f = open("peregrine.pbs.template",'r') # redmesa.slurm.template
+	pbs_templ = f.read()
+	f.close()
+	    
+	# Verbose output
+	if( options.verbose ):   print "  Please load module ",options.qm_load
 	
-    pbs_templ = f.read()
-    f.close()
+    elif( options.host == "macbook" ):
+	pbs_templ= ""
+
 
     # Read in index file produced by opv_generator or writen by hand
     #   Format:
@@ -409,143 +427,103 @@ def main():
     # Store working dir  
     work_dir = os.getcwd()
     
-    # Read index files from args
-    for indx_file in args:
-        # Get lines of index file   
-        f = open(indx_file,'r')
-        Lines = f.readlines()
-        f.close()
-        for line in Lines:
-            col = line.split()
-            if( len(col) >= 4 and col[0] == "gen" ):
-		
-		
-                mol_dir = col[1].strip()
-                mol_id = col[2].strip()
-                mol_repeat = int(col[3].strip() )
-                mol_acc = col[4].strip()
-                
-                # File info
-                struct_dir = mol_dir + "/" + mol_id + "/"
-                job_name = mol_acc + "_" + mol_id + "_n" + str(mol_repeat)
-                fchk_file = struct_dir + job_name + "/" + job_name + ".fchk"
-		
-                if( options.verbose ):
-                    print "    Checking file  ",fchk_file
-                
-                read_fchk = 1 
-                try:
-                    with open(fchk_file) as f:
-                        read_fchk = 1
-                except IOError:
-		    fchk_file = struct_dir + job_name + "-ZMAT/" + job_name +"-ZMAT"+ ".fchk"
-                    if( options.verbose ):
-                        print "    file  ",fchk_file," does not exist trying ZMAT file ",
-			
-		    try:
-			with open(fchk_file) as f:
-			    read_fchk = 1
-		    except IOError:
-			print " no fchk file found "
-			sys.exit("no reference file ")
-			
-                    
-                run_qm = 0
-                if( read_fchk ):
-                    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
-                    run_qm = 1
-
-                # Poppulate other atomic values                
-                ASYMB = elements.eln_asymb(ELN)
-                ATYPE = []
-                CHARGES = []
-                ELECTRONS_i = 0
-                for atom_i in range(NA):
-                    ATYPE.append( ASYMB[atom_i] )
-                    CHARGES.append( 0.0 )
-                    ELECTRONS_i += ELN[atom_i] 
-                
-                
-                if( options.out_xyz ):
-                    if( options.verbose ):
-                        print "      Writing xyz file of fchk geometry ",options.out_xyz
-                        xmol.write_xyz(ASYMB,R,options.out_xyz)
-
-
-                # Run subsequent calculations if structure information was found 
-                if( run_qm ):
-                    os.chdir(struct_dir)
-                    # Check for zmatrix file 
-                    calc_id = job_name + "-ZMAT"
-                    input_file =  calc_id+'.com'
-                    calc_id_temp =  job_name+'_temp'
-                    log_file =  calc_id+'.log'
-                    zmat_fchk =  calc_id +"/" + calc_id +".fchk"
-                    zmat_finished = file_io.file_exists( zmat_fchk )
-                    # 
-                    if( not zmat_finished):
-			# Optimize z-matrix to get bonding information
-			qm_kywd_o = options.qm_kywd 
-			options.qm_kywd = qm_kywd_o + " OPT"
-                        # Print com
-                        gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options)
-                        #  geometry z-matrix opt input files
-                        gaussian.com2zmat(calc_id_temp,calc_id,options)
-                        
-                        # Run optimization
-                        if( options.submit ):
-                            if( options.verbose ):
-                                print "     Submitting Z-matrix optimization to queue "
-                                print "         nodes        ",options.nnodes
-                                print "         memory/node  ",options.pmem
-                            # Print pbs script
-                            pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
-                            cluster.submit_job( struct_dir, pbs_id ,options )
-                            
-                        elif( options.localrun ):
-                            if( options.verbose ):
-                                print "       Running Z-matrix optimization  "
-                            gaussian.run(options, calc_id)
-                        else:
-                            print " Please mark either qsub or runloc options as True to run qm"
-                        			
-			options.qm_kywd = qm_kywd_o
-
-                # Check if finished
-                #   basicaly if local run is done or should just skip over if submitted to queue
-                zmat_finished = file_io.file_exists( zmat_fchk )
-                # 
-                if( zmat_finished):
-                    if( options.verbose ):
-                        print "       Parsing Z-matrix file to creat input files for run  "
-                    RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix = pars_zmatrix(calc_id)
-                        
-                    # Check to see if list of dihedrals to loop over has been creaeted
-                    dlist_name = job_name + "_dih.list"
-                    dlist_exists = file_io.file_exists( dlist_name )
-                    if ( dlist_exists ):
-                        if( options.verbose ):
-                            print "       Reading in dihedral list from   ",dlist_name
-                        DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
-                        
-                    else:
-                        if( options.verbose ):
-                            print "       Writing dihedral list ",dlist_name
-                        DIH_TAG = tag_dih(RING_CONNECT, RING_NUMB,  DIH_ID, DIH_VAL, DIH_ATOMS)
-                        write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS )
     
-                    dlist_exists = file_io.file_exists( dlist_name )
-                    if ( dlist_exists ):                    
-                        if( options.verbose ):
-                            print "       Writing input files for all loop dihedrals "
-                            print "         Nodes ",options.nnodes
-                            print "         Processors  ",options.npros
-			    
-			qm_kywd_o = options.qm_kywd 
-			options.qm_kywd = " popt=Zmat  nosym "
-                        write_input(options, mol_dir,mol_id,mol_repeat,mol_acc, DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ,indx_file,work_dir)
-			options.qm_kywd = qm_kywd_o
+    json_files = options.json.split(',')
+    print json_files
+    if( len(json_files) > 0 ):
+	# Read index files from args
+	for json_file in json_files:
+	    
+	    # Verbose output
+	    if( options.verbose ):
+		print "The molecules specified in json file ",options.json," will be read in "
+    
+	    json_data,json_success = jsonapy.read_jsondata(json_file)
+	    if(  json_success ):
+		
+		mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
+		
+		#
+		# Need meta data to proceed 
+		#      		    
+		if( metadata_found ):
+		    json_atomicdata = 0
+		    fchk_atomicdata = 0
+		    
+		    if( options.verbose ):
+			print " Meta data found will use specified method and basis unless others are specified in the options "
+		    #
+		    # Construct file names 
+		    #
+		    #short_name = "acc%d_%s_n%d" % (accuracy, tag, number )
+		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
+		    struct_dir = "%s/%s/" % (mol_dir, tag )
+		    calc_id = "%s/%s%s" % (struct_dir, job_name , "-ZMATOPT" )
+		    
+		    zmat_fchk = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.fchk" )
+		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
+                    zmat_finished = file_io.file_exists( zmat_fchk )
+		    
+		    if( zmat_finished  ):
+
+			NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( zmat_fchk )
+			RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix = pars_zmatrix(calc_id,job_name)
+	
+	
+			# Poppulate other atomic values                
+			ASYMB = elements.eln_asymb(ELN)
+			ATYPE = []
+			ELECTRONS_i = 0
+			for atom_i in range(NA):
+			    ATYPE.append( ASYMB[atom_i] )
+			    ELECTRONS_i += ELN[atom_i] 
+				
+				
 			
+			if( options.out_xyz ):
+			    if( options.verbose ):
+				print "      Writing xyz file of fchk geometry ",options.out_xyz
+			    xmol.write_xyz(ASYMB,R,options.out_xyz)
+
+			#
+			# Updat atomic information
+			#
+			#json_data = jsonapy.append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R)
+
+			if( options.verbose ):
+			    print "       Parsing Z-matrix file to creat input files for run  "
+			    
+			    
+			# Check to see if list of dihedrals to loop over has been creaeted
+			dlist_name = job_name + "_dih.list"
+			dlist_exists = file_io.file_exists( dlist_name )
+			if ( dlist_exists ):
+			    if( options.verbose ):
+				print "       Reading in dihedral list from   ",dlist_name
+			    DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
+			    
+			else:
+			    if( options.verbose ):
+				print "       Writing dihedral list ",dlist_name
+			    DIH_TAG = tag_dih(RING_CONNECT, RING_NUMB,  DIH_ID, DIH_VAL, DIH_ATOMS)
+			    write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS )
+	
+			dlist_exists = file_io.file_exists( dlist_name )
+			if ( dlist_exists ):                    
+			    if( options.verbose ):
+				print "       Writing input files for all loop dihedrals "
+				print "         Nodes ",options.nnodes
+				print "         Processors  ",options.npros
+				
+			    qm_kywd_o = options.qm_kywd 
+			    options.qm_kywd = " popt=Zmat  nosym "
+			    
+
+	                    os.chdir(struct_dir)
+			    
+			    write_input(options, json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_VAL, DIH_ATOMS, zmatrix,pbs_templ,fix_templ,work_dir)
+			    options.qm_kywd = qm_kywd_o
+			    
 		
                 os.chdir(work_dir)
         
