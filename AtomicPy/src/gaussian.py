@@ -346,7 +346,7 @@ def run(options,calc_id):
     com_lines = f.read()
     f.close()
 
-    if( options.cluster_host == "peregrine" ):
+    if( options.host == "peregrine" ):
 	load_gaussian = "module load gaussian/.g09_C.01 "
         user = 'tkemper'
         
@@ -425,7 +425,7 @@ def run(options,calc_id):
 
     os.chdir(work_dir)
 
-    if( options.cluster_host == "peregrine" or options.cluster_host == "redmesa" ):
+    if( options.host == "peregrine" or options.host == "redmesa" ):
         os.system(rm_temp)
         os.system(rm_scratch)
 
