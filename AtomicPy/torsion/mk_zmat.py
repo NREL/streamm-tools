@@ -203,6 +203,7 @@ def main():
 			    
 			    # Run optimization
 			    if( options.submit ):
+				input_file =  "%s%s" % ( job_name,"-ZMATOPT.com" )
 				if( options.verbose ):
 				    print "     Submitting Z-matrix optimization to queue "
 				    print "         nodes        ",options.nnodes
