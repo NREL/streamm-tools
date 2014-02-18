@@ -55,7 +55,7 @@ def get_options():
     
     
     if( options.host == "peregrine" and options.submit ):
-	option.pbs_template = "peregrine.pbs.template"
+	options.pbs_template = "peregrine.pbs.template"
 	
 	    
     return options, args
@@ -75,6 +75,13 @@ def main():
     default_basis = '6-31G'
     
     options, args = get_options()
+    
+    if(options.submit ):
+	f = open(options.pbs_template,'r') # redmesa.slurm.template
+	pbs_templ = f.read()
+	f.close()
+
+
 	
 	
     json_files = options.json.split(',')
