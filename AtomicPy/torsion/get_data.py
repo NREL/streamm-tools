@@ -11,8 +11,9 @@ def get_options():
     
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
-    
-    
+    parser.add_option("-d","--json_dir", dest="json_dir", default="/home/${USER}/",type="string",help=" location of json file on host ")    
+    parser.add_option("--update_info", dest="update_info",type="string",default="True",help=" download reference file from cluster ")
+
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
 
@@ -23,47 +24,24 @@ def get_options():
     
     return options, args
     
-def get_info(cluster_id,user_id,options):
+def get_info(cluster_id,user_id,json_dir,json_file):
     import sys, os
     
-    get_dat = "scp "+ user_id+"@"+cluster_id + options.info_dir +"/"+ options.info_file +' ./ \n'
+    get_dat = "scp "+ user_id+"@"+cluster_id + json_dir +"/"+ json_file +' ./ \n'
     print get_dat
     os.system(get_dat)
-
-
-def get_data(cluster_id,user_id,struct_dir,job_name,dih_id,options):
-    import sys, os
-    
-    debug = 0
-    
-    mk_dir = 'mkdir -p '+struct_dir+'/'
-    os.system(mk_dir)
-    
-    dih_qm = struct_dir +'/' +job_name + '-' + dih_id + options.qm_sufix + '.dat'
-        
-    cluster_file = "scp "+ user_id+"@"+cluster_id + options.info_dir+"/" + dih_qm +' '+struct_dir+' \n' 
-    get_dat = cluster_file
-    
-    if(debug):
-        print get_dat        
-        #sys.exit(" get_data ")
-    else:
-        os.system(get_dat)
     
 def main():
     import sys, os 
     import string
-    import file_io
+    import file_io, jsonapy
     
     options, args = get_options()
 
-    if( options.cluster_host == "peregrine" ):
+    if( options.host == "peregrine" ):
         cluster_id = 'peregrine-login1.nrel.gov:'
         user_id = 'tkemper'
         
-    elif( options.cluster_host == "redmesa" ):
-        cluster_id = 'redmesa-login1.sandia.gov:'
-        user_id = 'twkempe'
     else:
         print " unknow host id "
         sys.exit(" option error ")
@@ -72,92 +50,70 @@ def main():
     print " Downloading data files for ",user_id,"@",cluster_id
 
 
-    if( options.update_info == "True" ):
-        get_info(cluster_id,user_id,options)
+    
+    json_files = options.json.split(',')
+    print json_files
+    if( len(json_files) > 0 ):
+	# Read index files from args
+	for json_file in json_files:
+	    
+                    
+            if( options.update_info == "True" ):
+                get_info(cluster_id,user_id,options.json_dir,options.json)
 
-    f = open(options.info_file,'r')
-    Lines = f.readlines()
-    f.close()
+	    # Verbose output
+	    if( options.verbose ):
+		print "The molecules specified in json file ",options.json," will be read in "
+    
+	    json_data,json_success = jsonapy.read_jsondata(json_file)
+	    if(  json_success ):
+		
+		mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
+		#
+		# Need meta data to proceed 
+		#      		    
+		if( metadata_found  ):
+		    
+		    if( options.verbose ):
+			print " Meta data found will use specified method and basis unless others are specified in the options "
+		    #
+		    # Construct file names 
+		    #
+		    #short_name = "acc%d_%s_n%d" % (accuracy, tag, number )
+		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
+		    struct_dir = "%s/%s/" % (mol_dir, tag )
+	
+                    if( options.verbose ):
+                        print "   Getting ",struct_dir,job_name
+            
+                    qm_dih_id_list ,qm_cent_min_list ,qm_cent_max_list ,qm_cent_step_list,qm_a_k_list, qm_a_i_list, qm_a_j_list, qm_a_l_list,qmtor_found = jsonapy.read_qm_tor(json_data)
+                    ff_dih_id_list ,ff_cent_min_list ,ff_cent_max_list ,ff_cent_step_list,ff_a_k_list, ff_a_i_list, ff_a_j_list, ff_a_l_list,ff_type_list,fftor_found = jsonapy.read_ff_tor(json_data)
+                    if( qmtor_found or fftor_found ):
+                    
+                        mk_dir = 'mkdir -p '+struct_dir+'/'
+                        os.system(mk_dir)
+                        mv_json = 'mv '+json_file + " "+struct_dir+'/'
+                        os.system(mv_json)
+                        
+                        
+                        # Get data files 
+                        get_dat = "scp "+ user_id+"@"+cluster_id + options.json_dir +"/"+ job_name +'*.dat ' + struct_dir+' \n'
+                        print "  Getting data files ",get_dat
+                        os.system(get_dat)
 
-    for line in Lines:
-        col = line.split()
-        if( len(col) >= 4 and col[0] == "qm_dih" ):
-        
-            mol_dir = col[1].strip()
-            mol_id = col[2].strip()
-            mol_repeat = int(col[3])
-            mol_acc = col[4].strip()
-            
-            # File info
-            struct_dir = mol_dir + "/" + mol_id + "/"
-            job_name = mol_acc + "_" + mol_id + "_n" + str(mol_repeat)
-            
-            
-            
-            dih_id = col[5].strip()
-            #a_k,a_i, a_j ,a_l,
-            cent_min  = int(  col[10].strip() )
-            cent_max = int(  col[11].strip() )
-            cent_step = int(  col[12].strip() )
-                
-            print "   Getting ",struct_dir,job_name
-            
-
-            if( options.verbose ):
-                print " Getting data from cluster " ,user_id,user_id,struct_dir,job_name,dih_id
-            get_data(cluster_id,user_id,struct_dir,job_name,dih_id,options)
-
-        
-        if( len(col) >= 4 and col[0] == "ff_dih" ):
-            
-            struct_dir = col[1].strip()
-            job_name = col[2].strip()
-            ff_software = col[3].strip()
-            ff_type_id = col[4].strip()
-
-            dih_id = col[5].strip() 
-            a_k  = int(  col[6].strip() )
-            a_i  = int(  col[7].strip() )
-            a_j  = int(  col[8].strip() )
-            a_l  = int(  col[9].strip() )
-            cent_min  = int(  col[10].strip() )
-            cent_max = int(  col[11].strip() )
-            cent_step = int(  col[12].strip() )
-            
-            print "   Getting ff data ",struct_dir,job_name
-            
-
-            if( options.verbose ):
-                print " Getting data from cluster " ,user_id,user_id,struct_dir,job_name,dih_id
-            get_data(cluster_id,user_id,struct_dir,job_name,dih_id,options)
-        
-            debug = 0
-            
-            mk_dir = 'mkdir -p '+struct_dir+'/'
-            os.system(mk_dir)
-            
-            dih_ff = struct_dir +'/' +job_name + '-' + dih_id + "_ff" + ff_software + ff_type_id +".dat"
-
-            cluster_file = "scp "+ user_id+"@"+cluster_id + options.info_dir +"/"+ dih_ff +' '+struct_dir+' \n' 
-            get_dat = cluster_file
-            
-            if(debug):
-                print get_dat        
-                #sys.exit(" get_data ")
-            else:
-                os.system(get_dat)
-
-            xmol_ff = struct_dir +'/' +job_name + '-' + dih_id + "_ff" + ff_software + ff_type_id +".xmol"
-
-            cluster_file = "scp "+ user_id+"@"+cluster_id + options.info_dir +"/"+ xmol_ff +' '+struct_dir+' \n' 
-            get_dat = cluster_file
-            
-            if(debug):
-                print get_dat        
-                #sys.exit(" get_data ")
-            else:
-                os.system(get_dat)
-
+                        # Get xmol files 
+                        get_dat = "scp "+ user_id+"@"+cluster_id + options.json_dir +"/"+ job_name +'*.xmol ' + struct_dir+' \n' 
+                        print "  Getting xmol files ",get_dat
+                        os.system(get_dat)
+                        
+                        # Append
+                        json_rec = job_name + '.rec'
+                        json_rec_lines = user_id+" "+cluster_id + " "+ options.json_dir  + " " + struct_dir +" "+ job_name
+                        
+                        F = open( json_rec , 'a' )
+                        F.write("%s \n " % (json_rec_lines) )
+                        F.close()
+                        
 
 
 if __name__=="__main__":

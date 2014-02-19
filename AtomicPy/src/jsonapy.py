@@ -178,10 +178,10 @@ def read_qm_tor(json_data):
     cent_min_list  = []
     cent_max_list = []
     cent_step_list = []
-    a_k = []
-    a_i = [] 
-    a_j = []
-    a_l = []
+    a_k_list = []
+    a_i_list = [] 
+    a_j_list = []
+    a_l_list = []
     
     qmtor_found = 0
     
@@ -214,10 +214,12 @@ def read_ff_tor(json_data):
     cent_min_list  = []
     cent_max_list = []
     cent_step_list = []
-    a_k = []
-    a_i = [] 
-    a_j = []
-    a_l = []
+
+    a_k_list = []
+    a_i_list = []
+    a_j_list = []
+    a_l_list = []
+
     ff_type_list = []
     
     success  = 0
