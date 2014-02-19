@@ -7,26 +7,18 @@ def get_options():
     usage = "usage: %prog [options] \n"
     parser = OptionParser(usage=usage)
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+    
+    # json files to act on
+    parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
+    
     
     # Cluster options
-    parser.add_option("--cluster_host", dest="cluster_host",type="string",default="peregrine",help=" name of cluster ")
-
-    # Getting data from cluster options
-    parser.add_option("--info_dir", dest="info_dir",type="string",default="/hom/",help=" Directory on cluster where reference files are located ")
-    parser.add_option("--info_file", dest="info_file",type="string",default="info_files.dat",help=" reference file name ")
-    parser.add_option("--update_info", dest="update_info",type="string",default="True",help=" download reference file from cluster ")
+    parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
 
     # should be reference file 
     parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
     
-    #parser.add_option("--update_data", dest="update_data",type="int",default=1,help=" download data files specified in ")
-    #parser.add_option("--update_plots", dest="update_plots",type="int",default=1,help=" update_plots ")
-    #parser.add_option("--draw_str", dest="draw_str",type="int",default=1,help=" draw_str ")
-    #parser.add_option("--update_vmd", dest="update_vmd",type="int",default=1,help=" update_vmd ")
-    #parser.add_option("--update_gnuplot", dest="update_gnuplot",type="int",default=1,help=" update_gnuplot ")
-    #parser.add_option("--open_files", dest="open_files",type="int",default=0,help=" open files")
-
     (options, args) = parser.parse_args()
     
     return options, args
