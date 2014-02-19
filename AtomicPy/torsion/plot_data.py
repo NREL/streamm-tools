@@ -108,6 +108,8 @@ def main():
     
     options, args = get_options()
     
+    lwidth =  10
+    
     # Read index files from args
     for indx_file in args:
         # Get lines of index file   
@@ -162,8 +164,8 @@ def main():
 				    calc_i += 1 
 				    
 				    
-				    style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw 1 '+ ' lc ' +  str(calc_i) + "\n"
-				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ') w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir +"n="+str(n_units)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
+				    style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw '+str(lwidth) + ' lc ' +  str(calc_i) + "\n"
+				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ') w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir +" n="+str(n_units)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
 			    
 				    style_lines.append(  style_l )
 				    plot_lines.append(  plot_l )
@@ -198,8 +200,8 @@ def main():
 				
 						
 				
-				style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw 5 '+ ' lc ' +  str(calc_i) + "\n"
-				plot_l =  " \'"+dih_ff+"\' " + ' us 2:($6- ' + str(ff_min) + ')*KCEV w l ls '+str(calc_i+1)+'  title '+ "\' " + m_id+"n="+str(repeat_n)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
+				style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw '+str(lwidth) + ' lc ' +  str(calc_i) + "\n"
+				plot_l =  " \'"+dih_ff+"\' " + ' us 2:($6- ' + str(ff_min) + ')*KCEV w l ls '+str(calc_i+1)+'  title '+ "\' " + m_id+" n="+str(repeat_n)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
 			
 				style_lines.append(  style_l )
 				plot_lines.append(  plot_l )
