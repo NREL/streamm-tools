@@ -140,33 +140,32 @@ def main():
 			if( options.verbose ):
 			    print "     Getting atomic data from  ",json_file
 	    
-			ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success  = jsonapy.read_atomic(json_data)
+			ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,json_atomicdata  = jsonapy.read_atomic(json_data)
 			
-			if( success ):
-			    json_atomicdata = 1
-			else:
+			if( not json_atomicdata ):
 			    print "   json file ",json_file," exist, but does not contain any atomic data . "
-			    #
-			    # If no atomic data try getting it from fchk file 
-			    #
 			
-			    print " checking fchk files in ",struct_dir, " job name ",job_name
+			#
+			# If no atomic data try getting it from fchk file 
+			#
+		    
+			print " checking fchk files in ",struct_dir, " job name ",job_name
+			
+			fchk_file = struct_dir + job_name + '/' + job_name + ".fchk"
+			
+			fchk_atomicdata = 0
+			if( file_io.file_exists(fchk_file) ):
+			    if( options.verbose ):
+				print " Reading atomic data from ",fchk_file
+			    NA, ELN, R, TOTAL_ENERGY , Q_FCHK = gaussian.parse_fchk(fchk_file)
+			    fchk_atomicdata = 1
 			    
-			    fchk_file = struct_dir + job_name + '/' + job_name + ".fchk"
-			    
-			    fchk_atomicdata = 0
-			    if( file_io.file_exists(fchk_file) ):
-				if( options.verbose ):
-				    print " Reading atomic data from ",fchk_file
-				NA, ELN, R, TOTAL_ENERGY , Q_FCHK = gaussian.parse_fchk(fchk_file)
-				fchk_atomicdata = 1
-				
-					    
-				# Poppulate other atomic values                
-				ASYMB = elements.eln_asymb(ELN)
-				CHARGES = []
-				for atom_i in range(NA):
-				    CHARGES.append( -100.0 )
+					
+			    # Poppulate other atomic values                
+			    ASYMB = elements.eln_asymb(ELN)
+			    CHARGES = []
+			    for atom_i in range(NA):
+				CHARGES.append( -100.0 )
 					    
 				
 			if( json_atomicdata or fchk_atomicdata ):
