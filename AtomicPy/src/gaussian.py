@@ -249,7 +249,7 @@ def get_dih_id( zmatrix ):
         if( len( colvar) > 1 ):
             var_id = colvar[0].strip()
             if( var_id[0] == "D"  ):
-                DIH_ID.append( colvar[0] )
+                DIH_ID.append( colvar[0].strip() )
                 DIH_VAL.append( float(colvar[1]) )
                 DIH_ATOMS.append( [ zmat_l , zmat_i , zmat_j, zmat_k ] )
                 
