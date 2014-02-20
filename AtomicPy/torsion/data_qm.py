@@ -180,7 +180,7 @@ def main():
 			    for line in Lines:
 				col = line.split()
 				if( len(col) >= 5 and col[0] != "#" ):
-				    if( col[0] == options.userid and col[1] ==  options.host  and col[2] == json_path  and col[3] ==  struct_dir  and col[4] ==  struct_dir  and col[5] ==  job_name ):
+				    if( col[0] == options.userid and col[1] ==  options.host  and col[2] == json_path  and col[3] ==  struct_dir  and col[4] ==  job_name ):
 					wrte_recline = 0 
 				
 		    
