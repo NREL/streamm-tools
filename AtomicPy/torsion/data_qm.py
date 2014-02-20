@@ -172,7 +172,7 @@ def main():
 			    
 			    # make sure rec has not been previously recorded 
 			    wrte_recline = 1
-			    json_path = " %s/%s " % (work_dir, struct_dir)
+			    json_path = "%s/%s" % (work_dir, struct_dir)
 			    
 			    if( file_io.file_exists( rec_qm ) ):
 				
