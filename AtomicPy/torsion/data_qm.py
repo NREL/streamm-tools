@@ -173,16 +173,19 @@ def main():
 			    # make sure rec has not been previously recorded 
 			    wrte_recline = 1
 			    json_path = " %s/%s " % (work_dir, struct_dir)
-			    F = open(rec_qm,'r')
-			    Lines = F.readlines()
-			    F.close()
-			    # Check for a complete exicution
-			    for line in Lines:
-				col = line.split()
-				if( len(col) >= 5 and col[0] != "#" ):
-				    if( col[0] == options.userid and col[1] ==  options.host  and col[2] == json_path  and col[3] ==  struct_dir  and col[4] ==  job_name ):
-					wrte_recline = 0 
+			    
+			    if( file_io.file_exists( rec_qm ) ):
 				
+				F = open(rec_qm,'r')
+				Lines = F.readlines()
+				F.close()
+				# Check for a complete exicution
+				for line in Lines:
+				    col = line.split()
+				    if( len(col) >= 5 and col[0] != "#" ):
+					if( col[0].strip() == options.userid and col[1].strip() ==  options.host  and col[2].strip() == json_path  and col[3].strip() ==  struct_dir  and col[4].strip() ==  job_name ):
+					    wrte_recline = 0 
+				    
 		    
 			    if( wrte_recline ):
 				    
