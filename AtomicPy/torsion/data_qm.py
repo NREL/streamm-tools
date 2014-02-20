@@ -115,40 +115,55 @@ def main():
 			
 			# Loop over angels of central dihedrals
 			cent_indx = 0
+			calc_success = 1 
 			for cent_angle in range(cent_min,cent_max,cent_step):
 			    calc_id =   job_name  + '-' + dih_id + '_' + str(cent_angle) + '_auxfix'
 			    cent_indx += 1
 		    
 			    # Check to see if finished
 			    fchk_file = struct_dir +'/' + calc_id +"/"+calc_id+".fchk"
+			    if( file_io.file_exists( fchk_file)  ):
+				
+				run_qm = gaussian.check_fchk(fchk_file)
+				if( run_qm == 0 ):
+				    
+				    # Get energy 
+				    NA, ELN, R, TOTAL_ENERGY , Q_ESP  = gaussian.parse_fchk( fchk_file )
+				    ASYMB = elements.eln_asymb(ELN)
+	    
+				    # Place 0.0 value as place holder
+				    DIH_ID  = []
+				    DIH_VAL = [] 
+				    DIH_ID.append( dih_id )
+				    dih_val_str = ''
+				    for dih_indx in  range(len(DIH_ID)):
+					DIH_VAL.append( 0.0 )
+	    
+				    for indx_str in range( len(DIH_ID) ):
+					dih_val_str = dih_val_str + str( " %8.4f " % DIH_VAL[indx_str] )
+					
+				    debug = 0
+				    if( debug):
+					print ' printing qm energies '
+					print cent_indx,cent_angle, TOTAL_ENERGY,dih_val_str
+					sys.exit('qm print ')
+	    
+				    qm_out.write( " \n %8d %8.4f %16.8f  %50s" % ( cent_indx,cent_angle, TOTAL_ENERGY,dih_val_str))
+				    
+				    if( options.verbose ):
+					print  '    Get results from ', fchk_file, 
+					print  '       dih id , angle , energy ', cent_indx,cent_angle, TOTAL_ENERGY,dih_val_str
+					
+				    xmol.print_xmol(ASYMB,R,xmol_dir_qm)
+				
+				else:
+				    # fchk does not have an energy 
+				    calc_success = 0 
+				    
 			    
-			    if( file_io.file_exists( fchk_file) ):
-				if( options.verbose ):
-				    print  '    Get results from ', fchk_file
-				    
-				# Get energy 
-				NA, ELN, R, TOTAL_ENERGY , Q_ESP  = gaussian.parse_fchk( fchk_file )
-				ASYMB = elements.eln_asymb(ELN)
-	
-				# Place 0.0 value as place holder
-				DIH_ID  = []
-				DIH_VAL = [] 
-				DIH_ID.append( dih_id )
-				dih_val_str = ''
-				for dih_indx in  range(len(DIH_ID)):
-				    DIH_VAL.append( 0.0 )
-	
-				for indx_str in range( len(DIH_ID) ):
-				    dih_val_str = dih_val_str + str( " %8.4f " % DIH_VAL[indx_str] )
-				    
-				debug = 0
-				if( debug):
-				    print ' printing qm energies '
-				    print cent_indx,cent_angle, TOTAL_ENERGY,dih_val_str
-				    sys.exit('qm print ')
-	
-				qm_out.write( " \n %8d %8.4f %16.8f  %50s" % ( cent_indx,cent_angle, TOTAL_ENERGY,dih_val_str))
-				xmol.print_xmol(ASYMB,R,xmol_dir_qm)
+			    else:
+				# fchk does not exsist 
+				calc_success = 0 
 
 	qm_out.close()
 	
