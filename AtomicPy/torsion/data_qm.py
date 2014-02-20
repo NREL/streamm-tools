@@ -24,6 +24,7 @@ def get_options():
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
+    parser.add_option("--userid", dest="userid",type="string",default="tkemper",help=" name of user  ")
 
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
@@ -43,6 +44,7 @@ def get_options():
 
     # Set options based on cluster 
     if( options.host == "peregrine" ):
+	options.userid = "tkemper"
         if( options.qm_software == "gaussian" ):
             options.qm_load = "module load gaussian/.g09_C.01"
     elif( options.host == "redmesa" ):
@@ -169,7 +171,7 @@ def main():
 			if( calc_success ):
 			    
 			    F = open(rec_qm,'a')
-			    F.write( " %s %s %s/%s %s %s \n " % ( user_id, options.host, work_dir, struct_dir, struct_dir, job_name) )
+			    F.write( " %s %s %s/%s %s %s \n " % ( options.userid , options.host, work_dir, struct_dir, struct_dir, job_name) )
 			    F.close()
 
 
