@@ -172,7 +172,7 @@ def main():
 			    
 			    # make sure rec has not been previously recorded 
 			    wrte_recline = 1
-			    
+			    json_path = " %s/%s " % (work_dir, struct_dir)
 			    F = open(rec_qm,'r')
 			    Lines = F.readlines()
 			    F.close()
@@ -180,14 +180,14 @@ def main():
 			    for line in Lines:
 				col = line.split()
 				if( len(col) >= 5 and col[0] != "#" ):
-				    if( col[0] == options.userid and col[1] ==  options.host  and col[2] == work_dir  and col[3] ==  struct_dir  and col[4] ==  struct_dir  and col[5] ==  job_name ):
+				    if( col[0] == options.userid and col[1] ==  options.host  and col[2] == json_path  and col[3] ==  struct_dir  and col[4] ==  struct_dir  and col[5] ==  job_name ):
 					wrte_recline = 0 
 				
 		    
 			    if( wrte_recline ):
 				    
 				F = open(rec_qm,'a')
-				F.write( " %s %s %s/%s %s %s \n " % ( options.userid , options.host, work_dir, struct_dir, struct_dir, job_name) )
+				F.write( " %s %s %s %s %s \n " % ( options.userid , options.host, json_path, struct_dir, job_name) )
 				F.close()
 
 
