@@ -94,6 +94,8 @@ def main():
 		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
 		    struct_dir = "%s/%s/" % (mol_dir, tag )
 		    
+		    rec_qm = job_name + ".rec"	
+			
 		    for dih_indx in range( len(dih_id_list) ):
 			dih_id = dih_id_list[dih_indx]
 			cent_min = cent_min_list[dih_indx]
@@ -112,7 +114,6 @@ def main():
 			xmol_dir_qm = struct_dir +'/' + xmol_qm
 			if( file_io.file_exists( xmol_dir_qm ) ): os.remove(xmol_dir_qm) 
 	
-			
 			# Loop over angels of central dihedrals
 			cent_indx = 0
 			calc_success = 1 
@@ -163,7 +164,15 @@ def main():
 			    
 			    else:
 				# fchk does not exsist 
-				calc_success = 0 
+				calc_success = 0
+			
+			if( calc_success ):
+			    
+			    F = open(rec_qm,'a')
+			    F.write( " %s %s %s/%s %s %s \n " % ( user_id, options.host, work_dir, struct_dir, struct_dir, job_name) )
+			    F.close()
+
+
 
 	qm_out.close()
 	
