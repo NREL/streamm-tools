@@ -165,9 +165,12 @@ def main():
 				    
 				    
 				    style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw '+str(lwidth) + ' lc ' +  str(calc_i) + "\n"
-				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ') w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir +" n="+str(n_units)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
-			    
 				    style_lines.append(  style_l )
+
+				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ')*EVKC  axis x1y1 w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir +" n="+str(n_units)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
+				    plot_lines.append(  plot_l )
+			    
+				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ')*100  axis x1y2 w l ls '+str(calc_i+1)+" notitle  smooth unique  , \\" + "\n"
 				    plot_lines.append(  plot_l )
 				    
 				    # xmol_qm = job_name+'-'+dih_id+"_qm.xmol"
