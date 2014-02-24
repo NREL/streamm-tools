@@ -74,74 +74,6 @@ def seconv_data(lmin,lmax,dl,ewidth,stinfo,spectrum):
         callout = (l,spect)
         spectrum.append(callout)
 
-
-
-####################################################################
-#
-# Recursive glob using the os.walk command to traverse
-# directory structure. Starting from 'treeroot' directory,
-# return list of full path names for files containing 'pattern'
-#
-#  treeroot - Directory name to start top of search
-#  pattern  - String pattern (can use * wildcard) for search
-#
-####################################################################
-def recursive_glob(treeroot, pattern):
-    import fnmatch
-    results = []
-    for base, dirs, files in os.walk(treeroot):
-        goodfiles = fnmatch.filter(files, pattern)
-        results.extend(os.path.join(base, f) for f in goodfiles)
-    return results
-
-#
-# Depends on name of 'archived' log file after TD restart
-# (see restartSearch variable)
-# Checks for TD restart log file. If found it returns
-# info in dip_list format.
-#
-def getGSDipoleInfo(fileName):
-
-    converged = False
-    timedep   = False
-
-    # Get jobname string so TD restart name can be formed
-    # print "fname = ",fileName
-    jobname=fileName.split('.log')[0]
-
-    # Glob for TD restart file
-    restartSearch=jobname + ".r2*.log"
-    res = recursive_glob(".", restartSearch)
-    
-    # If no file found then return empty
-    if ( len(res) == 0 ):
-        gsdip_list = []
-        return gsdip_list
-
-    elif ( len(res) > 1 ):
-        print "restartedDuringTD: log name search failed ", jobname
-        sys.exit(0)
-
-    else:
-
-        # Open td restart file
-        restartR2name = res[0]
-        ftddft = open(restartR2name,"r")
-
-        for line in ftddft.readlines():
-            if 'Optimized Parameters' in line:
-                converged=True
-            # Get dipole vector for the ground state and length (in Debye)
-            if ('Tot=' in line and 'X=' in line and converged==True):
-                gsdip_list = line.split()
-
-        # If found close file
-        ftddft.close()
-
-    # Return values... will be empty if not found
-    return gsdip_list
-
-
 ##############################################################################
 ##############################################################################
 # Begin main part of the program
@@ -266,23 +198,6 @@ for line in ftddft.readlines():
         etot = float(esplit[4])
 
 ftddft.close()
-
-
-########################################################
-# SWS: New method (empty if restart file not found)
-
-gs_dip_list = getGSDipoleInfo(fname)
-if ( len(gs_dip_list) == 0 ):
-    print "Keeping dip_list values already found"
-else:
-    print "GS dipole values found in TD restart file"
-    dx = center(gs_dip_list[1],10)
-    dy = center(gs_dip_list[3],10)
-    dz = center(gs_dip_list[5],10)
-    dtot = center(gs_dip_list[7],10)
-    print " gs_dip_list ", gs_dip_list
-    print " Converged true/td=false", dx, dy, dz, dtot
-########################################################
 
 # Define the HOMO, LUMO, Gap, Optical LUMO
 thomo = a_occvals[-1]
