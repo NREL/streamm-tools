@@ -269,6 +269,7 @@ def pars_zmatrix( calc_id, job_name ):
 def tag_dih(options,RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS):
     
     DIH_TAG = []
+    if ( options.verbose ): print " Tagging dihs "
     
     # Initialize all dihedrals to relax 
     for dih_indx in  range(len(DIH_ID)):
