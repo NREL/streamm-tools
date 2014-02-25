@@ -42,15 +42,17 @@ def get_options():
     parser.add_option("--qm_software", dest="qm_software",type="string",help=" what software to use for the qm calculations   ")
     parser.add_option("--qm_load", dest="qm_load",type="string",help=" string to load qm software module  ")
 
-    parser.add_option("--qm_method", dest="qm_method", type="string",default="B3LYP", help="Method of QM calculation ")
-    parser.add_option("--qm_basis", dest="qm_basis", type="string",default="6-31G**", help="Basis set of QM calculation ")
     parser.add_option("--qm_kywd", dest="qm_kywd", type="string",default="", help="Key words for QM calculation ")
     parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
     parser.add_option("--qm_charge", type="int",action="append", default="0",help="Input gaussain log file ")
     parser.add_option("--qm_mult", dest="qm_mult", type="int",default="0", help=" Shift in default spin multiplicity ( singlet,doublet) QM calculation, allows for triplets ")
 
-    parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
-    
+    parser.add_option("--qm_method", dest="qm_method", type="string",default="B3LYP", help="Method of QM calculation ")
+    parser.add_option("--qm_basis", dest="qm_basis", type="string",default="6-31G**", help="Basis set of QM calculation ")
+
+    parser.add_option("--sp_meth", dest="sp_meth", type="string", default="MP2",help=" Method for set for hihgh level single point energy calculations ")
+    parser.add_option("--sp_basis", dest="sp_basis", type="string", default="cc-pVTZ",help=" Basis for set for hihgh level single point energy calculations")
+
     parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
     parser.add_option("--npros", dest="npros", type="int", default="4",help=" Number of processors ")
     parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
@@ -158,7 +160,8 @@ def print_dih_com( options,job_name,struct_dir,fix_templ,cent_indx, cent_angle ,
     temp_fix = replace(temp_fix,"<structure_name>",job_name)
     temp_fix = replace(temp_fix,"<dih_id>",cent_id)
     temp_fix = replace(temp_fix,"<dih_angle>",str(cent_angle)+'.0')
-    temp_fix = replace(temp_fix,"<basis_set>",options.high_basis)
+    temp_fix = replace(temp_fix,"<sp_meth>",options.sp_meth)
+    temp_fix = replace(temp_fix,"<sp_basis>",options.sp_basis)
     temp_fix = replace(temp_fix,"<npros>",str( options.npros) )
     
     #temp_fix = replace(temp_fix,"<qm_method>",str( options.qm_method) )
@@ -512,7 +515,7 @@ def main():
 				print "       Writing dihedral list ",dlist_name
 			    DIH_TAG = tag_dih(RING_CONNECT, RING_NUMB,  DIH_ID, DIH_VAL, DIH_ATOMS)
 			    write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS )
-	
+			    
 			dlist_exists = file_io.file_exists( dlist_name )
 			if ( dlist_exists ):                    
 			    if( options.verbose ):
