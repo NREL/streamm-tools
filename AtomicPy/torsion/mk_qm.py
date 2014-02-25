@@ -152,6 +152,7 @@ def print_dih_com( options,job_name,struct_dir,fix_templ,cent_indx, cent_angle ,
                 am_opt = am_opt +"\n" + str(DIH_ID[dih_indx]) + " " + str(DIH_VAL[dih_indx]) + '  F  '
 	else:
 	    am_opt = am_opt +"\n" + str(DIH_ID[dih_indx]) + " " + str(cent_angle) + '.0  F  '
+	    
 		
     am_opt = am_opt + ' \n'
     am_opt = am_opt + ' \n'
@@ -265,7 +266,7 @@ def pars_zmatrix( calc_id, job_name ):
     return ( RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix )
 
 
-def tag_dih(RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS):
+def tag_dih(options,RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS):
     
     DIH_TAG = []
     
@@ -284,9 +285,16 @@ def tag_dih(RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS):
         # Make sure inter ring connect not improper 
         if (  RING_NUMB[zmat_i] != RING_NUMB[zmat_j] and RING_NUMB[zmat_l] != RING_NUMB[zmat_k] ):
             DIH_TAG[dih_indx] = "fix"
+	    
+	    if ( options.verbose ):
+		print "  Fixing dih ",DIH_ID[dih_indx], DIH_VAL[dih_indx], DIH_ATOMS[dih_indx]
+	    
             if( RING_NUMB[zmat_i] > 0 and  RING_NUMB[zmat_j] > 0   ):
                 DIH_TAG[dih_indx] = "loop"
-
+    
+		if ( options.verbose ):
+		    print "  Looping dih ",DIH_ID[dih_indx], DIH_VAL[dih_indx], DIH_ATOMS[dih_indx]
+		
                         
                         
     return DIH_TAG
@@ -338,7 +346,7 @@ def write_input( options,  json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_
                 
         
             cent_id = DIH_ID[cent_indx].strip()
-            print " The connection between ", a_k,a_i, a_j ,a_l, " is ", cent_id, DIH_ATOMS[cent_indx]
+            print " The connection between ", a_k,a_i, a_j ,a_l, " is ", cent_id,  DIH_ATOMS[cent_indx]
     
 	    #
 	    # Append torsional information 
@@ -513,7 +521,7 @@ def main():
 			else:
 			    if( options.verbose ):
 				print "       Writing dihedral list ",dlist_name
-			    DIH_TAG = tag_dih(RING_CONNECT, RING_NUMB,  DIH_ID, DIH_VAL, DIH_ATOMS)
+			    DIH_TAG = tag_dih(options,RING_CONNECT, RING_NUMB,  DIH_ID, DIH_VAL, DIH_ATOMS)
 			    write_dihlist(dlist_name, RING_NUMB, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS )
 			    
 			dlist_exists = file_io.file_exists( dlist_name )
