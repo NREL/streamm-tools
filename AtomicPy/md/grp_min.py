@@ -19,7 +19,7 @@ def get_options():
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     parser.add_option("-r","--restart", dest="restart", default= False ,action="store_true" , help="Check for finished calculations and use previous results")
 
-    parser.add_option("--cluster_host", dest="cluster_host",type="string", default="",help=" name of cluster ")
+    parser.add_option("--host", dest="host",type="string", default="",help=" name of cluster ")
     parser.add_option("--pbcs",  dest="pbcs", default= True , help=" Use periodic boundry conditions ")
     parser.add_option("--npros", dest="npros", type="int",default="1", help="Number of processors to run calculations")
 
@@ -203,12 +203,10 @@ def opt_groups( group_index_i,group_list_i, ELN,ASYMB,R,ATYPE,GTYPE,CHARGES,CHAR
 		for atom_j in range(len(ELN_j)):
 		    ELECTRONS_j += ELN_j[atom_j] 
 		
-		gaussian.print_com( g_id, ASYMB_j,R_j,ATYPE_j,CHARGES_j,ELECTRONS_j,options)
+		gaussian.print_com( g_id, ASYMB_j,R_j,ATYPE_j,CHARGES_j,ELECTRONS_j,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
 		gaussian.run(options,g_id)
 		
 		#fchk_file = g_id +"/"+g_fchk
-		
-		
 		
 	    NA, ELN_k, R_k, TOTAL_ENERGY_k , Q_ESP = gaussian.parse_fchk( g_fchk )
 
