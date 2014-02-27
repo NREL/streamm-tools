@@ -56,8 +56,14 @@ def get_options():
     
     if( options.host == "peregrine" and options.submit ):
 	options.pbs_template = "peregrine.pbs.template"
+	print "  module load gaussian/.g09_C.01"
 	
-	    
+    
+    if( options.host == "dale" and options.submit ):
+	options.pbs_template = "dale.pbs.template"
+	print "  module load gaussian/.g09_C.01"
+	options.npros = 8
+	
     return options, args
 
 
@@ -72,7 +78,7 @@ def main():
     # Set some defaults 
     #
     default_method = 'b3lyp'
-    default_basis = '6-31G'
+    default_basis = '6-31G**'
     
     options, args = get_options()
     
@@ -146,7 +152,7 @@ def main():
 			    print "   json file ",json_file," exist, but does not contain any atomic data . "
 			
 			#
-			# If no atomic data try getting it from fchk file 
+			# If get optimized atomic data from fchk file 
 			#
 		    
 			print " checking fchk files in ",struct_dir, " job name ",job_name
@@ -166,7 +172,6 @@ def main():
 			    CHARGES = []
 			    for atom_i in range(NA):
 				CHARGES.append( -100.0 )
-					    
 				
 			if( json_atomicdata or fchk_atomicdata ):
 			    
@@ -179,7 +184,7 @@ def main():
 		    
 			    # Optimize z-matrix to get bonding information
 			    qm_kywd_o = options.qm_kywd 
-			    options.qm_kywd = qm_kywd_o + " OPT POP=MK "
+			    options.qm_kywd = qm_kywd_o + " OPT=(tight) POP=MK "
 			    #
 			    # Print calculation information 
 			    #
