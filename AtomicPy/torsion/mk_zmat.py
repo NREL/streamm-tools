@@ -184,7 +184,7 @@ def main():
 		    
 			    # Optimize z-matrix to get bonding information
 			    qm_kywd_o = options.qm_kywd 
-			    options.qm_kywd = qm_kywd_o + " OPT=(tight) POP=MK "
+			    options.qm_kywd = qm_kywd_o + " OPT=(tight) POP=MK FREQ "
 			    #
 			    # Print calculation information 
 			    #
