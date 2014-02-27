@@ -48,64 +48,6 @@ class BuildingBlockEnumerator(BuildingBlocks):
         return success
 
 
-    def enum_brutal(self, options):
-        self.reset_counters()
-        for idon in range(0,len(self.alldon)):
-            for iacc in range(0,len(self.allacc)):
-                for ir1 in range(0,len(self.allres)):
-                    for ir2 in range(0,len(self.allres)):
-                        for ir3 in range(0,len(self.allres)):
-                            for ispc in range(-1,len(self.allspacer)):
-                                if (ispc == -1):
-                                    sp=""
-                                else:
-                                    sp = "S%d" % ispc
-                                str = "D%d (R%d R%d) %s A%d (R%d)" % (idon, ir1, ir2, sp, iacc, ir3)
-                                print "TRYING %s" % str
-                                self.try_str(str, options, True)
-                                for ir4 in range(0,len(self.allres)):
-                                    str = "D%d (R%d R%d) %s A%d (R%d R%d)" % (idon, ir1, ir2, sp, iacc, ir3, ir4)
-                                    print "TRYING %s" % str
-                                    self.try_str(str, options, True)
-        print "Tried %d, successfully built %d" % (self.tries, self.successes)
-
-    def try_set_old(self, frags, fragnames, typename, options, write_inputs):
-        good_frag = []
-        if (typename=="donor"):
-            resname = self.alldonresname if len(self.alldonresname) > 0 else self.allresname
-        elif (typename=="acceptor"):
-            resname =  self.allaccresname if len(self.allaccresname) > 0 else self.allresname
-        elif (typename=="terminal"):
-            resname =  self.alltermresname if len(self.alltermresname) > 0 else  self.allresname
-
-        for ifrag in range(0,len(frags)):
-            str = "%s ()" % (fragnames[ifrag])
-            print "TRYING %s" % str
-            if (self.try_str(str, options, write_inputs)):
-                good_frag.append(str)
-            for ir1 in range(0,len(resname)):
-                str = "%s (%s)" % (fragnames[ifrag], resname[ir1])
-                print "TRYING %s" % str
-                if (self.try_str(str, options, write_inputs)):
-                    good_frag.append(str)
-                for ir2 in range(0,len(resname)):
-                    str = "%s (%s %s)" % (fragnames[ifrag], resname[ir1], resname[ir2])
-                    print "TRYING %s" % str
-                    if (self.try_str(str, options, write_inputs)):
-                        good_frag.append(str)
-                    for ir3 in range(0,len(resname)):
-                        str = "%s (%s %s %s)" % (fragnames[ifrag], resname[ir1], resname[ir2], resname[ir3])
-                        print "TRYING %s" % str
-                        if (self.try_str(str, options, write_inputs)):
-                            good_frag.append(str)
-                        for ir4 in range(0,len(resname)):
-                            str = "%s (%s %s %s %s)" % (fragnames[ifrag], resname[ir1], resname[ir2], resname[ir3], resname[ir4])
-                            print "TRYING %s" % str
-                            if (self.try_str(str, options, write_inputs)):
-                                good_frag.append(str)
-
-        return good_frag
-
     def get_resname(self, typename):
         from copy import copy
         if (typename=="donor"):
@@ -384,9 +326,6 @@ def main():
     enumerator = BuildingBlockEnumerator(options.bblocks_dir, options.subsets_file)
 ## would be cool:
 #    enumerator.enum_template("D* (R0 R0) A*", options)
-## first try:
-#    enumerator.enum_brutal(options)
-#    good1 = copy.deepcopy(enumerator.good_strs)
 ## but we can do better:
     enumerator.enum_smarter(options)
     good2 = copy.deepcopy(enumerator.good_strs)
