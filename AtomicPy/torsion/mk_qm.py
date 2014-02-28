@@ -22,6 +22,7 @@ def get_options():
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
+    parser.add_option("--pbs_template", dest="pbs_template",type="string",default="",help=" Template for job submission  ")
 
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
@@ -59,9 +60,22 @@ def get_options():
 
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
+    parser.add_option("-z","--sym_zmat", dest="sym_zmat", default=False,action="store_true", help=" Print symetric  zmatirix in input file")
+    parser.add_option("-m","--mult_sym", dest="mult_sym", default=1,type=float,help=" value to multiply symetric dihedrals ")
 
     (options, args) = parser.parse_args()
-	    
+
+    
+    if( options.host == "peregrine" and options.submit ):
+	options.pbs_template = "peregrine.pbs.template"
+	print "  module load gaussian/.g09_C.01"
+	
+    
+    if( options.host == "dale" and options.submit ):
+	options.pbs_template = "dale.pbs.template"
+	print "  module load gaussian/.g09_C.01"
+	options.npros = 8
+	
     return options, args
 
 def read_dihlist(dlist_name):
@@ -345,14 +359,11 @@ def write_input( options,  json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_
             a_j = DIH_ATOMS[cent_indx][2]
             a_k = DIH_ATOMS[cent_indx][3]
                 
-        
             cent_id = DIH_ID[cent_indx].strip()
-            print " The connection between ", a_k,a_i, a_j ,a_l, " is ", cent_id,  DIH_ATOMS[cent_indx]
-    
+            print " The connection between ", a_k,a_i, a_j ,a_l, " is ", cent_id,  DIH_ATOMS[cent_indx],DIH_VAL[cent_indx]
 	    #
 	    # Append torsional information 
 	    #
-	    
 	    qm_tor_data["cent_id"].append( cent_id )
 	    qm_tor_data["a_k"].append( a_k )
 	    qm_tor_data["a_i"].append( a_i )
@@ -377,9 +388,8 @@ def write_input( options,  json_data, struct_dir ,job_name , DIH_ID,DIH_TAG,DIH_
                 f.write(com_dih)
                 f.close()
                 
-		if( options.host == "peregrine" ):
+		if( options.submit  ):
 		    pbs_id = cluster.write_pbs(pbs_templ,calc_id,input_file,options)
-
 
     f = open(json_file_loc	, 'w')
     json.dump(json_data, f, indent=2)
@@ -390,7 +400,7 @@ def main():
     import string, os , sys 
     # atomicpy
     import jsonapy 
-    import gaussian, elements, xmol , file_io , cluster 
+    import gaussian, elements, xmol , file_io , cluster , top 
     from string import replace
     
     options, args = get_options()
@@ -408,18 +418,18 @@ def main():
     fix_templ = f.read()
     f.close()
 
-    # 
-    if( options.host == "peregrine" ):
-	f = open("peregrine.pbs.template",'r') # redmesa.slurm.template
-	pbs_templ = f.read()
-	f.close()
-	    
+    if( options.host == "macbook" ):
+	print " Running on laptop "
+    else:
 	# Verbose output
 	if( options.verbose ):   print "  Please load module ",options.qm_load
 	
-    elif( options.host == "macbook" ):
-	pbs_templ= ""
-
+    if( options.submit ):
+	print "  loading pbs template ",options.pbs_template 
+	f = open( options.pbs_template ,'r')
+	pbs_templ = f.read()
+	f.close()
+			
 
     # Read in index file produced by opv_generator or writen by hand
     #   Format:
@@ -462,6 +472,17 @@ def main():
 		    
 		    if( options.verbose ):
 			print " Meta data found will use specified method and basis unless others are specified in the options "
+		
+		    #
+		    # Get atomic data 
+		    #      
+		    if( options.verbose ):
+			print "     Getting atomic data from  ",json_file
+	
+		    ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,json_atomicdata  = jsonapy.read_atomic(json_data)
+		    
+		    if( not json_atomicdata ):
+			print "   json file ",json_file," exist, but does not contain any atomic data . "
 		    
 		    #
 		    # Construct file names 
@@ -482,9 +503,7 @@ def main():
 		    if( zmat_finished  ):
 
 			NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( zmat_fchk )
-			RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix = pars_zmatrix(calc_id,job_name)
-	
-	
+			
 			# Poppulate other atomic values                
 			ASYMB = elements.eln_asymb(ELN)
 			ATYPE = []
@@ -493,7 +512,98 @@ def main():
 			    ATYPE.append( ASYMB[atom_i] )
 			    ELECTRONS_i += ELN[atom_i] 
 				
+			# Get zmatrix of optimized structure
+			# 
+			calc_id_temp = struct_dir +'/'+ job_name+'_opttemp'
+			gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,Q_ESP,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
+			opt_id = struct_dir +'/'+job_name+'_opt'
+			gaussian.com2zmat(calc_id_temp,opt_id,options)
+			
+			opt_com = opt_id +'.com'
+			zmatrix = gaussian.com_zmatrix(opt_com)
+
 				
+			# Parse log file 
+			NBLIST,NBINDEX = top.build_covnablist(ELN,R)
+			BONDS  = top.nblist_bonds(NA,NBLIST, NBINDEX)
+			
+			# Find rings 
+			RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+			RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+		    
+			N_CONECT = len(RING_CONNECT)
+			if( options.verbose):
+			    print "   Molecule ",job_name, " has ",RING_NUMB," rings with ",N_CONECT," inter ring connections "
+		    
+			#RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix = pars_zmatrix(calc_id,job_name)
+
+			DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
+
+			conect_indx = -1
+			half_nconect = int(N_CONECT/2)
+			
+			#mod_connect =  N_CONECT%2
+			#print " mod_connect ",mod_connect
+			#if( mod_connect == 0 ):
+			#    if( options.verbose): " An even # of connections "
+			#   mult_sym = -1
+			#else:
+			#   mult_sym = 1
+			#   if( options.verbose): " An odd  # of connections "
+				
+			CONECT_DIH = []
+			CONECT_IND = []
+			for dih_indx in  range(len(DIH_ID)):
+			
+			    zmat_l = DIH_ATOMS[dih_indx][0]
+			    zmat_i = DIH_ATOMS[dih_indx][1]
+			    zmat_j = DIH_ATOMS[dih_indx][2]
+			    zmat_k = DIH_ATOMS[dih_indx][3]
+			    
+			    # Make sure inter ring connect not improper 
+			    if (  RING_NUMB[zmat_i] != RING_NUMB[zmat_j] and RING_NUMB[zmat_l] != RING_NUMB[zmat_k] ):
+				conect_indx += 1
+				CONECT_DIH.append(DIH_VAL[dih_indx] )
+				CONECT_IND.append(dih_indx )
+				print "   Dihderal ",dih_indx,zmat_i, zmat_j,"  between ring ",RING_NUMB[zmat_i] , RING_NUMB[zmat_j] ," with unit #'s ", UNITNUMB[zmat_i], UNITNUMB[zmat_j]," = " ,DIH_VAL[dih_indx]
+				
+			    
+			if( options.sym_zmat ):
+
+			    for conect_indx in range(half_nconect):
+				sym_connect = N_CONECT - conect_indx - 1
+				print conect_indx,sym_connect
+				print "   connection ",conect_indx,CONECT_DIH[conect_indx]," with sym ",sym_connect,CONECT_DIH[sym_connect]
+				dih_ave = ( CONECT_DIH[conect_indx]  + options.mult_sym*CONECT_DIH[sym_connect])/2.0
+				CONECT_DIH[conect_indx] = dih_ave
+				CONECT_DIH[sym_connect] = options.mult_sym*dih_ave
+				print "    Average dihdral ",dih_ave
+			    
+			    # Update dih values
+			    for conect_indx in range(N_CONECT):
+				dih_indx = CONECT_IND[conect_indx]
+				DIH_VAL[dih_indx] = CONECT_DIH[conect_indx] 
+				print "   connection ",conect_indx," is dih ",dih_indx," in zmat with new value ",DIH_VAL[dih_indx]
+			    # Update zmatrix
+			#
+			#    # Prin all non constranied elments of zmatrix
+			#    zmatrix_opt = ""
+			#    for line in iter(zmatrix.splitlines()) :
+			#	print_z = 1
+			#	colvar = line.split('=')
+			#	var_id = colvar[0].strip()
+			#	for dih_indx in  range(len(DIH_ID)):
+			#	    if( DIH_ID[dih_indx] == var_id ):
+			#		line = " %s = %f " % (var_id,DIH_VAL[dih_indx])
+			#		break
+			#	    
+			#	if( print_z ):
+			#	    zmatrix_opt =  zmatrix_opt+"\n" + line
+			#else:
+			#    zmatrix_opt = zmatrix
+			#	
+
+							
 			
 			if( options.out_xyz ):
 			    if( options.verbose ):

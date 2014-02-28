@@ -39,14 +39,14 @@ def get_options():
     parser.add_option("--qm_load", dest="qm_load",type="string",help=" string to load qm software module  ")
     
     (options, args) = parser.parse_args()
-
-    # Set options based on cluster 
-    if( options.host == "peregrine" ):
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/.g09_C.01"
-    elif( options.host == "redmesa" ):
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/g09/C.01"
+    #
+    ## Set options based on cluster 
+    #if( options.host == "peregrine" ):
+    #    if( options.qm_software == "gaussian" ):
+    #        options.qm_load = "module load gaussian/.g09_C.01"
+    #elif( options.host == "dale" ):
+    #    if( options.qm_software == "gaussian" ):
+    #        options.qm_load = "module load gaussian/.g09_C.01"
 
     return options, args
 
@@ -59,8 +59,6 @@ def main():
     
     # Store working dir  
     work_dir = os.getcwd()
-    
-    
     
     json_files = options.json.split(',')
     print json_files
@@ -109,7 +107,7 @@ def main():
 			    #  run_qm = gaussian.check_log(log_file)
 			    fchk_file = struct_dir +'/' + calc_id +"/"+calc_id+".fchk"
 			    run_qm = gaussian.check_fchk(fchk_file)
-	
+			    
 			    qm_finished = 0
 			    if( run_qm ):
 				input_file =  calc_id + '.com'
