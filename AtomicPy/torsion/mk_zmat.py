@@ -21,7 +21,7 @@ def get_options():
 
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
-    
+
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
@@ -52,7 +52,9 @@ def get_options():
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
     parser.add_option("-s","--check_dihsym", dest="check_dihsym", default=True,action="store_true", help=" Prin inter-ring dihedral values")
-			    
+    parser.add_option("-m","--mult_sym", dest="mult_sym", default=1,type=float,help=" value to multiply symetric dihedrals ")
+    parser.add_option("-z","--sym_zmat", dest="sym_zmat", default=False,action="store_true", help=" Print symetric  zmatirix in input file")
+
     (options, args) = parser.parse_args()
     
     
@@ -271,12 +273,15 @@ def main():
 				    
 				conect_indx = -1
 				half_nconect = int(N_CONECT/2)
-				if( N_CONECT%2 > 0 ):
-				    if( options.verbose): " An odd # of connections "
-				    dih_sym_mult = -1
-				else:
-				    dih_sym_mult = 1
-				    if( options.verbose): " An even # of connections "
+				
+				#mod_connect =  N_CONECT%2
+				#print " mod_connect ",mod_connect
+				#if( mod_connect == 0 ):
+				#    if( options.verbose): " An even # of connections "
+				#   mult_sym = -1
+				#else:
+				#   mult_sym = 1
+				#   if( options.verbose): " An odd  # of connections "
 					
 				CONECT_DIH = []
 				CONECT_IND = []
@@ -295,52 +300,53 @@ def main():
 					print "   Dihderal ",dih_indx,zmat_i, zmat_j,"  between ring ",RING_NUMB[zmat_i] , RING_NUMB[zmat_j] ," with unit #'s ", UNITNUMB[zmat_i], UNITNUMB[zmat_j]," = " ,DIH_VAL[dih_indx]
 					
 				    
-				for conect_indx in range(half_nconect):
-				    sym_connect = N_CONECT - conect_indx - 1
-				    print conect_indx,sym_connect
-				    print "   connection ",conect_indx,CONECT_DIH[conect_indx]," with sym ",sym_connect,CONECT_DIH[sym_connect]
-				    dih_ave = ( CONECT_DIH[conect_indx]  + dih_sym_mult*CONECT_DIH[sym_connect])/2.0
-				    CONECT_DIH[conect_indx] = dih_ave
-				    CONECT_DIH[sym_connect] = dih_sym_mult*dih_ave
-				    print "    Average dihdral ",dih_ave
-				
-				# Update dih values
-				for conect_indx in range(N_CONECT):
-				    dih_indx = CONECT_IND[conect_indx]
-				    DIH_VAL[dih_indx] = CONECT_DIH[conect_indx] 
-				    print "   connection ",conect_indx," is dih ",dih_indx," in zmat with new value ",DIH_VAL[dih_indx]
-				# Update zmatrix
-			    
-				am_opt = '%chk='+str(job_id)+'.chk' 
-				am_opt = am_opt + '\n%nproc='+str(options.npros)
-				#am_opt = am_opt + '\n' + '#P AM1/3-21g  popt=Zmat nosym '
-				keywd = str(options.qm_method) +"/"+ str(options.qm_basis) +" "+ str(options.qm_kywd)
-				am_opt = am_opt + "\n #P " + keywd
-				#f.write( "\n# P %s/%s  %s" % (opt:qions.qm_method,options.qm_basis,options.qm_kywd))
-				am_opt = am_opt + '\n' + ' '
-				am_opt = am_opt + '\n' + job_id
-				am_opt = am_opt + '\n' 
-				am_opt = am_opt + '\n 0 1 '
-				
-				# Prin all non constranied elments of zmatrix 
-				for line in iter(zmatrix.splitlines()) :
-				    print_z = 1
-				    colvar = line.split('=')
-				    var_id = colvar[0].strip()
-				    for dih_indx in  range(len(DIH_ID)):
-					if( DIH_ID[dih_indx] == var_id ):
-					    line = " %s = %f " % (var_id,DIH_VAL[dih_indx])
-					    break
-					
-				    if( print_z ):
-					am_opt =  am_opt+"\n" + line
-								    
-				am_opt = am_opt + ' \n'
-				am_opt = am_opt + ' \n'
-				
-				f = file(com_name, "w")
-				f.write(am_opt)
-				f.close()
+				if( options.sym_zmat ):
+    
+				    for conect_indx in range(half_nconect):
+					sym_connect = N_CONECT - conect_indx - 1
+					print conect_indx,sym_connect
+					print "   connection ",conect_indx,CONECT_DIH[conect_indx]," with sym ",sym_connect,CONECT_DIH[sym_connect]
+					dih_ave = ( CONECT_DIH[conect_indx]  + options.mult_sym*CONECT_DIH[sym_connect])/2.0
+					CONECT_DIH[conect_indx] = dih_ave
+					CONECT_DIH[sym_connect] = options.mult_sym*dih_ave
+					print "    Average dihdral ",dih_ave
+				    
+				    # Update dih values
+				    for conect_indx in range(N_CONECT):
+					dih_indx = CONECT_IND[conect_indx]
+					DIH_VAL[dih_indx] = CONECT_DIH[conect_indx] 
+					print "   connection ",conect_indx," is dih ",dih_indx," in zmat with new value ",DIH_VAL[dih_indx]
+				    # Update zmatrix
+				    am_opt = '%chk='+str(job_id)+'.chk' 
+				    am_opt = am_opt + '\n%nproc='+str(options.npros)
+				    #am_opt = am_opt + '\n' + '#P AM1/3-21g  popt=Zmat nosym '
+				    keywd = str(options.qm_method) +"/"+ str(options.qm_basis) +" "+ str(options.qm_kywd)
+				    am_opt = am_opt + "\n #P " + keywd
+				    #f.write( "\n# P %s/%s  %s" % (opt:qions.qm_method,options.qm_basis,options.qm_kywd))
+				    am_opt = am_opt + '\n' + ' '
+				    am_opt = am_opt + '\n' + job_id
+				    am_opt = am_opt + '\n' 
+				    am_opt = am_opt + '\n 0 1 '
+				    
+				    # Prin all non constranied elments of zmatrix 
+				    for line in iter(zmatrix.splitlines()) :
+					print_z = 1
+					colvar = line.split('=')
+					var_id = colvar[0].strip()
+					for dih_indx in  range(len(DIH_ID)):
+					    if( DIH_ID[dih_indx] == var_id ):
+						line = " %s = %f " % (var_id,DIH_VAL[dih_indx])
+						break
+					    
+					if( print_z ):
+					    am_opt =  am_opt+"\n" + line
+									
+				    am_opt = am_opt + ' \n'
+				    am_opt = am_opt + ' \n'
+				    
+				    f = file(com_name, "w")
+				    f.write(am_opt)
+				    f.close()
 
 			    # Run optimization
 			    if( options.submit ):
