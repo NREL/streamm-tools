@@ -17,6 +17,8 @@ def get_options():
 
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     
+    parser.add_option("-r","--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
+
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
     
@@ -30,7 +32,6 @@ def get_options():
     parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
     parser.add_option("--submit_command", dest="submit_command",type="string", default="qsub",help=" command used to submit script to the queue ")
 
-    parser.add_option("--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
     
     # QM calculation options 
     parser.set_defaults(qm_software="gaussian")
@@ -67,11 +68,44 @@ def get_options():
     return options, args
 
 
+def pars_zmatrix( calc_id, job_name ):
+    from string import replace
+    # atomicpy
+    import gaussian, top
+    
+    log_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.log" )
+    com_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.com" )
+    # Get lines of log file     
+    f = open(log_name,'r')
+    Lines = f.readlines()
+    f.close()
+
+    #Parse fchk
+    fchk_file = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.fchk" )
+
+    print " fchk_file" , fchk_file
+    NA, ELN, R, TOTAL_ENERGY, Q_ESP  = gaussian.parse_fchk( fchk_file )
+    
+    # Parse log file 
+    NBLIST,NBINDEX = top.build_covnablist(ELN,R)
+    BONDS  = top.nblist_bonds(NA,NBLIST, NBINDEX)
+    
+    # Find rings 
+    RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+    RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+
+    zmatrix = gaussian.com_zmatrix(com_name)    
+    
+    DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
+    
+    return ( RING_CONNECT, RING_NUMB, DIH_ID, DIH_VAL, DIH_ATOMS, zmatrix )
+
+
 def main():
     import string, os , sys 
     # atomicpy
     import jsonapy
-    import gaussian, elements, xmol , file_io , cluster 
+    import gaussian, elements, xmol , file_io , cluster , top 
     from string import replace
     
     #
@@ -165,7 +199,10 @@ def main():
 				print " Reading atomic data from ",fchk_file
 			    NA, ELN, R, TOTAL_ENERGY , Q_FCHK = gaussian.parse_fchk(fchk_file)
 			    fchk_atomicdata = 1
-			    
+
+			else:
+			    print " no fchk file found for ",job_name
+			    				    
 					
 			    # Poppulate other atomic values                
 			    ASYMB = elements.eln_asymb(ELN)
@@ -173,8 +210,10 @@ def main():
 			    for atom_i in range(NA):
 				CHARGES.append( -100.0 )
 				
-			if( json_atomicdata or fchk_atomicdata ):
-			    
+			#if( json_atomicdata or fchk_atomicdata ):
+			#  Need to update fchk for this to be valid
+			if(  fchk_atomicdata ):
+			
 			    ATYPE = []
 			    ELECTRONS_i = 0
 			    for atom_i in range( len(ELN) ):
@@ -208,6 +247,34 @@ def main():
 			    #  geometry z-matrix opt input files
 			    gaussian.com2zmat(calc_id_temp,job_id,options)
 			    
+			    # Find dihedrals to make sure molecule is symetric
+			    check_dihsym = 1
+			    if( check_dihsym ):
+							
+				# Parse log file 
+				NBLIST,NBINDEX = top.build_covnablist(ELN,R)
+				BONDS  = top.nblist_bonds(NA,NBLIST, NBINDEX)
+				
+				# Find rings 
+				RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+				RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
+			    
+				com_name = job_id +".com"
+				zmatrix = gaussian.com_zmatrix(com_name)    
+				DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
+				    
+	
+				for dih_indx in  range(len(DIH_ID)):
+				
+				    zmat_l = DIH_ATOMS[dih_indx][0]
+				    zmat_i = DIH_ATOMS[dih_indx][1]
+				    zmat_j = DIH_ATOMS[dih_indx][2]
+				    zmat_k = DIH_ATOMS[dih_indx][3]
+				    
+				    # Make sure inter ring connect not improper 
+				    if (  RING_NUMB[zmat_i] != RING_NUMB[zmat_j] and RING_NUMB[zmat_l] != RING_NUMB[zmat_k] ):
+					print "   Dihderal ",dih_indx,"  between ring ",RING_NUMB[zmat_i] , RING_NUMB[zmat_j] , " = " ,DIH_VAL[dih_indx]
+
 			    # Run optimization
 			    if( options.submit ):
 				input_file =  "%s%s" % ( job_id,".com" )
@@ -229,8 +296,14 @@ def main():
 			    os.chdir(work_dir)
 
 			    options.qm_kywd = qm_kywd_o
-			
-			    
+
+			else:
+			    print " no atomic data found for ",job_name
+			    			
+
+		    else:
+			print "  Zmatrix optimization has finished for ",job_name
+			    						    
 		
 		    
     else:
