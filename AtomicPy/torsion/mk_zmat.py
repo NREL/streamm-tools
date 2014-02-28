@@ -51,7 +51,8 @@ def get_options():
 
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
-
+    parser.add_option("-s","--check_dihsym", dest="check_dihsym", default=True,action="store_true", help=" Prin inter-ring dihedral values")
+			    
     (options, args) = parser.parse_args()
     
     
@@ -240,16 +241,18 @@ def main():
 		    
 			    os.chdir(struct_dir)
 			    job_id =  "%s%s" % (job_name,"-ZMATOPT" )
-		    
-			    # Print com
-			    calc_id_temp = job_id + "-temp"
-			    gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
-			    #  geometry z-matrix opt input files
-			    gaussian.com2zmat(calc_id_temp,job_id,options)
+			    com_name = job_id +".com"
 			    
+			    # Print com
+			    if( not file_io.file_exists(com_name) ):
+				    
+				calc_id_temp = job_id + "-temp"
+				gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
+				#  geometry z-matrix opt input files
+				gaussian.com2zmat(calc_id_temp,job_id,options)
+				
 			    # Find dihedrals to make sure molecule is symetric
-			    check_dihsym = 1
-			    if( check_dihsym ):
+			    if( options.check_dihsym ):
 							
 				# Parse log file 
 				NBLIST,NBINDEX = top.build_covnablist(ELN,R)
@@ -259,11 +262,24 @@ def main():
 				RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
 				RING_CONNECT  = top.find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB) 
 			    
-				com_name = job_id +".com"
+				N_CONECT = len(RING_CONNECT)
+				if( options.verbose):
+				    print "   Molecule ",job_name, " has ",RING_NUMB," rings with ",N_CONECT," inter ring connections "
+			    
 				zmatrix = gaussian.com_zmatrix(com_name)    
 				DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)
 				    
-	
+				conect_indx = -1
+				half_nconect = int(N_CONECT/2)
+				if( N_CONECT%2 > 0 ):
+				    if( options.verbose): " An odd # of connections "
+				    dih_sym_mult = -1
+				else:
+				    dih_sym_mult = 1
+				    if( options.verbose): " An even # of connections "
+					
+				CONECT_DIH = []
+				CONECT_IND = []
 				for dih_indx in  range(len(DIH_ID)):
 				
 				    zmat_l = DIH_ATOMS[dih_indx][0]
@@ -273,7 +289,58 @@ def main():
 				    
 				    # Make sure inter ring connect not improper 
 				    if (  RING_NUMB[zmat_i] != RING_NUMB[zmat_j] and RING_NUMB[zmat_l] != RING_NUMB[zmat_k] ):
-					print "   Dihderal ",dih_indx,"  between ring ",RING_NUMB[zmat_i] , RING_NUMB[zmat_j] , " = " ,DIH_VAL[dih_indx]
+					conect_indx += 1
+					CONECT_DIH.append(DIH_VAL[dih_indx] )
+					CONECT_IND.append(dih_indx )
+					print "   Dihderal ",dih_indx,zmat_i, zmat_j,"  between ring ",RING_NUMB[zmat_i] , RING_NUMB[zmat_j] ," with unit #'s ", UNITNUMB[zmat_i], UNITNUMB[zmat_j]," = " ,DIH_VAL[dih_indx]
+					
+				    
+				for conect_indx in range(half_nconect):
+				    sym_connect = N_CONECT - conect_indx - 1
+				    print conect_indx,sym_connect
+				    print "   connection ",conect_indx,CONECT_DIH[conect_indx]," with sym ",sym_connect,CONECT_DIH[sym_connect]
+				    dih_ave = ( CONECT_DIH[conect_indx]  + dih_sym_mult*CONECT_DIH[sym_connect])/2.0
+				    CONECT_DIH[conect_indx] = dih_ave
+				    CONECT_DIH[sym_connect] = dih_sym_mult*dih_ave
+				    print "    Average dihdral ",dih_ave
+				
+				# Update dih values
+				for conect_indx in range(N_CONECT):
+				    dih_indx = CONECT_IND[conect_indx]
+				    DIH_VAL[dih_indx] = CONECT_DIH[conect_indx] 
+				    print "   connection ",conect_indx," is dih ",dih_indx," in zmat with new value ",DIH_VAL[dih_indx]
+				# Update zmatrix
+			    
+				am_opt = '%chk='+str(job_id)+'.chk' 
+				am_opt = am_opt + '\n%nproc='+str(options.npros)
+				#am_opt = am_opt + '\n' + '#P AM1/3-21g  popt=Zmat nosym '
+				keywd = str(options.qm_method) +"/"+ str(options.qm_basis) +" "+ str(options.qm_kywd)
+				am_opt = am_opt + "\n #P " + keywd
+				#f.write( "\n# P %s/%s  %s" % (opt:qions.qm_method,options.qm_basis,options.qm_kywd))
+				am_opt = am_opt + '\n' + ' '
+				am_opt = am_opt + '\n' + job_id
+				am_opt = am_opt + '\n' 
+				am_opt = am_opt + '\n 0 1 '
+				
+				# Prin all non constranied elments of zmatrix 
+				for line in iter(zmatrix.splitlines()) :
+				    print_z = 1
+				    colvar = line.split('=')
+				    var_id = colvar[0].strip()
+				    for dih_indx in  range(len(DIH_ID)):
+					if( DIH_ID[dih_indx] == var_id ):
+					    line = " %s = %f " % (var_id,DIH_VAL[dih_indx])
+					    break
+					
+				    if( print_z ):
+					am_opt =  am_opt+"\n" + line
+								    
+				am_opt = am_opt + ' \n'
+				am_opt = am_opt + ' \n'
+				
+				f = file(com_name, "w")
+				f.write(am_opt)
+				f.close()
 
 			    # Run optimization
 			    if( options.submit ):
