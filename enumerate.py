@@ -2,6 +2,8 @@ from basics import *
 from fragments import *
 from donoracceptorsystems import *
 
+import string
+
 class MultiIndex(object):
     # multi-index class, indexing goes left to right (as opposed to counting in 
     # base "maxval", which would go right to left).
@@ -135,9 +137,47 @@ class BuildingBlockEnumerator(BuildingBlocks):
 #                    print i, midx.midx, idxmap, stuff
                     s += "%s " % stuff[idxmap[i]][midx.midx[idxmap[i]]]  # midx[i] is where we are in the enumeration of idxmap[i]th element of stuff.
                     s += "%s " % spacers[ispc]
+
                 print "TRYING %s" % s
-                self.try_str(s, options, True)
+
+                #####################################
+                # Selecting out strings (takes s)
+
+                skipBool = self.exclude_string(s)
+                #####################################
+  
+                if (not skipBool):
+                    self.try_str(s, options, True)
+
+#               self.try_str(s, options, True)
             done = midx.incr()
+
+
+    #########################################################################
+    #
+    # Selecting out strings (takes s) with specific rules (hard-wired)
+    # Arg 1 -- s is the string that try_str passes to donoracceptorsystems
+    # Pass back flag to skip/execute
+    #
+    # NOTE:  Needs D61 at beginning and not copied in 2nd donor spot
+    #########################################################################
+    def exclude_string(self, eStr):
+
+        splitStr = eStr.split(' ')
+        strDlist = []
+        for frag in splitStr:
+            if 'D' in frag:
+                strDlist.append(frag)
+                        
+        # Needs D61 at beginning and not copied in 2nd donor spot
+        if ( (strDlist[0] != "D61") or (strDlist[0] == strDlist[1]) ):
+            print "frag = ", strDlist, " is copied... skipping generation"
+            skipFlag = True
+        else:
+            skipFlag = False
+
+        return skipFlag
+
 
     def enum_smarter(self, options):
         only_unequal_bb = not options.equal_blocks_ok 
@@ -239,8 +279,13 @@ class BuildingBlockEnumerator(BuildingBlocks):
             self.try_class([good_acc, good_acc2], [0,1], allthespacers, options)
 
 ## classes for fluorination
+
+        print "good_donf = ", good_donf
+
         if "DfD" in classes:
             self.try_class([good_donf, good_don], [0,1], allthespacers, options)
+        if "DfDf" in classes:
+            self.try_class([good_donf, good_donf], [0,1], allthespacers, options)
         if "DfA" in classes:
             self.try_class([good_donf, good_acc], [0,1], allthespacers, options)
 
@@ -324,9 +369,10 @@ def main():
     
     # load the building blocks
     enumerator = BuildingBlockEnumerator(options.bblocks_dir, options.subsets_file)
-## would be cool:
-#    enumerator.enum_template("D* (R0 R0) A*", options)
-## but we can do better:
+
+    ## would be cool:
+    #    enumerator.enum_template("D* (R0 R0) A*", options)
+    ## but we can do better:
     enumerator.enum_smarter(options)
     good2 = copy.deepcopy(enumerator.good_strs)
     print "Found %d valid structures" % (len(good2))
