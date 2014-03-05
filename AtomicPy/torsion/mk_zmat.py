@@ -142,9 +142,8 @@ def main():
     
 	    json_data,json_success = jsonapy.read_jsondata(json_file)
 	    if(  json_success ):
-		
+		#
 		mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
-		
 		#
 		# Need meta data to proceed 
 		#      		    
@@ -169,7 +168,6 @@ def main():
                     zmat_finished = file_io.file_exists( zmat_fchk )
 		    
 		    if( not zmat_finished or options.recalc ):
-			
 			#
 			# Asign method and basis 
 			#      	
@@ -187,11 +185,9 @@ def main():
 			
 			if( not json_atomicdata ):
 			    print "   json file ",json_file," exist, but does not contain any atomic data . "
-			
 			#
 			# If get optimized atomic data from fchk file 
 			#
-		    
 			print " checking fchk files in ",struct_dir, " job name ",job_name
 			
 			fchk_file = struct_dir + job_name + '/' + job_name + ".fchk"
@@ -247,6 +243,8 @@ def main():
 			    
 			    # Print com
 			    if( not file_io.file_exists(com_name) ):
+				if( options.verbose ):
+				    print "       Printing temp zmatrix "
 				    
 				calc_id_temp = job_id + "-temp"
 				gaussian.print_com( calc_id_temp, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,options.qm_method,options.qm_basis,options.qm_kywd,options.qm_charge,options.qm_mult)
@@ -266,7 +264,7 @@ def main():
 			    
 				N_CONECT = len(RING_CONNECT)
 				if( options.verbose):
-				    print "   Molecule ",job_name, " has ",RING_NUMB," rings with ",N_CONECT," inter ring connections "
+				    print "   Molecule ",job_name, " has ",max(RING_NUMB)," rings with ",N_CONECT," inter ring connections "
 			    
 				zmatrix = gaussian.com_zmatrix(com_name)    
 				DIH_ID, DIH_VAL, DIH_ATOMS = gaussian.get_dih_id( zmatrix)

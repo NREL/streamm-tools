@@ -7,10 +7,11 @@ def get_options():
     usage = "usage: %prog [options] [input_files] \n"
     parser = OptionParser(usage=usage)
 
-    parser.add_option("-v","--verbose", dest="verbose", default=True, help="Verbose output ")
+    parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
 
     # should be reference file 
     parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
+    parser.add_option("--tor_id", dest="tor_id",type="string",default="dih",help=" plot id for postscript output  ")
     
     (options, args) = parser.parse_args()
     
@@ -170,7 +171,7 @@ def main():
 				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ')*EVKC  axis x1y1 w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir +" n="+str(n_units)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
 				    plot_lines.append(  plot_l )
 			    
-				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ')*100  axis x1y2 w l ls '+str(calc_i+1)+" notitle  smooth unique  , \\" + "\n"
+				    plot_l =  " \'"+dih_qm+"\' " + ' us 2:($3- ' + str(qm_min) + ')*1000  axis x1y2 w l ls '+str(calc_i+1)+" notitle  smooth unique  , \\" + "\n"
 				    plot_lines.append(  plot_l )
 				    
 				    # xmol_qm = job_name+'-'+dih_id+"_qm.xmol"
@@ -229,7 +230,7 @@ def main():
 	
         plt_file = replace(plt_file,'<style_lines>',style_i)
         plt_file = replace(plt_file,'<plot_lines>',plot_i)
-        plt_file = replace(plt_file,'<structure_name>',tag)
+        plt_file = replace(plt_file,'<structure_name>',options.tor_id)
 	    
 	    
 	plt_dir_file =  replace(indx_file,'rec','plt')
