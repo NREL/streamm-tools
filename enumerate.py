@@ -139,11 +139,12 @@ class BuildingBlockEnumerator(BuildingBlocks):
                     s += "%s " % spacers[ispc]
 
                 print "TRYING %s" % s
+                skipBool=False
 
                 #####################################
                 # Selecting out strings (takes s)
 
-                skipBool = self.exclude_string(s)
+                # skipBool = self.exclude_string(s)
                 #####################################
   
                 if (not skipBool):
