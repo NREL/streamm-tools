@@ -246,6 +246,7 @@ def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
             if( atom_j >atom_i):  # for double counting
 		dih_ij_cnt = 0
 		atom_k_i = -1
+		atom_l_i = -1
                 for indx_k in range( N_o,N_f+1 ):
                     atom_k = NBLIST[indx_k]
 		    
@@ -257,10 +258,15 @@ def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
                             atom_l = NBLIST[indx_l]
                             if ( atom_l != atom_i and atom_l != atom_k ):
 				if( limdih ):
-				    if( dih_ij_cnt < limitdih_n and atom_k != atom_k_i ):
-					DIH.append([atom_k,atom_i,atom_j,atom_l])
-					dih_ij_cnt += 1
-					atom_k_i = atom_k
+				    if( dih_ij_cnt < limitdih_n ):
+					if(  limitdih_n ==  2 and atom_k != atom_k_i and atom_l != atom_l_i ):
+					    DIH.append([atom_k,atom_i,atom_j,atom_l])
+					    dih_ij_cnt += 1
+					    atom_k_i = atom_k
+					    atom_l_i = atom_l
+					else:
+					    DIH.append([atom_k,atom_i,atom_j,atom_l])
+					    dih_ij_cnt += 1
 					
 				else:
 				    DIH.append([atom_k,atom_i,atom_j,atom_l])
