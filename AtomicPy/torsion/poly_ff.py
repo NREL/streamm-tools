@@ -83,7 +83,6 @@ def get_options():
         if( options.qm_software == "gaussian" ):
             options.qm_load = "module load gaussian/g09/C.01"
 	    
-	    
     return options, args
 
 def submit_job( struct_dir, pbs_id ,options):

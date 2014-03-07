@@ -1031,7 +1031,7 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
                         if(debug): print "  found  k",AT_k,ind
                         NNAB_j = ATYPE_NNAB[ind] - 1
 		
-                dihen_norm = float( NNAB_i + NNAB_j) #/2.0
+                dihen_norm = float( NNAB_i + NNAB_j)/2.0
 		
 		if(debug): print " dihen_norm ",dihen_norm
                 
