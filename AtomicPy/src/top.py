@@ -237,6 +237,9 @@ def nblist_dih(NA,NBLIST, NBINDEX):
     #
     DIH = []*4
  
+    limit_dih = 1
+    limit_n = 1 
+ 
     for atom_i in range(NA):
         N_o = NBINDEX[atom_i ]
         N_f = NBINDEX[atom_i+ 1 ] - 1
@@ -244,6 +247,7 @@ def nblist_dih(NA,NBLIST, NBINDEX):
         for indx_j in range( N_o,N_f+1):
             atom_j = NBLIST[indx_j]
             if( atom_j >atom_i):  # for double counting
+		dih_ij_cnt = 0 
                 for indx_k in range( N_o,N_f+1 ):
                     atom_k = NBLIST[indx_k]
                     if ( atom_k != atom_j ):
@@ -252,7 +256,11 @@ def nblist_dih(NA,NBLIST, NBINDEX):
                         for indx_l in range( No_j,Nf_j+1):
                             atom_l = NBLIST[indx_l]
                             if ( atom_l != atom_i and atom_l != atom_k ):
-                                DIH.append([atom_k,atom_i,atom_j,atom_l])
+				dih_ij_cnt += 1
+				if( limit_dih and dih_ij_cnt <= limit_n ):
+				    DIH.append([atom_k,atom_i,atom_j,atom_l])
+				else:
+				    DIH.append([atom_k,atom_i,atom_j,atom_l])
 
     return DIH
 
@@ -460,7 +468,6 @@ def find_rings(ELN,NBLIST,NBINDEX):
 
     return ( RINGLIST, RINGINDEX , RING_NUMB )
 
-
 def find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB):
     import sys, numpy 
            
@@ -541,7 +548,7 @@ def special_types(ATYPE, ASYMB , ELN , atom_types):
                 ELN[a_indx] = s_numb[s_indx]
                 ASYMB[a_indx] = s_symb[s_indx]
 		
-		#print "   editing atom ",a_indx,a_type," to atomic# ",ELN[a_indx] 
+		if(debug): print "   editing atom ",a_indx,a_type," to atomic# ",ELN[a_indx] 
 
     return ( ASYMB,ELN )
 
@@ -1015,7 +1022,8 @@ def dih_parameters( itp_file,norm_dihparam,DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,
                         if(debug): print "  found  k",AT_k,ind
                         NNAB_j = ATYPE_NNAB[ind] - 1
 		
-                dihen_norm = float( NNAB_i + NNAB_j)
+                dihen_norm = float( NNAB_i + NNAB_j) #/2.0
+		
 		if(debug): print " dihen_norm ",dihen_norm
                 
             func_type = int(FF_l[4])
@@ -1064,7 +1072,7 @@ def pass_i(N_i,ELN_i,ASYMB_i,R_i,ATYPE_i,GTYPE_i,CHARGES_i,CHARN_i,AMASS_i,RESID
     import elements
     import numpy as np
     
-    debug = 0
+    debug = 1
 
 
     ELN_j = []
