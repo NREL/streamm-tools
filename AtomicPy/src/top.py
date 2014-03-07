@@ -257,8 +257,9 @@ def nblist_dih(NA,NBLIST, NBINDEX):
                             atom_l = NBLIST[indx_l]
                             if ( atom_l != atom_i and atom_l != atom_k ):
 				dih_ij_cnt += 1
-				if( limit_dih and dih_ij_cnt <= limit_n ):
-				    DIH.append([atom_k,atom_i,atom_j,atom_l])
+				if( limit_dih ):
+				    if( dih_ij_cnt <= limit_n ):
+					DIH.append([atom_k,atom_i,atom_j,atom_l])
 				else:
 				    DIH.append([atom_k,atom_i,atom_j,atom_l])
 
