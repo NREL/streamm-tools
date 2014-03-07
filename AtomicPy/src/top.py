@@ -264,7 +264,7 @@ def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
 					    dih_ij_cnt += 1
 					    atom_k_i = atom_k
 					    atom_l_i = atom_l
-					else:
+					elif( limitdih_n !=  2 ):
 					    DIH.append([atom_k,atom_i,atom_j,atom_l])
 					    dih_ij_cnt += 1
 					
