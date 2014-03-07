@@ -31,6 +31,10 @@ def get_options():
     parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
     parser.add_option("--submit_command", dest="submit_command",type="string", default="qsub",help=" command used to submit script to the queue ")
 
+    parser.add_option("--pmem",dest="pmem", type="int", default="1700",help=" Memory per processor ")
+    parser.add_option("--npros", dest="npros", type="int", default="16",help=" Number of processors ")
+    parser.add_option("--nnodes", dest="nnodes", type="int", default="1",help=" Number of nodes ")
+
     parser.add_option("--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
 
     # QM calculation options 

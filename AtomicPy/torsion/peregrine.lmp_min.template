@@ -5,8 +5,7 @@
 #PBS -M Travis.Kemper@nrel.gov
 #PBS -m e
 #PBS -N <calc_id>
-
-
+#PBS -l feature=<npros>core
 
 #module load gromacs/4.5.4
 #module load gromacs/4.6.1 
