@@ -244,19 +244,24 @@ def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
         for indx_j in range( N_o,N_f+1):
             atom_j = NBLIST[indx_j]
             if( atom_j >atom_i):  # for double counting
-		dih_ij_cnt = 0 
+		dih_ij_cnt = 0
+		atom_k_i = -1
                 for indx_k in range( N_o,N_f+1 ):
                     atom_k = NBLIST[indx_k]
+		    
+		    
                     if ( atom_k != atom_j ):
                         No_j =  NBINDEX[ atom_j  ]
                         Nf_j = NBINDEX[atom_j+ 1 ] - 1
                         for indx_l in range( No_j,Nf_j+1):
                             atom_l = NBLIST[indx_l]
                             if ( atom_l != atom_i and atom_l != atom_k ):
-				dih_ij_cnt += 1
 				if( limdih ):
-				    if( dih_ij_cnt <= limitdih_n ):
+				    if( dih_ij_cnt < limitdih_n and atom_k != atom_k_i ):
 					DIH.append([atom_k,atom_i,atom_j,atom_l])
+					dih_ij_cnt += 1
+					atom_k_i = atom_k
+					
 				else:
 				    DIH.append([atom_k,atom_i,atom_j,atom_l])
 
@@ -1392,6 +1397,9 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     
     import elements , lammps ,gromacs , atom_types
     
+    # New options that need to be passed 
+    limdih =  "False"
+    limitdih_n = 1
     
     calc_id = ff_prefix
     
@@ -1423,7 +1431,8 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     NA = len(ELN)
     BONDS = nblist_bonds(NA,NBLIST, NBINDEX)
     ANGLES = nblist_angles(NA,NBLIST, NBINDEX)
-    DIH = nblist_dih(NA,NBLIST, NBINDEX)
+    #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+    DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
     IMPS = nblist_imp(NA,NBLIST, NBINDEX,ELN)
 			
     #
