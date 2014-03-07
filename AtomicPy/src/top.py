@@ -230,15 +230,12 @@ def nblist_angles(NA,NBLIST, NBINDEX):
     return ANGLES
 
 
-def nblist_dih(NA,NBLIST, NBINDEX):
+def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
     import sys
     #
     # Generate dihedrals from neighbor list 
     #
     DIH = []*4
- 
-    limit_dih = 1
-    limit_n = 1 
  
     for atom_i in range(NA):
         N_o = NBINDEX[atom_i ]
@@ -257,8 +254,8 @@ def nblist_dih(NA,NBLIST, NBINDEX):
                             atom_l = NBLIST[indx_l]
                             if ( atom_l != atom_i and atom_l != atom_k ):
 				dih_ij_cnt += 1
-				if( limit_dih ):
-				    if( dih_ij_cnt <= limit_n ):
+				if( limdih ):
+				    if( dih_ij_cnt <= limitdih_n ):
 					DIH.append([atom_k,atom_i,atom_j,atom_l])
 				else:
 				    DIH.append([atom_k,atom_i,atom_j,atom_l])

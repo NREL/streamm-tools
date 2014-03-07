@@ -70,6 +70,9 @@ def get_options():
     parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
     parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
 
+    parser.add_option("--limdih", dest="limdih", default=False,action="store_true", help="Limit the number of dihedrals per ij pair ")
+    parser.add_option("--limitdih_n", dest="limitdih_n", type="int", default="1",help=" Number of dihedrals per ij pair with limdih ")
+
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
 
@@ -360,7 +363,10 @@ def main():
 			    DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
 				
 			    ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-			    DIH = top.nblist_dih(NA,NBLIST, NBINDEX)
+			    
+			    
+			    
+			    DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
 			    IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
 			    
 			    GTYPE = top.initialize_gtype( ELN )

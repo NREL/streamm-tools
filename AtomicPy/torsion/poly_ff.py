@@ -64,6 +64,10 @@ def get_options():
     parser.add_option("--high_basis", dest="high_basis", type="string", default="cc-pVTZ",help=" Basis set for hihgh level energy calculations ")
     parser.add_option("--dih_temp", dest="dih_temp", type="string", default="mp2_dih.com.template",help=" Template for Links of dihedral calculation ")
 
+    parser.add_option("--limdih", dest="limdih", default=False,action="store_true", help="Limit the number of dihedrals per ij pair ")
+    parser.add_option("--limitdih_n", dest="limitdih_n", type="int", default="1",help=" Number of dihedrals per ij pair with limdih ")
+
+
     # Output options 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help="Output single frame xyz file in xmol format ")
 
@@ -428,7 +432,7 @@ def main():
 		    if(  esp_finished ):
 			    
 			ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-			DIH = top.nblist_dih(NA,NBLIST, NBINDEX)
+			DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
 			IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
 			
 			GTYPE = top.initialize_gtype( ELN )
@@ -508,8 +512,6 @@ def main():
 				unit.append( u )
 				tag1.append( "" )
 				tag2.append( col[6] )
-				
-				
 			
 			unit_max = max( unit )
 			print "  unit_max ",unit_max
@@ -553,7 +555,8 @@ def main():
 			#
 			# Sum terminal hydrogen charges into carbon atoms 
 			#
-			CHARGES = top.zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,options.verbose)
+			# This step has be trasfered to donoracceptorsystems py 
+			#CHARGES = top.zero_termq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,options.verbose)
 			
 			#
 			# Set tag1 for cply output
@@ -585,7 +588,7 @@ def main():
 			
 			    # Set functional attached carbons 
 			    if( tag2[atom_i] == "F" and ELN[atom_i] == 6 ):
-				tag1[atom_i] = "f_C(" + str(i_n) + ")"
+				tag1[atom_i] = "func_C(" + str(i_n) + ")"
 				#
 				term_con_cnt = 0 # Terminal connections count
 				#
@@ -602,7 +605,7 @@ def main():
 				    print " ",atom_j,j_n,tag2[atom_j],ELN[atom_j]
 				    if( tag2[atom_j] == "R" and ELN[atom_j] == 1 ):
 					term_con_cnt += 1
-					tag1[atom_j] = "fcap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
+					tag1[atom_j] = "funccap_H(" + str(j_n) + ")_on_C("+str(i_n)+")"
 					
 					print " func found ", tag1[atom_j] 
 				
@@ -687,7 +690,7 @@ def main():
 
 			bb_file = job_name + ".cply"
 			F = open(bb_file,'w')
-			F.write('D(f1)')
+			F.write('D(R1)')
 			for atom_i in range( len(ELN) ):
 			    print ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],tag1[atom_i],tag2[atom_i]
 			    F.write('\n %s %16.6f %16.6f %16.6f %16.6f %s %s ' % (ASYMB[atom_i],R[atom_i][0],R[atom_i][1],R[atom_i][2],CHARGES[atom_i],str( tag2[atom_i]),str( tag1[atom_i]) ) )
