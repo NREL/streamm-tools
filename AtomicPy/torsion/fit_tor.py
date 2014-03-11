@@ -30,6 +30,7 @@ def get_options():
     parser.add_option("--tor_paramo", type="float", dest="tor_paramo", default=1.0, help="Value to initialize torsional potential coefficients ")
     parser.add_option("--out_ftor", dest="out_ftor", type="string", default="tor_fit.dat", help="Output fitted torsional potential data ")
     parser.add_option("--plot_tor", dest="plot_tor", type="string", default="tor_fit.pdf", help="Output fitted torsional potential graph ")
+    parser.add_option("--plot_tor_comp", dest="plot_tor_comp", type="string", default="tor_comp.pdf", help="Output for components of torsional potential graph ")
 
 
 
@@ -81,12 +82,44 @@ def plot_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target
     plt.savefig(options.plot_tor,format='pdf')
 
 
-def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s ):
+def plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp ):
+    import matplotlib.pyplot as plt
+
+    plt.cla()
+    plt.ylabel('Energy (kcal/mol)')
+    plt.xlabel('dihedral angle (deg)')
+    
+    plt.plot( qm_angle,target_en_s,"r^", label="mp2 - ($V_{tor}$=0)" )
+    plt.plot( qm_angle,fitted_ptor,"b-", label="$V_{tor}$ fit" )
+    
+    print FF_DIHTYPES
+    
+    print " size ",len(fitted_comp[0])
+    for param_ind in range(len(fitted_comp[0])):
+        comp_i = []
+        
+        # Atom_types = " %s %s %s %s " % (FF_DIHTYPES[param_ind][0],FF_DIHTYPES[param_ind][1],FF_DIHTYPES[param_ind][2],FF_DIHTYPES[param_ind][3])
+        
+        for comp_subindx in range(len(fitted_comp)):
+            comp_i.append( fitted_comp[comp_subindx][param_ind] )
+        
+        print " compent i ",comp_i
+        
+        plt.plot( qm_angle , comp_i,"b--", label="$V( \theta)_{"+str(param_ind)+"}$") #+Atom_types)
+    plt.legend(loc=(0.67,0.72),prop={'size':10})
+    
+    #plt.show()
+    
+    plt.savefig(options.plot_tor_comp,format='pdf')
+
+
+def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param ):
     
     debug = 0
     
     fitted_ptor = []
     fit_toten = []
+    fitted_comp = []
     
     # Calculate new torsional potential based on previous t(0)
     #
@@ -94,16 +127,19 @@ def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,targe
         ang_val = ff_angles[cent_indx]
         ff_en = ff_en_s[cent_indx]      
         # Sum torsional energies for each component
-        fit_en = float( sum_tor(DIH_PARAM,ang_val,ANG_IND) )
+        fit_en,comp_en  =  sum_tor_comp(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        fitted_comp.append(comp_en)
         fitted_ptor.append( fit_en )
         fit_toten.append( fit_en + ff_en )
 
     fit_en_max = max( fit_toten ) 
-    fit_en_min = min( fit_toten ) 
+    fit_en_min = min( fit_toten )
+    
+    
     
     # Write data file 
     f_fit = open(options.out_ftor,"w")
-    f_fit.write(" angle ; mp2 ; V_tor ; mp2-Vtor ; V_tor fit ; ff_en fit")
+    f_fit.write(" angle ; mp2 ; V_tor ; mp2-Vtor ; V_tor fit ; ff_en fit; fit en components ")
     fit_toten_s = []
     for cent_indx in range(len(target_en_s)):
         qm_x = qm_angle[cent_indx]        # angle
@@ -114,13 +150,16 @@ def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,targe
         fit_ten = fit_toten[cent_indx]    # 
         fit_ten_s = fit_ten -fit_en_min   #
         fit_toten_s.append( fit_ten_s )
-
         
-        f_fit.write( "\n %12.4f %12.4f %12.4f %12.4f %12.4f %12.4f  " % (qm_x,qm_en,ff_en,t_en, fit_en,fit_ten_s))        
-
+        fit_comps = ""
+        for comp_i in fitted_comp[cent_indx] :
+            fit_comps = fit_comps + " " + str(comp_i)
+        
+        f_fit.write( "\n %12.4f %12.4f %12.4f %12.4f %12.4f %12.4f  %s " % (qm_x,qm_en,ff_en,t_en, fit_en,fit_ten_s,fit_comps))        
+    
     f_fit.close()
 
-    return (fitted_ptor , fit_toten_s)
+    return (fitted_ptor , fit_toten_s, fitted_comp )
 
 def V_four(p,theta_rad):
     import math
@@ -144,6 +183,41 @@ def V_four(p,theta_rad):
         print theta_rad,F1,F2,F3,F4,Vtor_f1,F2*(1 -   math.cos( a2 )) ,  math.cos( a2 )
 
     return Vtor_f1
+
+def V_RB(p,theta_rad):
+    import math
+    # theta_rad dihedral angle in radians
+    # Ryckaert-Bellemans 
+    
+    
+    debug = 0
+    Vtor_f1 = 0.0
+    nmax = 5 
+    for n in range(nmax):
+        Vtor_f1 += p[n]*( math.cos( theta_rad ) )**float(n)
+        
+    if( debug ):
+        print theta_rad,math.cos( theta_rad )
+        print p
+
+    return Vtor_f1
+
+
+def V_k(p,theta_rad):
+    import math
+    # theta_rad dihedral angle in radians
+    # Ryckaert-Bellemans 
+    
+    
+    debug = 0
+    Vtor_f1 = p[0]*( 1 +  (math.cos( theta_rad ) )  )
+    
+    if( debug ):
+        print theta_rad,math.cos( theta_rad )
+        print p
+
+    return Vtor_f1
+
 
 def sum_tor_test(DIH_PARAM,ang_val,ANG_IND):
     import math
@@ -177,12 +251,17 @@ def sum_tor_test(DIH_PARAM,ang_val,ANG_IND):
     
     return tor_lijk
 
-def sum_tor(DIH_PARAM,ang_val,ANG_IND):
-    import math
+def sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param):
+    import math, sys 
     
     debug = 0
     
-    n_param = 4 #len(DIH_PARAM)
+    #tor_type = "four"  # Fourier parameters
+    #n_param = 4 #len(DIH_PARAM)
+    
+    #print len(DIH_PARAM[0])
+    #sys.exit(" DIH_PARAM ")
+    
     
     tor_lijk = 0.0
     
@@ -196,8 +275,17 @@ def sum_tor(DIH_PARAM,ang_val,ANG_IND):
         
         if( debug ):
             print " calc pot ",theta,param_ind,param_ind*n_param,n_param,F_coef
-        
-        V_tor =  V_four(F_coef,theta)
+            
+        if(   tor_type == "four" ):
+            V_tor =  V_four(F_coef,theta)
+        elif( tor_type == "RB" ):
+            V_tor =  V_RB(F_coef,theta)
+            
+        elif( tor_type == "harmonic" ):
+            V_tor =  V_k(F_coef,theta)
+        else:
+            print " unknow torsional function ",tor_type
+            sys.exit(" option set incorrectly ")
         
         tor_lijk += V_tor
         if( debug ):
@@ -210,11 +298,59 @@ def sum_tor(DIH_PARAM,ang_val,ANG_IND):
     
     return tor_lijk
 
-def residuals(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef):
+def sum_tor_comp(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param):
+    import math, sys 
+    
+    debug = 0
+    
+    #tor_type = "four"  # Fourier parameters
+    #n_param = 4 #len(DIH_PARAM)
+    
+    #print len(DIH_PARAM[0])
+    #sys.exit(" DIH_PARAM ")
+    
+    
+    tor_lijk = 0.0
+    tor_comp = []
+    
+    for angle_indx in range( len(ang_val)):
+        theta = math.radians( ang_val[angle_indx] )
+        param_ind = ANG_IND[angle_indx]
+        F_coef = []
+        
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            F_coef.append(  DIH_PARAM[p_indx] )
+        
+        if( debug ):
+            print " calc pot ",theta,param_ind,param_ind*n_param,n_param,F_coef
+            
+        if(   tor_type == "four" ):
+            V_tor =  V_four(F_coef,theta)
+        elif( tor_type == "RB" ):
+            V_tor =  V_RB(F_coef,theta)
+            
+        elif( tor_type == "harmonic" ):
+            V_tor =  V_k(F_coef,theta)
+        else:
+            print " unknow torsional function ",tor_type
+            sys.exit(" option set incorrectly ")
+        tor_comp.append(V_tor)
+        tor_lijk += V_tor
+        if( debug ):
+            print " V_tor ",V_tor
+    
+    debug = 0
+    if( debug ):
+        print "tor_lijk ",tor_lijk
+        sys.exit("sum_tor")
+    
+    return tor_lijk, tor_comp 
+
+def residuals(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
     
     debug = 0
  
-    n_param = 4 #len(DIH_PARAM)
+    #n_param = 4 #len(DIH_PARAM)
     
     #print "wt_coef",wt_coef
     #wt_coef = 0.0
@@ -233,7 +369,7 @@ def residuals(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef):
         ang_val = ff_angles[cent_indx] #[0]
         wt = wt_angle[cent_indx]
         # Sum torsional energies for each component 
-        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND)
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
         # Calculate error
         delta_en =  t_en - tor_en
         sq_delta = wt*( delta_en*delta_en)
@@ -249,17 +385,82 @@ def residuals(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef):
     NUMB_DIHTYPES = max( ANG_IND )
     if( debug ): print " NUMB_DIHTYPES ",NUMB_DIHTYPES
 
-    for param_ind in range( NUMB_DIHTYPES  ):
+    for param_ind in range( NUMB_DIHTYPES ):
         F_coef = []
+        sq_coef = 0.0
         for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
             F_coef.append(  DIH_PARAM[p_indx] )
-    
-        F1 = F_coef[0]
-        F2 = F_coef[1]
-        F3 = F_coef[2]
-        F4 = F_coef[3]
+            
+            
+            sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+            
+        if( debug ):
+            print param_ind
+            print wt_coef,F_coef[0],F_coef[1],F_coef[2],F_coef[3]
+            print sq_coef
 
-        sq_coef = wt_coef *( F1*F1 + F2*F2 + F3*F3 + F4*F4 )
+        resid.append(sq_coef)
+
+    return resid
+    
+def residuals_v2(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
+    
+    debug = 0
+ 
+    #n_param = 4 #len(DIH_PARAM)
+    
+    #print "wt_coef",wt_coef
+    #wt_coef = 0.0
+    #DIH_PARAM[0] = 1.0
+    #DIH_PARAM[4] = 2.0
+    #DIH_PARAM[8] = 3.0
+    #DIH_PARAM[12] = 4.0
+    #print "DIH_PARAM",DIH_PARAM
+    
+    
+    resid = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+    
+    debug = 0
+    if( debug ):
+        sys.exit("residuals")
+    
+    debug = 1
+    NUMB_DIHTYPES = max( ANG_IND )
+    if( debug ): print " NUMB_DIHTYPES ",NUMB_DIHTYPES
+
+    for param_ind in range( NUMB_DIHTYPES ):
+        F_coef = []
+        sq_coef = 0.0
+        p_cnt = -1
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            p_cnt += 1
+            F_coef.append(  DIH_PARAM[p_indx] )
+            
+            sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+            
+            for param_j in range( NUMB_DIHTYPES ):
+                #for p_jndx in range( param_j*n_param,param_j*n_param + n_param):
+                p_jndx = param_j*n_param + p_cnt
+                delta_c = DIH_PARAM[p_indx] - DIH_PARAM[p_jndx]
+                
+                if( debug): print " delta coef ",DIH_PARAM[p_indx] , DIH_PARAM[p_jndx] , delta_c
+                
+                sq_coef += wt_coef*( delta_c*delta_c )
+                
         if( debug ):
             print param_ind
             print wt_coef,F_coef[0],F_coef[1],F_coef[2],F_coef[3]
@@ -291,7 +492,7 @@ def tor_fit(DIH_PARAM,options):
     return DIH_PARAM
 
 
-def read_dihtypes(struct_dir,job_name,options):
+def read_dihtypes(struct_dir,job_name,options,tor_type,n_param):
     import sys 
     import file_io
     
@@ -299,24 +500,34 @@ def read_dihtypes(struct_dir,job_name,options):
     # Set initial paratemers
 
     param_o = []
-    param_o.append(options.tor_paramo)
-    param_o.append(options.tor_paramo)
-    param_o.append(options.tor_paramo)
-    param_o.append(options.tor_paramo)
-    
-    # Set initial paratemers
-    
-    F1=0.00
-    F2=1.970035
-    F3=0.00
-    F4=0.00
-    
-    param_o = []
-    param_o.append(F1)
-    param_o.append(F2)
-    param_o.append(F3)
-    param_o.append(F4)
-    
+    for n in range(n_param):
+        param_o.append(0.0)
+    #
+    ## Set initial paratemers
+    #
+    if( tor_type == "four" ):
+        
+        param_o[1] = options.tor_paramo
+        
+    elif( tor_type == "RB" ):
+        
+        param_o[0] = options.tor_paramo
+        param_o[2] = -1.0*options.tor_paramo
+        
+    elif( tor_type == "harmonic" ):
+        
+        param_o[0] = options.tor_paramo
+        param_o[1] =  1.0
+        param_o[2] =  1.0
+        
+    else:
+        
+        print " unknow torsional function ",tor_type
+        sys.exit(" option set incorrectly ")
+        
+        
+        
+        
 
     ff_file =  options.ff_tor
     
@@ -341,8 +552,7 @@ def read_dihtypes(struct_dir,job_name,options):
         col_fit = line_fit.split()
         if ( col_fit[0] == "dihedral" ):
             ang_types.append([ col_fit[5],col_fit[6],col_fit[7],col_fit[8] ])
-            
-            
+        
     #print ang_types
     #sys.exit(" debug  331")
 
@@ -466,6 +676,8 @@ def main():
     
     debug = 0 
 
+    EVTOKCAL = 23.0605
+    EVTOkJ = 96.4853
     
     options, args = get_options()
 
@@ -537,7 +749,7 @@ def main():
                         if( ff_a_j_list[dih_indx] != qm_a_j_list[dih_indx] ): check_dih = 0
                         if( ff_a_l_list[dih_indx] != qm_a_l_list[dih_indx] ): check_dih = 0
                         if( len(qm_energy) != len(ff_energy) ): check_dih = 0
-                            
+                        
                         if( check_dih ):
                             
                             #  max and min
@@ -605,30 +817,40 @@ def main():
                             for t_indx in range( len(target_en)):
                                 target_en_s.append( target_en[t_indx] - t_en_min )
                                 
-
+ 
+                            # Set wieghts
+                            wt_angle, wt_coef = set_weights(qm_angle,qm_en_s)
+                        
                             
                             if( options.verbose ):
                                 print " Read in ",len(qm_en_s)," energies ",min(qm_en_s),max(qm_en_s)
+                            # Set dihdral types
+                            #tor_type = "four"
+                            #n_param = 4 
+                            #tor_type = "RB"
+                            #n_param = 5
+                            
+                            # Fit cos "harmonic" function 
+                            tor_type = "harmonic" 
+                            n_param = 3
+                            
+                            
                             
                             # Read in dihedral information 
-                            ang_types , FF_DIHTYPES, DIH_PARAM, ANG_IND =  read_dihtypes(struct_dir,job_name,options)
+                            ang_types , FF_DIHTYPES, DIH_PARAM, ANG_IND =  read_dihtypes(struct_dir,job_name,options,tor_type,n_param)
                             if( options.verbose ):
                                 print "  with ",max(ANG_IND)," angle types "
                                 for a_indx in range( len(ang_types) ):
                                     ang_i = ANG_IND[a_indx]
                                     print ang_types[a_indx]," type ",ang_i,DIH_PARAM[ang_i],FF_DIHTYPES[ang_i]
-                                
-                            
-                            # Set wieghts
-                            wt_angle, wt_coef = set_weights(qm_angle,qm_en_s)
-                        
+                               
                             #
                             #for i in range(len(target_en_s)):
                             #    print target_en_s[i],wt_angle[i]
                             #sys.exit( "debug")
                         
                             p =  DIH_PARAM
-                            resid = residuals(p,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef)
+                            resid = residuals_v2(p,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
                             error = 0.0
                             
                             for er in resid:
@@ -637,22 +859,28 @@ def main():
                             #sys.exit( "DIH_PARAM") 
                         
                             p_guess =  DIH_PARAM
-                            DIH_PARAM,successp = optimize.leastsq(residuals,p_guess,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef),epsfcn=0.0001)
+                            DIH_PARAM,successp = optimize.leastsq(residuals_v2,p_guess,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
                         
                             #p=Param(*p)
                             print " fitted ",DIH_PARAM
                         
                             NUMB_DIHTYPES = max( ANG_IND )
-                            n_param = 4
                             for param_ind in range( NUMB_DIHTYPES + 1  ):
                                 F_coef = []
+                                
+                                #print 
+                                Atom_types = " %s %s %s %s  3  " % (FF_DIHTYPES[param_ind][0],FF_DIHTYPES[param_ind][1],FF_DIHTYPES[param_ind][2],FF_DIHTYPES[param_ind][3])
+                                
                                 for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
                                     F_coef.append(  DIH_PARAM[p_indx] )
+                                    Atom_types = Atom_types + "  " + str( DIH_PARAM[p_indx] ) #*EVTOKCAL )
+                                    
                                 
-                                print FF_DIHTYPES[param_ind],F_coef
+                                #print " %s %s %s %s  " % (FF_DIHTYPES[param_ind],F_coef)
+                                print Atom_types
                             
                         
-                            resid = residuals(DIH_PARAM,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef)
+                            resid = residuals_v2(DIH_PARAM,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
                             error = 0.0 
                             for er in resid:
                                 error += er*er
@@ -661,18 +889,20 @@ def main():
                             os.chdir(struct_dir)
                             
                             # Fitted torsional energies
-                            fitted_ptor , fit_toten  = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s )
+                            fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param )
                             
                             # Plot tossional potential
                             if( options.plot_tor ):
                                 plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
                             
                             os.chdir(work_dir)
                                 
                                 
                             
+                        else:
+                            print " compopatable data files ",dih_qm," and ",dih_ff
                             
-                        
                         
     
 if __name__=="__main__":
