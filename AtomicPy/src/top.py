@@ -1476,7 +1476,7 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     
     # Print new itp file with only used atom types and interactions
     if( ff_software == "gromacs"):
-	new_itp = "ff-test.itp"
+	new_itp = "ff-new.itp"
 	#AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
 	AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
     

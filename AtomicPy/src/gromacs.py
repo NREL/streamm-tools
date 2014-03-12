@@ -803,7 +803,7 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     #
     # Check dihedrals
     #
-    debug = 0
+    debug = 1
     DIH_LIST = []*4
     F.write(' [ dihedraltypes ] \n')
     for i in range( len(DIH)):        
@@ -877,8 +877,8 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
                 atom_j =  DIH[i][2] 
                 NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX) - 1
                 NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX) - 1
-                n_mod = float( NNAB_i + NNAB_j)
-                FF_DIHTYPES_mod = []
+                n_mod = float( NNAB_i + NNAB_j )/ 2.0
+                #FF_DIHTYPES_mod = []
                 if(debug):
                     print ''
                     print ' pre mod ',FF_DIHTYPES[ff_i]
@@ -890,11 +890,12 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
                 if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
                 if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
                 for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
-                    if( debug): print ' index ',indx_dihff,ind_max
+                    if( debug): print ' index ',indx_dihff,ind_max, FF_DIHTYPES[ff_i][indx_dihff] 
                     if ( indx_dihff > 4 and mod_val < 0 ):
                         mod_val = 1
                     if ( FF_DIHTYPES[ff_i][indx_dihff] == ';' or indx_dihff > ind_max ):
                         mod_val = 0
+                        
                     if( mod_val == 1 ):
                         if(debug):
                             print indx_dihff
@@ -904,17 +905,18 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
                         FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
                     
                 if(debug):  print ' post mod ',FF_DIHTYPES_mod
-                ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES_mod ) )
+                ff_line = '  %s  ' % ' '.join(map(str, FF_DIHTYPES_mod ) )
             else:
                 for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
                     FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] )
                     
-                ff_line =  '%s ' % ' ' .join(map(str, FF_DIHTYPES_mod ) )
+                ff_line =  '  %s ' % ' ' .join(map(str, FF_DIHTYPES_mod ) )
             
             #ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES[ff_i][0:5] ) )
             #ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
             #ff_line = '\n %s  %s  %s  %s  %s ' % ,AT_i,AT_j,AT_k,AT_l
             F.write(  '\n %s  ;  %s - %s - %s - %s ' % (ff_line,AT_i,AT_j,AT_k,AT_l  ) )
+            
     if( debug):
         sys.exit("norm ")
     #
