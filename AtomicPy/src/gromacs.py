@@ -803,7 +803,7 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
     #
     # Check dihedrals
     #
-    debug = 1
+    debug = 0
     DIH_LIST = []*4
     F.write(' [ dihedraltypes ] \n')
     for i in range( len(DIH)):        
