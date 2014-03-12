@@ -1265,7 +1265,7 @@ def zero_unitq(ELN,ATYPE,CHARGES,tag2,NBINDEX,NBLIST,verbose,zero_term,zero_func
 	    term = atom_i 
 	    # Check to be sure hydrogen
 	    if( ELN[atom_i] != 1 ):
-		print " Non hydrogen used as terminal group "
+		print " Non hydrogen used as terminal group atom ",atom_i + 1 
 		sys.exit(" Code unable to process multi atom (nonhyrdogen) terminal group ")
 	    if( verbose ):
 		print " Terminal atom found ",atom_i+1," ",ATYPE[atom_i]
@@ -1438,7 +1438,7 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     BONDS = nblist_bonds(NA,NBLIST, NBINDEX)
     ANGLES = nblist_angles(NA,NBLIST, NBINDEX)
     #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
-    DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+    DIH = nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
     IMPS = nblist_imp(NA,NBLIST, NBINDEX,ELN)
 			
     #
