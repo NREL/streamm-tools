@@ -1404,7 +1404,7 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     import elements , lammps ,gromacs , atom_types
     
     # New options that need to be passed 
-    limdih =  "False"
+    limdih =  0
     limitdih_n = 1
     
     calc_id = ff_prefix
