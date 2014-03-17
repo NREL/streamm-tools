@@ -48,6 +48,9 @@ def checkredundant(R_1, GT_1, AT_1, AMASS_1, BONDS_1,ANGLES_1,DIHS_1,R_2, GT_2, 
 def check_bonds(R_1,BONDS_1, R_2,BONDS_2):
     import sys, numpy 
     
+    R_ij_1 = []
+    R_ij_2 = []
+
     print ' bonds ',len( BONDS_1)
     for i in range( len( BONDS_1)):
         i_1 = BONDS_1[i][0]
@@ -75,6 +78,9 @@ def check_angles(R_1, ANGLES_1 ,R_2, ANGLES_2 ):
     #  k - i - j
     #
     debug = 0
+    
+    ANGLE_kij_1 = []
+    ANGLE_kij_2 = []
     
     print ' bonds ',len( ANGLES_1)
     for angle_indx in range( len( ANGLES_1)):
@@ -121,6 +127,8 @@ def check_dihedrals(R_1, DIHS_1, R_2, DIHS_2):
     #             \
     #              l
 
+    DIH_kijl_1 = []
+    DIH_kijl_2 = []
 
     debug = 0
     for dih_indx in range( len( DIHS_1)):
@@ -321,25 +329,26 @@ def main():
     #
     
     import sys
-    #global R_1, GT_1, AT_1, AMASS_1, BONDS_1,ANGLES_1,DIHS_1
-    #global R_2, GT_2, AT_2, AMASS_2, BONDS_2,ANGLES_2,DIHS_2
+    import gromacs 
+    
+    options, args = get_options()
+    
     # Read in first geometry
     sys_var = 1 
     REF_FILE = sys.argv[sys_var]
     print "reading in", REF_FILE
     REF_SUF = REF_FILE[-4:]
-    Lines = files.getlines(REF_FILE)
 
     if( REF_SUF == '.gro' ):
         # read in gro
-        GT_1, R_1, VEL_1, LV_1 =   read_gro(options,REF_FILE)
+        GT_1, R_1, VEL_1, LV_1 =   gromacs.read_gro(options,REF_FILE)
 
         # red in top
         sys_var = sys_var + 1
         REF_FILE = sys.argv[sys_var]
         REF_SUF = REF_FILE[-4:]
         if( REF_SUF == '.top' ):
-            AT_1 , RESN_1 , RESID_1 , GTYPE_1 ,CHARN_1 , CHARGES_1 ,AMASS_1,BONDS_1,ANGLES_1,DIH_1, MOLNUMB_1, MOLPNT_1, MOLLIST_1 = read_top(options,REF_FILE)
+            AT_1 , RESN_1 , RESID_1 , GTYPE_1 ,CHARN_1 , CHARGES_1 ,AMASS_1,BONDS_1,ANGLES_1,DIH_1, MOLNUMB_1, MOLPNT_1, MOLLIST_1 = gromacs.read_top(options,REF_FILE)
             
         else :
             print ' second file should be a top file'
@@ -351,36 +360,36 @@ def main():
     REF_FILE = sys.argv[sys_var]
     print "reading in", REF_FILE
     REF_SUF = REF_FILE[-4:]
-    Lines = files.getlines(REF_FILE)
 
     if( REF_SUF == '.gro' ):
         # read in gro
-        GT_2, R_2, VEL_2, LV_2 =   read_gro(options,REF_FILE)
+        GT_2, R_2, VEL_2, LV_2 =   gromacs.read_gro(options,REF_FILE)
 
         # red in top
         sys_var = sys_var + 1
         REF_FILE = sys.argv[sys_var]
         REF_SUF = REF_FILE[-4:]
         if( REF_SUF == '.top' ):
-            AT_2 , RESN_2 , RESID_2 , GTYPE_2 ,CHARN_2 , CHARGES_2 ,AMASS_2,BONDS_2,ANGLES_2,DIH_2, MOLNUMB_2, MOLPNT_2, MOLLIST_2 = read_top(options,REF_FILE)
+            AT_2 , RESN_2 , RESID_2 , GTYPE_2 ,CHARN_2 , CHARGES_2 ,AMASS_2,BONDS_2,ANGLES_2,DIH_2, MOLNUMB_2, MOLPNT_2, MOLLIST_2 = gromacs.read_top(options,REF_FILE)
             
         else :
             print ' ',sys_var,'  file should be a top file'
             sys.exit('input eror')
             
 
+    # Read in system name 
     sys_var = sys_var + 1
     sys_name  = sys.argv[sys_var]
     
     # Check to make sure redundant geometrys
     print " Check structures "
-    checkredundant(R_1, GT_1, AT_1, AMASS_1, BONDS_1,ANGLES_1,DIHS_1,R_2, GT_2, AT_2, AMASS_2, BONDS_2,ANGLES_2,DIHS_2)
+    checkredundant(R_1, GT_1, AT_1, AMASS_1, BONDS_1,ANGLES_1,DIH_1,R_2, GT_2, AT_2, AMASS_2, BONDS_2,ANGLES_2,DIH_2)
     
     print " Checking bonds"
     R_ij_1,R_ij_2 = check_bonds(R_1, BONDS_1, R_2, BONDS_2)
     ANGLE_kij_1,ANGLE_kij_2 = check_angles(R_1, ANGLES_1 ,R_2, ANGLES_2 )
-    DIH_kijl_1 , DIH_kijl_2 = check_dihedrals(R_1, DIHS_1, R_2, DIHS_2)
-    print_check(sys_name,AT_1,GT_1,BONDS_1,R_ij_1,ANGLES_1, ANGLE_kij_1,R_2,ANGLES_2,ANGLE_kij_2,R_ij_2,DIHS_1, DIH_kijl_1, DIHS_2 , DIH_kijl_2)
+    DIH_kijl_1 , DIH_kijl_2 = check_dihedrals(R_1, DIH_1, R_2, DIH_2)
+    print_check(sys_name,AT_1,GT_1,BONDS_1,R_ij_1,ANGLES_1, ANGLE_kij_1,R_2,ANGLES_2,ANGLE_kij_2,R_ij_2,DIH_1, DIH_kijl_1, DIH_2 , DIH_kijl_2)
     
     debug = 0
     if(debug):
