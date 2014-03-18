@@ -61,10 +61,9 @@ def main():
 	load_gaussian = "module load gaussian/.g09_C.01 "
         user = 'tkemper'
 	
-    elif( options.host == "redmesa" ):
-	load_gaussian = "module load gaussian/g09/C.01"
-        user = 'twkempe'
-	
+    elif( options.host == "dale" ):
+	load_gaussian = "module load gaussian" #/g09/C.01"
+        user = 'tkemper'	
 
     elif( options.host == "macbook" ):
 	load_gaussian = ""
@@ -109,7 +108,7 @@ def main():
 		    #short_name = "acc%d_%s_n%d" % (accuracy, tag, number )
 		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
 		    struct_dir = "%s/%s/" % (mol_dir, tag )
-		    calc_id = "%s%s" % ( job_name , "-ZMATOPT" )
+		    calc_id = "%s%s" % ( job_name , "-ESP" )
 		    
 		    # json_atomicdata = 0
 		    if( options.verbose ):
@@ -126,17 +125,18 @@ def main():
 			    
 			    # Read in from zmatrix optimization 
 			    NA, ELN, R, TOTAL_ENERGY, Q_ESP    = gaussian.parse_fchk( fchk_file )
+			    
+			    #  Get atomic symbols and masses 
+			    ASYMB = elements.eln_asymb(ELN)
+			    AMASS = elements.eln_amass(ELN)
+			    
 			    CHARGES = Q_ESP 
-
-		    			    
+		    
 			    #
 			    #   Build covalent nieghbor list for bonded information
 			    #
 			    NBLIST, NBINDEX = top.build_covnablist(ELN,R)
 
-			    #  Get atomic symbols and masses 
-			    ASYMB = elements.eln_asymb(ELN)
-			    AMASS = elements.eln_amass(ELN)
 			    #   Initialize charge group #
 			    CHARN = top.initialize_charn( ELN )
 	
@@ -208,7 +208,7 @@ def main():
 			    #
 			    zero_term = 1
 			    zero_func = 1 
-			    CHARGES = top.zero_unitq(ELN,ATYPE,CHARGES,CTYPE,NBINDEX,NBLIST,options.verbose,zero_term,zero_func) 
+			    CHARGES = top.zero_unitq(ELN,ATYPE,CHARGES,CTYPE,NBINDEX,NBLIST,options.verbose,zero_term,zero_func)
 			    #
 			    # Print new building block with optimized geometry   and charges "qply" file type 
 			    #
