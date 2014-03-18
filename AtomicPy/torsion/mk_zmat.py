@@ -197,27 +197,17 @@ def main():
 			    if( options.verbose ):
 				print " Reading atomic data from ",fchk_file
 			    NA, ELN, R, TOTAL_ENERGY , Q_FCHK = gaussian.parse_fchk(fchk_file)
-			    fchk_atomicdata = 1
-
-			else:
-			    print " no fchk file found for ",job_name
-			    				    
-					
+			    
 			    # Poppulate other atomic values                
 			    ASYMB = elements.eln_asymb(ELN)
-			    CHARGES = []
-			    for atom_i in range(NA):
-				CHARGES.append( -100.0 )
-				
-			#if( json_atomicdata or fchk_atomicdata ):
-			#  Need to update fchk for this to be valid
-			if(  fchk_atomicdata ):
-			
+			    
+			    CHARGES = []				
 			    ATYPE = []
 			    ELECTRONS_i = 0
 			    for atom_i in range( len(ELN) ):
 				ATYPE.append( ASYMB[atom_i] )
 				ELECTRONS_i += ELN[atom_i] 
+				CHARGES.append( -100.0 )
 			    
 		    
 			    # Optimize z-matrix to get bonding information
