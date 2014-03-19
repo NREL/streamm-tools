@@ -523,7 +523,7 @@ def special_types(ATYPE, ASYMB , ELN , atom_types):
     import sys
     import file_io
 
-    debug = 1
+    debug = 0
 
     # Open types file
     if( file_io.file_exists(atom_types )):
@@ -554,7 +554,7 @@ def special_types(ATYPE, ASYMB , ELN , atom_types):
         a_type = ATYPE[a_indx]
         for s_indx in range( len( s_type)):
             if( s_type[s_indx] == a_type.strip() ):
-                ELN[a_indx] = s_numb[s_indx]
+                ELN[a_indx] = int(s_numb[s_indx])
                 ASYMB[a_indx] = s_symb[s_indx]
 		
 		if(debug): print "   editing atom ",a_indx,a_type," to atomic# ",ELN[a_indx] 

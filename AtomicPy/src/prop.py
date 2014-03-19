@@ -205,9 +205,9 @@ def vecdensity(  AMASS,LV ):
     volume_i = volume( LV )
     
     # Sum mass, charges
-    total_mass = total_mass(  AMASS )
+    sys_mass = total_mass(  AMASS )
 
-    density_i = total_mass/volume_i/const_avo*10.0
+    density_i = sys_mass/volume_i/const_avo*10.0
 	
     return density_i
 
@@ -474,6 +474,12 @@ def multiplicity(ELN,Q):
 def getDihedral(a,b,c,d):
     import numpy 
     
+    #  k - i - j -l 
+    # a = r_k
+    # b = r_i
+    # c = r_j
+    # d = r_l 
+    
     debug = 0
     if(debug):
         print " a ",a 
@@ -495,6 +501,11 @@ def getNormedVector(a,b):
     return (delta_ba)/numpy.linalg.norm(delta_ba)
 
 def getAngle(a,b):
+    #  k - i - j 
+    # a = r_ik
+    # b = r_ij
+    # cos( \theta ) = ( a dot b ) / ( |a| |b| )
+    #
     import numpy 
 
     a_norm = a/numpy.linalg.norm(a)
