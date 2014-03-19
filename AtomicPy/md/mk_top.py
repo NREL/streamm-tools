@@ -64,7 +64,7 @@ def main():
     
     import os, sys, numpy , math 
     import datetime
-    import  gromacs, top , pdb , elements, atom_types, lammps , xmol 
+    import  gromacs, top , pdb , elements, atom_types, lammps , xmol , gaussian
     
     debug_read = 0  
 
@@ -135,7 +135,12 @@ def main():
     F = open(ref_file , 'r' )
     Lines = F.readlines()
     F.close()
+
+    # New options that need to be passed 
+    limdih =  0
+    limitdih_n = 1
     
+        
     if( REF_SUF == '.pdb'):        
         NA,ATYPE,GTYPE,RESID,RESN,CHARN,R,ASYMB,EXCLUSIONS,PDB_IND = pdb.atoms(Lines,options)
 
@@ -160,10 +165,45 @@ def main():
         
         BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
         ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-        DIH = top.nblist_dih(NA,NBLIST, NBINDEX)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
         IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
         
         CHARGES = top.initialize_charges( ELN )
+        
+    elif( REF_SUF == 'fchk'):
+
+			    
+	# Read in from fchk optimization 
+	NA, ELN, R, TOTAL_ENERGY, CHARGES   = gaussian.parse_fchk( ref_file )
+	ASYMB = elements.eln_asymb(ELN)
+
+        AMASS = elements.eln_amass(ELN)
+        RESID = top.initialize_resid( ELN )
+
+
+        #   Build covalent nieghbor list for bonded information 
+        NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+    
+        BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+        
+                
+        #
+        # Set GTYPES
+        #
+        ATYPE = []
+        GTYPE = []
+        RESN = []
+        CHARN = []
+        
+        one = 1
+        for i in range( len(ELN) ):
+            CHARN.append(0)
+            ATYPE.append(ASYMB[i])
+            GTYPE.append(ASYMB[i])
+            RESN.append(0)
     #
     # Set charge groups
     #
@@ -183,7 +223,7 @@ def main():
     #
     # Set charge groups
     #
-    CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+    # CHARN = top.set_chargegroups(options,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
     #clean_ids()
     
     # Optional atom type specificatons 
@@ -275,20 +315,27 @@ def main():
     gromacs.print_gro(options.out_gro,GTYPE,RESID,RESN,R,LAT_CONST)
     
     
-    ATYPE_EP, ATYPE_SIG = top.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)    
+    #ATYPE_EP, ATYPE_SIG = top.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    
+    ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
     
     BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
     ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
     DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
     
-    IMPTYPE_F  = top.imp_parameters()
+    IMPTYPE_F  = top.imp_parameters(options.itp_file)
     
     if( options.set_ptma ):        
         IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
 
-    # Print new itp file with only used atom types and interactions 
-    AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    # Print new itp file with only used atom types and interactions
+    new_itp = "ff-new.itp"
     
+    norm_dihparam = 1
+    # AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
+    #
     # set_chargeneutral()
     #
     #top_file = 'out_const.top'
