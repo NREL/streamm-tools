@@ -29,34 +29,9 @@ def main():
 
     options, args = get_options()
 
-    N_a_mag = 6.022141129 
-
-    # Declare gromacs atom id's array
-    GTYPE = []
-    # Declare coordinate array
-    R = []
-    # Declare atom type array
-    ATYPE = []
-    # Declare residue number
-    RESNR = []
-    # Declare residue id
-    RESIDU = []
-    # Declare gromacs id
-    GTYPE = []
-    # Declare charge group number
-    CGNR = []
-    # Declare atomic charge
-    CHARGE = []
-    # Declare atomic mass array
-    AMASS = []
-
     gro_file = sys.argv[1]
     top_infile = sys.argv[2]
-    target_density_gcm = float(sys.argv[3])  #'g/cm^3'
-    mol_mult = float(sys.argv[4])  # number of molecules 
-    target_density_amunm = target_density_gcm*N_a_mag*100.0
-    
-    
+     
     GTYPE, R, VEL, LV = gromacs.read_gro(options,gro_file)
     ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST= gromacs.read_top(options,top_infile)
     ASYMB , ELN  = elements.mass_asymb(AMASS) 
