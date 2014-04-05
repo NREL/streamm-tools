@@ -497,7 +497,7 @@ def getDihedral(a,b,c,d):
     angle_i = getAngle(v1v2,v2v3)
     
     
-    return 
+    return angle_i
 
 def getNormedVector(a,b):
     import numpy 
