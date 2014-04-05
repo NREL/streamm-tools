@@ -519,7 +519,7 @@ def getAngle(a,b):
     
     if( dot_ab >= 1.0 ):
        ang_deg = 0.0
-    elif(  dot_ab <= 0.0 ):
+    elif(  dot_ab <= -1.0 ):
        ang_deg = 180.0
     else:    
         cos_ang = numpy.arccos(dot_ab )
