@@ -492,7 +492,12 @@ def getDihedral(a,b,c,d):
     v3 = getNormedVector(c, d)
     v1v2 = numpy.cross(v1,v2)
     v2v3 = numpy.cross(v2,v3)
-    return getAngle(v1v2,v2v3)
+    
+    
+    angle_i = getAngle(v1v2,v2v3)
+    
+    
+    return 
 
 def getNormedVector(a,b):
     import numpy 
@@ -511,6 +516,187 @@ def getAngle(a,b):
     a_norm = a/numpy.linalg.norm(a)
     b_norm = b/numpy.linalg.norm(b) 
     dot_ab = numpy.dot(a_norm,b_norm)
-    cos_ang = numpy.arccos(dot_ab )
-    ang_deg = numpy.rad2deg( cos_ang )
+    
+    if( dot_ab >= 1.0 ):
+       ang_deg = 0.0
+    elif(  dot_ab <= 0.0 ):
+       ang_deg = 180.0
+    else:    
+        cos_ang = numpy.arccos(dot_ab )
+        ang_deg = numpy.rad2deg( cos_ang )
+    
+    
     return ang_deg
+
+
+
+def d_en_2p(en_1,en_3,h):
+    # en_1  eV
+    # en_2  eV 
+    
+    EVKC=23.0605
+    
+    d_en = (en_3 - en_1)/float(h)/2.0  # eV/deg
+    # change to meV
+    #r_delta_en = int( 1000*d_en )      # meV/deg
+    r_delta_en = 1000*d_en 	    # meV/deg
+    
+    d_en_p = 0
+    if( r_delta_en > 0 ): d_en_p = 1
+    if( r_delta_en < 0 ): d_en_p =  -1
+	
+    return d_en_p
+
+def d2_en_3p(en_1,en_2,en_3,h):
+    # en_1  eV
+    # en_2  eV 
+    # en_3  eV 
+    
+    d2_en = ( en_3 - 2.0*en_2  + en_1 )/ float(h)**2
+    
+    return d2_en
+
+def calc_d2(  numeric_func, h ):
+    import numpy, sys  
+    # Find max and mins based on the second derivative 
+    
+    debug = 0
+    
+    EVKC=23.0605
+    
+    success = 0 
+    
+    min_val =  1e16 
+    qm_max = -1e16
+    ang_min = "nan"
+    ang_max = "nan"
+#    
+#    print " reading ",dih_qm
+#    
+#    f_qm = open(dih_qm ,"r")
+#    f_qm_Lines = f_qm.readlines()
+#    f_qm.close()
+#    
+#    # Put energies in arrays 
+#    tor_en = [] #numpy.zeros()
+#    tor_angle = [] #numpy.zeros()
+#    
+#    for f_qm_line in f_qm_Lines:
+#	f_qm_col = f_qm_line.split()
+#    
+#	if( len(f_qm_col) >= 3 and f_qm_col[0] != "#" ):
+#	    tor_angle.append( float( f_qm_col[1] ) )
+#	    tor_en.append( float( f_qm_col[2] ) )
+#	    
+#	    success = 1
+#	    
+    min_val = min( numeric_func)
+    
+    if( debug): print "  Mim ",min_val
+    
+    # Find inversion points in energy
+    min_indx = []
+    max_indx = []
+    trans_list = []
+    trans_indxs = []
+    k_list = []
+    
+    # Test first point
+    calc_minmaxtrans = 0 
+    calc_maxmintrans = 0
+    print " length ",len(numeric_func)  
+    # loop over subsequent points 
+    for indx_i in range(len(numeric_func) ):
+	
+	
+	indx_m = indx_i - 1  # _m minus 
+	indx_m_m = indx_m - 1 
+	indx_p = indx_i + 1  # _p plus 
+	indx_p_p = indx_p + 1 
+	
+	# apply boundry conditions 
+	if( indx_m < 0 ): indx_m  =  -1*indx_m 
+	if( indx_m_m < 0 ): indx_m_m  = -1*indx_m_m 
+	 	
+	if(debug): print "  m i p ",indx_m_m,indx_m,indx_i,indx_p,indx_p_p
+
+	if( indx_p > len(numeric_func)  -1  ): indx_p  = indx_p - ( indx_p -  len(numeric_func) + 1)*2  # as 0.0 == 180.0 
+	if( indx_p_p > len(numeric_func)  -1  ): indx_p_p  = indx_p_p -  ( indx_p_p -  len(numeric_func) + 1)*2  #  as 0.0 == 180.0 
+	
+	d_en_m =d_en_2p(numeric_func[indx_m] ,numeric_func[indx_i],h) 
+	d_en_m_m =d_en_2p(numeric_func[indx_m_m] ,numeric_func[indx_m],h) 
+	d_en_p =d_en_2p(numeric_func[indx_i] ,numeric_func[indx_p],h)
+	d_en_p_p =d_en_2p(numeric_func[indx_p] ,numeric_func[indx_p_p],h)
+	
+	if(debug):
+	    print "  m i p ",indx_m_m,indx_m,indx_i,indx_p,indx_p_p
+	    print "  m i p ",numeric_func[indx_m_m] - min_val,numeric_func[indx_m] - min_val,numeric_func[indx_i] - min_val,numeric_func[indx_p] - min_val,numeric_func[indx_p_p] - min_val
+	    print "     dm dp ",d_en_m_m,d_en_m,d_en_p,d_en_p_p
+	    #print "     dm dp ",d_en_m,d_en_p
+	
+	
+	if( d_en_m_m < 0 and d_en_m < 0  and d_en_p > 0  and d_en_p_p > 0 ):
+	#if(  d_en_m < 0  and d_en_p > 0  ):
+	    min_indx.append( indx_i )
+	    min_en_i = numeric_func[indx_i]
+	    calc_minmaxtrans = 1
+	    min_transindx = indx_i
+	    
+	    if(debug): print " min found ",numeric_func[indx_i] - min_val
+	    
+	    if( calc_maxmintrans ):
+		trans_ev = max_en_i - min_en_i
+		trans_list.append(  trans_ev )
+		
+		calc_maxmintrans = 0 
+		trans_indxs.append( [max_transindx,indx_i] )
+			
+		if(debug): print "   Found  max min trans ",max_en_i - min_val," -> ",min_en_i - min_val," trans = ",trans_ev
+			
+	    d2_en_i = d2_en_3p(numeric_func[indx_m] ,numeric_func[indx_i],numeric_func[indx_p],h)
+	    k_list.append(  d2_en_i ) 
+	    if(debug): print " min found ",numeric_func[indx_i], d2_en_i
+	    print " min found ",numeric_func[indx_i], d2_en_i
+	    
+	    success = 1
+	    
+	    
+	if( d_en_m_m > 0 and d_en_m > 0  and d_en_p < 0  and d_en_p_p < 0 ):
+	#if( d_en_m > 0  and d_en_p < 0   ):
+	    max_indx.append( indx_i )
+	    max_en_i = numeric_func[indx_i]
+	    calc_maxmintrans = 1
+	    max_transindx = indx_i
+
+	    if(debug): print " max found ",numeric_func[indx_i] - min_val
+	    
+	    if( calc_minmaxtrans ):
+		trans_ev = max_en_i - min_en_i
+		trans_list.append(  trans_ev )
+		calc_minmaxtrans = 0 
+		trans_indxs.append( [indx_i,min_transindx] )
+		
+			
+		if(debug): print "   Found min max trans ",min_en_i - min_val," -> ",max_en_i - min_val," trans = ",trans_ev
+		
+	    success = 1
+			
+
+	    
+    for inv_indx in range( len(min_indx) ):
+	indx = min_indx[inv_indx]
+	if(debug): print "  Min ",inv_indx," found at ",indx," w energy ",numeric_func[indx]
+        
+    for inv_indx in range( len(max_indx) ):
+	indx = max_indx[inv_indx]
+	if(debug): print "  Max ",inv_indx," found at ",indx," w energy ",numeric_func[indx]
+    
+    for inv_indx in range( len(trans_list) ):
+	bar = trans_list[inv_indx]
+	print "  Transion ",inv_indx," =  ",bar*EVKC," kcal/mol"
+        
+	
+    if(debug):    sys.exit(" inversion testing ")
+	    
+    return (success,  numeric_func,min_indx,max_indx,trans_list,trans_indxs,k_list )
+
