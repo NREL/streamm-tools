@@ -244,7 +244,8 @@ def main():
             
             
             
-        f_et.write( "\n %f %d %f %f %16.12f  %16.12f %16.12f  %16.12f  %16.12f  %16.12f  %16.12f  " %  (r_ij , bin_cnt[b_indx],b_sum, b_average, et_sq ,et_sq_ave, rhog_v ,et_sq_intra_ave,rhog_v_intra ,et_sq_inter_ave, rhog_v_inter ))
+        #f_et.write( "\n %f %d %f %f %16.12f  %16.12f %16.12f  %16.12f  %16.12f  %16.12f  %16.12f  " %  (r_ij , bin_cnt[b_indx],b_sum, b_average, et_sq ,et_sq_ave, rhog_v ,et_sq_intra_ave,rhog_v_intra ,et_sq_inter_ave, rhog_v_inter ))
+        f_et.write( "\n %f %d %f %f %16.12f  %16.12f %16.12f  %16.12f  %16.12f  %16.12f  %16.12f %16.12f %16.12f %16.12f " %  (r_ij,bin_cnt[b_indx],b_sum, b_average, et_sq ,et_sq_ave, rhog_v , et_sq_intra_ave,rhog_v_intra ,et_sq_inter_ave, rhog_v_inter,dVg_v,dVg_v_intra,dVg_v_inter ))
         f_et_h.write( "\n %f %d %f %f %16.12f  %16.12f %16.12f  %16.12f  %16.12f  %16.12f  %16.12f %16.12f %16.12f %16.12f " %  (r_in,bin_cnt[b_indx],b_sum, b_average, et_sq ,et_sq_ave, rhog_v , et_sq_intra_ave,rhog_v_intra ,et_sq_inter_ave, rhog_v_inter,dVg_v,dVg_v_intra,dVg_v_inter ))
         f_et_h.write( "\n %f %d %f %f %16.12f  %16.12f %16.12f  %16.12f  %16.12f  %16.12f  %16.12f %16.12f %16.12f %16.12f " %  (r_out,bin_cnt[b_indx],b_sum, b_average, et_sq ,et_sq_ave, rhog_v , et_sq_intra_ave,rhog_v_intra ,et_sq_inter_ave, rhog_v_inter,dVg_v,dVg_v_intra,dVg_v_inter ))
 
