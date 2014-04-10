@@ -93,7 +93,7 @@ def sq_drij(options,r_i,r_j,LV):
     return sq_dr
     
     
-def mag_drij_c(options,r_i,r_j,LV):
+def mag_drij_c(r_i,r_j,LV):
     import numpy 
     # Find magnitude of dr_ij
     
@@ -117,7 +117,7 @@ def mag_drij_c(options,r_i,r_j,LV):
     
     return mag_dr
     
-def sq_drij_c(options,r_i,r_j,LV):
+def sq_drij_c(r_i,r_j,LV):
     import numpy 
     # Find magnitude of dr_ij
     
@@ -294,6 +294,44 @@ def build_nablist(ELN,R):
 
     return (NBLIST, NBINDEX)
 
+
+def shift_cent_mass(AMASS,R,r_shift):
+    import elements, numpy
+    
+    
+    prop_dim = len(R[0])
+       
+    # Intialize center of mass
+    total_mass = 0.0
+    #r_mass.append(r_zero)
+    r_mass = numpy.array( [0.0,0.0,0.0] )
+    
+    for atom_i in range( len(AMASS) ):
+            
+            a_mass = AMASS[atom_i]
+            # sum center of mass
+            total_mass = total_mass + a_mass
+	    
+	    
+            for d in range(prop_dim):
+		
+                r_mass[d] += a_mass*R[atom_i][d]
+                
+    # Normalize 
+    for d in range(prop_dim):
+        r_mass[d] = r_mass[d]/total_mass
+        
+    R_shift = []
+    
+      
+    for atom_i in range( len(AMASS) ):
+        R_shift.append(  R[atom_i]  -   r_shift - r_mass  )
+	
+	
+    return R_shift
+
+
+
 def sys_cent_mass(ASYMB,R,options):
     import elements, numpy 
        
@@ -320,6 +358,60 @@ def sys_cent_mass(ASYMB,R,options):
         
     return r_mass
 
+
+def list_cent_mass(atom_list,R,options):
+    import numpy 
+
+    prop_dim = len(R[0])
+              
+    ELN = elements.asymb_eln(ASYMB)
+    AMASS = elements.eln_amass(ELN)
+ 
+    # Intialize center of mass
+    total_mass = 0.0
+    #r_mass.append(r_zero)
+    r_mass = numpy.array( [0.0,0.0,0.0] )
+    
+    for atom_i in range( len(ASYMB) ):
+            
+            a_mass = AMASS[atom_i]
+            # sum center of mass
+            total_mass = total_mass + a_mass
+
+            for d in range(options.prop_dim):
+                r_mass[d] += a_mass*R[atom_i][d]
+                
+    # Normalize 
+    for d in range(options.prop_dim):
+        r_mass[d] = r_mass[d]/total_mass
+        
+    return r_mass
+
+
+def cent_mass(AMASS,R):
+    import numpy 
+
+    prop_dim = len(R[0])
+         
+    # Intialize center of mass
+    total_mass = 0.0
+    #r_mass.append(r_zero)
+    r_mass = numpy.array( [0.0,0.0,0.0] )
+    
+    for atom_i in range( len(AMASS) ):
+            
+            a_mass = AMASS[atom_i]
+            # sum center of mass
+            total_mass = total_mass + a_mass
+
+            for d in range(prop_dim):
+                r_mass[d] += a_mass*R[atom_i][d]
+                
+    # Normalize 
+    for d in range(prop_dim):
+        r_mass[d] = r_mass[d]/total_mass
+        
+    return r_mass
 
 def shift_r(r_cm,R_local,options):
     # shift system
