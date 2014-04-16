@@ -1118,7 +1118,7 @@ def print_min_nopbcs(g_mdp):
     return 
     
 
-def run_gromacs(g_gro,g_top,g_mdp,s_suf ,load_gromacs,gromacs_sufix,gromacs_dir ):
+def run_gromacs(g_gro,g_top,g_mdp,load_gromacs,gromacs_sufix,gromacs_dir ):
     import sys, os
     import file_io
     from string import replace
