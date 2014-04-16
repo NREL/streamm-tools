@@ -312,9 +312,7 @@ def shift_cent_mass(AMASS,R,r_shift):
             # sum center of mass
             total_mass = total_mass + a_mass
 	    
-	    
             for d in range(prop_dim):
-		
                 r_mass[d] += a_mass*R[atom_i][d]
                 
     # Normalize 
@@ -587,7 +585,14 @@ def getDihedral(a,b,c,d):
     
     
     angle_i = getAngle(v1v2,v2v3)
+    #
+    # Find sign of angle 
+    #
+    v1v3 = numpy.cross(v1,v3)
+    sign_v = numpy.dot(v2,v1v3)
     
+    if( sign_v < 0.0  ):
+	angle_i = -1.0*angle_i
     
     return angle_i
 
