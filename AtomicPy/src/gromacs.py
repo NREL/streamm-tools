@@ -1255,3 +1255,28 @@ def check_input(g_gro,g_top,load_gromacs,gromacs_sufix,gromacs_dir ):
         
 
     return test_calc
+
+def check_g(min_file):
+
+    debug = 0
+   
+    run_gromacs = 1
+    try:
+        with open(min_file) as f:
+            print min_file, ' exist'
+            F = open(min_file,'r')
+            log_lines = F.readlines()
+            F.close()
+            # Check for a complete exicution
+            for line in log_lines:
+                last_line = line
+            col = last_line.split()
+            if( debug ): print last_line
+            if ( len(col) > 1 ):
+                if ( col[0] == 'Finished' and col[1] == 'mdrun' ):
+                    run_gromacs = 0
+                    print '   and finished without error'
+    except IOError:
+       print ' gromacs output file ',min_file, ' does not exist needs to be generated '
+
+    return run_gromacs
