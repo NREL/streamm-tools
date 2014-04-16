@@ -1118,7 +1118,7 @@ def print_min_nopbcs(g_mdp):
     return 
     
 
-def run_gromacs(g_gro,g_top,g_mdp,s_suf ,options):
+def run_gromacs(g_gro,g_top,g_mdp,s_suf ,load_gromacs,gromacs_sufix,gromacs_dir ):
     import sys, os
     import file_io
     from string import replace
@@ -1152,12 +1152,12 @@ def run_gromacs(g_gro,g_top,g_mdp,s_suf ,options):
         os.system(g_clean)
 
         # Compile gromacs thingy
-        g_gromp = options.gromacs_dir+'grompp'+s_suf +' -f '+g_mdp+' -c '+g_gro+' -p '+g_top+' -o '+run_id
+        g_gromp = gromacs_dir+'grompp'+gromacs_sufix +' -f '+g_mdp+' -c '+g_gro+' -p '+g_top+' -o '+run_id
         if(debug): print  g_gromp
         os.system(g_gromp)
         # Check to make sure compiled
         # run gromacs 
-        g_mdrun = options.gromacs_dir+'mdrun'+s_suf +' -s '+g_tpr+' -o '+run_id+' -x '+run_id+' -c '+run_id+' -g '+run_id +' -e '+run_id
+        g_mdrun = gromacs_dir+'mdrun'+gromacs_sufix +' -s '+g_tpr+' -o '+run_id+' -x '+run_id+' -c '+run_id+' -g '+run_id +' -e '+run_id
         if(debug): print  g_mdrun
         os.system(g_mdrun)
         
