@@ -1040,7 +1040,7 @@ def print_sp(g_mdp):
     min_lines =' title               =  fixed dih calc '
     min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
     min_lines = min_lines + '\n'  + 'constraints         =  none '
-    min_lines = min_lines + '\n'  + 'integrator          =  md'
+    min_lines = min_lines + '\n'  + 'integrator          =  steep'
     min_lines = min_lines + '\n'  + 'pbc                 =  xyz'
     min_lines = min_lines + '\n'  + 'periodic_molecules  =  no '
     min_lines = min_lines + '\n'  + 'nsteps              =  0 '
@@ -1067,6 +1067,7 @@ def print_min(g_mdp):
     min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
     min_lines = min_lines + '\n'  + 'constraints         =  none '
     min_lines = min_lines + '\n'  + 'integrator          =  steep'
+    min_lines = min_lines + '\n'  + '; integrator          =  cg gives bad energies '
     min_lines = min_lines + '\n'  + 'pbc                 =  xyz'
     min_lines = min_lines + '\n'  + 'periodic_molecules  =  no '
     min_lines = min_lines + '\n'  + 'nsteps              =  1000000 ; total 0.5ns '
@@ -1187,7 +1188,35 @@ def get_logenergy(run_id):
         col = line.split()
         if ( len(col) > 2 ):
             if( col[0] == 'Potential' and col[1] == 'Energy' and col[2] == '=' ):
-                potential_energy = float( col[3])*Kjtokcal
+                potential_energy = float( col[3])*kJtoeV
+    
+    return potential_energy
+
+def get_g_potenergy(run_id,load_gromacs,gromacs_sufix,gromacs_dir):
+    import sys, os
+
+    global kJtoeV,Kjtokcal
+
+    run_edr = run_id +".edr"
+    
+    run_genergy = 'echo "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 0  " | g_energy' + gromacs_sufix + ' -f ' + run_edr +' | grep  "Potential" | awk \'{print $2}\' > temp.en'
+    
+    print run_genergy
+    os.system(run_genergy)
+    
+    F = open('temp.en','r')
+    Lines = F.readlines()
+    F.close()
+
+    # Read in .gro file 
+    #
+    for line in Lines :
+        col = line.split()
+        potential_energy_KJ = float( col[0] )
+            
+    print " energy KJ ",potential_energy_KJ
+    
+    potential_energy = potential_energy_KJ*kJtoeV
     
     return potential_energy
 
@@ -1287,3 +1316,43 @@ def check_g(min_file):
        print ' gromacs output file ',min_file, ' does not exist needs to be generated '
 
     return run_gromacs
+
+
+def get_dihangle(run_id,angle_indx,load_gromacs,gromacs_sufix,gromacs_dir):
+    import sys, os
+    
+    R = []
+
+    global kJtoeV,Kjtokcal
+
+    g_gro =  run_id+'.gro'
+    g_tpr =  run_id+'.tpr'
+    g_gro_w =  run_id+'-W.gro'
+
+    # make index file
+    F =  open("angle.ndx","w")
+    F.write( "[dih] \n")
+    F.write(" %8d %8d %8d %8d " %(  angle_indx[0]+1,angle_indx[1]+1,angle_indx[2]+1,angle_indx[3]+1 ))
+    F.close()
+
+    gangle = "echo -e \" 0 \\n \" | "+ gromacs_dir +'g_angle'+gromacs_sufix +' -f ' + g_gro + " -n angle.ndx -type dihedral  -ov  get_dihangle"
+    os.system(gangle)
+
+    # Open log file and get energy 
+    f = open("get_dihangle.xvg",'r')
+    Lines = f.readlines()
+    f.close()
+
+    # Read in .gro file 
+    #
+    line_cnt = 0
+    for line in Lines :
+        line_cnt = line_cnt + 1
+        col = line.split()        
+        if(len(col) > 1 ):
+            if(  col[0][:1] != "#" and col[0][:1] != "@" ):
+                angle = float( col[1])
+            
+    return angle
+
+

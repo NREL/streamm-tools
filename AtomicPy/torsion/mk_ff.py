@@ -606,13 +606,20 @@ def main():
 					#
 					os.chdir(ff_dir)
 					#
+					
 					if( options.ff_software == "gromacs"):
-    
-					    gro_file =  "out.gro"
+					    #
+					    # Print input structure from DFT optimization 
+					    #
+					    gro_file =  "full.gro"
 					    gromacs.print_gro(gro_file,GTYPE,RESID,RESN,R,LV)
     
 					    # make ff input
-					    top_file = 'out.top'
+					    
+					    #
+					    # Print full topology 
+					    #
+					    top_file = 'full.top'
 					    
 					    const = []
 					    angle = []
@@ -621,28 +628,49 @@ def main():
 						   ,const,angle
 						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
 						   ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-					    
-					    top_file = 'out_dih.top'
-					    
-					    gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
-						   ,const,angle
-						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-						   ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-					    
+						
+					    #    
+					    #    top_file = 'out_dih.top'
+					    #    
+					    #    gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+					    #	   ,const,angle
+					    #	   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+					    #	   ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+					    #    
+				    
+					    #
+					    # Print full topology with  constrained dihedral 
+					    #
 					    DIH_CONST_ANGLE = float( cent_angle )
-			    
-					    top_file = 'out_const.top'
+					    top_file = 'full_const.top'
+					    
 					    gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
-						   ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
+						   ,DIH_CONST_ATOMS[0], DIH_CONST_ANGLE
 						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
 						   ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-					    
-					    top_file = 'out_fit.top'
+
+					    #
+					    # Print topology without considered dihedral 
+					    #					    
+					    top_file = 'dih0.top'
 					    gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH_fit , IMPS
-						   ,DIH_ATOMS[cent_indx], DIH_CONST_ANGLE
+						   ,const,angle
 						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
 						   ,DTYPE_IND_fit, DIHTYPE_F, IMPTYPE_F,LV)
 					    
+					    #
+					    # Print topology without considered dihedral and constrained dihedral 
+					    #					    
+					    top_file = 'dih0_const.top'
+					    gromacs.print_top( top_file, ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH_fit , IMPS
+						   ,DIH_CONST_ATOMS[0], DIH_CONST_ANGLE
+						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+						   ,DTYPE_IND_fit, DIHTYPE_F, IMPTYPE_F,LV)
+					    
+
+					    #
+					    # Print topology without bonded parameters for LJ and coulombic contributions 
+					    #							    
 					    top_file = 'out_zero.top'
 					    const = []
 					    angle = []
@@ -656,7 +684,6 @@ def main():
 						   ,const,angle
 						   ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
 						   ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-					    
 					    
 					    #AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST  = gromacs.print_itp(options,ASYMB,ATYPE,BONDS,ANGLES,DIH,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES)
 					    new_itp = "ff-new.itp"
@@ -672,25 +699,37 @@ def main():
 					    
 					    DIH_CONST_ANGLE[last_index] = float(cent_angle)
     
-					    # Print lammps input file with dihedral restraint 
+
+					    #
+					    # Print full topology 
+					    #
 					    rest_file = 'full_sp.in'
-					    data_file = "out.data"
+					    data_file = "full.data"
 					    lammps.print_sp(rest_file,data_file,options)
-					    
-					    rest_file = 'd0_sp.in'
-					    data_file = "fit.data"
-					    lammps.print_sp(rest_file,data_file,options)
-					    
-					    rest_file = 'rest.in'
-					    data_file = "out.data"
+
+					    #
+					    # Print full topology with  constrained dihedral 
+					    #					    
+					    rest_file = 'full_const.in'
+					    data_file = "full.data"
 					    lammps.print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options)
-					    
-					    rest_file = 'fit.in'
-					    data_file = "fit.data"
+
+					    #
+					    # Print topology without considered dihedral 
+					    #					    					    
+					    rest_file = 'dih0_sp.in'
+					    data_file = "dih0.data"
+					    lammps.print_sp(rest_file,data_file,options)
+
+					    #
+					    # Print topology without considered dihedral and constrained dihedral 
+					    #		
+					    rest_file = 'dih0_const.in'
+					    data_file = "dih0.data"
 					    lammps.print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options)
 					    
 					    # Print lammps structure file 
-					    data_file = "out.data"
+					    data_file = "dull.data"
 					    lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
 					       BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
 					       ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
@@ -699,7 +738,7 @@ def main():
 					       BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 					    
 					    # Print lammps structure file without considered dihedrals 
-					    data_file = "fit.data"
+					    data_file = "dih0.data"
 					    lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
 					       BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
 					       ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,

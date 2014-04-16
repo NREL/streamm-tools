@@ -51,13 +51,6 @@ def get_options():
 
     (options, args) = parser.parse_args()
 
-    # Set options based on cluster 
-    if( options.host == "peregrine" ):
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/.g09_C.01"
-    elif( options.host == "redmesa" ):
-        if( options.qm_software == "gaussian" ):
-            options.qm_load = "module load gaussian/g09/C.01"
 
     return options, args
 
@@ -69,11 +62,23 @@ def main():
     import file_io, elements, gaussian, gromacs , lammps , xmol 
 
     options, args = get_options()
-    
+
+	    
     # Store working dir  
     work_dir = os.getcwd()
-
-	    		
+    
+    
+    # Set options based on cluster 
+    if( options.host == "peregrine" ):
+        if( options.qm_software == "gaussian" ):
+            options.qm_load = "module load gaussian/.g09_C.01"
+    elif( options.host == "dale" ):
+        if( options.qm_software == "gaussian" ):
+            options.qm_load = "module load gaussian "
+	
+	load_gromacs = 'module load gromacs/4.6.1'
+	options.gromacs_sufix = "_mpi"
+	
     json_files = options.json.split(',')
     print json_files
     if( len(json_files) > 0 ):
@@ -105,6 +110,8 @@ def main():
 		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
 		    struct_dir = "%s/%s/" % (mol_dir, tag )
 		    
+		    rec_qm = job_name + ".rec"	
+			
 		    for dih_indx in range( len(dih_id_list) ):
 			dih_id = dih_id_list[dih_indx]
 			cent_min = cent_min_list[dih_indx]
@@ -116,14 +123,13 @@ def main():
 			a_l = a_l_list[dih_indx]
 			ff_type_id = ff_type_list[dih_indx]
 			
-			print "   Getting energies for ",struct_dir,job_name,dih_id 
-		
-		
+			print "   Getting energies for ",struct_dir,job_name,dih_id
 			
 			# Open output file 
 			dih_ff = struct_dir +'/' +job_name + '-' + dih_id + "_ff" + options.ff_software + ff_type_id +".dat"
 			if( options.verbose ):
 			    print "  Writing data file ",dih_ff
+			    
 			ff_out = open(dih_ff,'w')
 			ff_out.write( '# cent_indx,cent_angle,ff_sp_full (eV) ,ff_sp_d0 (eV) ,ff_energy_f (eV) ,ff_energy_c (eV) ,n_angles,dih_angles ')
 			
@@ -164,7 +170,8 @@ def main():
 			    print "     looping over ",cent_min,cent_max,cent_step
 			    for cent_angle in range(cent_min,cent_max,cent_step):
 				print cent_angle
-				
+			
+			    calc_success = 0
 			    for cent_angle in range(cent_min,cent_max,cent_step):
 				ff_id =   job_name  + '-' + dih_id + '_' + str(cent_angle) + '_ff' + options.ff_software + ff_type_id
 				ff_dir = struct_dir + ff_id
@@ -174,48 +181,77 @@ def main():
 				    os.chdir(ff_dir)
 				    if( options.ff_software == "gromacs"):
 			
-					g_top = 'out_const.top'
-					g_gro = 'out.gro'
-					input_correct = gromacs.check_input( g_gro,g_top,options )
+					g_top = 'full.top'
+					g_gro = 'full.gro'
+					# input_correct = gromacs.check_input( g_gro,g_top,options )
+					input_correct = gromacs.check_input( g_gro,g_top,load_gromacs,options.gromacs_sufix,options.gromacs_dir  )
 					
 					if( input_correct ):
-					    g_file = "min_f.log"
-					    run_min_f = gromacs.check_g(g_file)
-					    g_file = "min_c.log"
-					    run_min_c = gromacs.check_g(g_file)                
+					    g_file = "full_sp.log"
+					    run_fsp = gromacs.check_g(g_file)
+					    g_file = "dih0_sp.log"
+					    run_d0sp = gromacs.check_g(g_file)                
 					    
-					    if( run_min_f == 0 and run_min_c == 1 ):
+					    if( run_fsp == 0 and run_d0sp == 0 ):
 						#
-						ff_energy_f = gromacs.get_logenergy('min_f')
-						ff_energy_c = gromacs.get_logenergy('min_c')
+						ff_sp_full = gromacs.get_g_potenergy('full_sp',load_gromacs,options.gromacs_sufix,options.gromacs_dir )
+						
+						
+						# ff_sp_d0 = gromacs.get_logenergy('dih0_sp')
+						ff_sp_d0 = gromacs.get_g_potenergy('dih0_sp',load_gromacs,options.gromacs_sufix,options.gromacs_dir )
+						
 						#
-						##ff_r = gromacs.gro_coord('sp_2')
-						ff_r = gromacs.get_coord('min_f',options)
-						dih_angles = [] 
+						# ff_r = gromacs.gro_coord('sp_2')
+						#
+						
+						#
+						# copy full.gro to full_sp.gro 
+						#
+						cp_gro = " cp full.gro full_sp.gro "
+						os.system(cp_gro)
+						
+						ff_r = gromacs.get_coord('full_sp',load_gromacs,options.gromacs_sufix,options.gromacs_dir )
+
+						dih_angles = ""
+						n_angles = 0
 						for indx_fs in range( len( DIH_fitset )):
 						    angle_indx = DIH_fitset[indx_fs]
-						    angle = gromacs.get_dihangle('min_f',angle_indx,options)
-						    dih_angles.append( angle )
+						    angle = gromacs.get_dihangle('full_sp',angle_indx,load_gromacs,options.gromacs_sufix,options.gromacs_dir )
+						    dih_angles += " "+str(angle)
+						    n_angles += 1
 						    
+						#
+						# Set relaxed energies to zero as the relaxations are not working properly yet
+						#
+						ff_rlx_full = 0.0 
+						ff_rlx_d0 = 0.0
+						
 						os.chdir(work_dir)
 						#ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f " % ( cent_indx,cent_angle, ff_energy_min_1,ff_energy_min_2,ff_energy_sp ))
-						ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f " % ( cent_indx,cent_angle,dih_angles[0],dih_angles[1],dih_angles[2],dih_angles[3],ff_energy_f,ff_energy_c ))
+						# ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f " % ( cent_indx,cent_angle,dih_angles[0],dih_angles[1],dih_angles[2],dih_angles[3],ff_energy_f,ff_energy_c ))
+						ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %6d %s" % ( cent_indx,cent_angle,ff_sp_full,ff_sp_d0,ff_rlx_full,ff_rlx_d0,n_angles,dih_angles ))
 						xmol.print_xmol(ASYMB,ff_r,xmol_ff)
 			
 					else:
 					    print ' error in ff input files '
 				    
 				    elif( options.ff_software == "lammps" ):
-					rest_file = "rest.log"
-					fit_file = "fit.log"
 					sp_file = "full_sp.log"
-					d0_file = "d0_sp.log"
-					if( file_io.file_exists(rest_file) and file_io.file_exists(fit_file) and file_io.file_exists(sp_file) and file_io.file_exists(d0_file) ):
+					d0_file = "dih0_sp.in.log"
+					if( file_io.file_exists(sp_file) and file_io.file_exists(d0_file) ):  #and file_io.file_exists(sp_file) and file_io.file_exists(d0_file) ):
 					    ff_sp_full = lammps.get_pe(sp_file)
 					    ff_sp_d0 = lammps.get_pe(d0_file)
-					    ff_energy_c = lammps.get_pe(rest_file)
-					    ff_energy_f = lammps.get_pe(fit_file)
-					    ff_r = lammps.last_xmol('fit.xyz',options)
+					    
+					    #ff_energy_c = lammps.get_pe(rest_file)
+					    #ff_energy_f = lammps.get_pe(fit_file)
+					
+					    #
+					    # Set relaxed energies to zero as the relaxations are not working properly yet
+					    #
+					    ff_rlx_full = 0.0 
+					    ff_rlx_d0 = 0.0
+					    
+					    ff_r = lammps.last_xmol('sp.xyz',options)
 					    dih_angles = ""
 					    n_angles = 0
 					    for indx_fs in range( len( DIH_fitset )):
@@ -232,10 +268,39 @@ def main():
 					    #ff_energy.append([cent_indx,cent_angle,dih_angles[0],dih_angles[1],dih_angles[2],dih_angles[3],ff_sp_full,ff_sp_d0,ff_energy_f,ff_energy_c ] )
 					    xmol.print_xmol(ASYMB,ff_r,xmol_ff)
 					    
+					    calc_success = 1
+					    
 				    os.chdir(work_dir)
 				
 			    ff_out.close()
+			    
+			if( calc_success ):
+			    
+			    # make sure rec has not been previously recorded 
+			    wrte_recline = 1
+			    json_path = "%s/%s" % (work_dir, struct_dir)
+			    
+			    if( file_io.file_exists( rec_qm ) ):
+				
+				F = open(rec_qm,'r')
+				Lines = F.readlines()
+				F.close()
+				# Check for a complete exicution
+				for line in Lines:
+				    col = line.split()
+				    if( len(col) >= 5 and col[0] != "#" ):
+					if( col[0].strip() == options.userid and col[1].strip() ==  options.host  and col[2].strip() == json_path  and col[3].strip() ==  struct_dir  and col[4].strip() ==  job_name ):
+					    wrte_recline = 0 
+				    
+		    
+			    if( wrte_recline ):
+				    
+				F = open(rec_qm,'a')
+				F.write( " %s %s %s %s %s \n " % ( options.userid , options.host, json_path, struct_dir, job_name) )
+				F.close()
 
+			    
+			    
 			else:
 			    print os.getcwd()
 			    print " NEED ",zmat_finished," which should have been generated by mk_zmat.py "

@@ -81,7 +81,20 @@ def main():
 	
 	lammps_dir= options.lammp_dir 
 	lammps_src="lmp_serial"
+
+    if( options.host == "dale" ):
+	load_gaussian = "module load gaussian"
+        user = 'tkemper'
 	
+	
+	md_min_template = "dale.gromacs_min.template"
+	lammps_min_template = "dale.lmp_min.template"
+	
+	load_gromacs = 'module load gromacs/4.6.1'
+	
+	lammps_dir= options.lammp_dir 
+	lammps_src="lmp_serial"
+		
     if( options.host == "macbook" ):
         user = 'tkemper'
 	lammps_dir= '/Users/'+user+'/Software/lammps-24Apr13/src/'
@@ -158,17 +171,17 @@ def main():
 				if( options.ff_software == "gromacs"):
 		    
 	
-				    g_top = 'out_const.top'
-				    g_gro = 'out.gro'
-				    input_correct = gromacs.check_input( g_gro,g_top,options )
+				    g_top = 'full.top'
+				    g_gro = 'full.gro'
+				    input_correct = gromacs.check_input( g_gro,g_top,load_gromacs,options.gromacs_sufix,options.gromacs_dir  )
 				    
 				    if( input_correct ):
-					g_file = "min_f.log"
-					run_min_f = gromacs.check_g(g_file)
-					g_file = "min_c.log"
-					run_min_c = gromacs.check_g(g_file)                
+					g_file = "full_sp.log"
+					run_fsp = gromacs.check_g(g_file)
+					g_file = "dih0_sp.log"
+					run_d0sp = gromacs.check_g(g_file)                
 					
-					if( run_min_f or run_min_c ):
+					if( run_fsp or run_d0sp ):
 		    
 					    if( options.submit ):
 						# Print mdp files 
@@ -182,30 +195,34 @@ def main():
 						pbs_name = pbs_id
 						pbs_dih = md_min_templ
 						pbs_dih = replace(pbs_dih,"<calc_id>",md_min_id)
-						pbs_dih = replace(pbs_dih,"<input_file>",input_file)
+						# pbs_dih = replace(pbs_dih,"<input_file>",input_file)
 						pbs_dih = replace(pbs_dih,"<pmem>",str(options.pmem))
-						pbs_dih = replace(pbs_dih,"<npros>",str(options.npros))
+						pbs_dih = replace(pbs_dih,"<nnodes>",str(options.nnodes))
 						f = file(pbs_name, "w")
 						f.write(pbs_dih)
 						f.close()
-						
+							
+						mols_dir_ff = ""
+						#submit_job( mols_dir_ff, pbs_id,options )
+						cluster.submit_job( mols_dir_ff, pbs_id ,options )
+							
 						#submit_job( mols_dir_ff, pbs_id,options )
 						
 					    elif ( options.localrun):
 						
-						g_top = 'out_fit.top'
-						g_gro = 'out.gro'
-						g_mdp = 'min_f.mdp'
+						g_top = 'full.top'
+						g_gro = 'full.gro'
+						g_mdp = 'full_sp.mdp'
 						s_suf = options.gromacs_sufix + '_d'
-						gromacs.print_min(g_mdp)
-						ff_energy_f = gromacs.run_gromacs(g_gro,g_top,g_mdp,s_suf,options )
+						gromacs.print_sp(g_mdp)
+						ff_energy_fsp = gromacs.run_gromacs(g_gro,g_top,g_mdp,load_gromacs,options.gromacs_sufix,options.gromacs_dir )
 		    
-						g_top = 'out_const.top'
-						g_gro = 'min_f.gro'
-						g_mdp = 'min_c.mdp'
+						g_top = 'dih0.top'
+						g_gro = 'full.gro'
+						g_mdp = 'dih0_sp.mdp'
 						s_suf =  options.gromacs_sufix + '_d'
-						gromacs.print_min(g_mdp)
-						ff_energy_c = gromacs.run_gromacs(g_gro,g_top,g_mdp,s_suf,options )
+						gromacs.print_sp(g_mdp)
+						ff_energy_d0sp = gromacs.run_gromacs(g_gro,g_top,g_mdp,load_gromacs,options.gromacs_sufix,options.gromacs_dir )
 				    else:
 					print ' error in ff input files '
 					
