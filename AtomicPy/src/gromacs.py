@@ -1227,13 +1227,10 @@ def get_coord(run_id,options):
     return R
     
     
-def check_input(g_gro,g_top,options ):
+def check_input(g_gro,g_top,load_gromacs,gromacs_sufix,gromacs_dir ):
     import sys, os
     import file_io 
 
-    s_suf = options.gromacs_sufix
-
-    load_gromacs = 'module load gromacs/4.5.4'
     os.system(load_gromacs)
 
     run_id = 'test'
@@ -1246,7 +1243,7 @@ def check_input(g_gro,g_top,options ):
     os.system(g_clean)
 
     # Compile gromacs thingy
-    g_gromp = options.gromacs_dir+'grompp'+s_suf +' -f '+g_mdp+' -c '+g_gro+' -p '+g_top+' -o '+run_id
+    g_gromp = gromacs_dir+'grompp'+gromacs_sufix +' -f '+g_mdp+' -c '+g_gro+' -p '+g_top+' -o '+run_id
     os.system(g_gromp)
 
     print g_gromp
