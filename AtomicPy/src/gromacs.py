@@ -1128,7 +1128,7 @@ def run_gromacs(g_gro,g_top,g_mdp,load_gromacs,gromacs_sufix,gromacs_dir ):
 
     debug = 0
 
-    os.system(options.load_gromacs)
+    os.system(load_gromacs)
 
     run_id = replace(g_mdp,'.mdp','')
     g_tpr =  run_id+'.tpr'
