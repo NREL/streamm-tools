@@ -1191,8 +1191,14 @@ def get_logenergy(run_id):
     
     return potential_energy
 
-def get_coord(run_id,options):
+def get_coord(run_id,load_gromacs,gromacs_sufix,gromacs_dir ):
     import sys, os
+    
+    #
+    # Load gromacs module if needed 
+    #
+    
+    os.system(load_gromacs)
     
     R = []
 
@@ -1203,8 +1209,9 @@ def get_coord(run_id,options):
     g_gro_w =  run_id+'-W.gro'
     
     # make molecules whole
-    if( options.pbcs ): #0] and options.pbcs[1] and options.pbcs[2] ):
-        g_mkwhole = "echo -e \" 0 \\n \" | "+options.gromacs_dir + "trjconv"+options.gromacs_sufix +" -f " + g_gro + " -s " + g_tpr + " -o  " +  g_gro_w + " -pbc whole "
+    pbcs = 1
+    if( pbcs ): #0] and options.pbcs[1] and options.pbcs[2] ):
+        g_mkwhole = "echo -e \" 0 \\n \" | "+gromacs_dir + "trjconv"+gromacs_sufix +" -f " + g_gro + " -s " + g_tpr + " -o  " +  g_gro_w + " -pbc whole "
         print g_mkwhole
         os.system(g_mkwhole)
         
