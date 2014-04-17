@@ -24,6 +24,7 @@ def get_options():
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
+    parser.add_option("--userid", dest="userid",type="string",default="tkemper",help=" name of user  ")
 
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
@@ -237,7 +238,7 @@ def main():
 				    
 				    elif( options.ff_software == "lammps" ):
 					sp_file = "full_sp.log"
-					d0_file = "dih0_sp.in.log"
+					d0_file = "dih0_sp.log"
 					if( file_io.file_exists(sp_file) and file_io.file_exists(d0_file) ):  #and file_io.file_exists(sp_file) and file_io.file_exists(d0_file) ):
 					    ff_sp_full = lammps.get_pe(sp_file)
 					    ff_sp_d0 = lammps.get_pe(d0_file)
@@ -263,8 +264,8 @@ def main():
 	    
 					    os.chdir(work_dir)
 					    #ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f " % ( cent_indx,cent_angle,dih_angles[0],dih_angles[1],dih_angles[2],dih_angles[3],ff_sp_full,ff_sp_d0,ff_energy_f,ff_energy_c ))
-					    print  cent_indx,cent_angle,ff_sp_full,ff_sp_d0,ff_energy_f,ff_energy_c,n_angles,dih_angles 
-					    ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %6d %s" % ( cent_indx,cent_angle,ff_sp_full,ff_sp_d0,ff_energy_f,ff_energy_c,n_angles,dih_angles ))
+					    print   cent_indx,cent_angle,ff_sp_full,ff_sp_d0,ff_rlx_full,ff_rlx_d0,n_angles,dih_angles 
+					    ff_out.write( " \n %8d %8.4f %16.8f %16.8f %16.8f %16.8f %6d %s" % ( cent_indx,cent_angle,ff_sp_full,ff_sp_d0,ff_rlx_full,ff_rlx_d0,n_angles,dih_angles ))
 					    #ff_energy.append([cent_indx,cent_angle,dih_angles[0],dih_angles[1],dih_angles[2],dih_angles[3],ff_sp_full,ff_sp_d0,ff_energy_f,ff_energy_c ] )
 					    xmol.print_xmol(ASYMB,ff_r,xmol_ff)
 					    

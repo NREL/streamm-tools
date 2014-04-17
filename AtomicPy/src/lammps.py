@@ -563,6 +563,7 @@ def print_sp(rest_file,data_file,options):
     input_lines = input_lines + '\n'+ ' read_data ' + data_file
     input_lines = input_lines + '\n'+ ' '
     input_lines = input_lines + '\n'+ ' fix TFIX all langevin 0.0 0.0 100 24601'
+    input_lines = input_lines + '\n'+ ' dump 1 all xyz 1 sp.xyz '    
     input_lines = input_lines + '\n'+ ' thermo_style custom step temp pe etotal press vol'
     input_lines = input_lines + '\n'+ ' run 0'
 
@@ -684,6 +685,13 @@ def get_dihangle(R,angle_indx,options):
     
     
     angle = prop.getDihedral(a,b,c,d)
+    
+    # Adjust for lammps
+    #   <-phi->
+    # I         L
+    #  \      / 
+    #    J - K
+    #         
     
     return angle
 

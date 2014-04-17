@@ -22,6 +22,7 @@ def get_options():
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
+    parser.add_option("--userid", dest="userid",type="string",default="tkemper",help=" name of user  ")
 
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
@@ -729,7 +730,7 @@ def main():
 					    lammps.print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options)
 					    
 					    # Print lammps structure file 
-					    data_file = "dull.data"
+					    data_file = "full.data"
 					    lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
 					       BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
 					       ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
