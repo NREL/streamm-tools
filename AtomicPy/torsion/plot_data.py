@@ -13,6 +13,8 @@ def get_options():
     parser.add_option("--qm_sufix", dest="qm_sufix",type="string",default="_qm2",help=" sufix of qm data file  ")
     parser.add_option("--tor_id", dest="tor_id",type="string",default="dih",help=" plot id for postscript output  ")
     
+    parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" FF software ")
+    
     (options, args) = parser.parse_args()
     
     return options, args
@@ -49,6 +51,41 @@ def qm_analysis(  dih_qm ):
 	    success = 1 
 	    
     return (success, qm_min,ang_min,qm_max,ang_max )
+
+
+def ff_analysis(  dih_file ):
+    
+    success = 0 
+    
+    en_min =  1e16 
+    en_max = -1e16
+    ang_min = "nan"
+    ang_max = "nan"
+    
+    #ang_min 
+    
+    f_en = open(dih_file ,"r")
+    f_en_Lines = f_en.readlines()
+    f_en.close()
+    
+    
+    for f_en_line in f_en_Lines:
+	f_en_col = f_en_line.split()
+    
+	if( len(f_en_col) >= 3 and f_en_col[0] != "#" ):
+	    en_angle = float( f_en_col[1] )
+	    en_en = float( f_en_col[2] )
+	    if( en_en < en_min ):
+		en_min = en_en
+		ang_min = en_angle
+	    if( en_en > en_max ):
+		en_max = en_en
+		ang_max = en_angle
+		
+	    success = 1 
+	    
+    return (success, en_min,ang_min,en_max,ang_max )
+
 
 def find_barriers():
     
@@ -186,32 +223,33 @@ def main():
     
 			if( fftor_found ):
 	    
-			    for dih_indx in range( len(dih_id_list) ):
-				dih_id = dih_id_list[dih_indx]
-				cent_min = cent_min_list[dih_indx]
-				cent_max = cent_max_list[dih_indx]
-				cent_step = cent_step_list[dih_indx]
-					
+			    for dih_indx in range( len(ff_dih_id_list) ):
+				dih_id = ff_dih_id_list[dih_indx]
+				cent_min = ff_cent_min_list[dih_indx]
+				cent_max = ff_cent_max_list[dih_indx]
+				cent_step = ff_cent_step_list[dih_indx]
+				ff_type_id = ff_type_list[dih_indx]
+
 				dih_ff = struct_dir +'/' +job_name + '-' + dih_id + "_ff" + options.ff_software + ff_type_id +".dat"
 				
-				ff_min, ang_min, ff_max, ang_max = ff_analysis(  dih_ff )
+				success, ff_min, ang_min, ff_max, ang_max = ff_analysis(  dih_ff )
 		    
-		    
+
+				if( success ):
+				    
+				    print " ff min ",ff_min
+				    calc_i += 1 
+				    
+				    style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw '+str(lwidth) + ' lc ' +  str(calc_i) + "\n"
+				    plot_l =  " \'"+dih_ff+"\' " + ' us 2:($3- ' + str(ff_min) + ')*EVKC w l ls '+str(calc_i+1)+'  title '+ "\' " + mol_dir+" n="+str(n_units)+" dihedral "+dih_id+"FF \' smooth unique  , \\" + "\n"
+			    
+				    style_lines.append(  style_l )
+				    plot_lines.append(  plot_l )
 				
 				
-				print " ff min ",ff_min
-				calc_i += 1 
-				
-						
-				
-				style_l =  'set style line ' + str(calc_i+1) + ' lt  ' +  str(calc_i) + ' lw '+str(lwidth) + ' lc ' +  str(calc_i) + "\n"
-				plot_l =  " \'"+dih_ff+"\' " + ' us 2:($6- ' + str(ff_min) + ')*KCEV w l ls '+str(calc_i+1)+'  title '+ "\' " + m_id+" n="+str(repeat_n)+" dihedral "+dih_id+" \' smooth unique  , \\" + "\n"
-			
-				style_lines.append(  style_l )
-				plot_lines.append(  plot_l )
-				
-				
-		
+	# Use name of index file as plot names
+	plt_id =  replace(indx_file,'rec','')
+	
         if( options.verbose ):
             print "  Plotting data from " ,indx_file
 
@@ -230,10 +268,10 @@ def main():
 	
         plt_file = replace(plt_file,'<style_lines>',style_i)
         plt_file = replace(plt_file,'<plot_lines>',plot_i)
-        plt_file = replace(plt_file,'<structure_name>',options.tor_id)
+        plt_file = replace(plt_file,'<structure_name>',plt_id)
 	    
 	    
-	plt_dir_file =  replace(indx_file,'rec','plt')
+	plt_dir_file =  plt_id + 'plt'
 	
         f = open( plt_dir_file , 'w')
         f.write(plt_file)

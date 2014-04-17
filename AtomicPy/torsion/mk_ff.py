@@ -40,6 +40,7 @@ def get_options():
     # QM calculation options 
     parser.set_defaults(qm_software="gaussian")
     parser.add_option("--qm_software", dest="qm_software",type="string",help=" what software to use for the qm calculations   ")
+    parser.add_option("--esp_id", dest="esp_id",type="string", default="HFESP",help=" Sufix for ESP calculation  ")
     
     # Force field generation options     
     parser.set_defaults(ff_software="gromacs")
@@ -214,7 +215,12 @@ def main():
     import file_io, gaussian, elements, gromacs, lammps , top, atom_types, xmol 
     
     options, args = get_options()
+
+    # New options that need to be passed 
+    limdih =  0       # Limit the # of dihedrals  0-False 1-True
+    limitdih_n = 1    # Maximum number of dihedrals per bond i-j 
     
+        
     #
     if( options.host == "peregrine" ):
 	load_gaussian = "module load gaussian/.g09_C.01 "
@@ -287,9 +293,7 @@ def main():
 		    job_name = "acc%d_%s_n%d" % (accuracy, tag, n_units )
 		    struct_dir = "%s/%s/" % (mol_dir, tag )
 		    
-		    calc_id = "%s/%s%s" % (struct_dir, job_name , "-ZMATOPT" )
-		    
-		    
+		    calc_id = "%s/%s-%s" % (struct_dir, job_name , options.esp_id )
 				    
 		    #append_qm_tor_json
 		    ff_tor_data = {}
@@ -308,7 +312,7 @@ def main():
 		    #
 		    # 
 		    #
-		    zmat_fchk = "%s/%s%s" % ( calc_id ,job_name,"-ZMATOPT.fchk" )
+		    zmat_fchk = "%s/%s-%s%s" % ( calc_id ,job_name, options.esp_id,".fchk" )
 		    print " Checking for complete zmatrix optimiztion ",zmat_fchk
                     zmat_finished = file_io.file_exists( zmat_fchk )
 		    
@@ -320,16 +324,21 @@ def main():
 			# Read in from zmatrix optimization 
 			NA, ELN, R, TOTAL_ENERGY, CHARGES   = gaussian.parse_fchk( zmat_fchk )
 			ASYMB = elements.eln_asymb(ELN)
-						
-			logz_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.log" )
-			comz_name = "%s/%s%s" % ( calc_id ,job_name, "-ZMATOPT.com" )
 			
+					
+			#   Build covalent nieghbor list for bonded information 
+			NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+		    
+			BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
+			ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+			DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+			IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+			
+						
+			comz_name = "%s/%s-%s%s" % ( calc_id ,job_name, options.esp_id,".com" )			
 			# Get bonds from log file
 			if( options.verbose ):
-			    print "  Getting bonds from optimization log file ",logz_name
-			BONDS, ANGLES, DIH  = gaussian.read_optlog(logz_name)
-			NBLIST,NBINDEX = build_nablist(ELN,BONDS)
-	
+			    print "  Getting zmatirix from  ",comz_name
 			# pars zmatirix file
 			f = open(comz_name,'r')
 			zmatrix_lines = f.readlines()
