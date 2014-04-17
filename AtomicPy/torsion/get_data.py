@@ -42,6 +42,10 @@ def main():
         cluster_id = 'peregrine-login1.nrel.gov:'
         user_id = 'tkemper'
         
+    elif( options.host == "dale" ):
+        cluster_id = 'dale.hpc.nrel.gov:'
+        user_id = 'tkemper'
+        
     else:
         print " unknow host id "
         sys.exit(" option error ")
