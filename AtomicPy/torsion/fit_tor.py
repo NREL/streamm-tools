@@ -6,7 +6,7 @@
 # 12/09/2013
 # travis.kemper@nrel.gov
 
-
+EVTOKCAL = 23.0605
 
 def get_options():
     import os, os.path
@@ -16,28 +16,22 @@ def get_options():
     usage = usage + "  specify the destination name of an option followed by the value"
     parser = OptionParser(usage=usage)
     
-
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
-    
     
     # Cluster options
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
 
-
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
     
-    parser.add_option("--tor_paramo", type="float", dest="tor_paramo", default=1.0, help="Value to initialize torsional potential coefficients ")
+    parser.add_option("--tor_paramo", type="float", dest="tor_paramo", default=0.09, help="Value to initialize torsional potential coefficients ")
     parser.add_option("--out_ftor", dest="out_ftor", type="string", default="tor_fit.dat", help="Output fitted torsional potential data ")
     parser.add_option("--plot_tor", dest="plot_tor", type="string", default="tor_fit.pdf", help="Output fitted torsional potential graph ")
     parser.add_option("--plot_tor_comp", dest="plot_tor_comp", type="string", default="tor_comp.pdf", help="Output for components of torsional potential graph ")
 
-
-
     parser.add_option("--qm_tor", dest="qm_tor", type="string", default="",  help=" Data file of quantum target values ")
     parser.add_option("--ff_tor", dest="ff_tor", type="string", default="",  help=" Data file of force field values ")
     
-        
     (options, args) = parser.parse_args()
 
     return options, args
@@ -67,7 +61,8 @@ def plot_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target
     import matplotlib.pyplot as plt
 
     
-    plt.ylabel('Energy (kcal/mol)')
+    # plt.ylabel('Energy (kcal/mol)')
+    plt.ylabel('Energy (eV)')
     plt.xlabel('dihedral angle (deg)')
     
     plt.plot( qm_angle,qm_en_s,'kx', label="mp2" )
@@ -86,13 +81,16 @@ def plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_an
     import matplotlib.pyplot as plt
 
     plt.cla()
-    plt.ylabel('Energy (kcal/mol)')
+    # plt.ylabel('Energy (kcal/mol)')
+    plt.ylabel('Energy (eV)')
     plt.xlabel('dihedral angle (deg)')
     
     plt.plot( qm_angle,target_en_s,"r^", label="mp2 - ($V_{tor}$=0)" )
     plt.plot( qm_angle,fitted_ptor,"b-", label="$V_{tor}$ fit" )
     
     print FF_DIHTYPES
+    
+    lstyle_list = ["b--","r--","g--","y--"]
     
     print " size ",len(fitted_comp[0])
     for param_ind in range(len(fitted_comp[0])):
@@ -103,14 +101,16 @@ def plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_an
         for comp_subindx in range(len(fitted_comp)):
             comp_i.append( fitted_comp[comp_subindx][param_ind] )
         
-        print " compent i ",comp_i
+        #print " compent i ",comp_i
+        line_style =     lstyle_list[param_ind]
+        plt.plot( qm_angle , comp_i,line_style, label="$V( theta)_{"+str(param_ind)+"}$") #+Atom_types)
         
-        plt.plot( qm_angle , comp_i,"b--", label="$V( \theta)_{"+str(param_ind)+"}$") #+Atom_types)
     plt.legend(loc=(0.67,0.72),prop={'size':10})
     
     #plt.show()
     
     plt.savefig(options.plot_tor_comp,format='pdf')
+
 
 
 def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param ):
@@ -161,6 +161,84 @@ def print_tor(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,targe
 
     return (fitted_ptor , fit_toten_s, fitted_comp )
 
+
+
+def print_tor_v2(options,DIH_PARAM,ANG_IND,ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param ):
+    import math
+    
+    debug = 0
+    
+    fitted_ptor = []
+    fit_toten = []
+    fitted_comp = []
+    
+    # Calculate new torsional potential based on previous t(0)
+    #
+    for cent_indx in range(len(target_en_s)):
+        ang_val = ff_angles[cent_indx]
+        ff_en = ff_en_s[cent_indx]      
+        # Sum torsional energies for each component
+        #fit_en,comp_en  =  sum_tor_comp(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        fit_en = 0.0
+        comp_en = []
+        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef =  DIH_PARAM[param_ind]
+            
+            if(   tor_type == "four" ):
+                V_tor =  V_four(F_coef,theta)
+            elif( tor_type == "RB" ):
+                V_tor =  V_RB(F_coef,theta)
+                
+            elif( tor_type == "harmonic" ):
+                V_tor =  V_k(F_coef,theta)
+                
+            elif(   tor_type == "four_F2" ):
+                V_tor =  V_fourF2(F_coef,theta)
+                
+            else:
+                print " unknown torsional function sum_tor_comp ",tor_type
+                sys.exit(" option set incorrectly ")
+            comp_en.append(V_tor)
+            fit_en += V_tor
+            
+        fitted_comp.append(comp_en)
+        fitted_ptor.append( fit_en )
+        fit_toten.append( fit_en + ff_en )
+
+    fit_en_max = max( fit_toten ) 
+    fit_en_min = min( fit_toten )
+    
+    
+    
+    # Write data file 
+    f_fit = open(options.out_ftor,"w")
+    f_fit.write(" angle ; mp2 ; V_tor ; mp2-Vtor ; V_tor fit (eV); ff_en fit (eV); fit en components (eV) ")
+    fit_toten_s = []
+    for cent_indx in range(len(target_en_s)):
+        qm_x = qm_angle[cent_indx]        # angle
+        qm_en = qm_en_s[cent_indx]        # mp2
+        ff_en = ff_en_s[cent_indx]        # $V_{tor}$=0
+        t_en = target_en_s[cent_indx]     # 
+        fit_en = fitted_ptor[cent_indx]   # 
+        fit_ten = fit_toten[cent_indx]    # 
+        fit_ten_s = fit_ten -fit_en_min   #
+        fit_toten_s.append( fit_ten_s )
+        
+        fit_comps = ""
+        for comp_i in fitted_comp[cent_indx] :
+            fit_comps = fit_comps + " " + str(comp_i)
+        
+        f_fit.write( "\n %12.4f %12.4f %12.4f %12.4f %12.4f %12.4f  %s " % (qm_x,qm_en,ff_en,t_en, fit_en,fit_ten_s,fit_comps))        
+    
+    f_fit.close()
+
+    return (fitted_ptor , fit_toten_s, fitted_comp )
+
+
 def V_four(p,theta_rad):
     import math
     # theta_rad dihedral angle in radians
@@ -169,7 +247,6 @@ def V_four(p,theta_rad):
     F2 = p[1]
     F3 = p[2]
     F4 = p[3]
-    
     
     a1 =  theta_rad*1.0
     a2 =  theta_rad*2.0
@@ -184,21 +261,45 @@ def V_four(p,theta_rad):
 
     return Vtor_f1
 
+def V_fourF2(p,theta_rad):
+    import math
+    # theta_rad dihedral angle in radians
+    
+    F2 = p[0]    
+    
+    a2 =  theta_rad*2.0
+
+    Vtor_f1 =  F2*(1 -   math.cos( a2 )) 
+
+    debug = 0
+    if( debug ):
+        print theta_rad,F2,a2,Vtor_f1,F2*(1 -   math.cos( a2 )) ,  math.cos( a2 )
+
+    return Vtor_f1
+
 def V_RB(p,theta_rad):
     import math
+    import sys
     # theta_rad dihedral angle in radians
     # Ryckaert-Bellemans 
     
     
     debug = 0
-    Vtor_f1 = 0.0
-    nmax = 5 
-    for n in range(nmax):
-        Vtor_f1 += p[n]*( math.cos( theta_rad ) )**float(n)
+    Vtor_f1 = -1.0*( sum(p) )
+    if( debug ):
+        print " p ",p
+        print " Vtor_f1 ",Vtor_f1
+        
+    nmax = 4
+    for n in range(1,nmax+1):
+        Vtor_f1 += p[n-1]*( math.cos( theta_rad ) )**float(n)
+        
+        print "p[n]*( math.cos( theta_rad ) )**float(n)",p[n], ( math.cos( theta_rad ) ), float(n)
         
     if( debug ):
         print theta_rad,math.cos( theta_rad )
         print p
+        sys.exit("  debug V_RB ")
 
     return Vtor_f1
 
@@ -210,7 +311,10 @@ def V_k(p,theta_rad):
     
     
     debug = 0
-    Vtor_f1 = p[0]*( 1 +  (math.cos( theta_rad ) )  )
+    mult = 2.0 #float( int( p[1] ))
+    phase = math.pi # float(int(p[2]))*math.pi # phase is usually 0 or pi
+    ko =  p[0] #/ 10000
+    Vtor_f1 = ko*( 1 +  (math.cos( mult*theta_rad - phase ) )  )
     
     if( debug ):
         print theta_rad,math.cos( theta_rad )
@@ -270,7 +374,7 @@ def sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param):
         param_ind = ANG_IND[angle_indx]
         F_coef = []
         
-        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):            
             F_coef.append(  DIH_PARAM[p_indx] )
         
         if( debug ):
@@ -283,8 +387,11 @@ def sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param):
             
         elif( tor_type == "harmonic" ):
             V_tor =  V_k(F_coef,theta)
+            
+        elif(   tor_type == "four_F2" ):
+            V_tor =  V_fourF2(F_coef,theta)
         else:
-            print " unknow torsional function ",tor_type
+            print " unknown torsional function in sum_tor",tor_type
             sys.exit(" option set incorrectly ")
         
         tor_lijk += V_tor
@@ -331,8 +438,12 @@ def sum_tor_comp(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param):
             
         elif( tor_type == "harmonic" ):
             V_tor =  V_k(F_coef,theta)
+            
+        elif(   tor_type == "four_F2" ):
+            V_tor =  V_fourF2(F_coef,theta)
+            
         else:
-            print " unknow torsional function ",tor_type
+            print " unknown torsional function sum_tor_comp ",tor_type
             sys.exit(" option set incorrectly ")
         tor_comp.append(V_tor)
         tor_lijk += V_tor
@@ -470,6 +581,1234 @@ def residuals_v2(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n
 
     return resid
     
+def residuals_v3(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
+    
+    debug = 0
+    wt_coef = 0.1 
+ 
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        #if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+    
+    resid = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+        
+    #    
+    #n_dihtypes = max( ANG_IND ) + 1
+    #for param_ind in range( n_dihtypes ):
+    #    sq_coef = 0.0
+    #    p_cnt = -1
+    #    
+    #    
+    #    
+    #    if( debug ): print "    set index ",param_ind
+    #    
+    #    #
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        p_cnt += 1
+    #
+    #        #if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+    #        
+    #        #F_coef.append(  DIH_PARAM[p_indx] )
+    #        
+    #        # Control magnitude 
+    #        sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+    #        
+    return resid
+    
+def residuals_v4(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    
+    debug = 0
+    wt_coef = 0.1
+    # Target en is not real potential energy surface!!! idiot god!
+    wt_min = 0.00
+    wt_transL = 100.0   # Low energy trans < max_temp
+    wt_transH = 0.01   # High energy trans > max_temp
+     
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+ 
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        #if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+    
+    resid = []
+    en_fit = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+    #
+    #
+    ## Make sure each minimum is actually a minimum 
+    #for indx in range( len(min_indx) ):
+    #    cent_indx =  min_indx[indx]
+    #    
+    #    min_error = 0 
+    #    
+    #    
+    #    if( cent_indx >  0 ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx-1] ):  min_error += wt_min
+    #    if( cent_indx <    len(targets)  ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx+1] ):  min_error += wt_min
+    #            
+    #    resid.append(min_error)
+    #    
+
+        
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        
+        if(  trans_val < max_temp_eV ):
+            trans_error = wt_transL*delta_trans*delta_trans
+        else:
+            trans_error = wt_transH*delta_trans*delta_trans
+            
+        resid.append(trans_error)
+                
+    #    
+    #n_dihtypes = max( ANG_IND ) + 1
+    #for param_ind in range( n_dihtypes ):
+    #    sq_coef = 0.0
+    #    p_cnt = -1
+    #    
+    #    
+    #    
+    #    if( debug ): print "    set index ",param_ind
+    #    
+    #    #
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        p_cnt += 1
+    #
+    #        #if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+    #        
+    #        #F_coef.append(  DIH_PARAM[p_indx] )
+    #        
+    #        # Control magnitude 
+    #        sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+    #        
+    return resid
+
+def residuals_initial(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import math, sys 
+    
+    debug = 0
+    wt_coef = 0.00
+    # if two of the same parameters for different sets of coeffcients get too far appart 
+    wt_deltaC = 0.0  # Off 
+    maxdcoef  = 0.5  # eV
+    maxdcoef_sq = maxdcoef*maxdcoef
+    # wieght for energy controbutions from each dihedral type at each maximum
+    wt_en_comp = 0.00  # Off 
+    # Target en is not real potential energy surface!!! idiot god!
+    wt_min = 0.00
+    wt_transL = 100.0   # Low energy trans < max_temp
+    wt_transH = 0.01   # High energy trans > max_temp
+     
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+ 
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        #if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+    
+    resid = []
+    en_fit = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        # tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        ang_val = ff_angles[cent_indx][0]
+        theta = math.radians( ang_val )
+        
+        F_coef = DIH_PARAM
+        if(   tor_type == "four" ):
+            V_tor =  V_four(F_coef,theta)
+        elif( tor_type == "RB" ):
+            V_tor =  V_RB(F_coef,theta)
+            
+        elif( tor_type == "harmonic" ):
+            V_tor =  V_k(F_coef,theta)
+            
+        elif(   tor_type == "four_F2" ):
+            V_tor =  V_fourF2(F_coef,theta)
+        else:
+            print " unknown torsional function in sum_tor",tor_type
+            sys.exit(" option set incorrectly ")
+        
+        tor_en = V_tor        
+        
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+        
+        
+
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        
+        if(  trans_val < max_temp_eV ):
+            trans_error = wt_transL*delta_trans*delta_trans
+        else:
+            trans_error = wt_transH*delta_trans*delta_trans
+            
+        resid.append(trans_error)
+    
+    return resid
+
+
+def residuals_initialv2(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import math, sys 
+    
+    debug = 0
+    
+    wt_coef = 0.00
+    # if two of the same parameters for different sets of coeffcients get too far appart 
+    wt_deltaC = 0.0  # Off 
+    maxdcoef  = 0.5  # eV
+    maxdcoef_sq = maxdcoef*maxdcoef
+    # wieght for energy controbutions from each dihedral type at each maximum
+    wt_en_comp = 0.00  # Off 
+    # Target en is not real potential energy surface!!! idiot god!
+    wt_min = 0.00
+    wt_transL = 100.0   # Low energy trans < max_temp
+    wt_transH = 0.01   # High energy trans > max_temp
+     
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+ 
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        #if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+    
+    resid = []
+    en_fit = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        # tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        ang_val = ff_angles[cent_indx]
+        theta = math.radians( ang_val )
+        
+        F_coef = DIH_PARAM
+        if(   tor_type == "four" ):
+            V_tor =  V_four(F_coef,theta)
+        elif( tor_type == "RB" ):
+            V_tor =  V_RB(F_coef,theta)
+            
+        elif( tor_type == "harmonic" ):
+            V_tor =  V_k(F_coef,theta)
+            
+        elif(   tor_type == "four_F2" ):
+            V_tor =  V_fourF2(F_coef,theta)
+        else:
+            print " unknown torsional function in sum_tor",tor_type
+            sys.exit(" option set incorrectly ")
+        
+        tor_en = V_tor        
+        
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+        
+        
+
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        
+        if(  trans_val < max_temp_eV ):
+            trans_error = wt_transL*delta_trans*delta_trans
+        else:
+            trans_error = wt_transH*delta_trans*delta_trans
+            
+        resid.append(trans_error)
+    
+    return resid
+
+    
+def residuals_v5(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import math, sys 
+    
+    debug = 0
+    wt_coef = 0.00
+    # if two of the same parameters for different sets of coeffcients get too far appart 
+    wt_deltaC = 0.0   # Off 
+    maxdcoef  = 0.5  # eV
+    maxdcoef_sq = maxdcoef*maxdcoef
+    # wieght for energy controbutions from each dihedral type at each maximum
+    wt_en_comp = 0.00  # Off 
+    # Target en is not real potential energy surface!!! idiot god!
+    wt_min = 0.00
+    wt_transL = 100.0   # Low energy trans < max_temp
+    wt_transH = 0.01   # High energy trans > max_temp
+     
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+    
+ 
+    resid = []
+    # Constrain parameters under max transion energy 
+    max_trans = max( trans_list )
+    max_trans_sq = max_trans*max_trans
+    wt_maxtrans = 0.0
+    
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        #if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0
+        
+        
+        # Constrain parameters under max transion energy
+        coef_sq = DIH_PARAM[param_i]*DIH_PARAM[param_i] 
+        # if( coef_sq > max_trans_sq ): resid.append( wt_maxtrans )
+    
+    if( tor_type == "RB" ):
+        # Set C0 = -( C1 + C2 + C3 + C4 )
+        n_dihtypes = max( ANG_IND ) + 1
+        for param_ind in range( n_dihtypes ):
+            F_coef = []            
+            for p_indx in range( param_ind*n_param + 1,param_ind*n_param + n_param):
+                F_coef.append(  DIH_PARAM[p_indx] )
+            DIH_PARAM[param_ind*n_param ] = -1.0*sum( F_coef )
+            #if( DIH_PARAM[param_ind*n_param ] != -1.0*sum( F_coef ) ): resid.append( wt_maxtrans )
+                
+    
+    en_fit = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        # tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        
+        tor_anglei = []
+        tor_en = 0.0
+        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef = []
+            
+            
+            for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):            
+                F_coef.append(  DIH_PARAM[p_indx] )
+            
+            if( debug ):
+                print " calc pot ",theta,param_ind,param_ind*n_param,n_param,F_coef
+                
+            if(   tor_type == "four" ):
+                V_tor =  V_four(F_coef,theta)
+            elif( tor_type == "RB" ):
+                
+                V_tor =  V_RB(F_coef,theta)
+                
+            elif( tor_type == "harmonic" ):
+                V_tor =  V_k(F_coef,theta)
+                
+            elif(   tor_type == "four_F2" ):
+                V_tor =  V_fourF2(F_coef,theta)
+            else:
+                print " unknown torsional function in sum_tor",tor_type
+                sys.exit(" option set incorrectly ")
+            
+            tor_en += V_tor
+            tor_anglei.append( V_tor )
+        
+        
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+        
+        
+    #
+    #
+    ## Make sure each minimum is actually a minimum 
+    #for indx in range( len(min_indx) ):
+    #    cent_indx =  min_indx[indx]
+    #    
+    #    min_error = 0 
+    #    
+    #    
+    #    if( cent_indx >  0 ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx-1] ):  min_error += wt_min
+    #    if( cent_indx <    len(targets)  ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx+1] ):  min_error += wt_min
+    #            
+    #    resid.append(min_error)
+    #    
+
+    n_angles = len(ang_val)
+    
+    
+    for indx in range( len(max_indx) ):
+        cent_indx =  max_indx[indx]
+        ang_val = ff_angles[cent_indx]
+        
+        t_en = targets[cent_indx]
+        t_en_norm = float(n_angles)
+        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef = []
+            
+            
+            for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):            
+                F_coef.append(  DIH_PARAM[p_indx] )
+            
+            if(   tor_type == "four" ):
+                V_tor =  V_four(F_coef,theta)
+            elif( tor_type == "RB" ):
+                V_tor =  V_RB(F_coef,theta)
+                
+            elif( tor_type == "harmonic" ):
+                V_tor =  V_k(F_coef,theta)
+                
+            elif(   tor_type == "four_F2" ):
+                V_tor =  V_fourF2(F_coef,theta)
+            else:
+                print " unknown torsional function in sum_tor",tor_type
+                sys.exit(" option set incorrectly ")
+            
+            
+            t_en_comp_error = t_en_norm - V_tor
+            
+            en_comp_sq = wt_en_comp*t_en_comp_error*t_en_comp_error
+            
+            
+            resid.append(en_comp_sq)
+
+        
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        
+        if(  trans_val < max_temp_eV ):
+            trans_error = wt_transL*delta_trans*delta_trans
+        else:
+            trans_error = wt_transH*delta_trans*delta_trans
+            
+        resid.append(trans_error)
+                
+        
+    n_dihtypes = max( ANG_IND ) + 1
+    for param_ind in range( n_dihtypes ):
+        F_coef = []
+        sq_coef = 0.0
+        p_cnt = -1
+        
+        
+        
+        if( debug ): print "    set index ",param_ind
+        
+        #
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            p_cnt += 1
+    
+            #if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+            
+            F_coef.append(  DIH_PARAM[p_indx] )
+            
+            # Control magnitude 
+            sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+            
+        if( param_ind > 0 ):
+            #print "    len(F_coef)  ",len(F_coef)
+            #print "    len(F_coef_prev)  ",len(F_coef_prev)
+            for f_indx in range( len(F_coef) ):
+                delta_coef = F_coef_prev[f_indx] - F_coef[f_indx]
+                
+                if( debug ): print "   delta_coef   ",F_coef[f_indx],F_coef_prev[f_indx], delta_coef
+                dcoef_sq = delta_coef*delta_coef
+                
+                # if delta is > 5 kcal/mol .2 eV place error 
+                if( dcoef_sq > maxdcoef_sq ):
+                    sq_coef +=  wt_deltaC
+                
+        # Save parameters to compare to next set 
+        F_coef_prev = []
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            F_coef_prev.append(  DIH_PARAM[p_indx] )
+                
+                
+        resid.append(sq_coef)
+            
+    return resid
+
+
+def calc_rms(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import numpy 
+    
+    print " Calcualting RMSD "
+    
+    debug = 0
+ 
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+    
+    deltasq_en = []
+    en_fit = []
+    t_cnt = 0
+    for cent_indx in range(len(targets)):
+        t_cnt += 1
+        t_en = targets[cent_indx]
+        ang_val = ff_angles[cent_indx]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta =  delta_en*delta_en
+        
+        deltasq_en.append(sq_delta)
+        
+        
+        # print ff_angles[cent_indx][0],tor_en*1000," meV ",sq_delta
+
+    print sum(deltasq_en),len(targets),t_cnt
+    
+    rmsd_en = numpy.sqrt( sum(deltasq_en)/len(targets) )
+    
+    print "  RMSD in energy ",rmsd_en
+    #
+    # Target en is not real potential energy surface!!! idiot god!
+    ## Make sure each minimum is actually a minimum 
+    #for indx in range( len(min_indx) ):
+    #    cent_indx =  min_indx[indx]
+    #    
+    #    min_error = 0 
+    #    
+    #    
+    #    if( cent_indx >  0 ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx-1] ):  min_error = 1 
+    #    if( cent_indx <    len(targets)  ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx+1] ):  min_error = 1 
+    #            
+    #    if( min_error ):
+    #        print " minimum ",indx," is not true minimum !!! "
+    #        print " Tragets meV ",targets[cent_indx-1]*1000 , targets[cent_indx]*1000 ,  targets[cent_indx+1]*1000
+    #        print " FItted  meV ",en_fit[cent_indx-1]*1000 , en_fit[cent_indx]*1000 ,  en_fit[cent_indx+1]*1000
+
+    deltasq_trans = 0.0 
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        deltasq_trans += delta_trans*delta_trans
+        
+        print  " Transition ",indx,"  Traget ",trans_list[indx] *1000," meV ",trans_list[indx]/KTOEV," K fitted ", trans_val*1000," meV ", trans_val/KTOEV," K "
+        
+    rmsd_trans = numpy.sqrt( deltasq_trans/len(trans_list) )
+    print "  RMSD in transition energy ",rmsd_trans
+    
+    #    
+    #n_dihtypes = max( ANG_IND ) + 1
+    #for param_ind in range( n_dihtypes ):
+    #    sq_coef = 0.0
+    #    p_cnt = -1
+    #    
+    #    
+    #    
+    #    if( debug ): print "    set index ",param_ind
+    #    
+    #    #
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        p_cnt += 1
+    #
+    #        #if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+    #        
+    #        #F_coef.append(  DIH_PARAM[p_indx] )
+    #        
+    #        # Control magnitude 
+    #        sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+    #        
+    return rmsd_en,rmsd_trans
+    
+def calc_rms_v2(  param_list, fit_param, DIH_PARAM,  ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import numpy 
+    import math, sys 
+    
+    print " Calcualting RMSD "
+    
+    debug = 0
+    if( debug ):
+        print " calc_rms_v2  is in debug mode  "
+        
+        
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+    
+    deltasq_en = []
+    en_fit = []
+    t_cnt = 0
+    for cent_indx in range(len(targets)):
+        t_cnt += 1
+        t_en = targets[cent_indx]
+        ang_val = ff_angles[cent_indx]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        #tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        tor_en = 0.0
+
+        p_cnt = -1        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef = DIH_PARAM[param_ind]
+
+            if(fit_param[param_ind] == 1 ):
+                p_cnt += 1
+                F_coef = []
+                if( debug ):
+                    print "  For index ",param_ind,"  will use fitted parameters in param_list "
+                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                    #print " append biaryl_param ",p_indx
+                    F_coef.append(  param_list[p_indx] )
+            
+            # V_tor =  V_four(F_coef,theta)
+            tor_en += V_four(F_coef,theta)
+
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta =  delta_en*delta_en
+        
+        deltasq_en.append(sq_delta)        
+        
+        # print ff_angles[cent_indx][0],tor_en*1000," meV ",sq_delta
+
+    print sum(deltasq_en),len(targets),t_cnt
+    
+    rmsd_en = numpy.sqrt( sum(deltasq_en)/len(targets) )
+    
+    print "  RMSD in energy ",rmsd_en
+    #
+    # Target en is not real potential energy surface!!! idiot god!
+    ## Make sure each minimum is actually a minimum 
+    #for indx in range( len(min_indx) ):
+    #    cent_indx =  min_indx[indx]
+    #    
+    #    min_error = 0 
+    #    
+    #    
+    #    if( cent_indx >  0 ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx-1] ):  min_error = 1 
+    #    if( cent_indx <    len(targets)  ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx+1] ):  min_error = 1 
+    #            
+    #    if( min_error ):
+    #        print " minimum ",indx," is not true minimum !!! "
+    #        print " Tragets meV ",targets[cent_indx-1]*1000 , targets[cent_indx]*1000 ,  targets[cent_indx+1]*1000
+    #        print " FItted  meV ",en_fit[cent_indx-1]*1000 , en_fit[cent_indx]*1000 ,  en_fit[cent_indx+1]*1000
+
+    deltasq_trans = 0.0 
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        deltasq_trans += delta_trans*delta_trans
+        
+        print  " Transition ",indx,"  Traget ",trans_list[indx] *1000," meV ",trans_list[indx]/KTOEV," K fitted ", trans_val*1000," meV ", trans_val/KTOEV," K "
+        
+    rmsd_trans = numpy.sqrt( deltasq_trans/len(trans_list) )
+    print "  RMSD in transition energy ",rmsd_trans
+    
+    #    
+    #n_dihtypes = max( ANG_IND ) + 1
+    #for param_ind in range( n_dihtypes ):
+    #    sq_coef = 0.0
+    #    p_cnt = -1
+    #    
+    #    
+    #    
+    #    if( debug ): print "    set index ",param_ind
+    #    
+    #    #
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        p_cnt += 1
+    #
+    #        #if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+    #        
+    #        #F_coef.append(  DIH_PARAM[p_indx] )
+    #        
+    #        # Control magnitude 
+    #        sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+    #        
+    return rmsd_en,rmsd_trans
+    
+    
+def residuals_v6( param_list, fit_param, DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs):
+    import math, sys 
+    
+    debug = 0
+    wt_coef = 0.00
+    # if two of the same parameters for different sets of coeffcients get too far appart 
+    wt_deltaC = 0.0   # Off 
+    maxdcoef  = 0.5  # eV
+    maxdcoef_sq = maxdcoef*maxdcoef
+    # wieght for energy controbutions from each dihedral type at each maximum
+    wt_en_comp = 0.00  # Off 
+    # Target en is not real potential energy surface!!! idiot god!
+    wt_min = 0.00
+    wt_transL = 100.0   # Low energy trans < max_temp
+    wt_transH = 0.01   # High energy trans > max_temp
+     
+    # For transitions under 400 K increase weight
+    #   as they are possible during simulations 
+    KTOEV = 0.0000861738
+    max_temp = 400  # K
+    max_temp_eV  = max_temp*KTOEV
+    
+ 
+    resid = []
+    # Constrain parameters under max transion energy 
+    max_trans = max( trans_list )
+    max_trans_sq = max_trans*max_trans
+    wt_maxtrans = 0.0
+    
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(param_list) ):
+        param_list[param_i]  = round(param_list[param_i] ,4)
+        
+    
+    en_fit = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        # tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        
+        
+        tor_anglei = []
+        tor_en = 0.0
+
+        p_cnt = -1        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef = DIH_PARAM[param_ind]
+
+            if(fit_param[param_ind] == 1 ):
+                p_cnt += 1
+                F_coef = []
+                if( debug ):
+                    print "  For index ",param_ind,"  will use fitted parameters in param_list "
+                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                    #print " append biaryl_param ",p_indx
+                    F_coef.append(  param_list[p_indx] )
+            
+            V_tor =  V_four(F_coef,theta)
+            tor_en += V_tor
+
+
+            tor_anglei.append( V_tor )
+        
+        
+        en_fit.append(tor_en)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+        
+        
+    #
+    #
+    ## Make sure each minimum is actually a minimum 
+    #for indx in range( len(min_indx) ):
+    #    cent_indx =  min_indx[indx]
+    #    
+    #    min_error = 0 
+    #    
+    #    
+    #    if( cent_indx >  0 ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx-1] ):  min_error += wt_min
+    #    if( cent_indx <    len(targets)  ):
+    #        if( en_fit[cent_indx] >  en_fit[cent_indx+1] ):  min_error += wt_min
+    #            
+    #    resid.append(min_error)
+    #    
+
+    n_angles = len(ang_val)
+    
+    for indx in range( len(max_indx) ):
+        cent_indx =  max_indx[indx]
+        ang_val = ff_angles[cent_indx]
+        
+        t_en = targets[cent_indx]
+        t_en_norm = float(n_angles)
+        
+        tor_anglei = []
+        tor_en = 0.0
+
+        p_cnt = -1        
+        for angle_indx in range( len(ang_val)):
+            theta = math.radians( ang_val[angle_indx] )
+            param_ind = ANG_IND[angle_indx]
+            F_coef = DIH_PARAM[param_ind]
+
+            if(fit_param[param_ind] == 1 ):
+                p_cnt += 1
+                F_coef = []
+                if( debug ):
+                    print "  For index ",param_ind,"  will use fitted parameters in param_list "
+                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                    #print " append biaryl_param ",p_indx
+                    F_coef.append(  param_list[p_indx] )
+            
+            V_tor =  V_four(F_coef,theta)
+            
+            tor_en += V_tor 
+            
+            t_en_comp_error = t_en_norm - V_tor
+            
+            en_comp_sq = wt_en_comp*t_en_comp_error*t_en_comp_error
+            
+            resid.append(en_comp_sq)
+
+        
+    for indx in range( len(trans_list) ):
+        
+        max_i =  trans_indxs[indx][0]
+        min_i =  trans_indxs[indx][1]
+        
+        trans_val = en_fit[max_i] - en_fit[min_i]
+        delta_trans = trans_list[indx] - trans_val
+        
+        if(  trans_val < max_temp_eV ):
+            trans_error = wt_transL*delta_trans*delta_trans
+        else:
+            trans_error = wt_transH*delta_trans*delta_trans
+            
+        resid.append(trans_error)
+                
+        
+    return resid
+    
+    
+def residuals_kcos(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
+    import math, sys
+    
+    wt_kpos = 10000.0 
+    
+    debug = 0
+ 
+    resid = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+    
+    debug = 0
+    if( debug ):
+        sys.exit("residuals")
+    
+    debug = 0
+    n_dihtypes = max( ANG_IND )
+    if( debug ): print " n_dihtypes ",n_dihtypes
+
+    for param_ind in range( n_dihtypes ):
+        F_coef = []
+        sq_coef = 0.0
+        p_cnt = -1
+        #
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            p_cnt += 1
+            
+            F_coef.append(  DIH_PARAM[p_indx] )
+            
+            sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+            
+            if(  DIH_PARAM[p_indx] < 0.0  ): sq_coef +=  wt_kpos
+            #
+            #for param_j in range( n_dihtypes ):
+            #    #for p_jndx in range( param_j*n_param,param_j*n_param + n_param):
+            #    p_jndx = param_j*n_param + p_cnt
+            #    delta_c = DIH_PARAM[p_indx] - DIH_PARAM[p_jndx]
+            #    
+            #    if( debug): print " delta coef ",DIH_PARAM[p_indx] , DIH_PARAM[p_jndx] , delta_c
+            #    
+            #    sq_coef += wt_coef*( delta_c*delta_c )
+            #
+        
+        #print "  Harmonic coefficents "
+        #print "                        k_o ",F_coef[0]
+        #print "                        mult ",F_coef[1]
+        #print "                        phase ",F_coef[2] #*math.pi
+
+        # Keep mult and phase integers
+        wt_dint = 1.0 
+        dint =F_coef[1] - int(F_coef[1] )
+        sq_coef += wt_dint*dint*dint
+        dint =F_coef[2] - int(F_coef[2] )
+        sq_coef += wt_dint*dint*dint
+        
+        # Keep k +
+        # wt_kpos =10000.0 
+        # if(F_coef[0] < 0  ): sq_coef +=  wt_kpos
+            
+        if( debug ):
+            print param_ind
+            print wt_coef,F_coef[0],F_coef[1],F_coef[2] #,F_coef[3]
+            print sq_coef
+
+        resid.append(sq_coef)
+        
+    #sys.exit(" coef check ")
+    
+    return resid
+
+def residuals_fourF2(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
+    import math, sys
+    global EVTOKCAL
+    
+    wt_kpos = 10000.0
+    wt_deltaC = 100.0 
+    wt_coef = 1.0
+    
+    debug = 0
+    
+    
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+ 
+    resid = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+    
+    debug = 0
+    if( debug ):
+        sys.exit("residuals")
+    
+    debug = 0
+    n_dihtypes = max( ANG_IND ) + 1
+    if( debug ): print " n_dihtypes ",n_dihtypes
+
+    for param_ind in range( n_dihtypes ):
+        F_coef = []
+        sq_coef = 0.0
+        p_cnt = -1
+        
+        
+        
+        if( debug ): print "    set index ",param_ind
+        
+        #
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            p_cnt += 1
+
+            if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+            
+            F_coef.append(  DIH_PARAM[p_indx] )
+            
+            # Control magnitude 
+            sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+            
+            # Keep positive 
+            if(  DIH_PARAM[p_indx] < 0.0  ): sq_coef +=  wt_kpos
+            #
+        
+        if( param_ind > 0 ):
+            #print "    len(F_coef)  ",len(F_coef)
+            #print "    len(F_coef_prev)  ",len(F_coef_prev)
+            for f_indx in range( len(F_coef) ):
+                delta_coef = F_coef_prev[f_indx] - F_coef[f_indx]
+                
+                if( debug ): print "   delta_coef   ",F_coef[f_indx],F_coef_prev[f_indx], delta_coef
+                sq_coef +=  wt_deltaC*delta_coef*delta_coef
+                
+        # Save parameters to compare to next set 
+        F_coef_prev = []
+        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+            F_coef_prev.append(  DIH_PARAM[p_indx] )
+                
+            
+        if( debug ):
+            print param_ind
+            print wt_coef,F_coef[0] #,F_coef[1],F_coef[2] #,F_coef[3]
+            print sq_coef
+
+        resid.append(sq_coef)
+        
+    #sys.exit(" coef check ")
+    
+    return resid
+
+def residuals_four(DIH_PARAM,ANG_IND,targets,ff_angles,wt_angle,wt_coef,tor_type,n_param):
+    import math, sys
+    global EVTOKCAL
+    
+    wt_kpos = 10000.0
+    wt_deltaC = 0.0 
+    wt_coef = 0.0
+    
+    
+    debug = 0
+    
+    
+    # Round parameters to ~0.01 kca/mol
+    for param_i in range( len(DIH_PARAM) ):
+        p_eV = DIH_PARAM[param_i] #*EVTOKCAL
+        #p_kcalmol_rnd = round(p_kcalmol,4)
+        #DIH_PARAM[param_i] = p_kcalmol_rnd/EVTOKCAL
+        
+        DIH_PARAM[param_i]  = round(DIH_PARAM[param_i] ,4)
+        if( debug ): print "   rounding ",p_eV," to ",DIH_PARAM[param_i]
+        
+        # Zero out parameters < 0.05 kcal/mol
+        if( DIH_PARAM[param_i]  < 0.002 ): DIH_PARAM[param_i]  = 0.0 
+        
+    
+ 
+    resid = []
+    for cent_indx in range(len(targets)):
+        t_en = targets[cent_indx]
+        #ang_val = ff_angles[cent_indx]
+        # hack !!!
+        ang_val = ff_angles[cent_indx] #[0]
+        wt = wt_angle[cent_indx]
+        # Sum torsional energies for each component 
+        tor_en = sum_tor(DIH_PARAM,ang_val,ANG_IND,tor_type,n_param)
+        # Calculate error
+        delta_en =  t_en - tor_en
+        sq_delta = wt*( delta_en*delta_en)
+        
+        #print wt,t_en,tor_en ,sq_delta
+        resid.append(sq_delta)
+    #
+    #debug = 0
+    #if( debug ):
+    #    sys.exit("residuals")
+    #
+    #debug = 0
+    #n_dihtypes = max( ANG_IND ) + 1
+    #if( debug ): print " n_dihtypes ",n_dihtypes
+    #
+    #for param_ind in range( n_dihtypes ):
+    #    F_coef = []
+    #    sq_coef = 0.0
+    #    p_cnt = -1
+    #    
+    #    
+    #    
+    #    if( debug ): print "    set index ",param_ind
+    #    
+    #    #
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        p_cnt += 1
+    #
+    #        if( debug ): print "    Coeff  ",p_indx,  DIH_PARAM[p_indx]
+    #        
+    #        F_coef.append(  DIH_PARAM[p_indx] )
+    #        
+    #        # Control magnitude 
+    #        sq_coef += wt_coef *( DIH_PARAM[p_indx] *DIH_PARAM[p_indx]  )
+    #        
+    #        # Keep positive 
+    #        if(  DIH_PARAM[p_indx] < 0.0  ): sq_coef +=  wt_kpos
+    #        #
+    #    
+    #    if( param_ind > 0 ):
+    #        #print "    len(F_coef)  ",len(F_coef)
+    #        #print "    len(F_coef_prev)  ",len(F_coef_prev)
+    #        for f_indx in range( len(F_coef) ):
+    #            delta_coef = F_coef_prev[f_indx] - F_coef[f_indx]
+    #            
+    #            if( debug ): print "   delta_coef   ",F_coef[f_indx],F_coef_prev[f_indx], delta_coef
+    #            sq_coef +=  wt_deltaC*delta_coef*delta_coef
+    #            
+    #    # Save parameters to compare to next set 
+    #    F_coef_prev = []
+    #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+    #        F_coef_prev.append(  DIH_PARAM[p_indx] )
+    #            
+    #        
+    #    if( debug ):
+    #        print param_ind
+    #        print wt_coef,F_coef[0] #,F_coef[1],F_coef[2] #,F_coef[3]
+    #        print sq_coef
+    #
+    #    resid.append(sq_coef)
+    #    
+    #sys.exit(" coef check ")
+    
+    return resid
+
 def tor_fit(DIH_PARAM,options):
     import sys
     from scipy import optimize
@@ -491,14 +1830,16 @@ def tor_fit(DIH_PARAM,options):
     
     return DIH_PARAM
 
-
-def read_dihtypes(struct_dir,job_name,options,tor_type,n_param):
+def read_dihtypes(struct_dir,job_name,options):
     import sys 
     import file_io
     
     debug = 1
     # Set initial paratemers
 
+    tor_type = "four"
+    n_param = 4
+    
     param_o = []
     for n in range(n_param):
         param_o.append(0.0)
@@ -590,8 +1931,8 @@ def read_dihtypes(struct_dir,job_name,options,tor_type,n_param):
             ff_i = len(FF_DIHTYPES) - 1
             NUMB_DIHTYPES = ff_i
             #DIH_PARAM.append( param_o )
-            for val in param_o:
-                DIH_PARAM.append( val )
+            #for val in param_o:
+            #    DIH_PARAM.append( val )
             ANG_IND.append( ff_i )
             if( debug): print " new type found ",ff_i
         else:
@@ -607,14 +1948,17 @@ def read_dihtypes(struct_dir,job_name,options,tor_type,n_param):
         sys.exit(" debug ")
             
 
-    return ang_types,FF_DIHTYPES, DIH_PARAM, ANG_IND
+    return ang_types,FF_DIHTYPES,  ANG_IND
     
-def set_weights(qm_angle,qm_en_s):
+def set_weights(qm_angle,qm_en_s,min_indx,max_indx):
+    import sys
     import numpy as np
+    
+    debug = 0 
         
     wt_o = 10.0 
-    wt_max = 20.0 
-    wt_min = 50.0 
+    wt_max = 1000.0 
+    wt_min = 1000.0 
     wt_min_pm = 30.0 
     wt_min_pm2 = 20.0 
 
@@ -627,40 +1971,66 @@ def set_weights(qm_angle,qm_en_s):
     for cent_indx in range(n_anlges+1):
         wt_angle.append(wt_o)
     
-    
-    en_minus = qm_en_s[-1] 
-    debug = 0
-    for cent_indx in range(n_anlges):
-        qm_tor_en =  qm_en_s[ cent_indx ]
-        # Change wieghts at inversion points
-        if( cent_indx > 0 ): en_minus = qm_en_s[ cent_indx - 1 ] 
-        if( cent_indx < n_anlges - 1):
-            en_plus = qm_en_s[ cent_indx + 1 ]
-        else:
-            en_plus = qm_en_s[0]
+    #h = qm_angle[1] - qm_angle[0]
+    #success,  tor_en,min_indx,max_indx,trans_list, k_list = prop.calc_d2(  qm_en_s , h)
 
-        d_minus = qm_tor_en -  en_minus
-        d_plus  = en_plus - qm_tor_en
-        dm_sign = 0
-        if( d_minus < 0.0 ): dm_sign = -1 
-        if( d_minus > 0.0 ): dm_sign =  1
-        dp_sign = 0
-        if( d_plus < 0.0 ): dp_sign = -1 
-        if( d_plus > 0.0 ): dp_sign =  1
-            
-        if( dm_sign >  dp_sign ): wt_angle[cent_indx] = wt_max
-        if( dm_sign <  dp_sign ):
-            wt_angle[cent_indx] = wt_min
-            if( cent_indx < len(qm_angle)  ):  wt_angle[cent_indx + 1 ] = wt_min_pm
-            if( cent_indx < len(qm_angle) - 1 ):  wt_angle[cent_indx + 2 ] = wt_min_pm2
-            if( cent_indx > 0 ):  wt_angle[cent_indx - 1 ] = wt_min_pm
-            if( cent_indx > 1 ):  wt_angle[cent_indx - 2 ] = wt_min_pm2
+
+    for indx in range( len(min_indx) ):
+        
+        cent_indx =  min_indx[indx]
+        wt_angle[cent_indx] = wt_min
+        if( cent_indx < len(qm_angle)  ):  wt_angle[cent_indx + 1 ] = wt_min_pm
+        if( cent_indx < len(qm_angle) - 1 ):  wt_angle[cent_indx + 2 ] = wt_min_pm2
+        if( cent_indx > 0 ):  wt_angle[cent_indx - 1 ] = wt_min_pm
+        if( cent_indx > 1 ):  wt_angle[cent_indx - 2 ] = wt_min_pm2
+        
+        if(debug): print "  Setting min at ",qm_angle[cent_indx]," to ",wt_min #," with dE = ",k_list[indx]
+    
+    for indx in range( len(max_indx) ):
+        
+        cent_indx =  max_indx[indx]
+        wt_angle[cent_indx] = wt_max
+        
+    #
+    #en_minus = qm_en_s[-1] 
+    #debug = 0
+    #for cent_indx in range(n_anlges):
+    #    qm_tor_en =  qm_en_s[ cent_indx ]
+    #    # Change wieghts at inversion points
+    #    if( cent_indx > 0 ): en_minus = qm_en_s[ cent_indx - 1 ] 
+    #    if( cent_indx < n_anlges - 1):
+    #        en_plus = qm_en_s[ cent_indx + 1 ]
+    #    else:
+    #        en_plus = qm_en_s[0]
+    #
+    #    d_minus = qm_tor_en -  en_minus
+    #    d_plus  = en_plus - qm_tor_en
+    #    dm_sign = 0
+    #    if( d_minus < 0.0 ): dm_sign = -1 
+    #    if( d_minus > 0.0 ): dm_sign =  1
+    #    dp_sign = 0
+    #    if( d_plus < 0.0 ): dp_sign = -1 
+    #    if( d_plus > 0.0 ): dp_sign =  1
+    #        
+    #    if( dm_sign >  dp_sign ): wt_angle[cent_indx] = wt_max
+    #    if( dm_sign <  dp_sign ):
+    #        wt_angle[cent_indx] = wt_min
+    #        if( cent_indx < len(qm_angle)  ):  wt_angle[cent_indx + 1 ] = wt_min_pm
+    #        if( cent_indx < len(qm_angle) - 1 ):  wt_angle[cent_indx + 2 ] = wt_min_pm2
+    #        if( cent_indx > 0 ):  wt_angle[cent_indx - 1 ] = wt_min_pm
+    #        if( cent_indx > 1 ):  wt_angle[cent_indx - 2 ] = wt_min_pm2
+    #
+    #
+    ## Set large values for ends "barriers"
+    #wt_angle[0] = 1000.0
+    #wt_angle[len(wt_angle)-1] = 1000.0
 
     debug = 0
     if( debug ): 
         for cent_indx in range(len(qm_angle)):
             print  qm_angle[ cent_indx ], qm_en_s[ cent_indx ], wt_angle[cent_indx]
-    
+        sys.exit(" debug weights ")
+        
     wt_coef = 1.0
     
     return ( wt_angle, wt_coef)
@@ -669,9 +2039,9 @@ def set_weights(qm_angle,qm_en_s):
     
 def main():
     import os, sys
-    import jsonapy
+    import jsonapy, prop
     import collections
-    import math    
+    import math, numpy 
     from scipy import optimize
     
     debug = 0 
@@ -783,9 +2153,9 @@ def main():
                         
                             # Read in energies and shift by the minimum 
                             target_en = []
-                            qm_en_s = []
-                            qm_angle = []
-                            ff_en_s =  []
+                            qm_en_s   = []
+                            qm_angle  = []
+                            ff_en_s   = []
                             ff_angles = []
                             for cent_indx in range(len(qm_energy)):
                                 qm_x = float(qm_energy[cent_indx][1])        
@@ -815,89 +2185,1736 @@ def main():
                             # Create list of target values 
                             target_en_s = []
                             for t_indx in range( len(target_en)):
-                                target_en_s.append( target_en[t_indx] - t_en_min )
+                                # this causes functional issues 
+                                #target_en_s.append( target_en[t_indx] - t_en_min )
+                                target_en_s.append( target_en[t_indx] - target_en[0] )
                                 
- 
-                            # Set wieghts
-                            wt_angle, wt_coef = set_weights(qm_angle,qm_en_s)
-                        
+                            # Find second derivates for max/min
+
+                            h = qm_angle[1] - qm_angle[0]
+                            success,  tor_en,min_indx,max_indx,trans_list,trans_indxs, k_list = prop.calc_d2(  qm_en_s , h)
                             
+                        
+                            # Minimum 
+                            for indx in range( len(min_indx) ):
+                                cent_indx =  min_indx[indx]
+                                if( cent_indx > 0 ):
+                                    print " Minimum qm_en_s meV ",qm_en_s[cent_indx-1]*1000 , qm_en_s[cent_indx]*1000 ,  qm_en_s[cent_indx+1]*1000
+                                    print " Minimum target_en_s meV ",target_en_s[cent_indx-1]*1000 , target_en_s[cent_indx]*1000 ,  target_en_s[cent_indx+1]*1000
+
+                            # Set wieghts
+                            wt_angle, wt_coef = set_weights(qm_angle,qm_en_s,min_indx,max_indx)
+                            #
+                            #    
+                            #for indx in range( len(trans_list) ):
+                            #    
+                            #    max_i =  trans_indxs[indx][0]
+                            #    min_i =  trans_indxs[indx][1]
+                            #    
+                            #    trans_val = qm_en_s[max_i] - qm_en_s[min_i]
+                            #    
+                            #    print "  trans ",indx," calcd ",trans_val," stored ",trans_list[indx]
+                            #    
+                            #    
+                            #sys.exit(" rpint transys to check ! ")
+                            #
                             if( options.verbose ):
                                 print " Read in ",len(qm_en_s)," energies ",min(qm_en_s),max(qm_en_s)
-                            # Set dihdral types
-                            #tor_type = "four"
-                            #n_param = 4 
-                            #tor_type = "RB"
-                            #n_param = 5
-                            
-                            # Fit cos "harmonic" function 
-                            tor_type = "harmonic" 
-                            n_param = 3
-                            
-                            
+                                
                             
                             # Read in dihedral information 
-                            ang_types , FF_DIHTYPES, DIH_PARAM, ANG_IND =  read_dihtypes(struct_dir,job_name,options,tor_type,n_param)
+                            ang_types , FF_DIHTYPES, ANG_IND =  read_dihtypes(struct_dir,job_name,options)
+                            n_dihtypes = max( ANG_IND ) + 1
+                            
                             if( options.verbose ):
-                                print "  with ",max(ANG_IND)," angle types "
+                                print "  with ",n_dihtypes," angle types "
                                 for a_indx in range( len(ang_types) ):
                                     ang_i = ANG_IND[a_indx]
-                                    print ang_types[a_indx]," type ",ang_i,DIH_PARAM[ang_i],FF_DIHTYPES[ang_i]
-                               
-                            #
-                            #for i in range(len(target_en_s)):
-                            #    print target_en_s[i],wt_angle[i]
-                            #sys.exit( "debug")
-                        
-                            p =  DIH_PARAM
-                            resid = residuals_v2(p,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
-                            error = 0.0
-                            
-                            for er in resid:
-                                error += er*er
-                            print " Initial error ",error
-                            #sys.exit( "DIH_PARAM") 
-                        
-                            p_guess =  DIH_PARAM
-                            DIH_PARAM,successp = optimize.leastsq(residuals_v2,p_guess,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
-                        
-                            #p=Param(*p)
-                            print " fitted ",DIH_PARAM
-                        
-                            NUMB_DIHTYPES = max( ANG_IND )
-                            for param_ind in range( NUMB_DIHTYPES + 1  ):
-                                F_coef = []
+                                    print ang_types[a_indx]," type ",ang_i,FF_DIHTYPES[ang_i]
+                                                               
+                            fit_four_4 = 1
+                            if( fit_four_4 ):
                                 
-                                #print 
-                                Atom_types = " %s %s %s %s  3  " % (FF_DIHTYPES[param_ind][0],FF_DIHTYPES[param_ind][1],FF_DIHTYPES[param_ind][2],FF_DIHTYPES[param_ind][3])
+                                os.chdir(struct_dir)
                                 
-                                for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
-                                    F_coef.append(  DIH_PARAM[p_indx] )
-                                    Atom_types = Atom_types + "  " + str( DIH_PARAM[p_indx] ) #*EVTOKCAL )
+                                # Initial single fourier series fit 
+                                tor_type = "four"
+                                n_param = 4
+                                
+                                param_o = [0.0,0.0,0.0,0.0]
+                                
+                                use_biaryl = 1
+                                if( use_biaryl ):
+                                    print " Using biaryl parameters "
+                                
+                                    DIH_PARAM = []
+                                    fit_param = []
+                                      
+                                    for param_ind in range( n_dihtypes ):
+                                        #F_coef = []
+                                        #for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        #    biaryl_param.append(  0.0 )
+                                        DIH_PARAM.append( param_o )
+                                        
+                                        fit_param.append(  1 )      # default to be fitted
+                                        
+                                        print "index ",param_ind," has  types ",ang_types[param_ind]
+                                        
+                                        print " check biarly parameters for ",ang_types[param_ind][0] , ang_types[param_ind][1] ,ang_types[param_ind][2] ,ang_types[param_ind][1]
+                                        
+                                        if( ang_types[param_ind][0] == 'CS' and ang_types[param_ind][1] == 'C!' and  ang_types[param_ind][2] == 'C!' and ang_types[param_ind][3] == 'CS'  ):
+                                            
+                                            DIH_PARAM[param_ind] = [0.0,1.49/EVTOKCAL/4.0,0.0,0.0]  # CA - C! - CP - CS 
+                                            
+                                            fit_param[param_ind] = 0
+                                            
+                                        elif( ang_types[param_ind][0] == 'S' and ang_types[param_ind][1] == 'C!' and  ang_types[param_ind][2] == 'C!' and ang_types[param_ind][3] == 'CS'  ):
+                                            
+                                            DIH_PARAM[param_ind] = [0.0,1.33/EVTOKCAL/4.0,0.0,0.0]  # CA - C! - CP - S 
+                                            
+                                            fit_param[param_ind] = 0
+                                            
+                                        
+                                        elif( ang_types[param_ind][0] == 'S' and ang_types[param_ind][1] == 'C!' and  ang_types[param_ind][2] == 'C!' and ang_types[param_ind][3] == 'S'  ):
+                                            
+                                            # Fit S-C!-C!-S 
+                                            DIH_PARAM[param_ind] = [0.0,1.33/EVTOKCAL/4.0,0.0,0.0]  # CA - C! - CP - S 
+                                            fit_param[param_ind] = 1
+                                            
+                                    fit_param_list = []
+                                    
+                                    for param_ind in range( n_dihtypes ):
+                                        if( fit_param[param_ind] == 1 ):
+                                            print " Adding ",param_ind," to fit list x  "
+                                            for param_i in DIH_PARAM[param_ind]:
+                                                fit_param_list.append(param_i)
+        
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_cnt = -1
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = DIH_PARAM[param_ind]
+                                    if(fit_param[param_ind] == 1 ):
+                                        p_cnt += 1
+                                        F_coef = []
+                                        print "For index ",param_ind,"  will use fitted parameters "
+                                        for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                                            print " append fit_param_list ",p_indx
+                                            F_coef.append(  fit_param_list[p_indx] )
+                                    
+                                    print "  Index ",param_ind," has  types ",ang_types[param_ind]
+                                    print "  Initial RB coefficents from average individual fits ",F_coef
+                                    # print "                                                      ",F_set
+                                                                            
+                                
+                                
+                                rmsd_en,rmsd_trans = calc_rms_v2( fit_param_list, fit_param, DIH_PARAM, ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len param_list ",len(fit_param_list)
+                                #
+                                resid = residuals_v6( fit_param_list, fit_param, DIH_PARAM, ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                
+                                #sys.exit( "DIH_PARAM testing 1 ") 
+                                
+                                #                    
+                                #for param_ind in range( n_dihtypes ):
+                                #    F_coef = []
+                                #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                #        F_coef.append(  p_rb[p_indx] )
+                                #    
+                                #    print "  F coefficents ",F_coef
+                                #    
+                                param_list_pre = []
+                                for p_indx in range( len(fit_param_list)):
+                                    param_list_pre.append( fit_param_list[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    fit_param_list, successp = optimize.leastsq( residuals_v6, fit_param_list, args=( fit_param, DIH_PARAM, ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(fit_param_list)):
+                                        d_pf = fit_param_list[p_indx] - param_list_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                    if( d_param <  1.0002 ):
+                                        delta_param = False
+                                    
+                                    p_fourieparam_list_prer_pre = []
+                                    for p_indx in range( len(fit_param_list)):
+                                        param_list_pre.append( fit_param_list[p_indx] )
+                                        
+                                resid = residuals_v6( fit_param_list, fit_param, DIH_PARAM, ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                #
+                                # Update DIH_PARAM to fitted
+                                #
+                                p_cnt = -1
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = DIH_PARAM[param_ind]
+                                    if(fit_param[param_ind] == 1 ):
+                                        p_cnt += 1
+                                        F_coef = []
+                                        print "For index ",param_ind,"  will use fitted parameters "
+                                        for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                                            print " append fit_param_list ",p_indx
+                                            F_coef.append(  fit_param_list[p_indx] )
+                                        DIH_PARAM[param_ind] = F_coef
+                                        
+                                    print "  Index ",param_ind," has  types ",ang_types[param_ind]
+                                    print "  Initial RB coefficents from average individual fits ",F_coef
+                                    # print "                                                      ",F_set
+                                                                            
+                                                                
+
+                                rmsd_en,rmsd_trans = calc_rms_v2( fit_param_list, fit_param, DIH_PARAM, ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                                                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    print "  F coefficents ",DIH_PARAM[param_ind]
+                                                           
+                                # sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor_v2(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
                                     
                                 
-                                #print " %s %s %s %s  " % (FF_DIHTYPES[param_ind],F_coef)
-                                print Atom_types
+                                # Print parameters for itp file
+                                #  the factor of 2.0 will be removed once the parameters are normalized
+                                
+                                print "   Gromacs format x2 for compatability with biaryl dih parameters "
+                                for a_indx in range( len(ang_types) ):
+                                    param_ind = ANG_IND[a_indx]
+                                    dih_id = ""
+                                    for dih_indx in FF_DIHTYPES[param_ind]:
+                                        dih_id += str( dih_indx ) + "  " 
+                                
+                                    if( tor_type == "RB" ):
+                                            
+                                        F_coef = ''
+                                        for p_indx in range( len( DIH_PARAM[param_ind]) ):
+                                            F_coef +=  str(round( DIH_PARAM[param_ind][p_indx]*EVTOkJ*2.0 ,4) ) + "  "
+                                            
+                                        print dih_id,"  3  ",F_coef, "   0.000000  # fit 1 "
+                                    
+                                    elif(   tor_type == "four" ):
+                                            
+                                        F_coef = []
+                                        for p_indx in range( len( DIH_PARAM[param_ind]) ):
+                                            # F_coef +=  str(round( DIH_PARAM[param_ind][p_indx]*EVTOkJ*2.0 ,4) ) + "  "
+                                            F_coef.append( round( DIH_PARAM[param_ind][p_indx]*EVTOkJ*2.0 ,4) )
+                                            
+                                        C0 = F_coef[1]  + 0.5*( F_coef[0] + F_coef[2] )
+                                        C1 =0.5*( -1.0*F_coef[0] + 3.0*F_coef[2] )
+                                        C2 = -1.0*F_coef[1] + 4.0*F_coef[3]
+                                        C3 = -2.0*F_coef[2]
+                                        C4 = -4.0*F_coef[3]
+                                        C5 = 0.0
+                                        print dih_id,"  3  ",C0,C1,C2,C3,C4,C5, "  # fit 1 "
                             
+                                print "  Lammps format  "
+                                for a_indx in range( len(ang_types) ):
+                                    param_ind = ANG_IND[a_indx]
+                                    dih_id = ""
+                                    for dih_indx in FF_DIHTYPES[param_ind]:
+                                        dih_id += str( dih_indx ) + "  "
+                                    
+                                    if( tor_type == "RB" ):
+                                            
+                                        RB_coef = []
+                                        
+                                        for p_indx in range( len( DIH_PARAM[param_ind]) ):
+                                            # F_coef +=  str(round( DIH_PARAM[param_ind][p_indx]*EVTOkJ*2.0 ,4) ) + "  "
+                                            RB_coef.append( round( DIH_PARAM[param_ind][p_indx]*EVTOKCAL ,4) )
+                                            
+                                        F1 = -1.0*( 2.0*RB_coef[1] + 3.0*RB_coef[3]/2.0)
+                                        F2 = -1.0*( RB_coef[2] + RB_coef[4])
+                                        F3 = -0.5*RB_coef[3]
+                                        F4 = -0.25*RB_coef[4]
                         
-                            resid = residuals_v2(DIH_PARAM,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
-                            error = 0.0 
-                            for er in resid:
-                                error += er*er
-                            print " final error ",error
+                                        print "  1  ",F1,F2,F3,F4, "  #  ",dih_id
+                                    
+                                    elif(   tor_type == "four" ):
+                                        
+                                        
+                                        F_coef = ''
+                                        for p_indx in range( len( DIH_PARAM[param_ind]) ):
+                                            F_coef +=  str(round( DIH_PARAM[param_ind][p_indx]*EVTOKCAL ,4) ) + "  "
+                                            
+                                        print "  1  ",F_coef, "  #  ",dih_id
+                                        
+                                sys.exit(" Fourier fitting finished ")
+                                    
+                            #
+                            ## Set dihdral types
+                            ##tor_type = "four"
+                            ##n_param = 4 
+                            ##tor_type = "RB"
+                            ##n_param = 5
+                            #
+                            #fit_cos = 0
+                            #if( fit_cos ):
+                            #    # Fit cos "harmonic" function 
+                            #    tor_type = "harmonic" 
+                            #    n_param = 3
+                            #    
+                            #    param_o = []
+                            #    for n in range(n_param):
+                            #        param_o.append(0.0)
+                            #    #
+                            #    # Set initial parmeters
+                            #    #
+                            #    param_o[0] = options.tor_paramo #*10000
+                            #    param_o[1] =  2.0
+                            #    param_o[2] =  1.0
+                            #    #
+                            #    # set parameter list consisting of each different dihedral's parameters
+                            #    #
+                            #    p_kcos = []
+                            #    #
+                            #    for iparam_indnd in range(n_dihtypes):
+                            #        for val in param_o:
+                            #            p_kcos.append( val )
+                            #            
+                            #    
+                            #    print "  n_dihtypes ",n_dihtypes
+                            #    print "  param_o",len(param_o)
+                            #    print "  len p_kcos ",len(p_kcos)
+                            #    print "  len p_kcos ",len(p_kcos)
+                            #    #
+                            #    resid = residuals_kcos(p_kcos,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                            #    
+                            #    error = 0.0
+                            #    for er in resid:
+                            #        error += er*er
+                            #    print " Initial error ",error
+                            #    #sys.exit( "DIH_PARAM") 
+                            #    
+                            #                        
+                            #    for param_ind in range( n_dihtypes ):
+                            #        F_coef = []
+                            #        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                            #            F_coef.append(  p_kcos[p_indx] )
+                            #        
+                            #        print "  Harmonic coefficents "
+                            #        print "                        k_o ",float(F_coef[0])*EVTOKCAL," kcal/mol "
+                            #        print "                        mult ",F_coef[1]
+                            #        print "                        phase ",F_coef[2],float(F_coef[2])*math.pi
+                            #
+                            #
+                            #    p_kcos,successp = optimize.leastsq(residuals_kcos,p_kcos,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
+                            #
+                            #
+                            #    resid = residuals_kcos(p_kcos,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                            #    error = 0.0 
+                            #    for er in resid:
+                            #        error += er*er
+                            #    print " final error ",error
+                            #    
+                            #    
+                            #                        
+                            #    for param_ind in range( n_dihtypes ):
+                            #        F_coef = []
+                            #        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                            #            F_coef.append(  p_kcos[p_indx] )
+                            #        
+                            #        print "  Harmonic coefficents "
+                            #        print "                        k_o ",float(F_coef[0])/10000*EVTOKCAL," kcal/mol "
+                            #        print "                        mult ",F_coef[1]
+                            #        print "                        phase ",F_coef[2],float(F_coef[2])*math.pi
+                            #
+                            #    os.chdir(struct_dir)
+                            #        
+                            fit_rb = 0
+                            if( fit_rb ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                tor_type = "RB"
+                                n_param = 5
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[0] =  options.tor_paramo 
+                                param_o[2] =  -1.0*options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_rb = []
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    #F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        p_rb.append(  0.0 )
+                                    #p_fourier[param_ind*n_param +  1 ] =  p_fourierF2[param_ind] 
+
+
+
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  RB coefficents ",F_coef
+                                    
+                                                                
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_rb)
+                                #
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_rb)):
+                                    p_fourier_pre.append( p_rb[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_rb,successp = optimize.leastsq(residuals_v5,p_rb,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_rb)):
+                                        d_pf = p_rb[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_rb)):
+                                        p_fourier_pre.append( p_rb[p_indx] )
+                                        
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_rb[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                  
+                            fit_rb_F2 = 0
+                            if( fit_rb_F2 ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                tor_type = "four_F2"
+                                n_param = 1
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                    
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[0] =  options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_fourierF2 = []
+                                #
+                                for iparam_indnd in range(n_dihtypes):
+                                    for val in param_o:
+                                        p_fourierF2.append( val )
+                                        
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  param_o",len(param_o)
+                                print "  len p_fourierF2 ",len(p_fourierF2)
+                                #
+                                resid = residuals_fourF2(p_fourierF2,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourierF2[p_indx] )
+                                    
+                                    print "  F2 coefficents "
+                                    print "                        F2 ",float(F_coef[0])," eV ",float(F_coef[0])*EVTOKCAL," kcal/mol "
                             
-                            os.chdir(struct_dir)
+                                p_fourierF2,successp = optimize.leastsq(residuals_fourF2,p_fourierF2,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
                             
-                            # Fitted torsional energies
-                            fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param )
+    
+                                resid = residuals_fourF2(p_fourierF2,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourierF2[p_indx] )
+                                    
+                                    print "  F2 coefficents "
+                                    print "                        F2 ",float(F_coef[0])," eV ",float(F_coef[0])*EVTOKCAL," kcal/mol "
+                                    
+                                DIH_PARAM = p_fourierF2                                    
+                                
+                                # 
+                                tor_type = "RB"
+                                n_param = 5
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[0] =  options.tor_paramo 
+                                param_o[2] =  -1.0*options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_rb = []
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    #F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        p_rb.append(  0.0 )
+                                    #p_fourier[param_ind*n_param +  1 ] =  p_fourierF2[param_ind] 
+                                    p_rb[param_ind*n_param  ] =  1.0*p_fourierF2[param_ind] 
+                                    p_rb[param_ind*n_param + 2 ] =  -1.0*p_fourierF2[param_ind] 
+
+
+
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  RB coefficents ",F_coef
+                                    
+                                                                
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_rb)
+                                #
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_rb)):
+                                    p_fourier_pre.append( p_rb[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_rb,successp = optimize.leastsq(residuals_v5,p_rb,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_rb)):
+                                        d_pf = p_rb[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_rb)):
+                                        p_fourier_pre.append( p_rb[p_indx] )
+                                        
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_rb[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            fit_rb_2 = 0
+                            if( fit_rb_2 ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                # Initial single fourier series fit 
+                                tor_type = "RB"
+                                n_param = 5
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                
+                                guess_ind = 0
+                                if( guess_ind ):
+                                    # Guess initial parameters by fitting each component individually
+                                        
+                                    #
+                                    # Set initial parmeters
+                                    #
+                                    # param_o[0] =  options.tor_paramo 
+                                    #
+                                    # set parameter list consisting of each different dihedral's parameters
+                                    #
+                                    p_initial = []
+                                    #
+                                    print "  param_o",len(param_o)
+                                    #
+                                    resid = residuals_initial(param_o,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                    error = 0.0
+                                    for er in resid:
+                                        error += er*er
+                                    print " Initial error ",error
+                                    #sys.exit( "DIH_PARAM") 
+                                    
+                                    F_coef = []
+                                    print "  Initial fourier coefficents "
+                                    for p_indx in range( n_param ):
+                                        F_coef.append(  round(param_o[p_indx]*EVTOKCAL,4) )
+                                        
+                                    print "  F coefficents ",F_coef
+                                
+                                    #p_fourierF2,successp = optimize.leastsq(residuals_fourF2,param_o,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
+                                    param_o,successp = optimize.leastsq(residuals_initial,param_o,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                
+        
+                                    resid = residuals_initial(param_o,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    error = 0.0 
+                                    for er in resid:
+                                        error += er*er
+                                    print " final error ",error
+                                    
+                                    
+                                                                                        
+                                    F_coef = []
+                                    for p_indx in range( n_param ):
+                                        F_coef.append(  round(param_o[p_indx],4) )
+                                        
+                                    print "  Initial coefficents ",F_coef
+                                    
+                                    # 
+                                    #
+                                    # set parameter list consisting of each different dihedral's parameters
+                                    #
+                                    p_rb = []
+                                    
+                                                        
+                                    for param_ind in range( n_dihtypes ):
+                                        #F_coef = []
+                                        initial_i = -1
+                                        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                            initial_i += 1 
+                                            p_rb.append(  param_o[initial_i]/float(len(ang_types)) )
+                                        
+                                    rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                        
+                                    DIH_PARAM = p_rb
+                                    
+                                else:
+                                    # set initial parameters to zero
+                                    # set parameter list consisting of each different dihedral's parameters
+                                    #
+                                    p_rb = []
+                                   
+                                                       
+                                    for param_ind in range( n_dihtypes ):
+                                        #F_coef = []
+                                        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                            p_rb.append(  0.0 )
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                # Collapse ff_angles into a single set of angle 1
+                                # 
+                                single_angles = []
+                                for ang_i in range(len(ff_angles)):
+                                    single_angles.append( [ ff_angles[ang_i][0] ] )
+                                
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,param_o,ANG_IND,FF_DIHTYPES, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                # sys.exit(" Fourier fitting initialization 3 ")
+
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  RB coefficents ",F_coef
+                                    
+                                                                
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_rb)
+                                #
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_rb)):
+                                    p_fourier_pre.append( p_rb[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_rb,successp = optimize.leastsq(residuals_v5,p_rb,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_rb)):
+                                        d_pf = p_rb[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_rb)):
+                                        p_fourier_pre.append( p_rb[p_indx] )
+                                        
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_rb[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            fit_rb_3 = 0
+                            if( fit_rb_3 ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                # Initial single fourier series fit 
+                                tor_type = "RB"
+                                n_param = 4
+                                
+                                guess_ind = 0
+                                if( guess_ind ):
+                                        
+                                    #
+                                    p_initial = []
+                                    #
+                                    # Fit a set of fourier coefficients for each angle
+                                    for ang_i in range( len(ff_angles[0]) ):
+                                        angles_list = ff_angles[:][ang_i]
+                                        # print " angle set ",ang_i
+                                        dtype_angles = []
+                                        for angle_indx in range(len(ff_angles)):
+                                            #print ff_angles[angle_indx][ang_i]
+                                            dtype_angles.append( ff_angles[angle_indx][ang_i]  )
+                                    
+                                            
+                                        #
+                                        # Set initial parmeters
+                                        #
+                                        param_o = []
+                                        for n in range(n_param):
+                                            param_o.append(0.0)
+                                        #
+                                        print "  param_o",len(param_o)
+                                        #
+                                            
+                                        F_coef = []
+                                        print "  Initial fourier coefficents "
+                                        for p_indx in range( n_param ):
+                                            F_coef.append(  round(param_o[p_indx]*EVTOKCAL,4) )
+                                            
+                                        print "  F coefficents ",F_coef
+                                    
+                                    
+                                        resid = residuals_initialv2(param_o,ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                        
+                                        error = 0.0
+                                        for er in resid:
+                                            error += er*er
+                                        print " Initial error ",error
+                                        #sys.exit( "DIH_PARAM") 
+    
+                                    
+                                        #p_fourierF2,successp = optimize.leastsq(residuals_fourF2,param_o,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
+                                        param_o,successp = optimize.leastsq(residuals_initialv2,param_o,args=(ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                
+        
+                                        resid = residuals_initialv2(param_o,ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                        error = 0.0 
+                                        for er in resid:
+                                            error += er*er
+                                        print " final error ",error
+                                    
+                                    
+                                                                                        
+                                        F_coef = []
+                                        for p_indx in range( n_param ):
+                                            F_coef.append(  round(param_o[p_indx],4) )
+                                            
+                                        print "  Initial fitted coefficents ",F_coef
+                                        
+                                        
+                                        p_initial.append( param_o )
+                                        
+                                    for a_indx in range( len(ang_types) ):
+                                        ang_i = ANG_IND[a_indx]
+                                        print ang_types[a_indx]," type ",ang_i," parameters ",p_initial[a_indx]
+                                        
+                                        
+                                    # Find dihedrals for each type and average initial parameters
+                                    p_rb = []
+                                    for a_type in range( n_dihtypes):
+                                        param_sum = []
+                                        for a_indx in range( len(ang_types) ):
+                                            ang_i = ANG_IND[a_indx]
+                                            if( a_type ==  ang_i ):
+                                                param_sum.append( p_initial[a_indx] )
+                                                
+                                        print a_type , param_sum,len(param_sum )
+                                        for p_i in range(n_param):
+                                            sum_p_i = 0 
+                                            for indx in range( len(param_sum )) :
+                                                sum_p_i += param_sum[indx][p_i] 
+                                            
+                                            
+                                                print a_type,p_i,param_sum[indx][p_i]  #numpy.mean( param_sum[p_i]  )
+                                                
+                                            print "   average of ",p_i ,  sum_p_i/len(param_sum ) 
+                                            p_rb.append(  sum_p_i/float(len(param_sum ))/float(len(ang_types) ) )
+
+                                else:
+                                    # set initial parameters to zero
+                                    # set parameter list consisting of each different dihedral's parameters
+                                    #
+                                    p_rb = []
+                                   
+                                                       
+                                    for param_ind in range( n_dihtypes ):
+                                        #F_coef = []
+                                        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                            p_rb.append(  0.0 )
+                                                                                
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  Initial RB coefficents from average individual fits ",F_coef
+                                    
+                                                                
+                                                                                                        
+                                #sys.exit(" fit_rb_3 1  ")
+                                
+                                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                # Collapse ff_angles into a single set of angle 1
+                                # 
+                                #single_angles = []
+                                #for ang_i in range(len(ff_angles)):
+                                #    single_angles.append( [ ff_angles[ang_i][0] ] )
+                                
+                                # Fitted torsional energies
+                                #fitted_ptor , fit_toten , fitted_comp = print_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,param_o,ANG_IND,FF_DIHTYPES, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                #rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                # Fitted torsional energies
+                                #fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                #sys.exit(" Fourier fitting initialization 3 ")
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_rb)
+                                #
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                #                    
+                                #for param_ind in range( n_dihtypes ):
+                                #    F_coef = []
+                                #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                #        F_coef.append(  p_rb[p_indx] )
+                                #    
+                                #    print "  F coefficents ",F_coef
+                                #    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_rb)):
+                                    p_fourier_pre.append( p_rb[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_rb,successp = optimize.leastsq(residuals_v5,p_rb,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_rb)):
+                                        d_pf = p_rb[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_rb)):
+                                        p_fourier_pre.append( p_rb[p_indx] )
+                                        
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_rb[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            fit_fourier_3 = 0
+                            if( fit_fourier_3 ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                # Initial single fourier series fit 
+                                tor_type = "four"
+                                n_param = 4
+                                
+                                guess_ind = 0
+                                if( guess_ind ):
+                                        
+                                    #
+                                    p_initial = []
+                                    #
+                                    # Fit a set of fourier coefficients for each angle
+                                    for ang_i in range( len(ff_angles[0]) ):
+                                        angles_list = ff_angles[:][ang_i]
+                                        # print " angle set ",ang_i
+                                        dtype_angles = []
+                                        for angle_indx in range(len(ff_angles)):
+                                            #print ff_angles[angle_indx][ang_i]
+                                            dtype_angles.append( ff_angles[angle_indx][ang_i]  )
+                                    
+                                            
+                                        #
+                                        # Set initial parmeters
+                                        #
+                                        param_o = []
+                                        for n in range(n_param):
+                                            param_o.append(0.0)
+                                        #
+                                        print "  param_o",len(param_o)
+                                        #
+                                            
+                                        F_coef = []
+                                        print "  Initial fourier coefficents "
+                                        for p_indx in range( n_param ):
+                                            F_coef.append(  round(param_o[p_indx]*EVTOKCAL,4) )
+                                            
+                                        print "  F coefficents ",F_coef, "  kcal/mol "
+                                    
+                                    
+                                        resid = residuals_initialv2(param_o,ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                        
+                                        error = 0.0
+                                        for er in resid:
+                                            error += er*er
+                                        print " Initial error ",error
+                                        #sys.exit( "DIH_PARAM") 
+    
+                                    
+                                        #p_fourierF2,successp = optimize.leastsq(residuals_fourF2,param_o,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
+                                        param_o,successp = optimize.leastsq(residuals_initialv2,param_o,args=(ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                
+        
+                                        resid = residuals_initialv2(param_o,ANG_IND,target_en_s,dtype_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                        error = 0.0 
+                                        for er in resid:
+                                            error += er*er
+                                        print " final error ",error
+                                    
+                                    
+                                                                                        
+                                        F_coef = []
+                                        for p_indx in range( n_param ):
+                                            F_coef.append(  round(param_o[p_indx],4) )
+                                            
+                                        print "  Initial fitted coefficents ",F_coef
+                                        
+                                        
+                                        p_initial.append( param_o )
+                                        
+                                    for a_indx in range( len(ang_types) ):
+                                        ang_i = ANG_IND[a_indx]
+                                        print ang_types[a_indx]," type ",ang_i," parameters ",p_initial[a_indx]
+                                        
+                                        
+                                    # Find dihedrals for each type and average initial parameters
+                                    p_rb = []
+                                    for a_type in range( n_dihtypes):
+                                        param_sum = []
+                                        for a_indx in range( len(ang_types) ):
+                                            ang_i = ANG_IND[a_indx]
+                                            if( a_type ==  ang_i ):
+                                                param_sum.append( p_initial[a_indx] )
+                                                
+                                        print a_type , param_sum,len(param_sum )
+                                        for p_i in range(n_param):
+                                            sum_p_i = 0 
+                                            for indx in range( len(param_sum )) :
+                                                sum_p_i += param_sum[indx][p_i] 
+                                            
+                                            
+                                                print a_type,p_i,param_sum[indx][p_i]  #numpy.mean( param_sum[p_i]  )
+                                                
+                                            print "   average of ",p_i ,  sum_p_i/len(param_sum ) 
+                                            p_rb.append(  sum_p_i/float(len(param_sum ))/float(len(ang_types) ) )
+
+                                else:
+                                    # set initial parameters to zero
+                                    # set parameter list consisting of each different dihedral's parameters
+                                    #
+                                    p_rb = []
+                                   
+                                                       
+                                    for param_ind in range( n_dihtypes ):
+                                        #F_coef = []
+                                        for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                            p_rb.append(  0.0 )
+                                                                                
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_rb[p_indx] )
+                                    
+                                    print "  Initial RB coefficents from average individual fits ",F_coef
+                                    
+                                                                
+                                                                                                        
+                                #sys.exit(" fit_rb_3 1  ")
+                                
+                                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                # Collapse ff_angles into a single set of angle 1
+                                # 
+                                #single_angles = []
+                                #for ang_i in range(len(ff_angles)):
+                                #    single_angles.append( [ ff_angles[ang_i][0] ] )
+                                
+                                # Fitted torsional energies
+                                #fitted_ptor , fit_toten , fitted_comp = print_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,param_o,ANG_IND, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,param_o,ANG_IND,FF_DIHTYPES, single_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                #rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                # Fitted torsional energies
+                                #fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                #sys.exit(" Fourier fitting initialization 3 ")
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_rb)
+                                #
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                #                    
+                                #for param_ind in range( n_dihtypes ):
+                                #    F_coef = []
+                                #    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                #        F_coef.append(  p_rb[p_indx] )
+                                #    
+                                #    print "  F coefficents ",F_coef
+                                #    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_rb)):
+                                    p_fourier_pre.append( p_rb[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_rb,successp = optimize.leastsq(residuals_v5,p_rb,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_rb)):
+                                        d_pf = p_rb[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_rb)):
+                                        p_fourier_pre.append( p_rb[p_indx] )
+                                        
+                                resid = residuals_v5(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_rb[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                rmsd_en,rmsd_trans = calc_rms(p_rb,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                DIH_PARAM = p_rb                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param)
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            fit_fourier = 0
+                            if( fit_fourier ):
+                                
+                                os.chdir(struct_dir)
+                                
+                                tor_type = "four"
+                                n_param = 4
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[1] =  options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_fourier = []
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        p_fourier.append(  0.0 )
+                                    #p_fourier[param_ind*n_param +  1 ] =  p_fourierF2[param_ind] 
+
+
+
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourier[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                                                
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_fourier)
+                                #
+                                #resid = residuals_four(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                resid = residuals_v5(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourier[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_fourier)):
+                                    p_fourier_pre.append( p_fourier[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    p_fourier,successp = optimize.leastsq(residuals_v5,p_fourier,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_fourier)):
+                                        d_pf = p_fourier[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_fourier)):
+                                        p_fourier_pre.append( p_fourier[p_indx] )
+                                        
+                                resid = residuals_v5(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_fourier[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                    
+                                DIH_PARAM = p_fourier                                    
+                                
+                                rmsd_en,rmsd_trans = calc_rms(DIH_PARAM,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param )
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            fit_fourier_F2 = 0
+                            if( fit_fourier_F2 ):
+                                # Intially fit F2 only to provide a good initial guess
+                                
+                                tor_type = "four_F2"
+                                n_param = 1
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                    
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[0] =  options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_fourierF2 = []
+                                #
+                                for iparam_indnd in range(n_dihtypes):
+                                    for val in param_o:
+                                        p_fourierF2.append( val )
+                                        
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  param_o",len(param_o)
+                                print "  len p_fourierF2 ",len(p_fourierF2)
+                                #
+                                resid = residuals_fourF2(p_fourierF2,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourierF2[p_indx] )
+                                    
+                                    print "  F2 coefficents "
+                                    print "                        F2 ",float(F_coef[0])," eV ",float(F_coef[0])*EVTOKCAL," kcal/mol "
                             
-                            # Plot tossional potential
-                            if( options.plot_tor ):
-                                plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
-                                plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                p_fourierF2,successp = optimize.leastsq(residuals_fourF2,p_fourierF2,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)
+                            
+    
+                                resid = residuals_fourF2(p_fourierF2,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourierF2[p_indx] )
+                                    
+                                    print "  F2 coefficents "
+                                    print "                        F2 ",float(F_coef[0])," eV ",float(F_coef[0])*EVTOKCAL," kcal/mol "
+                                    
+                                DIH_PARAM = p_fourierF2                                    
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                os.chdir(struct_dir)
+                                
+                                
+                                    
+                                # Fitted torsional energies
+                                #fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param )
+                                
+                                # Plot tossional potential
+                                #if( options.plot_tor ):
+                                #    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                #    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                                
+                                tor_type = "four"
+                                n_param = 4
+                                
+                                param_o = []
+                                for n in range(n_param):
+                                    param_o.append(0.0)
+                                #
+                                # Set initial parmeters
+                                #
+                                param_o[1] =  options.tor_paramo 
+                                #
+                                # set parameter list consisting of each different dihedral's parameters
+                                #
+                                p_fourier = []
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        p_fourier.append(  0.0 )
+                                    p_fourier[param_ind*n_param +  1 ] =  p_fourierF2[param_ind] 
+
+
+
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourier[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                                                
+                                
+                                print "  n_dihtypes ",n_dihtypes
+                                print "  len p_fourier ",len(p_fourier)
+                                #
+                                resid = residuals_v5(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                #resid = residuals_four(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param)
+                                
+                                error = 0.0
+                                for er in resid:
+                                    error += er*er
+                                print " Initial error ",error
+                                #sys.exit( "DIH_PARAM") 
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  p_fourier[p_indx] )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    
+                                p_fourier_pre = []
+                                for p_indx in range( len(p_fourier)):
+                                    p_fourier_pre.append( p_fourier[p_indx] )
+                                    
+                                delta_param = True
+                                fit_iter = 0 
+                                while delta_param:
+                                    fit_iter +=  1 
+                                    #p_fourier,successp = optimize.leastsq(residuals_four,p_fourier,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param),epsfcn=0.0001)                                
+                                    p_fourier,successp = optimize.leastsq(residuals_v5,p_fourier,args=(ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs),epsfcn=0.0001)                                
+                                    
+                                    d_param = 0.0 
+                                    for p_indx in range( len(p_fourier)):
+                                        d_pf = p_fourier[p_indx] - p_fourier_pre[p_indx]
+                                        d_param += numpy.sqrt(d_pf*d_pf )
+                                    
+                                    if( d_param <  0.0002 ):
+                                        print "   fit_iter ",fit_iter," with delat_param ",d_param
+                                        delta_param = False
+                                    
+                                    p_fourier_pre = []
+                                    for p_indx in range( len(p_fourier)):
+                                        p_fourier_pre.append( p_fourier[p_indx] )
+                                        
+                                resid = residuals_v5(p_fourier,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                
+                                
+                                error = 0.0 
+                                for er in resid:
+                                    error += er*er
+                                print " final error ",error
+                                
+                                                    
+                                for param_ind in range( n_dihtypes ):
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append(  round(p_fourier[p_indx]*EVTOKCAL,4) )
+                                    
+                                    print "  F coefficents ",F_coef
+                                    #print "  F coefficents ",F_coef[0]*EVTOKCAL,F_coef[1]*EVTOKCAL,F_coef[2]*EVTOKCAL,F_coef[3]*EVTOKCAL
+                                    
+                                    
+                                DIH_PARAM = p_fourier                                    
+                                rmsd_en,rmsd_trans = calc_rms(DIH_PARAM,ANG_IND,target_en_s,ff_angles,wt_angle,wt_coef,tor_type,n_param,min_indx,max_indx,trans_list,trans_indxs)
+                                    
+                                #sys.exit(" F2 fit test ")
+
+                                #os.chdir(struct_dir)
+                                
+                                #sys.exit(" Fourier fitting 2")
+                                
+                                    
+                                # Fitted torsional energies
+                                fitted_ptor , fit_toten , fitted_comp = print_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,tor_type,n_param )
+                                
+                                # Plot tossional potential
+                                if( options.plot_tor ):
+                                    plot_tor(options,DIH_PARAM,ANG_IND, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten )
+                                    plot_tor_comp(options,DIH_PARAM,ANG_IND,FF_DIHTYPES, ff_angles,ff_en_s,qm_angle,qm_en_s,target_en_s,fitted_ptor , fit_toten , fitted_comp )
+                                
+                                
+                            
                             
                             os.chdir(work_dir)
                                 
+                            
+                            # Print parameters for itp file
+                            #  the factor of 2.0 will be removed once the parameters are normalized
+                            
+                            print "   Gromacs format x2 for compatability with biaryl dih parameters "
+                            for a_indx in range( len(ang_types) ):
+                                param_ind = ANG_IND[a_indx]
+                                dih_id = ""
+                                for dih_indx in FF_DIHTYPES[param_ind]:
+                                    dih_id += str( dih_indx ) + "  " 
+                            
+                                if( tor_type == "RB" ):
+                                        
+                                    F_coef = ''
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef +=  str(round( DIH_PARAM[p_indx]*EVTOkJ*2.0 ,4) ) + "  "
+                                        
+                                    print dih_id,"  3  ",F_coef, "   0.000000  # fit 1 "
+                                
+                                elif(   tor_type == "four" ):
+                                        
+                                    F_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef.append( round( DIH_PARAM[p_indx]*EVTOkJ*2.0 ,4) )
+                                        
+                                    C0 = F_coef[1]  + 0.5*( F_coef[0] + F_coef[2] )
+                                    C1 =0.5*( -1.0*F_coef[0] + 3.0*F_coef[2] )
+                                    C2 = -1.0*F_coef[1] + 4.0*F_coef[3]
+                                    C3 = -2.0*F_coef[2]
+                                    C4 = -4.0*F_coef[3]
+                                    C5 = 0.0
+                                    print dih_id,"  3  ",C0,C1,C2,C3,C4,C5, "  # fit 1 "
+                        
+                            print "  Lammps format  "
+                            for a_indx in range( len(ang_types) ):
+                                param_ind = ANG_IND[a_indx]
+                                dih_id = ""
+                                for dih_indx in FF_DIHTYPES[param_ind]:
+                                    dih_id += str( dih_indx ) + "  "
+                                
+                                if( tor_type == "RB" ):
+                                        
+                                    RB_coef = []
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        RB_coef.append( DIH_PARAM[p_indx]*EVTOKCAL )
+                                    
+                                                
+                                    F1 = -1.0*( 2.0*RB_coef[1] + 3.0*RB_coef[3]/2.0)
+                                    F2 = -1.0*( RB_coef[2] + RB_coef[4])
+                                    F3 = -0.5*RB_coef[3]
+                                    F4 = -0.25*RB_coef[4]
+                    
+                                    print "  1  ",F1,F2,F3,F4, "  #  ",dih_id
+                                
+                                elif(   tor_type == "four" ):
+                                        
+                                    F_coef = ''
+                                    for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
+                                        F_coef +=  str(round( DIH_PARAM[p_indx]*EVTOKCAL ,4) ) + "  "
+                                    
+                                    print "  1  ",F_coef, "  #  ",dih_id
+                                    
+                            
+                                    
+                                
+                        
                                 
                             
                         else:
