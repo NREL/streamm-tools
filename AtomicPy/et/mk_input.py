@@ -54,6 +54,102 @@ def get_options():
 
     return options, args
 
+def hterm_seg(ELN,ASYMB,R,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_l,REFNUMB_l,FIX_l,calc_id,options):
+    # hydrogen terminate segment from a larger system for qm calculation
+    import numpy as np 
+    import top, elements 
+    
+    debug = 0
+    
+    r_cov = elements.covalent_radi()
+    
+    R_local = R
+    
+    # List of terminal hydrogens
+    ELN_hterm = [] 
+    ASYMB_hterm = []
+    R_hterm = []
+    ATYPE_hterm = []
+    CHARGES_hterm = []
+    REFNUMB_hterm = []
+    FIX_hterm = []
+    GHOST_hterm = []
+
+    # append outputed files to reference file 
+    f_ref = file(options.ref_file, "a")
+            
+    # Loop over all atoms in segment
+    for si_indx in range( len(ASYMB_l) ):
+	atom_si = REFNUMB_l[si_indx]
+        N_o = NBINDEX[ atom_si ]
+        N_f = NBINDEX[ atom_si + 1 ] - 1
+	# Loop over neighbers of atom i
+	if( debug): print " Check segment ",ASYMB_l[si_indx]
+	for indx_i in range(N_o,N_f+1):
+            atom_j = NBLIST[indx_i]
+	    # find if neighbor in segment
+	    nb_nonseg = 1
+	    if( debug): print "   for nieghbor ",ATYPE[atom_j]
+	    for sj_indx in range( len(ASYMB_l) ):
+		atom_sj = REFNUMB_l[sj_indx]
+		if( atom_sj == atom_j ):
+		    nb_nonseg = 0 
+	    if( nb_nonseg ):
+		if(debug): print " Non segment nieghbor found",ATYPE[atom_j]
+		if( ELN[atom_j] == 1 ):
+		    ELN_hterm.append( ELN[atom_j] )
+		    ASYMB_hterm.append( ASYMB[atom_j] )
+		    R_hterm.append( R_local[atom_j] )
+		    ATYPE_hterm.append( ATYPE[atom_j] )
+		    CHARGES_hterm.append( CHARGES[atom_j] )
+		    REFNUMB_hterm.append( atom_j )
+		    FIX_hterm.append( 0 )
+		    GHOST_hterm.append( 1 )
+
+		    # Fix attached atom 
+		    FIX_l[si_indx] = 1 
+
+		    if(debug): print "      adding H ",ATYPE[atom_j]
+		    # Record added atom 
+		    f_ref.write( " \n %s %d " % (calc_id,atom_j))
+
+		if( ELN[atom_j] == 8 ):
+		    ASYMB_hterm.append("H")
+		    
+		    r_bond = R_local[atom_j] - R_local[atom_si]
+		    bond_ij = np.linalg.norm(r_bond)
+		    cr_i = r_cov[ ELN[atom_si] ]
+		    cr_j = r_cov[1]
+		    # cr_ij = cr_i + cr_j
+		    cr_ij = 1.09 #cr_i + cr_j
+
+		    # Scale factor to get correct covelent bond length 
+		    r_scale = cr_ij/bond_ij
+		    r_xh = r_scale*r_bond
+		    R_h = R_local[atom_si] + r_xh
+
+		    ELN_hterm.append( 1 )
+		    R_hterm.append( R_h )
+		    ATYPE_hterm.append( "HC" )
+		    CHARGES_hterm.append( 0.06 )
+		    REFNUMB_hterm.append( atom_j )
+		    FIX_hterm.append( 0 )
+		    GHOST_hterm.append( 1 )
+
+		    # Fix attached atom 
+		    FIX_l[si_indx] = 1 
+
+		    if(debug): print "      adding H "
+		    f_ref.write( " \n %s %d " % (calc_id,atom_j))
+
+    f_ref.close()
+    
+    ELECTRONS_hterm = len(ASYMB_hterm )
+    
+		    
+    return ( ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_l  )
+    
+    
 def main():
     import os, sys, numpy 
     import gromacs,elements , top    , groups , prop, xmol , nwchem 
@@ -131,7 +227,6 @@ def main():
         group_id = F_id
         calc_id = F_id
 
-
         # Cent group i at origin and apply pbc's so pairs are whole and centered
         r_cm = []
 	for d in range(options.prop_dim):
@@ -168,7 +263,9 @@ def main():
                 GHOST_i.append( 0 )
 
         # H-term
-        ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_i = prop.hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_i,REFNUMB_i,FIX_i,calc_id,options)
+        #ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_i = prop.hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_i,REFNUMB_i,FIX_i,calc_id,options)
+	# use internal hterm_seg with set bondlength for C-H rather than the general hterm_seg which uses atomic radii based bond lengths 
+        ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_i = hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_i,REFNUMB_i,FIX_i,calc_id,options)
 
 	ASYMB_ih = ASYMB_i + ASYMB_hterm
 	R_ih = R_i + R_hterm
