@@ -327,13 +327,8 @@ def main():
     
     
                 # H-term
-                #ASYMB_hterm,R_hterm,ATYPE_hterm,CHARGES_hterm ,FIX_hterm,GHOST_hterm = structure.hterm_seg(ELN,ASYMB,R,ATYPE,CHARGES,REFNUMB_j,ASYMB_j,R_j,ATYPE_j,CHARGES_j,FIX_j,GHOST_j,NBLIST,NBINDEX,options)
-    
-                #ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_j = structure.hterm_seg2(ELN,ASYMB,R,ATYPE,CHARGES,REFNUMB,NBLIST,NBINDEX,ASYMB_j,REFNUMB_j,FIX_j,calc_id,options)
-    
-                
-                ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_j = prop.hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_j,REFNUMB_j,FIX_j,calc_id_j,options)
-    
+                #ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_j = prop.hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_j,REFNUMB_j,FIX_j,calc_id_j,options)
+                ASYMB_hterm , R_hterm , ATYPE_hterm , CHARGES_hterm, REFNUMB_hterm,ELECTRONS_hterm ,FIX_hterm ,GHOST_hterm ,FIX_j = hterm_seg(ELN,ASYMB,R_pbc,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_j,REFNUMB_j,FIX_j,calc_id_j,options)
     
                 ASYMB_jh = ASYMB_j + ASYMB_hterm
                 R_jh = R_j + R_hterm
