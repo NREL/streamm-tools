@@ -63,7 +63,7 @@ def build_nablist(options,ELN,R,LV):
             if( atom_i != atom_j ):
                 #el_j = ELN[atom_j]
                 r_j =  R[atom_j] 
-		sq_r_ij = prop.sq_drij_c(options,r_i,r_j,LV)
+		sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
 		#mag_dr =  numpy.linalg.norm(r_ij)
                 #r_ij = delta_r(r_i,r_j)
                 #r_cov = rc_i + radi_cov[el_j]*cov_buffer
