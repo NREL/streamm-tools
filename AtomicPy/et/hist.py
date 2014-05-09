@@ -46,6 +46,46 @@ def ket(vij):
     
     return ket
 
+def sigma_m(N,ave,ave_sq):
+    """
+    Calculate the standard deviation of the mean for a confidence
+    interval of 95%. Will return zero for single valued data sets 
+    """
+    import numpy
+    
+    # Some website that probably does not exist
+    #   http://mathworld.wolfram.com/Studentst-Distribution.html
+    
+    v = N - 1 #  Degrees of freedom
+    
+    # Set appropriate Student t prefix
+    if( v > 100 ):
+	Coefint_pre = 1.64487
+    elif( v > 30 ):
+	Coefint_pre = 1.66023
+    elif( v > 10 ):
+	Coefint_pre = 1.69726
+    elif( v > 5 ):
+	Coefint_pre = 1.81246
+    elif( v == 5 ):
+	Coefint_pre = 2.01505
+    elif( v == 4 ):
+	Coefint_pre = 2.13185
+    elif( v == 3 ):
+	Coefint_pre = 2.35336
+    elif( v == 2 ):
+	Coefint_pre = 2.91999
+    elif( v == 1 ):
+	Coefint_pre = 6.31375  
+	
+    if( N > 1 ):
+	v_sqrt = numpy.sqrt(  N - 1 )
+	sigma = numpy.sqrt(  ( ave_sq ) - (ave)**2 ) # Standard deviation
+	sigma_m = Coefint_pre*sigma/v_sqrt
+    else:
+	sigma_m = 0.0  # Set zero for unknow error 
+    
+    return sigma_m
 
 def main():
     import os, sys, numpy , math 
@@ -251,17 +291,8 @@ def main():
             et_qu = et_qu_bins[b_indx]
             et_qu_ave = et_qu/float(N_cnts)
             
-	    if( N_cnts> 1 ):
-		# standard div of mean
-		et_sigma = numpy.sqrt(  ( et_sq_ave ) - (et_average)**2 ) # Standard deviation
-		et_sq_sigma = numpy.sqrt(  ( et_qu_ave ) - (et_sq_ave)**2 ) # Standard deviation
-		
-		et_sig_mean = Coef_interval*et_sigma/N_sqrt
-		et_sq_sig_mean = Coef_interval*et_sq_sigma/N_sqrt
-		
-	    else:
-		et_sig_mean = 0.0 # et_average
-		et_sq_sig_mean = 0.0 #et_sq_ave
+	    et_sig_mean = sigma_m(N_cnts,et_average,et_sq_ave)
+	    et_sq_sig_mean = sigma_m(N_cnts,et_sq_ave,et_qu_ave)
 		
             dr_vol = VOL_CONST*( r_out**3 - r_in**3 )
             
@@ -281,23 +312,19 @@ def main():
             SUM_rqd_rhog_v += dr_qu*rhog_v
 	    SUM_rqd_rhog_v_sig_mean += dr_qu*rhog_v_sig_mean*dr_qu*rhog_v_sig_mean
 
-            if(  bin_cnt_intra[b_indx] > 0 ):
+	    N_cnt_intra = float( bin_cnt_intra[b_indx] )
+	    N_cnt_inter = float( bin_cnt_inter[b_indx] )
+            if(  N_cnt_intra> 0 ):
                     
                 et_sq_intra = et_sq_bins_intra[b_indx]
-                et_sq_intra_ave = et_sq_intra/float( bin_cnt_intra[b_indx] )
+                et_sq_intra_ave = et_sq_intra/N_cnt_intra
                 et_qu_intra = et_qu_bins_intra[b_indx]
-                et_qu_intra_ave = et_qu_intra/float( bin_cnt_intra[b_indx] )
+                et_qu_intra_ave = et_qu_intra/N_cnt_intra
 		
-		if(  bin_cnt_intra[b_indx] > 1 ):
-		    
-		    et_sq_sigma_intra = numpy.sqrt(  ( et_qu_intra_ave ) - (et_sq_intra_ave)**2 ) # Standard deviation
-		    et_sq_sig_mean_intra = Coef_interval*et_sq_sigma_intra/N_sqrt
-		    
-		else:
-		    et_sq_sig_mean_intra =  0.0 # et_sq_sig_mean_intra
+		et_sq_sig_mean_intra = sigma_m(N_cnt_intra,et_sq_intra_ave,et_qu_intra_ave)
 		    
                 dVg_v_intra = 2.0*et_sq_intra/float( group_cnt )
-		dVg_v_sig_mean_intra = 2.0*et_sq_sig_mean_intra*float(bin_cnt_intra[b_indx])/float( group_cnt )
+		dVg_v_sig_mean_intra = 2.0*et_sq_sig_mean_intra*N_cnt_intra/float( group_cnt )
                 rhog_v_intra = dVg_v_intra/dr_vol
 		rhog_v_sig_mean_intra = dVg_v_sig_mean_intra/dr_vol
 		
@@ -307,9 +334,9 @@ def main():
 	    
                 SUM_rhog_v_intra += rhog_v_intra
                 SUM_rsq_rhog_v_intra += dr_sq*rhog_v_intra
-		SUM_rsq_rhog_v_intra_sig_mean += dr_sq*rhog_v_sig_mean_intra
+		SUM_rsq_rhog_v_intra_sig_mean += dr_sq*rhog_v_sig_mean_intra*dr_sq*rhog_v_sig_mean_intra
                 SUM_rqd_rhog_v_intra += dr_qu*rhog_v_intra
-                SUM_rqd_rhog_v_intra_sig_mean += dr_qu*rhog_v_sig_mean_intra
+                SUM_rqd_rhog_v_intra_sig_mean += dr_qu*rhog_v_sig_mean_intra*dr_qu*rhog_v_sig_mean_intra
 		
                 
             else:
@@ -322,21 +349,16 @@ def main():
                 dVg_v_intra = 0.0
 		dVg_v_sig_mean_intra = 0.0 
 
-            if(  bin_cnt_inter[b_indx] > 0 ):
+            if(  N_cnt_inter > 0 ):
                 et_sq_inter = et_sq_bins_inter[b_indx]
-                et_sq_inter_ave = et_sq_inter/float( bin_cnt_inter[b_indx] )
+                et_sq_inter_ave = et_sq_inter/N_cnt_inter
                 et_qu_inter = et_qu_bins_inter[b_indx]
-                et_qu_inter_ave = et_qu_inter/float( bin_cnt_inter[b_indx] )
+                et_qu_inter_ave = et_qu_inter/N_cnt_inter
 		
-		if( bin_cnt_inter[b_indx] > 1 ):
-		    et_sq_sigma_inter = numpy.sqrt(  ( et_qu_inter_ave ) - (et_sq_inter_ave)**2 ) # Standard deviation
-		    et_sq_sig_mean_inter = Coef_interval*et_sq_sigma_inter/N_sqrt
-		    
-		else:
-		    et_sq_sig_mean_inter =   0.0 # et_sq_inter_ave 
-		    
+		et_sq_sig_mean_inter = sigma_m(N_cnt_inter,et_sq_inter_ave,et_qu_inter_ave)
+		
                 dVg_v_inter = 2.0*et_sq_inter/float( group_cnt )
-		dVg_v_sig_mean_inter = 2.0*et_sq_sig_mean_inter*float(bin_cnt_inter[b_indx])/float( group_cnt )
+		dVg_v_sig_mean_inter = 2.0*et_sq_sig_mean_inter*N_cnt_inter/float( group_cnt )
                 rhog_v_inter = dVg_v_inter/dr_vol
 		rhog_v_sig_mean_inter = dVg_v_sig_mean_inter/dr_vol
 		
@@ -346,9 +368,9 @@ def main():
 		
                 SUM_rhog_v_inter += rhog_v_inter
                 SUM_rsq_rhog_v_inter += dr_sq*rhog_v_inter
-                SUM_rsq_rhog_v_inter_sig_mean += dr_sq*rhog_v_sig_mean_inter
+                SUM_rsq_rhog_v_inter_sig_mean += dr_sq*rhog_v_sig_mean_inter*dr_sq*rhog_v_sig_mean_inter
                 SUM_rqd_rhog_v_inter += dr_qu*rhog_v_inter
-                SUM_rqd_rhog_v_inter_sig_mean += dr_qu*rhog_v_sig_mean_inter
+                SUM_rqd_rhog_v_inter_sig_mean += dr_qu*rhog_v_sig_mean_inter*dr_qu*rhog_v_sig_mean_inter
                 
             else:
                 et_sq_inter_ave = 0.0
