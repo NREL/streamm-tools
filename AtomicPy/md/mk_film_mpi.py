@@ -34,6 +34,11 @@ def get_options():
     # parser.add_option("--nb_list",dest="nb_list", default=False,action="store_true", help="Use neighbor list ")
 
     parser.add_option("--out_gro", dest="out_gro", type="string", default="mol_system.gro", help="gromacs output file ")
+
+    # Force field generation options     
+    parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" what software to use for the ff calculations   ")
+    parser.add_option("--itp", dest="itp_file",  type="string", default="ff-new.itp",help="gromacs force field parameter file")
+    parser.add_option("--norm_dihparam", dest="norm_dihparam",default=0, help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
     
     (options, args) = parser.parse_args()
         
@@ -126,7 +131,86 @@ def splitOnProcs(data):
     else:
         return plist[mpi.rank]
    
-       
+def replicate_dih(N_repeats,ELN_i,DIH_i):
+    """
+    Replicate dihedrals for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    DIH_sys = [] 
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(DIH_i)):
+            k_o = DIH_i[bond_indx][0]
+            i_o = DIH_i[bond_indx][1]
+            j_o = DIH_i[bond_indx][2]
+            l_o = DIH_i[bond_indx][3]
+            k_add = k_o + ( unit_n  )*NA_i
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            l_add = l_o + ( unit_n  )*NA_i
+            DIH_sys.append( [k_add,i_add ,j_add,l_add] )
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return DIH_sys
+
+def replicate_angles(N_repeats,ELN_i,ANGLES_i):
+    """
+    Replicate angles for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    ANGLES_sys = [] 
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(ANGLES_i)):
+            k_o = ANGLES_i[bond_indx][0]
+            i_o = ANGLES_i[bond_indx][1]
+            j_o = ANGLES_i[bond_indx][2]
+            k_add = k_o + ( unit_n  )*NA_i
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            ANGLES_sys.append( [k_add,i_add ,j_add] )
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return ANGLES_sys
+
+
+def replicate_bonds(N_repeats,ELN_i,BONDS_i):
+    """
+    Replicate bonds for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    BONDS_sys = [] 
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(BONDS_i)):
+            i_o = BONDS_i[bond_indx][0]
+            j_o = BONDS_i[bond_indx][1]
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            BONDS_sys.append( [i_add ,j_add] )
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return BONDS_sys
+
+
 def main():
     #
     # Caclulate rdf
@@ -135,7 +219,7 @@ def main():
     import os, sys, numpy , math , random
     import datetime
     import time    
-    import gromacs, elements, xmol, prop, file_io, groups  #, vectors 
+    import gromacs, elements, xmol, prop, file_io, groups,lammps , top #, vectors 
     
     use_mpi = 1
     if( use_mpi ):
@@ -188,10 +272,14 @@ def main():
     except NameError:
         sys.exit("Geometry read in error ")
     
-    #### begin(Debug)
-    mol_mult = 2
-    #### end(Debug)
+    #
+    # Read in parameter file 
+    #
 
+    # Read in ff file
+    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
+    
+        
     #
     # Shift molecule to have center of mass at origin 
     # 
@@ -244,6 +332,9 @@ def main():
     GTYPE_sys = []
     R_sys = []
     VEL_sys = []
+    BONDS_sys = []
+    ANGLES_sys = []
+    DIH_sys = []
         
     sys_mol_n = 0    # Number of molecules add to the system
     sys_attempts = 0  # Number of times the system has been reset
@@ -283,15 +374,16 @@ def main():
         print "     For the target density of ",options.den_target," g/cnm^3 ",target_density_amuang," AMU Angstrom^-3"
         print "       a target cubic unit cell of ",len_target_ang," will be needed "
         print "   - Options "
-        print "     in_top",options.in_top
-        print "     in_gro",options.in_gro
-        print "     atomic_cut",options.atomic_cut
-        print "     den_target",options.den_target
-        print "     atoms_target",options.atoms_target
-        print "     max_mol_place",options.max_mol_place
-        print "     max_sys",options.max_sys
-        print "     lc_expand",options.lc_expand
-        print "     out_gro",options.out_gro
+        print "     ff_software ",options.ff_software
+        print "     in_top ",options.in_top
+        print "     in_gro ",options.in_gro
+        print "     atomic_cut ",options.atomic_cut
+        print "     den_target ",options.den_target
+        print "     atoms_target ",options.atoms_target
+        print "     max_mol_place ",options.max_mol_place
+        print "     max_sys ",options.max_sys
+        print "     lc_expand ",options.lc_expand
+        print "     out_gro ",options.out_gro
         
     
     if( use_mpi ):
@@ -346,9 +438,7 @@ def main():
                     print mpi.rank, mpi.size,"  initialization finished "
                     if(  mpi.rank == 0 ):
                         print " R_shift first coordinate ",R_shift_o[0]," on ",mpi.rank
-                        
                     print
-                                    
                 #
                 # Broadcast molecular position from processor 0 to all other processors 
                 #
@@ -404,6 +494,7 @@ def main():
                     CHARGES_sys.append( CHARGES_i[atom_i])
                     AMASS_sys.append( AMASS_i[atom_i])
                     R_sys.append( R_shift[atom_i])
+                
                 if( options.verbose ):
                     if( use_mpi ):
                         if( mpi.rank == 0 ):
@@ -450,7 +541,7 @@ def main():
                             print '          - Number of system resets has exceeded the maximum  (option max_sys) ',options.max_sys
                             print '          - Lattice vectors will be expanded by (option lc_expand)',options.lc_expand
                             
-                    LV[0,0] = LV[0,0] + options.lc_expand
+                    mol_system[0,0] = LV[0,0] + options.lc_expand
                     LV[1,1] = LV[1,1] + options.lc_expand
                     LV[2,2] = LV[2,2] + options.lc_expand
                 
@@ -473,7 +564,60 @@ def main():
         if( mpi.rank == 0 ):
             out_xyz = "mol_system.xyz"
             xmol.write_xyz(ASYMB_sys,R_sys,out_xyz)
-            gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
+            
+            if( options.ff_software == "gromacs" ):
+                gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
+
+            elif( options.ff_software == "lammps"  ):
+                # Find topology for entire system
+                #   Repeat molecular topology for all molecules added to the system
+                BONDS_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i) 
+                ANGLES_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i) 
+                DIH_sys = replicate_dih(mol_mult,ELN_i,DIH_i) 
+
+                debug = 0
+                if( debug ):
+                    print " BONDS ", len(BONDS_sys)
+                    print "     ",BONDS_sys[0]
+                    for bond_indx in range(len(BONDS_sys)):
+                        print BONDS_sys[bond_indx][0]+1, BONDS_sys[bond_indx][1]+1
+                        
+                    print " ANGLES_sys ", len(ANGLES_sys)
+                    print "     ",ANGLES_sys[0]
+                    print " DIH_sys ", len(DIH_sys)
+                    print "     ",DIH_sys[0]
+                    
+                    sys.exit("debug 6 ")
+
+                # Identify total number of atom types for lammps output 
+                ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN_sys,ATYPE_sys,AMASS_sys,BONDS_sys,ANGLES_sys,DIH_sys)
+
+
+		#   Build covalent nieghbor list for bonded information 
+		NBLIST, NBINDEX = top.build_covnablist(ELN_i,R_i)
+		
+                # Check atom types to be sure each atom of the same type has the same number of neighbors 
+                ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE_i,NBLIST,NBINDEX)
+            
+                ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+                BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+                ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+                DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+                
+                IMPTYPE_F  = top.imp_parameters(options.itp_file)
+                
+                                        
+                data_file = "mol_system.data" 
+                lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+                  BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+                  ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+                  DIH_sys,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+                  RESN_sys,ATYPE_IND,CHARGES_sys,R_sys , ATYPE_sys,
+                  BONDS_sys ,BTYPE_IND, ANGLES_sys ,ANGTYPE_IND, LV)
+                
+            else:
+                print " Unknown ff software ",ff_software.options
+            
 
     else:
         
