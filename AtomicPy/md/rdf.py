@@ -82,7 +82,7 @@ def build_nablist(options,ELN,R,LV):
 		if( add_j ):
 		    if( atom_i != atom_j ):
 			r_j =  R[atom_j] 
-			sq_r_ij = prop.sq_drij_c(options,r_i,r_j,LV)
+			sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
 			if( sq_r_ij <= sq_r_cut ):
 			    NNAB += 1
 			    NBLIST[NNAB] =  atom_j
@@ -254,7 +254,7 @@ def main():
 			r_j = R_f[atom_j]
 			
 			if( options.cubic ):
-			    sq_r_ij = prop.sq_drij_c(options,r_i,r_j,LV)
+			    sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
 			else:
 			    sq_r_ij = prop.sq_drij(options,r_i,r_j,LV)
 			    
