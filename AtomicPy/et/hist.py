@@ -49,19 +49,23 @@ def ket(vij):
 def sigma_m(N,ave,ave_sq):
     """
     Calculate the standard deviation of the mean for a confidence
-    interval of 95%. Will return zero for single valued data sets 
+    interval of 90%. Will return zero for single valued data sets 
     """
     import numpy
     
     # Some website that probably does not exist
     #   http://mathworld.wolfram.com/Studentst-Distribution.html
+    #   http://www.itl.nist.gov/div898/handbook/eda/section3/eda3672.htm
+    #
     
     v = N - 1 #  Degrees of freedom
     
-    # Set appropriate Student t prefix
-    if( v > 100 ):
-	Coefint_pre = 1.64487
-    elif( v > 30 ):
+    # Set appropriate Students t prefactor 
+    #if( v > 100 ):
+    #	Coefint_pre = 1.64487
+    #el
+    
+    if( v > 30 ):
 	Coefint_pre = 1.66023
     elif( v > 10 ):
 	Coefint_pre = 1.69726
