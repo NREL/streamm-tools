@@ -21,8 +21,10 @@ def get_options():
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     
-    parser.add_option("--in_top", dest="in_top", type="string", default="in.top", help="Input gromacs topology file (.top) ")
-    parser.add_option("--in_gro", dest="in_gro", type="string", default="in.gro", help="Input gromacs structure file (.gro) ")
+    parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
+    parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
+    parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
+    parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
 
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
 
@@ -37,8 +39,8 @@ def get_options():
 
     # Force field generation options     
     parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" what software to use for the ff calculations   ")
-    parser.add_option("--itp", dest="itp_file",  type="string", default="ff-new.itp",help="gromacs force field parameter file")
     parser.add_option("--norm_dihparam", dest="norm_dihparam",default=0, help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
+    parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" what software to output the data to for the ff calculations   ")
     
     (options, args) = parser.parse_args()
         
@@ -131,7 +133,7 @@ def splitOnProcs(data):
     else:
         return plist[mpi.rank]
    
-def replicate_dih(N_repeats,ELN_i,DIH_i):
+def replicate_dih(N_repeats,ELN_i,DIH_i,DTYPE_IND_i):
     """
     Replicate dihedrals for given topology  to add mocules or groups to a system
     """
@@ -154,12 +156,13 @@ def replicate_dih(N_repeats,ELN_i,DIH_i):
             j_add = j_o + ( unit_n  )*NA_i
             l_add = l_o + ( unit_n  )*NA_i
             DIH_sys.append( [k_add,i_add ,j_add,l_add] )
+            DTYPE_IND_sys.append(DTYPE_IND_i[bond_indx] )
             if( debug ):
                 print i_o,j_o, " -> ",i_add ,j_add
             
-    return DIH_sys
+    return DIH_sys,DTYPE_IND_sys
 
-def replicate_angles(N_repeats,ELN_i,ANGLES_i):
+def replicate_angles(N_repeats,ELN_i,ANGLES_i,ANGTYPE_IND_i):
     """
     Replicate angles for given topology  to add mocules or groups to a system
     """
@@ -180,13 +183,15 @@ def replicate_angles(N_repeats,ELN_i,ANGLES_i):
             i_add = i_o + ( unit_n  )*NA_i
             j_add = j_o + ( unit_n  )*NA_i
             ANGLES_sys.append( [k_add,i_add ,j_add] )
+            ANGTYPE_IND_sys.append(ANGTYPE_IND_i[bond_indx] )
+            
             if( debug ):
                 print i_o,j_o, " -> ",i_add ,j_add
             
-    return ANGLES_sys
+    return ANGLES_sys,ANGTYPE_IND_sys
 
 
-def replicate_bonds(N_repeats,ELN_i,BONDS_i):
+def replicate_bonds(N_repeats,ELN_i,BONDS_i,BTYPE_IND_i):
     """
     Replicate bonds for given topology  to add mocules or groups to a system
     """
@@ -205,10 +210,11 @@ def replicate_bonds(N_repeats,ELN_i,BONDS_i):
             i_add = i_o + ( unit_n  )*NA_i
             j_add = j_o + ( unit_n  )*NA_i
             BONDS_sys.append( [i_add ,j_add] )
+            BTYPE_IND_sys.append(BTYPE_IND_i[bond_indx] )
             if( debug ):
                 print i_o,j_o, " -> ",i_add ,j_add
             
-    return BONDS_sys
+    return BONDS_sys,BTYPE_IND_sys
 
 
 def main():
@@ -243,7 +249,6 @@ def main():
     debug = 0
     p_time = 1
 
-
     #
     # Read in top file
     #
@@ -252,18 +257,59 @@ def main():
         ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options,options.in_top)
         ASYMB_i,ELN_i  = elements.mass_asymb(AMASS_i)
     #
-    # Test that geometry was read in
-    #
-    try:
-        GTYPE_i
-    except NameError:
-        sys.exit("Topology read in error ")
-    #
-    # Get coord
+    # Get gro file 
     #
     if( len(options.in_gro) ):
         if( options.verbose ): print  "     - Reading in ",options.in_gro
         GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)        
+    #
+    # Read in parameter file 
+    #
+
+
+    #
+    # Read in ff file
+    #
+    if( len(options.itp_file) ):
+        if( options.verbose ): print  "     - Reading in ",options.itp_file    
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
+        if(  options.ff_software == "lammps"  ):
+            # Identify total number of atom types for lammps output 
+            ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND_i , BTYPE_REF, ANGTYPE_IND_i , ANGTYPE_REF, DTYPE_IND_i , DTYPE_REF = lammps.lmp_types(ELN_i,ATYPE_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i)
+
+            #   Build covalent nieghbor list for bonded information 
+            NBLIST, NBINDEX = top.build_covnablist(ELN_i,R_i)
+            
+            # Check atom types to be sure each atom of the same type has the same number of neighbors 
+            ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE_i,NBLIST,NBINDEX)
+        
+            ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+            BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND_i , BTYPE_REF,FF_BONDTYPES)
+            ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND_i , ANGTYPE_REF,FF_ANGLETYPES)
+            DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND_i , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+            
+            IMPTYPE_F  = top.imp_parameters(options.itp_file)
+    else:
+        if(  options.ff_software == "lammps"  ):
+            print " An itp file specified with the --itp_file option is needed to create a lammps input file "
+            sys.exit(" Read in error")
+    #
+    # Get lammps data file 
+    #
+    if( len(options.in_data) ):
+        if( options.verbose ): print  "     - Reading in ",options.in_data
+        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(data_file)
+        
+        AMASS_i = []
+        for atom_i in range(ATYPE_IND_i):
+            type_ind  = ATYPE_IND[atom_i]
+            AMASS_i.append( ATYPE_MASS[type_ind])
+        ASYMB_i ,ELN_i = mass_asymb(AMASS_i)
+        
+        #if(  options.ff_software == "gromacs"  ):
+        GTYPE_i = []
+        for i in range( len(ELN) ):
+            GTYPE_i.append(ASYMB_i[i])
     #
     # Test that geometry was read in
     #
@@ -272,14 +318,6 @@ def main():
     except NameError:
         sys.exit("Geometry read in error ")
     
-    #
-    # Read in parameter file 
-    #
-
-    # Read in ff file
-    FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
-    
-        
     #
     # Shift molecule to have center of mass at origin 
     # 
@@ -321,6 +359,7 @@ def main():
     # Initialize system
     #
     ASYMB_sys = []
+    ATYPE_IND_sys = []
     ELN_sys  = []
     ATYPE_sys = []
     RESN_sys = []
@@ -333,8 +372,11 @@ def main():
     R_sys = []
     VEL_sys = []
     BONDS_sys = []
+    BTYPE_IND_sys = []
     ANGLES_sys = []
+    ANGTYPE_IND_sys = []
     DIH_sys = []
+    DTYPE_IND_sys = []
         
     sys_mol_n = 0    # Number of molecules add to the system
     sys_attempts = 0  # Number of times the system has been reset
@@ -494,6 +536,8 @@ def main():
                     CHARGES_sys.append( CHARGES_i[atom_i])
                     AMASS_sys.append( AMASS_i[atom_i])
                     R_sys.append( R_shift[atom_i])
+                    ATYPE_IND_sys.append( ATYPE_IND_i[atom_i])
+                    
                 
                 if( options.verbose ):
                     if( use_mpi ):
@@ -514,7 +558,7 @@ def main():
                 sys_mol_n = 0                
                 sys_attempts += 1 
                 ASYMB_sys = []
-                
+                ATYPE_IND_sys = []
                 ELN_sys  = []
                 ATYPE_sys = []
                 RESN_sys = []
@@ -568,12 +612,13 @@ def main():
             if( options.ff_software == "gromacs" ):
                 gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
 
-            elif( options.ff_software == "lammps"  ):
+            elif(  options.ff_software == "lammps"  ):
                 # Find topology for entire system
                 #   Repeat molecular topology for all molecules added to the system
-                BONDS_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i) 
-                ANGLES_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i) 
-                DIH_sys = replicate_dih(mol_mult,ELN_i,DIH_i) 
+        
+                BONDS_sys,BTYPE_IND_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
+                ANGLES_sys,ANGTYPE_IND_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
+                DIH_sys,DTYPE_IND_sys = replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
 
                 debug = 0
                 if( debug ):
@@ -589,32 +634,28 @@ def main():
                     
                     sys.exit("debug 6 ")
 
-                # Identify total number of atom types for lammps output 
-                ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN_sys,ATYPE_sys,AMASS_sys,BONDS_sys,ANGLES_sys,DIH_sys)
-
-
-		#   Build covalent nieghbor list for bonded information 
-		NBLIST, NBINDEX = top.build_covnablist(ELN_i,R_i)
-		
-                # Check atom types to be sure each atom of the same type has the same number of neighbors 
-                ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE_i,NBLIST,NBINDEX)
-            
-                ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-                BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-                ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-                DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
-                
-                IMPTYPE_F  = top.imp_parameters(options.itp_file)
-                
-                                        
                 data_file = "mol_system.data" 
                 lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
                   BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
                   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-                  DIH_sys,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+                  DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
                   RESN_sys,ATYPE_IND,CHARGES_sys,R_sys , ATYPE_sys,
-                  BONDS_sys ,BTYPE_IND, ANGLES_sys ,ANGTYPE_IND, LV)
+                  BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
+
+            elif( options.ff_software_in == "lammps"  and options.ff_software_out == "lammps"  ):
                 
+                BONDS_sys,BTYPE_IND_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
+                ANGLES_sys,ANGTYPE_IND_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
+                DIH_sys,DTYPE_IND_sys = replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
+
+                data_file = "mol_system.data" 
+                lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+                  BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+                  ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+                  DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+                  RESN_sys,ATYPE_IND,CHARGES_sys,R_sys , ATYPE_sys,
+                  BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
+
             else:
                 print " Unknown ff software ",ff_software.options
             
