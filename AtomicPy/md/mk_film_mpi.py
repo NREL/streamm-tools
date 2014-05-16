@@ -40,7 +40,6 @@ def get_options():
     # Force field generation options     
     parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" what software to use for the ff calculations   ")
     parser.add_option("--norm_dihparam", dest="norm_dihparam",default=0, help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
-    parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" what software to output the data to for the ff calculations   ")
     
     (options, args) = parser.parse_args()
         
@@ -140,7 +139,9 @@ def replicate_dih(N_repeats,ELN_i,DIH_i,DTYPE_IND_i):
     
     debug = 0
     
-    DIH_sys = [] 
+    DIH_sys = []
+    DTYPE_IND_sys = []
+    
     NA_i = len( ELN_i)
         
     for unit_n in range( N_repeats ):
@@ -169,7 +170,8 @@ def replicate_angles(N_repeats,ELN_i,ANGLES_i,ANGTYPE_IND_i):
     
     debug = 0
     
-    ANGLES_sys = [] 
+    ANGLES_sys = []
+    ANGTYPE_IND_sys = []
     NA_i = len( ELN_i)
         
     for unit_n in range( N_repeats ):
@@ -198,7 +200,8 @@ def replicate_bonds(N_repeats,ELN_i,BONDS_i,BTYPE_IND_i):
     
     debug = 0
     
-    BONDS_sys = [] 
+    BONDS_sys = []
+    BTYPE_IND_sys = []
     NA_i = len( ELN_i)
         
     for unit_n in range( N_repeats ):
@@ -289,7 +292,7 @@ def main():
             DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND_i , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
             
             IMPTYPE_F  = top.imp_parameters(options.itp_file)
-    else:
+    elif(len(options.in_data) == 0 ):
         if(  options.ff_software == "lammps"  ):
             print " An itp file specified with the --itp_file option is needed to create a lammps input file "
             sys.exit(" Read in error")
@@ -298,18 +301,25 @@ def main():
     #
     if( len(options.in_data) ):
         if( options.verbose ): print  "     - Reading in ",options.in_data
-        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(data_file)
+        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(options.in_data)
         
         AMASS_i = []
-        for atom_i in range(ATYPE_IND_i):
-            type_ind  = ATYPE_IND[atom_i]
+        for atom_i in range(len(ATYPE_IND_i)):
+            type_ind  = ATYPE_IND_i[atom_i]
             AMASS_i.append( ATYPE_MASS[type_ind])
-        ASYMB_i ,ELN_i = mass_asymb(AMASS_i)
+        ASYMB_i ,ELN_i = elements.mass_asymb(AMASS_i)
         
         #if(  options.ff_software == "gromacs"  ):
         GTYPE_i = []
-        for i in range( len(ELN) ):
+        RESID_i = []
+        CHARN_i = []
+        for i in range( len(ELN_i) ):
             GTYPE_i.append(ASYMB_i[i])
+            RESID_i.append("MOL")
+            CHARN_i.append(RESN_i[i])
+            
+        #CHARN_i = top.set_chargegroups(options,verbose,CG_SET,CHARN,ATYPE_i,ASYMB_i,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+        
     #
     # Test that geometry was read in
     #
@@ -639,21 +649,7 @@ def main():
                   BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
                   ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
                   DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-                  RESN_sys,ATYPE_IND,CHARGES_sys,R_sys , ATYPE_sys,
-                  BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
-
-            elif( options.ff_software_in == "lammps"  and options.ff_software_out == "lammps"  ):
-                
-                BONDS_sys,BTYPE_IND_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
-                ANGLES_sys,ANGTYPE_IND_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
-                DIH_sys,DTYPE_IND_sys = replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
-
-                data_file = "mol_system.data" 
-                lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
-                  BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
-                  ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-                  DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-                  RESN_sys,ATYPE_IND,CHARGES_sys,R_sys , ATYPE_sys,
+                  RESN_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
                   BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
 
             else:
