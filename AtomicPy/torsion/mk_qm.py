@@ -16,6 +16,7 @@ def get_options():
     
 
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
+    parser.add_option("-r","--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
     
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on")
@@ -28,8 +29,6 @@ def get_options():
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
     parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
     parser.add_option("--submit_command", dest="submit_command",type="string", default="qsub",help=" command used to submit script to the queue ")
-
-    parser.add_option("--recalc", dest="recalc",action="store_true", default=False,help=" Rerun calculation even if finished calculation has been found ")
 
     # Torsion
     parser.add_option("--cent_min", dest="cent_min", type="int", default="0",help=" Initial torsional angle ")
@@ -584,7 +583,9 @@ def main():
 				dih_indx = CONECT_IND[conect_indx]
 				DIH_VAL[dih_indx] = CONECT_DIH[conect_indx] 
 				print "   connection ",conect_indx," is dih ",dih_indx," in zmat with new value ",DIH_VAL[dih_indx]
+				
 			    # Update zmatrix
+			    
 			#
 			#    # Prin all non constranied elments of zmatrix
 			#    zmatrix_opt = ""
@@ -624,7 +625,7 @@ def main():
 			# Check to see if list of dihedrals to loop over has been creaeted
 			dlist_name = job_name + "_dih.list"
 			dlist_exists = file_io.file_exists( dlist_name )
-			if ( dlist_exists ):
+			if ( dlist_exists and not options.recalc):
 			    if( options.verbose ):
 				print "       Reading in dihedral list from   ",dlist_name
 			    DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS = read_dihlist(dlist_name)
