@@ -232,7 +232,7 @@ def main():
 			    com_name = job_id +".com"
 			    
 			    # Print com
-			    if( not file_io.file_exists(com_name) ):
+			    if( not file_io.file_exists(com_name)  or options.recalc  ):
 				if( options.verbose ):
 				    print "       Printing temp zmatrix "
 				    
