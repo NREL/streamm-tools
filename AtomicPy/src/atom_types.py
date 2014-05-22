@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Read in geometry file and convert to topology
+"""
+Asign atom types for force-field topologies 
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -7,6 +9,9 @@
 # travis.kemper@nrel.gov
 
 def initialize_atype( ELN ):
+    """
+    Set atom type to atomic symbol for initialization purposes 
+    """
     import elements
 
     debug = 0
@@ -21,23 +26,10 @@ def initialize_atype( ELN ):
             
     return ATYPE
 
-def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
-    import sys,top 
-        
-        
-    residue = 'PTMA'
-
-    debug = 0
-    
-    
-    NA = len(ELN)
-
-
-    
-    charge_total = options.sys_q
-    update_chr = options.ff_charges
-
 def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
+    """
+    Set OPLSaa atom types 
+    """
     import sys,top
     
     ATYPE = []
@@ -103,6 +95,11 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
                         if(  ELCNT[7] == 1 and ELCNT[16] == 1 ):             #imidazole C2
                             ATYPE[atom_i] = 'CR'
                             if( update_chr ): CHARGES[atom_i] =  0.22
+
+                    if( ELCNT[6] == 2 and  ELCNT[8] == 1  ):            # CTD strangeness ... 
+                        ATYPE[atom_i] = 'CW'
+                        if( update_chr ): CHARGES[atom_i] =  0.0
+                        
                     debug = 0
                     if( debug  ):
                         print " r_numb ",nring,r_numb, nring_mod, ELCNT[6], ELCNT[7], ATYPE[atom_i]
@@ -123,6 +120,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
                 ATYPE[atom_i] = 'C:'    # Allene
                 if( ELCNT[6] == 1 and ELCNT[7] == 1 ):   # "Benzonitrile -CN"  
                     ATYPE[atom_i] = 'CZ'
+                    
             if int(NNAB) == 1 :
                 ATYPE[atom_i] = '' # Aromatic C
                 print " WARNING!!! carbon index ",atom_i," bonded to single atom "
@@ -153,7 +151,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
         #
         # label nitrogens 
         #
-        if ELN[atom_i] == 'N':
+        if ELN[atom_i] == 7 :
             if int(NNAB) == 3 :      # amide
                 ATYPE[atom_i] = 'N' 
                 if( ELCNT[1] == 3 ): # Ammonia NH3"   
@@ -263,7 +261,8 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
                     if( ELCNT[1] == 1 and ELCNT[6] == 2 ):
                         ATYPE[atom_i] = 'CS'
                 if(  ELCNT[6] == 2 and nring_i == nring_j and ELN[atom_j] != 6 ):          # fussed 
-                    print ' CB ',atom_i+1, ELCNT[6] ,  nring_i , nring_j 
+                    if( debug):
+                        print ' CB ',atom_i+1, ELCNT[6] ,  nring_i , nring_j 
                     ATYPE[atom_i] = 'CB'
             if ( ATYPE[atom_i] == 'CS' ):
                 for indx_j in range( N_o,N_f+1):
@@ -332,7 +331,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
     if(debug):
         for atom_i in range(NA):
             print atom_i,ATYPE[atom_i],ELN[atom_i]
-            #sys.exit('debug')
+        sys.exit('debug')
 
     # Check for unidentified atoms
     for atom_i in range(NA):
@@ -343,6 +342,11 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
     return (ATYPE,CHARGES)
 
 def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
+    """
+    Set nitroxyl atom types for TEMPO 
+    """
+    
+    import sys,top 
     import sys,top 
         
         
@@ -599,6 +603,11 @@ def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NB
     return ( ATYPE,RESID,CHARGES,CG_SET,CHARN )
 
 def set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F):
+    """
+    Set nitroxyl improper dihedrals 
+    """
+    
+    import sys,top 
     import sys
     #
     debug = 0
@@ -637,6 +646,9 @@ def set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F):
         
 
 def set_iontypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
+    """
+    Set atom types for ions 
+    """
     import sys,top 
     
     NA = len(ELN)
@@ -691,6 +703,9 @@ def set_iontypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,
     return ( ATYPE,RESID,CHARGES )
 
 def set_pmmatypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
+    """
+    Set atom types for PMMA monomer
+    """
     import sys,top 
     
     NA = len(ELN)
@@ -831,12 +846,16 @@ def set_pmmatypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST
                     
 
 def biaryl_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES ):
+    """
+    Set atom types for biaryl OPLSaa force-field
+    J. Chem. Inf. Model. 2013, 53, 1191−1199
+    """
 		    #Refind inter ring types
     import sys,top
     
     NA = len(ELN)
     
-    debug = 1
+    debug = 0
 
     #
     # label carbons 
@@ -930,6 +949,9 @@ def biaryl_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RIN
     return ( ATYPE , CHARGES )
 
 def interring_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES ):
+    """
+    Set conjugated inter-ring carbons to type C! 
+    """
     import sys,top
       
     NA = len(ELN)

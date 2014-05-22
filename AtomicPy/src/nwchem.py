@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# IO for nwchem files 
+"""
+I/O for nwchem files
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -8,6 +10,10 @@
 # Version 2.00
 
 def write_et( ASYMB_i, R_i,Q_i, ASYMB_j, R_j,Q_j, out_et ):
+    """
+    write input file for ESP calcuation
+    """
+    
     import sys 
     import elements , prop
     
@@ -127,6 +133,10 @@ def write_et( ASYMB_i, R_i,Q_i, ASYMB_j, R_j,Q_j, out_et ):
     
 
 def check_log(nw_log):
+    """
+    Check to see if calcuation finished using log file 
+    """
+    
     import sys
     import file_io
     
@@ -147,6 +157,9 @@ def check_log(nw_log):
     return      log_finished
     
 def read_log(nw_log,geom_name):
+    """
+    Get atomic geometry from log file 
+    """
     import sys ,string
     import file_io
 
@@ -200,6 +213,9 @@ def read_log(nw_log,geom_name):
 
 
 def read_etlog(nw_log):
+    """
+    Get V_{AB} from eletron tranfer log file 
+    """
     import sys ,string
     import file_io
 

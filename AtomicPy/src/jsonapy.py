@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Read and write json files 
+"""
+Read and write json files 
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -7,6 +9,9 @@
 # travis.kemper@nrel.gov
 
 def read_jsondata(json_name):
+    """
+    Read in json file 
+    """
     import file_io
     import json 
     
@@ -28,6 +33,9 @@ def read_jsondata(json_name):
 
 
 def read_meta(json_data):
+    """
+    Return meta data from OPV database json file 
+    """
     import json , numpy 
     
     success = 0
@@ -61,9 +69,10 @@ def read_meta(json_data):
 
 
 def check_atomic(json_data):
+    """
+    Test if atomic data exisits in  OPV database json file 
+    """
     
-    
-    #Test if atomic data exisits
     metadata_found = 0 
     atomicdata_found = 0
     
@@ -83,6 +92,9 @@ def check_atomic(json_data):
 
 
 def read_atomic(json_data):
+    """
+    Read atomic data from a  OPV database json file 
+    """
     import json , numpy 
     
     success = 0
@@ -120,6 +132,9 @@ def read_atomic(json_data):
     return (ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success)
 
 def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
+    """
+    Append atomic data to a  OPV database json file 
+    """
     import file_io
     
     
@@ -173,7 +188,9 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
 
 
 def read_qm_tor(json_data):
-    
+    """
+    Read torisonal potential calculation data from  OPV database json file 
+    """
     dih_id_list = []
     cent_min_list  = []
     cent_max_list = []
@@ -209,7 +226,9 @@ def read_qm_tor(json_data):
 
 
 def read_ff_tor(json_data):
-    
+    """
+    Read force-field torisonal potential calculation data from  OPV database json file 
+    """
     dih_id_list = []
     cent_min_list  = []
     cent_max_list = []

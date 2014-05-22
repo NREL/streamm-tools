@@ -1,0 +1,52 @@
+Last login: Tue Feb 25 14:51:01 on ttys016
+NOTICE TO USERS: 
+This is a Federal computer system and is the property of the United States Government. It is for authorized use only.  Users (authorized or unauthorized) have no explicit or implicit expectation of privacy.
+
+Any or all uses of this system and all files on this system may be intercepted, monitored, recorded, copied, audited, inspected, and disclosed to authorized site, Department of Energy, and law enforcement personnel, as well as authorized officials of other agencies, both domestic and foreign. By using this system, the user consents to such interception, monitoring, recording, copying, auditing, inspection, and disclosure at the discretion of authorized site or Department of Energy personnel.
+
+Unauthorized or improper use of this system may result in administrative disciplinary action and civil and criminal penalties. By continuing to use this system you indicate your awareness of and consent to these terms and conditions of use.  LOG OFF IMMEDIATELY if you do not agree to the conditions stated in this warning.
+You have mail.
+mkdir: /Users/tkemper/scratch: File exists
+-bash: ulimit: open files: cannot modify limit: Invalid argument
+stc-24232s:draft tkemper$ 
+stc-24232s:draft tkemper$ ls
+chainlength.aux                chainlength.dvi                chainlength.synctex.gz         chainlength_outline.out        compile.sh
+chainlength.bbl                chainlength.log                chainlength.tex                chainlength_outline.pdf        figures
+chainlength.bib                chainlength.out                chainlength_outline.aux        chainlength_outline.synctex.gz ref
+chainlength.blg                chainlength.pdf                chainlength_outline.log        chainlength_outline.tex
+stc-24232s:draft tkemper$ cd
+stc-24232s:~ tkemper$ cd Scripts/
+stc-24232s:Scripts tkemper$ ls
+REBO_prject   bash          elements.py   ff.pyc        g_python      gro2com.py    gromacs.pyc   lmp_mactk     mdtoolv5      oplsaa.py     streamm       tor.py
+atom_types.py checkgeom     elements.pyc  ff_convert    gaussian.py   gromacs       groups.py     log2top4.sh   mdtoolv7      python        streamm_cp2   vectors.py
+atomicpy      cpp           ff.py         ffconvert.py  git.txt       gromacs.py    lammps.py     make_top.py   mdtoolv8      simtool       tk_dev_stream
+stc-24232s:Scripts tkemper$ cd streamm
+stc-24232s:streamm tkemper$ ls
+BB_new_R               BuildingBlocks-private opv-project            tools
+stc-24232s:streamm tkemper$ cd tools/AtomicPy/
+stc-24232s:AtomicPy tkemper$ ls
+README.txt et         md         src        torsion
+stc-24232s:AtomicPy tkemper$ cd torsion/
+stc-24232s:torsion tkemper$ ls
+README.txt                 dih_plt.template           mk_ff.py                   oplsaa_biaryl.itp          peregrine.lmp_min.template poly_ff.py                 rm_qm.py
+calc_ff.py                 fit_tor.py                 mk_newbb.py                oplsaa_biaryl_v1.itp       peregrine.md_min.template  read_json.py               vmd_data.py
+calc_qm.py                 fix_chk.py                 mk_qm.py                   oplsaa_biaryl_v2.itp       peregrine.pbs.template     redmesa.lmp_min.template
+data_ff.py                 get_data.py                mk_zmat.py                 oplsaa_biaryl_v3.itp       plot_barrier.py            redmesa.md_min.template
+data_qm.py                 mk_esp.py                  mp2_dih.com.template       oplsaa_biaryl_v4.itp       plot_data.py               redmesa.slurm.template
+stc-24232s:torsion tkemper$ komodo mk_qm.py &
+[1] 74896
+stc-24232s:torsion tkemper$ 
+stc-24232s:torsion tkemper$ git add mk_qm.py 
+stc-24232s:torsion tkemper$ git commit -m "Add sp_basis and sp_meth to mk_qm "
+[master fcb352d] Add sp_basis and sp_meth to mk_qm
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+stc-24232s:torsion tkemper$ git push
+Counting objects: 9, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 664 bytes, done.
+Total 5 (delta 3), reused 0 (delta 0)
+To https://github.nrel.gov/streamm/tools
+   0a8ac0c..fcb352d  master -> master
+stc-24232s:torsion tkemper$ git add mk_qm.py 
+stc-24232s:torsion tkemper$ git commit -m "Add verbose output to mk_qm printing dih vale and id's that are fixed and looped  "

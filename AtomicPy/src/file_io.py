@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Subroutines for file operations
+"""
+Subroutines for file operations
+"""
 
 # Dr. Travis Kemper
 # NREL

@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# subroutines for gromacs file manipulation
+"""
+subroutines for gromacs file manipulation
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -13,7 +15,9 @@ Kjtokcal = 0.239006
 
 
 def read_top(options,top_infile):
-    # Read in topology file 
+    """
+    Read in topology file 
+    """
     
     # General python modules 
     import sys, numpy
@@ -348,7 +352,9 @@ def read_top(options,top_infile):
 
 
 def read_gro(options,in_gro):
-    # Read gromacs structure file
+    """
+    Read gromacs structure file
+    """
     
     import sys, numpy 
 
@@ -421,6 +427,10 @@ def read_gro(options,in_gro):
 
 
 def read_itp(ff_file):
+    """
+    Read a gromacs paramter file 
+    """
+    
     import sys
 
     FF_ATOMTYPES = []
@@ -506,6 +516,10 @@ def read_itp(ff_file):
 
 
 def print_gro(gro_file,GTYPE,RESID,RESN,R,LV):
+    """
+    Write gromacs structure file 
+    """
+    
     import sys 
     #
     # printing gro 
@@ -527,6 +541,10 @@ def print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, R
                ,DIH_CONST,DIH_CONST_ANGLE
                ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
                ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LAT_CONST):
+    """
+    Write gromacs topology file
+    """
+    
     import sys
     
     NA = len( ELN )
@@ -649,6 +667,10 @@ def print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, R
     return
 
 def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES):
+    """
+    Write gromacs parameter file
+    """
+    
     import sys,top
     #
     # ' checking connections '
@@ -1036,6 +1058,9 @@ def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBI
 
 
 def print_sp(g_mdp):
+    """
+    Write input file for a single point calculation 
+    """
 
     min_lines =' title               =  fixed dih calc '
     min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
@@ -1062,6 +1087,9 @@ def print_sp(g_mdp):
     return
 
 def print_min(g_mdp):
+    """
+    Write input file for a minimzation calculation 
+    """
 
     min_lines =' title               =  fixed dih calc '
     min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
@@ -1094,6 +1122,10 @@ def print_min(g_mdp):
     return
 
 def print_min_nopbcs(g_mdp):
+    """
+    Write input file for a minimzation calculation with pbc's off
+    """
+
 
     min_lines =' title               =  fixed dih calc '
     min_lines = min_lines + '\n'  + 'cpp                 =  /usr/bin/cpp '
@@ -1120,6 +1152,9 @@ def print_min_nopbcs(g_mdp):
     
 
 def run_gromacs(g_gro,g_top,g_mdp,load_gromacs,gromacs_sufix,gromacs_dir ):
+    """
+    Run gromacs calculation
+    """
     import sys, os
     import file_io
     from string import replace
@@ -1172,6 +1207,9 @@ def run_gromacs(g_gro,g_top,g_mdp,load_gromacs,gromacs_sufix,gromacs_dir ):
     
 
 def get_logenergy(run_id):
+    """
+    Get energy from log file 
+    """
     import sys, os
 
     global kJtoeV,Kjtokcal
@@ -1193,6 +1231,9 @@ def get_logenergy(run_id):
     return potential_energy
 
 def get_g_potenergy(run_id,load_gromacs,gromacs_sufix,gromacs_dir):
+    """
+    Run g_energy and get potential energy 
+    """
     import sys, os
 
     global kJtoeV,Kjtokcal
@@ -1221,6 +1262,9 @@ def get_g_potenergy(run_id,load_gromacs,gromacs_sufix,gromacs_dir):
     return potential_energy
 
 def get_coord(run_id,load_gromacs,gromacs_sufix,gromacs_dir ):
+    """
+    Get coordinates from gromacs structure file 
+    """
     import sys, os
     
     #
@@ -1264,6 +1308,9 @@ def get_coord(run_id,load_gromacs,gromacs_sufix,gromacs_dir ):
     
     
 def check_input(g_gro,g_top,load_gromacs,gromacs_sufix,gromacs_dir ):
+    """
+    Test that an input file will compile a tpr file 
+    """
     import sys, os
     import file_io 
 
@@ -1293,7 +1340,9 @@ def check_input(g_gro,g_top,load_gromacs,gromacs_sufix,gromacs_dir ):
     return test_calc
 
 def check_g(min_file):
-
+    """
+    Check if a gromacs run has finished
+    """
     debug = 0
    
     run_gromacs = 1
@@ -1319,6 +1368,9 @@ def check_g(min_file):
 
 
 def get_dihangle(run_id,angle_indx,load_gromacs,gromacs_sufix,gromacs_dir):
+    """
+    Run g_angle to dihedral angles 
+    """
     import sys, os
     
     R = []

@@ -1,21 +1,25 @@
 #! /usr/bin/env python
-# Subroutines for calculating structural properties
+"""
+Subroutines for calculating structural properties
+ length - angstroms
+ mass   - AMU
+ volume - angstroms^3
+"""
 
 # Dr. Travis Kemper
 # Gatech
 # Initial Date 2012
 # travis.kemper@nrel.gov
 
-# length - angstroms
-# mass   - AMU
-# volume - angstroms^3
 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
 
 def r_frac(r_i,LV):
-    # Translate real coordinate to fractional
+    """
+    Translate real coordinate to fractional
+    """
     
     import numpy 
     # Return fractional coordinate of real position r
@@ -44,8 +48,9 @@ def r_frac(r_i,LV):
     return f_i
 
 def f_pbc(f_i,options):
-    pass
-
+    """
+    Apply periodic boundry conditions to fractional coordinates 
+    """
     prop_dim = 3
 
     f_c_pbc  = []
@@ -57,6 +62,9 @@ def f_pbc(f_i,options):
     return f_c_pbc
 
 def mag_drij(options,r_i,r_j,LV):
+    """
+    Return magnitude of distance between to vectors 
+    """
     import numpy 
     # Find magnitude of dr_ij
     
@@ -75,8 +83,10 @@ def mag_drij(options,r_i,r_j,LV):
     return mag_dr
     
 def sq_drij(options,r_i,r_j,LV):
+    """
+    Return square of magnitude of distance between to vectors 
+    """
     import numpy 
-    # Find magnitude of dr_ij
     
     f_i = r_frac(r_i,LV)
     f_j = r_frac(r_j,LV)
@@ -94,6 +104,10 @@ def sq_drij(options,r_i,r_j,LV):
     
     
 def mag_drij_c(r_i,r_j,LV):
+    """
+    Reutrn magnitude of distance between to vectors  using cubic periodic boundry conditions 
+    """
+    
     import numpy 
     # Find magnitude of dr_ij
     
@@ -118,6 +132,10 @@ def mag_drij_c(r_i,r_j,LV):
     return mag_dr
     
 def sq_drij_c(r_i,r_j,LV):
+    """
+    Reutrn square magnitude of distance between to vectors  using cubic periodic boundry conditions 
+    """
+    
     import numpy 
     # Find magnitude of dr_ij
     
@@ -143,6 +161,10 @@ def sq_drij_c(r_i,r_j,LV):
     
 
 def pbc_r_c(dr_x,dr_y,dr_z,LV):
+    """
+    Apply cubic periodic boundry conditions to a vector 
+    """
+    
     
     print dr_x, LV
     
@@ -154,7 +176,9 @@ def pbc_r_c(dr_x,dr_y,dr_z,LV):
 
 
 def f_real( f_i,LV):
-    # Return real position of fractional coordinates 
+    """
+    Return real position of fractional coordinates
+    """
 
     r_i = []
 
@@ -176,7 +200,10 @@ def f_real( f_i,LV):
     return r_i
 
 def volume( LV ):
-    # Calculate volume
+    """
+    Calculate volume
+    """
+    
     import numpy
     
     latvec_a = LV[0]
@@ -190,6 +217,10 @@ def volume( LV ):
 
 
 def total_mass(  AMASS ):
+    """
+    Calculate total mass 
+    """
+    
     import numpy
     
     # Sum mass, charges
@@ -200,6 +231,10 @@ def total_mass(  AMASS ):
     return total_mass
 
 def vecdensity(  AMASS,LV ):
+    """
+    Calculate density 
+    """
+    
     import numpy
     
     volume_i = volume( LV )
@@ -214,6 +249,10 @@ def vecdensity(  AMASS,LV ):
 
 
 def build_nablist(ELN,R):
+    """
+    Build bonded nieghbor list from covalent radi 
+    """
+    
     import sys, elements, numpy 
     import datetime
 
@@ -296,6 +335,10 @@ def build_nablist(ELN,R):
 
 
 def shift_cent_mass(AMASS,R,r_shift):
+    """
+    Shift center of mass to a point 
+    """
+
     import elements, numpy
     
     
@@ -331,6 +374,10 @@ def shift_cent_mass(AMASS,R,r_shift):
 
 
 def sys_cent_mass(ASYMB,R,options):
+    """
+    Calculate system center of mass 
+    """
+
     import elements, numpy 
        
     ELN = elements.asymb_eln(ASYMB)
@@ -358,6 +405,10 @@ def sys_cent_mass(ASYMB,R,options):
 
 
 def list_cent_mass(atom_list,R,options):
+    """
+    Calculate center of mass of a list of atoms 
+    """
+
     import numpy 
 
     prop_dim = len(R[0])
@@ -387,6 +438,10 @@ def list_cent_mass(atom_list,R,options):
 
 
 def cent_mass(AMASS,R):
+    """
+    Calculate center of mass 
+    """
+
     import numpy 
 
     prop_dim = len(R[0])
@@ -412,6 +467,10 @@ def cent_mass(AMASS,R):
     return r_mass
 
 def shift_r(r_cm,R_local,options):
+    """
+    Shift coordinates 
+    """
+
     # shift system
     import numpy 
     
@@ -429,7 +488,9 @@ def shift_r(r_cm,R_local,options):
 
 
 def r_pbc(r_i,LV,options):
-    # Apply pbc's single postion vector r_i 
+    """
+    Apply pbc's single postion vector r_i
+    """
     
     f_i = r_frac(r_i,LV)
     f_c_pbc = f_pbc(f_i,options)
@@ -438,8 +499,10 @@ def r_pbc(r_i,LV,options):
     return r_i_pbc
     
 def atom_pbc(R,LV,options):
-    import numpy 
-    # Apply pbc's to all atoms with center = [0,0,0]
+    import numpy
+    """
+    Apply pbc's to all atoms with center = [0,0,0]
+    """
     
     R_pbc = numpy.zeros( [len(R),options.prop_dim] )
     
@@ -454,7 +517,10 @@ def atom_pbc(R,LV,options):
 
 
 def hterm_seg(ELN,ASYMB,R,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_l,REFNUMB_l,FIX_l,calc_id,options):
-    # hydrogen terminate segment from a larger system for qm calculation
+    """
+    hydrogen terminate segment from a larger system for qm calculation
+    """
+    
     import numpy as np 
     import top, elements 
     
@@ -549,7 +615,9 @@ def hterm_seg(ELN,ASYMB,R,ATYPE,CHARGES,NBLIST,NBINDEX,ASYMB_l,REFNUMB_l,FIX_l,c
     
     
 def multiplicity(ELN,Q):
-    
+    """
+    Calculate lowest spin multiplicity 
+    """
     e = sum( ELN )
     e_total = e + Q
     e_unpaired =  e_total % 2
@@ -562,6 +630,9 @@ def multiplicity(ELN,Q):
 
 
 def getDihedral(a,b,c,d):
+    """
+    Calculate dihedral angle 
+    """
     import numpy 
     
     #  k - i - j -l 
@@ -597,16 +668,22 @@ def getDihedral(a,b,c,d):
     return angle_i
 
 def getNormedVector(a,b):
+    """
+    Normailze vector 
+    """
     import numpy 
 
     delta_ba = b-a
     return (delta_ba)/numpy.linalg.norm(delta_ba)
 
 def getAngle(a,b):
-    #  k - i - j 
-    # a = r_ik
-    # b = r_ij
-    # cos( \theta ) = ( a dot b ) / ( |a| |b| )
+    """
+    Calcuate angle
+      k - i - j 
+     a = r_ik
+     b = r_ij
+     cos( \theta ) = ( a dot b ) / ( |a| |b| )
+    """
     #
     import numpy 
 
@@ -628,6 +705,9 @@ def getAngle(a,b):
 
 
 def d_en_2p(en_1,en_3,h):
+    """
+    Numerical derivative of 2 points 
+    """
     # en_1  eV
     # en_2  eV 
     
@@ -645,6 +725,9 @@ def d_en_2p(en_1,en_3,h):
     return d_en_p
 
 def d2_en_3p(en_1,en_2,en_3,h):
+    """
+    Numerical derivative of 3 points 
+    """
     # en_1  eV
     # en_2  eV 
     # en_3  eV 
@@ -654,8 +737,10 @@ def d2_en_3p(en_1,en_2,en_3,h):
     return d2_en
 
 def calc_d2(  numeric_func, h ):
-    import numpy, sys  
-    # Find max and mins based on the second derivative 
+    import numpy, sys
+    """
+    Find max and mins based on the second derivative
+    """
     
     debug = 0
     

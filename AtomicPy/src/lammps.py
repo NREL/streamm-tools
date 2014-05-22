@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# IO of lammps files 
+"""
+I/O of lammps files 
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -8,6 +10,9 @@
 
 
 def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
+    """
+    Find bonded types 
+    """
     import sys
     
     debug  = 0 
@@ -253,8 +258,9 @@ def lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH):
 
 
 def read_data(data_file):
-
-    # atomicpy functions
+    """
+    Read data file
+    """
     import file_io
     import sys, numpy
     
@@ -610,7 +616,9 @@ def print_lmp(data_file, ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
               DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
               RESN,ATYPE_IND,CHARGES,R , ATYPE,
               BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST):
-    
+    """
+    Write data file
+    """
     import sys, math
     # 
     #
@@ -783,7 +791,9 @@ def print_lmp(data_file, ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
     
 
 def print_rest(rest_file,data_file,cent_angle,dih_indx,options):
-    
+    """
+    Write input file for relaxed torsional angle calculation 
+    """
     if( len(dih_indx) > 3 ):
         dihindx_line = str( dih_indx[0] ) + " " + str( dih_indx[1] ) + " " + str( dih_indx[2] ) + " " + str( dih_indx[3] )+ " " 
     else:
@@ -835,6 +845,9 @@ def print_rest(rest_file,data_file,cent_angle,dih_indx,options):
     return
 
 def print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options):
+    """
+    Write input file for relaxed torsional angle calculation  version 2
+    """
     
     # LAMMPS input: minimization w/ soft potential  
     input_lines = ' units 		real ' 
@@ -890,6 +903,9 @@ def print_rest2(rest_file,data_file,DIH_CONST_ANGLE,DIH_CONST_ATOMS,options):
     return 
 
 def print_sp(rest_file,data_file,options):
+    """
+    Write input file for single point torsional angle calculation
+    """
         
     # LAMMPS input: minimization w/ soft potential  
     input_lines = ' units 		real ' 
@@ -929,6 +945,10 @@ def print_sp(rest_file,data_file,options):
     return 
 
 def run_lmp(lammps_dir,lammps_src,lmp_in):
+    """
+    Run lammps
+    """
+    
     import sys, os
     from string import replace
     
@@ -944,6 +964,9 @@ def run_lmp(lammps_dir,lammps_src,lmp_in):
 
 
 def get_pe(log_file):
+    """
+    Get potential energy from log file 
+    """
     import sys, os
 
     KCALtoEV = 0.04336411
@@ -990,7 +1013,9 @@ def get_pe(log_file):
 
 
 def last_xmol(xmol_file,options):
-
+    """
+    Get file geometry from xmol file 
+    """
     debug = 0
     
     F = open(xmol_file,'r')
@@ -1022,6 +1047,14 @@ def last_xmol(xmol_file,options):
 
     
 def get_dihangle(R,angle_indx,options):
+    """
+    Calcuate dihedral angle of 4 atoms
+        <-phi->
+     I         L
+      \      / 
+        J - K    
+    """
+    
     import numpy , prop
     
     debug = 0
@@ -1040,13 +1073,6 @@ def get_dihangle(R,angle_indx,options):
     
     
     angle = prop.getDihedral(a,b,c,d)
-    
-    # Adjust for lammps
-    #   <-phi->
-    # I         L
-    #  \      / 
-    #    J - K
-    #         
     
     return angle
 

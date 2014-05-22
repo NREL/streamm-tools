@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Process topology information 
+"""
+Process topology information
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -12,6 +14,9 @@ GRO_SIG = 5.61230943
 NM_ANG = 10.0
 
 def  initialize_gtype(ELN):
+    """
+    Initialize gtype as atomic symbol and atom number 
+    """
     import sys,elements
     
     GTYPE = []
@@ -25,6 +30,9 @@ def  initialize_gtype(ELN):
     return GTYPE
 
 def initialize_resid( ELN ):
+    """
+    Initialize residue id as CHN 
+    """
 
     RESID = []
     residue_id = 'CHN'
@@ -35,6 +43,9 @@ def initialize_resid( ELN ):
     return RESID
 
 def initialize_resn( ELN ):
+    """
+    Initialize residue number 1
+    """
 
     RESN = []
     residue_numb = 1
@@ -45,6 +56,9 @@ def initialize_resn( ELN ):
     return RESN
     
 def initialize_charn( ELN ):
+    """
+    Initialize charge group number as 1 
+    """
 
     CHARN = []
     char_numb = 1
@@ -56,6 +70,9 @@ def initialize_charn( ELN ):
 
           
 def initialize_charges( ELN ):
+    """
+    Initialize charges as 0 
+    """
 
     CHARGES = []
     q = 0.0 
@@ -66,6 +83,9 @@ def initialize_charges( ELN ):
     return CHARGES
 
 def calc_nnab(i,NBLIST,NBINDEX):
+    """
+    Return number of nieghbors for a given atom 
+    """
     #
     # Find number of elements 
     #
@@ -75,6 +95,10 @@ def calc_nnab(i,NBLIST,NBINDEX):
     return NNAB
 
 def calc_elcnt(i,ELN,NBLIST,NBINDEX):
+    """
+    Return 
+    """
+    
     import numpy
     #
     # Find number of elements 
@@ -91,9 +115,9 @@ def calc_elcnt(i,ELN,NBLIST,NBINDEX):
     return ELCNT 
 
 def build_covnablist(ELN,R):
-    #
-    # Build covalent neighbor list from elements and positions 
-    #
+    """
+    Build covalent neighbor list from elements and positions 
+    """
     import sys, elements, numpy 
     import datetime
 
@@ -192,9 +216,9 @@ def build_covnablist(ELN,R):
 
 def nblist_bonds(NA,NBLIST, NBINDEX):
     import sys
-    #
-    # Generate bonds from neighbor list
-    #
+    """
+    Generate bonds from neighbor list
+    """
     BONDS = []*2
  
     for atom_i in range(NA):
@@ -209,9 +233,9 @@ def nblist_bonds(NA,NBLIST, NBINDEX):
 
 def nblist_angles(NA,NBLIST, NBINDEX):
     import sys
-    #
-    # Generate angles from neighbor list 
-    #
+    """
+    Generate angles from neighbor list 
+    """
     
     ANGLES = []*3
  
@@ -232,9 +256,9 @@ def nblist_angles(NA,NBLIST, NBINDEX):
 
 def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
     import sys
-    #
-    # Generate dihedrals from neighbor list 
-    #
+    """
+    Generate dihedrals from neighbor list 
+    """
     DIH = []*4
  
     for atom_i in range(NA):
@@ -275,10 +299,9 @@ def nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n):
 
 def nblist_imp(NA,NBLIST, NBINDEX,ELN):
     import sys
-    #
-    #
-    # Generate impropers from neighbor list 
-    #
+    """
+    Generate impropers from neighbor list 
+    """
     IMPS = []
 
     return  IMPS
@@ -286,6 +309,9 @@ def nblist_imp(NA,NBLIST, NBINDEX,ELN):
 
 def id_ring(a_i,ELN,NBLIST,NBINDEX):
     import sys
+    """
+    Find atoms in conjugated rings 
+    """
         
     debug = 0
     
@@ -375,8 +401,9 @@ def id_ring(a_i,ELN,NBLIST,NBINDEX):
     return RING_ATOMS
 
 def find_rings(ELN,NBLIST,NBINDEX):
-    #
-    # Add hydrogens to ring 
+    """
+    Find conjugate rings
+    """
     import sys
         
     RINGLIST = []
@@ -385,10 +412,6 @@ def find_rings(ELN,NBLIST,NBINDEX):
 
     debug = 0
     
-    print
-    print ' finding rings '
-    print
-
     IN_RING = []
     
     one = 0 
@@ -478,6 +501,9 @@ def find_rings(ELN,NBLIST,NBINDEX):
     return ( RINGLIST, RINGINDEX , RING_NUMB )
 
 def find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB):
+    """
+    Find inter conjugated ring  atoms 
+    """
     import sys, numpy 
            
     RING_CONNECT = []
@@ -510,6 +536,9 @@ def find_conections(ELN,NBLIST,NBINDEX,RINGINDEX , RING_NUMB):
 
 
 def ring_natoms(r_numb,RINGINDEX):
+    """
+    Number of atoms in a ring
+    """
 
     RN_o = RINGINDEX[r_numb]
     RN_f = RINGINDEX[r_numb+1] - 1
@@ -520,6 +549,11 @@ def ring_natoms(r_numb,RINGINDEX):
 
 
 def special_types(ATYPE, ASYMB , ELN , atom_types):
+    """
+    Asign special atom types 
+    """
+    
+
     import sys
     import file_io
 
@@ -563,6 +597,11 @@ def special_types(ATYPE, ASYMB , ELN , atom_types):
 
 
 def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV):
+    """
+    Set charge groups 
+    """
+    
+
     import sys, prop
     
     if( verbose ):
@@ -798,6 +837,9 @@ def set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING
     return CHARN
 
 def check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX):
+    """
+    Make sure every atom of a certain type has the same number of nieghbors 
+    """
     import sys, numpy
     
     ATYPE_NNAB = numpy.zeros( len(ATYPE_REF ) )
@@ -821,6 +863,9 @@ def check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX):
     return ATYPE_NNAB
 
 def atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES):
+    """
+    
+    """
     import sys
 
     global GRO_SIG,KJ_KCAL,NM_ANG

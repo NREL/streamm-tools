@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Scripts for cluster related opterations
+"""
+Scripts for hpc related opterations
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -9,6 +11,9 @@
 
 
 def write_pbs(pbs_templ,calc_id,input_file,options):
+    """
+    Write pbs submission file 
+    """
     from string import replace
 
     # Print pbs script
@@ -30,6 +35,9 @@ def write_pbs(pbs_templ,calc_id,input_file,options):
 
 
 def submit_job( struct_dir, pbs_id ,options):
+    """
+    Submit pbs file to queue 
+    """
     import sys, os
 
     print " submitting job " , pbs_id

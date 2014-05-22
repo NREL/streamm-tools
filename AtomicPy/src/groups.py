@@ -1,4 +1,6 @@
-# group atoms
+"""
+group atoms
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -13,7 +15,9 @@
 
 
 def build_nablist(options,ELN,R,LV):
-    # General neighbor list based on a cut off
+    """
+    General neighbor list based on a cut off
+    """
     
     import sys,  numpy
     import elements, prop
@@ -119,7 +123,9 @@ def build_nablist(options,ELN,R,LV):
 
 
 def index_nablist(options,ELN,R,LV):
-    # neighbor list for certian atoms
+    """
+    neighbor list for certian atoms
+    """
     
     import sys,  numpy
     import elements, prop
@@ -225,6 +231,9 @@ def index_nablist(options,ELN,R,LV):
 
 
 def build_nablist_bonds(ELN,BONDS):
+    """
+    Build nieghbor list using bonded information 
+    """
     import sys,numpy
 
     debug = 0
@@ -281,6 +290,9 @@ def build_nablist_bonds(ELN,BONDS):
 
 
 def tempo( ATYPE,ELN,NBLIST,NBINDEX ,options ):
+    """
+    Create a group of TEMPO each ring
+    """
     import sys,numpy, top 
     
     debug = 0
@@ -367,6 +379,9 @@ def tempo( ATYPE,ELN,NBLIST,NBINDEX ,options ):
 
 
 def cent_mass( atom_index, atom_list, R, AMASS ,options):
+    """
+    Find the center of mass of a group
+    """
     import sys, numpy 
     
     debug = 0
@@ -407,6 +422,9 @@ def cent_mass( atom_index, atom_list, R, AMASS ,options):
     
 
 def nablist(group_cnt,group_cent,LV,options):
+    """
+    Create a nieghbor list of groups based on the relative center of mass spacing 
+    """
     import numpy 
     import prop
     

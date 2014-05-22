@@ -1,0 +1,62 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module prop</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>prop</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/tkemper/Scripts/streamm/tools/AtomicPy/src/prop.py">/Users/tkemper/Scripts/streamm/tools/AtomicPy/src/prop.py</a></font></td></tr></table>
+    <p><tt>Subroutines&nbsp;for&nbsp;calculating&nbsp;structural&nbsp;properties<br>
+&nbsp;length&nbsp;-&nbsp;angstroms<br>
+&nbsp;mass&nbsp;&nbsp;&nbsp;-&nbsp;AMU<br>
+&nbsp;volume&nbsp;-&nbsp;angstroms^3</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-atom_pbc"><strong>atom_pbc</strong></a>(R, LV, options)</dt></dl>
+ <dl><dt><a name="-build_nablist"><strong>build_nablist</strong></a>(ELN, R)</dt><dd><tt>Build&nbsp;bonded&nbsp;nieghbor&nbsp;list&nbsp;from&nbsp;covalent&nbsp;radi</tt></dd></dl>
+ <dl><dt><a name="-calc_d2"><strong>calc_d2</strong></a>(numeric_func, h)</dt></dl>
+ <dl><dt><a name="-cent_mass"><strong>cent_mass</strong></a>(AMASS, R)</dt><dd><tt>Calculate&nbsp;center&nbsp;of&nbsp;mass</tt></dd></dl>
+ <dl><dt><a name="-d2_en_3p"><strong>d2_en_3p</strong></a>(en_1, en_2, en_3, h)</dt><dd><tt>Numerical&nbsp;derivative&nbsp;of&nbsp;3&nbsp;points</tt></dd></dl>
+ <dl><dt><a name="-d_en_2p"><strong>d_en_2p</strong></a>(en_1, en_3, h)</dt><dd><tt>Numerical&nbsp;derivative&nbsp;of&nbsp;2&nbsp;points</tt></dd></dl>
+ <dl><dt><a name="-f_pbc"><strong>f_pbc</strong></a>(f_i, options)</dt><dd><tt>Apply&nbsp;periodic&nbsp;boundry&nbsp;conditions&nbsp;to&nbsp;fractional&nbsp;coordinates</tt></dd></dl>
+ <dl><dt><a name="-f_real"><strong>f_real</strong></a>(f_i, LV)</dt><dd><tt>Return&nbsp;real&nbsp;position&nbsp;of&nbsp;fractional&nbsp;coordinates</tt></dd></dl>
+ <dl><dt><a name="-getAngle"><strong>getAngle</strong></a>(a, b)</dt><dd><tt>Calcuate&nbsp;angle<br>
+&nbsp;&nbsp;k&nbsp;-&nbsp;i&nbsp;-&nbsp;j&nbsp;<br>
+&nbsp;a&nbsp;=&nbsp;r_ik<br>
+&nbsp;b&nbsp;=&nbsp;r_ij<br>
+&nbsp;cos(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;heta&nbsp;)&nbsp;=&nbsp;(&nbsp;a&nbsp;dot&nbsp;b&nbsp;)&nbsp;/&nbsp;(&nbsp;|a|&nbsp;|b|&nbsp;)</tt></dd></dl>
+ <dl><dt><a name="-getDihedral"><strong>getDihedral</strong></a>(a, b, c, d)</dt><dd><tt>Calculate&nbsp;dihedral&nbsp;angle</tt></dd></dl>
+ <dl><dt><a name="-getNormedVector"><strong>getNormedVector</strong></a>(a, b)</dt><dd><tt>Normailze&nbsp;vector</tt></dd></dl>
+ <dl><dt><a name="-hterm_seg"><strong>hterm_seg</strong></a>(ELN, ASYMB, R, ATYPE, CHARGES, NBLIST, NBINDEX, ASYMB_l, REFNUMB_l, FIX_l, calc_id, options)</dt><dd><tt>hydrogen&nbsp;terminate&nbsp;segment&nbsp;from&nbsp;a&nbsp;larger&nbsp;system&nbsp;for&nbsp;qm&nbsp;calculation</tt></dd></dl>
+ <dl><dt><a name="-list_cent_mass"><strong>list_cent_mass</strong></a>(atom_list, R, options)</dt><dd><tt>Calculate&nbsp;center&nbsp;of&nbsp;mass&nbsp;of&nbsp;a&nbsp;list&nbsp;of&nbsp;atoms</tt></dd></dl>
+ <dl><dt><a name="-mag_drij"><strong>mag_drij</strong></a>(options, r_i, r_j, LV)</dt><dd><tt>Return&nbsp;magnitude&nbsp;of&nbsp;distance&nbsp;between&nbsp;to&nbsp;vectors</tt></dd></dl>
+ <dl><dt><a name="-mag_drij_c"><strong>mag_drij_c</strong></a>(r_i, r_j, LV)</dt><dd><tt>Reutrn&nbsp;magnitude&nbsp;of&nbsp;distance&nbsp;between&nbsp;to&nbsp;vectors&nbsp;&nbsp;using&nbsp;cubic&nbsp;periodic&nbsp;boundry&nbsp;conditions</tt></dd></dl>
+ <dl><dt><a name="-multiplicity"><strong>multiplicity</strong></a>(ELN, Q)</dt><dd><tt>Calculate&nbsp;lowest&nbsp;spin&nbsp;multiplicity</tt></dd></dl>
+ <dl><dt><a name="-pbc_r_c"><strong>pbc_r_c</strong></a>(dr_x, dr_y, dr_z, LV)</dt><dd><tt>Apply&nbsp;cubic&nbsp;periodic&nbsp;boundry&nbsp;conditions&nbsp;to&nbsp;a&nbsp;vector</tt></dd></dl>
+ <dl><dt><a name="-r_frac"><strong>r_frac</strong></a>(r_i, LV)</dt><dd><tt>Translate&nbsp;real&nbsp;coordinate&nbsp;to&nbsp;fractional</tt></dd></dl>
+ <dl><dt><a name="-r_pbc"><strong>r_pbc</strong></a>(r_i, LV, options)</dt><dd><tt>Apply&nbsp;pbc's&nbsp;single&nbsp;postion&nbsp;vector&nbsp;r_i</tt></dd></dl>
+ <dl><dt><a name="-shift_cent_mass"><strong>shift_cent_mass</strong></a>(AMASS, R, r_shift)</dt><dd><tt>Shift&nbsp;center&nbsp;of&nbsp;mass&nbsp;to&nbsp;a&nbsp;point</tt></dd></dl>
+ <dl><dt><a name="-shift_r"><strong>shift_r</strong></a>(r_cm, R_local, options)</dt><dd><tt>Shift&nbsp;coordinates</tt></dd></dl>
+ <dl><dt><a name="-sq_drij"><strong>sq_drij</strong></a>(options, r_i, r_j, LV)</dt><dd><tt>Return&nbsp;square&nbsp;of&nbsp;magnitude&nbsp;of&nbsp;distance&nbsp;between&nbsp;to&nbsp;vectors</tt></dd></dl>
+ <dl><dt><a name="-sq_drij_c"><strong>sq_drij_c</strong></a>(r_i, r_j, LV)</dt><dd><tt>Reutrn&nbsp;square&nbsp;magnitude&nbsp;of&nbsp;distance&nbsp;between&nbsp;to&nbsp;vectors&nbsp;&nbsp;using&nbsp;cubic&nbsp;periodic&nbsp;boundry&nbsp;conditions</tt></dd></dl>
+ <dl><dt><a name="-sys_cent_mass"><strong>sys_cent_mass</strong></a>(ASYMB, R, options)</dt><dd><tt>Calculate&nbsp;system&nbsp;center&nbsp;of&nbsp;mass</tt></dd></dl>
+ <dl><dt><a name="-total_mass"><strong>total_mass</strong></a>(AMASS)</dt><dd><tt>Calculate&nbsp;total&nbsp;mass</tt></dd></dl>
+ <dl><dt><a name="-vecdensity"><strong>vecdensity</strong></a>(AMASS, LV)</dt><dd><tt>Calculate&nbsp;density</tt></dd></dl>
+ <dl><dt><a name="-volume"><strong>volume</strong></a>(LV)</dt><dd><tt>Calculate&nbsp;volume</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>const_avo</strong> = 6.02214129</td></tr></table>
+</body></html>

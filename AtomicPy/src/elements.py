@@ -6,22 +6,24 @@
 # Initial Date 07/29/2013
 # travis.kemper@nrel.gov
 
+"""
+  Periodic table information
+    elsymbol - atomic symbol in list based on atomic number
+    ELMASS - atomic mass in list based on atomic number
+    radi_cov - covalent radius in list based on atomic number
+    radi_vdw - Van der Waals radius in list based on atomic number
 
-#  Periodic table information
-#    elsymbol - atomic symbol in list based on atomic number
-#    ELMASS - atomic mass in list based on atomic number
-#    radi_cov - covalent radius in list based on atomic number
-#    radi_vdw - Van der Waals radius in list based on atomic number
-
-#  Lists of atomic information for each atom in a structure  
-#    ASYMB - list of atomic symbols
-#    ELN   - list of atomic numbers
-#    AMASS - list of atomic masses 
-
+  Lists of atomic information for each atom in a structure  
+    ASYMB - list of atomic symbols
+    ELN   - list of atomic numbers
+    AMASS - list of atomic masses 
+"""
 n_elements = 110
 
 def asymb_eln(ASYMB):
-    # Return element # list, based on atomic symbol list 
+    """    
+    Return element # list, based on atomic symbol list 
+    """
     
     ELN = []
     elsymbol = set_elsymbol()
@@ -41,7 +43,9 @@ def asymb_eln(ASYMB):
 
 
 def eln_asymb(ELN):
-    # Return atomic symbol list based on element # list 
+    """
+    Return atomic symbol list based on element # list 
+    """
     
     ASYMB = []
     elsymbol = set_elsymbol()
@@ -52,7 +56,9 @@ def eln_asymb(ELN):
     return ASYMB
 
 def mass_asymb(AMASS):
-    # Return element # and atomic symbol list based on atomic mass list 
+    """
+    Return element # and atomic symbol list based on atomic mass list
+    """
     
     debug = 0
     
@@ -77,7 +83,9 @@ def mass_asymb(AMASS):
     return ( ASYMB , ELN ) 
 
 def eln_amass(ELN):
-
+    """
+    Return element mass from atomic number 
+    """
     AMASS = []
     ELMASS = set_elmass()
     for i in range( len(ELN) ):
@@ -88,6 +96,10 @@ def eln_amass(ELN):
     return AMASS
 
 def set_elsymbol():
+    """
+    Set atomic symbol list elsymbol
+    """
+    
     import sys
     global n_elements 
     
@@ -208,6 +220,10 @@ def set_elsymbol():
 
 
 def set_elmass():
+    """
+    Set atomic mass list ELMASS
+    """
+    
     import numpy
     global n_elements 
 
@@ -326,7 +342,10 @@ def set_elmass():
     return ELMASS
 
 def covalent_radi():
-    # Covalent radi from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+    """
+    Set covalent radi
+    from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+    """
     import numpy
     global n_elements 
 
@@ -436,7 +455,11 @@ def covalent_radi():
     return radi_cov
 
 def vdw_radi():
-    # Covalent radi from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4 
+    """
+    Van der Waals  radi
+    from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+    """
+    
     import numpy
     global n_elements 
 

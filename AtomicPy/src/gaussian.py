@@ -1,5 +1,8 @@
 #! /usr/bin/env python
-# Subroutines for reading and writing gaussian related files
+
+"""
+Subroutines for reading and writing gaussian related files
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -11,7 +14,9 @@
 HtoeV = 27.211385
 
 def check_log(log_name):
-    
+    """
+    Check to see if log file has finished 
+    """
     run_opt = 1
     try:
         with open(log_name) as f:
@@ -34,8 +39,10 @@ def check_log(log_name):
     return run_opt
 
 def read_optlog( log_name ):
-    # Read log file of calculation using the opt keyword 
-
+    """
+    Read log file of calculation using the opt keyword 
+    """
+    
     debug = 0
     
     F = open(log_name,'r')
@@ -103,7 +110,9 @@ def read_optlog( log_name ):
     return BONDS   , ANGLES, DIH 
 
 def check_fchk( fchk_file ):
-    
+    """
+    Check that fchk file has been writen with a Total Energy
+    """
     bohr2angstrom = 0.5291772086
 
     run_calc = 1
@@ -132,6 +141,9 @@ def check_fchk( fchk_file ):
 
 
 def parse_fchk( fchk_file ):
+    """
+    Get atomic information from fchk file 
+    """
     import sys, numpy 
     
     bohr2angstrom = 0.5291772086
@@ -204,7 +216,9 @@ def parse_fchk( fchk_file ):
     return ( NA, ELN, R, TOTAL_ENERGY , Q_ESP  )
 
 def com_zmatrix(com_name):
-    # Get zmatrix from gaussian input file
+    """
+    Get zmatrix from gaussian input file
+    """
 
     # get lines 
     f = open(com_name,'r')
@@ -231,7 +245,10 @@ def com_zmatrix(com_name):
     return zmatrix
 
 def get_dih_id( zmatrix ):
-    # find dihedral id's atoms and values from zmatrix 
+    """
+    Find dihedral id's atoms and values from zmatrix
+    """
+    
     import sys
     
     DIH_ID = []
@@ -273,6 +290,10 @@ def get_dih_id( zmatrix ):
     
         
 def print_com( id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,qm_method,qm_basis,qm_kywd,qm_charge,qm_mult):
+    """
+    Write gaussian input file 
+    """
+    
     from string import replace
     
     # Check multiplicity = 2 S + 1
@@ -306,6 +327,10 @@ def print_com( id_name, ASYMB,R,ATYPE,CHARGES,ELECTRONS_i,qm_method,qm_basis,qm_
 
 
 def com2zmat(com_id,comz_id,options):
+    """
+    Translate input file to contain a zmatrix using newzmat
+    """
+    
     import sys, os
     from string import replace    
     #import shutil
@@ -331,6 +356,10 @@ def com2zmat(com_id,comz_id,options):
     f.close
     
 def run(options,calc_id):
+    """
+    Run a gassian calculation 
+    """
+    
     import sys, os
     from random import randint
     from string import replace 
@@ -415,6 +444,10 @@ def run(options,calc_id):
 
         
 def chk2fchk( options , calc_id ):
+    """
+    Translate a chk file to a fchk file 
+    """
+    
     import sys, os
     import file_io
 
@@ -444,6 +477,9 @@ def chk2fchk( options , calc_id ):
 
 
 def write_esp_com(calc_id,ASYMB,R):
+    """
+    Write an esp calculation input file 
+    """
     
     esp_com = calc_id +  ".com"
     

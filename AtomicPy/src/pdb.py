@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# IO for PDB file s
+"""
+I/O for PDB file s
+"""
 
 # Dr. Travis Kemper
 # NREL
@@ -13,6 +15,9 @@
 #    AMASS - list of atomic masses 
 
 def atoms(Lines,options):
+    """
+    Read atomic information 
+    """
     import sys
 
     # declare arrays 
@@ -95,6 +100,9 @@ def atoms(Lines,options):
     return ( NA,ATYPE,GTYPE,RESID,RESN,CHARN,R,ASYMB,EXCLUSIONS ,PDB_IND ) 
 
 def nablist(Lines,EXCLUSIONS,PDB_IND,ATYPE):
+    """
+    Create nieghbor list from connections 
+    """
     import sys, numpy
     #
     debug = 0
