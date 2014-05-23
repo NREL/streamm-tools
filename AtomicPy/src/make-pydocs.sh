@@ -9,7 +9,7 @@ scpHTMLtoStatic() {
     pydoc -w $modName
     sleep 0.5
 
-    echo "Moving developer docs ($modName) to --> cs.hpc.nrel.gov:static/prospect [y] yes [n]no"
+    echo "Moving developer docs ($modName) to --> cs.hpc.nrel.gov:static/$modName [y] yes [n]no"
     read -e ans
     if [ $ans == "y" ]; then
 	echo " "
