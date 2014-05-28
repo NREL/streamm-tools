@@ -134,7 +134,7 @@ class BuildingBlockEnumerator(BuildingBlocks):
             for ispc in range(len(spacers)):
                 s = ""
                 for i in range(len(idxmap)):
-#                    print i, midx.midx, idxmap, stuff
+                    # print i, midx.midx, idxmap, stuff
                     s += "%s " % stuff[idxmap[i]][midx.midx[idxmap[i]]]  # midx[i] is where we are in the enumeration of idxmap[i]th element of stuff.
                     s += "%s " % spacers[ispc]
 
@@ -145,12 +145,12 @@ class BuildingBlockEnumerator(BuildingBlocks):
                 # Selecting out strings (takes s)
 
                 # skipBool = self.exclude_string(s)
+                # s = self.dropSpacer(s)
                 #####################################
   
                 if (not skipBool):
                     self.try_str(s, options, True)
 
-#               self.try_str(s, options, True)
             done = midx.incr()
 
 
@@ -178,6 +178,22 @@ class BuildingBlockEnumerator(BuildingBlocks):
             skipFlag = False
 
         return skipFlag
+
+
+    #########################################################################
+    #
+    # Takes a donoracceptorsystems string and drops an element 'by hand'
+    # NOTE:  Changing element to drop needs editing manually
+    #########################################################################
+    def dropSpacer(self, eStr):
+
+        dropString = " Sp2 ( 0 0 ) "
+        slen = -1*len(dropString)
+        newString = eStr[:slen]
+        print "dropString = ", dropString
+        print "slen = ", slen
+        print "newString = ", newString
+        return newString
 
 
     def enum_smarter(self, options):

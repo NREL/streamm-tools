@@ -1,23 +1,48 @@
-import os,sys,fileinput,random
-from math import *
+import os, sys, fileinput, random
+# from math import *
+# import math
 from copy import deepcopy
-
 from basics import *
 from fragments import *
 
+
 def get_connecting_elmnts(don, acc, dt, at):
+    """
+    Args:
+        don (..type?..): donor element
+        acc (..type?..): acceptor element
+        dt             : index for donor element
+        at   
+    """
+
     don_elmnt = don.atoms[dt].elmnt
     acc_elmnt = acc.atoms[at].elmnt
     return (don_elmnt, acc_elmnt)
 
+
 def is_pair(a,b, pair):
+    """
+    Args:
+        a 
+        b
+        pair
+
+    Returns:
+        bool-->?
+    """
     if (a == pair[0] and b == pair[1]) or (a == pair[1] and b == pair[0]):
         return True
     else:
         return False
 
+
 def illegal_connection(don, acc, dt, at):
-    # enforce "no N-O bonds", etc.
+    """
+    enforce "no N-O bonds", etc.
+    Args: ?
+
+    Returns: (bool)
+    """
     don_elmnt, acc_elmnt = get_connecting_elmnts(don, acc, dt, at)
     if ((don_elmnt == "N" and acc_elmnt=="O") or (acc_elmnt == "N" and don_elmnt=="O")):
         print "ERROR: no N-O bonds allowed"
@@ -29,6 +54,12 @@ def illegal_connection(don, acc, dt, at):
         return False
 
 def get_bond_len(don, acc, dt, at):
+    """
+    Args: ?
+
+    Returns: bond length
+    """
+
     don_elmnt, acc_elmnt = get_connecting_elmnts(don, acc, dt, at)
     if (is_pair(don_elmnt, acc_elmnt, ["C","F"])):
         return 1.35
@@ -37,10 +68,13 @@ def get_bond_len(don, acc, dt, at):
     else:
         return 1.4
 
+
 def connect_parts(don, acc, dt, dc, at, ac, rot_ctrl):
-    ## 'don' and 'acc' are now just labels, each can be any fragment
-    # d,a for donor, acceptor, t,c for term, cap
-#    print "dt, dc, at, ac", dt, dc, at, ac
+    """
+    'don' and 'acc' are now just labels, each can be any fragment
+    d,a for donor, acceptor, t,c for term, cap
+    """
+    #  print "dt, dc, at, ac", dt, dc, at, ac
     if illegal_connection(don, acc, dt, at):
         print "ERROR: illegal connection attempted"
         return None
@@ -55,12 +89,12 @@ def connect_parts(don, acc, dt, dc, at, ac, rot_ctrl):
     pacc = newfrag.place_fragment(acc, [[dc, at],[dt, ac]], rot_ctrl)  # connect newfragor term to acceptor cap, and vice versa
     newfrag.atoms[dc].pos = hpos
     # delete hydrogens at bond
-#    if (newfrag.count_funccaps_for(dt) > 1 or newfrag.count_fcaps_for(dt) > 1):
+    # if (newfrag.count_funccaps_for(dt) > 1 or newfrag.count_fcaps_for(dt) > 1):
     if (newfrag.count_funccaps_for(dt) > 1):
-#        print "saveing newfrags link (funcs, funccaps)", dt, newfrag.count_funccaps_for(dt)
+        # print "saveing newfrags link (funcs, funccaps)", dt, newfrag.count_funccaps_for(dt)
         pass
     else:
-#        print "deleting newfrag link ", dt
+        # print "deleting newfrag link ", dt
         newfrag.delete_link(dt)
 
     pacc.delete_link(at)
@@ -69,72 +103,61 @@ def connect_parts(don, acc, dt, dc, at, ac, rot_ctrl):
     newfrag.append_fragments([pacc])
     return newfrag
 
+
 def connect_frags(don, acc, term_don, term_acc, rot_ctrl):
-    ## 'don' and 'acc' are now just labels, each can be any fragment
-    # d,a for donor, acceptor, t,c for term, cap
-#    print "get term for donor ", term_don 
+    """
+    'don' and 'acc' are now just labels, each can be any fragment
+     d,a for donor, acceptor, t,c for term, cap
+     """
+    # print "get term for donor ", term_don 
     dt,dc = don.get_term(term_don)
-#    print "get term for acc ", term_acc
+    # print "get term for acc ", term_acc
     at,ac = acc.get_term(term_acc)
-#    whole = connect_parts(don, acc, dt, dc, at, ac, bond_len, "match_normal")
-#    whole = connect_parts(don, acc, dt, dc, at, ac, bond_len, "stick_up")
+    # whole = connect_parts(don, acc, dt, dc, at, ac, bond_len, "match_normal")
+    # whole = connect_parts(don, acc, dt, dc, at, ac, bond_len, "stick_up")
     whole = connect_parts(don, acc, dt, dc, at, ac, rot_ctrl)
     return whole
 
+
 def connect_rgroup(don, res, func_don, func_res, rot_ctrl):
-    ## 'don' and 'res' are now just labels, each can be any fragment
-    # d,r for donor, residue, f,c for func, cap
-#    print "get func for donor ", func_don 
+    """
+    'don' and 'res' are now just labels, each can be any fragment
+     d,r for donor, residue, f,c for func, cap
+     """
+    #    print "get func for donor ", func_don 
     df,dc = don.get_func(func_don)
-#    print "get func for res ", func_res
+    #    print "get func for res ", func_res
     rf,rc = res.get_rgroup(func_res)
-#    whole = connect_parts(don, res, df, dc, rf, rc, bond_len, "match_normal")
+    #    whole = connect_parts(don, res, df, dc, rf, rc, bond_len, "match_normal")
     whole = connect_parts(don, res, df, dc, rf, rc, rot_ctrl)
     return whole
+
 
 def connect_fgroup(don, res, func_don, func_res, rot_ctrl):
-    ## 'don' and 'res' are now just labels, each can be any fragment
-    # d,r for donor, residue, f,c for func, cap
-#    print "get func for donor ", func_don 
+    """
+    'don' and 'res' are now just labels, each can be any fragment
+    d,r for donor, residue, f,c for func, cap
+    """
     df,dc = don.get_f(func_don)
-#    print "get func for res ", func_res
     rf,rc = res.get_rgroup(func_res)
-#    whole = connect_parts(don, res, df, dc, rf, rc, bond_len, "match_normal")
     whole = connect_parts(don, res, df, dc, rf, rc, rot_ctrl)
     return whole
 
-
-
-def build_from_str_flat(don, acc, s):
-    ### eg s = "DDADDA"
-    first = True
-    for c in s:
-        if c=="D":
-            newfrag = don
-        elif c=="A":
-            newfrag = acc
-        if (first):
-            frag = Fragment(frag=newfrag)
-            first = False
-        else:
-            frag = connect_frags(frag, newfrag, 1, 0, rot_ctrl)
-
-    return frag
 
 def tokenize(s):
     import re
-#    print "tokenizing ", s
+    #  print "tokenizing ", s
     p1 = re.split("\(([^)]*)\)", s)
     # splits "D (R1 R2 ) A (R4)" into D, R1 R2, A, R4
-#    print "p1 = ", p1
+    #    print "p1 = ", p1
     allp = []
     even = False
     for p in p1:
         if even:
             allp.append ('(')
         p2 = p.split()
-#        print "p = ", p
-#        print "p2 = ", p2
+        #        print "p = ", p
+        #        print "p2 = ", p2
         for g in p2:
             allp.append(g)
         if even:
@@ -146,7 +169,9 @@ def tokenize(s):
     return allp
 
 def make_token_sets(s):
-    # ['R1', 'R2', 'R1'] -> [[0,2], [1]]
+    """
+    ['R1', 'R2', 'R1'] -> [[0,2], [1]]
+    """
     found = []
     idx_sets = []
     for i in range(0,len(s)):
@@ -156,12 +181,13 @@ def make_token_sets(s):
         found.append(targ)
     return idx_sets
 
-def illegal_rgroup_spec(subfragnames, curparent):
-    # two things to check: 1) no "None" rgroup fragments 2) rgroups matching template of parent
-#    print subfragnames, curparent.rgroup_tokens
 
-    ## Note: order of these comparisons is important.  Want to check that we have enough subfrags before
-    # allowing NULL groups [TODO: rethink, bad logic].
+def illegal_rgroup_spec(subfragnames, curparent):
+    """
+    two things to check: 1) no "None" rgroup fragments 2) rgroups matching template of parent
+    Note: order of these comparisons is important.  Want to check that we have enough subfrags before
+    allowing NULL groups [TODO: rethink, bad logic].
+    """
     if ("ERROR" in subfragnames):
         print "ERROR: no null rgroups allowed"
         return True
@@ -172,8 +198,8 @@ def illegal_rgroup_spec(subfragnames, curparent):
         print "ERROR: too many rgroups given"
         return True
     
-#    print "checking that ", subfragnames
-#    print "matches ", curparent.rgroup_spec_str, " ie ", curparent.rgroup_tokens 
+    #    print "checking that ", subfragnames
+    #    print "matches ", curparent.rgroup_spec_str, " ie ", curparent.rgroup_tokens 
     #e.g., checking that  [1, 1]
     #matches  D(R1,R1)  ie  ['R1', 'R1']
     idx_sets = make_token_sets(curparent.rgroup_tokens)
@@ -182,7 +208,7 @@ def illegal_rgroup_spec(subfragnames, curparent):
         if (idx != []):
             val = subfragnames[idx[0]]
             for j in range(0, len(idx)):
-#                 print "checking ", val , "   against ", subfragnames[idx[j]]
+                # print "checking ", val , "   against ", subfragnames[idx[j]]
                  if (subfragnames[idx[j]] != val or ### basically we are just trying to match a pattern, not specific groups, so "R1 R1" matches "R2 R2"
                     (val.lower() != "null" and val != "0" and val[0].lower() != curparent.rgroup_tokens[idx[j]][0].lower())):  ### but we also don't let "f<X>" fill place meant for "R<X>"
                     print "ERROR: rgroup pattern %s does not match template of parent fragment %s" % (subfragnames[idx[j]], curparent.rgroup_tokens[idx[j]])
@@ -206,13 +232,14 @@ def illegal_rgroup_spec(subfragnames, curparent):
     
 
 def make_frags(bblocks, parts, rot_ctrl):
-    # this routine makes all the top level fragments, so it takes
-    # care of attaching rgroups.  It returns a  list of the top level fragments, ie
-    # a list of decorated (by R groups) donors and acceptors, and spacers
+    """
+    this routine makes all the top level fragments, so it takes
+    care of attaching rgroups.  It returns a  list of the top level fragments, ie
+    a list of decorated (by R groups) donors and acceptors, and spacers
+    """
     frags = []
     i = 0
 
-#    print "ppars = ", parts
     curparent = None
     curresdict = None
     while (i < len(parts)):
@@ -337,8 +364,11 @@ def make_frags(bblocks, parts, rot_ctrl):
 #    print frags
     return frags
 
+
 def build_from_str(bblocks, s, options):
-    ### eg s = "D1 D3 A4(R1 R2) D D(R4 R8) A"
+    """
+    eg s = "D1 D3 A4(R1 R2) D D(R4 R8) A"
+    """
     parts = tokenize(s)
 
     if (options.alternation_pattern != None):
@@ -363,13 +393,13 @@ def build_from_str(bblocks, s, options):
     fragidx = 0
     rot_ctrl.counter = 0
     for newfrag in frags:
-#        print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria
+        #  print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria
         if (fragidx == 0):
             frag = Fragment(frag=newfrag)
             frag.type = newfrag.type
             frag.reverse_attach = newfrag.reverse_attach
             firstfrag = frag
-#            print "frag idx", fragidx, "frag.type ", frag.type, "reverse_attach ", frag.reverse_attach 
+            #  print "frag idx", fragidx, "frag.type ", frag.type, "reverse_attach ", frag.reverse_attach 
         elif (newfrag != None):
             # by default, 1st (idx 0) link point on new frag gets plugge in to 
             # 2nd link point on existing (old) fragment, ie, "end-to-end" 
@@ -400,7 +430,10 @@ def build_from_str(bblocks, s, options):
         print "Structure generation SUCCEEDED for string ", s
     return frag
 
+
 def collapse(str):
+    """
+    """
     p1 = str.split()
     p2 = []
     for p in p1:
@@ -416,7 +449,12 @@ def collapse(str):
             s+=c
     return s
 
+
+
 def first_tests(don, acc):
+    """
+    Driver for write_xyz ?
+    """
     new1 = connect_frags(don, acc, 1, 1)
     print "donor + acceptor"
     new1.dump()
@@ -427,14 +465,13 @@ def first_tests(don, acc):
     new2.dump()
     new2.write_xyz("DAD.xyz")
 
-#    print "acc = "
-#    acc.dump()
-
     new3 = connect_frags(new2, acc, 1, 1)
     new3.write_xyz("DADA.xyz")
 
 
 def load_one_dir(dondir, has_hdr, key, subsets, allownokey):
+    """
+    """
     import re,os
     files = os.listdir(dondir)
     frags = []
@@ -477,7 +514,10 @@ def load_one_dir(dondir, has_hdr, key, subsets, allownokey):
     
     return frags, names, asdict
 
+
 def load_cfg_file(fname):
+    """
+    """
     import fileinput
     d = {}
     if (fname == None):
@@ -496,7 +536,10 @@ def load_cfg_file(fname):
             d[key] = val
     return d
 
+
 def load_subsets_dict(fname):
+    """
+    """
     d = load_cfg_file(fname)
     dd = {}
     if ("donors" in d):
@@ -527,18 +570,29 @@ def load_subsets_dict(fname):
         dd['spacer_functional_groups'] = d['spacer_functional_groups'].split()
     return dd
 
+
+
 class BuildingBlocks:
+    """
+    
+    """
     def __init__(self, bblocks_dir, subsets_file):
+        """
+        Constructor
+        """
+
         self.alldon = None
         self.allacc = None
         self.allres = None
         self.allterm = None
         self.allspacer = None
         self.bblocks_dir = bblocks_dir
-        subsets_dict = load_subsets_dict(subsets_file)
+        subsets_dict = load_subsets_dict(subsets_file) # this is outside class?
         self.load_building_blocks(self.bblocks_dir, subsets_dict)
 
     def load_building_blocks(self, bblocks_dir, subsets_dict):
+        """
+        """   
         import os,re
         bbdir = bblocks_dir
         dondir = "%s/donors" % (bbdir)
@@ -581,9 +635,6 @@ class BuildingBlocks:
             if key not in self.allresdict:
                 self.allresdict[key] = val
 
-#        print "acceptor dict: ", self.allaccdict
-#        print "donor dict: ", self.alldondict
-
         print "Loaded building blocks:"
         print "donors", self.alldonname
         print "acceptors", self.allaccname
@@ -599,10 +650,24 @@ class BuildingBlocks:
         print "terminal_functional_groups", self.alltermresname
         print "spacer_functional_groups", self.allspacerresname
 
+
+
+
+
+
+
+
 def build_usages(input_string, bblocks):
-    # extract names of which donors, acceptors, etc were used
-    # could be done at construction time, but bookkeeping sort of a pain right now, 
-    # and easily partially recreated here
+    """
+    extract names of which donors, acceptors, etc were used
+    could be done at construction time, but bookkeeping sort of a pain right now, 
+    and easily partially recreated here
+
+    Args:
+        input_string (?):?
+        bblocks      (?):?
+    Returns:  don, acc, dres, ares, tres, sres, spacer, term
+    """
     don = set([])
     acc = set([])
     dres = set([])
@@ -640,7 +705,14 @@ def build_usages(input_string, bblocks):
                 sres.add(c)
     return don, acc, dres, ares, tres, sres, spacer, term
 
+
 def build_meta(frag, short_name, input_string, bblocks, options):
+    """
+    Args:?
+
+    Returns: dd ?
+    """
+
     import time, datetime
     d = {}
     dd = {}
@@ -662,12 +734,21 @@ def build_meta(frag, short_name, input_string, bblocks, options):
     d['accuracy'] = options.accuracy
     return dd
 
+
+
 def gen_struct(base_input_str, bblocks, options, number, write_files = True):
+    """
+    Args:
+
+    Returns: bool ?
+    """
     input_str = ""
     for i in range (0,number):
         input_str += base_input_str 
         input_str += " "
+
     frag = build_from_str(bblocks, input_str, options)
+
     if (frag != None and write_files):
         short_name = collapse(base_input_str)
         struct_dir = "%s/%s" % (options.mols_dir, short_name)
@@ -693,14 +774,25 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
     else:
         return False
 
+
 def gen_monomer(input_str, bblocks, options, write_files = True): 
+    """
+    Driver gen_struct
+    """
     return gen_struct(input_str, bblocks, options, 1, write_files)
 
+
 def gen_dimer(input_str, bblocks, options):
+    """
+    Driver gen_struct
+    """
     return (gen_struct(input_str,  bblocks, options, 2))
 
 
 def get_options():
+    """
+    Input options (mirrored in enumerate?)
+    """
     import os, os.path
     from optparse import OptionParser
     usage = "usage: %prog <structure defining string (e.g. \'D1 (R2 R2) A2 (R1)\')> [options] "
@@ -740,6 +832,8 @@ def get_options():
         os.mkdir(options.mols_dir)
 
     return options, args
+
+
     
 def main():
     options, args = get_options()

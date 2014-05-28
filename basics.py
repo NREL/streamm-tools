@@ -1,11 +1,13 @@
 import os,sys
-from math import *
+# from math import *
+import math
 
 # I interpret bond lengths below bond_dist2 as "bonded"
 bond_dist1 = 1.5
 bond_dist2 = 1.76
 ### subject to refinement!
 too_close_dist = 0.99
+# too_close_dist = 0.74 (number printed in R160 runs... Gaussian specific)
 
 # How far out from structure to put the oxygen.
 ox_height = 1.25;  # Oxygen places at midpoint of 5-6 bond, 
@@ -21,22 +23,31 @@ carbon_expansion_factor = 1.4
 
 def vec_add(x,y):
     return [x[i] + y[i] for i in range(0,len(x))]
+
 def vec_sub(x,y):
     return [x[i] - y[i] for i in range(0,len(x))]
+
 def vec_ave(x,y):
     return [0.5 * (x[i] + y[i]) for i in range(0,len(x))]
+
 def vec_axpy(a,x,y):
     return [a * x[i] + y[i] for i in range(0,len(x))]
+
 def vec_norm(x):
-    return sqrt(sum([x[i]*x[i] for i in range(0,len(x))])) 
+    return math.sqrt(sum([x[i]*x[i] for i in range(0,len(x))]))
+
 def vec_wtnorm(w,x):
-    return sqrt(sum([w[i]*w[i]*x[i]*x[i] for i in range(0,len(x))])) 
+    return math.sqrt(sum([w[i]*w[i]*x[i]*x[i] for i in range(0,len(x))]))
+
 def vec_cross(x,y):
     return [x[1]*y[2]-x[2]*y[1], x[2]*y[0]-x[0]*y[2], x[0]*y[1]-x[1]*y[0]]
+
 def vec_dot(x,y):
     return sum([x[i]*y[i] for i in range(0,len(x))]) 
+
 def vec_cos(x,y):
     return (vec_dot(x,y)/(vec_norm(x) * vec_norm(y)))
+
 def vec_normalize(x):
     d = vec_norm(x)
     return ([x[i]/d for i in range(0,len(x))])
@@ -48,8 +59,10 @@ def vec_normal_to(p):
     return n1
 
 def coplanar(xyz,w):
-    #Given A,B,C,D, check that (B-A) X (C-A) * (D-A) ~ 0.
-    # lack of _exact_ planarity in planes of interest requires a "slush" parameter
+    """
+    Given A,B,C,D, check that (B-A) X (C-A) * (D-A) ~ 0.
+    lack of _exact_ planarity in planes of interest requires a "slush" parameter
+    """
     v1 = vec_sub(xyz[1], xyz[0])
     v2 = vec_sub(xyz[2], xyz[0])
     v3 = vec_sub(w, xyz[0])
@@ -67,13 +80,14 @@ def is_subset(test_idx, idx):
     for atm_idx in test_idx:
         if (not atm_idx in idx):
             subset = False
-#    print "ss: ", test_idx, idx, subset
     return (subset)
 
 
 def get_subset(test_idx, idx):
-    # already know test_idx is subset of idx, not need indices in idx that match
-    # sort of a hack right now to store this info.
+    """
+    already know test_idx is subset of idx, not need indices in idx that match
+    sort of a hack right now to store this info.
+    """
     idx_inter = []
     for i in range(0,len(idx)):
         if idx[i] in test_idx:
