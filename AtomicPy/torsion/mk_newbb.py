@@ -54,7 +54,15 @@ def main():
     import string, numpy, jsonapy , json 
     from string import replace
     import file_io, gaussian, elements, gromacs, lammps , top, atom_types, xmol 
-    
+
+
+    # 
+    #  ctypes 
+    #     T  - terminal carbon
+    #     X  - terminal hyrdogen
+    #     F  - functional carbon
+    #     R  - functinoal cap hydrogen 
+    #
     options, args = get_options()
     
     if( options.host == "peregrine" ):

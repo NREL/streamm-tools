@@ -264,7 +264,6 @@ def read_data(data_file):
     import file_io
     import sys, numpy
     
-    
     debug = 0
     verbose = 1
 
@@ -371,7 +370,6 @@ def read_data(data_file):
     DIHTYPE_K = numpy.zeros(n_dtypes)
     DIHTYPE_PN = numpy.zeros(n_dtypes)
     DIHTYPE_PHASE = numpy.zeros(n_dtypes)
-    
     
     RESN = n_atoms*[0]
     ATYPE_IND  = n_atoms*[0]

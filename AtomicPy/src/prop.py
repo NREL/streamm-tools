@@ -270,7 +270,6 @@ def build_nablist(ELN,R):
 
     radi_cov =  elements.covalent_radi()
 
-
     NNAB = 0
 
     if( p_time ): t_i = datetime.datetime.now()
@@ -738,6 +737,7 @@ def d2_en_3p(en_1,en_2,en_3,h):
 
 def calc_d2(  numeric_func, h ):
     import numpy, sys
+    
     """
     Find max and mins based on the second derivative
     """

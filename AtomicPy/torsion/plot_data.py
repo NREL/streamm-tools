@@ -14,12 +14,14 @@ def get_options():
     parser.add_option("--tor_id", dest="tor_id",type="string",default="dih",help=" plot id for postscript output  ")
     
     parser.add_option("--ff_software", dest="ff_software",type="string",default="lammps",help=" FF software ")
+    parser.add_option("--plotff", dest="plotff",default=0,help=" plot FF data")
     
     (options, args) = parser.parse_args()
     
     return options, args
 
 def qm_analysis(  dih_qm ):
+    import file_io
     
     success = 0 
     
@@ -30,25 +32,27 @@ def qm_analysis(  dih_qm ):
     
     #ang_min 
     
-    f_qm = open(dih_qm ,"r")
-    f_qm_Lines = f_qm.readlines()
-    f_qm.close()
-    
-    
-    for f_qm_line in f_qm_Lines:
-	f_qm_col = f_qm_line.split()
-    
-	if( len(f_qm_col) >= 3 and f_qm_col[0] != "#" ):
-	    qm_angle = float( f_qm_col[1] )
-	    qm_en = float( f_qm_col[2] )
-	    if( qm_en < qm_min ):
-		qm_min = qm_en
-		ang_min = qm_angle
-	    if( qm_en > qm_max ):
-		qm_max = qm_en
-		ang_max = qm_angle
-		
-	    success = 1 
+    if( file_io.file_exists(dih_qm) ):
+	    
+	f_qm = open(dih_qm ,"r")
+	f_qm_Lines = f_qm.readlines()
+	f_qm.close()
+	
+	
+	for f_qm_line in f_qm_Lines:
+	    f_qm_col = f_qm_line.split()
+	
+	    if( len(f_qm_col) >= 3 and f_qm_col[0] != "#" ):
+		qm_angle = float( f_qm_col[1] )
+		qm_en = float( f_qm_col[2] )
+		if( qm_en < qm_min ):
+		    qm_min = qm_en
+		    ang_min = qm_angle
+		if( qm_en > qm_max ):
+		    qm_max = qm_en
+		    ang_max = qm_angle
+		    
+		success = 1 
 	    
     return (success, qm_min,ang_min,qm_max,ang_max )
 
@@ -146,7 +150,7 @@ def main():
     
     options, args = get_options()
     
-    lwidth =  10
+    lwidth =  5
     
     # Read index files from args
     for indx_file in args:
@@ -221,7 +225,7 @@ def main():
 	
 			ff_dih_id_list ,ff_cent_min_list ,ff_cent_max_list ,ff_cent_step_list,ff_a_k_list, ff_a_i_list, ff_a_j_list, ff_a_l_list,ff_type_list,fftor_found = jsonapy.read_ff_tor(json_data)
     
-			if( fftor_found ):
+			if( fftor_found and options.plotff ):
 	    
 			    for dih_indx in range( len(ff_dih_id_list) ):
 				dih_id = ff_dih_id_list[dih_indx]
@@ -246,9 +250,12 @@ def main():
 				    style_lines.append(  style_l )
 				    plot_lines.append(  plot_l )
 				
+				    plot_l =  " \'"+dih_ff+"\' " + ' us 2:($3- ' + str(ff_min) + ')*1000  axis x1y2 w l ls '+str(calc_i+1)+" notitle  smooth unique  , \\" + "\n"
+				    plot_lines.append(  plot_l )
+				    
 				
 	# Use name of index file as plot names
-	plt_id =  replace(indx_file,'rec','')
+	plt_id =  replace(indx_file,'.rec','')
 	
         if( options.verbose ):
             print "  Plotting data from " ,indx_file
@@ -271,7 +278,7 @@ def main():
         plt_file = replace(plt_file,'<structure_name>',plt_id)
 	    
 	    
-	plt_dir_file =  plt_id + 'plt'
+	plt_dir_file =  plt_id + '.plt'
 	
         f = open( plt_dir_file , 'w')
         f.write(plt_file)

@@ -24,6 +24,7 @@ def get_options():
     parser.add_option("--host", dest="host",type="string",default="macbook",help=" name of machine  ")
     parser.add_option("--userid", dest="userid",type="string",default="tkemper",help=" name of user  ")
 
+
     # How to run the needed calculations 
     parser.add_option("--submit", dest="submit",action="store_true", default=False,help=" submit calculations to the queue ")
     parser.add_option("--localrun", dest="localrun",action="store_true", default=False,help=" Run calculations locally")
@@ -37,7 +38,9 @@ def get_options():
     parser.add_option("--cent_step", dest="cent_step", type="int", default="5",help=" Step size torsional angle ")
     
 
-    # QM calculation options 
+    # QM calculation options
+    parser.add_option("--ff_id", dest="ff_id",type="string", default="_fit",help=" Sufix for ff directories")
+    
     parser.set_defaults(qm_software="gaussian")
     parser.add_option("--qm_software", dest="qm_software",type="string",help=" what software to use for the qm calculations   ")
     parser.add_option("--esp_id", dest="esp_id",type="string", default="HFESP",help=" Sufix for ESP calculation  ")
@@ -247,7 +250,6 @@ def main():
 
 	
     # sufix for force field calcs to run multiple ff types or excultions, such as q(i) = 0.00 
-    ff_type_id = "_fit"
     
     # Read in ff file
     FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)

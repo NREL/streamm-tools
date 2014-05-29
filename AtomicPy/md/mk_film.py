@@ -51,12 +51,25 @@ def main():
     import gromacs, elements, xmol, prop, file_io, groups  #, vectors 
     import random
     
+    use_boost = 1
+    if( use_boost ):
+        import boost.mpi as mpi
+        print mpi.rank, mpi.size
+        
+    
     debug = 0 
+    p_time = 1
+
+    if( p_time ):
+        PREFORMACE_OUT = open( "performance.dat", 'w' )
+        PREFORMACE_OUT.write("Total time ; mole ; moladd_atempts ;  sys_attempts ;  placement time ;  overlap time ")
+        
+        t_i = datetime.datetime.now()
+        print " t_i ",t_i
+    
     
     options, args = get_options()
     
-    
-    p_time = 0
     
     if( options.verbose ): print "   Reading in files to establish intial conditions and atom types "
     #
@@ -155,7 +168,12 @@ def main():
     sys_attempts = 0
     
     cut_ij_sq = options.atomic_cut* options.atomic_cut
-    
+
+
+    if( p_time ):
+        t_1 = datetime.datetime.now()
+        print " t_1 ",t_1
+        
     while ( add_mol ):
         add_mol = 1
         overlap = 1
@@ -164,7 +182,11 @@ def main():
         while ( overlap ):
             moladd_atempts += 1    
             overlap = 0
-            
+                    
+            if( p_time ):
+                t_place_i = datetime.datetime.now()
+                print " t_place_i ",t_place_i
+                
             #
             # Rotate molecule randomly 
             #
@@ -183,9 +205,12 @@ def main():
                 xd = R_moli_c[atom_i][0]
                 yd = R_moli_c[atom_i][1]
                 zd = R_moli_c[atom_i][2]
+                
+                
                 r_x =  cy*cz*xd - sz*cy*yd + sy*zd 
                 r_y =  sz*xd    + cz*yd            
-                r_z = -sy*cz*xd + sy*sz*yd + cy*zd 
+                r_z = -sy*cz*xd + sy*sz*yd + cy*zd
+                
                 r_i =  numpy.array( [r_x,r_y,r_z] )
                 R_rot.append(  r_i )
             
@@ -205,10 +230,22 @@ def main():
             
             if( debug ): print  " new center of mass ",prop.cent_mass(AMASS_i,R_shift)," should be mol origin ",mol_origin
             
-            
+  
+            if( p_time ):
+                t_place_f = datetime.datetime.now()
+                print " t_place_f ",t_place_f," dt ",t_place_f-t_place_i
+                            
             #
             # Calculate overlap with existing molecules in the system 
             #
+            
+            if( p_time ):
+                t_overlap_i = datetime.datetime.now()
+                print " t_overlap_i ",t_overlap_i
+                            
+                            
+                            
+            
             
             if( len(ELN_sys) > 0 ):
                 
@@ -218,6 +255,14 @@ def main():
                         r_j = R_sys[sys_atom]
                         r_ij_sq = prop.sq_drij_c(r_i,r_j,LV)
                         if( r_ij_sq < cut_ij_sq ): overlap = 1
+
+            if( p_time ):
+                t_overlap_f = datetime.datetime.now()
+                print " t_overlap_f ",t_overlap_f," dt ",t_overlap_f-t_overlap_i
+                
+                PREFORMACE_OUT.write("\n %s  %d  %d  %d  %s  %s " % (t_overlap_f-t_i,sys_mol_n,moladd_atempts,sys_attempts,t_place_f-t_place_i,t_overlap_f-t_overlap_i))
+                
+                
                 
             else:
                 overlap = 0
@@ -274,9 +319,12 @@ def main():
                 
         if( sys_mol_n ==  mol_mult ): add_mol = 0
         
-    
+        
     gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
 
+    if( p_time ):
+        PREFORMACE_OUT.close()
+        
 if __name__=="__main__":
     main()
    

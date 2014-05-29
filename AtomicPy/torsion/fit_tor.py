@@ -1261,7 +1261,7 @@ def calc_rms_v2(  param_list, fit_param, DIH_PARAM,  ANG_IND,targets,ff_angles,w
     
     print " Calcualting RMSD "
     
-    debug = 0
+    debug = 1
     if( debug ):
         print " calc_rms_v2  is in debug mode  "
         
@@ -1286,17 +1286,20 @@ def calc_rms_v2(  param_list, fit_param, DIH_PARAM,  ANG_IND,targets,ff_angles,w
         tor_en = 0.0
 
         p_cnt = -1        
-        for angle_indx in range( len(ang_val)):
+        for angle_indx in range( len(ang_val) ): 
             theta = math.radians( ang_val[angle_indx] )
             param_ind = ANG_IND[angle_indx]
             F_coef = DIH_PARAM[param_ind]
 
+            if( debug ):
+                print "  angle_indx ",angle_indx,param_ind,F_coef
+                
             if(fit_param[param_ind] == 1 ):
                 p_cnt += 1
                 F_coef = []
                 if( debug ):
                     print "  For index ",param_ind,"  will use fitted parameters in param_list "
-                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
                     #print " append biaryl_param ",p_indx
                     F_coef.append(  param_list[p_indx] )
             
@@ -1388,8 +1391,8 @@ def residuals_v6( param_list, fit_param, DIH_PARAM,ANG_IND,targets,ff_angles,wt_
     wt_en_comp = 0.00  # Off 
     # Target en is not real potential energy surface!!! idiot god!
     wt_min = 0.00
-    wt_transL = 100.0   # Low energy trans < max_temp
-    wt_transH = 0.01   # High energy trans > max_temp
+    wt_transL = 10000.0   # Low energy trans < max_temp
+    wt_transH = 10000.0   # High energy trans > max_temp
      
     # For transitions under 400 K increase weight
     #   as they are possible during simulations 
@@ -1434,7 +1437,7 @@ def residuals_v6( param_list, fit_param, DIH_PARAM,ANG_IND,targets,ff_angles,wt_
                 F_coef = []
                 if( debug ):
                     print "  For index ",param_ind,"  will use fitted parameters in param_list "
-                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
                     #print " append biaryl_param ",p_indx
                     F_coef.append(  param_list[p_indx] )
             
@@ -1494,7 +1497,7 @@ def residuals_v6( param_list, fit_param, DIH_PARAM,ANG_IND,targets,ff_angles,wt_
                 F_coef = []
                 if( debug ):
                     print "  For index ",param_ind,"  will use fitted parameters in param_list "
-                for p_indx in range( p_cnt*n_param,p_cnt*n_param + n_param):
+                for p_indx in range( param_ind*n_param,param_ind*n_param + n_param):
                     #print " append biaryl_param ",p_indx
                     F_coef.append(  param_list[p_indx] )
             
@@ -2279,6 +2282,12 @@ def main():
                                             
                                             # Fit S-C!-C!-S 
                                             DIH_PARAM[param_ind] = [0.0,1.33/EVTOKCAL/4.0,0.0,0.0]  # CA - C! - CP - S 
+                                            fit_param[param_ind] = 1
+                                            
+                                        elif( ang_types[param_ind][0] == 'CA' and ang_types[param_ind][1] == 'C!' and  ang_types[param_ind][2] == 'C!' and ang_types[param_ind][3] == 'CA'  ):
+                                            
+                                            # Fit CA-C!-C!-CA 
+                                            DIH_PARAM[param_ind] = [0.0,1.97/EVTOKCAL/4.0,0.0,0.0]  # CA - C! - CP - S 
                                             fit_param[param_ind] = 1
                                             
                                     fit_param_list = []

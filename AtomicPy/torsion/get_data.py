@@ -53,8 +53,6 @@ def main():
         
     print " Downloading data files for ",user_id,"@",cluster_id
 
-
-    
     json_files = options.json.split(',')
     print json_files
     if( len(json_files) > 0 ):
@@ -109,7 +107,12 @@ def main():
                         get_dat = "scp "+ user_id+"@"+cluster_id + options.json_dir +"/"+ job_name +'*.xmol ' + struct_dir+' \n' 
                         print "  Getting xmol files ",get_dat
                         os.system(get_dat)
-                        
+
+                        # Get list files 
+                        get_dat = "scp "+ user_id+"@"+cluster_id + options.json_dir +"/"+ job_name +'*.list ' + struct_dir+' \n' 
+                        print "  Getting list files ",get_dat
+                        os.system(get_dat)
+                                                
                         # Append
                         json_rec = job_name + '.rec'
                         json_rec_lines = user_id+" "+cluster_id + " "+ options.json_dir  + " " + struct_dir +" "+ job_name

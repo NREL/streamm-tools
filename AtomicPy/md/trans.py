@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-# Create a supercell of randomly placed and rotated molecules 
+"""
+Create a supercell of randomly placed and rotated molecules 
+"""
 
 # Dr. Travis Kemper
 # Initial Date April 2014
@@ -25,10 +27,12 @@ def get_options():
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
     parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
+    parser.add_option("--in_lammpsxyz", dest="in_lammpsxyz", type="string", default="", help="Input lammps xyz file with atoms listed as atom type numbers")
 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help=" Output xyz file ")
     parser.add_option("--out_gro", dest="out_gro", type="string", default="", help=" Output gromacs gro file ")
     parser.add_option("--out_data", dest="out_data",type="string",default="",help=" Output Lammps data file ")
+    parser.add_option("--out_xmol", dest="out_xmol", type="string", default="", help=" Output xmol file ")
     
     (options, args) = parser.parse_args()
         
@@ -50,6 +54,18 @@ def main():
     options, args = get_options()
     prop_dim = 3
     
+
+    #
+    # Get lammps xyz file 
+    #
+    if( len(options.in_lammpsxyz) ):
+        if( options.verbose ): print  "     - Reading in ",options.in_lammpsxyz
+
+        lammpsxyz_F = open(options.in_lammpsxyz , 'r' )
+        lammpsxyz_lines = lammpsxyz_F.readlines()
+        lammpsxyz_F.close()        
+        
+        
     #
     # Read in top file
     #
@@ -211,6 +227,72 @@ def main():
           RESN_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
           BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
 
+    if( len(options.out_xmol) ):
+        if( options.verbose ): print  "     - Writing  ",options.out_xmol
+
+
+        str_file = open( options.out_xmol, 'w' )
+        
+        if( len(options.in_lammpsxyz) ):
+            if( options.verbose ): print    "       - Reprocessing  ",options.out_xmol
+            if(  len(options.in_data)  ):
+                if( options.verbose ): print    "       -  with data from ",options.in_data
+            else:
+                print " no atype type reference "
+                sys.exit(" missing topology information ")
+            
+            #
+            # Find the atomic symbol and element number for each atom type
+            #
+            ATYPE_SYMB , ATYPE_ELN = elements.mass_asymb(ATYPE_MASS)
+            n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB_sys) + 2) )
+            if( options.verbose ):
+                print " Translating atom types "
+                for type_i in range(len(ATYPE_MASS)):
+                    print type_i + 1," -> ",ATYPE_SYMB[type_i] #, ATYPE_ELN[type_i],ATYPE_MASS[type_i]
+                print " print ",n_frames," frames "
+                
+            line_cnt = -1
+            
+            for frame_i in range(n_frames):
+                
+                line_cnt += 1
+                str_file.write( lammpsxyz_lines[line_cnt] )
+                line_cnt += 1
+                
+                if( options.verbose ):
+                    print " reading frame ",frame_i," starting at line ",line_cnt-1," with comment ",lammpsxyz_lines[line_cnt] 
+                
+                str_file.write( lammpsxyz_lines[line_cnt] )
+                
+                #sys.exit("debug 4")
+                # R_frame_i = []
+                for atom_i in range(len(ASYMB_sys) ):   
+                    line_cnt += 1
+                    
+                    if( line_cnt > len(lammpsxyz_lines)-1):
+                        print " frame is missing some atoms ",atom_i," not found "
+                        # sys.exit("read in e)
+                        
+                    col =  lammpsxyz_lines[line_cnt].split()
+                    if( len(col) >= 4 ):
+                        type_i = int(col[0]) - 1
+                        r_x = float(col[1])
+                        r_y = float(col[2])
+                        r_z = float(col[3])
+                        str_file.write( "%s %f %f %f \n" % (ATYPE_SYMB[type_i],r_x,r_y,r_z) )
+                        
+                        # R_frame_i.append( numpy.array( [r_x,r_y,r_z] ) )
+                
+            # xmol.print_xmol(ASYMB_sys,R,file_xmol)
+        str_file.close()
+        
+            
+                    
+                    
+                    
+        
+        
 
 if __name__=="__main__":
     main()
