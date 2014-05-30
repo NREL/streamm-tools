@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 """
 Create a supercell of randomly placed and rotated molecules
- length - angstroms
+ length - Angstroms
  mass   - AMU
- volume - angstroms^3
+ volume - Angstroms^3
 """
 
 # Dr. Travis Kemper
@@ -31,11 +31,11 @@ def get_options():
 
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
 
-    parser.add_option("--den_target", dest="den_target", type=float, default=0.10, help="Target density g/cm^3 ")
-    parser.add_option("--atoms_target", dest="atoms_target", type=float, default=100000.0, help="Target number of atoms ")
-    parser.add_option("--max_mol_place", dest="max_mol_place", type=float, default=1000, help="Maximum attempts to place a molecule  ")
-    parser.add_option("--max_sys", dest="max_sys", type=float, default=10, help="Maximum system recreations at a certain lattice constant ")
-    parser.add_option("--lc_expand", dest="lc_expand", type=float, default=2.5, help="Distance (angstroms) to increase system size after max_sys is excieded ")
+    parser.add_option("--den_target", dest="den_target", type=float, default=0.01, help="Target density g/cm^3 ")
+    parser.add_option("--atoms_target", dest="atoms_target", type=int, default=100000, help="Target number of atoms ")
+    parser.add_option("--max_mol_place", dest="max_mol_place", type=float, default=50, help="Maximum attempts to place a molecule  ")
+    parser.add_option("--max_sys", dest="max_sys", type=float, default=3, help="Maximum system recreations at a certain lattice constant ")
+    parser.add_option("--lc_expand", dest="lc_expand", type=float, default=0.100, help="Fraction of the box size to increase system size after max_sys is excieded ")
 
     parser.add_option("--out_gro", dest="out_gro", type="string", default="mol_system.gro", help="gromacs output file ")
 
@@ -134,94 +134,6 @@ def splitOnProcs(data):
     else:
         return plist[mpi.rank]
    
-def replicate_dih(N_repeats,ELN_i,DIH_i,DTYPE_IND_i):
-    """
-    Replicate dihedrals for given topology  to add mocules or groups to a system
-    """
-    
-    debug = 0
-    
-    DIH_sys = []
-    DTYPE_IND_sys = []
-    
-    NA_i = len( ELN_i)
-        
-    for unit_n in range( N_repeats ):
-        
-        # Repeat bonds
-        for bond_indx in range(len(DIH_i)):
-            k_o = DIH_i[bond_indx][0]
-            i_o = DIH_i[bond_indx][1]
-            j_o = DIH_i[bond_indx][2]
-            l_o = DIH_i[bond_indx][3]
-            k_add = k_o + ( unit_n  )*NA_i
-            i_add = i_o + ( unit_n  )*NA_i
-            j_add = j_o + ( unit_n  )*NA_i
-            l_add = l_o + ( unit_n  )*NA_i
-            DIH_sys.append( [k_add,i_add ,j_add,l_add] )
-            DTYPE_IND_sys.append(DTYPE_IND_i[bond_indx] )
-            if( debug ):
-                print i_o,j_o, " -> ",i_add ,j_add
-            
-    return DIH_sys,DTYPE_IND_sys
-
-def replicate_angles(N_repeats,ELN_i,ANGLES_i,ANGTYPE_IND_i):
-    """
-    Replicate angles for given topology  to add mocules or groups to a system
-    """
-    
-    debug = 0
-    
-    ANGLES_sys = []
-    ANGTYPE_IND_sys = []
-    NA_i = len( ELN_i)
-        
-    for unit_n in range( N_repeats ):
-        
-        # Repeat bonds
-        for bond_indx in range(len(ANGLES_i)):
-            k_o = ANGLES_i[bond_indx][0]
-            i_o = ANGLES_i[bond_indx][1]
-            j_o = ANGLES_i[bond_indx][2]
-            k_add = k_o + ( unit_n  )*NA_i
-            i_add = i_o + ( unit_n  )*NA_i
-            j_add = j_o + ( unit_n  )*NA_i
-            ANGLES_sys.append( [k_add,i_add ,j_add] )
-            ANGTYPE_IND_sys.append(ANGTYPE_IND_i[bond_indx] )
-            
-            if( debug ):
-                print i_o,j_o, " -> ",i_add ,j_add
-            
-    return ANGLES_sys,ANGTYPE_IND_sys
-
-
-def replicate_bonds(N_repeats,ELN_i,BONDS_i,BTYPE_IND_i):
-    """
-    Replicate bonds for given topology  to add mocules or groups to a system
-    """
-    
-    debug = 0
-    
-    BONDS_sys = []
-    BTYPE_IND_sys = []
-    NA_i = len( ELN_i)
-        
-    for unit_n in range( N_repeats ):
-        
-        # Repeat bonds
-        for bond_indx in range(len(BONDS_i)):
-            i_o = BONDS_i[bond_indx][0]
-            j_o = BONDS_i[bond_indx][1]
-            i_add = i_o + ( unit_n  )*NA_i
-            j_add = j_o + ( unit_n  )*NA_i
-            BONDS_sys.append( [i_add ,j_add] )
-            BTYPE_IND_sys.append(BTYPE_IND_i[bond_indx] )
-            if( debug ):
-                print i_o,j_o, " -> ",i_add ,j_add
-            
-    return BONDS_sys,BTYPE_IND_sys
-
-
 def main():
     """
     Read in structure information and determine number of molecules and volume to achieve desired density with specified
@@ -244,17 +156,6 @@ def main():
     size = p.getCommSize()
 
 
-    use_mpi = 1
-    if( use_mpi ):
-            
-        import boost.mpi as mpi
-        
-        #
-        # MPI startup
-        #
-        world = mpi.world
-        mpi.world.barrier() # Barrier for MPI_COMM_WORLD
-        
     #
     # Load information onto all processors 
     #
@@ -262,9 +163,11 @@ def main():
     prop_dim = 3
     ang_acc = 1000  # number of digets in random angle 
     
-    
-    debug = 0
-    p_time = 1
+    #
+    # Set debug options 
+    #
+    debug = 0       # Print debug statements 
+    p_time = 1      # Print performance file 
 
     #
     # Read in top file
@@ -278,12 +181,7 @@ def main():
     #
     if( len(options.in_gro) ):
         if( options.verbose ): print  "     - Reading in ",options.in_gro
-        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)        
-    #
-    # Read in parameter file 
-    #
-
-
+        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)    
     #
     # Read in ff file
     #
@@ -333,14 +231,6 @@ def main():
             CHARN_i.append(RESN_i[i])
             
         #CHARN_i = top.set_chargegroups(options,verbose,CG_SET,CHARN,ATYPE_i,ASYMB_i,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
-        
-    #
-    # Test that geometry was read in
-    #
-    try:
-        R_i
-    except NameError:
-        sys.exit("Geometry read in error ")
     
     #
     # Shift molecule to have center of mass at origin 
@@ -353,18 +243,18 @@ def main():
         for atom_i in range( len(ELN_i) ):
             print atom_i,R_i[atom_i], " -> ",R_moli_c[atom_i] 
     #
-    # Calculate need molecules to achieve specified density
+    # Calculate need molecules to achieve specified density and total number atoms 
     #
-    mol_mult = int( options.atoms_target/float(len(ELN_i)) )
+    mol_mult = int( float(options.atoms_target)/float(len(ELN_i)) )
     target_density_amuang = options.den_target*const_avo/10.0
     mol_mass_amu = prop.total_mass( AMASS_i )
     mass_amu = mol_mass_amu*mol_mult
     volume_target_ang = mass_amu/target_density_amuang    
     len_target_ang = volume_target_ang**(1.0/3.0)
     
-    """
-    Set lattice vectors for pbc 
-    """
+    #
+    # Set lattice vectors for pbc 
+    #
     LV = numpy.zeros([3,3])
     
     LV[0,0] = len_target_ang
@@ -376,8 +266,6 @@ def main():
     #
     mol_vol = float(mol_mult)/volume_target_ang
     mol_unit_l =  mol_vol**(-1.0/3.0)
-    
-    
     
     #
     # Initialize system
@@ -412,33 +300,14 @@ def main():
     cut_ij_sq = options.atomic_cut* options.atomic_cut
 
     
-    if( use_mpi ):
-        if( mpi.rank == 0 and options.verbose ):
-                
-            print "   - Tragets "
-            print "     Input molecule has ",len(ELN_i)," atoms and mass of ",mol_mass_amu," AMU "
-            print "     To achieve ",options.atoms_target," atom systems it will be multiplied ",mol_mult
-            print "     giving ",mol_vol," mol/Angstrom^3 and a molecular unit length of ",mol_unit_l," Angstorms "
-            print "     For the target density of ",options.den_target," g/cnm^3 ",target_density_amuang," AMU Angstrom^-3"
-            print "       a target cubic unit cell of ",len_target_ang," will be needed "
-            print "   - Options "
-            print "     in_top",options.in_top
-            print "     in_gro",options.in_gro
-            print "     atomic_cut",options.atomic_cut
-            print "     den_target",options.den_target
-            print "     atoms_target",options.atoms_target
-            print "     max_mol_place",options.max_mol_place
-            print "     max_sys",options.max_sys
-            print "     lc_expand",options.lc_expand
-            print "     out_gro",options.out_gro
-
-    elif( options.verbose ):
+    if( rank == 0  ):
         print "   - Tragets "
         print "     Input molecule has ",len(ELN_i)," atoms and mass of ",mol_mass_amu," AMU "
-        print "     To achieve ",options.atoms_target," atom systems it will be multiplied ",mol_mult
-        print "     giving ",mol_vol," mol/Angstrom^3 and a molecular unit length of ",mol_unit_l," Angstorms "
-        print "     For the target density of ",options.den_target," g/cnm^3 ",target_density_amuang," AMU Angstrom^-3"
-        print "       a target cubic unit cell of ",len_target_ang," will be needed "
+        print "     System target is ",options.atoms_target," atoms "
+        print "     Input molecule will be multiplied ",mol_mult," times "
+        print "     The target density of ",options.den_target," g/cnm^3 ",target_density_amuang," AMU Angstroms^-3"
+        print "     Cubic unit cell of ",len_target_ang," Angstroms will be used "
+        # print "     Giving a molecular volume of ",mol_vol," mol/Angstrom^3 and a molecular unit length of ",mol_unit_l," Angstorms "
         print "   - Options "
         print "     ff_software ",options.ff_software
         print "     in_top ",options.in_top
@@ -450,29 +319,31 @@ def main():
         print "     max_sys ",options.max_sys
         print "     lc_expand ",options.lc_expand
         print "     out_gro ",options.out_gro
-        
     
-    if( use_mpi ):
-        
-
-        mpi.world.barrier() # Barrier for MPI_COMM_WORLD
-            
-        pointIndices = range( len(ELN_i)  )
-        if( debug ): print mpi.rank, mpi.size," splitOnProcs "
-        myChunk  = splitOnProcs(pointIndices)
-            
-        if(debug):                
-            # mpi.world.recv(R_shift)
-            print " cpu ",mpi.rank ," has atoms ",myChunk[0]," - ",myChunk[len(myChunk)-1],"  \n"
+    
+    #
+    # If multi-core split the number of atoms in the molecule onto each core
+    #
+    p.barrier()
+    #
+    # Place the atomic indices into list 
+    # 
+    pointIndices = range( len(ELN_i)  )
+    if( debug ): print rank, size," splitOnProcs "
+    # Create a list of atomic indices for each processor 
+    myChunk  = p.splitListOnProcs(pointIndices)
+    if(debug):                
+        print " cpu ",rank ," has atoms ",myChunk[0]," - ",myChunk[len(myChunk)-1],"  \n"
                     
-                    
-                            
-        mpi.world.barrier() # Barrier for MPI_COMM_WORLD
-
+    p.barrier()
+    #
+    # Start adding molecules to the system
+    #
     add_mol = 1
-        
     while ( add_mol ):
-    
+        #
+        # Initialize 
+        #
         add_mol = 1
         overlap_sum = 1
         moladd_atempts = 0
@@ -481,73 +352,46 @@ def main():
         while ( overlap_sum ):
             moladd_atempts += 1
             
-            if( use_mpi ):
-                # Declare on all processors
-                R_shift_o = []
+            # Declare on all processors
+            R_shift_o = []
                 
-                if ( mpi.rank == 0 ):
-                    #
-                    # Get coordinates of randomly rotated and shifted molecule
-                    #
-                    R_shift_o = ran_rot_shift(R_moli_c,len_target_ang,ang_acc )
-                    
-            else:
+            if ( rank == 0 ):
                 #
                 # Get coordinates of randomly rotated and shifted molecule
+                #   on processor 0
                 #
-                R_shift = ran_rot_shift(R_moli_c,len_target_ang,ang_acc )
-                
-
-            if( use_mpi ):
-    
-                if( debug ):
-                    print mpi.rank, mpi.size,"  initialization finished "
-                    if(  mpi.rank == 0 ):
-                        print " R_shift first coordinate ",R_shift_o[0]," on ",mpi.rank
-                    print
-                #
-                # Broadcast molecular position from processor 0 to all other processors 
-                #
-                R_shift = mpi.broadcast(world,R_shift_o,0)
-                
+                R_shift_o = ran_rot_shift(R_moli_c,len_target_ang,ang_acc )
             
+            #
+            # Broadcast molecular position from processor 0 to all other processors 
+            #
+            R_shift = p.bcast(R_shift_o)
             #
             # Check molecules do not overlap
             #
             overlap = 0
             if( len(ELN_sys) > 0 ):
-                if( use_mpi ):
-                
-                    
-                    for atom_i in myChunk:
-                        r_i = R_shift[atom_i]
-                        for sys_atom in range(len(ELN_sys)):
-                            r_j = R_sys[sys_atom]
-                            r_ij_sq = prop.sq_drij_c(r_i,r_j,LV)
-                            if( r_ij_sq < cut_ij_sq ):
-                                overlap = 1
-                
-                    mpi.world.barrier() # Barrier for MPI_COMM_WORLD
-                    
-
-                else:
-                        
-                    for atom_i in range(len(ELN_i)):
-                        r_i = R_shift[atom_i]
-                        for sys_atom in range(len(ELN_sys)):
-                            r_j = R_sys[sys_atom]
-                            r_ij_sq = prop.sq_drij_c(r_i,r_j,LV)
-                            if( r_ij_sq < cut_ij_sq ):
-                                overlap = 1
-                            
+                for atom_i in myChunk:
+                    # Loop over all the atoms of the molecule being placed
+                    r_i = R_shift[atom_i]
+                    for sys_atom in range(len(ELN_sys)):
+                        # Loop over all the atoms of the system 
+                        r_j = R_sys[sys_atom]
+                        r_ij_sq = prop.sq_drij_c(r_i,r_j,LV)
+                        if( r_ij_sq < cut_ij_sq ):
+                            overlap = 1
             
-            if( use_mpi ):    
-                overlap_sum = mpi.all_reduce(world,overlap, lambda x,y: x + y)
-            else:
-                overlap_sum = overlap
+                p.barrier() # Barrier for MPI_COMM_WORLD
                 
-
+            #
+            # Reduce sum the overlap variable from all the processors
+            #   if it is zero everywhere there was no overlap detected 
+            #
+            # overlap_sum = mpi.all_reduce(world,overlap, lambda x,y: x + y)
+            overlap_sum = p.allReduceSum(overlap)
+            
             if( overlap_sum ==  0 ):
+                # If no overlap detected add molecule to the system 
                 sys_mol_n += 1
                 for atom_i in range( len(ELN_i) ):
                     ASYMB_sys.append( ASYMB_i[atom_i])
@@ -564,19 +408,14 @@ def main():
                     
                 
                 if( options.verbose ):
-                    if( use_mpi ):
-                        if( mpi.rank == 0 ):
-                            print "      -  Molecule ",sys_mol_n," has been added to the system after ",moladd_atempts," placment attempts "
-                    else:
+                    if( rank == 0  ):
                         print "      -  Molecule ",sys_mol_n," has been added to the system after ",moladd_atempts," placment attempts "
 
             if( moladd_atempts >= options.max_mol_place ):
-                
+                # If attempts to place molecule into the system exceed max set by max_mol_place
+                #   reset system and star over 
                 if( options.verbose ):
-                    if( use_mpi ):
-                        if( mpi.rank == 0 ):
-                            print "        -  Attempts to add molecule ",sys_mol_n," has exceeded max attempts ",options.max_mol_place," system will be reset for the ",sys_attempts," time "
-                    else:
+                    if( rank == 0  ):
                         print "        -  Attempts to add molecule ",sys_mol_n," has exceeded max attempts ",options.max_mol_place," system will be reset for the ",sys_attempts," time "
                     
                 sys_mol_n = 0                
@@ -595,87 +434,76 @@ def main():
                 VEL_sys = []
 
                 if( sys_attempts >= options.max_sys  ):
-                    
+                    # If the system has been reset over max_sys times expand the box size by lc_expand
+                    da = LV[0,0]*options.lc_expand
+                    db = LV[1,1]*options.lc_expand
+                    dc = LV[2,2]*options.lc_expand
+                    LV[1,1] = LV[1,1] + da
+                    LV[1,1] = LV[1,1] + db
+                    LV[2,2] = LV[2,2] + dc
                     if( options.verbose ):
-                            
-                        if( use_mpi ):
-                            if( mpi.rank == 0 ):
-                                        
-                                print '          - Number of system resets has exceeded the maximum  (option max_sys) ',options.max_sys
-                                print '          - Lattice vectors will be expanded by (option lc_expand)',options.lc_expand
-                                
-                        else:
-                            
+
+                                            
+                        if( rank == 0  ):
                             print '          - Number of system resets has exceeded the maximum  (option max_sys) ',options.max_sys
-                            print '          - Lattice vectors will be expanded by (option lc_expand)',options.lc_expand
+                            print '          - Lattice vectors will be expanded by (option lc_expand)'
+                            print '              -  length added ',da,db,dc
                             
-                    mol_system[0,0] = LV[0,0] + options.lc_expand
-                    LV[1,1] = LV[1,1] + options.lc_expand
-                    LV[2,2] = LV[2,2] + options.lc_expand
-                
-            if( use_mpi): mpi.world.barrier() # Barrier for MPI_COMM_WORLD
+            p.barrier() # Barrier for MPI_COMM_WORLD
                     
                                     
         if( sys_mol_n ==  mol_mult ):
+            # If all the molecule have been added exit while loop and print system 
             add_mol = 0
-            if( use_mpi ):
-                mpi.world.barrier() # Barrier for MPI_COMM_WORLD
-                if( options.verbose and mpi.rank == 0 ):
-                   print " All molecules have been added "
-            else:
-                if( options.verbose ):
-                    print " All molecules have been added "
+            p.barrier() # Barrier for MPI_COMM_WORLD
+            if( options.verbose and rank == 0  ):
+                print " All molecules have been added "
                 
                 
-    if( use_mpi ):
-            
-        if( mpi.rank == 0 ):
-            out_xyz = "mol_system.xyz"
-            xmol.write_xyz(ASYMB_sys,R_sys,out_xyz)
-            
-            if( options.ff_software == "gromacs" ):
-                gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
-
-            elif(  options.ff_software == "lammps"  ):
-                # Find topology for entire system
-                #   Repeat molecular topology for all molecules added to the system
-        
-                BONDS_sys,BTYPE_IND_sys = replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
-                ANGLES_sys,ANGTYPE_IND_sys = replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
-                DIH_sys,DTYPE_IND_sys = replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
-
-                debug = 0
-                if( debug ):
-                    print " BONDS ", len(BONDS_sys)
-                    print "     ",BONDS_sys[0]
-                    for bond_indx in range(len(BONDS_sys)):
-                        print BONDS_sys[bond_indx][0]+1, BONDS_sys[bond_indx][1]+1
-                        
-                    print " ANGLES_sys ", len(ANGLES_sys)
-                    print "     ",ANGLES_sys[0]
-                    print " DIH_sys ", len(DIH_sys)
-                    print "     ",DIH_sys[0]
-                    
-                    sys.exit("debug 6 ")
-
-                data_file = "mol_system.data" 
-                lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
-                  BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
-                  ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-                  DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-                  RESN_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
-                  BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
-
-            else:
-                print " Unknown ff software ",ff_software.options
-            
-
-    else:
-        
+    if( rank == 0 ):
+        # Write xyz file 
         out_xyz = "mol_system.xyz"
         xmol.write_xyz(ASYMB_sys,R_sys,out_xyz)
-        gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
-            
+        
+        if( options.ff_software == "gromacs" ):
+            # If gromacs write gro file
+            #   assume the top file can be modified by the user 
+            gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
+
+        elif(  options.ff_software == "lammps"  ):
+            # Find topology for entire system
+            #   Repeat molecular topology for all molecules added to the system
+    
+            BONDS_sys,BTYPE_IND_sys = top.replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
+            ANGLES_sys,ANGTYPE_IND_sys = top.replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
+            DIH_sys,DTYPE_IND_sys = top.replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
+
+            debug = 0
+            if( debug ):
+                print " BONDS ", len(BONDS_sys)
+                print "     ",BONDS_sys[0]
+                for bond_indx in range(len(BONDS_sys)):
+                    print BONDS_sys[bond_indx][0]+1, BONDS_sys[bond_indx][1]+1
+                    
+                print " ANGLES_sys ", len(ANGLES_sys)
+                print "     ",ANGLES_sys[0]
+                print " DIH_sys ", len(DIH_sys)
+                print "     ",DIH_sys[0]
+                
+                sys.exit("debug 6 ")
+
+            data_file = "mol_system.data" 
+            lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+              BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+              ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+              DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+              RESN_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
+              BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
+
+        else:
+            print " Unknown ff software ",ff_software.options
+        
+
     
 if __name__=="__main__":
     main()

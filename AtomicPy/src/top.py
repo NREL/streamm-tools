@@ -1566,3 +1566,91 @@ def print_ff_files(ff_prefix,verbose,ff_software,itp_file,ff_charges,norm_dihpar
     
     
 	
+
+def replicate_dih(N_repeats,ELN_i,DIH_i,DTYPE_IND_i):
+    """
+    Replicate dihedrals for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    DIH_sys = []
+    DTYPE_IND_sys = []
+    
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(DIH_i)):
+            k_o = DIH_i[bond_indx][0]
+            i_o = DIH_i[bond_indx][1]
+            j_o = DIH_i[bond_indx][2]
+            l_o = DIH_i[bond_indx][3]
+            k_add = k_o + ( unit_n  )*NA_i
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            l_add = l_o + ( unit_n  )*NA_i
+            DIH_sys.append( [k_add,i_add ,j_add,l_add] )
+            DTYPE_IND_sys.append(DTYPE_IND_i[bond_indx] )
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return DIH_sys,DTYPE_IND_sys
+
+def replicate_angles(N_repeats,ELN_i,ANGLES_i,ANGTYPE_IND_i):
+    """
+    Replicate angles for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    ANGLES_sys = []
+    ANGTYPE_IND_sys = []
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(ANGLES_i)):
+            k_o = ANGLES_i[bond_indx][0]
+            i_o = ANGLES_i[bond_indx][1]
+            j_o = ANGLES_i[bond_indx][2]
+            k_add = k_o + ( unit_n  )*NA_i
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            ANGLES_sys.append( [k_add,i_add ,j_add] )
+            ANGTYPE_IND_sys.append(ANGTYPE_IND_i[bond_indx] )
+            
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return ANGLES_sys,ANGTYPE_IND_sys
+
+
+def replicate_bonds(N_repeats,ELN_i,BONDS_i,BTYPE_IND_i):
+    """
+    Replicate bonds for given topology  to add mocules or groups to a system
+    """
+    
+    debug = 0
+    
+    BONDS_sys = []
+    BTYPE_IND_sys = []
+    NA_i = len( ELN_i)
+        
+    for unit_n in range( N_repeats ):
+        
+        # Repeat bonds
+        for bond_indx in range(len(BONDS_i)):
+            i_o = BONDS_i[bond_indx][0]
+            j_o = BONDS_i[bond_indx][1]
+            i_add = i_o + ( unit_n  )*NA_i
+            j_add = j_o + ( unit_n  )*NA_i
+            BONDS_sys.append( [i_add ,j_add] )
+            BTYPE_IND_sys.append(BTYPE_IND_i[bond_indx] )
+            if( debug ):
+                print i_o,j_o, " -> ",i_add ,j_add
+            
+    return BONDS_sys,BTYPE_IND_sys
+
