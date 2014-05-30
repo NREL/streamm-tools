@@ -420,7 +420,7 @@ def read_gro(options,in_gro):
         LV[2][0] = float( col[7] )*10
         LV[2][1] = float( col[8] )*10
         
-    if( options.verbose ):
+    if( debug ):
         print "      Box size ",LV[0,0],LV[1,1],LV[2,2]," angstorms "
 
     return ( GTYPE, R, VEL, LV )
