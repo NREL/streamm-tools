@@ -47,7 +47,8 @@ def get_options():
     parser.add_option("--mol_intra",dest="mol_intra", default=False,action="store_true", help="Use only intra molecular rdf's")
     
     parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
-    parser.add_option("--frame_f", dest="frame_f", type=int, default=0, help=" Initial frame to read")
+    parser.add_option("--frame_f", dest="frame_f", type=int, default=0, help=" Final frame to read")
+    parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
     
     parser.add_option("--frame_sufx", dest="frame_sufx", type="string", default=".gro", help=" sufix of frame file ")
 
@@ -310,7 +311,7 @@ def main():
     if( options.ptime ): 
 	t_i = datetime.datetime.now()    
     #
-    for frame_i in range(options.frame_o,options.frame_f+1):
+    for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
 	frame_id = "frames/n"+str(frame_i)+options.frame_sufx
 	if( file_io.file_exists( frame_id ) ):
 	    GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
