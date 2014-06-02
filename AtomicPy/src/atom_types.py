@@ -846,11 +846,6 @@ def set_pmmatypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST
                     
 
 def biaryl_types(update_chr, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES ):
-    """
-    Set atom types for biaryl OPLSaa force-field
-    J. Chem. Inf. Model. 2013, 53, 1191−1199
-    """
-		    #Refind inter ring types
     import sys,top
     
     NA = len(ELN)
