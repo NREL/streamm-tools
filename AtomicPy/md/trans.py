@@ -33,6 +33,11 @@ def get_options():
     parser.add_option("--out_gro", dest="out_gro", type="string", default="", help=" Output gromacs gro file ")
     parser.add_option("--out_data", dest="out_data",type="string",default="",help=" Output Lammps data file ")
     parser.add_option("--out_xmol", dest="out_xmol", type="string", default="", help=" Output xmol file ")
+    #
+    # Filters
+    #
+    
+    parser.add_option("--filter_rings", dest="filter_rings", default=False,action="store_true", help="Only print atoms in rings ")
     
     (options, args) = parser.parse_args()
         
@@ -144,6 +149,13 @@ def main():
     except NameError:
         sys.exit("Geometry read in error ")
     
+    #
+    # Calculate properties
+    #
+    if( options.filter_rings ):
+        # NBLIST_i, NBINDEX_i = top.build_covnablist(ELN_i,R_i)
+        NBLIST_i, NBINDEX_i  = groups.build_nablist_bonds(ELN_i,BONDS_i)
+        RINGLIST_i, RINGINDEX_i , RING_NUMB_i = top.find_rings(ELN_i,NBLIST_i,NBINDEX_i)
 
     
     #
@@ -171,6 +183,13 @@ def main():
         
 
     for atom_i in range( len(ELN_i) ):
+        add_atom = 0
+        if( options.filter_rings ):
+            if( RING_NUMB_i[atom_i] > 0 ):
+                add_atom = 1
+        else:
+            add_atom = 1
+        
         ASYMB_sys.append( ASYMB_i[atom_i])
         ELN_sys .append( ELN_i[atom_i])
         ATYPE_sys.append( ATYPE_i[atom_i])
