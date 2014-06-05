@@ -256,7 +256,7 @@ def main():
     #pointIndices = range( len(molindx_list)  )
     if( debug ): print rank, size," splitOnProcs "
     # Create a list of atomic indices for each processor 
-    myChunk_i  = p.splitListOnProcs(molindx_list)
+    myChunk_i  =  molindx_list # p.splitListOnProcs(molindx_list)
     debug = 0
     if(debug):                
         print " cpu ",rank ," has atoms ",myChunk_i[0]," - ",myChunk_i[len(myChunk_i)-1],"  \n"
