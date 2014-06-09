@@ -23,10 +23,12 @@ def get_options():
     parser = OptionParser(usage=usage)
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
-    
+    parser.add_option("-p","--ptime", dest="ptime", default=False,action="store_true", help="Print performance information  ")
+    parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file")
+
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
-    parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
+    parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="gromacs force field parameter file")
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
 
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
@@ -90,50 +92,6 @@ def ran_rot_shift(R_moli_c,lv_i ,ang_acc):
         
     return R_rs
 
-#
-# Partition list on 'parts' numbers with last chunk
-# is the remainder of elements
-#  * data  --> eg [1.2, 3.3........38.2]
-#  * parts --> 2
-#  * chunks = [ [1.2, 3.3], [.....] ]
-#
-def partitionList(data, partLength):
-    import boost.mpi as mpi
-    import math
-
-    # Make 'parts' number of chunks
-    chunks=[data[x:x+partLength] for x in xrange(0, len(data), partLength)]
-    return chunks
-
-#
-# Given a list and a number of processors (given by mpi.size)
-# split up list equally (as possible).
-# Driver for partitionList(....)
-# NOTE: no communication is performed... all data known globally
-# 
-def splitOnProcs(data):
-    import boost.mpi as mpi
-    import sys, math
-
-
-    parts     = mpi.size                       # Number of procesors
-    numData   = float(len(data))               # Global size of data list
-    dataPProc = int(math.ceil(numData/parts))  # Est. num of data on each proc
-    plist     = partitionList(data, dataPProc) # Split data into chunks
-    mpi.world.barrier()
-
-    # Error check or return results
-    if len(plist) != parts:
-        if mpi.rank == 0:
-            print " " 
-            print "Partitioning failed"
-            print " ... check data length and number of processors requested"
-            print " len(plist) = ", len(plist)
-            print "      parts = ", parts
-        sys.exit(0)
-    else:
-        return plist[mpi.rank]
-   
 def main():
     """
     Read in structure information and determine number of molecules and volume to achieve desired density with specified
@@ -167,8 +125,30 @@ def main():
     # Set debug options 
     #
     debug = 0       # Print debug statements 
-    p_time = 1      # Print performance file 
 
+ 
+    #
+    # Read in json file
+    #
+    if( len(options.in_json) ):
+        if( options.verbose ):
+            print  "     - Reading in ",options.in_json
+	json_data,json_success = jsonapy.read_jsondata(options.in_json)
+	if(  json_success ):
+	    #
+            mol_dir,tag,n_units,accuracy,method,basis,acceptors,acceptor_substituents,donors,donor_substituents,terminals,terminal_substituents,spacers,spacer_substituents,metadata_found = jsonapy.read_meta(json_data)
+            #
+            # Need meta data to proceed 
+            #      		    
+            if( metadata_found ):
+                ELN_i,ASYMB_i,CTYPE_i,CHARGES_i,UNITNUMB_i,UNITTYPE_i,R_i,VEL_i,ATYPE_i,AMASS_i,MOLNUMB_i,RING_NUMB_i,RESID_i,RESN_i,CHARN_i,json_atomicdata  = jsonapy.read_atomic(json_data)
+                #
+                # 
+                #
+                GTYPE_i = []
+                for i in range( len(ELN_i) ):
+                    GTYPE_i.append(ASYMB_i[i])
+                
     #
     # Read in top file
     #
@@ -185,9 +165,9 @@ def main():
     #
     # Read in ff file
     #
-    if( len(options.itp_file) ):
-        if( options.verbose ): print  "     - Reading in ",options.itp_file    
-        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
+    if( len(options.in_itp) ):
+        if( options.verbose ): print  "     - Reading in ",options.in_itp    
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.in_itp)
         if(  options.ff_software == "lammps"  ):
             # Identify total number of atom types for lammps output 
             ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND_i , BTYPE_REF, ANGTYPE_IND_i , ANGTYPE_REF, DTYPE_IND_i , DTYPE_REF = lammps.lmp_types(ELN_i,ATYPE_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i)
@@ -198,15 +178,15 @@ def main():
             # Check atom types to be sure each atom of the same type has the same number of neighbors 
             ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE_i,NBLIST,NBINDEX)
         
-            ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-            BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.itp_file,BTYPE_IND_i , BTYPE_REF,FF_BONDTYPES)
-            ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.itp_file,ANGTYPE_IND_i , ANGTYPE_REF,FF_ANGLETYPES)
-            DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND_i , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+            ATYPE_EP, ATYPE_SIG = top.atom_parameters(options.in_itp,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+            BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(options.in_itp,BTYPE_IND_i , BTYPE_REF,FF_BONDTYPES)
+            ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(options.in_itp,ANGTYPE_IND_i , ANGTYPE_REF,FF_ANGLETYPES)
+            DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(options.in_itp, options.norm_dihparam, DTYPE_IND_i , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
             
-            IMPTYPE_F  = top.imp_parameters(options.itp_file)
+            IMPTYPE_F  = top.imp_parameters(options.in_itp)
     elif(len(options.in_data) == 0 ):
         if(  options.ff_software == "lammps"  ):
-            print " An itp file specified with the --itp_file option is needed to create a lammps input file "
+            print " An itp file specified with the --in_itp option is needed to create a lammps input file "
             sys.exit(" Read in error")
     #
     # Get lammps data file 
@@ -319,8 +299,7 @@ def main():
         print "     max_sys ",options.max_sys
         print "     lc_expand ",options.lc_expand
         print "     out_gro ",options.out_gro
-    
-    
+        print "     ptime ",options.ptime
     #
     # If multi-core split the number of atoms in the molecule onto each core
     #
@@ -348,7 +327,9 @@ def main():
         overlap_sum = 1
         moladd_atempts = 0
         
-
+        # Record intial time for pereformance testing 
+        if( options.ptime ):t_i = datetime.datetime.now()
+        
         while ( overlap_sum ):
             moladd_atempts += 1
             
@@ -410,6 +391,15 @@ def main():
                 if( options.verbose ):
                     if( rank == 0  ):
                         print "      -  Molecule ",sys_mol_n," has been added to the system after ",moladd_atempts," placment attempts "
+
+                        if( options.ptime ):
+                            t_f = datetime.datetime.now()
+	                    dt_sec  = t_f.second - t_i.second
+	                    dt_min  = t_f.minute - t_i.minute
+	                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+	                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                            print "        - with placement time ",dt_min," min ",dt_sec," seconds "
+                            
 
             if( moladd_atempts >= options.max_mol_place ):
                 # If attempts to place molecule into the system exceed max set by max_mol_place

@@ -91,11 +91,63 @@ def check_atomic(json_data):
     return (metadata_found,atomicdata_found)
 
 
+def read_connections(json_data):
+    """
+    Read atomic data from a  OPV database json file 
+    """
+    import json , numpy  , sys 
+
+    debug = 0
+    success = 0
+
+    BONDS = []
+
+    atomicdata_found = 0
+    connectionsdata_found = 0
+    
+    #
+    # Check for metadata section 
+    #
+    for data in json_data:
+	if( data == 'metadata' ):
+	    metadata_found = 1
+
+    if( metadata_found ):
+	for meta_data in json_data['metadata']:
+	    if ( meta_data == "connections" ):
+		connectionsdata_found = 1
+
+    if( connectionsdata_found ):
+        
+	nbonds = json_data['metadata']["connections"]["nbonds"]  
+	for bond_i in range( nbonds ):
+            bond_col =  json_data['metadata']["connections"]["bonds"][bond_i].split()
+            BONDS.append( [int(bond_col[0]),int(bond_col[1]) ] )
+            if(debug):
+                print bond_i
+                print bond_col
+                print BONDS[bond_i][0],BONDS[bond_i][1]
+                print ""
+            
+    if(debug):
+        sys.exit("read_connections debug 1 ")
+        
+    return BONDS
+    
 def read_atomic(json_data):
     """
     Read atomic data from a  OPV database json file 
     """
-    import json , numpy 
+    import json , numpy
+    #from particles import Particle
+    #from particles import ParticleContainer
+
+    #from bonds import Bond
+    #from bonds import BondContainer
+
+    #from structure import Structure
+
+    verbose = 1 
     
     success = 0
 
@@ -106,6 +158,14 @@ def read_atomic(json_data):
     R = []
     UNITNUMB = [] 
     UNITTYPE = []
+    VEL = []
+    ATYPE = []
+    AMASS = []
+    MOLNUMB = []
+    RING_NUMB = []
+    RESID = []
+    RESN = []
+    CHARN = []
     
     #print json_data['metadata']["atomic
     metadata_found,atomicdata_found = check_atomic(json_data)
@@ -116,7 +176,11 @@ def read_atomic(json_data):
 	
 	natoms = json_data['metadata']["atomic"]["natoms"]  
 	print "       Number of atoms found in json file ",natoms
+
+        #atoms1 = ParticleContainer()
+
 	for atom_i in range( natoms ):
+            
 	    ELN.append( json_data['metadata']["atomic"]["element"][atom_i]  )
 	    ASYMB.append( json_data['metadata']["atomic"]["asymb"][atom_i]  )
 	    CTYPE.append( json_data['metadata']["atomic"]["ctype"][atom_i]  )
@@ -126,19 +190,34 @@ def read_atomic(json_data):
 	    pos_str = json_data['metadata']["atomic"]["pos"][atom_i].split()
 	    r_i = numpy.array( [float(pos_str[0]),float(pos_str[1]),float(pos_str[2])] )
 	    R.append( r_i )
+	    vel_str = json_data['metadata']["atomic"]["vel"][atom_i].split()
+	    v_i = numpy.array( [float(vel_str[0]),float(vel_str[1]),float(vel_str[2])] )
+	    VEL.append( v_i )
+	    ATYPE.append( json_data['metadata']["atomic"]["fftype"][atom_i]  )
+	    AMASS.append( json_data['metadata']["atomic"]["mass"][atom_i]  )
+	    MOLNUMB.append( json_data['metadata']["atomic"]["chain"][atom_i]  )
+	    RING_NUMB.append( json_data['metadata']["atomic"]["ring"][atom_i]  )
+	    RESID.append( json_data['metadata']["atomic"]["resname"][atom_i]  )
+	    RESN.append( json_data['metadata']["atomic"]["residue"][atom_i]  )
+	    CHARN.append( json_data['metadata']["atomic"]["chrargegroup"][atom_i]  )
 	    
 	    success = 1
 	    
-    return (ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,success)
+    return (ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN,success)
 
-def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
+def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN):
     """
     Append atomic data to a  OPV database json file 
     """
     import file_io
-    
+
+    debug = 1 
     
     metadata_found,atomicdata_found = check_atomic(json_data)
+
+    if( debug):
+        print  "metadata_found",metadata_found
+        print  "atomicdata_found",atomicdata_found
     
     if( not metadata_found ):
 	# Add metadata section if not in json_data 
@@ -159,7 +238,15 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
         atomic_data["unitnumb"] = []
         atomic_data["pos"] = []
         atomic_data["unittype"] = []
-	
+
+        atomic_data["vel"] = []
+        atomic_data["fftype"] = []
+        atomic_data["mass"] = []
+        atomic_data["chain"] = []
+        atomic_data["ring"] = []
+        atomic_data["resname"] = []
+        atomic_data["residue"] = []
+        atomic_data["chrargegroup"] = []
 	
         for atom_i in range( len(ELN) ):
             atomic_data["element"].append( ELN[atom_i] )
@@ -170,7 +257,17 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
             pos_str = str( "%f %f %f "% (R[atom_i][0],R[atom_i][1],R[atom_i][2]) )
             atomic_data["pos"].append( pos_str )
             atomic_data["unittype"].append( UNITTYPE[atom_i] )
-	    
+            
+            vel_str = str( "%f %f %f "% (VEL[atom_i][0],VEL[atom_i][1],VEL[atom_i][2]) )
+            atomic_data["vel"].append( vel_str )
+            atomic_data["fftype"].append( ATYPE[atom_i] )
+            atomic_data["mass"].append( AMASS[atom_i] )
+            atomic_data["chain"].append( MOLNUMB[atom_i] )
+            atomic_data["ring"].append(  RING_NUMB[atom_i] )
+            atomic_data["resname"].append( RESID[atom_i] )
+            atomic_data["residue"].append( RESN[atom_i] )
+            atomic_data["chrargegroup"].append( CHARN[atom_i] )
+	 
     else:
             
 	
@@ -184,6 +281,90 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R):
             json_data['metadata']["atomic"]["pos"][atom_i]  = pos_str 
             json_data['metadata']["atomic"]["unittype"][atom_i]  = UNITTYPE[atom_i] 
     
+            vel_str = str( "%f %f %f "% (VEL[atom_i][0],VEL[atom_i][1],VEL[atom_i][2]) )
+            json_data['metadata']["atomic"]["vel"].append( vel_str )
+            json_data['metadata']["atomic"]["fftype"].append( ATYPE[atom_i] )
+            json_data['metadata']["atomic"]["mass"].append( AMASS[atom_i] )
+            json_data['metadata']["atomic"]["chain"].append( MOLNUMB[atom_i] )
+            json_data['metadata']["atomic"]["ring"].append(  RING_NUMB[atom_i] )
+            json_data['metadata']["atomic"]["resname"].append( RESID[atom_i] )
+            json_data['metadata']["atomic"]["residue"].append( RESN[atom_i] )
+            json_data['metadata']["atomic"]["chrargegroup"].append( CHARN[atom_i] )
+	    
+    return json_data
+
+
+def write_connections(json_data,BONDS):
+    """
+    Append connections data to a  OPV database json file 
+    """
+    import file_io
+
+    debug = 1 
+
+    connections_data = {}
+    json_data['metadata']["connections"] = connections_data
+
+    connections_data["nbonds"] = len(BONDS) 
+    connections_data["bonds"] = []
+    
+
+    for bond_i in range( len(BONDS) ):
+        b_ij = str( "%d %d "% (BONDS[bond_i][0],BONDS[bond_i][1] ) )
+        connections_data["bonds"].append( b_ij )
+
+    return json_data
+
+        
+def write_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN):
+    """
+    Append atomic data to a  OPV database json file 
+    """
+    import file_io
+
+    debug = 1 
+
+    atomic_data = {}
+    json_data['metadata']["atomic"] = atomic_data
+	    
+    atomic_data["natoms"] = len(ELN) 
+    atomic_data["element"] = []
+    atomic_data["asymb"] = []
+    atomic_data["q"] = []
+    atomic_data["ctype"] = []    
+    atomic_data["unitnumb"] = []
+    atomic_data["pos"] = []
+    atomic_data["unittype"] = []
+
+    atomic_data["vel"] = []
+    atomic_data["fftype"] = []
+    atomic_data["mass"] = []
+    atomic_data["chain"] = []
+    atomic_data["ring"] = []
+    atomic_data["resname"] = []
+    atomic_data["residue"] = []
+    atomic_data["chrargegroup"] = []
+
+    for atom_i in range( len(ELN) ):
+        atomic_data["element"].append( ELN[atom_i] )
+        atomic_data["asymb"].append( ASYMB[atom_i] )
+        atomic_data["ctype"].append( CTYPE[atom_i] )
+        atomic_data["q"].append(CHARGES[atom_i])
+        atomic_data["unitnumb"].append( UNITNUMB[atom_i] )
+        pos_str = str( "%f %f %f "% (R[atom_i][0],R[atom_i][1],R[atom_i][2]) )
+        atomic_data["pos"].append( pos_str )
+        atomic_data["unittype"].append( UNITTYPE[atom_i] )
+
+        vel_str = str( "%f %f %f "% (VEL[atom_i][0],VEL[atom_i][1],VEL[atom_i][2]) )
+        atomic_data["vel"].append( vel_str )
+        atomic_data["fftype"].append( ATYPE[atom_i] )
+        atomic_data["mass"].append( AMASS[atom_i] )
+        atomic_data["chain"].append( MOLNUMB[atom_i] )
+        atomic_data["ring"].append(  RING_NUMB[atom_i] )
+        atomic_data["resname"].append( RESID[atom_i] )
+        atomic_data["residue"].append( RESN[atom_i] )
+        atomic_data["chrargegroup"].append( CHARN[atom_i] )
+	 
     return json_data
 
 
