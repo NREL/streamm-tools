@@ -102,7 +102,7 @@ def main():
             # Need meta data to proceed 
             #      		    
             if( metadata_found ):
-                ELN_i,ASYMB_i,CTYPE_i,CHARGES_i,UNITNUMB_i,UNITTYPE_i,R_i,VEL_i,ATYPE_i,AMASS_i,MOLNUMB_i,RING_NUMB_i,RESID_i,RESN_i,CHARN_i,json_atomicdata  = jsonapy.read_atomic(json_data)
+                ELN_i,ASYMB_i,CTYPE_i,CHARGES_i,UNITNUMB_i,UNITTYPE_i,R_i,VEL_i,ATYPE_i,AMASS_i,MOLNUMB_i,RING_NUMB_i,RESID_i,RESN_i,CHARN_i,LV_i,json_atomicdata  = jsonapy.read_atomic(json_data)
                 BONDS_i  = jsonapy.read_connections(json_data)
                 NBLIST_i, NBINDEX_i  = groups.build_nablist_bonds(ELN_i,BONDS_i)
                 NA_i = len(ELN_i)
@@ -122,7 +122,7 @@ def main():
                 GTYPE_i = []
                 for i in range( len(ELN_i) ):
                     GTYPE_i.append(ASYMB_i[i])
-                
+
     #
     # Read in top file
     #
@@ -227,7 +227,9 @@ def main():
     try:
         BONDS_i
     except NameError:
-
+        if( options.verbose):
+            print " No bonds found from read in will generated with a covalent nieghbor list"
+            
         #   Build covalent nieghbor list for bonded information 
         NBLIST, NBINDEX = top.build_covnablist(ELN_i,R_i)
 
@@ -250,6 +252,10 @@ def main():
         ATYPE_IND_i
     except NameError:
         # if no lammps data read in
+
+        if( options.verbose):
+            print " No lammps types found in read in will generate"
+                    
         # Identify total number of atom types for lammps output 
         ATYPE_IND_i , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN_i,ATYPE_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i)
 
@@ -267,7 +273,7 @@ def main():
         print "   - Input system "
         print "       Atoms ",NA_i
         print "       Mass ",mass_amu
-        print "       Box size ",LV_i[0][0]
+        print "       Box size ",LV_i #[0][0]
         print "       Volume ",volume_i
         print "       Density ",density_i
         print "       Molecules ",max(MOLNUMB_i)
@@ -283,64 +289,98 @@ def main():
         print "       BONDS ",len(BONDS_i)
         print "       "
 
-    #
-    # Initialize system
-    #
-    ASYMB_sys = []
-    ATYPE_IND_sys = []
-    ELN_sys  = []
-    ATYPE_sys = []
-    RESN_sys = []
-    RESID_sys = []
-    GTYPE_sys = []
-    CHARN_sys = []
-    CHARGES_sys = []
-    AMASS_sys = []
-    GTYPE_sys = []
-    R_sys = []
-    VEL_sys = []
+    if( options.replicate_n > 1 ):
+        #
+        # Initialize system
+        #
+        ASYMB_sys = []
+        ATYPE_IND_sys = []
+        ELN_sys  = []
+        ATYPE_sys = []
+        RESN_sys = []
+        RESID_sys = []
+        GTYPE_sys = []
+        CHARN_sys = []
+        CHARGES_sys = []
+        AMASS_sys = []
+        GTYPE_sys = []
+        R_sys = []
+        VEL_sys = []
 
 
-    CTYPE_sys  = []
-    UNITNUMB_sys  = []
-    UNITTYPE_sys  = []
-    MOLNUMB_sys  = []
-    RING_NUMB_sys  = []
+        CTYPE_sys  = []
+        UNITNUMB_sys  = []
+        UNITTYPE_sys  = []
+        MOLNUMB_sys  = []
+        RING_NUMB_sys  = []
 
-    for unit_n in range( options.replicate_n ):
-        # Loop over specifed number of molecules
-        #   default is 1
-        for atom_i in range(NA_i):
-            
-            #add_atom = 0
-            #if( options.filter_rings ):
-            #    if( RING_NUMB_i[atom_i] > 0 ):
-            #        add_atom = 1
-            #else:
-            #    add_atom = 1
 
-            ASYMB_sys.append( ASYMB_i[atom_i])
-            ELN_sys .append( ELN_i[atom_i])
-            ATYPE_sys.append( ATYPE_i[atom_i])
-            RESN_sys.append( RESN_i[atom_i])
-            RESID_sys.append( RESID_i[atom_i])
-            GTYPE_sys.append( GTYPE_i[atom_i])
-            CHARN_sys.append( CHARN_i[atom_i])
-            CHARGES_sys.append( CHARGES_i[atom_i])
-            AMASS_sys.append( AMASS_i[atom_i])
-            R_sys.append( R_i[atom_i])
-            VEL_sys.append( VEL_i[atom_i])
-            ATYPE_IND_sys.append( ATYPE_IND_i[atom_i])
-            CTYPE_sys.append( CTYPE_i[atom_i])
-            UNITTYPE_sys.append( [atom_i])
-            # Shift numbered groups 
-            UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*max(UNITNUMB_i) )
-            MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*max(MOLNUMB_i)  )
-            RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*max(RING_NUMB_i)  )
+        if( options.verbose):
+            print " Replicating atomic information ", options.replicate_n," times "
+
+        for unit_n in range( options.replicate_n ):
+            # Loop over specifed number of molecules
+            #   default is 1
+
+            if( options.verbose):
+                print " Replicating unit  ", unit_n," with ",NA_i," atoms "
+
+            for atom_i in range(NA_i):
+
+                #add_atom = 0
+                #if( options.filter_rings ):
+                #    if( RING_NUMB_i[atom_i] > 0 ):
+                #        add_atom = 1
+                #else:
+                #    add_atom = 1
+
+                ASYMB_sys.append( ASYMB_i[atom_i])
+                ELN_sys .append( ELN_i[atom_i])
+                ATYPE_sys.append( ATYPE_i[atom_i])
+                RESN_sys.append( RESN_i[atom_i])
+                RESID_sys.append( RESID_i[atom_i])
+                GTYPE_sys.append( GTYPE_i[atom_i])
+                CHARN_sys.append( CHARN_i[atom_i])
+                CHARGES_sys.append( CHARGES_i[atom_i])
+                AMASS_sys.append( AMASS_i[atom_i])
+                R_sys.append( R_i[atom_i])
+                VEL_sys.append( VEL_i[atom_i])
+                ATYPE_IND_sys.append( ATYPE_IND_i[atom_i])
+                CTYPE_sys.append( CTYPE_i[atom_i])
+                UNITTYPE_sys.append( [atom_i])
+                # Shift numbered groups 
+                UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*max(UNITNUMB_i) )
+                MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*max(MOLNUMB_i)  )
+                RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*max(RING_NUMB_i)  )
+    else:
         
+        ASYMB_sys = ASYMB_i
+        ATYPE_IND_sys = ATYPE_IND_i
+        ELN_sys  = ELN_i
+        ATYPE_sys = ELN_i
+        RESN_sys = RESN_i
+        RESID_sys = RESID_i
+        GTYPE_sys = GTYPE_i
+        CHARN_sys = CHARN_i
+        CHARGES_sys = CHARGES_i
+        AMASS_sys = AMASS_i
+        R_sys = R_i
+        VEL_sys = VEL_i
+
+
+        CTYPE_sys  = CTYPE_i
+        UNITNUMB_sys  = UNITNUMB_i
+        UNITTYPE_sys  = UNITTYPE_i
+        MOLNUMB_sys  = MOLNUMB_i
+        RING_NUMB_sys  = RING_NUMB_i
+
+
     #
     # System connection information
     #
+    if( options.verbose):
+        print " Replicating connection information "
+                        
     BONDS_sys = []
     BTYPE_IND_sys = []
     ANGLES_sys = []
@@ -486,7 +526,7 @@ def main():
     if( len(options.out_json) ):
         if( options.verbose ):
             print  "     - Writing  ",options.out_json
-        json_data = jsonapy.write_atomic(json_data,ELN_sys,ASYMB_sys,CTYPE_sys,CHARGES_sys,UNITNUMB_sys,UNITTYPE_sys,R_sys,VEL_sys,ATYPE_sys,AMASS_sys,MOLNUMB_sys,RING_NUMB_sys,RESID_sys,RESN_sys,CHARN_sys)
+        json_data = jsonapy.write_atomic(json_data,ELN_sys,ASYMB_sys,CTYPE_sys,CHARGES_sys,UNITNUMB_sys,UNITTYPE_sys,R_sys,VEL_sys,ATYPE_sys,AMASS_sys,MOLNUMB_sys,RING_NUMB_sys,RESID_sys,RESN_sys,CHARN_sys,LV_sys)
 
         json_data = jsonapy.write_connections(json_data,BONDS_sys)
                                          

@@ -138,7 +138,7 @@ def read_atomic(json_data):
     """
     Read atomic data from a  OPV database json file 
     """
-    import json , numpy
+    import json , numpy, sys 
     #from particles import Particle
     #from particles import ParticleContainer
 
@@ -156,8 +156,6 @@ def read_atomic(json_data):
     CTYPE = []
     CHARGES = []
     R = []
-    UNITNUMB = [] 
-    UNITTYPE = []
     VEL = []
     ATYPE = []
     AMASS = []
@@ -166,6 +164,9 @@ def read_atomic(json_data):
     RESID = []
     RESN = []
     CHARN = []
+
+    UNITNUMB = [] 
+    UNITTYPE = []
     
     #print json_data['metadata']["atomic
     metadata_found,atomicdata_found = check_atomic(json_data)
@@ -177,6 +178,19 @@ def read_atomic(json_data):
 	natoms = json_data['metadata']["atomic"]["natoms"]  
 	print "       Number of atoms found in json file ",natoms
 
+        LV = numpy.zeros( (3,3) )
+        
+	lv_str = json_data['metadata']["atomic"]["latticevector"].split()
+        LV[0][0] = float(lv_str[0])
+        LV[0][1] = float(lv_str[1])
+        LV[0][2] = float(lv_str[2])
+        LV[1][0] = float(lv_str[3])
+        LV[1][1] = float(lv_str[4])
+        LV[1][2] = float(lv_str[5])
+        LV[2][0] = float(lv_str[6])
+        LV[2][1] = float(lv_str[7])
+        LV[2][2] = float(lv_str[8])
+        
         #atoms1 = ParticleContainer()
 
 	for atom_i in range( natoms ):
@@ -203,9 +217,9 @@ def read_atomic(json_data):
 	    
 	    success = 1
 	    
-    return (ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN,success)
+    return (ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN,LV,success)
 
-def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN):
+def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN,LV):
     """
     Append atomic data to a  OPV database json file 
     """
@@ -231,6 +245,8 @@ def append_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYP
         json_data['metadata']["atomic"] = atomic_data
 	
         atomic_data["natoms"] = len(ELN) 
+        lv_string = str( "%f %f %f %f %f %f %f %f %f " % (LV[0,0],LV[0,1],LV[0,2],LV[1,0],LV[1,1],LV[1,2],LV[2,0],LV[2,1],LV[2,2]))
+        atomic_data["latticevector"] = lv_string
         atomic_data["element"] = []
         atomic_data["asymb"] = []
         atomic_data["q"] = []
@@ -316,7 +332,7 @@ def write_connections(json_data,BONDS):
     return json_data
 
         
-def write_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN):
+def write_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE,AMASS,MOLNUMB,RING_NUMB,RESID,RESN,CHARN,LV):
     """
     Append atomic data to a  OPV database json file 
     """
@@ -365,6 +381,10 @@ def write_atomic(json_data,ELN,ASYMB,CTYPE,CHARGES,UNITNUMB,UNITTYPE,R,VEL,ATYPE
         atomic_data["residue"].append( RESN[atom_i] )
         atomic_data["chrargegroup"].append( CHARN[atom_i] )
 	 
+    lv_string = str( "%f %f %f %f %f %f %f %f %f " % (LV[0,0],LV[0,1],LV[0,2],LV[1,0],LV[1,1],LV[1,2],LV[2,0],LV[2,1],LV[2,2]))
+    atomic_data["latticevector"] = lv_string
+	         
+
     return json_data
 
 
