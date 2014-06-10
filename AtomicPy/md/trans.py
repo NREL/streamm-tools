@@ -174,7 +174,7 @@ def main():
     #
     if( len(options.in_data) ):
         if( options.verbose ): print  "     - Reading in ",options.in_data
-        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(options.in_data)
+        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,MOLNUMB_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(options.in_data)
 
         
         #
@@ -195,13 +195,26 @@ def main():
         #if(  options.ff_software == "gromacs"  ):
         GTYPE_i = []
         RESID_i = []
+        RESN_i = []
         CHARN_i = []
+        VEL_i = []
+        CTYPE_i = []
+        UNITNUMB_i = []
+        UNITTYPE_i = []
+        RING_NUMB_i  = []
         for i in range( len(ELN_i) ):
             GTYPE_i.append(ASYMB_i[i])
             RESID_i.append("MOL")
-            CHARN_i.append(RESN_i[i])
+            CHARN_i.append(MOLNUMB_i[i])
+            RESN_i.append(MOLNUMB_i[i])
+            VEL_i.append( numpy.array( [0.0 ,0.0 ,0.0]) )
+            CTYPE_i.append(MOLNUMB_i[i])
+            UNITNUMB_i.append(MOLNUMB_i[i])
+            UNITTYPE_i.append(MOLNUMB_i[i])
+            RING_NUMB_i.append(MOLNUMB_i[i])
             
         #CHARN_i = top.set_chargegroups(options,verbose,CG_SET,CHARN,ATYPE_i,ASYMB_i,ELN,R,NBLIST,NBINDEX, RING_NUMB,LAT_CONST)
+        N_MOL_i,MOLPNT_i,MOLLIST_i = groups.molecule_list(MOLNUMB_i)
         
     #
     # Test that geometry was read in
@@ -276,11 +289,11 @@ def main():
         print "       Box size ",LV_i #[0][0]
         print "       Volume ",volume_i
         print "       Density ",density_i
-        print "       Molecules ",max(MOLNUMB_i)
-        print "       Conjugated rings ",max(RING_NUMB_i)
-        print "       Residues ",max(RESN_i)
-        print "       Units ",max(UNITNUMB_i)
-        print "       Charge groups ",max(CHARN_i)
+        print "       Molecules ",max(MOLNUMB_i) + 1 
+        #print "       Conjugated rings ",max(RING_NUMB_i) + 1 
+        #print "       Residues ",max(RESN_i) + 1 
+        #print "       Units ",max(UNITNUMB_i) + 1 
+        #print "       Charge groups ",max(CHARN_i) + 1 
         print "       "
         print "       "
         print "       "
