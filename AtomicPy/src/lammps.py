@@ -523,7 +523,7 @@ def read_data(data_file):
             if( ind > n_atoms ):
                 print sys.exit(" Error in data file index of atoms exceeds number of atoms specified with atoms ")
                 
-            MOLNUMB[ind] = int(col[1])
+            MOLNUMB[ind] = int(col[1]) - 1
             ATYPE_IND[ind]  = int(col[2]) - 1
             CHARGES[ind]  = float(col[3])
             R[ind] = numpy.array( [ float(col[4]),float(col[5]),float(col[6])])
