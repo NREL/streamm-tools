@@ -314,11 +314,11 @@ def read_data(data_file):
                 
         # Read in box size    
         if ( len(col) >= 4 ):
-            if( col[2]  == "xlo"  and col[2]  == "xhi"  ):
+            if( col[2]  == "xlo"  and col[3]  == "xhi"  ):
                 LAT_CONST[0,0] = float( col[1] ) - float( col[0] ) 
-            if( col[2]  == "ylo"  and col[2]  == "yhi"  ):
+            if( col[2]  == "ylo"  and col[3]  == "yhi"  ):
                 LAT_CONST[1,1] = float( col[1] ) - float( col[0] ) 
-            if( col[2]  == "zlo"  and col[2]  == "zhi"  ):
+            if( col[2]  == "zlo"  and col[3]  == "zhi"  ):
                 LAT_CONST[2,2] = float( col[1] ) - float( col[0] )
 
     # Prind debug
@@ -371,7 +371,7 @@ def read_data(data_file):
     DIHTYPE_PN = numpy.zeros(n_dtypes)
     DIHTYPE_PHASE = numpy.zeros(n_dtypes)
     
-    RESN = n_atoms*[0]
+    MOLNUMB = n_atoms*[0]
     ATYPE_IND  = n_atoms*[0]
     CHARGES  = numpy.zeros(n_atoms)
     R = n_atoms*[numpy.zeros(3)]
@@ -523,7 +523,7 @@ def read_data(data_file):
             if( ind > n_atoms ):
                 print sys.exit(" Error in data file index of atoms exceeds number of atoms specified with atoms ")
                 
-            RESN[ind] = int(col[1])
+            MOLNUMB[ind] = int(col[1])
             ATYPE_IND[ind]  = int(col[2]) - 1
             CHARGES[ind]  = float(col[3])
             R[ind] = numpy.array( [ float(col[4]),float(col[5]),float(col[6])])
@@ -604,7 +604,7 @@ def read_data(data_file):
     return (ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
             BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
             ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-            DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN,
+            DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,MOLNUMB,
             ATYPE_IND,CHARGES,R , ATYPE, BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST)
     #
 
