@@ -51,6 +51,10 @@ def get_options():
 
     parser.add_option("--n_den", dest="n_den", type=float, default=1.0, help=" Reference number density N/A^3")
     parser.add_option("--nb_list",dest="nb_list", default=False,action="store_true", help="Use neighbor list ")
+    
+    parser.add_option("--time_step",dest="time_step", type=float, default=0.5, help="MD time step fs ")
+    parser.add_option("--time_dump",dest="time_dump", type=float, default=2000, help="time between frame dumps fs ")
+    parser.add_option("--time_start",dest="time_start", type=float, default=0.0, help="Initial time fs ")
 
     
     (options, args) = parser.parse_args()
@@ -100,13 +104,16 @@ def main():
     #
     # Open output files 
     #
-   
+    # if( rank == 0 ):
+
     log_file = options.output_id + ".log"
     log_out = open(log_file,"w") 
-     
+
     dat_file = options.output_id + ".dat"
     dat_out = open(dat_file,"w") 
     dat_out.write("#   Input ")
+
+    p.barrier()
      
     # Check options
     if( options.mol_inter and options.mol_intra and rank == 0  ):
@@ -119,23 +126,33 @@ def main():
     # Read in top file
     #
     if( len(options.in_top) ):
-        if( options.verbose and rank == 0 ): print "      Reading in ",options.in_top
+        if( rank == 0 ):
+            if( options.verbose ):
+                print "      Reading in ",options.in_top
+        dat_out.write("\n#   Gromacs top file %s  "% (options.in_top))
+            
         ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options,options.in_top)
         ASYMB , ELN  = elements.mass_asymb(AMASS)
-        dat_out.write("\n#   Gromacs top file %s  "% (options.in_top))
+        p.barrier()
     #
     # Get coord
     #
     if( len(options.in_gro) ):
-        if( options.verbose and rank == 0 ): print "     Reading in ",options.in_gro
+        if( rank == 0 ):
+            if( options.verbose ):
+                print "     Reading in ",options.in_gro
+            dat_out.write("\n#   Gromacs gro file %s  "% (options.in_gro))
+            
         GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
-        dat_out.write("\n#   Gromacs gro file %s  "% (options.in_gro))
+        p.barrier()
     #
     # Get lammps data file 
     #
     if( len(options.in_data) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_data
-        dat_out.write("\n#   Lammps data file %s  "% (options.in_data))
+        if( rank == 0 ):
+            if( options.verbose ): print  "     - Reading in ",options.in_data
+            dat_out.write("\n#   Lammps data file %s  "% (options.in_data))
+            
         ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,MOLNUMB,ATYPE_IND,CHARGES,R , ATYPE, BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV = lammps.read_data(options.in_data)
         
         AMASS = []
@@ -158,25 +175,40 @@ def main():
         N_MOL,MOLPNT,MOLLIST = groups.molecule_list(MOLNUMB)
 
 
+        p.barrier()
     #
     # Get lammps xyz file 
     #
     if( len(options.in_lammpsxyz) ):
 
-        if( options.verbose ):
-            print  "     - Reading in ",options.in_lammpsxyz
-        dat_out.write("\n#   Lammps xyz file %s  "% (options.in_lammpsxyz))
+        if( rank == 0 ):
+            if( options.verbose ):
+                print  "     - Reading in ",options.in_lammpsxyz
+            dat_out.write("\n#   Lammps xyz file %s  "% (options.in_lammpsxyz))
 
-        lammpsxyz_F = open(options.in_lammpsxyz , 'r' )
-        lammpsxyz_lines = lammpsxyz_F.readlines()
-        lammpsxyz_F.close()
-        n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB) + 2) )
-        lammpsxyz_line_cnt = -1
+        # Some issues with this read in
+        #   will read in on processor 0 and broadcast
+        n_frames =  options.frame_f
+        p.barrier()
+        if( rank == 0 ):
+            lammpsxyz_F = open(options.in_lammpsxyz , 'r' )
+            lammpsxyz_lines = lammpsxyz_F.readlines()
+            lammpsxyz_F.close()
+            n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB) + 2) )
+            lammpsxyz_line_cnt = -1
 
-        if( options.verbose ):
-            print  "       with ",n_frames," frames "
+            if( options.verbose ):
+                print  "       with ",n_frames," frames "
 
-        
+    # modify based on lammpsxyz read in 
+    p.barrier()
+    n_frames  = p.bcast( n_frames)
+    p.barrier()
+
+    if( options.frame_f == -1 ):
+        options.frame_f  = n_frames - 1
+        if( debug): print "  modify frame_f to ",options.frame_f," rank ",rank 
+                        
     #
     # Intialize lsits and counts
     #
@@ -184,6 +216,10 @@ def main():
     polyl_bin = numpy.zeros(n_bins+1)    
     N_MOL = max(MOLNUMB) + 1 
     NA_i = len(ELN)
+
+
+    if(debug): N_MOL = 4
+    
     p.barrier()
 
     #
@@ -193,28 +229,67 @@ def main():
     if( debug ): print rank, size," splitOnProcs "
     # Create a list of atomic indices for each processor 
     myChunk_i  = p.splitListOnProcs(pointIndices)
+    
+    if( options.verbose ):
+        log_line = "   Cpu %d has molecules %d - %d "%(rank,myChunk_i[0],myChunk_i[len(myChunk_i)-1])
+        print log_line
+        log_out.write(log_line)
+
+    p.barrier()
 
     #
     # Write input information 
     #
-    t_i = datetime.datetime.now()
-    log_line = " Start time " + str(t_i)
-    log_out.write(log_line)
+    if( rank == 0 ):
 
-    dat_out.write("\n#   Date "+str(t_i))
-    dat_out.write("\n#   System ")
-    dat_out.write("\n#     Molecules  %d "%(N_MOL))
-    dat_out.write("\n#     Atoms  %d "%(NA_i))
-    dat_out.write("\n#   Options ")
-    dat_out.write("\n#     bin size  %f "%(options.bin_size))
-    dat_out.write("\n#     bins  %d "%(n_bins))
-    dat_out.write("\n#     box length for max  %f "%(LV[0][0]))
-    dat_out.write("\n#     Initial frame  %d "%(options.frame_o))
-    dat_out.write("\n#     Step frame  %d "%(options.frame_o))
-    dat_out.write("\n#     Final frame  %d "%(options.frame_o))
-    dat_out.write("\n#   Output ")
-    dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A)")
-    
+        t_i = datetime.datetime.now()
+        log_line = "\n Start time " + str(t_i)
+        log_out.write(log_line)
+
+        dat_out.write("\n#   Date "+str(t_i))
+        dat_out.write("\n#   Number of processors  "+str(size))
+        dat_out.write("\n#   MD settings  ")
+        dat_out.write("\n#     Initial time  %f fs "%(options.time_start))
+        dat_out.write("\n#     Time step %f fs "%(options.time_step))
+        dat_out.write("\n#     Frame dumps every  %f fs "%(options.time_dump))
+        dat_out.write("\n#   System ")
+        dat_out.write("\n#     Molecules  %d "%(N_MOL))
+        dat_out.write("\n#     Atoms  %d "%(NA_i))
+        dat_out.write("\n#   Options ")
+        dat_out.write("\n#     bin size  %f "%(options.bin_size))
+        dat_out.write("\n#     bins  %d "%(n_bins))
+        dat_out.write("\n#     box length for max  %f "%(LV[0][0]))
+        dat_out.write("\n#     Initial frame  %d "%(options.frame_o))
+        dat_out.write("\n#     Step frame  %d "%(options.frame_step))
+        dat_out.write("\n#     Final frame  %d "%(options.frame_f))
+        dat_out.write("\n#   Output ")
+        dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A)")
+
+        if( options.verbose ):
+
+            print "   Date "+str(t_i)
+            print "   Number of processors  "+str(size)
+            print "   MD settings  "
+            print "     Initial time  %f fs "%(options.time_start)
+            print "     Time step %f fs "%(options.time_step)
+            print "     Frame dumps every  %f fs "%(options.time_dump)
+            print "   System "
+            print "     Molecules  %d "%(N_MOL)
+            print "     Atoms  %d "%(NA_i)
+            print "     Lattice vectors "
+            print "         %f %f %f  "%(LV[0][0],LV[0][1],LV[0][2])
+            print "         %f %f %f  "%(LV[1][0],LV[1][1],LV[1][2])
+            print "         %f %f %f  "%(LV[2][0],LV[2][1],LV[2][2])
+            print "   Options "
+            print "     bin size  %f "%(options.bin_size)
+            print "     bins  %d "%(n_bins)
+            print "     box length for max  %f "%(LV[0][0])
+            print "     Initial frame  %d "%(options.frame_o)
+            print "     Step frame  %d "%(options.frame_step)
+            print "     Final frame  %d "%(options.frame_f)
+            print "   Output "
+            print "    Time (fs); Frame count; Frame number ; Average length (A); Standard deviation (A)"
+            
     #
     # Loop over frames 
     #
@@ -225,50 +300,79 @@ def main():
             # R_f = get_lmp_frame(lammpsxyz_lines,len(ASYMB_sys),frame_i)
 
             R_f = []
-            lammpsxyz_line_cnt += 2
-            
-            if( options.verbose ):
-                log_line  = "\n    - reading frame %s  starting at line %d with comment %s " % (frame_i,lammpsxyz_line_cnt-1,lammpsxyz_lines[lammpsxyz_line_cnt] )
-                print log_line
+
+            # Read in R_f from xyz file
+            #   This is done on processor 0 to avoid broadcasting the very large lammpsxyz_lines around
+            #   if would be preferable to read this in chunk by chunk 
+            if( rank == 0 ):
+                if( options.verbose ):
+                    log_line  = "\n    - reading frame %s  starting at line %d with comment %s " % (frame_i,lammpsxyz_line_cnt-1,lammpsxyz_lines[lammpsxyz_line_cnt] )
+                    print log_line
                 log_out.write(log_line)
-                               
-            for atom_i in range( NA_i ):   
-                lammpsxyz_line_cnt += 1
 
-                if( lammpsxyz_line_cnt > len(lammpsxyz_lines)-1):
-                    print " frame is missing some atoms ",atom_i," not found "
+                lammpsxyz_line_cnt += 2
+                r_max = -1000000.0 
+                r_min = 1000000.0 
+                for atom_i in range( NA_i ):   
+                    lammpsxyz_line_cnt += 1
 
-                col =  lammpsxyz_lines[lammpsxyz_line_cnt].split()
-                if( len(col) >= 4 ):
-                    type_i = int(col[0]) - 1
-                    r_x = float(col[1])
-                    r_y = float(col[2])
-                    r_z = float(col[3])
-                    R_f.append( numpy.array( [r_x,r_y,r_z] ) )
-                    
+                    if( lammpsxyz_line_cnt > len(lammpsxyz_lines)-1):
+                        print " frame is missing some atoms ",atom_i," not found "
+
+                    col =  lammpsxyz_lines[lammpsxyz_line_cnt].split()
+                    if( len(col) >= 4 ):
+                        type_i = int(col[0]) - 1
+                        r_x = float(col[1])
+                        r_y = float(col[2])
+                        r_z = float(col[3])
+                        R_f.append( numpy.array( [r_x,r_y,r_z] ) )
+                        if( r_x > r_max ): r_max = r_x
+                        if( r_y > r_max ): r_max = r_y
+                        if( r_z > r_max ): r_max = r_z
+                        if( r_x < r_min ): r_min = r_x
+                        if( r_y < r_min ): r_min = r_y
+                        if( r_z < r_min ): r_min = r_z
+                        
+                # Estimate bax size based on max/min
+                l_box = r_max -r_min
+                LV[0][0] = l_box
+                LV[1][1] = l_box
+                LV[2][2] = l_box
+               
+                if( options.verbose  and rank == 0  ):
+                    log_line  = "\n        with box length %f Angstroms estimated from max/min"%(l_box)
+                    print log_line
+                    log_out.write(log_line)
+
+            # Broadcast R_f and LV  to all processors  
+            p.barrier()
+            R_f = p.bcast(R_f)
+            LV = p.bcast(LV)
+            p.barrier()
+            
         frame_cnt += 1 
         #
         # Loop over all the molecule
         #
-        debug = 0
-        if(debug):
-            print "  Looping over ",N_MOL," molecules"
-            print "   length of MOLPNT ",len(MOLPNT)
-
-        poly_len_i = numpy.zeros((N_MOL))
-        poly_std_i = numpy.zeros((N_MOL))
         
+        # poly_len_i = numpy.zeros((N_MOL))
+        poly_len_i =  [] # Need regular list for mpi   
+        #poly_len_i = numpy.zeros((len(myChunk_i)))
+        #poly_len  = numpy.zeros((N_MOL))
+        # poly_std_i = numpy.zeros((N_MOL))
+
+        mol_cnt = -1
         for mol_i in myChunk_i:
             M_o = MOLPNT[mol_i]
             M_f = MOLPNT[mol_i+1] - 1
             n_atoms_mol = M_f - M_o + 1
             if(debug):
-                print " Mol ",mol_i," has  ",n_atoms_mol," atoms "
-
+                print " Mol ",mol_i," on cpu ",rank," has  ",n_atoms_mol," atoms "
+            mol_cnt += 1 
             #
             # Find the maximum separation between atoms of a give molecule 
             #
-            r_sq_moli =  numpy.zeros((n_atoms_mol)) 
+            r_sq_moli =  numpy.zeros((n_atoms_mol))
             a_cnt = -1
             for indx_i in range( M_o,M_f+1):
                 atom_i = MOLLIST[indx_i]
@@ -292,50 +396,78 @@ def main():
                     sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
                     # store in numpy array 
                     r_sq_moli[a_cnt] = sq_r_ij
-                    
 
             # Find maximum speration and use that as the molecular length 
             r_sq_max = numpy.amax(r_sq_moli)
             r_max = numpy.sqrt(r_sq_max)
-            # store in numpy array 
-            poly_len_i[mol_i] = r_max
+            # store in numpy array with local count 
+            # poly_len_i[mol_cnt] = r_max
+            poly_len_i.append( r_max )
             # Compute the standard deviation of the intra-molecular separations
             #   Not need currently 
             #   poly_std_i[mol_i] =   numpy.sqrt( numpy.std(r_sq_moli) )
 
             if( options.verbose ):
-                log_line="\n        - Molecule %s has a length of %f Angstroms " %( mol_i,r_max)
+                log_line="\n        - Molecule %s has a length of %f Angstroms  on cpu %d  " %( mol_i,r_max,rank)
                 print log_line
                 log_out.write(log_line)
                 
 	p.barrier() # Barrier for MPI_COMM_WORLD
-        # Gather list form each processor 
-        poly_len = p.gatherList(poly_len_i)
-        # Calculate average and std
-        polyl_ave = numpy.mean(poly_len)
-        polyl_std = numpy.std(poly_len)
         
-        if( options.verbose ):
-            log_line="\n      - Average length %f with standard diveation %f Angstroms "%(polyl_ave,polyl_std)
-            print log_line
-            log_out.write(log_line)
-        dat_line="\n %d %d %f %f "%(frame_cnt,frame_i,polyl_ave,polyl_std)
-        dat_out.write(dat_line)
+        # Gather list form each processor onto processor 0
+
+        if( debug):
+            print "   poly_len_i on ",rank,poly_len_i
+        
+        poly_len = p.gatherList(poly_len_i)
+	p.barrier() # Barrier for MPI_COMM_WORLD
+        # Calculate average and std
 
 
-    t_f = datetime.datetime.now()
-    dt_sec  = t_f.second - t_i.second
-    dt_min  = t_f.minute - t_i.minute
-    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
-    log_line="\n  Finished time  " + str(t_f)
-    log_out.write(log_line)
-    log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
-    log_out.write(log_line)
+        if( debug):
+            print "   poly_len on ",rank,poly_len
 
-    
-    dat_out.close()
-    log_out.close()
+        if( rank == 0 ):
+            # Place lengths in to a numpy array
+            #   since mpi can not handle numpy arrays currently 
+            poly_len_np = numpy.zeros((N_MOL))
+            for mol_i in range( len(poly_len)):
+                print " mol ",mol_i," length ",poly_len[mol_i]
+                poly_len_np[mol_i] = poly_len[mol_i]
+
+            polyl_ave = numpy.mean(poly_len_np)
+            polyl_std = numpy.std(poly_len_np)
+
+            if( debug):
+                print "Average length %f with standard diveation %f Angstroms "%(polyl_ave,polyl_std)
+            
+
+            if( options.verbose  ):
+                log_line="\n      - Average length %f with standard diveation %f Angstroms "%(polyl_ave,polyl_std)
+                print log_line
+                log_out.write(log_line)
+            frame_time = options.time_start + options.time_dump*float(frame_i)
+            dat_line="\n %f %d %d %f %f "%(frame_time,frame_cnt,frame_i,polyl_ave,polyl_std)
+            dat_out.write(dat_line)
+
+	p.barrier() # Barrier for MPI_COMM_WORLD
+        if( debug):
+            sys.exit( " poly_len gather debug  ")
+        
+    if( rank == 0 ):
+        t_f = datetime.datetime.now()
+        dt_sec  = t_f.second - t_i.second
+        dt_min  = t_f.minute - t_i.minute
+        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
+        log_line="\n  Finished time  " + str(t_f)
+        log_out.write(log_line)
+        log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+        log_out.write(log_line)
+
+
+        dat_out.close()
+        log_out.close()
     
 if __name__=="__main__":
     main()
