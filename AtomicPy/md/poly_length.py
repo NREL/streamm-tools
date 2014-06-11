@@ -56,6 +56,11 @@ def get_options():
     parser.add_option("--time_dump",dest="time_dump", type=float, default=2000, help="time between frame dumps fs ")
     parser.add_option("--time_start",dest="time_start", type=float, default=0.0, help="Initial time fs ")
 
+    parser.add_option("--filter_eln", dest="filter_eln", type="string", default="", help=" filter atoms by atomic number ")
+    parser.add_option("--filter_fftype", dest="filter_fftype", type="string", default="", help=" filter atoms by force field type ")
+    parser.add_option("--filter_residue", dest="filter_residue", type="string", default="", help=" filter atoms by residue name ")
+    parser.add_option("--filter_unit", dest="filter_unit", type="string", default="", help=" filter atoms by unit name ")
+    parser.add_option("--filter_cord", dest="filter_cord", type="string", default="", help=" filter atoms by cordination ")
     
     (options, args) = parser.parse_args()
         
@@ -86,7 +91,7 @@ def main():
     """
     import os, sys, numpy , math 
     import datetime
-    import gromacs, elements, xmol, prop, file_io, groups, lammps #, vectors     
+    import gromacs, elements, xmol, prop, file_io, groups, lammps, top #, vectors     
     import mpiNREL
 
 
@@ -145,6 +150,7 @@ def main():
             
         GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
         p.barrier()
+        
     #
     # Get lammps data file 
     #
@@ -173,7 +179,7 @@ def main():
             RESN.append(MOLNUMB[i])
             #
         N_MOL,MOLPNT,MOLLIST = groups.molecule_list(MOLNUMB)
-
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
 
         p.barrier()
     #
@@ -208,7 +214,117 @@ def main():
     if( options.frame_f == -1 ):
         options.frame_f  = n_frames - 1
         if( debug): print "  modify frame_f to ",options.frame_f," rank ",rank 
-                        
+
+    #  Filter molecule atoms
+
+    if( rank == 0 ):
+        if( options.verbose ):
+
+            if(  len(options.filter_eln) ):
+                print  "     - Filtering for atomic numbers  ",options.filter_eln
+            dat_out.write("\n#   Filtering for atomic numbers  %s  "% (options.filter_eln))
+
+            if(  len(options.filter_fftype) ):
+                print  "     - Filtering for force field types  ",options.filter_fftype
+            dat_out.write("\n#   Filtering for atomic numbers  %s  "% (options.filter_fftype))
+
+            if(  len(options.filter_residue) ):
+                print  "     - Filtering for residue names ",options.filter_residue
+            dat_out.write("\n#   Filtering for atomic numbers  %s  "% (options.filter_residue))
+
+            if(  len(options.filter_unit) ):
+                print  "     - Filtering for unit name  ",options.filter_unit
+            dat_out.write("\n#   Filtering for unit name   %s  "% (options.filter_unit))
+
+            if(  len(options.filter_cord) ):
+                print  "     - Filtering for coordination  ",options.filter_cord
+            dat_out.write("\n#   Filtering for coordination %s  "% (options.filter_cord))
+
+    #
+    # Initialize filter 
+    #
+    filter_cnt = 0
+    filter_total = 5 
+    if(  len(options.filter_eln) ): filter_cnt += 1 
+    if(  len(options.filter_fftype) ):filter_cnt += 1 
+    if(  len(options.filter_residue) ):filter_cnt += 1 
+    if(  len(options.filter_unit) ):filter_cnt += 1 
+    if(  len(options.filter_cord) ):filter_cnt += 1
+
+    if( rank == 0 ):
+        if( options.verbose ):
+            dat_line = "\n#   Filters applied %d  "% (filter_cnt)
+            print dat_line
+            dat_out.write(dat_line)
+
+    #
+    # filtered molecule list
+    #
+
+    debug = 1
+    if( debug):
+        N_MOL =  1
+    
+    MOLLIST_f = []  
+    MOLPNT_f = []
+    A_CNT = -1
+
+    for mol_i in range(N_MOL):
+        M_o = MOLPNT[mol_i]
+        M_f = MOLPNT[mol_i+1] - 1
+
+        MOLPNT_f.append( A_CNT+1 )
+
+        for indx_i in range( M_o,M_f+1):
+            atom_i = MOLLIST[indx_i]
+
+            # Create array of zeros for all possible filters 
+            add_atom = numpy.zeros((filter_total))
+
+            
+            if(  len(options.filter_eln) ):
+                for f_id in options.filter_eln.split():
+                    eln_f = int( f_id )
+                    if( ELN[atom_i] == eln_f ):
+                        add_atom[0] = 1
+
+            if(  len(options.filter_fftype) ):
+                for f_id in options.filter_fftype.split():
+                    if( ATYPE[atom_i] == f_id ):
+                        add_atom[1] = 1
+
+            if(  len(options.filter_residue) ):
+                for f_id in options.filter_residue.split():
+                    if( RESID[atom_i] == f_id ):
+                        add_atom[2] = 1
+
+            if(  len(options.filter_unit) ):
+                for f_id in options.filter_unit.split():
+                    if( UNITTYPE[atom_i] == f_id ):
+                        add_atom[3] = 1
+
+            if(  len(options.filter_cord) ):
+                for f_id in options.filter_cord.split():
+                    cord_f = int(f_id)
+                    cord_i = top.calc_nnab(atom_i,NBLIST,NBINDEX)
+                    if( cord_i == cord_f ):
+                        add_atom[4] = 1
+
+            if( numpy.sum(add_atom) == filter_cnt ):
+                # if all filters considered return a 1
+                A_CNT += 1
+                MOLLIST_f.append( atom_i )
+
+                if( debug):
+                    print " adding atom ",atom_i," eln ",ELN[atom_i] ," coord ",top.calc_nnab(atom_i,NBLIST,NBINDEX)," to mol ",mol_i
+                
+
+    # Set last postion for looping 
+    MOLPNT_f.append( A_CNT + 1)
+
+    if(debug):
+        sys.exit(" filter debug 1 ")
+        
     #
     # Intialize lsits and counts
     #
@@ -230,7 +346,7 @@ def main():
     if( debug ): print rank, size," splitOnProcs "
     # Create a list of atomic indices for each processor 
     myChunk_i  = p.splitListOnProcs(pointIndices)
-    
+
     if( options.verbose ):
         log_line = "   Cpu %d has molecules %d - %d "%(rank,myChunk_i[0],myChunk_i[len(myChunk_i)-1])
         print log_line
@@ -264,7 +380,7 @@ def main():
         dat_out.write("\n#     Step frame  %d "%(options.frame_step))
         dat_out.write("\n#     Final frame  %d "%(options.frame_f))
         dat_out.write("\n#   Output ")
-        dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A)")
+        dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A), box length (A)")
 
         if( options.verbose ):
 
@@ -365,8 +481,8 @@ def main():
 
         mol_cnt = -1
         for mol_i in myChunk_i:
-            M_o = MOLPNT[mol_i]
-            M_f = MOLPNT[mol_i+1] - 1
+            M_o = MOLPNT_f[mol_i]
+            M_f = MOLPNT_f[mol_i+1] - 1
             n_atoms_mol = M_f - M_o + 1
             if(debug):
                 print " Mol ",mol_i," on cpu ",rank," has  ",n_atoms_mol," atoms "
@@ -377,7 +493,7 @@ def main():
             r_sq_moli =  numpy.zeros((n_atoms_mol))
             a_cnt = -1
             for indx_i in range( M_o,M_f+1):
-                atom_i = MOLLIST[indx_i]
+                atom_i = MOLLIST_f[indx_i]
                 if( MOLNUMB[atom_i] == mol_i + 1  ):
                     log_line =  "\n \n Error atom  is in  not listed \n \n" % (atom_i,MOLNUMB[atom_i] ,mol_i )
                     print log_line
@@ -387,7 +503,7 @@ def main():
                 r_i = R_f[atom_i]
 
                 for indx_j in range( M_o,M_f+1):
-                    atom_j = MOLLIST[indx_j]
+                    atom_j = MOLLIST_f[indx_j]
                     if( MOLNUMB[atom_j] == mol_i + 1  ):
                         log_line =  "\n \n Error atom  is in  not listed \n \n" % (atom_j,MOLNUMB[atom_j] ,mol_i )
                         print log_line
@@ -449,7 +565,7 @@ def main():
                 print log_line
                 log_out.write(log_line)
             frame_time = options.time_start + options.time_dump*float(frame_i)
-            dat_line="\n %f %d %d %f %f "%(frame_time,frame_cnt,frame_i,polyl_ave,polyl_std)
+            dat_line="\n %f %d %d %f %f %f "%(frame_time,frame_cnt,frame_i,polyl_ave,polyl_std,l_box)
             dat_out.write(dat_line)
 
 	p.barrier() # Barrier for MPI_COMM_WORLD
