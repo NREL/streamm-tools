@@ -46,7 +46,13 @@ def get_options():
 
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="", help=" Output xyz file ")
     parser.add_option("--out_data", dest="out_data",type="string",default="",help=" Output Lammps data file ")
+    #
+    # xmol output 
+    #
     parser.add_option("--out_xmol", dest="out_xmol", type="string", default="", help=" Output xmol file ")
+    parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
+    parser.add_option("--frame_f", dest="frame_f", type=int, default=0, help=" Final frame to read")
+    parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
     #
     #
     #
@@ -350,7 +356,6 @@ def main():
                 ASYMB_sys.append( ASYMB_i[atom_i])
                 ELN_sys .append( ELN_i[atom_i])
                 ATYPE_sys.append( ATYPE_i[atom_i])
-                RESN_sys.append( RESN_i[atom_i])
                 RESID_sys.append( RESID_i[atom_i])
                 GTYPE_sys.append( GTYPE_i[atom_i])
                 CHARN_sys.append( CHARN_i[atom_i])
@@ -362,9 +367,10 @@ def main():
                 CTYPE_sys.append( CTYPE_i[atom_i])
                 UNITTYPE_sys.append( [atom_i])
                 # Shift numbered groups 
-                UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*max(UNITNUMB_i) )
-                MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*max(MOLNUMB_i)  )
-                RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*max(RING_NUMB_i)  )
+                RESN_sys.append( RESN_i[atom_i]+ unit_n*( max(RESN_i) +1)  )
+                UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*( max(UNITNUMB_i) +1) )
+                MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*(max(MOLNUMB_i) +1)  )
+                RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*(max(RING_NUMB_i) +1)  )
     else:
         
         ASYMB_sys = ASYMB_i
@@ -458,9 +464,20 @@ def main():
             
             line_cnt = -1
             n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB_sys) + 2) )
-            for frame_i in range(n_frames):
+            #for frame_i in range(n_frames):
+            
+            if( options.frame_f == -1 ):
+                options.frame_f  = n_frames - 1
+
+            if( rank == 0 ):
+                if( options.verbose ):
+                    print "   frame_o  ",options.frame_o
+                    print "   frame_step ",options.frame_step
+                    print "   frame_f ",options.frame_f
+            
+            for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
+                line_cnt = frame_i*(NA_sys + 2 ) 
                 
-                line_cnt += 1
                 if( len(options.out_xmol) ):
                     str_file.write( lammpsxyz_lines[line_cnt] )
                 line_cnt += 1
@@ -532,8 +549,8 @@ def main():
           BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
           ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
           DIH_sys,DTYPE_IND_sys,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-          RESN_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
-          BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV)
+          MOLNUMB_sys,ATYPE_IND_sys,CHARGES_sys,R_sys , ATYPE_sys,
+          BONDS_sys ,BTYPE_IND_sys, ANGLES_sys ,ANGTYPE_IND_sys, LV_sys)
 
 
     if( len(options.out_json) ):
