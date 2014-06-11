@@ -218,7 +218,8 @@ def main():
     NA_i = len(ELN)
 
 
-    if(debug): N_MOL = 4
+    if(debug):
+        N_MOL = 4
     
     p.barrier()
 
@@ -305,12 +306,13 @@ def main():
             #   This is done on processor 0 to avoid broadcasting the very large lammpsxyz_lines around
             #   if would be preferable to read this in chunk by chunk 
             if( rank == 0 ):
+                lammpsxyz_line_cnt = frame_i*(NA_i + 2 ) 
+                lammpsxyz_line_cnt += 1
                 if( options.verbose ):
                     log_line  = "\n    - reading frame %s  starting at line %d with comment %s " % (frame_i,lammpsxyz_line_cnt-1,lammpsxyz_lines[lammpsxyz_line_cnt] )
                     print log_line
                 log_out.write(log_line)
 
-                lammpsxyz_line_cnt += 2
                 r_max = -1000000.0 
                 r_min = 1000000.0 
                 for atom_i in range( NA_i ):   
