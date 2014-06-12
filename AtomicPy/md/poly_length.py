@@ -267,7 +267,7 @@ def main():
     # filtered molecule list
     #
 
-    debug = 1
+    debug = 0
     if( debug):
         N_MOL =  1
     
@@ -560,7 +560,7 @@ def main():
         # Calculate average and std
 
 
-        if( debug):
+        if( debug ):
             print "   poly_len on ",rank,poly_len
 
         if( rank == 0 ):
@@ -568,20 +568,21 @@ def main():
             #   since mpi can not handle numpy arrays currently 
             poly_len_np = numpy.zeros((N_MOL))
             for mol_i in range( len(poly_len)):
-                print " mol ",mol_i," length ",poly_len[mol_i]
+                if( debug):
+                    print " mol ",mol_i," length ",poly_len[mol_i]
                 poly_len_np[mol_i] = poly_len[mol_i]
 
             polyl_ave = numpy.mean(poly_len_np)
             polyl_std = numpy.std(poly_len_np)
 
-            if( debug):
+            if( debug ):
                 print "Average length %f with standard diveation %f Angstroms "%(polyl_ave,polyl_std)
             
-
             if( options.verbose  ):
                 log_line="\n      - Average length %f with standard diveation %f Angstroms "%(polyl_ave,polyl_std)
                 print log_line
                 log_out.write(log_line)
+                
             frame_time = options.time_start + options.time_dump*float(frame_i)
             dat_line="\n %f %d %d %f %f %f "%(frame_time,frame_cnt,frame_i,polyl_ave,polyl_std,l_box)
             dat_out.write(dat_line)
