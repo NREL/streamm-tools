@@ -511,7 +511,7 @@ def main():
         CHARN_p.append( CHARN_sys[atom_sys])
         CHARGES_p.append( CHARGES_sys[atom_sys])
         AMASS_p.append( AMASS_sys[atom_sys])
-        R_p.append( R_shift[atom_sys])
+        R_p.append( R_sys[atom_sys])
         if(  options.ff_software == "lammps"  ):
             ATYPE_IND_p.append( ATYPE_IND_sys[atom_sys])
                     
@@ -667,7 +667,7 @@ def main():
                     CHARN_sys.append( CHARN_p[atom_p])
                     CHARGES_sys.append( CHARGES_p[atom_p])
                     AMASS_sys.append( AMASS_p[atom_p])
-                    R_sys.append( R_shift[atom_p])
+                    R_sys.append( R_p[atom_p])
                     if(  options.ff_software == "lammps"  ):
                         ATYPE_IND_sys.append( ATYPE_IND_p[atom_p])
                               
