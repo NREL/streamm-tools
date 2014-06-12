@@ -61,6 +61,7 @@ def get_options():
     parser.add_option("--filter_residue", dest="filter_residue", type="string", default="", help=" filter atoms by residue name ")
     parser.add_option("--filter_unit", dest="filter_unit", type="string", default="", help=" filter atoms by unit name ")
     parser.add_option("--filter_cord", dest="filter_cord", type="string", default="", help=" filter atoms by cordination ")
+    parser.add_option("--filter_mol", dest="filter_mol", type="string", default="", help=" filter atoms by molecule number  ")
     
     (options, args) = parser.parse_args()
         
@@ -240,16 +241,21 @@ def main():
                 print  "     - Filtering for coordination  ",options.filter_cord
             dat_out.write("\n#   Filtering for coordination %s  "% (options.filter_cord))
 
+            if(  len(options.filter_mol) ):
+                print  "     - Filtering for molecule number   ",options.filter_mol
+            dat_out.write("\n#   Filtering for  molecule number   %s  "% (options.filter_mol))
+
     #
     # Initialize filter 
     #
     filter_cnt = 0
-    filter_total = 5 
+    filter_total = 6
     if(  len(options.filter_eln) ): filter_cnt += 1 
     if(  len(options.filter_fftype) ):filter_cnt += 1 
     if(  len(options.filter_residue) ):filter_cnt += 1 
     if(  len(options.filter_unit) ):filter_cnt += 1 
     if(  len(options.filter_cord) ):filter_cnt += 1
+    if(  len(options.filter_mol) ):filter_cnt += 1
 
     if( rank == 0 ):
         if( options.verbose ):
@@ -274,6 +280,9 @@ def main():
         M_f = MOLPNT[mol_i+1] - 1
 
         MOLPNT_f.append( A_CNT+1 )
+
+        if(debug):
+            print " checking mol ",mol_i," with ",M_f - M_o + 1 , " atoms "
 
         for indx_i in range( M_o,M_f+1):
             atom_i = MOLLIST[indx_i]
@@ -310,13 +319,22 @@ def main():
                     if( cord_i == cord_f ):
                         add_atom[4] = 1
 
+            if(  len(options.filter_mol) ):
+                for f_id in options.filter_mol.split():
+                    mol_f = int(f_id) - 1
+                    if( MOLNUMB[atom_i] == mol_f ):
+                        add_atom[5] = 1
+
+            if( debug):
+                print " checking  ",atom_i," eln ",ELN[atom_i] ," coord ",top.calc_nnab(atom_i,NBLIST,NBINDEX)," to mol ",mol_i, MOLNUMB[atom_i]
+                
             if( numpy.sum(add_atom) == filter_cnt ):
                 # if all filters considered return a 1
                 A_CNT += 1
                 MOLLIST_f.append( atom_i )
 
                 if( debug):
-                    print " adding atom ",atom_i," eln ",ELN[atom_i] ," coord ",top.calc_nnab(atom_i,NBLIST,NBINDEX)," to mol ",mol_i
+                    print " adding atom "
                 
 
     # Set last postion for looping 
