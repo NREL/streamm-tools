@@ -33,6 +33,8 @@ def get_options():
     parser.add_option("--sol_top", dest="sol_top", type="string", default="", help="Input gromacs topology file for solvent (.top) ")
     parser.add_option("--sol_gro", dest="sol_gro", type="string", default="", help="Input gromacs structure file for solvent (.gro) ")
     parser.add_option("--mult_s", dest="mult_s",  type=int, default=1, help=" Number of solvent molecules  ")
+    parser.add_option("--lat_s", dest="lat_s",  default=False,action="store_true",  help=" Add solvent onto lattice to prevent the intra solvent overlap calculation  ")
+    parser.add_option("--buf_s", dest="buf_s",  type=float, default=10.0, help=" intra solvent buffer " )
 
     parser.add_option("--box_l", dest="box_l", type=float, default=200.0, help=" Box size")
     
@@ -264,13 +266,13 @@ def main():
     # Calculate need molecules to achieve specified density and total number atoms 
     #
             
-    mol_mult = options.mult_i # int( float(options.atoms_target)/float(len(ELN_i)) )
     target_density_amuang = options.den_target*const_avo/10.0
     mol_mass_amu = prop.total_mass( AMASS_i )
-    mass_amu = mol_mass_amu*mol_mult
+    mass_amu = mol_mass_amu*options.mult_i
     volume_target_ang = mass_amu/target_density_amuang    
     len_target_ang = volume_target_ang**(1.0/3.0)
-    
+
+            
     #
     # Set lattice vectors for pbc 
     #
@@ -280,6 +282,58 @@ def main():
     LV[1,1] = options.box_l #len_target_ang
     LV[2,2] = options.box_l #len_target_ang
 
+    #
+    #  Find size of box for lattice method of solvent addtion 
+    #
+    if(options.lat_s ):
+
+        #
+        # Shift molecule to have center of mass at origin 
+        # 
+        r_shift = numpy.array( [0.0,0.0,0.0] )
+        R_solvmol_c = prop.shift_cent_mass(AMASS_s,R_s,r_shift)
+            
+        # Find length of solvent molecule
+        sq_mol_l = -1000000.0 
+        for atom_i in range( len(ELN_s) ):
+            r_i = R_solvmol_c[atom_i]
+            
+            for atom_j in range( len(ELN_s) ):
+                r_j = R_solvmol_c[atom_j]
+                sq_r_ij = prop.sq_drij_c(r_i,r_j,LV_s)
+                if( sq_r_ij > sq_mol_l):
+                    sq_mol_l = sq_r_ij
+                    max_dr_i = atom_i
+                    max_dr_j = atom_j
+                    max_r_i = r_i 
+                    max_r_j = r_j
+
+        mol_l = numpy.sqrt(sq_mol_l)
+        # Add a seperation to each molecule
+        mol_l_lj = mol_l + options.buf_s   
+        sq_mol_l_lj = mol_l_lj*mol_l_lj
+        # Number molecules per side of box cube
+        #  Leave extra space for non solvent molecules 
+        mol_box_side = math.ceil( options.mult_s**(1.0/3.0) ) 
+        sq_mol_box_side = mol_box_side*mol_box_side
+        solv_box_l = mol_box_side*mol_l_lj #+ mol_l_lj
+
+        log_line = " Solvent molecules  %d "%(options.mult_s)
+        print log_line
+	
+        log_line = " Solvent molecules per cubic box side  %d "%(mol_box_side)
+        print log_line
+	
+        log_line = " Reseting box size %f to %f for solvent lattice method "%(options.box_l,solv_box_l)
+        print log_line
+	
+
+        LV[0,0] = solv_box_l
+        LV[1,1] = solv_box_l
+        LV[2,2] = solv_box_l
+	
+	#sys.exit(" box size debug  ")
+	
     #
     # Initialize system
     #
@@ -314,7 +368,7 @@ def main():
         print "   - Tragets "
         print "     Input molecule has ",len(ELN_i)," atoms and mass of ",mol_mass_amu," AMU "
         print "     System target is ",options.atoms_target," atoms "
-        print "     Input molecule will be multiplied ",mol_mult," times "
+        print "     Input molecule will be multiplied ",options.mult_i," times "
         print "     The target density of ",options.den_target," g/cnm^3 ",target_density_amuang," AMU Angstroms^-3"
         print "     Cubic unit cell of ",len_target_ang," Angstroms will be used "
         # print "     Giving a molecular volume of ",mol_vol," mol/Angstrom^3 and a molecular unit length of ",mol_unit_l," Angstorms "
@@ -352,7 +406,7 @@ def main():
     # Start adding molecules to the system
     #
     add_mol = 1
-    while ( add_mol ):
+    while ( add_mol and options.mult_i > 0 ):
         #
         # Initialize 
         #
@@ -477,7 +531,7 @@ def main():
             p.barrier() # Barrier for MPI_COMM_WORLD
                     
                                     
-        if( sys_mol_n ==  mol_mult ):
+        if( sys_mol_n ==  options.mult_i ):
             # If all the molecule have been added exit while loop and print system 
             add_mol = 0
             p.barrier() # Barrier for MPI_COMM_WORLD
@@ -530,7 +584,6 @@ def main():
     # Calculate need molecules to achieve specified density and total number atoms 
     #
             
-    mol_mult = options.mult_s # int( float(options.atoms_target)/float(len(ELN_i)) )
     #
     # Place the atomic indices into list 
     # 
@@ -550,7 +603,8 @@ def main():
     # Start adding solvent to the system
     #
     add_mol = 1
-    while ( add_mol ):
+    randomsolv = 0
+    while ( add_mol and randomsolv and options.mult_s > 0 ):
         #
         # Initialize 
         #
@@ -636,8 +690,8 @@ def main():
             if( moladd_atempts >= options.max_mol_place ):
                 # If attempts to place molecule into the system exceed max set by max_mol_place
                 #   reset system and star over 
-                if( options.verbose ):
-                    if( rank == 0  ):
+                if(  rank == 0  ):
+                    if(  options.verbose ):
                         print "        -  Attempts to add molecule ",sys_mol_n," has exceeded max attempts ",options.max_mol_place," system will be reset for the ",sys_attempts," time "
                     
                 sys_mol_n = 0                
@@ -691,13 +745,154 @@ def main():
             p.barrier() # Barrier for MPI_COMM_WORLD
                     
                                     
-        if( sys_mol_n ==  mol_mult ):
+        if( sys_mol_n ==  options.mult_s ):
             # If all the molecule have been added exit while loop and print system 
             add_mol = 0
             p.barrier() # Barrier for MPI_COMM_WORLD
             if( options.verbose and rank == 0  ):
                 print " All molecules have been added "
-                                
+
+    #
+    # Start adding solvent to the system
+    #
+    add_mol = 1
+    while ( add_mol and options.lat_s ):
+        #
+        # Initialize 
+        #
+        add_mol = 1
+        overlap_sum = 1
+        moladd_atempts = 0
+
+        
+        if( options.verbose):
+            log_line = "  Solvent molecle is %f Angstroms long between atoms %d %d  "%(mol_l,max_dr_i,max_dr_j)
+            print log_line
+            log_line = "    molecules %d per side of a cube box to give %d total molecules in the volume  "%(mol_box_side,options.mult_s)
+            print log_line
+            log_line = "    Supercell length  %f "%(solv_box_l)
+            print log_line
+
+        # Record intial time for pereformance testing 
+        if( options.ptime ):t_i = datetime.datetime.now()
+
+        # loop over lattice positions
+        #  Add 
+        sol_cnt = 0 
+        for x_pos in range(0,int(mol_box_side)):
+	    if( sol_cnt == options.mult_s ): break
+            for y_pos in range(0,int(mol_box_side)):
+		if( sol_cnt == options.mult_s ): break
+                for z_pos in range(0,int(mol_box_side)):
+                    lat_pos = numpy.array( [float(x_pos)*mol_l_lj,float(y_pos)*mol_l_lj,float(z_pos)*mol_l_lj] )
+                    # Make sure there is no overlap with the added molecules
+                    overlap = 0
+                    for atom_p in range( len(ELN_p) ):
+                        r_p = R_p[atom_p]
+                        r_ij_sq = prop.sq_drij_c(r_p,lat_pos,LV)
+
+                        if( r_ij_sq < sq_mol_l_lj ):
+                            overlap = 1
+                            
+                    p.barrier() # Barrier for MPI_COMM_WORLD
+		    # Shift molecule to lattice point 
+		    R_shift = prop.shift_r(R_moli_c,lat_pos)
+		    
+                    #
+                    # Reduce sum the overlap variable from all the processors
+                    #   if it is zero everywhere there was no overlap detected 
+                    #
+                    # overlap_sum = mpi.all_reduce(world,overlap, lambda x,y: x + y)
+                    overlap_sum = p.allReduceSum(overlap)
+
+                    if( overlap_sum ==  0 ):
+			# Shift molecule to lattice point 
+                        # If no overlap detected add molecule to the system 
+                        sol_cnt += 1
+                        for atom_i in range( len(ELN_s) ):
+                            ASYMB_sys.append( ASYMB_s[atom_i])
+                            ELN_sys .append( ELN_s[atom_i])
+                            ATYPE_sys.append( ATYPE_s[atom_i])
+                            RESN_sys.append( RESN_s[atom_i])
+                            RESID_sys.append( RESID_s[atom_i])
+                            GTYPE_sys.append( GTYPE_s[atom_i])
+                            CHARN_sys.append( CHARN_s[atom_i])
+                            CHARGES_sys.append( CHARGES_s[atom_i])
+                            AMASS_sys.append( AMASS_s[atom_i])
+                            R_sys.append( R_shift[atom_i])
+                            if(  options.ff_software == "lammps"  ):
+                                ATYPE_IND_sys.append( ATYPE_IND_s[atom_i])
+
+                        if( options.verbose ):
+
+                            if( rank == 0  ):
+                                print "      -  Solvent molecule ",sol_cnt," has been added to the system after ",moladd_atempts," placment attempts "
+
+                                if( options.ptime ):
+                                    t_f = datetime.datetime.now()
+                                    dt_sec  = t_f.second - t_i.second
+                                    dt_min  = t_f.minute - t_i.minute
+                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                    print "        - with placement time ",dt_min," min ",dt_sec," seconds "
+                    if( sol_cnt == options.mult_s ): break
+		    else:
+			print " continueadding solvent since %d < %d "%(sol_cnt , options.mult_s )
+			
+
+        if( sol_cnt > options.mult_s ):
+            # Failed to fit all the needed solvent molecules in the box
+            # Rest system and increase buffer
+            
+            if( rank == 0  ):
+                if( options.verbose ):
+                    log_line = "        -  %d solvent molecules add to box with length %f "%(sol_cnt,mol_box_side)
+                    print log_line
+                    
+            sys_mol_n = 0                
+            sys_attempts += 1
+
+            ASYMB_sys = []
+            ATYPE_IND_sys = []
+            ELN_sys  = []
+            ATYPE_sys = []
+            RESN_sys = []
+            RESID_sys = []
+            GTYPE_sys = []
+            CHARN_sys = []
+            CHARGES_sys = []
+            AMASS_sys = []
+            R_sys = []
+            VEL_sys = []
+
+            # Add saved configuration back to system 
+            for atom_p in range( len(ELN_p) ):
+                ASYMB_sys.append( ASYMB_p[atom_p])
+                ELN_sys.append( ELN_p[atom_p])
+                ATYPE_sys.append( ATYPE_p[atom_p])
+                RESN_sys.append( RESN_p[atom_p])
+                RESID_sys.append( RESID_p[atom_p])
+                GTYPE_sys.append( GTYPE_p[atom_p])
+                CHARN_sys.append( CHARN_p[atom_p])
+                CHARGES_sys.append( CHARGES_p[atom_p])
+                AMASS_sys.append( AMASS_p[atom_p])
+                R_sys.append( R_p[atom_p])
+                if(  options.ff_software == "lammps"  ):
+                    ATYPE_IND_sys.append( ATYPE_IND_p[atom_p])
+
+            # expand the buffer distance between solvent molecules 
+            options.buf_s = options.buf_s + options.buf_s*options.lc_expand
+            
+            p.barrier() # Barrier for MPI_COMM_WORLD
+                    
+                                    
+        else:
+            # If all the molecule have been added exit while loop and print system 
+            add_mol = 0
+            p.barrier() # Barrier for MPI_COMM_WORLD
+            if( options.verbose and rank == 0  ):
+                print " All molecules have been added "
+                
     if( rank == 0 ):
         # Write xyz file 
         out_xyz = "mol_system.xyz"
@@ -711,7 +906,7 @@ def main():
         elif(  options.ff_software == "lammps"  ):
             # Find topology for entire system
             #   Repeat molecular topology for all molecules added to the system
-    
+	    mol_mult = options.mult_i + options.mult_s
             BONDS_sys,BTYPE_IND_sys = top.replicate_bonds(mol_mult,ELN_i,BONDS_i,BTYPE_IND_i) 
             ANGLES_sys,ANGTYPE_IND_sys = top.replicate_angles(mol_mult,ELN_i,ANGLES_i,ANGTYPE_IND_i) 
             DIH_sys,DTYPE_IND_sys = top.replicate_dih(mol_mult,ELN_i,DIH_i,DTYPE_IND_i) 
