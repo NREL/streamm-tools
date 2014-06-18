@@ -836,9 +836,7 @@ def main():
                                     if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
                                     print "        - with placement time ",dt_min," min ",dt_sec," seconds "
                     if( sol_cnt == (options.mult_s -1) ): break
-		    else:
-			print " continueadding solvent since %d < %d "%(sol_cnt , options.mult_s )
-			
+                        
 
         if( sol_cnt >  (options.mult_s -1)  ):
             # Failed to fit all the needed solvent molecules in the box
