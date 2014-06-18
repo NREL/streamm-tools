@@ -332,6 +332,15 @@ def build_nablist(ELN,R):
 
     return (NBLIST, NBINDEX)
 
+def shift_r(R,r_shift):
+
+    prop_dim = len(R[0])
+
+    R_shifted = []
+    for atom_i in range( len(R) ):
+	R_shifted.append( R[atom_i] + r_shift )
+	
+    return R_shifted
 
 def shift_cent_mass(AMASS,R,r_shift):
     """
@@ -403,9 +412,47 @@ def sys_cent_mass(ASYMB,R,options):
     return r_mass
 
 
-def list_cent_mass(atom_list,R,options):
+def list_cent_mass2(atom_list,list_indx,R,AMASS):
     """
     Calculate center of mass of a list of atoms 
+    """
+
+    import numpy 
+
+    prop_dim = len(R[0])
+
+    # Intialize center of mass
+    total_mass = 0.0
+    #r_mass.append(r_zero)
+    r_mass = numpy.array( [0.0,0.0,0.0] )
+    
+    Indx_o = atom_list[list_indx ]
+    Indx_f = atom_list[list_indx +1 ] -1
+    
+    print "   list_indx ",list_indx
+    print "  Indx_o ",Indx_o
+    print "  Indx_f ",Indx_f
+    
+    for a_indx in range(  Indx_o,Indx_f+1):
+	atom_i = atom_list[a_indx]
+            
+        a_mass = AMASS[atom_i]
+        # sum center of mass
+        total_mass = total_mass + a_mass
+
+        for d in range(prop_dim):
+            r_mass[d] += a_mass*R[atom_i][d]
+                
+    # Normalize 
+    for d in range(prop_dim):
+        r_mass[d] = r_mass[d]/total_mass
+        
+    return r_mass
+
+def list_cent_mass(atom_list,R,options):
+    """
+    Calculate center of mass of a list of atoms
+    not sure if this one is correct see list_cent_mass2
     """
 
     import numpy 
@@ -464,26 +511,6 @@ def cent_mass(AMASS,R):
         r_mass[d] = r_mass[d]/total_mass
         
     return r_mass
-
-def shift_r(r_cm,R_local,options):
-    """
-    Shift coordinates 
-    """
-
-    # shift system
-    import numpy 
-    
-    debug = 1
-    
-    R_cent = numpy.zeros( [len(R_local),options.prop_dim] )
-    	
-    for atom_i in range(len(R_local)):
-	for d in range(options.prop_dim):
-	    r_o = R_local[atom_i][d]
-	    r_i =  r_o + r_cm[d]
-	    R_cent[atom_i][d] = r_i
-	    
-    return R_cent 
 
 
 def r_pbc(r_i,LV,options):
