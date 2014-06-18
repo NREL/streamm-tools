@@ -745,7 +745,7 @@ def main():
             p.barrier() # Barrier for MPI_COMM_WORLD
                     
                                     
-        if( sys_mol_n ==  options.mult_s ):
+        if( sys_mol_n ==  (options.mult_s - 1) ):
             # If all the molecule have been added exit while loop and print system 
             add_mol = 0
             p.barrier() # Barrier for MPI_COMM_WORLD
@@ -780,9 +780,9 @@ def main():
         #  Add 
         sol_cnt = 0 
         for x_pos in range(0,int(mol_box_side)):
-	    if( sol_cnt == options.mult_s ): break
+	    if( sol_cnt ==  (options.mult_s -1)  ): break
             for y_pos in range(0,int(mol_box_side)):
-		if( sol_cnt == options.mult_s ): break
+		if( sol_cnt ==  (options.mult_s -1)  ): break
                 for z_pos in range(0,int(mol_box_side)):
                     lat_pos = numpy.array( [float(x_pos)*mol_l_lj,float(y_pos)*mol_l_lj,float(z_pos)*mol_l_lj] )
                     # Make sure there is no overlap with the added molecules
@@ -835,12 +835,12 @@ def main():
                                     if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
                                     if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
                                     print "        - with placement time ",dt_min," min ",dt_sec," seconds "
-                    if( sol_cnt == options.mult_s ): break
+                    if( sol_cnt == (options.mult_s -1) ): break
 		    else:
 			print " continueadding solvent since %d < %d "%(sol_cnt , options.mult_s )
 			
 
-        if( sol_cnt > options.mult_s ):
+        if( sol_cnt >  (options.mult_s -1)  ):
             # Failed to fit all the needed solvent molecules in the box
             # Rest system and increase buffer
             
