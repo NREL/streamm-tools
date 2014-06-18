@@ -780,9 +780,9 @@ def main():
         #  Add 
         sol_cnt = 0 
         for x_pos in range(0,int(mol_box_side)):
-	    if( sol_cnt ==  (options.mult_s -1)  ): break
+	    if( sol_cnt == options.mult_s ): break
             for y_pos in range(0,int(mol_box_side)):
-		if( sol_cnt ==  (options.mult_s -1)  ): break
+		if( sol_cnt == options.mult_s ): break
                 for z_pos in range(0,int(mol_box_side)):
                     lat_pos = numpy.array( [float(x_pos)*mol_l_lj,float(y_pos)*mol_l_lj,float(z_pos)*mol_l_lj] )
                     # Make sure there is no overlap with the added molecules
@@ -835,10 +835,10 @@ def main():
                                     if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
                                     if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
                                     print "        - with placement time ",dt_min," min ",dt_sec," seconds "
-                    if( sol_cnt == (options.mult_s -1) ): break
+                    if( sol_cnt ==options.mult_s): break
                         
 
-        if( sol_cnt >  (options.mult_s -1)  ):
+        if( sol_cnt > options.mult_s ):
             # Failed to fit all the needed solvent molecules in the box
             # Rest system and increase buffer
             
