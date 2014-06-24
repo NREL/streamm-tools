@@ -11,9 +11,6 @@ group atoms
 # mass   - AMU
 # volume - angstroms^3
 
-
-
-
 def build_nablist(options,ELN,R,LV):
     """
     General neighbor list based on a cut off
@@ -483,4 +480,37 @@ def update_vs():
     
     
     return 
+
+def molecule_list(MOLNUMB):
+    """
+    Place all the atom id's of each molecule into a indexed list 
+    """
+    debug = 0
+    
+    A_CNT = -1
+    MOL_CNT = -1 
+    MOLLIST = []
+    MOLPNT = []
+
+    N_MOL = max(MOLNUMB) + 1 
+
+    for mol_i in range( N_MOL ):
+
+        if(debug):
+            print " Finding atoms in ",mol_i
+            
+        MOLPNT.append( A_CNT+1 )
+        for atom_i in range( len(MOLNUMB)):
+            if( mol_i == MOLNUMB[atom_i] ):
+                A_CNT += 1
+                MOLLIST.append( atom_i )
+
+                
+                if(debug):
+                    print " adding ", atom_i
+
+    # Set last postion for looping 
+    MOLPNT.append( A_CNT + 1)
+
+    return (N_MOL,MOLPNT,MOLLIST)
 
