@@ -438,7 +438,7 @@ def main():
 
             # Read in R_f from xyz file
             #   This is done on processor 0 to avoid broadcasting the very large lammpsxyz_lines around
-            #   if would be preferable to read this in chunk by chunk 
+            #   it would be preferable to read this in chunk by chunk 
             if( rank == 0 ):
                 lammpsxyz_line_cnt = frame_i*(NA_i + 2 ) 
                 lammpsxyz_line_cnt += 1

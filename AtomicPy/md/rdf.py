@@ -24,6 +24,7 @@ def get_options():
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     parser.add_option("-p","--ptime", dest="ptime", default=False,action="store_true", help="Print performance information  ")
+    parser.add_option("-o","--output_id", dest="output_id", default="rdf",type="string",help=" prefix for output files  ")
     
     # Atom type options 
     parser.add_option("-i","--id_i", dest="id_i", type="string", default="", help="Atom types (FFtype,GROMACStype) of group i ")
@@ -33,6 +34,8 @@ def get_options():
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
     parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="gromacs force field parameter file")
+    parser.add_option("--read_gros", dest="read_gros",   default=False,action="store_true" ,help="read serieries of gromacs .gro files ")
+    
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
     parser.add_option("--in_lammpsxyz", dest="in_lammpsxyz", type="string", default="", help="Input lammps xyz file with atoms listed as atom type numbers")
 
@@ -112,7 +115,25 @@ def build_nablist(options,ELN,R,LV):
     NBINDEX[atom_i+1] =  NNAB + 1
     NBINDEX[atom_i+2] =  NNAB + 1
 
-    return NBLIST, NBINDEX 
+    return NBLIST, NBINDEX
+
+def get_lmp_frame(lammpsxyz_lines,NA_i,frame_i):
+
+    R_i = []
+    for atom_i in range( NA_i ):   
+        line_cnt += 1
+                    
+        if( line_cnt > len(lammpsxyz_lines)-1):
+            print " frame is missing some atoms ",atom_i," not found "
+                        
+            col =  lammpsxyz_lines[line_cnt].split()
+            if( len(col) >= 4 ):
+                type_i = int(col[0]) - 1
+                r_x = float(col[1])
+                r_y = float(col[2])
+                r_z = float(col[3])
+                R_i.append( numpy.array( [r_x,r_y,r_z] ) )
+    return R_i
 
 def main():
     """
@@ -120,7 +141,7 @@ def main():
     """
     import os, sys, numpy , math 
     import datetime
-    import  gromacs, elements, xmol, prop, file_io, groups  #, vectors     
+    import gromacs, elements, xmol, prop, file_io, groups, lammps  #, vectors     
     import mpiNREL
 
 
@@ -135,6 +156,20 @@ def main():
     
     options, args = get_options()
     
+    #
+    # Open output files 
+    #
+    # if( rank == 0 ):
+
+    log_file = options.output_id + ".log"
+    log_out = open(log_file,"w") 
+
+    dat_file = options.output_id + ".dat"
+    dat_out = open(dat_file,"w") 
+    dat_out.write("#   Input ")
+
+    p.barrier()
+     
     # Check options
     if( options.mol_inter and options.mol_intra and rank == 0  ):
 	print " Options --mol_inter and --mol_intra are mutually exclusive "
@@ -155,12 +190,16 @@ def main():
     if( len(options.in_gro) ):
         if( options.verbose and rank == 0 ): print "     Reading in ",options.in_gro
         GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
+            
     #
     # Get lammps data file 
     #
     if( len(options.in_data) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_data
-        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,RESN,ATYPE_IND,CHARGES,R , ATYPE, BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV = lammps.read_data(options.in_data)
+        if( rank == 0 ):
+            if( options.verbose ): print  "     - Reading in ",options.in_data
+            dat_out.write("\n#   Lammps data file %s  "% (options.in_data))
+            
+        ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,MOLNUMB,ATYPE_IND,CHARGES,R , ATYPE, BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV = lammps.read_data(options.in_data)
         
         AMASS = []
         for atom_i in range(len(ATYPE_IND)):
@@ -171,49 +210,44 @@ def main():
         #if(  options.ff_software == "gromacs"  ):
         GTYPE = []
         RESID = []
+        RESN = []
         CHARN = []
         for i in range( len(ELN) ):
             GTYPE.append(ASYMB[i])
             RESID.append("MOL")
-            CHARN.append(RESN[i])
-            
+            CHARN.append(MOLNUMB[i])
+            RESN.append(MOLNUMB[i])
+            #
+        N_MOL,MOLPNT,MOLLIST = groups.molecule_list(MOLNUMB)
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+
+        p.barrier()
+
     #
     # Get lammps xyz file 
     #
     if( len(options.in_lammpsxyz) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_lammpsxyz
 
-        lammpsxyz_F = open(options.in_lammpsxyz , 'r' )
-        lammpsxyz_lines = lammpsxyz_F.readlines()
-        lammpsxyz_F.close()        
-        n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB) + 2) )
+        if( rank == 0 ):
+            if( options.verbose ):
+                print  "     - Reading in ",options.in_lammpsxyz
+            dat_out.write("\n#   Lammps xyz file %s  "% (options.in_lammpsxyz))
 
-	line_cnt = -1
-	
-	for frame_i in range(n_frames):
-	    
-	    line_cnt += 1
-	    line_cnt += 1
-	    
-	    if( options.verbose ):
-		print " reading frame ",frame_i," starting at line ",line_cnt-1," with comment ",lammpsxyz_lines[line_cnt] 
-	    
-	    for atom_i in range(len(ASYMB) ):   
-		line_cnt += 1
-		
-		if( line_cnt > len(lammpsxyz_lines)-1):
-		    print " frame is missing some atoms ",atom_i," not found "
-		    # sys.exit("read in e)
-		    
-		col =  lammpsxyz_lines[line_cnt].split()
-		if( len(col) >= 4 ):
-		    type_i = int(col[0]) - 1
-		    r_x = float(col[1])
-		    r_y = float(col[2])
-		    r_z = float(col[3])
-		    
-	sys.exit(" this function is still being implemented, sorry yo")
-    #
+        # Some issues with this read in
+        #   will read in on processor 0 and broadcast
+        n_frames =  options.frame_f
+        p.barrier()
+        if( rank == 0 ):
+            lammpsxyz_F = open(options.in_lammpsxyz , 'r' )
+            lammpsxyz_lines = lammpsxyz_F.readlines()
+            lammpsxyz_F.close()
+            n_frames = int( float( len(lammpsxyz_lines) )/ float( len(ASYMB) + 2) )
+            lammpsxyz_line_cnt = -1
+
+            if( options.verbose ):
+                print  "       with ",n_frames," frames "
+
+        #
     # Calculate square of cut off
     #
     sq_r_cut = options.r_cut**2
@@ -246,6 +280,7 @@ def main():
     for atom_i in range( len(ASYMB) ):
 	add_i = 0 
 	for id_indx in range( len(id_list_i)):
+	    if( int(id_list_i[id_indx]) == atom_i+1 ): add_i = 1
 	    if( id_list_i[id_indx] == ATYPE[atom_i].strip() ): add_i = 1
 	    if( id_list_i[id_indx] == GTYPE[atom_i].strip() ): add_i = 1
 	if( add_i ):
@@ -253,28 +288,13 @@ def main():
 	    sum_i += 1 
 	add_j = 0 
 	for id_indx in range( len(id_list_j)):
+	    if( int(id_list_j[id_indx]) == atom_i+1 ): add_j = 1
 	    if( id_list_j[id_indx] == ATYPE[atom_i].strip()  ): add_j = 1
 	    if( id_list_j[id_indx] == GTYPE[atom_i].strip()  ): add_j = 1
 	if( add_j ):
 	    list_j.append( atom_i )
 	    sum_j += 1
 
-    #
-    # If multi-core split the number of atoms in the molecule onto each core
-    #
-    pointIndices = range( len(list_i)  )
-    if( debug ): print rank, size," splitOnProcs "
-    # Create a list of atomic indices for each processor 
-    myChunk_i  = p.splitListOnProcs(pointIndices)
-    debug = 0
-    if(debug):                
-        print " cpu ",rank ," has atoms ",myChunk_i[0]," - ",myChunk_i[len(myChunk_i)-1],"  \n"
-	for atom_i in range(len(list_i) ):
-	    print myChunk_i[atom_i],list_i[atom_i]
-	sys.exit(" debug myChunk ")
-	
-    p.barrier()
-    
     #
     # Print info 
     #
@@ -292,7 +312,23 @@ def main():
 	print "     Group j types "
 	for id_indx in range( len(id_list_j)):
 	    print "         ",id_list_j[id_indx]
-	        
+	       
+    #
+    # If multi-core split the number of atoms in the molecule onto each core
+    #
+    pointIndices = range( len(list_i)  )
+    if( debug ): print rank, size," splitOnProcs "
+    # Create a list of atomic indices for each processor 
+    myChunk_i  = p.splitListOnProcs(pointIndices)
+    debug = 0
+    if(debug):                
+        print " cpu ",rank ," has atoms ",myChunk_i[0]," - ",myChunk_i[len(myChunk_i)-1],"  \n"
+	for atom_i in range(len(list_i) ):
+	    print myChunk_i[atom_i],list_i[atom_i]
+	sys.exit(" debug myChunk ")
+	
+    p.barrier()
+     
     if( options.ptime ): t_i = datetime.datetime.now()
     #
     # Create neighbor list
@@ -307,79 +343,142 @@ def main():
     rdf_cnt_i = numpy.zeros(n_bins+1)    
     frame_cnt = 0
     volume_i = [] #numpy.array()
+    NA_i = len(ELN)
 
     if( options.ptime ): 
-	t_i = datetime.datetime.now()    
+	t_i = datetime.datetime.now()
+
+
     #
     for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
-	frame_id = "frames/n"+str(frame_i)+options.frame_sufx
-	if( file_io.file_exists( frame_id ) ):
-	    GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
-	    volume_i.append(  prop.volume( LV ) )
-	    frame_cnt += 1 
-	    # xmol.print_xmol(ASYMB,R_i,file_xmol)
-	    if( options.verbose and rank == 0 ):
-		print "reading ",frame_id
-	    #R_frames.append( R_f )   
-		
-    	    #
-	    # Loop over lists
-	    #
-	    #
-	    for l_indx_i in myChunk_i:
-		atom_i = list_i[l_indx_i]
-		r_i = R_f[atom_i]
-		#
-		# using nieghbor list has no clear pereforance advantages if update every frame
-		#  and not update every frame is beyond the intelegence of this program
-		#
-		#if( options.nb_list ):
-		#    list_j = []
-		#    N_o = NBINDEX[atom_i]
-		#    N_f = NBINDEX[atom_i+1] - 1
-		#    
-		#    print atom_i
-		#    print N_o,N_f
-		#    
-		#    for indx in range( N_o,N_f+1):
-		#	atom_j = NBLIST[indx]
-		#		    
-		#	add_ij = 0
-		#	for id_indx in range( len(id_j)):
-		#	    if( id_j[id_indx] == ATYPE[atom_j].strip()  ): add_ij = 1
-		#	    if( id_j[id_indx] == GTYPE[atom_j].strip()  ): add_ij = 1
-		#	if( add_ij ):
-		#	    list_j.append(atom_j)
-		#
-		for atom_j in list_j:
-		    add_ij = 1
-		    if( atom_i >= atom_j ):
-			add_ij = 0
-		    #
-		    # Check for intra vs. inter molecular
-		    #
-		    if( options.mol_inter ):
-			if( MOLNUMB[atom_i] == MOLNUMB[atom_j] ): add_ij = 0 
-		    if( options.mol_intra ):
-			if( MOLNUMB[atom_i] != MOLNUMB[atom_j] ): add_ij = 0 
-		    if( add_ij ):
-			
-			r_j = R_f[atom_j]
-			
-			if( options.cubic ):
-			    sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
-			else:
-			    sq_r_ij = prop.sq_drij(options,r_i,r_j,LV)
-			    
-			if( sq_r_ij <= sq_r_cut ):
-			    m_ij = numpy.sqrt(sq_r_ij)
-			    bin_index = int( round( m_ij/options.bin_size) )
-			    rdf_cnt_i[bin_index] += 2
-			    
+        frame_read = False
+        if( options.read_gros ):
+
+            frame_id = "frames/n"+str(frame_i)+options.frame_sufx
+            if( file_io.file_exists( frame_id ) ):
+                if( options.verbose and rank == 0 ):
+                    print "    - reading ",frame_id
+                GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
+                frame_read = True
+        if( len(options.in_lammpsxyz) ):
+            # R_f = get_lmp_frame(lammpsxyz_lines,len(ASYMB_sys),frame_i)
+
+            R_f = []
+
+            # Read in R_f from xyz file
+            #   This is done on processor 0 to avoid broadcasting the very large lammpsxyz_lines around
+            #   it would be preferable to read this in chunk by chunk 
+            if( rank == 0 ):
+                lammpsxyz_line_cnt = frame_i*(NA_i + 2 ) 
+                lammpsxyz_line_cnt += 1
+                if( options.verbose ):
+                    log_line  = "\n    - reading frame %s  starting at line %d with comment %s " % (frame_i,lammpsxyz_line_cnt-1,lammpsxyz_lines[lammpsxyz_line_cnt] )
+                    print log_line
+                    log_out.write(log_line)
+
+                r_max = -1000000.0 
+                r_min = 1000000.0 
+                for atom_i in range( NA_i ):   
+                    lammpsxyz_line_cnt += 1
+
+                    if( lammpsxyz_line_cnt > len(lammpsxyz_lines)-1):
+                        print " frame is missing some atoms ",atom_i," not found "
+
+                    col =  lammpsxyz_lines[lammpsxyz_line_cnt].split()
+                    if( len(col) >= 4 ):
+                        type_i = int(col[0]) - 1
+                        r_x = float(col[1])
+                        r_y = float(col[2])
+                        r_z = float(col[3])
+                        R_f.append( numpy.array( [r_x,r_y,r_z] ) )
+                        if( r_x > r_max ): r_max = r_x
+                        if( r_y > r_max ): r_max = r_y
+                        if( r_z > r_max ): r_max = r_z
+                        if( r_x < r_min ): r_min = r_x
+                        if( r_y < r_min ): r_min = r_y
+                        if( r_z < r_min ): r_min = r_z
+                        
+                # Estimate bax size based on max/min
+                l_box = r_max -r_min
+                LV[0][0] = l_box
+                LV[1][1] = l_box
+                LV[2][2] = l_box
+               
+                if( options.verbose  and rank == 0  ):
+                    log_line  = "\n        with box length %f Angstroms estimated from max/min"%(l_box)
+                    print log_line
+                    log_out.write(log_line)
+
+            # Broadcast R_f and LV  to all processors  
+            p.barrier()
+            R_f = p.bcast(R_f)
+            LV = p.bcast(LV)
+            p.barrier()
+
+            frame_read = True
+            
+        if( frame_read ):
+
+            volume_i.append(  prop.volume( LV ) )
+            frame_cnt += 1 
+            # xmol.print_xmol(ASYMB,R_i,file_xmol)
+            #
+            # Loop over lists
+            #
+            #
+            for l_indx_i in myChunk_i:
+                atom_i = list_i[l_indx_i]
+                r_i = R_f[atom_i]
+                #
+                # using nieghbor list has no clear pereforance advantages if update every frame
+                #  and not update every frame is beyond the intelegence of this program
+                #
+                #if( options.nb_list ):
+                #    list_j = []
+                #    N_o = NBINDEX[atom_i]
+                #    N_f = NBINDEX[atom_i+1] - 1
+                #    
+                #    print atom_i
+                #    print N_o,N_f
+                #    
+                #    for indx in range( N_o,N_f+1):
+                #	atom_j = NBLIST[indx]
+                #		    
+                #	add_ij = 0
+                #	for id_indx in range( len(id_j)):
+                #	    if( id_j[id_indx] == ATYPE[atom_j].strip()  ): add_ij = 1
+                #	    if( id_j[id_indx] == GTYPE[atom_j].strip()  ): add_ij = 1
+                #	if( add_ij ):
+                #	    list_j.append(atom_j)
+                #
+                for atom_j in list_j:
+                    add_ij = 1
+                    if( atom_i >= atom_j ):
+                        add_ij = 0
+                    #
+                    # Check for intra vs. inter molecular
+                    #
+                    if( options.mol_inter ):
+                        if( MOLNUMB[atom_i] == MOLNUMB[atom_j] ): add_ij = 0 
+                    if( options.mol_intra ):
+                        if( MOLNUMB[atom_i] != MOLNUMB[atom_j] ): add_ij = 0 
+                    if( add_ij ):
+
+                        r_j = R_f[atom_j]
+
+                        if( options.cubic ):
+                            sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
+                        else:
+                            sq_r_ij = prop.sq_drij(options,r_i,r_j,LV)
+
+                        if( sq_r_ij <= sq_r_cut ):
+                            m_ij = numpy.sqrt(sq_r_ij)
+                            bin_index = int( round( m_ij/options.bin_size) )
+                            rdf_cnt_i[bin_index] += 2
 	
 	else: 
 	    if( rank == 0 ):
-		print " Error frame ",frame_id," does not exist "
+		print " Error frame ",frame_i," does not exist "
 	    
 	p.barrier() # Barrier for MPI_COMM_WORLD
 	
@@ -456,6 +555,8 @@ def main():
 	    r_val = options.bin_size*float(bin_index)
 	    r_in = r_val - options.bin_size*0.5
 	    r_out = r_val + options.bin_size*0.5
+
+
     
 	    dr_cnt = float( rdf_cnt[bin_index] )
 	    dr_cnt_norm =     dr_cnt    /float(frame_cnt)
