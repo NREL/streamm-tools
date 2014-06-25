@@ -281,10 +281,7 @@ def build_nablist_bonds(ELN,BONDS):
 	    print ' atom ', i,' ',ELN[i],NNAB,N_o,nblist_py[i]
 	    
 	#sys.exit('debug')
-
-
     return (NBLIST,NBINDEX)
-
 
 def tempo( ATYPE,ELN,NBLIST,NBINDEX ,options ):
     """
@@ -514,3 +511,82 @@ def molecule_list(MOLNUMB):
 
     return (N_MOL,MOLPNT,MOLLIST)
 
+
+def filter_atoms(filter_eln,filter_fftype,filter_residue,filter_unit,filter_cord,filter_mol,ASYMB,ELN,ATYPE,RESID,UNITTYPE,MOLNUMB,NBLIST,NBINDEX):
+    import numpy
+    import top
+    
+    debug = 0
+    
+    #
+    # Initialize filter 
+    #
+    filter_cnt = 0
+    filter_total = 6
+    if(  len(filter_eln) ): filter_cnt += 1 
+    if(  len(filter_fftype) ):filter_cnt += 1 
+    if(  len(filter_residue) ):filter_cnt += 1 
+    if(  len(filter_unit) ):filter_cnt += 1 
+    if(  len(filter_cord) ):filter_cnt += 1
+    if(  len(filter_mol) ):filter_cnt += 1
+
+    #
+    # Find atom indices  of group i and j
+    #
+    list_i = []
+    #
+    sum_i = 0
+    for atom_i in range( len(ASYMB) ):
+        # Create array of zeros for all possible filters 
+        add_atom = numpy.zeros((filter_total))
+
+        if(  len(filter_eln) ):
+            for f_id in filter_eln.split():
+                eln_f = int( f_id )
+                if( ELN[atom_i] == eln_f ):
+                    add_atom[0] = 1
+
+        if(  len(filter_fftype) ):
+            for f_id in filter_fftype.split():
+                if( ATYPE[atom_i] == f_id ):
+                    add_atom[1] = 1
+
+        if(  len(filter_residue) ):
+            for f_id in filter_residue.split():
+                if( RESID[atom_i] == f_id ):
+                    add_atom[2] = 1
+
+        if(  len(filter_unit) ):
+            for f_id in filter_unit.split():
+                if( UNITTYPE[atom_i] == f_id ):
+                    add_atom[3] = 1
+
+        if(  len(filter_cord) ):
+            for f_id in filter_cord.split():
+                cord_f = int(f_id)
+                cord_i = top.calc_nnab(atom_i,NBLIST,NBINDEX)
+                if( cord_i == cord_f ):
+                    add_atom[4] = 1
+
+        if(  len(filter_mol) ):
+            for f_id in filter_mol.split():
+                mol_f = int(f_id) - 1
+                if( MOLNUMB[atom_i] == mol_f ):
+                    add_atom[5] = 1
+
+        if( debug):
+            print " checking  ",atom_i," eln ",ELN[atom_i] ," coord ",top.calc_nnab(atom_i,NBLIST,NBINDEX)
+
+        if( numpy.sum(add_atom) == filter_cnt ):
+            # if all filters considered return a 1
+            
+            if( debug):
+                print " atom added "
+                
+	    list_i.append( atom_i )
+	    sum_i += 1
+
+    if( debug):
+        sys.exit( " Filter debug 1 ")
+        
+    return list_i,sum_i 
