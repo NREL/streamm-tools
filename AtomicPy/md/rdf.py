@@ -378,6 +378,13 @@ def main():
         dat_out.write("\n#   Output ")
         dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A), box length (A)")
 
+        dat_line ="     Initial frame  %d "%(options.frame_o)
+        print dat_line
+        dat_line ="     Step frame  %d "%(options.frame_step)
+        print dat_line
+        dat_line ="     Final frame  %d "%(options.frame_f)
+        print dat_line
+        
         print "   - Properties and options "
 	print "     Cut off radius ",options.r_cut," angstroms"
 	print "     Bin size ",options.bin_size," angstroms"
@@ -431,6 +438,9 @@ def main():
     #
     for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
         frame_read = False
+        if( options.verbose and rank == 0 ):
+            print "Checking frame ",frame_i
+            
         if( options.read_gros ):
 
             frame_id = "frames/n"+str(frame_i)+options.frame_sufx
@@ -507,7 +517,14 @@ def main():
         if( frame_read ):
 
             volume_i.append(  prop.volume( LV ) )
-            frame_cnt += 1 
+            frame_cnt += 1
+
+            if( rank == 0 ):
+                log_line = "   Reading frame %d "%frame_cnt
+                if( options.verbose):
+                    print log_line
+                log_out.write(log_line)
+                
             # xmol.print_xmol(ASYMB,R_i,file_xmol)
             #
             # Loop over lists
