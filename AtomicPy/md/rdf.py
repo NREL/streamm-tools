@@ -31,6 +31,22 @@ def get_options():
     parser.add_option("-j","--id_j", dest="id_j", type="string", default="", help="Atom types (FFtype,GROMACStype) of group j ")
 
 
+    parser.add_option("--filter_eln_i", dest="filter_eln_i", type="string", default="", help=" filter atoms by atomic number ")
+    parser.add_option("--filter_fftype_i", dest="filter_fftype_i", type="string", default="", help=" filter atoms by force field type ")
+    parser.add_option("--filter_residue_i", dest="filter_residue_i", type="string", default="", help=" filter atoms by residue name ")
+    parser.add_option("--filter_unit_i", dest="filter_unit_i", type="string", default="", help=" filter atoms by unit name ")
+    parser.add_option("--filter_cord_i", dest="filter_cord_i", type="string", default="", help=" filter atoms by cordination ")
+    parser.add_option("--filter_mol_i", dest="filter_mol_i", type="string", default="", help=" filter atoms by molecule number  ")
+    parser.add_option("--filter_lmptype_i", dest="filter_lmptype_i", type="string", default="", help=" filter atoms by lammps type ")
+
+    parser.add_option("--filter_eln_j", dest="filter_eln_j", type="string", default="", help=" filter atoms by atomic number ")
+    parser.add_option("--filter_fftype_j", dest="filter_fftype_j", type="string", default="", help=" filter atoms by force field type ")
+    parser.add_option("--filter_residue_j", dest="filter_residue_j", type="string", default="", help=" filter atoms by residue name ")
+    parser.add_option("--filter_unit_j", dest="filter_unit_j", type="string", default="", help=" filter atoms by unit name ")
+    parser.add_option("--filter_cord_j", dest="filter_cord_j", type="string", default="", help=" filter atoms by cordination ")
+    parser.add_option("--filter_mol_j", dest="filter_mol_j", type="string", default="", help=" filter atoms by molecule number  ")
+    parser.add_option("--filter_lmptype_j", dest="filter_lmptype_j", type="string", default="", help=" filter atoms by lammps type ")
+
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
     parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="gromacs force field parameter file")
@@ -212,11 +228,21 @@ def main():
         RESID = []
         RESN = []
         CHARN = []
+        VEL = []
+        CTYPE = []
+        UNITNUMB = []
+        UNITTYPE = []
+        RING_NUMB  = []
         for i in range( len(ELN) ):
             GTYPE.append(ASYMB[i])
             RESID.append("MOL")
             CHARN.append(MOLNUMB[i])
             RESN.append(MOLNUMB[i])
+            VEL.append( numpy.array( [0.0 ,0.0 ,0.0]) )
+            CTYPE.append(MOLNUMB[i])
+            UNITNUMB.append(MOLNUMB[i])
+            UNITTYPE.append(MOLNUMB[i])
+            RING_NUMB.append(MOLNUMB[i])
             #
         N_MOL,MOLPNT,MOLLIST = groups.molecule_list(MOLNUMB)
         NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
@@ -229,9 +255,10 @@ def main():
     if( len(options.in_lammpsxyz) ):
 
         if( rank == 0 ):
+            dat_line = "\n#   Lammps xyz file %s  "% (options.in_lammpsxyz)
             if( options.verbose ):
                 print  "     - Reading in ",options.in_lammpsxyz
-            dat_out.write("\n#   Lammps xyz file %s  "% (options.in_lammpsxyz))
+            dat_out.write(dat_line)
 
         # Some issues with this read in
         #   will read in on processor 0 and broadcast
@@ -247,7 +274,16 @@ def main():
             if( options.verbose ):
                 print  "       with ",n_frames," frames "
 
-        #
+    # modify based on lammpsxyz read in 
+    p.barrier()
+    n_frames  = p.bcast( n_frames)
+    p.barrier()
+
+    if( options.frame_f == -1 ):
+        options.frame_f  = n_frames - 1
+        if( options.verbose and  rank == 0 ):
+            print "  modify frame_f to ",options.frame_f," rank ",rank 
+
     # Calculate square of cut off
     #
     sq_r_cut = options.r_cut**2
@@ -256,6 +292,7 @@ def main():
     #
     vol_o = prop.volume( LV )
     NP = len( ELN )
+    N_MOL = max(MOLNUMB) + 1 
     NUMB_DENSITY = float(NP)/vol_o
     options.n_den = NUMB_DENSITY
     #
@@ -263,7 +300,7 @@ def main():
     #
     n_bins = int(options.r_cut/options.bin_size)
     #
-    # Define rdf groups 
+    # Define rdf groups
     #
     id_list_i  = options.id_i.split()
     id_list_j  = options.id_j.split()
@@ -272,34 +309,76 @@ def main():
     #
     # Find atom indices  of group i and j
     #
-    list_i = []
-    list_j = []
-    #
-    sum_i = 0
-    sum_j = 0
-    for atom_i in range( len(ASYMB) ):
-	add_i = 0 
-	for id_indx in range( len(id_list_i)):
-	    if( int(id_list_i[id_indx]) == atom_i+1 ): add_i = 1
-	    if( id_list_i[id_indx] == ATYPE[atom_i].strip() ): add_i = 1
-	    if( id_list_i[id_indx] == GTYPE[atom_i].strip() ): add_i = 1
-	if( add_i ):
-	    list_i.append( atom_i )
-	    sum_i += 1 
-	add_j = 0 
-	for id_indx in range( len(id_list_j)):
-	    if( int(id_list_j[id_indx]) == atom_i+1 ): add_j = 1
-	    if( id_list_j[id_indx] == ATYPE[atom_i].strip()  ): add_j = 1
-	    if( id_list_j[id_indx] == GTYPE[atom_i].strip()  ): add_j = 1
-	if( add_j ):
-	    list_j.append( atom_i )
-	    sum_j += 1
+    list_i, sum_i = groups.filter_atoms(options.filter_eln_i,options.filter_fftype_i,options.filter_residue_i,options.filter_unit_i,options.filter_cord_i,options.filter_mol_i,ASYMB,ELN,ATYPE,RESID,UNITTYPE,MOLNUMB,NBLIST,NBINDEX)
 
+    
+    list_j, sum_j = groups.filter_atoms(options.filter_eln_j,options.filter_fftype_j,options.filter_residue_j,options.filter_unit_j,options.filter_cord_j,options.filter_mol_j,ASYMB,ELN,ATYPE,RESID,UNITTYPE,MOLNUMB,NBLIST,NBINDEX)
+
+    #
+    # For lammps read in 
+    #
+
+    if(  len(options.filter_lmptype_i) ):
+
+        #
+        # Find atom indices  of group i and j
+        #
+        list_i = []
+        sum_i = 0
+
+        for atom_i in range(len(ASYMB) ):   
+            add_atom = 0
+            for f_id in options.filter_lmptype.split():
+                lmp_t = int( f_id )
+                if( ATYPE_IND[atom_i]+1 == lmp_t ):
+                    add_atom = 1
+            if( add_atom ):
+                list_i.append( atom_i )
+                sum_i += 1
+    
+    if(  len(options.filter_lmptype_j) ):
+
+        #
+        # Find atom indices  of group i and j
+        #
+        list_j = []
+        sum_j = 0
+
+        for atom_j in range(len(ASYMB) ):   
+            add_atom = 0
+            for f_id in options.filter_lmptype.split():
+                lmp_t = int( f_id )
+                if( ATYPE_IND[atom_j]+1 == lmp_t ):
+                    add_atom = 1
+            if( add_atom ):
+                list_j.append( atom_i )
+                sum_j += 1
+    
     #
     # Print info 
     #
     if( rank == 0  ):
-        print "   - Initial properties and options "
+
+        t_i = datetime.datetime.now()
+        log_line = "\n Start time " + str(t_i)
+        log_out.write(log_line)
+
+        dat_out.write("\n#   Date "+str(t_i))
+        dat_out.write("\n#   Number of processors  "+str(size))
+        dat_out.write("\n#   System ")
+        dat_out.write("\n#     Molecules  %d "%(N_MOL))
+        dat_out.write("\n#     Particles  %d "%(NP))
+        dat_out.write("\n#   Options ")
+        dat_out.write("\n#     bin size  %f "%(options.bin_size))
+        dat_out.write("\n#     bins  %d "%(n_bins))
+        dat_out.write("\n#     box length for max  %f "%(LV[0][0]))
+        dat_out.write("\n#     Initial frame  %d "%(options.frame_o))
+        dat_out.write("\n#     Step frame  %d "%(options.frame_step))
+        dat_out.write("\n#     Final frame  %d "%(options.frame_f))
+        dat_out.write("\n#   Output ")
+        dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A), box length (A)")
+
+        print "   - Properties and options "
 	print "     Cut off radius ",options.r_cut," angstroms"
 	print "     Bin size ",options.bin_size," angstroms"
 	print "     Number of bins ",n_bins
@@ -360,6 +439,7 @@ def main():
                     print "    - reading ",frame_id
                 GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
                 frame_read = True
+                
         if( len(options.in_lammpsxyz) ):
             # R_f = get_lmp_frame(lammpsxyz_lines,len(ASYMB_sys),frame_i)
 
@@ -387,6 +467,13 @@ def main():
                     col =  lammpsxyz_lines[lammpsxyz_line_cnt].split()
                     if( len(col) >= 4 ):
                         type_i = int(col[0]) - 1
+                        
+                        if( type_i != ( ATYPE_IND[atom_i] ) ):
+                            print " Reference file not commpatable with ",options.in_lammpsxyz
+                            print " atom ",atom_i+1," in reference type ",ATYPE_IND_sys[atom_i] +1 ," and ",type_i," in ",options.in_lammpsxyz
+                            sys.exit(" Lammps atom types do not agree ")
+
+
                         r_x = float(col[1])
                         r_y = float(col[2])
                         r_z = float(col[3])

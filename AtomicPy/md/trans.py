@@ -66,8 +66,17 @@ def get_options():
     #
     # Filters
     #
-    
+
+    parser.add_option("--filter_eln", dest="filter_eln", type="string", default="", help=" filter atoms by atomic number ")
+    parser.add_option("--filter_fftype", dest="filter_fftype", type="string", default="", help=" filter atoms by force field type ")
+    parser.add_option("--filter_residue", dest="filter_residue", type="string", default="", help=" filter atoms by residue name ")
+    parser.add_option("--filter_unit", dest="filter_unit", type="string", default="", help=" filter atoms by unit name ")
+    parser.add_option("--filter_cord", dest="filter_cord", type="string", default="", help=" filter atoms by cordination ")
+    parser.add_option("--filter_mol", dest="filter_mol", type="string", default="", help=" filter atoms by molecule number  ")
     parser.add_option("--filter_rings", dest="filter_rings", default=False,action="store_true", help="Only print atoms in rings ")
+
+    parser.add_option("--filter_lmptype", dest="filter_lmptype", type="string", default="", help=" filter atoms by lammps type ")
+ 
     #
     # Modify input system file 
     #
@@ -88,6 +97,8 @@ def main():
     import time    
     import gromacs, elements, xmol, prop, file_io, groups,lammps , top, jsonapy
 
+    debug = 0
+    
     # Load information onto all processors 
     #
     options, args = get_options()
@@ -233,6 +244,7 @@ def main():
     #
     # Calculate properties
     #
+    
     if( options.filter_rings ):
         # NBLIST_i, NBINDEX_i = top.build_covnablist(ELN_i,R_i)
         NBLIST_i, NBINDEX_i  = groups.build_nablist_bonds(ELN_i,BONDS_i)
@@ -263,7 +275,10 @@ def main():
         limitdih_n = 1
         DIH_i = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
         IMPS_i = top.nblist_imp(NA,NBLIST, NBINDEX,ELN_i)
-			
+    else:
+        if( options.verbose):
+            print " Calaculating neighbor list from bonds "
+        NBLIST_i, NBINDEX_i  = groups.build_nablist_bonds(ELN_i,BONDS_i)
     #
     # Test that lammps identifiers have been set 
     #
@@ -281,8 +296,7 @@ def main():
     #
     # Print system properties
     #
-
-    
+  
     NA_i = len(ELN_i)
     mass_amu = prop.total_mass( AMASS_i )
     volume_i = prop.volume( LV_i )
@@ -308,92 +322,92 @@ def main():
         print "       BONDS ",len(BONDS_i)
         print "       "
 
-    if( options.replicate_n > 1 ):
+    list_i, sum_i = groups.filter_atoms(options.filter_eln,options.filter_fftype,options.filter_residue,options.filter_unit,options.filter_cord,options.filter_mol,ASYMB_i,ELN_i,ATYPE_i,RESID_i,UNITTYPE_i,MOLNUMB_i,NBLIST_i,NBINDEX_i)
+
+    
+
+    if(  len(options.filter_lmptype) ):
+
         #
-        # Initialize system
+        # Find atom indices  of group i and j
         #
-        ASYMB_sys = []
-        ATYPE_IND_sys = []
-        ELN_sys  = []
-        ATYPE_sys = []
-        RESN_sys = []
-        RESID_sys = []
-        GTYPE_sys = []
-        CHARN_sys = []
-        CHARGES_sys = []
-        AMASS_sys = []
-        GTYPE_sys = []
-        R_sys = []
-        VEL_sys = []
+        list_i = []
+        sum_i = 0
+
+        for atom_i in range(len(ASYMB_i) ):   
+            add_atom = 0
+            for f_id in options.filter_lmptype.split():
+                lmp_t = int( f_id )
+                if( ATYPE_IND_i[atom_i]+1 == lmp_t ):
+                    add_atom = 1
+            if( add_atom ):
+                print " adding ",atom_i,ATYPE_i[atom_i],ATYPE_IND_i[atom_i],ELN_i[atom_i] 
+                list_i.append( atom_i )
+                sum_i += 1
+
+    #
+    # Initialize system
+    #
+    ASYMB_sys = []
+
+    ATYPE_IND_sys = []
+    ELN_sys  = []
+    ATYPE_sys = []
+    RESN_sys = []
+    RESID_sys = []
+    GTYPE_sys = []
+    CHARN_sys = []
+    CHARGES_sys = []
+    AMASS_sys = []
+    GTYPE_sys = []
+    R_sys = []
+    VEL_sys = []
 
 
-        CTYPE_sys  = []
-        UNITNUMB_sys  = []
-        UNITTYPE_sys  = []
-        MOLNUMB_sys  = []
-        RING_NUMB_sys  = []
+    CTYPE_sys  = []
+    UNITNUMB_sys  = []
+    UNITTYPE_sys  = []
+    MOLNUMB_sys  = []
+    RING_NUMB_sys  = []
 
+
+    if( options.verbose):
+        print " Replicating atomic information ", options.replicate_n," times "
+
+    for unit_n in range( options.replicate_n ):
+        # Loop over specifed number of molecules
+        #   default is 1
 
         if( options.verbose):
-            print " Replicating atomic information ", options.replicate_n," times "
+            print " Replicating unit  ", unit_n+1," with ",NA_i," atoms "
 
-        for unit_n in range( options.replicate_n ):
-            # Loop over specifed number of molecules
-            #   default is 1
+        for atom_i in list_i:
+            #add_atom = 0
+            #if( options.filter_rings ):
+            #    if( RING_NUMB_i[atom_i] > 0 ):
+            #        add_atom = 1
+            #else:
+            #    add_atom = 1
 
-            if( options.verbose):
-                print " Replicating unit  ", unit_n," with ",NA_i," atoms "
-
-            for atom_i in range(NA_i):
-
-                #add_atom = 0
-                #if( options.filter_rings ):
-                #    if( RING_NUMB_i[atom_i] > 0 ):
-                #        add_atom = 1
-                #else:
-                #    add_atom = 1
-
-                ASYMB_sys.append( ASYMB_i[atom_i])
-                ELN_sys .append( ELN_i[atom_i])
-                ATYPE_sys.append( ATYPE_i[atom_i])
-                RESID_sys.append( RESID_i[atom_i])
-                GTYPE_sys.append( GTYPE_i[atom_i])
-                CHARN_sys.append( CHARN_i[atom_i])
-                CHARGES_sys.append( CHARGES_i[atom_i])
-                AMASS_sys.append( AMASS_i[atom_i])
-                R_sys.append( R_i[atom_i])
-                VEL_sys.append( VEL_i[atom_i])
-                ATYPE_IND_sys.append( ATYPE_IND_i[atom_i])
-                CTYPE_sys.append( CTYPE_i[atom_i])
-                UNITTYPE_sys.append( [atom_i])
-                # Shift numbered groups 
-                RESN_sys.append( RESN_i[atom_i]+ unit_n*( max(RESN_i) +1)  )
-                UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*( max(UNITNUMB_i) +1) )
-                MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*(max(MOLNUMB_i) +1)  )
-                RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*(max(RING_NUMB_i) +1)  )
-    else:
-        
-        ASYMB_sys = ASYMB_i
-        ATYPE_IND_sys = ATYPE_IND_i
-        ELN_sys  = ELN_i
-        ATYPE_sys = ELN_i
-        RESN_sys = RESN_i
-        RESID_sys = RESID_i
-        GTYPE_sys = GTYPE_i
-        CHARN_sys = CHARN_i
-        CHARGES_sys = CHARGES_i
-        AMASS_sys = AMASS_i
-        R_sys = R_i
-        VEL_sys = VEL_i
-
-
-        CTYPE_sys  = CTYPE_i
-        UNITNUMB_sys  = UNITNUMB_i
-        UNITTYPE_sys  = UNITTYPE_i
-        MOLNUMB_sys  = MOLNUMB_i
-        RING_NUMB_sys  = RING_NUMB_i
-
-
+            ASYMB_sys.append( ASYMB_i[atom_i])
+            ELN_sys .append( ELN_i[atom_i])
+            ATYPE_sys.append( ATYPE_i[atom_i])
+            RESID_sys.append( RESID_i[atom_i])
+            GTYPE_sys.append( GTYPE_i[atom_i])
+            CHARN_sys.append( CHARN_i[atom_i])
+            CHARGES_sys.append( CHARGES_i[atom_i])
+            AMASS_sys.append( AMASS_i[atom_i])
+            R_sys.append( R_i[atom_i])
+            VEL_sys.append( VEL_i[atom_i])
+            ATYPE_IND_sys.append( ATYPE_IND_i[atom_i])
+            CTYPE_sys.append( CTYPE_i[atom_i])
+            UNITTYPE_sys.append( [atom_i])
+            # Shift numbered groups 
+            RESN_sys.append( RESN_i[atom_i]+ unit_n*( max(RESN_i) +1)  )
+            UNITNUMB_sys.append(  UNITNUMB_i[atom_i] + unit_n*( max(UNITNUMB_i) +1) )
+            MOLNUMB_sys.append( MOLNUMB_i[atom_i] + unit_n*(max(MOLNUMB_i) +1)  )
+            RING_NUMB_sys.append( RING_NUMB_i[atom_i] + unit_n*(max(RING_NUMB_i) +1)  )
+                
     #
     # System connection information
     #
@@ -479,7 +493,7 @@ def main():
                 line_cnt = frame_i*(NA_sys + 2 ) 
                 
                 if( len(options.out_xmol) ):
-                    str_file.write( lammpsxyz_lines[line_cnt] )
+                    str_file.write( str( len(ELN_sys)) + "\n" )
                 line_cnt += 1
                 
                 if( options.verbose ):
@@ -490,7 +504,8 @@ def main():
                 
                 #sys.exit("debug 4")
                 R_sys = []
-                for atom_i in range(len(ASYMB_sys) ):   
+                atom_i = -1 
+                for atom_cnt in range(len(ASYMB_i) ):   
                     line_cnt += 1
                     
                     if( line_cnt > len(lammpsxyz_lines)-1):
@@ -499,14 +514,25 @@ def main():
                         
                     col =  lammpsxyz_lines[line_cnt].split()
                     if( len(col) >= 4 ):
-                        type_i = int(col[0]) - 1
-                        r_x = float(col[1])
-                        r_y = float(col[2])
-                        r_z = float(col[3])
-                        if( len(options.out_xmol) ):
-                            str_file.write( "%s %f %f %f \n" % (ATYPE_SYMB[type_i],r_x,r_y,r_z) )
+                        atom_i += 1
+                        add_atom = 0
+
+                        type_i = int(col[0])
                         
-                        R_sys.append( numpy.array( [r_x,r_y,r_z] ) )
+                        if( type_i != ( ATYPE_IND_i[atom_i] +1 ) ):
+                            print " Reference file not commpatable with ",options.in_lammpsxyz
+                            print " atom ",atom_i+1," in reference type ",ATYPE_IND_sys[atom_i] +1 ," and ",type_i," in ",options.in_lammpsxyz
+                            sys.exit(" Lammps atom types do not agree ")
+
+                        if( atom_i in list_i):
+
+                            r_x = float(col[1])
+                            r_y = float(col[2])
+                            r_z = float(col[3])
+                            if( len(options.out_xmol) ):
+                                str_file.write( "%s %f %f %f \n" % (ATYPE_SYMB[type_i - 1],r_x,r_y,r_z) )
+
+                            R_sys.append( numpy.array( [r_x,r_y,r_z] ) )
                 
             # xmol.print_xmol(ASYMB_sys,R,file_xmol)
         if( len(options.out_xmol) ):

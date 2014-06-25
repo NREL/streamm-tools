@@ -612,7 +612,7 @@ def print_lmp(data_file, ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
               BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
               ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
               DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-              RESN,ATYPE_IND,CHARGES,R , ATYPE,
+              MOLNUMB,ATYPE_IND,CHARGES,R , ATYPE,
               BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LAT_CONST):
     """
     Write data file
@@ -736,7 +736,7 @@ def print_lmp(data_file, ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
     F.write('\n')
     TOTAL_CHARGE = 0.0
     for i in range(n_atoms):
-        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (i+1,RESN[i],ATYPE_IND[i]+1,CHARGES[i],R[i][0],R[i][1],R[i][2] , ATYPE[i] )  )
+        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (i+1,MOLNUMB[i] + 1,ATYPE_IND[i]+1,CHARGES[i],R[i][0],R[i][1],R[i][2] , ATYPE[i] )  )
         TOTAL_CHARGE = TOTAL_CHARGE + float( CHARGES[i] )
         
     print ' Total charge = ',TOTAL_CHARGE
