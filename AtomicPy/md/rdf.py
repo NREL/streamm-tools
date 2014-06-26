@@ -636,22 +636,20 @@ def main():
 		
 	# Write output 
 	#
-	rdf_file = options.rdf_out
-	F_out = open(rdf_file,"w")
-	F_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
-	F_out.write("\n#    Bin-size %f  " % (options.bin_size))
-	F_out.write("\n#    Cut-off %f  " % (options.r_cut))
-	F_out.write("\n#    Frames %d  " % (frame_cnt))
-	F_out.write("\n#    Total_cnts %d  " % (total_cnts))
-	F_out.write("\n#    N_i %d " % (sum_i ))
-	F_out.write("\n#    N_j %d " % (sum_j ))
-	F_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
-	F_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
-	F_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
-	F_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
-	F_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
-	F_out.write("\n#    ")
-	F_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
+	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
+	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
+	dat_out.write("\n#    Frames %d  " % (frame_cnt))
+	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
+	dat_out.write("\n#    N_i %d " % (sum_i ))
+	dat_out.write("\n#    N_j %d " % (sum_j ))
+	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
+	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
+	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
+	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
+	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
+	dat_out.write("\n#    ")
+	dat_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
 	
 	for bin_index in range( 1,n_bins):
@@ -671,9 +669,22 @@ def main():
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
 	    
-	    F_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
+	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
 	    
-	F_out.close()
+	dat_out.close()
+
+        
+        t_f = datetime.datetime.now()
+        dt_sec  = t_f.second - t_i.second
+        dt_min  = t_f.minute - t_i.minute
+        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
+        log_line="\n  Finished time  " + str(t_f)
+        log_out.write(log_line)
+        log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+        log_out.write(log_line)
+
+	log_out.close()
 	    
 	
 if __name__=="__main__":
