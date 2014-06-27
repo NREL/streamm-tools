@@ -244,7 +244,7 @@ class StructureContainer:
         # Close LAMMPS mapping file
         fileObj.close()
 
-    def putstruc_json(self, json_data, json_file):
+    def putstruc_json(self, json_data ):
         """
         Write a structure into json file
                 
@@ -252,7 +252,7 @@ class StructureContainer:
             json_data (json) json data structure 
             json_file (srt) name of json file 
 
-        """
+        """        
         # Initialize json data 
         #   
         struc_data = {}        # Data for entire structure  
@@ -262,31 +262,39 @@ class StructureContainer:
         fourbody_data = {}     # Data for dihedrals between particles  (four body interactions) 
         
         json_data["structure"] = struc_data
-        struc_data["structure"]["particle"] = particle_data
-        struc_data["structure"]["twobody"] = twobody_data
-        struc_data["structure"]["threebody"] = threebody_data
-        struc_data["structure"]["fourbody"] = fourbody_data
+        struc_data["particle"] = particle_data
+        struc_data["twobody"] = twobody_data
+        struc_data["threebody"] = threebody_data
+        struc_data["fourbody"] = fourbody_data
 
-        struc_data["number_id"] = []
-        struc_data["position"] = []
-        struc_data["mass"] = []
-        struc_data["charge"] = []
-        struc_data["chain"] = []
-        struc_data["ring"] = []
-        struc_data["resname"] = []
-        struc_data["residue"] = []
-	        
+        particle_data["number_id"] = []
+        particle_data["type"] = []
+        particle_data["position"] = []
+        particle_data["mass"] = []
+        particle_data["charge"] = []
+        particle_data["chain"] = []
+        particle_data["ring"] = []
+        particle_data["resname"] = []
+        particle_data["residue"] = []
+        particle_data["linkid"] = []
+        particle_data["fftype"] = []
+
+	# Loop over particles and ad them to json data 
         for  pid, ptclObj in self.ptclC:
-            struc_data["number_id"].append( ptclObj.position )
-            struc_data["position"].append( ptclObj. )
-            struc_data["mass"].append( ptclObj.mass )
-            struc_data["charge"].append( ptclObj.charge )
-            struc_data["chain"].append( ptclObj.chain )
-            struc_data["ring"].append( ptclObj.ring )
-            struc_data["resname"].append( ptclObj.resname )
-            struc_data["residue"].append( ptclObj.residue )
-        
-            
+            particle_data["number_id"].append(pid )
+            particle_data["type"].append( ptclObj.type )
+            particle_data["position"].append( ptclObj.position )
+            particle_data["mass"].append( ptclObj.mass )
+            particle_data["charge"].append( ptclObj.charge )
+            # Dictionary items 
+            particle_data["chain"].append( ptclObj.tagsDict["chain"] )
+            particle_data["ring"].append( ptclObj.tagsDict["ring"] )
+            particle_data["resname"].append( ptclObj.tagsDict["resname"] )
+            particle_data["residue"].append( ptclObj.tagsDict["residue"] )
+            particle_data["linkid"].append( ptclObj.tagsDict["linkid"] )        
+            particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
+
+        return json_data
 
 def getstruc_json(json_file):
         """
