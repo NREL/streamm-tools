@@ -267,17 +267,26 @@ class StructureContainer:
         struc_data["structure"]["threebody"] = threebody_data
         struc_data["structure"]["fourbody"] = fourbody_data
 
+        struc_data["number_id"] = []
+        struc_data["position"] = []
+        struc_data["mass"] = []
+        struc_data["charge"] = []
+        struc_data["chain"] = []
+        struc_data["ring"] = []
+        struc_data["resname"] = []
+        struc_data["residue"] = []
+	        
+        for  pid, ptclObj in self.ptclC:
+            struc_data["number_id"].append( ptclObj.position )
+            struc_data["position"].append( ptclObj. )
+            struc_data["mass"].append( ptclObj.mass )
+            struc_data["charge"].append( ptclObj.charge )
+            struc_data["chain"].append( ptclObj.chain )
+            struc_data["ring"].append( ptclObj.ring )
+            struc_data["resname"].append( ptclObj.resname )
+            struc_data["residue"].append( ptclObj.residue )
         
-
-
-        subAtoms = ParticleContainer()
-        subBonds = BondContainer()
-
-        for pgid in ptclIDList:
-            atom = self.ptclC[pgid]
-            subAtoms.put(atom)
-
-        return StructureContainer(subAtoms, subBonds)
+            
 
 def getstruc_json(json_file):
         """
