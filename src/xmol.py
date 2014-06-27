@@ -31,8 +31,9 @@ def read(xmol_file):
     # Set charge and mass to zero since they are not in xmol file
     q_i = 0.0
     m_i = 0.0 
-    # Initialize line count
-    line_cnt = 0 
+    # Initialize line count and structure count 
+    line_cnt = 0
+    struc_cnt = 0 
     # Read in file line by line 
     with open(xmol_file) as f:
         for line in f:
@@ -42,24 +43,27 @@ def read(xmol_file):
                 # Read first line to record number of particles NP
                 NP = int(col[0])
                 struc_i =  ParticleContainer()
-                
+                struc_cnt += 1 
             elif( line_cnt > 2 and len(col) >= 4 ):
                 # Read lines and add particles to structure 
                 atomic_symb = col[0]
                 r_i = [ col[1],col[2],col[3] ]
                 part_i = Particle( r_i,atomic_symb,q_i,m_i )
                 struc_i.put(part_i)
-
-            if( line_cnt > 1  and line_cnt > NP + 2):
+                del part_i
+                
+            if( line_cnt > 1  and line_cnt > struc_cnt*(NP + 2) ):
                 # xmol file contains multiple frames
                 #   store in structure array 
                 struc_array.append(struc_i)
                 #   reinitialize struc_i ParticleContainer
                 del struc_i
                 struc_i =  ParticleContainer()
+                struc_cnt += 1 
 
     # Append last structure
     struc_array.append(struc_i)
+    del struc_i
     
     return(struc_array)
             
