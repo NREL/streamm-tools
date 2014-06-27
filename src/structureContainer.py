@@ -243,3 +243,58 @@ class StructureContainer:
 
         # Close LAMMPS mapping file
         fileObj.close()
+
+    def putstruc_json(self, json_data, json_file):
+        """
+        Write a structure into json file
+                
+        Args:
+            json_data (json) json data structure 
+            json_file (srt) name of json file 
+
+        """
+        # Initialize json data 
+        #   
+        struc_data = {}        # Data for entire structure  
+        particle_data = {}     # Data for particles and positions 
+        twobody_data = {}   # Data for connections between particles (two body interactions) 
+        threebody_data = {}        # Data for angles between particles (three body interactions) 
+        fourbody_data = {}     # Data for dihedrals between particles  (four body interactions) 
+        
+        json_data["structure"] = struc_data
+        struc_data["structure"]["particle"] = particle_data
+        struc_data["structure"]["twobody"] = twobody_data
+        struc_data["structure"]["threebody"] = threebody_data
+        struc_data["structure"]["fourbody"] = fourbody_data
+
+        
+
+
+        subAtoms = ParticleContainer()
+        subBonds = BondContainer()
+
+        for pgid in ptclIDList:
+            atom = self.ptclC[pgid]
+            subAtoms.put(atom)
+
+        return StructureContainer(subAtoms, subBonds)
+
+def getstruc_json(json_file):
+        """
+        Return a new Structure object with partcleID's in input list
+        
+        Args:
+            ptclIDList (list) global particles ID's for which to return structure
+
+        Return:
+            New Structure() object. IDs in new object are unique
+        """
+
+        subAtoms = ParticleContainer()
+        subBonds = BondContainer()
+
+        for pgid in ptclIDList:
+            atom = self.ptclC[pgid]
+            subAtoms.put(atom)
+
+        return StructureContainer(subAtoms, subBonds)
