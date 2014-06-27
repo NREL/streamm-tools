@@ -5,6 +5,11 @@ from copy import deepcopy
 from basics import *
 from fragments import *
 
+# Scott's new classes 
+from particles import Particle
+from particles import ParticleContainer
+from structureContainer import StructureContainer
+
 
 def get_connecting_elmnts(don, acc, dt, at):
     """
@@ -764,10 +769,58 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         frag.write_com_restart("donoracceptor.com.template.r1",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
         frag.write_com_restart("donoracceptor.com.template.r2",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
 
-        d = build_meta(frag, short_name, base_input_str, bblocks, options)
-        d['metadata']['number'] = number
-        d['metadata']['n'] = number
-        frag.write_meta(d, xyz_name)
+        # Build meta data 
+        json_data = build_meta(frag, short_name, base_input_str, bblocks, options)
+        json_data['metadata']['number'] = number
+        json_data['metadata']['n'] = number
+
+        #   Get atomic information from fragment
+        atomicsymb_list = frag.return_asymb()
+        pos_list = frag.return_r()
+        # elnnumb_list = elements.asymb_eln(ASYMB)
+        linkid_list = frag.return_ctype()      
+        residuenumb_list = frag.return_unitnumb()
+        residueid_list = frag.return_unittype()
+        charge_list = frag.return_q()
+
+        #   create particles for scott's class system
+        oligomer =  ParticleContainer()
+        for p_i in range(len(atomicsymb_list)):
+            atomic_symb = str( atomicsymb_list[p_i]  )
+            r_i=[ float(pos_list[p_i][0]),float(pos_list[p_i][1]),float(pos_list[p_i][2]) ]
+            m_i=float(0.0)
+            q_i=float(charge_list[p_i])
+            pt = Particle( r_i,atomic_symb,q_i,m_i )            
+            tagsD = {"chain":1,"ring":0,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":"??"}
+            pt.setTagsDict(tagsD)
+            oligomer.put(pt)
+
+
+        # Put oligomer in a system 
+        system_i = StructureContainer(oligomer)
+
+
+        #
+        #  Make ff files 
+        #
+        if( options.make_ff ):
+            # update ff types as a test 
+            for pid, ptclObj  in oligomer:
+                fftype_i = "UNKNOWN" 
+                tagsD = {"chain":1,"ring":0,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":fftype_i}
+                ptclObj.setTagsDict(tagsD)
+            #  Sudo code
+            #   oligomer = oligomer.guess_fftype()
+            #   oligomer = oligomer.guess_fftype()
+            #   system_i = system_i.bonds()
+            #   system_i = system_i.angles()
+            #   system_i = system_i.dih()
+            #   system_i = system_i.dih()
+            
+
+        json_data = system_i.putstruc_json(json_data)
+        
+        frag.write_meta(json_data, xyz_name)
 
     if (frag != None):
         return True

@@ -223,6 +223,12 @@ class Atom:
         self.nball = []
         self.link = None
 
+        self.ctype = []
+        self.unitnumb = []
+        self.unittype = []
+        self.q = []
+
+
     def __init__(self, elmnt, pos):
         self.pos = pos
         self.elmnt = elmnt
@@ -231,6 +237,13 @@ class Atom:
         self.nb = []
         self.nball = []
         self.link = None
+        
+        # make_ff TK
+        self.id = ""
+        self.ctype = "NA"
+        self.unitnumb =  1
+        self.unittype = "NA"
+        self.q = 0.0
 
     def dist(self, other):
         """
@@ -582,6 +595,103 @@ class Structure:
 
 
 
+    # make_ff TK
+    #   functions start
+
+    def set_q(self,q):
+        import numpy
+        import sys 
+        
+        a_cnt = -1 
+        for a in self.atoms:
+            a_cnt += 1 
+            a.q =  q[a_cnt]
+            
+    def set_unitnumb(self,unitnumb):
+        import numpy
+        import sys 
+        
+        a_cnt = -1 
+        for a in self.atoms:
+            a_cnt += 1 
+            a.unitnumb =  unitnumb[a_cnt]
+            
+    def set_unittype(self,unittype):
+        import numpy
+        import sys 
+        
+        a_cnt = -1 
+        for a in self.atoms:
+            a_cnt += 1 
+            a.unittype =  unittype[a_cnt]
+            
+    def setall_unitnumb(self,unitnumb):
+        import numpy
+        import sys 
+        
+        for a in self.atoms:
+            a.unitnumb =  unitnumb
+            
+    def return_asymb(self):
+        import numpy
+        
+        ASYMB = [] 
+        for a in self.atoms:
+            ASYMB.append( a.elmnt )
+    
+        return ASYMB    
+
+    def return_r(self):
+        import numpy
+        
+        R = [] 
+        for a in self.atoms:
+            r_i =  numpy.array(  [a.pos[0], a.pos[1], a.pos[2]] )
+            R.append( r_i )
+    
+        return R
+
+    def return_ctype(self):
+        import numpy
+        
+        ctype = [] 
+        for a in self.atoms:
+            ctype.append( a.ctype )
+    
+        return ctype
+    
+    
+    def return_unitnumb(self):
+        import numpy
+        
+        a_cnt = 0
+        
+        unitnumb = [] 
+        for a in self.atoms:
+            unitnumb.append( a.unitnumb )
+            
+        return unitnumb    
+    
+    
+    def return_unittype(self):
+        import numpy
+        
+        unittype = [] 
+        for a in self.atoms:
+            unittype.append( a.unittype )
+            
+        return unittype    
+
+    def return_q(self):
+        import numpy
+        
+        q = [] 
+        for a in self.atoms:
+            q.append( a.q )
+            
+        return q    
+
+            
 
 class RotationControl(object):
     """
@@ -595,11 +705,11 @@ class RotationControl(object):
             free_rot_criteria 
             pattern_str       overrides regular criteria
         """
-       self.free_rot_criteria = free_rot_criteria
-       self.counter = 0
-       self.alternation_pattern = None
-       if (pattern_str != None):
-           self.alternation_pattern = [float(f) for f in pattern_str.split()]
+        self.free_rot_criteria = free_rot_criteria
+        self.counter = 0
+        self.alternation_pattern = None
+        if (pattern_str != None):
+            self.alternation_pattern = [float(f) for f in pattern_str.split()]
 
 
 
