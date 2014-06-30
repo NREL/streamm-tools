@@ -50,6 +50,9 @@ class StructureContainer:
         # Length of cartesian box size [ [xmin, xmax], [ymin, ymax]...]
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0,1.0] ]
 
+        # Lattice vectors 
+        self.latticevec = [ [1.0,0.0,0.0], [1.0,1.0,0.0], [0.0,0.0,1.0] ]
+
 
     def __str__(self):
         """
@@ -130,6 +133,12 @@ class StructureContainer:
         """
         return self.boxLengths
 
+
+    def getLatVec(self):
+        """
+        Return: list of cartesian box lengths [units ?]
+        """
+        return self.latticevec
 
     def dumpLammpsInputFile(self, inputName, coeffDict=dict()):
         """
@@ -295,23 +304,3 @@ class StructureContainer:
             particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
 
         return json_data
-
-def getstruc_json(json_file):
-        """
-        Return a new Structure object with partcleID's in input list
-        
-        Args:
-            ptclIDList (list) global particles ID's for which to return structure
-
-        Return:
-            New Structure() object. IDs in new object are unique
-        """
-
-        subAtoms = ParticleContainer()
-        subBonds = BondContainer()
-
-        for pgid in ptclIDList:
-            atom = self.ptclC[pgid]
-            subAtoms.put(atom)
-
-        return StructureContainer(subAtoms, subBonds)
