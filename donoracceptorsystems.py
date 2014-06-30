@@ -810,12 +810,20 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
                 tagsD = {"chain":1,"ring":0,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":fftype_i}
                 ptclObj.setTagsDict(tagsD)
             #  Sudo code
-            #   oligomer = oligomer.guess_fftype()
-            #   oligomer = oligomer.guess_fftype()
-            #   system_i = system_i.bonds()
-            #   system_i = system_i.angles()
-            #   system_i = system_i.dih()
-            #   system_i = system_i.dih()
+            #   Read in parameter file
+            #      gromacs itp file
+            #      tinker parameter file
+            #      lammps parameters in data file
+            #   Find bonds
+            #      from gaussian output optimization
+            #      distance cut-off
+            #         system_i = system_i.bonds()
+            #   Find Rings
+            #   Guess atom types
+            #      amber
+            #      oplsaa
+            #         oligomer = oligomer.guess_oplsaatypes()
+
             
 
         json_data = system_i.putstruc_json(json_data)
