@@ -72,6 +72,14 @@ class Particle:
         self.tagsDict["type"] = type
         
 
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+        del self.tagsDict
+        del self.position
+
+
     def setTagsDict(self, td):
         """
         Define custom dictionary for id tags (eg {"molnum":1,})
@@ -151,6 +159,7 @@ class ParticleContainer:
         """
         Destructor, clears dictionary memory
         """
+        print "Cleaning particle container"
         del self.particles
 
 

@@ -45,6 +45,11 @@ class Bond:
             raise TypeError
 
 
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+
     def __contains__(self, pgid):
         """
         'Magic' method implementing 'in' keyword.
@@ -89,6 +94,7 @@ class BondContainer:
         """
         Destructor, clears dictionary memory
         """
+        print "Cleaning bond container"
         del self.bonds
 
     def __len__(self):

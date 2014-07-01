@@ -28,3 +28,4 @@ atoms1 state after a put(p5) call
 6 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
  
 
+Cleaning particle container

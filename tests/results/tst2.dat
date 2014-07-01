@@ -7,6 +7,8 @@
  Illustrates how a substructure method could return subgroup
 ************************************************************************************ 
 
+Cleaning particle container
+Cleaning bond container
 ********************************************************** 
 
 
@@ -85,6 +87,8 @@ Testing ID changing with 'polymer1.replacePtclIDs(1,5)'
 Testing polymer1.getSubStructure([5,2])
    currently ID's are reassigned in substructure 
 
+Cleaning particle container
+Cleaning bond container
 
 ************************************* 
  Global parameters: 
@@ -152,6 +156,11 @@ polymer1 Struture after returning sub-structure
 Testing polymer1.getSubStructure([2,3,4])
    currently ID's are reassigned in substructure 
 
+Cleaning particle container
+Cleaning bond container
+Cleaning structureContainer
+Cleaning particle container
+Cleaning bond container
 
 ************************************* 
  Global parameters: 
@@ -184,3 +193,11 @@ Testing polymer1.getSubStructure([2,3,4])
 
 ********************************************************** 
 
+Cleaning structureContainer
+Cleaning particle container
+Cleaning bond container
+Cleaning structureContainer
+Cleaning particle container
+Cleaning bond container
+Cleaning bond container
+Cleaning particle container

@@ -51,6 +51,14 @@ class StructureContainer:
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0,1.0] ]
 
 
+    def __del__(self):
+        """
+        Destructor, clears structure memory and calls held container destructors
+        """
+        print "Cleaning structureContainer"
+        del self.ptclC
+        del self.bondC
+
     def __str__(self):
         """
         'Magic' method for printng contents

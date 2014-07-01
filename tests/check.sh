@@ -33,13 +33,14 @@ elif [ $1 == "compare" ]; then
     echo "Comparing results against python test files"
     echo " " 
 
-    tst1.py > tmp ; diff tmp results/tst1.dat
-    tst2.py > tmp ; diff tmp results/tst2.dat
-    tst3.py > tmp ; diff tmp results/tst3.dat
-    tst4.py > tmp ; diff tmp results/tst4.dat
-    tst6.py > tmp ; diff tmp results/tst6.dat
-    tst7.py > tmp ; diff tmp results/tst7.dat
-    tst8.py > tmp ; diff tmp results/tst8.dat
+    tst1.py > tmp ; diff tmp results/tst1.dat ; echo " "
+    tst2.py > tmp ; diff tmp results/tst2.dat ; echo " "
+    tst3.py > tmp ; diff tmp results/tst3.dat ; echo " "
+    tst4.py > tmp ; diff tmp results/tst4.dat ; echo " "
+    tst6.py > tmp ; diff tmp results/tst6.dat ; echo " "
+    tst7.py > tmp ; diff tmp results/tst7.dat ; echo " "
+    tst8.py > tmp ; diff tmp results/tst8.dat ; echo " "
+    rm -rf tmp
 
     echo "If no output... tests passed"
     echo " "
