@@ -1,0 +1,30 @@
+************************************************************************************
+ This test illustrates the setting a ParticleContainer with pre-existing IDs 
+************************************************************************************ 
+
+Using idList =  [2, 3, 6, 10]  to initialize particle container
+Initial atoms1 state from a pre-set ID list  
+ Contains particle objects: 
+2 {'position': [], 'charge': 0.0, 'type': 'blank', 'mass': 1.0, 'tagsDict': {'type': 'blank'}}
+3 {'position': [], 'charge': 0.0, 'type': 'blank', 'mass': 1.0, 'tagsDict': {'type': 'blank'}}
+10 {'position': [], 'charge': 0.0, 'type': 'blank', 'mass': 1.0, 'tagsDict': {'type': 'blank'}}
+6 {'position': [], 'charge': 0.0, 'type': 'blank', 'mass': 1.0, 'tagsDict': {'type': 'blank'}}
+ 
+
+atoms1 state from a pre-set ID list populated atoms1[..] = ...  
+ Contains particle objects: 
+2 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+3 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+10 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+6 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+ 
+
+atoms1 state after a put(p5) call  
+ Contains particle objects: 
+11 {'position': [90.0, -0.0, -80.1], 'charge': 1.0, 'type': 'Zr', 'mass': 4.0, 'tagsDict': {'type': 'Zr'}}
+2 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+3 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+10 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+6 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+ 
+

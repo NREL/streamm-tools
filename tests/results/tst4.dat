@@ -1,0 +1,46 @@
+************************************************************************************
+ This test illustrates the search capability for multiple tags                      
+ This can be combined new class method that returns iterator over search results    
+************************************************************************************ 
+
+atoms1 initially contains all of the following
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'ringnum': 4, 'molnum': 1, 'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 1, 'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'Si'}}
+5 {'position': [1.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 5.34, 'tagsDict': {'ringnum': 2, 'molnum': 2, 'type': 'C'}}
+6 {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'Si'}}
+7 {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'O', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'O'}}
+8 {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'O', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'O'}}
+9 {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'H', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'H'}}
+
+ 
+Print only atoms1 with search.... {'molnum': 2, 'type': 'Si'} 
+
+id =  4  ptclObj =  {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'Si'}}
+id =  6  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'Si'}}
+--------------------------------------------------------------------------------- 
+
+Print only atoms1 with search.... {'ringnum': 4, 'molnum': 2, 'type': 'Si'} 
+
+id =  4  ptclObj =  {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'Si'}}
+--------------------------------------------------------------------------------- 
+
+Print only atoms1 with search.... {'ringnum': [3, 4], 'type': 'Si'} 
+
+id =  1  ptclObj =  {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'ringnum': 4, 'molnum': 1, 'type': 'Si'}}
+id =  4  ptclObj =  {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'Si'}}
+id =  6  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'Si'}}
+--------------------------------------------------------------------------------- 
+
+Print only atoms1 with search.... {'ringnum': [2, 3, 4], 'type': ['Si', 'O']} 
+
+id =  8  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'O', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'O'}}
+id =  1  ptclObj =  {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'ringnum': 4, 'molnum': 1, 'type': 'Si'}}
+id =  4  ptclObj =  {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'ringnum': 4, 'molnum': 2, 'type': 'Si'}}
+id =  6  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'Si'}}
+id =  7  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'O', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'O'}}
+--------------------------------------------------------------------------------- 
+
