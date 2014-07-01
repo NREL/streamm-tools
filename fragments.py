@@ -595,12 +595,11 @@ class RotationControl(object):
             free_rot_criteria 
             pattern_str       overrides regular criteria
         """
-       self.free_rot_criteria = free_rot_criteria
-       self.counter = 0
-       self.alternation_pattern = None
-       if (pattern_str != None):
-           self.alternation_pattern = [float(f) for f in pattern_str.split()]
-
+        self.free_rot_criteria = free_rot_criteria
+        self.counter = 0
+        self.alternation_pattern = None
+        if (pattern_str != None):
+            self.alternation_pattern = [float(f) for f in pattern_str.split()]
 
 
 class Fragment(Structure):
