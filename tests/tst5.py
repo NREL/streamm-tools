@@ -137,13 +137,19 @@ rad_avg = 18.5
 rad_sig = 0.005
 ptcl_dist = 10.0
 
+rad_avg = 15.5
+rad_sig = 0.005
+ptcl_dist = 0.1
+
+
 # NOTE: this is an arbitrary choice
 # Particles shift uniformly between -rshift,rshift
-rshift = ptcl_dist/5.0
-rshift = 0.0
+rshift      = 0.0
+cutoff_dist = math.sqrt(2)*((2.00 * rad_avg) + ptcl_dist)
 
-cutoff_dist   = (2.00 * rad_avg) + ptcl_dist + rshift
-cutoff_dist   = math.sqrt(2)*((2.00 * rad_avg) + ptcl_dist)
+#rshift = ptcl_dist/4.0
+#cutoff_dist   = (2.00 * rad_avg) + ptcl_dist + rshift
+
 nQD_spacing   = (2.00 * rad_avg) + ptcl_dist
 cutoffDistSqr = pow(cutoff_dist, 2.0)
 
@@ -192,7 +198,7 @@ for ptPos in allPoints:
     if ptPos[0] & 1:
         pt = Particle(ptPos[1:], type="QDsmall", mass=1.0)
     else:
-        pt = Particle(ptPos[1:], type="QDbig", mass=2.0)
+        pt = Particle(ptPos[1:], type="QDsmall", mass=1.0)
 
     tagsD = {"molnum":1}
     pt.setTagsDict(tagsD)
@@ -205,9 +211,13 @@ strucQD = StructureContainer(nanoPtcls)
 boxSizes = [ [0.0, sysLs[0] ], [0.0, sysLs[1] ], [0.0, sysLs[2] ] ]
 strucQD.setBoxLengths(boxSizes)
 
-paramMap = {("QDsmall", "epsilon"):1.20, ("QDsmall", "sigma"):10.10,
-            ("QDbig",   "epsilon"):1.11, ("QDbig",   "sigma"):12.38 }
+"""
+paramMap = {("QDsmall", "epsilon"):1.0, ("QDsmall", "sigma"):1.0,
+            ("QDbig",   "epsilon"):1.0, ("QDbig",   "sigma"):1.0 }
+"""
+
+paramMap = {("QDsmall", "epsilon"):0.1, ("QDsmall", "sigma"):15.0}
 
 if rank == 0:
     nanoPtcls.scatterPlot()
-    strucQD.dumpLammpsInputFile("qd_lmp_in", paramMap)
+    strucQD.dumpLammpsInputFile("qd.data", paramMap)

@@ -91,7 +91,10 @@ class StructureContainer:
     def getSubStructure(self, ptclIDList):
         """
         Return a new Structure object with partcleID's in input list
-        
+        Preserves IDs of particles (and any bonds, angles, dihedrals...)
+        Bonds, angles, dihedrals... etc are included if and ONLY if all the
+        particles of which it consists is in the ptclIDList
+
         Args:
             ptclIDList (list) global particles ID's for which to return structure
 
@@ -99,14 +102,26 @@ class StructureContainer:
             New Structure() object. IDs in new object are unique
         """
 
-        subAtoms = ParticleContainer()
-        subBonds = BondContainer()
+        subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
+        bondIDList = self.bondC.keys()           # Get keys of bond container
+        subBonds = BondContainer(bondIDList)     # Intitialize subbond container
 
+        # Grab particles from IDlist and put into sub-particle container
         for pgid in ptclIDList:
             atom = self.ptclC[pgid]
-            subAtoms.put(atom)
+            subAtoms[pgid] = atom
 
+        # For each bond object in container check that both
+        # particles in bond are in ptcl search list
+        for gid, bondObj in self.bondC:
+            if ( (bondObj.pgid1 in ptclIDList) and (bondObj.pgid2 in ptclIDList) ):
+                subBonds[gid] = bondObj
+            else:
+                # Need to remove empty key generated above
+                del subBonds[gid]
+                
         return StructureContainer(subAtoms, subBonds)
+
 
 
     def setBoxLengths(self, bLs):
@@ -202,7 +217,7 @@ class StructureContainer:
         fileObj.write('\n')
         
         nonCoeffFormatStr = "%5d %12.6f %12.6f  \n"
-        fileObj.write('Nonbond Coeffs \n')
+        fileObj.write('Pair Coeffs \n')
         fileObj.write('\n')
 
         for typ in typeList:
@@ -229,7 +244,6 @@ class StructureContainer:
 
         # Close LAMMPS file
         fileObj.close()
-
         
         # Print type mapping info
         fileObj = open( inputName + ".dat", 'w' )

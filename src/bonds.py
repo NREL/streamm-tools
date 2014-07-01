@@ -65,12 +65,25 @@ class BondContainer:
     bond ID (integer) to Bond object instances
     """
 
-    def __init__(self):
+    def __init__(self, idList=[], verbose=False):
         """
-        Constructor: sets up a dictionary for indexing 'Particle' objects
+        Constructor: sets up a dictionary for indexing 'Bond' objects
+
+        Args:
+            idList (list): of bond IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with Bond objects
+            verbose (bool): flag for printing status/debug info        
         """
-        self.bonds=dict()
-        self.maxgid=0
+        self.verbose=verbose
+        self.bonds=dict()                          # Creates empty dict struc
+        self.bonds={key: Bond() for key in idList} # Creates empty Bond objs
+                                                   #   if idList not empty
+
+        if len(idList) == 0:         # If list not set in constructor arg
+            self.maxgid=0            # default=0 if idList empty
+        else:                        #
+            self.maxgid=max(idList)  # take max in list for maxgid
+
 
     def __del__(self):
         """
@@ -78,13 +91,11 @@ class BondContainer:
         """
         del self.bonds
 
-
     def __len__(self):
         """
         'Magic' method for returning size of container
         """
         return len(self.bonds)
-
 
     def __str__(self):
         """
@@ -92,16 +103,23 @@ class BondContainer:
         """
 
         bondStr="\n Contains bond objects: \n"
-
         for gid in self.bonds:
             bondStr = bondStr + str(gid) + " " + str(self.bonds[gid].__dict__) + "\n"
         return bondStr
 
 
+    def keys(self):
+        """
+        Return list of all ptcl IDs (keys) currently in container
+        """
+        keyList = self.bonds.keys()
+        return keyList
+
+
     def __setitem__(self, gid, bond):
         """
         'Magic' method implementing obj[]=value operator
-        Need
+        Performs deep copy of value so container is managing memory
         """
         if gid in self.bonds.keys():
             self.bonds[gid]=copy.deepcopy(bond)
@@ -113,6 +131,7 @@ class BondContainer:
     def __getitem__(self, gid):
         """
         'Magic' method implementing obj[] operator
+        Operations on returned elements change container
         """
         return self.bonds[gid]
 
@@ -128,7 +147,31 @@ class BondContainer:
         """
         'Magic' method implementing (for x in 'this')....
         """
-        return iter(self.bonds)
+        # return iter(self.bonds)
+        return self.bonds.iteritems()
+
+
+    def __call__(self, idSubList=None):
+        """
+        Callable magic method. Returns iterator to subset bonds dictionary
+
+        Args:
+             idSubList (list) list of pid-s of particle objects to be returned
+             
+        Returns: iterator to subset of particle dictionary
+        """
+
+        subGroupDct = dict()
+        
+        if idSubList != None:
+            for gid, bondObj in self.bonds.iteritems():
+                if gid in idSubList:
+                    subGroupDct[gid] = bondObj
+            return subGroupDct.iteritems()
+        
+        else:
+            print "Callable BondContainer requires a list of subgroup bond IDs"
+            sys.exit(3)
 
 
     def __contains__(self, gid):
@@ -142,8 +185,19 @@ class BondContainer:
         """
         'Magic' method to implement the '+=' operator
         
-        Note: SWS: not sure what this should mean !?
+        Compare global IDs of bonds and reassign globalIDs for bond
+        container using the max ID between the two lists
+
+        Note: for now this reassigns ID always
         """
+
+        keys1 = self.bonds.keys()         # global IDs in this object
+        keys2 = other.bonds.keys()        # global IDs in object being added
+        self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
+
+        for ptclkey2 in other.bonds:
+            self.put(other.bonds[ptclkey2])
+
         return self
 
 

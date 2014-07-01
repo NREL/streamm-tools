@@ -73,20 +73,31 @@ print polymer1
 print diagramBefore
 polymer1.replacePtclIDs(1,5)
 print "Testing ID changing with 'polymer1.replacePtclIDs(1,5)' "
-print  polymer1
+print polymer1
 print diagramAfter
 print "********************************************************** \n"
 
+print "-------------------------------------------------------------------------------- \n"
+
 print "********************************************************** \n"
 print "Testing polymer1.getSubStructure([5,2])"
-print " currently ID's are reassigned in substructure \n"
+print "   currently ID's are reassigned in substructure \n"
 subpolymer = polymer1.getSubStructure([5,2])
 print subpolymer
-subpolymer.ptclC[1].position = [12.0, -3838.0, 1.0]
-print "Substructure contains (Bonds re-assign not set yet)", subpolymer
+print diagramAfter
 print "********************************************************** \n"
 
 print "********************************************************** \n"
 print "polymer1 Struture after returning sub-structure"
 print polymer1
+print "********************************************************** \n"
+
+print "-------------------------------------------------------------------------------- \n"
+
+print "********************************************************** \n"
+print "Testing polymer1.getSubStructure([2,3,4])"
+print "   currently ID's are reassigned in substructure \n"
+subpolymer = polymer1.getSubStructure([2,3,4])
+print subpolymer
+print diagramAfter
 print "********************************************************** \n"
