@@ -398,6 +398,13 @@ def build_from_str(bblocks, s, options):
     fragidx = 0
     rot_ctrl.counter = 0
     for newfrag in frags:
+        
+        # make_ff TK
+        newfrag.setall_resnumb(fragidx+1)
+        newfrag.setall_restype(s)
+        
+        
+        print "processing fragment of type : ", newfrag.type,fragidx,s
         #  print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria
         if (fragidx == 0):
             frag = Fragment(frag=newfrag)
@@ -779,8 +786,8 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         pos_list = frag.return_r()
         # elnnumb_list = elements.asymb_eln(ASYMB)
         linkid_list = frag.return_ctype()      
-        residuenumb_list = frag.return_unitnumb()
-        residueid_list = frag.return_unittype()
+        residuenumb_list = frag.return_resnumb()
+        residueid_list = frag.return_restype()
         charge_list = frag.return_q()
 
         #   create particles for scott's class system
@@ -791,10 +798,12 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
             m_i=float(0.0)
             q_i=float(charge_list[p_i])
             pt = Particle( r_i,atomic_symb,q_i,m_i )            
-            tagsD = {"chain":1,"ring":0,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":"??"}
+            tagsD = {"chain":1,"ring":1,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":"??"}
             pt.setTagsDict(tagsD)
             oligomer.put(pt)
 
+
+            print "  don acc sys ",p_i," resid ",residueid_list[p_i],"residu ",residuenumb_list[p_i]
 
         # Put oligomer in a system 
         system_i = StructureContainer(oligomer)
@@ -804,27 +813,8 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         #  Make ff files 
         #
         if( options.make_ff ):
-            # update ff types as a test 
-            for pid, ptclObj  in oligomer:
-                fftype_i = "UNKNOWN" 
-                tagsD = {"chain":1,"ring":0,"resname":residueid_list[p_i],"residue":residuenumb_list[p_i],"linkid":linkid_list[p_i],"fftype":fftype_i}
-                ptclObj.setTagsDict(tagsD)
-            #  Sudo code
-            #   Read in parameter file
-            #      gromacs itp file
-            #      tinker parameter file
-            #      lammps parameters in data file
-            #   Find bonds
-            #      from gaussian output optimization
-            #      distance cut-off
-            #         system_i = system_i.bonds()
-            #   Find Rings
-            #   Guess atom types
-            #      amber
-            #      oplsaa
-            #         oligomer = oligomer.guess_oplsaatypes()
-
-            
+            system_i.create_top()
+            #system_i.lmp_writedata()
 
         json_data = system_i.putstruc_json(json_data)
         

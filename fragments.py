@@ -224,8 +224,8 @@ class Atom:
         self.link = None
 
         self.ctype = []
-        self.unitnumb = []
-        self.unittype = []
+        self.resnumb = []
+        self.restype = []
         self.q = []
 
 
@@ -241,8 +241,8 @@ class Atom:
         # make_ff TK
         self.id = ""
         self.ctype = "NA"
-        self.unitnumb =  1
-        self.unittype = "NA"
+        self.resnumb =  1
+        self.restype = "NA"
         self.q = 0.0
 
     def dist(self, other):
@@ -447,6 +447,17 @@ class Structure:
                     cap_target = int(tag2[1]) - 1
                     link = Link (tag[0], cnt, cap_target)
                     at.link = link
+
+                # make_ff 
+                if( tag[0] == "term" ):
+                    at.ctype = "T"
+                if( tag[0] == "termcap" ):
+                    at.ctype = "X"
+                if( tag[0] == "func" ):
+                    at.ctype = "F"
+                if( tag[0] == "funccap" ):
+                    at.ctype = "R"
+                    
             self.atoms.append(at)                
 
 
@@ -607,30 +618,35 @@ class Structure:
             a_cnt += 1 
             a.q =  q[a_cnt]
             
-    def set_unitnumb(self,unitnumb):
+    def set_resnumb(self,resnumb):
         import numpy
         import sys 
         
         a_cnt = -1 
         for a in self.atoms:
             a_cnt += 1 
-            a.unitnumb =  unitnumb[a_cnt]
+            a.resnumb =  resnumb[a_cnt]
             
-    def set_unittype(self,unittype):
+    def set_restype(self,restype):
         import numpy
         import sys 
         
         a_cnt = -1 
         for a in self.atoms:
             a_cnt += 1 
-            a.unittype =  unittype[a_cnt]
+            a.restype =  restype[a_cnt]
             
-    def setall_unitnumb(self,unitnumb):
+    def setall_resnumb(self,resnumb):
         import numpy
         import sys 
         
         for a in self.atoms:
-            a.unitnumb =  unitnumb
+            a.resnumb =  resnumb
+            
+    def setall_restype(self,restype):
+        
+        for a in self.atoms:
+            a.restype =  restype.strip()
             
     def return_asymb(self):
         import numpy
@@ -661,26 +677,26 @@ class Structure:
         return ctype
     
     
-    def return_unitnumb(self):
+    def return_resnumb(self):
         import numpy
         
         a_cnt = 0
         
-        unitnumb = [] 
+        resnumb = [] 
         for a in self.atoms:
-            unitnumb.append( a.unitnumb )
+            resnumb.append( a.resnumb )
             
-        return unitnumb    
+        return resnumb    
     
     
-    def return_unittype(self):
+    def return_restype(self):
         import numpy
         
-        unittype = [] 
+        restype = [] 
         for a in self.atoms:
-            unittype.append( a.unittype )
+            restype.append( a.restype )
             
-        return unittype    
+        return restype    
 
     def return_q(self):
         import numpy
