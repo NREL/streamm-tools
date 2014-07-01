@@ -6,6 +6,7 @@ from particles import ParticleContainer
 from bonds     import BondContainer
 
 import copy
+import numpy as np 
 
 class StructureContainer:
     """
@@ -51,8 +52,7 @@ class StructureContainer:
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0,1.0] ]
 
         # Lattice vectors 
-        self.latticevec = [ [1.0,0.0,0.0], [1.0,1.0,0.0], [0.0,0.0,1.0] ]
-
+        self.latticevec = [  np.array([1.0,0.0,0.0]) ,  np.array( [0.0,1.0,0.0]),  np.array( [0.0,0.0,1.0]) ]
 
     def __str__(self):
         """
@@ -140,6 +140,61 @@ class StructureContainer:
         """
         return self.latticevec
 
+    def getVolume(self):
+        """
+        Calculate volume
+
+        Method:
+            Volume = ( v_i x v_j ) \dot v_k
+
+        """
+
+        br1 = np.cross(self.latticevec[0],self.latticevec[1])
+        vol = np.dot(br1,self.latticevec[2])
+
+        return vol 
+
+    def getTotMass(self):
+        """
+        Calculate total mass of system 
+
+        """
+        # Sum mass, charges
+        total_mass = 0.0
+        for pid, ptclObj in self.ptclC :
+            total_mass += ptclObj.mass
+
+        return total_mass 
+
+    def getDen(self):
+        """
+        Calculate density of system 
+
+        """
+	# const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
+
+	volume_i = self.getVolume()    
+	total_mass_i = self.getTotMass()
+
+	density_i = total_mass_i/volume_i #/const_avo*10.0
+	
+	return density_i
+
+
+    def printprop(self):
+        """
+        Print properties of a structure 
+        """
+        print "  Particles %d "%(len(self.ptclC))
+        print "    Volume %f "%self.getVolume()
+        print "    Mass %f "%self.getTotMass()
+        print "    Density %f "%self.getDen()
+        print "  Lattice vectors "
+        print "    v_i ",self.latticevec[0]
+        print "    v_j ",self.latticevec[1]
+        print "    v_k ",self.latticevec[2]
+        print "  Bonds %d "%(len(self.bondC))
+        
     def dumpLammpsInputFile(self, inputName, coeffDict=dict()):
         """
         Write out a LAMMPS input data file from all available held
@@ -275,7 +330,13 @@ class StructureContainer:
         struc_data["twobody"] = twobody_data
         struc_data["threebody"] = threebody_data
         struc_data["fourbody"] = fourbody_data
+    
+	# Structure data
+        lv_string = str( "%f %f %f %f %f %f %f %f %f " % ( self.latticevec[0][0], self.latticevec[0][1], self.latticevec[0][2], self.latticevec[1][0], self.latticevec[1][1], self.latticevec[1][2], self.latticevec[2][0], self.latticevec[2][1], self.latticevec[2][2]))
 
+	struc_data["latticevector"] = lv_string
+
+	# Particle data 
         particle_data["number_id"] = []
         particle_data["type"] = []
         particle_data["position"] = []
@@ -304,3 +365,152 @@ class StructureContainer:
             particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
 
         return json_data
+
+    def create_top(self):
+        """
+        Find topology information for force-field input files 
+        """
+
+        # Version 1 will be dependent on Atomicpy
+        import elements , lammps ,gromacs , atom_types, top 
+
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        CTYPE = []
+        CHARGES = []
+        R = []
+        VEL = []
+        ATYPE = []
+        AMASS = []
+        MOLNUMB = []
+        RING_NUMB = []
+        RESID = []
+        RESN = []
+        CHARN = []
+        UNITNUMB = [] 
+        UNITTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( ptclObj.mass  )
+            CHARGES.append( ptclObj.charge  )
+            MOLNUMB.append( ptclObj.tagsDict["chain"]  )
+            RESID.append( ptclObj.tagsDict["residue"]  )
+            RESN.append( ptclObj.tagsDict["resname"]  )
+            
+            
+        # Direct copy of top.print_ff_files
+            
+
+        # Read in ff file
+        #itp_file = 'ff.itp'
+        ##print "   Read in parameters from ",itp_file
+        #FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+                 
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        ff_charges = False
+        verbose = True 
+
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        AMASS = elements.eln_amass(ELN)
+
+        #   Initialize  topology values
+        GTYPE = top.initialize_gtype( ELN )
+        CHARN = top.initialize_charn( ELN )        
+
+        #   Build covalent nieghbor list for bonded information 
+        NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+
+        NA = len(ELN)
+        BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+        #
+        # Set charge groups
+        #
+        CG_SET = []
+        one = 1
+        for i in range( len(ELN) ):
+            CG_SET.append(one)
+        #
+
+        if( verbose ):
+            print "      Finding atom types  "
+
+        d_mass = 0
+        d_charge = 0
+        RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+
+
+        print RING_NUMB
+
+        # Asign oplsaa atom types
+        ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
+
+        ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+        #Refind inter ring types
+        ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+
+        # Update structure information
+        pt_cnt = 0 
+        for pid, ptclObj  in self.ptclC:
+             ptclObj.tagsDict["fftype"] = ATYPE[pt_cnt]
+             ptclObj.mass = AMASS[pt_cnt]
+             ptclObj.tagsDict["ring"] = RING_NUMB[pt_cnt]
+
+             print " create_top ", ATYPE[pt_cnt]
+             pt_cnt += 1 
+        
+            #  Sudo code
+            #   Read in parameter file
+            #      gromacs itp file
+            #      tinker parameter file
+            #      lammps parameters in data file
+            #   Find bonds
+            #      from gaussian output optimization
+            #      distance cut-off
+            #         system_i = system_i.bonds()
+            #   Find Rings
+            #   Guess atom types
+            #      amber
+            #      oplsaa
+            #         oligomer = oligomer.guess_oplsaatypes()
+
+
+    def calc_rdf(self, rdf_hist,bin_size,list_i,list_j):
+        """
+        Calculate RDF for a group of particles
+        """
+
+
+        #
+        # Loop over list i
+        #
+        for p_i, ptcl_i in self(list_i):
+            r_i = np.array( ptcl_i.postion )
+            #
+            # Loop over list j
+            #
+            for p_j, ptcl_j in self(list_j):
+                r_j =  np.array( ptcl_j.postion )
+
+
+                sq_r_ij = pbc.sq_drij(r_i,r_j,self.latticevec)
+
+
+                if( sq_r_ij <= sq_r_cut ):
+                    m_ij = np.sqrt(sq_r_ij)
+                    bin_index = int( round( m_ij/bin_size) )
+                    rdf_cnt_i[bin_index] += 2
+
+
+
+
+
