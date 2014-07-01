@@ -3,6 +3,7 @@ Class data structures for atomic data
 """
 
 from particles import ParticleContainer
+from bonds     import Bond
 from bonds     import BondContainer
 
 import copy
@@ -464,10 +465,17 @@ class StructureContainer:
              ptclObj.tagsDict["fftype"] = ATYPE[pt_cnt]
              ptclObj.mass = AMASS[pt_cnt]
              ptclObj.tagsDict["ring"] = RING_NUMB[pt_cnt]
-
-             print " create_top ", ATYPE[pt_cnt]
              pt_cnt += 1 
-        
+
+        # Add bonds to system
+        for i in range( len(BONDS) ):
+            #
+            a_i = BONDS[i][0] 
+            a_j = BONDS[i][1]
+            b_i = Bond( a_i+1, a_j+1 )
+            self.bondC.put(b_i)
+            
+            
             #  Sudo code
             #   Read in parameter file
             #      gromacs itp file
@@ -484,11 +492,98 @@ class StructureContainer:
             #         oligomer = oligomer.guess_oplsaatypes()
 
 
+    def lmp_writedata(self):
+        """
+        Write out lammps data file
+        """
+
+        # Version 1 will be dependent on Atomicpy
+        import elements , lammps ,gromacs , atom_types, top , groups
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        CTYPE = []
+        CHARGES = []
+        R = []
+        VEL = []
+        ATYPE = []
+        AMASS = []
+        MOLNUMB = []
+        RING_NUMB = []
+        RESID = []
+        RESN = []
+        CHARN = []
+        UNITNUMB = [] 
+        UNITTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( ptclObj.mass  )
+            CHARGES.append( ptclObj.charge  )
+            MOLNUMB.append( ptclObj.tagsDict["chain"]  )
+            RESID.append( ptclObj.tagsDict["residue"]  )
+            RESN.append( ptclObj.tagsDict["resname"]  )
+            RESN.append( ptclObj.tagsDict["resname"]  )
+
+        BONDS = []
+        for bondObj in  self.bondC:
+            pt_i = self.bondC[bondObj].pgid1
+            pt_j = self.bondC[bondObj].pgid2
+            BONDS.append( [pt_i - 1, pt_j -1])
+
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        NA = len(ELN)
+        
+        # Create neighbor list form bonds
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+
+        
+        
+        # Read in parameter files 
+        itp_file = "oplsaa.itp"
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+
+        # Identify total number of atom types for lammps output 
+        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+        # Check atom types to be sure each atom of the same type has the same number of neighbors 
+        ATYPE_NNAB = check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+
+        
+
+        ATYPE_EP, ATYPE_SIG = atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    
+        IMPTYPE_F  = imp_parameters(itp_file)
+
+	data_file = calc_id + ".data"
+	
+	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
+	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
+    
+        
     def calc_rdf(self, rdf_hist,bin_size,list_i,list_j):
         """
         Calculate RDF for a group of particles
         """
-
 
         #
         # Loop over list i
