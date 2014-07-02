@@ -1,0 +1,264 @@
+#!/bin/bash
+#PBS -j oe
+#PBS -m n
+#PBS -V
+#PBS -o acc1_D100_n1.out
+#PBS -e acc1_D100_n1.err
+#PBS -N acc1_D100_n1
+#PBS -l feature=24core
+#PBS -l walltime=48:00:00
+#PBS -l nodes=1:ppn=24
+#PBS -A OPVCOMBI
+#PBS -q batch
+
+#
+# Check on editing input file. If scratch directories
+# are listed then file is used un-changed, if 3-line
+# header not present, then script prepends these lines
+# to the input file to be used in execution line
+#
+# Arg $1 is input file to be edited
+# 'infile' is made in place and must be moved and re-named
+#
+configInputFile() {
+    local INPUT_FILE=$1
+    echo "From pbs script: Configuring input file $INPUT_FILE"
+    NUMRWFLINES=`grep "RWF" $INPUT_FILE |wc -l`
+    if [ $NUMRWFLINES -eq 1 ]; then
+	echo "standard file found"
+	cp $INPUT_FILE infile
+    else
+	echo " "
+	echo "Prepending lines to input file"
+	echo " "
+	echo "%RWF=$SCRATCH2/,$MEMSIZE,$SCRATCH/,-1" > infile
+	echo "%NoSave"                              >> infile
+	echo "%Chk=test.chk"                        >> infile
+	echo " "                                    >> infile
+	cat $INPUT_FILE >> infile
+    fi
+}
+
+#
+# Finish condition
+#  Returns:
+#   FINISHED_ALL  -- job optimized and td section complete
+#   FINISHED_OPT  -- job optimized and td section NOT complete
+#   FINISHED_NONE -- job started but nothing finished
+#   NOT_STARTED   -- job not started at all ... no .log file created
+#
+isGaussianJobDone() {
+
+  if test -f $JOBNAME.log; then
+
+      # If file exists then look for finish condition
+      if tail -n 1 $JOBNAME.log | grep "Normal" >> /dev/null ; then
+ 	  local FINISH_STATE="FINISHED_ALL"
+      elif grep "td=nstates" $JOBNAME.log >> /dev/null ; then
+ 	  local FINISH_STATE="FINISHED_OPTIMIZE"
+      else
+	  local FINISH_STATE="FINISHED_NONE"
+      fi
+
+   else
+      # If file does not exist then return 'start' condition
+      local FINISH_STATE="NOT_STARTED"
+   fi
+
+  echo $FINISH_STATE
+}
+
+#
+# Ensure script location
+# NOTE: this is not job directory
+#
+if test -n "$PBS_O_WORKDIR"; then
+    echo "PBS workdir set, so cd'ing --> $PBS_O_WORKDIR"
+    cd $PBS_O_WORKDIR
+fi
+
+#
+# Load Gaussian module set enviro
+#
+module load gaussian
+echo " "
+module list
+echo " "
+
+#
+# Set script variables
+#
+# eg POST_PROC_PATH=/projects/opv/POST_PROCESSING
+POST_PROC_PATH=SED_TOP_PATH/tools-opv/POST_PROCESSING
+JOBNAME=acc1_D100_n1
+INPUT_BASENAME=acc1_D100_n1
+GAUSSIAN_EXEC=g09
+MEMSIZE=3GB
+SCRATCH=/scratch/$USER/gaussianScratch.$PBS_JOBID
+SCRATCH2=/dev/shm
+
+#
+# Repo paths
+#
+# repo location eg /projects/opv/PUBLISH-ssides
+REPOLOCATION=SED_REPO_PATH
+REPO2=/projects/opv/gaussian_archive
+
+#
+# Set required Gaussian enviroment variables
+#
+if [ $PBS_NUM_NODES -gt 1 ]
+then
+   export GAUSS_LFLAGS='-vv -opt "Tsnet.Node.lindarsharg: ssh"'
+   export GAUSS_EXEDIR=$g09root/g09/linda-exe:$GAUSS_EXEDIR
+fi
+export GAUSS_SCRDIR=$SCRATCH2
+
+#
+# Create separate job name
+#
+if [ -d $JOBNAME ]
+then
+    echo "$JOBNAME exists, continuing"
+else
+    mkdir $JOBNAME
+fi
+
+#
+# Fix headers in inputfiles
+#
+configInputFile $INPUT_BASENAME.com
+mv infile $JOBNAME/$INPUT_BASENAME.com
+configInputFile $INPUT_BASENAME.r1.com
+mv infile $JOBNAME/$INPUT_BASENAME.r1.com
+configInputFile $INPUT_BASENAME.r2.com
+mv infile $JOBNAME/$INPUT_BASENAME.r2.com
+
+#
+# mv json files
+#
+cp $JOBNAME.json $JOBNAME/doc.json
+
+#
+# Run gaussian 'Linda' script
+# (performs much of the Gaussian setup)
+# Must be done inside actual run directory,
+# hence after the 'cd $JOBNAME'
+#
+cd $JOBNAME
+g09_peregrine 
+
+#
+# Gaussian needs scratch directories
+# Note: sometimes files may have been left behind in
+# on-node memory by other jobs that terminated incorrectly
+# so clean these to make sure there is enough space.
+#
+if [ -d $SCRATCH ]
+then
+   rm -rf $SCRATCH
+fi
+mkdir $SCRATCH
+rm -rf $SCRATCH2/*
+
+
+#
+# Check job status
+#
+finished=$(isGaussianJobDone)
+echo "Job state = $finished"
+
+#
+# Create time stamp for archiving module files
+#
+YEAR=`date +%Y`
+DAYS=`date +%j`
+HOURS=`date +%H`
+MINUTES=`date +%M`
+SECONDS=`date +%S`
+DATE_VAR=$YEAR.$DAYS.$HOURS.$MINUTES.$SECONDS
+
+#
+# Submit Gaussian job
+#
+if [ "$finished" == "NOT_STARTED" ]; then
+    echo "***********************"
+    echo "Initial start of job..."
+    echo "***********************"
+    $GAUSSIAN_EXEC < $INPUT_BASENAME.com >& $INPUT_BASENAME.log
+
+elif [ "$finished" == "FINISHED_NONE" ]; then
+    echo "**************************************************************************"
+    echo "Not finished optimization, will restart with .r1 file and appending to log"
+    echo "  with date = $DATE_VAR"
+    echo "**************************************************************************"
+    mv $INPUT_BASENAME.log $INPUT_BASENAME.r1.$DATE_VAR.log 
+    $GAUSSIAN_EXEC < $INPUT_BASENAME.r1.com &> $INPUT_BASENAME.log
+
+elif [ "$finished" == "FINISHED_OPTIMIZE" ]; then
+    echo "*************************************************************************************"
+    echo "Finished optimization will restart with .r2 file to complete td calc appending to log"
+    echo "  with date = $DATE_VAR"
+    echo "*************************************************************************************"
+    mv $INPUT_BASENAME.log $INPUT_BASENAME.r2.$DATE_VAR.log 
+    $GAUSSIAN_EXEC < $INPUT_BASENAME.r2.com &> $INPUT_BASENAME.log
+
+else
+    echo "********************************"
+    echo "Finished, proceeding to analysis"
+    echo "********************************"
+fi
+
+#
+# Remove '1st' scratch directory
+#
+rm -rf $SCRATCH
+
+#
+# Check job status
+#
+finished=$(isGaussianJobDone)
+echo "Finished value = $finished"
+
+#
+# Analysis section
+#   generalize paths for scripts (part of repo?)
+#
+if
+  [ "$finished" == "FINISHED_ALL" ]
+then
+  # Removing error message file from any older runs
+  rm -rf ERROR.MSG 
+  formchk *.chk $JOBNAME.fchk
+  module unload gaussian
+  module load gaussian/.g09_C.01
+
+  cubegen 0 MO=Homo $JOBNAME.fchk HOMO.cube 0 h
+  $POST_PROC_PATH/OPENCUBMAN/fetocv HOMO.cube 0.8 0 > hdata
+
+  cubegen 0 MO=Lumo $JOBNAME.fchk LUMO.cube 0 h
+  $POST_PROC_PATH/OPENCUBMAN/fetocv LUMO.cube 0.8 0 > ldata
+
+  python $POST_PROC_PATH/DFT_FILTER/FOR_OPV/tdfilt_excdip.py $JOBNAME.log doc.json 0.15 250 1000 2
+
+  mkdir -p $REPOLOCATION/$JOBNAME
+  # cp * $REPOLOCATION/$JOBNAME/. 
+  cp * $REPOLOCATION/$JOBNAME/. &&
+  # Remove chk file (space reasons)
+  if test -f $REPOLOCATION/$JOBNAME/$JOBNAME.chk; then
+    echo "Removing $REPOLOCATION/$JOBNAME/$JOBNAME.chk"
+    rm -rf $REPOLOCATION/$JOBNAME/$JOBNAME.chk
+  fi
+  chgrp -R opv $REPOLOCATION/$JOBNAME
+  chmod -R 774 $REPOLOCATION/$JOBNAME
+
+  # rm $JOBNAME.chk // Move earlier?
+  cd ../
+  tar -cvjf $JOBNAME.tar.bz2 $JOBNAME/ $JOBNAME.e* $JOBNAME.o* $JOBNAME.pbs
+  mv $JOBNAME.tar.bz2 $REPO2/.
+ 
+else
+
+  echo "Abnormal termination..." > ERROR.MSG
+
+fi

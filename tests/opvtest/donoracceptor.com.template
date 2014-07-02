@@ -1,0 +1,25 @@
+%chk=<structure_name>.chk
+#P opt=Cartesian iop(1/7=12000) AM1 scf=qc
+
+<structure_name> semi-empirical pre-optimiz
+
+0 1
+<atoms>
+
+--Link1--
+%chk=<structure_name>.chk
+#P opt b3lyp/<basis>  geom=(check,NewDefinition) guess=check  pop=full density=current
+
+<structure_name> ground state
+
+0 1
+
+
+--Link1--
+%chk=<structure_name>.chk
+#P b3lyp td=nstates=<nstates>/<basis> geom=check guess=check  pop=full density=current
+
+<structure_name> TD-DFT
+
+0 1
+
