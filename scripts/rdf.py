@@ -21,6 +21,7 @@ from bonds     import BondContainer
 from structureContainer import StructureContainer
 import mpiNREL
 import json
+import numpy as np
 import datetime
 
 
@@ -111,7 +112,7 @@ def getsys_json(json_file):
         q_i = float(particle_data["charge"][p_i])
         # Create particle
         pt_i = Particle( r_i,atomic_symb,q_i,m_i )
-        # Find needed tags 
+        # Find needed tags
         chain_i = particle_data["chain"][p_i]
         ring_i = particle_data["ring"][p_i]
         resname_i = particle_data["resname"][p_i]
@@ -124,7 +125,12 @@ def getsys_json(json_file):
         pt_i.setTagsDict(tagsD)
         struc_i.put(pt_i)
 
+    twobody_data =  json_data["structure"]["twobody"]
     bond_i = BondContainer()
+    for b_indx in rang( len(twobody_data["bonds"] )):
+        a_i = twobody_data["bonds"][0]
+        a_j = twobody_data["bonds"][0]
+        self.bondC.put(b_i)
 
     # Put paticles and bonds into system 
     system_i = StructureContainer(ptclC=struc_i,bondC=bond_i)
@@ -198,7 +204,7 @@ def main():
     options, args = get_options()
 
     # Read in system data from json file
-    if( len(in_json)):
+    if( len(options.in_json)):
         system_i = getsys_json(options.in_json)
 
     # Read in system data from json file
@@ -278,20 +284,20 @@ def main():
     # Calculate rdf relate values
     n_bins = int(options.r_cut/options.bin_size)
     sq_r_cut = options.r_cut**2
-    rdf_cnt_ij = numpy.zeros(n_bins+1)    
+    rdf_cnt_ij = np.zeros(n_bins+1)    
 
     # Record initial time
 
     if( rank == 0  ): 
 	t_i = datetime.datetime.now()
 
-    # Initialize structure array for containing multiple frames
-    struc_array = []
-    
     if( len(options.in_lammpsxyz) ):
         
         # Initialize line count
-        line_cnt = 0 
+        NP = len( struc_i )
+        line_cnt = 0
+        frame_cnt = 0
+        pt_cnt = 0 
         # Read in file line by line 
         with open(options.in_lammpsxyz) as f:
             for line in f:
@@ -301,36 +307,33 @@ def main():
             if( line_cnt == 1  ):
                 # Read first line to record number of particles NP
                 NP = int(col[0])
-                struc_i =  ParticleContainer()
-                
+                frame_cnt += 1
+                pt_cnt = 0 
             elif( line_cnt > 2 and len(col) >= 4 ):
-                # Read lines and add particles to structure 
+                # Read lines and update particle postions 
+                pt_cnt += 1
+                pt_i = struc_i[pt_cnt]
+                pt_i.postion =  [ col[1],col[2],col[3] ]
                 atomic_symb = col[0]
-                r_i = [ col[1],col[2],col[3] ]
-                part_i = Particle( r_i,atomic_symb,q_i,m_i )
-                struc_i.put(part_i)
+                #
+                #r_i = [ col[1],col[2],col[3] ]
+                #part_i = Particle( r_i,atomic_symb,q_i,m_i )
+                #struc_i.put(part_i)
 
             if( line_cnt > 1  and line_cnt > NP + 2):
-                # xmol file contains multiple frames
-                #   store in structure array 
-                struc_array.append(struc_i)
-                #   reinitialize struc_i ParticleContainer
-                del struc_i
-                struc_i =  ParticleContainer()
+                pt_cnt = 0 
+                if( options.frame_o >= frame_cnt and frame_cnt <= options.frame_f ):
+                    if( mod(frame_cnt/options.frame_step) ):
+                        rdf_cnt_ij = struc_i.calc_rdf(rdf_cnt_ij)
 
-
-    #rdf_hist = struc_array.calc_rdf()
-
-    #
-    # Loop over frames
-    #
-    
-    for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
-        frame_read = False
-    
-        if( len(options.in_lammpsxyz) ):
+                frame_cnt += 1
+                
+            # Calculate rdf for last frame 
+            if( options.frame_o >= frame_cnt and frame_cnt <= options.frame_f ):
+                if( mod(frame_cnt/options.frame_step) ):
+                    rdf_cnt_ij = struc_i.calc_rdf(rdf_cnt_ij)
             
-    
+
     dat_out.close()
     log_out.close()
 
