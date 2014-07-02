@@ -344,6 +344,18 @@ class BuildingBlockEnumerator(BuildingBlocks):
                             print "TRYING %s" % str
                             self.try_str(str, options, True)
 
+        if "TAfDAfT" in classes:
+            print "NOTE: ------------ Spacers are between T, Af and D -----------------"
+            for iterm1 in range(0,len(good_term)):
+                for iacc1 in range(0,len(good_accf)):
+                    for idon in range(0,len(good_don)):                                    
+                        for ispc in range(0,len(allthespacers)):
+                            sp = "%s" % allthespacers[ispc]  ## one of the spacer names can be "", for no spacer
+                            str = "%s %s %s %s %s %s %s %s %s" % (good_term[iterm1], sp, good_accf[iacc1], sp, good_don[idon], sp, good_accf[iacc1], sp, good_term[iterm1])
+                            print "TRYING %s" % str
+                            self.try_str(str, options, True)
+
+
         if "TDD2DT" in classes:            
             for iterm1 in range(0,len(good_term)):
                 for idon1 in range(0,len(good_don)):
