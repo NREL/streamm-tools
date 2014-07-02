@@ -10,9 +10,6 @@ import os, sys, math, random, time
 from particles import Particle
 from particles import ParticleContainer
 
-from bonds import Bond
-from bonds import BondContainer
-
 print "************************************************************************************"
 print " This test illustrates the different ways Particle constructors can be used  "
 print " by using default values etc "

@@ -7,9 +7,6 @@ import os, sys, math, random, time
 from particles import Particle
 from particles import ParticleContainer
 
-from bonds import Bond
-from bonds import BondContainer
-
 print "************************************************************************************"
 print " This test shows various operators within Particle and ParticleContainer classes    "
 print " Also shows memory management structure and access methods"
@@ -64,35 +61,3 @@ print " "
 atoms1 += atoms2
 print "Will print the new atoms1 after adding atoms1 += atoms2"
 print atoms1
-
-print " "
-print "Here's an issue... globalID's are assigned by ParticleContainer class "
-print "Setting Bond object with gid's of Particles needs to be done after PC class set "
-print "or there could be conflicts \n"
-
-print "Testing Bond and BondContainer"
-b1 = Bond( 1, 2, 1.233, "hooke")
-b2 = Bond( 3, 4, 0.5,   "hooke")
-b3 = Bond( )
-
-print "b1 = ", b1.__dict__
-print "b2 = ", b2.__dict__
-print "b3 = ", b3.__dict__
-
-bonds = BondContainer()
-bonds.put(b1)
-bonds.put(b2)
-bonds.put(b3)
-del b1, b2, b3
-print "\n Cleaning memory for initial objects \n" 
-
-print "Bonds: ", bonds
-print " "
-
-searchID = 2
-print "Testing 'in' operator for searchID ", searchID, " in bonds"
-if searchID in bonds:
-    print "ID ",searchID, " in bonds"
-else:
-    print "nope"
-

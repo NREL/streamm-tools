@@ -7,17 +7,20 @@ scpHTMLtoStatic() {
     modName=$1 # Module name prefix
     dirName=$2 # Directory on cs to copy to
 
+    mkdir $dirName
     pydoc -w ../src/$modName.py
     sleep 0.5
 
-    echo "Moving developer docs ($modName) to --> cs.hpc.nrel.gov:static/$dirName [y] yes [n]no"
-    read -e ans
-    if [ $ans == "y" ]; then
-	echo " "
-	scp -r $modName.html cs.hpc.nrel.gov:static/$modName
-    else
-	echo " ";
-    fi
+    mv $modName.html $dirName
+
+    #echo "Moving developer docs ($modName) to --> cs.hpc.nrel.gov:static/$dirName [y] yes [n]no"
+    #read -e ans
+    #if [ $ans == "y" ]; then
+    #	echo " "
+    #	scp -r $modName.html cs.hpc.nrel.gov:static/$modName
+    #else
+    #	echo " ";
+    #fi
 }
 
 #
@@ -31,3 +34,7 @@ scpHTMLtoStatic "runjobs"            "runjobs"
 scpHTMLtoStatic "particles"          "STREAMM"
 scpHTMLtoStatic "bonds"              "STREAMM"
 scpHTMLtoStatic "structureContainer" "STREAMM"
+
+echo " "
+echo "Run: sftp cs.hpc.nrel.gov:static"
+echo "      put -r * ."

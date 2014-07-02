@@ -42,27 +42,5 @@ Will print the new atoms1 after adding atoms1 += atoms2
 3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
- 
-Here's an issue... globalID's are assigned by ParticleContainer class 
-Setting Bond object with gid's of Particles needs to be done after PC class set 
-or there could be conflicts 
-
-Testing Bond and BondContainer
-b1 =  {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
-b2 =  {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
-b3 =  {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
-
- Cleaning memory for initial objects 
-
-Bonds:  
- Contains bond objects: 
-1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
-2 {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
-3 {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
-
- 
-Testing 'in' operator for searchID  2  in bonds
-ID  2  in bonds
-Cleaning bond container
 Cleaning particle container
 Cleaning particle container

@@ -1,0 +1,31 @@
+************************************************************************************
+ This test shows various operators within Bond and BondContainer classes    
+************************************************************************************ 
+
+Testing Bond and BondContainer
+b1 =  {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+b2 =  {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
+b3 =  {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
+
+ Cleaning memory for initial objects 
+
+Bonds:  
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
+3 {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
+
+ 
+Test iterator for bond container 
+bondID =  1 bond object  <bonds.Bond instance at 0x100509ea8>
+bondID =  2 bond object  <bonds.Bond instance at 0x100509f38>
+bondID =  3 bond object  <bonds.Bond instance at 0x100509fc8>
+ 
+Testing 'in' operator for searchID  2  in bonds
+ID  2  in bonds
+ 
+Here's an issue... globalID's are assigned by ParticleContainer class 
+Setting Bond object with gid's of Particles needs to be done after PC class set 
+or there could be conflicts 
+
+Cleaning bond container

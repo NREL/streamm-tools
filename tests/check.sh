@@ -18,14 +18,14 @@ elif [ $1 == "new" ]; then
     echo "Checking in new results for python test files"
     echo " " 
 
-    tst1.py > results/tst1.dat
-    tst2.py > results/tst2.dat
-    tst3.py > results/tst3.dat
-    tst4.py > results/tst4.dat
-    tst6.py > results/tst6.dat
-    tst7.py > results/tst7.dat
-    tst8.py > results/tst8.dat
-
+    test-bondContainer.py            > results/test-bondContainer.txt
+    test-particleConstructors.py     > results/test-particleConstructors.txt
+    test-particleSetInfo.py          > results/test-particleSetInfo.txt
+    test-searchTags.py               > results/test-searchTags.txt
+    test-checkTypes.py               > results/test-checkTypes.txt
+    test-particleContainer.py        > results/test-particleContainer.txt
+    test-ptclContainerConstructor.py > results/test-ptclContainerConstructor.txt
+    test-subStructure.py             > results/test-subStructure.txt
 
 elif [ $1 == "compare" ]; then
 
@@ -33,15 +33,16 @@ elif [ $1 == "compare" ]; then
     echo "Comparing results against python test files"
     echo " " 
 
-    tst1.py > tmp ; diff tmp results/tst1.dat ; echo " "
-    tst2.py > tmp ; diff tmp results/tst2.dat ; echo " "
-    tst3.py > tmp ; diff tmp results/tst3.dat ; echo " "
-    tst4.py > tmp ; diff tmp results/tst4.dat ; echo " "
-    tst6.py > tmp ; diff tmp results/tst6.dat ; echo " "
-    tst7.py > tmp ; diff tmp results/tst7.dat ; echo " "
-    tst8.py > tmp ; diff tmp results/tst8.dat ; echo " "
-    rm -rf tmp
+    test-bondContainer.py > tmp            ; diff tmp results/test-bondContainer.txt        ; echo " "
+    test-particleConstructors.py > tmp     ; diff tmp results/test-particleConstructors.txt ; echo " "
+    test-particleSetInfo.py > tmp          ; diff tmp results/test-particleSetInfo.txt      ; echo " "
+    test-searchTags.py      > tmp          ; diff tmp results/test-searchTags.txt           ; echo " "
+    test-checkTypes.py      > tmp          ; diff tmp results/test-checkTypes.txt           ; echo " "
+    test-particleContainer.py > tmp        ; diff tmp results/test-particleContainer.txt    ; echo " "
+    test-ptclContainerConstructor.py > tmp ; diff tmp results/test-ptclContainerConstructor.txt ; echo " "
+    test-subStructure.py  > tmp            ; diff tmp results/test-subStructure.txt             ; echo " "
 
+    rm -rf tmp
     echo "If no output... tests passed"
     echo " "
 

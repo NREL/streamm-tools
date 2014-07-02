@@ -623,8 +623,3 @@ class StructureContainer:
                     m_ij = np.sqrt(sq_r_ij)
                     bin_index = int( round( m_ij/bin_size) )
                     rdf_cnt_i[bin_index] += 2
-
-
-
-
-
