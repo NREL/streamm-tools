@@ -154,24 +154,24 @@ class StructureContainer:
         return self.boxLengths
 
 
-    def dumpLammpsInputFile(self, inputName, coeffDict=dict()):
+    def dumpLammpsInputFile(self, inputName, pairCoeffDct=dict(), bondCoeff=dict() ):
         """
         Write out a LAMMPS input data file from all available held
         data (particles, bonds, angles, dihedrals)
 
         Args:
-            inputName (str)  name of LAMMPS input file to write
-            coeffDict (dict) dictionary of potential parameters eg...
-                      coeffDict = {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0,
-                                   ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
+            inputName    (str)  name of LAMMPS input file to write
+            pairCoeffDct (dict) dictionary of potential parameters eg...
+                                {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0, ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
+            bondCoeffDct (dict) ""
         """
 
-        if not isinstance(coeffDict, dict):
-            print "dumpLammpsInputFile: coeffDict should be a python dictionary"
+        if not isinstance(pairCoeffDct, dict):
+            print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
             sys.exit(3)
 
         n_atoms = len(self.ptclC)  # Obtaining particle size from container
-        n_bonds = len(self.bondC)  # Need to edit
+        n_bonds = len(self.bondC)  # " "
         n_angles = 0
         n_dihedrals = 0
         n_impropers = 0
@@ -181,10 +181,8 @@ class StructureContainer:
 
         # Returns map of type,parameter tuple and value
         # SWS: particular to this method
-        # typeParams = self.ptclC.getTypeParams()
-        
         n_atypes = len(typeInfoDict)
-        n_btypes = 0
+        n_btypes = 0 # ....
         n_angtypes = 0 
         n_dtypes = 0 
         n_imptypes = 0
@@ -195,7 +193,7 @@ class StructureContainer:
 
         # Open file, write header info
         fileObj = open( inputName, 'w' )
-        fileObj.write('Lammps data file \n')
+        fileObj.write('LAMMPS Data File \n')
         fileObj.write('\n')
         fileObj.write( "%8d  atoms \n" % n_atoms )
         fileObj.write( "%8d  bonds \n" %  n_bonds )
@@ -214,7 +212,6 @@ class StructureContainer:
         fileObj.write( "%16.8f %16.8f   zlo zhi \n" %  (zL[0] , zL[1] ) )
         fileObj.write('\n')
 
-
         massFormatStr = "%5d %16.8f \n"
         fileObj.write('Masses \n')
         fileObj.write('\n')
@@ -224,18 +221,16 @@ class StructureContainer:
             fileObj.write( massFormatStr % ( tIndex, mass ) )
         fileObj.write('\n')
         
-        nonCoeffFormatStr = "%5d %12.6f %12.6f  \n"
+        pairCoeffFormatStr = "%5d %12.6f %12.6f  \n"
         fileObj.write('Pair Coeffs \n')
         fileObj.write('\n')
-
         for typ in typeList:
             info = typeInfoDict[typ]  # map of "type":[typeIndex, mass, charge]
             tIndex = info[0]          # type index for 'typ' (eg "Si")
-            epsilon = coeffDict[(typ, "epsilon")]
-            sigma   = coeffDict[(typ, "sigma")]
-            fileObj.write( nonCoeffFormatStr % (tIndex, epsilon, sigma  ) )
+            epsilon = pairCoeffDct[(typ, "epsilon")]
+            sigma   = pairCoeffDct[(typ, "sigma")]
+            fileObj.write( pairCoeffFormatStr % (tIndex, epsilon, sigma  ) )
         fileObj.write('\n')
-
         
         ptclFormatStr = "%5d %5d %5d %12.8f %12.6f %12.6f %12.6f \n"
         fileObj.write('Atoms \n')
@@ -249,7 +244,19 @@ class StructureContainer:
             chg = ptclObj.charge
             fileObj.write( ptclFormatStr % (pid, mol, typeIndex, chg, pos[0], pos[1], pos[2] ) )
         fileObj.write('\n')
-
+        
+        bondFormatStr = "%9d %8d %9d %9d \n"
+        if (n_bonds > 0):
+            fileObj.write('Bonds \n')
+            fileObj.write('\n')
+        for gid, bondObj in self.bondC:
+            pid1 = bondObj.pgid1
+            pid2 = bondObj.pgid2
+            bondType = 1
+            fileObj.write( bondFormatStr % (gid, bondType, pid1, pid2) )
+        if (n_bonds > 0):            
+            fileObj.write('\n')
+        
         # Close LAMMPS file
         fileObj.close()
         

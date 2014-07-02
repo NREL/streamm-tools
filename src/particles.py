@@ -366,8 +366,6 @@ class ParticleContainer:
         Return a map of type to (typeIndex, mass, charge)
         Method assigns a type index and checkes for consistency
 
-        Args:
-            dataName (str) flag for data member from particle members to extract
         Returns:
             dictionary of {type:[typeIndex, mass, charge], ....}
         """

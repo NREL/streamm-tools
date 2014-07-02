@@ -251,3 +251,72 @@ class BondContainer:
                 else:
                     print "ptclID not found in bond"
                     sys.exit(3)
+
+
+
+    def getTypeInfoDict(self):
+        """
+        Return a map of type to (typeIndex, ??????)
+        Method assigns a type index and checkes for consistency
+
+        Returns:
+            dictionary of {type:[typeIndex, ????], ....}
+        """
+
+        # Look for types and get unique list
+        typeList = list()
+        for gid, bondObj in self.bonds.iteritems():
+            bondType = ptclObj.bond
+            typeList.append(bondType)
+        typeList = list(set(typeList))
+        
+        # Generate list of unique type for keys to initialize dictionary
+        # typeMassDict  ={key: list() for key in typeList}                    # dict for mass
+        # typeChargeDict={key: list() for key in typeList}                    # dict for charge
+        typeIndexDict = {key:index+1 for index, key in enumerate(typeList)} # dict for typeIndex
+        if self.verbose:
+            print "Unique types = ", typeList
+            print "typeIndexDict = ", typeIndexDict
+
+        """
+        # Search for dataName and track with type
+        for pid, ptclObj in self.particles.iteritems():
+
+            ptclType   = ptclObj.type           # ptclType is key for dictionary
+            ptclMass   = ptclObj.mass
+            ptclCharge = ptclObj.charge
+
+            dataList = typeMassDict[ptclType]   # Update pre-existing data list
+            dataList.append(ptclMass)           # Append to running list
+            typeMassDict[ptclType] = dataList   # Keep map of {ptclID: dataList}
+
+            dataList = typeChargeDict[ptclType]  # Update pre-existing data list
+            dataList.append(ptclCharge)          # Append to running list
+            typeChargeDict[ptclType] = dataList  # Keep map of {ptclID: dataList}
+
+        # Check for consistency mass
+        for key, val in typeMassDict.iteritems():
+            valSet = set(val)                  # Generate unique set of values
+            if len(valSet) > 1:                # and check for length=1 (consistency)
+               print "More than one mass found for ", key
+               print "Check Particle() object initialization"
+               sys.exit(3)
+            typeMassDict[key] = val[0]         # If unique value make correct dict val
+        # Check for consistency charge
+        for key, val in typeChargeDict.iteritems():
+            valSet = set(val)                  # Generate unique set of values
+            if len(valSet) > 1:                # and check for length=1 (consistency)
+               print "More than one charge found for ", key
+               print "Check Particle() object initialization"
+               sys.exit(3)
+            typeChargeDict[key] = val[0]       # If unique value make correct dict val
+        """
+        # Pack mass,charge,typeIndex to new dictionary
+        typeInfoDict = dict()
+        for key in typeIndexDict:
+            index  = typeIndexDict[key]
+            # mass   = typeMassDict[key]
+            # charge = typeChargeDict[key]
+            typeInfoDict[key] = index
+
+        return typeInfoDict
