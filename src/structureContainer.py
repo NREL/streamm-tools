@@ -394,9 +394,9 @@ class StructureContainer:
             particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
 
         twobody_data["bonds"] = []
-        for bondObj in  self.bondC:
-            pt_i = self.bondC[bondObj].pgid1
-            pt_j = self.bondC[bondObj].pgid2
+        for b_i,bondObj in  self.bondC:
+            pt_i = bondObj.pgid1
+            pt_j = bondObj.pgid2
             twobody_data["bonds"].append( [pt_i,pt_j])
             
         return json_data
@@ -550,11 +550,9 @@ class StructureContainer:
             RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
 
         BONDS = []
-        for bondObj in  self.bondC:
-            pt_i = self.bondC[bondObj].pgid1
-            pt_j = self.bondC[bondObj].pgid2
-            BONDS.append( [pt_i - 1, pt_j -1])
-            
+        for b_i,bondObj in  self.bondC:
+            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+                    
         # Set cubic lattice constant to 5 nm arbitrary 
         LV = np.zeros( (3,3) )
             
