@@ -728,7 +728,6 @@ class RotationControl(object):
             self.alternation_pattern = [float(f) for f in pattern_str.split()]
 
 
-
 class Fragment(Structure):
     """
     
