@@ -1,0 +1,68 @@
+************************************************************************************
+ This test shows various operators within Particle and ParticleContainer classes    
+ Also shows memory management structure and access methods
+************************************************************************************ 
+
+
+ Cleaning memory for initial objects 
+
+x = atoms1[1] is returns x as an effective 'reference' 
+
+x =  {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}} 
+
+after changing with x.position = [1.0, 1.0, 1.0]
+x =  {'position': [1.0, 1.0, 1.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}} 
+
+atoms1 has been changed
+
+ Contains particle objects: 
+1 {'position': [1.0, 1.0, 1.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+before, atoms1-->  
+ Contains particle objects: 
+1 {'position': [1.0, 1.0, 1.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+ 
+
+after 'del atoms1[2]' atoms1 -->  
+ Contains particle objects: 
+1 {'position': [1.0, 1.0, 1.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+ 
+
+Testing 'in' operator (1 in atoms1)
+atoms1 contains gid 1
+Testing 'in' operator (5 in atoms1)
+key not found in atoms1
+ 
+Will print the new atoms1 after adding atoms1 += atoms2
+
+ Contains particle objects: 
+1 {'position': [1.0, 1.0, 1.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ 
+Here's an issue... globalID's are assigned by ParticleContainer class 
+Setting Bond object with gid's of Particles needs to be done after PC class set 
+or there could be conflicts 
+
+Testing Bond and BondContainer
+b1 =  {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+b2 =  {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
+b3 =  {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
+
+ Cleaning memory for initial objects 
+
+Bonds:  
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
+3 {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
+
+ 
+Testing 'in' operator for searchID  2  in bonds
+ID  2  in bonds
+Cleaning bond container
+Cleaning particle container
+Cleaning particle container

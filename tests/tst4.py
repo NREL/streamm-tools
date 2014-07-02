@@ -81,28 +81,30 @@ print " "
 # -----------------------------------------------------------
 
 
-print "Print only atoms1 with search.... \n"
-subList = atoms1.getParticlesWithTags({'molnum':2, 'type':"Si"})
+searchD = {'molnum':2, 'type':"Si"}
+print "Print only atoms1 with search....", searchD, "\n"
+subList = atoms1.getParticlesWithTags(searchD)
 for id, ptcl in atoms1(subList):
     print "id = ", id, " ptclObj = ", ptcl.__dict__
 print "--------------------------------------------------------------------------------- \n"
 
-print "Print only atoms1 with search.... \n"
-subList = atoms1.getParticlesWithTags({'molnum':2, 'type':"Si",'ringnum':4})
+searchD = {'molnum':2, 'type':"Si",'ringnum':4}
+print "Print only atoms1 with search....", searchD, "\n"
+subList = atoms1.getParticlesWithTags(searchD)
 for id, ptcl in atoms1(subList):
     print "id = ", id, " ptclObj = ", ptcl.__dict__
 print "--------------------------------------------------------------------------------- \n"
 
-print "Print only atoms1 with search.... \n"
-subList = atoms1.getParticlesWithTags( {'type':"Si", 'ringnum':[3, 4]} )
+searchD = {'type':"Si", 'ringnum':[3, 4]}
+print "Print only atoms1 with search....", searchD, "\n"
+subList = atoms1.getParticlesWithTags(searchD)
 for id, ptcl in atoms1(subList):
     print "id = ", id, " ptclObj = ", ptcl.__dict__
-print "--------------------------------------------------------------------------------- \n"    
+print "--------------------------------------------------------------------------------- \n"
 
-print "Print only atoms1 with search.... \n"
-subList = atoms1.getParticlesWithTags( {'type':["Si","O"], 'ringnum':[2, 3, 4]} )
+searchD = {'type':["Si","O"], 'ringnum':[2, 3, 4]}
+print "Print only atoms1 with search....", searchD, "\n"
+subList = atoms1.getParticlesWithTags(searchD)
 for id, ptcl in atoms1(subList):
     print "id = ", id, " ptclObj = ", ptcl.__dict__
-
-
-
+print "--------------------------------------------------------------------------------- \n"

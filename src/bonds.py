@@ -45,6 +45,11 @@ class Bond:
             raise TypeError
 
 
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+
     def __contains__(self, pgid):
         """
         'Magic' method implementing 'in' keyword.
@@ -65,19 +70,32 @@ class BondContainer:
     bond ID (integer) to Bond object instances
     """
 
-    def __init__(self):
+    def __init__(self, idList=[], verbose=False):
         """
-        Constructor: sets up a dictionary for indexing 'Particle' objects
+        Constructor: sets up a dictionary for indexing 'Bond' objects
+
+        Args:
+            idList (list): of bond IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with Bond objects
+            verbose (bool): flag for printing status/debug info        
         """
-        self.bonds=dict()
-        self.maxgid=0
+        self.verbose=verbose
+        self.bonds=dict()                          # Creates empty dict struc
+        self.bonds={key: Bond() for key in idList} # Creates empty Bond objs
+                                                   #   if idList not empty
+
+        if len(idList) == 0:         # If list not set in constructor arg
+            self.maxgid=0            # default=0 if idList empty
+        else:                        #
+            self.maxgid=max(idList)  # take max in list for maxgid
+
 
     def __del__(self):
         """
         Destructor, clears dictionary memory
         """
+        print "Cleaning bond container"
         del self.bonds
-
 
     def __len__(self):
         """
@@ -85,23 +103,29 @@ class BondContainer:
         """
         return len(self.bonds)
 
-
     def __str__(self):
         """
         'Magic' method for printng contents
         """
 
         bondStr="\n Contains bond objects: \n"
-
         for gid in self.bonds:
             bondStr = bondStr + str(gid) + " " + str(self.bonds[gid].__dict__) + "\n"
         return bondStr
 
 
+    def keys(self):
+        """
+        Return list of all ptcl IDs (keys) currently in container
+        """
+        keyList = self.bonds.keys()
+        return keyList
+
+
     def __setitem__(self, gid, bond):
         """
         'Magic' method implementing obj[]=value operator
-        Need
+        Performs deep copy of value so container is managing memory
         """
         if gid in self.bonds.keys():
             self.bonds[gid]=copy.deepcopy(bond)
@@ -113,6 +137,7 @@ class BondContainer:
     def __getitem__(self, gid):
         """
         'Magic' method implementing obj[] operator
+        Operations on returned elements change container
         """
         return self.bonds[gid]
 
@@ -128,7 +153,31 @@ class BondContainer:
         """
         'Magic' method implementing (for x in 'this')....
         """
-        return iter(self.bonds)
+        # return iter(self.bonds)
+        return self.bonds.iteritems()
+
+
+    def __call__(self, idSubList=None):
+        """
+        Callable magic method. Returns iterator to subset bonds dictionary
+
+        Args:
+             idSubList (list) list of pid-s of particle objects to be returned
+             
+        Returns: iterator to subset of particle dictionary
+        """
+
+        subGroupDct = dict()
+        
+        if idSubList != None:
+            for gid, bondObj in self.bonds.iteritems():
+                if gid in idSubList:
+                    subGroupDct[gid] = bondObj
+            return subGroupDct.iteritems()
+        
+        else:
+            print "Callable BondContainer requires a list of subgroup bond IDs"
+            sys.exit(3)
 
 
     def __contains__(self, gid):
@@ -142,8 +191,19 @@ class BondContainer:
         """
         'Magic' method to implement the '+=' operator
         
-        Note: SWS: not sure what this should mean !?
+        Compare global IDs of bonds and reassign globalIDs for bond
+        container using the max ID between the two lists
+
+        Note: for now this reassigns ID always
         """
+
+        keys1 = self.bonds.keys()         # global IDs in this object
+        keys2 = other.bonds.keys()        # global IDs in object being added
+        self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
+
+        for ptclkey2 in other.bonds:
+            self.put(other.bonds[ptclkey2])
+
         return self
 
 
@@ -191,3 +251,72 @@ class BondContainer:
                 else:
                     print "ptclID not found in bond"
                     sys.exit(3)
+
+
+
+    def getTypeInfoDict(self):
+        """
+        Return a map of type to (typeIndex, ??????)
+        Method assigns a type index and checkes for consistency
+
+        Returns:
+            dictionary of {type:[typeIndex, ????], ....}
+        """
+
+        # Look for types and get unique list
+        typeList = list()
+        for gid, bondObj in self.bonds.iteritems():
+            bondType = ptclObj.bond
+            typeList.append(bondType)
+        typeList = list(set(typeList))
+        
+        # Generate list of unique type for keys to initialize dictionary
+        # typeMassDict  ={key: list() for key in typeList}                    # dict for mass
+        # typeChargeDict={key: list() for key in typeList}                    # dict for charge
+        typeIndexDict = {key:index+1 for index, key in enumerate(typeList)} # dict for typeIndex
+        if self.verbose:
+            print "Unique types = ", typeList
+            print "typeIndexDict = ", typeIndexDict
+
+        """
+        # Search for dataName and track with type
+        for pid, ptclObj in self.particles.iteritems():
+
+            ptclType   = ptclObj.type           # ptclType is key for dictionary
+            ptclMass   = ptclObj.mass
+            ptclCharge = ptclObj.charge
+
+            dataList = typeMassDict[ptclType]   # Update pre-existing data list
+            dataList.append(ptclMass)           # Append to running list
+            typeMassDict[ptclType] = dataList   # Keep map of {ptclID: dataList}
+
+            dataList = typeChargeDict[ptclType]  # Update pre-existing data list
+            dataList.append(ptclCharge)          # Append to running list
+            typeChargeDict[ptclType] = dataList  # Keep map of {ptclID: dataList}
+
+        # Check for consistency mass
+        for key, val in typeMassDict.iteritems():
+            valSet = set(val)                  # Generate unique set of values
+            if len(valSet) > 1:                # and check for length=1 (consistency)
+               print "More than one mass found for ", key
+               print "Check Particle() object initialization"
+               sys.exit(3)
+            typeMassDict[key] = val[0]         # If unique value make correct dict val
+        # Check for consistency charge
+        for key, val in typeChargeDict.iteritems():
+            valSet = set(val)                  # Generate unique set of values
+            if len(valSet) > 1:                # and check for length=1 (consistency)
+               print "More than one charge found for ", key
+               print "Check Particle() object initialization"
+               sys.exit(3)
+            typeChargeDict[key] = val[0]       # If unique value make correct dict val
+        """
+        # Pack mass,charge,typeIndex to new dictionary
+        typeInfoDict = dict()
+        for key in typeIndexDict:
+            index  = typeIndexDict[key]
+            # mass   = typeMassDict[key]
+            # charge = typeChargeDict[key]
+            typeInfoDict[key] = index
+
+        return typeInfoDict

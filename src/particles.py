@@ -70,6 +70,15 @@ class Particle:
         # Tags dictionary. To be set by caller
         self.tagsDict=dict()
         self.tagsDict["type"] = type
+        
+
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+        del self.tagsDict
+        del self.position
+
 
     def setTagsDict(self, td):
         """
@@ -126,18 +135,31 @@ class ParticleContainer:
     particle ID (integer) to Particle object instances
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self, idList=[], verbose=False):
         """
         Constructor: sets up a dictionary for indexing 'Particle' objects
+
+        Args:
+            idList (list): of particle IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with empty particle objects
+            verbose (bool): flag for printing status/debug info
         """
-        self.particles=dict()
-        self.maxgid=0
         self.verbose=verbose
+        self.particles=dict()                              # Creates empty dict struc
+        self.particles={key: Particle() for key in idList} # Creates empty Particle objs
+                                                           #  if idList not empty
+
+        if len(idList) == 0:         # If list not set in constructor arg
+            self.maxgid=0            # default=0 if idList empty
+        else:                        #
+            self.maxgid=max(idList)  # take max in list for maxgid
+
 
     def __del__(self):
         """
         Destructor, clears dictionary memory
         """
+        print "Cleaning particle container"
         del self.particles
 
 
@@ -154,7 +176,6 @@ class ParticleContainer:
         """
 
         ptclStr="\n Contains particle objects: \n"
-
         for gid in self.particles:
             ptclStr = ptclStr + str(gid) + " " + str(self.particles[gid].__dict__) + "\n"
         return ptclStr
@@ -164,18 +185,21 @@ class ParticleContainer:
         """
         'Magic' method implementing obj[]=value operator
         Performs deep copy of value so container is managing memory
+        If gid exists in container then particle object is overwritten.
+        If gid does not exist then particle object is inserted in container
+        using the 'put()' method.
         """
         if gid in self.particles.keys():
             self.particles[gid]=copy.deepcopy(ptcl)
         else:
-            print "Cannot add particle object to non-existent ID"
-            sys.exit(3) 
+            print "Using [] operator for non-existent key"
+            sys.exit(3)
 
 
     def __getitem__(self, gid):
         """
-        'Magic' method implementing obj[] operator. Operations on returned elements
-        change container
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
         """
         return self.particles[gid]
 
@@ -255,9 +279,10 @@ class ParticleContainer:
             ptcl (Particle) correctly initialized Particle object
 
         NOTE:
-            (1) One can imagine extra conditions on distances between ptcl being inserted
-                and current particles.
-            (2) This could check for uniqueness of all globalID's and throw error for copies
+            (1) One can imagine extra conditions on distances between ptcl being
+                inserted and current particles.
+            (2) This could check for uniqueness of all globalID's and throw error
+                for copies
         """
         
         if isinstance(ptcl, Particle):
@@ -334,7 +359,6 @@ class ParticleContainer:
 
 
         return subGroupGID
-
         
 
     def getTypeInfoDict(self):
@@ -342,8 +366,6 @@ class ParticleContainer:
         Return a map of type to (typeIndex, mass, charge)
         Method assigns a type index and checkes for consistency
 
-        Args:
-            dataName (str) flag for data member from particle members to extract
         Returns:
             dictionary of {type:[typeIndex, mass, charge], ....}
         """
