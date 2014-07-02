@@ -403,7 +403,6 @@ def build_from_str(bblocks, s, options):
         newfrag.setall_resnumb(fragidx+1)
         newfrag.setall_restype(s)
         
-        
         print "processing fragment of type : ", newfrag.type,fragidx,s
         #  print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria
         if (fragidx == 0):
@@ -802,19 +801,17 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
             pt.setTagsDict(tagsD)
             oligomer.put(pt)
 
-
-            print "  don acc sys ",p_i," resid ",residueid_list[p_i],"residu ",residuenumb_list[p_i]
-
         # Put oligomer in a system 
         system_i = StructureContainer(oligomer)
-
 
         #
         #  Make ff files 
         #
         if( options.make_ff ):
+            
+            calc_prefix = "%s/%s_n%d" % (struct_dir, short_name, number)
             system_i.create_top()
-            #system_i.lmp_writedata()
+            system_i.lmp_writedata(calc_prefix,options.norm_dihparam)
 
         json_data = system_i.putstruc_json(json_data)
         
@@ -865,6 +862,8 @@ def get_options():
 
     # Force field options 
     parser.add_option("--make_ff", dest="make_ff", help="Generate force field input files from a finished calculation  ", action="store_true", default=False)
+    parser.add_option("--norm_dihparam", dest="norm_dihparam",default=False,action="store_true",help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
+
 
     # these are really for enumerator, but they share options
     parser.add_option("-c", "--class", dest="struct_class",  type="string", default="DA", help="space separated string of classes of donor acceptor systems to enumerate, among DA ADA DAD DD AA DAD DDA, e.g. \"DA DAD\"")
