@@ -174,7 +174,7 @@ class BondContainer:
                 if gid in idSubList:
                     subGroupDct[gid] = bondObj
             return subGroupDct.iteritems()
-        
+
         else:
             print "Callable BondContainer requires a list of subgroup bond IDs"
             sys.exit(3)
@@ -185,6 +185,25 @@ class BondContainer:
         'Magic' method implementing in keyword (key in obj')....
         """
         return gid in self.bonds
+
+
+    def hasBond(self, bondList):
+        """
+        Check the ptcl IDs in bondList for any bond in container that is similar
+        eg bond 1-2 is same as bond 2-1
+
+        Args: (list) ptcl IDs defining bond to search for
+        
+        Returns: (bool) is bond in container
+        """
+
+        for gid, bondObj in self.bonds.iteritems():
+            p1 = bondObj.pgid1
+            p2 = bondObj.pgid2
+            if ((p1 in bondList) and (p2 in bondList)):
+                return True
+            
+        return False
 
 
     def __iadd__(self, other):
@@ -266,57 +285,20 @@ class BondContainer:
         # Look for types and get unique list
         typeList = list()
         for gid, bondObj in self.bonds.iteritems():
-            bondType = ptclObj.bond
+            bondType = bondObj.type
             typeList.append(bondType)
         typeList = list(set(typeList))
         
         # Generate list of unique type for keys to initialize dictionary
-        # typeMassDict  ={key: list() for key in typeList}                    # dict for mass
-        # typeChargeDict={key: list() for key in typeList}                    # dict for charge
         typeIndexDict = {key:index+1 for index, key in enumerate(typeList)} # dict for typeIndex
         if self.verbose:
             print "Unique types = ", typeList
             print "typeIndexDict = ", typeIndexDict
 
-        """
-        # Search for dataName and track with type
-        for pid, ptclObj in self.particles.iteritems():
-
-            ptclType   = ptclObj.type           # ptclType is key for dictionary
-            ptclMass   = ptclObj.mass
-            ptclCharge = ptclObj.charge
-
-            dataList = typeMassDict[ptclType]   # Update pre-existing data list
-            dataList.append(ptclMass)           # Append to running list
-            typeMassDict[ptclType] = dataList   # Keep map of {ptclID: dataList}
-
-            dataList = typeChargeDict[ptclType]  # Update pre-existing data list
-            dataList.append(ptclCharge)          # Append to running list
-            typeChargeDict[ptclType] = dataList  # Keep map of {ptclID: dataList}
-
-        # Check for consistency mass
-        for key, val in typeMassDict.iteritems():
-            valSet = set(val)                  # Generate unique set of values
-            if len(valSet) > 1:                # and check for length=1 (consistency)
-               print "More than one mass found for ", key
-               print "Check Particle() object initialization"
-               sys.exit(3)
-            typeMassDict[key] = val[0]         # If unique value make correct dict val
-        # Check for consistency charge
-        for key, val in typeChargeDict.iteritems():
-            valSet = set(val)                  # Generate unique set of values
-            if len(valSet) > 1:                # and check for length=1 (consistency)
-               print "More than one charge found for ", key
-               print "Check Particle() object initialization"
-               sys.exit(3)
-            typeChargeDict[key] = val[0]       # If unique value make correct dict val
-        """
-        # Pack mass,charge,typeIndex to new dictionary
+        # Pack yypeIndex to new dictionary
         typeInfoDict = dict()
         for key in typeIndexDict:
             index  = typeIndexDict[key]
-            # mass   = typeMassDict[key]
-            # charge = typeChargeDict[key]
             typeInfoDict[key] = index
 
         return typeInfoDict

@@ -3,26 +3,33 @@
 ************************************************************************************ 
 
 Testing Bond and BondContainer
-b1 =  {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
-b2 =  {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
-b3 =  {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
 
  Cleaning memory for initial objects 
 
+Check for pre-existing bond
+bond 1--2 exists
+Check for pre-existing bond
+bond 2--3 does NOT exist
+ 
 Bonds:  
  Contains bond objects: 
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 3, 'pgid2': 4}
 3 {'type': 'blank', 'length': 0.0, 'pgid1': 0, 'pgid2': 0}
+4 {'type': 'stiff', 'length': 0.5, 'pgid1': 3, 'pgid2': 8}
 
  
 Test iterator for bond container 
-bondID =  1 bond object  <bonds.Bond instance at 0x100509ea8>
-bondID =  2 bond object  <bonds.Bond instance at 0x100509f38>
+bondID =  1 bond object  <bonds.Bond instance at 0x100509ef0>
+bondID =  2 bond object  <bonds.Bond instance at 0x100509f80>
 bondID =  3 bond object  <bonds.Bond instance at 0x100509fc8>
+bondID =  4 bond object  <bonds.Bond instance at 0x100520050>
  
 Testing 'in' operator for searchID  2  in bonds
 ID  2  in bonds
+-----------------------------------------------------
+bonds.getTypeInfoDict()  {'blank': 1, 'stiff': 2, 'hooke': 3}
+-----------------------------------------------------
  
 Here's an issue... globalID's are assigned by ParticleContainer class 
 Setting Bond object with gid's of Particles needs to be done after PC class set 

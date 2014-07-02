@@ -97,7 +97,7 @@ class Particle:
 
     def isTagEqualTo(self, key, valList):
         """
-        Check if tags[key]= any of the values in valueList. Exits if key not in dictionary
+        Check if tags[key]= any of the values in valList. Exits if key not in dictionary
 
         Args:
             key            dictionary key

@@ -217,8 +217,9 @@ class StructureContainer:
         print "    v_j ",self.latticevec[1]
         print "    v_k ",self.latticevec[2]
         print "  Bonds %d "%(len(self.bondC))
+
         
-    def dumpLammpsInputFile(self, inputName, pairCoeffDct=dict(), bondCoeff=dict() ):
+    def dumpLammpsInputFile(self, inputName, pairCoeffDct=dict(), bondCoeffDct=dict() ):
         """
         Write out a LAMMPS input data file from all available held
         data (particles, bonds, angles, dihedrals)
@@ -234,19 +235,23 @@ class StructureContainer:
             print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
             sys.exit(3)
 
+        if not isinstance(bondCoeffDct, dict):
+            print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
+            sys.exit(3)
+
         n_atoms = len(self.ptclC)  # Obtaining particle size from container
         n_bonds = len(self.bondC)  # " "
         n_angles = 0
         n_dihedrals = 0
         n_impropers = 0
 
-        typeInfoDict = self.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
-        typeList = typeInfoDict.keys()               # list of types eg ["Si", "C", ..]
+        ptclTypeInfo = self.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
+        bondTypeInfo = self.bondC.getTypeInfoDict()  # map of "type":typeIndex
 
         # Returns map of type,parameter tuple and value
         # SWS: particular to this method
-        n_atypes = len(typeInfoDict)
-        n_btypes = 0 # ....
+        n_atypes = len(ptclTypeInfo)
+        n_btypes = len(bondTypeInfo)
         n_angtypes = 0 
         n_dtypes = 0 
         n_imptypes = 0
@@ -279,7 +284,7 @@ class StructureContainer:
         massFormatStr = "%5d %16.8f \n"
         fileObj.write('Masses \n')
         fileObj.write('\n')
-        for type, info in typeInfoDict.iteritems():
+        for type, info in ptclTypeInfo.iteritems():
             tIndex = info[0]
             mass   = info[1]
             fileObj.write( massFormatStr % ( tIndex, mass ) )
@@ -288,14 +293,25 @@ class StructureContainer:
         pairCoeffFormatStr = "%5d %12.6f %12.6f  \n"
         fileObj.write('Pair Coeffs \n')
         fileObj.write('\n')
-        for typ in typeList:
-            info = typeInfoDict[typ]  # map of "type":[typeIndex, mass, charge]
-            tIndex = info[0]          # type index for 'typ' (eg "Si")
+        for typ in ptclTypeInfo.keys(): # list of types eg ["Si", "C", ..]
+            info = ptclTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
+            tIndex = info[0]            # type index for 'typ' (eg "Si")
             epsilon = pairCoeffDct[(typ, "epsilon")]
             sigma   = pairCoeffDct[(typ, "sigma")]
             fileObj.write( pairCoeffFormatStr % (tIndex, epsilon, sigma  ) )
         fileObj.write('\n')
-        
+
+        bondCoeffFormatStr = "%10d %12.6f %12.6f \n"
+        if (n_bonds > 0):
+            fileObj.write('Bond Coeffs \n')
+            fileObj.write('\n')
+            for typ in bondTypeInfo.keys(): # list of types eg ["Si", "C", ..]
+                tIndex  = bondTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
+                kenergy = bondCoeffDct[(typ, "Kenergy")]
+                r0      = bondCoeffDct[(typ, "r0")]
+                fileObj.write( bondCoeffFormatStr % (tIndex, kenergy, r0) )
+            fileObj.write('\n')
+
         ptclFormatStr = "%5d %5d %5d %12.8f %12.6f %12.6f %12.6f \n"
         fileObj.write('Atoms \n')
         fileObj.write('\n')
@@ -304,7 +320,7 @@ class StructureContainer:
             mol = ptclObj.tagsDict["molnum"]
             mol = int(mol)
             typ = ptclObj.type
-            typeIndex = typeInfoDict[typ][0]
+            typeIndex = ptclTypeInfo[typ][0]
             chg = ptclObj.charge
             fileObj.write( ptclFormatStr % (pid, mol, typeIndex, chg, pos[0], pos[1], pos[2] ) )
         fileObj.write('\n')
@@ -323,11 +339,14 @@ class StructureContainer:
         
         # Close LAMMPS file
         fileObj.close()
-        
+
+
+        #
         # Print type mapping info
+        #
         fileObj = open( inputName + ".dat", 'w' )
         fileObj.write("type   typeIndex    mass   charge \n")
-        for type, info in typeInfoDict.iteritems():
+        for type, info in ptclTypeInfo.iteritems():
             datFormatStr = "%s %5d %12.6f %12.6f \n"
             tIndex = info[0]
             mass   = info[1]
