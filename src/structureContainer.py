@@ -365,6 +365,12 @@ class StructureContainer:
             particle_data["linkid"].append( ptclObj.tagsDict["linkid"] )        
             particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
 
+        twobody_data["bonds"] = []
+        for bondObj in  self.bondC:
+            pt_i = self.bondC[bondObj].pgid1
+            pt_j = self.bondC[bondObj].pgid2
+            twobody_data["bonds"].append( [pt_i,pt_j])
+            
         return json_data
 
     def create_top(self):
@@ -377,19 +383,12 @@ class StructureContainer:
 
         # Create list to pass to Atomicpy
         ASYMB = []
-        CTYPE = []
-        CHARGES = []
         R = []
-        VEL = []
-        ATYPE = []
         AMASS = []
+        CHARGES = []
         MOLNUMB = []
-        RING_NUMB = []
         RESID = []
         RESN = []
-        CHARN = []
-        UNITNUMB = [] 
-        UNITTYPE = []
         
         for pid, ptclObj  in self.ptclC:
             ASYMB.append( ptclObj.type  )
@@ -449,9 +448,6 @@ class StructureContainer:
         d_charge = 0
         RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
 
-
-        print RING_NUMB
-
         # Asign oplsaa atom types
         ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
 
@@ -474,8 +470,7 @@ class StructureContainer:
             a_j = BONDS[i][1]
             b_i = Bond( a_i+1, a_j+1 )
             self.bondC.put(b_i)
-            
-            
+
             #  Sudo code
             #   Read in parameter file
             #      gromacs itp file
@@ -492,7 +487,7 @@ class StructureContainer:
             #         oligomer = oligomer.guess_oplsaatypes()
 
 
-    def lmp_writedata(self):
+    def lmp_writedata(self,calc_id,norm_dihparam):
         """
         Write out lammps data file
         """
@@ -506,38 +501,42 @@ class StructureContainer:
         
         # Create list to pass to Atomicpy
         ASYMB = []
-        CTYPE = []
-        CHARGES = []
         R = []
-        VEL = []
-        ATYPE = []
         AMASS = []
+        CHARGES = []
         MOLNUMB = []
-        RING_NUMB = []
         RESID = []
         RESN = []
-        CHARN = []
-        UNITNUMB = [] 
-        UNITTYPE = []
+        ATYPE = []
+        RING_NUMB = []
         
         for pid, ptclObj  in self.ptclC:
             ASYMB.append( ptclObj.type  )
             R.append( np.array( ptclObj.position)  )
-            AMASS.append( ptclObj.mass  )
-            CHARGES.append( ptclObj.charge  )
-            MOLNUMB.append( ptclObj.tagsDict["chain"]  )
-            RESID.append( ptclObj.tagsDict["residue"]  )
-            RESN.append( ptclObj.tagsDict["resname"]  )
-            RESN.append( ptclObj.tagsDict["resname"]  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
 
         BONDS = []
         for bondObj in  self.bondC:
             pt_i = self.bondC[bondObj].pgid1
             pt_j = self.bondC[bondObj].pgid2
             BONDS.append( [pt_i - 1, pt_j -1])
-
+            
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = 200.0
+        LV[1][1] = 200.0
+        LV[2][2] = 200.0
+        
         # Find atomic number based on atomic symbol 
         ELN = elements.asymb_eln(ASYMB)
+        GTYPE = top.initialize_gtype( ELN )
         NA = len(ELN)
         
         # Create neighbor list form bonds
@@ -547,9 +546,6 @@ class StructureContainer:
         DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
         IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
 
-
-        
-        
         # Read in parameter files 
         itp_file = "oplsaa.itp"
         FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
@@ -558,17 +554,14 @@ class StructureContainer:
         ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
 
         # Check atom types to be sure each atom of the same type has the same number of neighbors 
-        ATYPE_NNAB = check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
     
-
-        
-
-        ATYPE_EP, ATYPE_SIG = atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
     
-        IMPTYPE_F  = imp_parameters(itp_file)
+        IMPTYPE_F  = top.imp_parameters(itp_file)
 
 	data_file = calc_id + ".data"
 	
