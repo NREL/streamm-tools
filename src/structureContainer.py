@@ -2,12 +2,14 @@
 Class data structures for atomic data
 """
 
+from particles import Particle
 from particles import ParticleContainer
 from bonds     import Bond
 from bonds     import BondContainer
 
 import copy
 import numpy as np 
+import json
 
 class StructureContainer:
     """
@@ -157,10 +159,17 @@ class StructureContainer:
         """
         return self.boxLengths
 
+    def setLatVec(self, latvec_list ):
+        """
+        Set length of lattice vector 
+        """
+        self.latvec = latvec_list
+
     def getLatVec(self):
         """
-        Return: list of cartesian box lengths [units ?]
+        Get lattice vector 
         """
+        
         return self.latticevec
 
     def getVolume(self):
@@ -175,7 +184,7 @@ class StructureContainer:
         br1 = np.cross(self.latticevec[0],self.latticevec[1])
         vol = np.dot(br1,self.latticevec[2])
 
-        return vol 
+        return vol
 
     def getTotMass(self):
         """
@@ -187,7 +196,7 @@ class StructureContainer:
         for pid, ptclObj in self.ptclC :
             total_mass += ptclObj.mass
 
-        return total_mass 
+        return float(total_mass)
 
     def getDen(self):
         """
@@ -401,7 +410,54 @@ class StructureContainer:
             
         return json_data
 
-    def create_top(self):
+
+    def getsys_json(self, json_file):
+        """
+        Read in structure information from json file 
+
+        Args:
+            json_file (json) file with structure information 
+
+        """
+
+        f = open(json_file, 'r')
+        json_data = json.load(f)
+        f.close()
+
+        # Place paticle data in sperate data structure 
+        particle_data = json_data["structure"]["particle"]
+
+        # Create structure container for particles 
+
+        for p_i in range( len( particle_data["number_id"])):
+            r_i = particle_data["position"][p_i]
+            atomic_symb = str( particle_data["type"][p_i] )
+            m_i = float(particle_data["mass"][p_i])
+            q_i = float(particle_data["charge"][p_i])
+            # Create particle
+            pt_i = Particle( r_i,atomic_symb,q_i,m_i )
+            # Find needed tags
+            chain_i = particle_data["chain"][p_i]
+            ring_i = particle_data["ring"][p_i]
+            resname_i = particle_data["resname"][p_i]
+            residue_i = particle_data["residue"][p_i]
+            linkid_i = particle_data["linkid"][p_i]
+            fftype_i = particle_data["fftype"][p_i]
+            # _i = particle_data[""][p_i]
+            # Add particle to structure 
+            tagsD = {"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i}
+            pt_i.setTagsDict(tagsD)
+            self.ptclC.put(pt_i)
+
+        twobody_data =  json_data["structure"]["twobody"]
+        bondC_i = BondContainer()
+        for b_indx in range( len(twobody_data["bonds"] )):
+            a_i = int(twobody_data["bonds"][b_indx][0] )
+            a_j = int(twobody_data["bonds"][b_indx][1] )
+            b_i = Bond( a_i+1, a_j+1 )            
+            self.bondC.put(b_i)
+
+    def create_top(self,ff_charges):
         """
         Find topology information for force-field input files 
         """
@@ -439,7 +495,6 @@ class StructureContainer:
         # New options that need to be passed 
         limdih =  0
         limitdih_n = 1
-        ff_charges = False
         verbose = True 
 
         # Find atomic number based on atomic symbol 
@@ -471,6 +526,8 @@ class StructureContainer:
 
         if( verbose ):
             print "      Finding atom types  "
+            if( ff_charges ):
+                print "      Using ff charges "
 
         d_mass = 0
         d_charge = 0
@@ -488,6 +545,7 @@ class StructureContainer:
         for pid, ptclObj  in self.ptclC:
              ptclObj.tagsDict["fftype"] = ATYPE[pt_cnt]
              ptclObj.mass = AMASS[pt_cnt]
+             ptclObj.charge = CHARGES[pt_cnt]
              ptclObj.tagsDict["ring"] = RING_NUMB[pt_cnt]
              pt_cnt += 1 
 
@@ -515,7 +573,7 @@ class StructureContainer:
             #         oligomer = oligomer.guess_oplsaatypes()
 
 
-    def lmp_writedata(self,calc_id,norm_dihparam):
+    def lmp_writedata(self,data_file,norm_dihparam):
         """
         Write out lammps data file
         """
@@ -589,7 +647,6 @@ class StructureContainer:
     
         IMPTYPE_F  = top.imp_parameters(itp_file)
 
-	data_file = calc_id + ".data"
 	
 	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
 	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
@@ -597,7 +654,7 @@ class StructureContainer:
 	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
 	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
-    
+
         
     def calc_rdf(self, rdf_hist,bin_size,list_i,list_j):
         """
