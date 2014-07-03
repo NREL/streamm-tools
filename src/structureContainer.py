@@ -63,6 +63,43 @@ class StructureContainer:
         del self.ptclC
         del self.bondC
 
+
+    def dump(self, filePrefix):
+        """
+        Dump a pickled version of this object
+
+        Args:
+            filePrefix (str): name of pickle file. will dump filePrefix.pkl
+        """
+        
+        import pickle 
+        fileObj = open(filePrefix + '.pkl', 'w')
+        pickle.dump(self, fileObj)
+        fileObj.close()
+
+
+    def restore(self, pickleName):
+        """
+        Restore state of object from a pickled file. Sets information
+        in an instance of this class
+
+        Args:
+            pickleName (str): Complete name of pickle file.
+        """
+        
+        import pickle 
+        fileObj = open(pickleName, 'r')
+        struc = pickle.load(fileObj)
+        fileObj.close()
+
+        # Custom restore for each data member
+        self.ptclC = copy.deepcopy(struc.ptclC)
+        self.bondC = copy.deepcopy(struc.bondC)
+        self.boxLengths = copy.deepcopy(struc.boxLengths)
+        self.latticevec = copy.deepcopy(struc.latticevec)
+
+
+
     def __str__(self):
         """
         'Magic' method for printng contents

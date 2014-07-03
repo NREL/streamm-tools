@@ -66,37 +66,22 @@ bonds.put(b4)
 del p1, p2, p3, p4, b1, b2, b3, b4
 polymer1 = StructureContainer(atoms1, bonds)
 del atoms1, bonds
+polymer1.setBoxLengths([ [-3.0, 100], [-5, 23.0], [34.3, 100.1] ])
 
-print "********************************************************** \n"
-print polymer1
-print diagramBefore
-polymer1.replacePtclIDs(1,5)
-print "Testing ID changing with 'polymer1.replacePtclIDs(1,5)' "
-print polymer1
-print diagramAfter
-print "********************************************************** \n"
+print "Initial state of structure before dump ", polymer1
 
 print "-------------------------------------------------------------------------------- \n"
 
-print "********************************************************** \n"
-print "Testing polymer1.getSubStructure([5,2])"
-print "   currently ID's are reassigned in substructure \n"
-subpolymer = polymer1.getSubStructure([5,2])
-print subpolymer
-print diagramAfter
-print "********************************************************** \n"
+polymer1.dump('polymer1')
 
-print "********************************************************** \n"
-print "polymer1 Struture after returning sub-structure"
-print polymer1
-print "********************************************************** \n"
+polymerNew = StructureContainer()
+polymerNew.restore('polymer1.pkl')
 
+#import pickle
+#fileObj = open('polymer1.pkl', 'r')
+#polymerNew = pickle.load(fileObj)
+
+print "After load from pickle \n"
+print polymerNew
 print "-------------------------------------------------------------------------------- \n"
 
-print "********************************************************** \n"
-print "Testing polymer1.getSubStructure([2,3,4])"
-print "   currently ID's are reassigned in substructure \n"
-subpolymer = polymer1.getSubStructure([2,3,4])
-print subpolymer
-print diagramAfter
-print "********************************************************** \n"

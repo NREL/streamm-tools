@@ -163,6 +163,21 @@ class ParticleContainer:
         del self.particles
 
 
+    def dump(self, filePrefix):
+        """
+        Dump a pickled version of this object
+
+        Args:
+            filePrefix (str): name of pickle file. will dump filePrefix.pkl
+        """
+        
+        import pickle 
+        fileObj = open(filePrefix + '.pkl', 'w')
+        pickle.dump(self, fileObj)
+        fileObj.close()
+
+
+
     def __len__(self):
         """
         'Magic' method for returning size of container
