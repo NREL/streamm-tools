@@ -137,6 +137,15 @@ class StructureContainer:
         return StructureContainer(subAtoms, subBonds)
 
 
+    def getpartnumb(self):
+        """
+        Return number of particles in a structure 
+        """
+        NP = 0
+        for pid, ptclObj in self.ptclC :
+            NP += 1
+
+        return NP
 
     def setBoxLengths(self, bLs):
         """
@@ -164,6 +173,14 @@ class StructureContainer:
         Set length of lattice vector 
         """
         self.latvec = latvec_list
+
+    def expandLatVec(self, precent ):
+        """
+        Expand lattice vector by a certain percent 
+        """
+        self.latvec[0] = self.latvec[0]*(1.0+precent)
+        self.latvec[1] = self.latvec[1]*(1.0+precent)
+        self.latvec[2] = self.latvec[2]*(1.0+precent)
 
     def getLatVec(self):
         """
@@ -212,7 +229,88 @@ class StructureContainer:
 	
 	return density_i
 
+    def vec_shift(self,r_shift):
+        """
+        Shift structure by vector
 
+        Arguments
+          r_shift (numpy vector) to shift all the cordinates by
+          
+        """
+    
+        for pid, ptclObj in self.ptclC :
+             r_i = np.array( ptclObj.position ) + r_shift
+             ptclObj.position = [r_i[0],r_i[1],r_i[2]]
+
+            
+    def center_mass(self):
+        """
+        Find center of mass of a structure
+
+        Return
+          r_mass (numpy array) position of the center of mass
+          
+        """
+        import numpy as np
+
+        total_mass_i = self.getTotMass()
+
+        r_mass = np.array( [0.0,0.0,0.0] )
+    
+        
+        for pid, ptclObj in self.ptclC :
+             r_mass += ptclObj.mass*np.array( ptclObj.position )
+
+        r_mass = r_mass/total_mass_i
+
+        return r_mass
+
+            
+    def shift_center_mass(self,r_shift):
+        """
+        Translate center of mass of a structure to a location 
+
+        Return
+          r_shift (numpy array) position of the center of mass
+          
+        """
+        
+        r_mass = self.center_mass()
+        r_m_s = r_shift - r_mass
+        self.vec_shift(r_m_s)
+        
+    def rotate(self,rot_angle_i,rot_angle_j):
+        """
+        Rotate particles in particle container
+
+        Arguments
+          rot_angle_i (float)  0 - pi 
+          rot_angle_j (float)  0 - pi 
+
+        """
+        import numpy as np 
+        import math
+
+        # set variables of rotation matrix
+        #   for rotation i around y axis 
+        cy = math.cos(rot_angle_i)
+        sy = math.sin(rot_angle_i)
+        #   for rotation j around z axis 
+        cz = math.cos(rot_angle_j)
+        sz = math.sin(rot_angle_j)
+        # loop over each particle 
+        for pid, ptclObj in self.ptclC :
+            xd = ptclObj.position[0]
+            yd = ptclObj.position[1]
+            zd = ptclObj.position[2]
+            # Apply rotation matrix i and j to get new postion 
+            r_x =  cy*cz*xd - sz*cy*yd + sy*zd 
+            r_y =  sz*xd    + cz*yd            
+            r_z = -sy*cz*xd + sy*sz*yd + cy*zd
+
+            # ptclObj.position = numpy.array( [r_x,r_y,r_z] )
+            ptclObj.position = [r_x,r_y,r_z]
+        
     def printprop(self):
         """
         Print properties of a structure 
