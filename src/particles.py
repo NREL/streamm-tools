@@ -97,7 +97,7 @@ class Particle:
 
     def isTagEqualTo(self, key, valList):
         """
-        Check if tags[key]= any of the values in valueList. Exits if key not in dictionary
+        Check if tags[key]= any of the values in valList. Exits if key not in dictionary
 
         Args:
             key            dictionary key
@@ -161,6 +161,21 @@ class ParticleContainer:
         """
         print "Cleaning particle container"
         del self.particles
+
+
+    def dump(self, filePrefix):
+        """
+        Dump a pickled version of this object
+
+        Args:
+            filePrefix (str): name of pickle file. will dump filePrefix.pkl
+        """
+        
+        import pickle 
+        fileObj = open(filePrefix + '.pkl', 'w')
+        pickle.dump(self, fileObj)
+        fileObj.close()
+
 
 
     def __len__(self):
@@ -254,9 +269,10 @@ class ParticleContainer:
         'Magic' method to implement the '+=' operator
         
         Compare global IDs of particles and reassign globalIDs for particle
-        container using the max ID between the two lists
+        container using the max ID between the two lists.
 
-        Note: for now this reassigns ID always
+        Note: for now this reassigns ID always. Furthermore, any bond containers with
+              particleID already set will NOT be changed. See structureContainer iadd
         """
 
         keys1 = self.particles.keys()     # global IDs in this object
@@ -265,6 +281,9 @@ class ParticleContainer:
 
         for ptclkey2 in other.particles:
             self.put(other.particles[ptclkey2])
+            fromPtclID = ptclkey2
+            toPtclID   = self.maxgid
+            # print "Particle ID ", fromPtclID, " changed to ", toPtclID
             
         return self
 
@@ -310,11 +329,11 @@ class ParticleContainer:
         keys = self.particles.keys()
         
         if findID not in keys:
-            print "findID not found"
+            print "replaceID: findID not found"
             sys.exit(3)
 
         if newID in keys:
-            print "newID already exists"
+            print "replaceID: newID already exists"
             sys.exit(3)
 
         if newID < self.maxgid:

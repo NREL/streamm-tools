@@ -66,6 +66,43 @@ class StructureContainer:
         del self.ptclC
         del self.bondC
 
+
+    def dump(self, filePrefix):
+        """
+        Dump a pickled version of this object
+
+        Args:
+            filePrefix (str): name of pickle file. will dump filePrefix.pkl
+        """
+        
+        import pickle 
+        fileObj = open(filePrefix + '.pkl', 'w')
+        pickle.dump(self, fileObj)
+        fileObj.close()
+
+
+    def restore(self, pickleName):
+        """
+        Restore state of object from a pickled file. Sets information
+        in an instance of this class
+
+        Args:
+            pickleName (str): Complete name of pickle file.
+        """
+        
+        import pickle 
+        fileObj = open(pickleName, 'r')
+        struc = pickle.load(fileObj)
+        fileObj.close()
+
+        # Custom restore for each data member
+        self.ptclC = copy.deepcopy(struc.ptclC)
+        self.bondC = copy.deepcopy(struc.bondC)
+        self.boxLengths = copy.deepcopy(struc.boxLengths)
+        self.latticevec = copy.deepcopy(struc.latticevec)
+
+
+
     def __str__(self):
         """
         'Magic' method for printng contents
@@ -87,6 +124,35 @@ class StructureContainer:
         strucStr += str(self.ptclC)
         strucStr += str(self.bondC)
         return strucStr
+
+
+
+
+    def __iadd__(self, other):
+        """
+        'Magic' method to implement the '+=' operator
+        
+        Compare global IDs of particles and reassign globalIDs for particle
+        container using the max ID between the two lists. Tracks these changes
+        for all other (bond, angle, dihedral) containers that reference particleIDs
+        """
+        # self.ptclC.particles
+
+        keys1 = self.ptclC.particles.keys()   # global IDs of particles in this object
+        keys2 = other.ptclC.particles.keys()  # global IDs in object being added
+        self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
+
+        for ptclkey2 in other.ptclC.particles:
+            self.ptclC.put(other.ptclC.particles[ptclkey2])  # Pushes ptcl to this struc's ptcl container
+            fromPtclID = ptclkey2                            # Track IDs from--->to
+            toPtclID   = self.ptclC.maxgid                   #   -->toID (to is the maxid of this ptclC)
+            other.bondC.replacePtclIDs(fromPtclID, toPtclID) # Replace ptclIDs in bond container (SWS: check if old container changed)
+
+        self.bondC  += other.bondC      # Now add bondC with 'corrected' IDs
+        # self.angleC += other.angleC
+
+        return self
+
 
 
     def replacePtclIDs(self, findPtclID, newPtclID):
@@ -359,8 +425,9 @@ class StructureContainer:
         print "    v_j ",self.latticevec[1]
         print "    v_k ",self.latticevec[2]
         print "  Bonds %d "%(len(self.bondC))
+
         
-    def dumpLammpsInputFile(self, inputName, pairCoeffDct=dict(), bondCoeff=dict() ):
+    def dumpLammpsInputFile(self, inputName, pairCoeffDct=dict(), bondCoeffDct=dict() ):
         """
         Write out a LAMMPS input data file from all available held
         data (particles, bonds, angles, dihedrals)
@@ -376,19 +443,23 @@ class StructureContainer:
             print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
             sys.exit(3)
 
+        if not isinstance(bondCoeffDct, dict):
+            print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
+            sys.exit(3)
+
         n_atoms = len(self.ptclC)  # Obtaining particle size from container
         n_bonds = len(self.bondC)  # " "
         n_angles = 0
         n_dihedrals = 0
         n_impropers = 0
 
-        typeInfoDict = self.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
-        typeList = typeInfoDict.keys()               # list of types eg ["Si", "C", ..]
+        ptclTypeInfo = self.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
+        bondTypeInfo = self.bondC.getTypeInfoDict()  # map of "type":typeIndex
 
         # Returns map of type,parameter tuple and value
         # SWS: particular to this method
-        n_atypes = len(typeInfoDict)
-        n_btypes = 0 # ....
+        n_atypes = len(ptclTypeInfo)
+        n_btypes = len(bondTypeInfo)
         n_angtypes = 0 
         n_dtypes = 0 
         n_imptypes = 0
@@ -421,7 +492,7 @@ class StructureContainer:
         massFormatStr = "%5d %16.8f \n"
         fileObj.write('Masses \n')
         fileObj.write('\n')
-        for type, info in typeInfoDict.iteritems():
+        for type, info in ptclTypeInfo.iteritems():
             tIndex = info[0]
             mass   = info[1]
             fileObj.write( massFormatStr % ( tIndex, mass ) )
@@ -430,14 +501,25 @@ class StructureContainer:
         pairCoeffFormatStr = "%5d %12.6f %12.6f  \n"
         fileObj.write('Pair Coeffs \n')
         fileObj.write('\n')
-        for typ in typeList:
-            info = typeInfoDict[typ]  # map of "type":[typeIndex, mass, charge]
-            tIndex = info[0]          # type index for 'typ' (eg "Si")
+        for typ in ptclTypeInfo.keys(): # list of types eg ["Si", "C", ..]
+            info = ptclTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
+            tIndex = info[0]            # type index for 'typ' (eg "Si")
             epsilon = pairCoeffDct[(typ, "epsilon")]
             sigma   = pairCoeffDct[(typ, "sigma")]
             fileObj.write( pairCoeffFormatStr % (tIndex, epsilon, sigma  ) )
         fileObj.write('\n')
-        
+
+        bondCoeffFormatStr = "%10d %12.6f %12.6f \n"
+        if (n_bonds > 0):
+            fileObj.write('Bond Coeffs \n')
+            fileObj.write('\n')
+            for typ in bondTypeInfo.keys(): # list of types eg ["Si", "C", ..]
+                tIndex  = bondTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
+                kenergy = bondCoeffDct[(typ, "Kenergy")]
+                r0      = bondCoeffDct[(typ, "r0")]
+                fileObj.write( bondCoeffFormatStr % (tIndex, kenergy, r0) )
+            fileObj.write('\n')
+
         ptclFormatStr = "%5d %5d %5d %12.8f %12.6f %12.6f %12.6f \n"
         fileObj.write('Atoms \n')
         fileObj.write('\n')
@@ -446,7 +528,7 @@ class StructureContainer:
             mol = ptclObj.tagsDict["molnum"]
             mol = int(mol)
             typ = ptclObj.type
-            typeIndex = typeInfoDict[typ][0]
+            typeIndex = ptclTypeInfo[typ][0]
             chg = ptclObj.charge
             fileObj.write( ptclFormatStr % (pid, mol, typeIndex, chg, pos[0], pos[1], pos[2] ) )
         fileObj.write('\n')
@@ -465,11 +547,14 @@ class StructureContainer:
         
         # Close LAMMPS file
         fileObj.close()
-        
+
+
+        #
         # Print type mapping info
+        #
         fileObj = open( inputName + ".dat", 'w' )
         fileObj.write("type   typeIndex    mass   charge \n")
-        for type, info in typeInfoDict.iteritems():
+        for type, info in ptclTypeInfo.iteritems():
             datFormatStr = "%s %5d %12.6f %12.6f \n"
             tIndex = info[0]
             mass   = info[1]
@@ -814,7 +899,6 @@ class StructureContainer:
             for p_j, ptcl_j in self.ptclC(list_j):
                 
                 if( p_j > p_i):
-
                     r_j =  np.array( ptcl_j.position )
                     r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
                     if( r_ij_sq <= sq_r_cut ):
@@ -824,7 +908,3 @@ class StructureContainer:
 
         return rdf_cnt_ij
     
-
-
-
-

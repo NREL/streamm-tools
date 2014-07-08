@@ -67,7 +67,6 @@ del p1, p2, p3, p4, b1, b2, b3, b4
 polymer1 = StructureContainer(atoms1, bonds)
 del atoms1, bonds
 
-
 print "********************************************************** \n"
 print polymer1
 print diagramBefore
