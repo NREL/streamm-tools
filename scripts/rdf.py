@@ -93,7 +93,6 @@ def getsys_json(json_file):
     Return:
         New Structure() object. IDs in new object are unique
     """
-    import json 
 
     f = open(json_file, 'r')
     json_data = json.load(f)
