@@ -123,6 +123,35 @@ class StructureContainer:
         return strucStr
 
 
+
+
+    def __iadd__(self, other):
+        """
+        'Magic' method to implement the '+=' operator
+        
+        Compare global IDs of particles and reassign globalIDs for particle
+        container using the max ID between the two lists. Tracks these changes
+        for all other (bond, angle, dihedral) containers that reference particleIDs
+        """
+        # self.ptclC.particles
+
+        keys1 = self.ptclC.particles.keys()   # global IDs of particles in this object
+        keys2 = other.ptclC.particles.keys()  # global IDs in object being added
+        self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
+
+        for ptclkey2 in other.ptclC.particles:
+            self.ptclC.put(other.ptclC.particles[ptclkey2])  # Pushes ptcl to this struc's ptcl container
+            fromPtclID = ptclkey2                            # Track IDs from--->to
+            toPtclID   = self.ptclC.maxgid                   #   -->toID (to is the maxid of this ptclC)
+            other.bondC.replacePtclIDs(fromPtclID, toPtclID) # Replace ptclIDs in bond container (SWS: check if old container changed)
+
+        self.bondC  += other.bondC      # Now add bondC with 'corrected' IDs
+        # self.angleC += other.angleC
+
+        return self
+
+
+
     def replacePtclIDs(self, findPtclID, newPtclID):
         """
         Replace IDs that contain globalID of particle

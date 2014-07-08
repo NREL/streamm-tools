@@ -44,7 +44,7 @@ print " "
 
 print "Test iterator for bond container "
 for gid, bondObj in bonds:
-    print "bondID = ", gid, "bond object ", bondObj
+    print "bondID = ", gid, "bond object ", bondObj.__dict__
 print " "
 
 searchID = 2

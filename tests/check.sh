@@ -27,6 +27,8 @@ elif [ $1 == "new" ]; then
     test-ptclContainerConstructor.py > results/test-ptclContainerConstructor.txt
     test-subStructure.py             > results/test-subStructure.txt
     test-strucDumpSave.py            > results/test-strucDumpSave.txt
+    test-strucDumpSave.py            > results/test-strucDumpSave.txt
+    test-strucAdd.py                 > results/test-strucAdd.txt
 
 elif [ $1 == "compare" ]; then
 
@@ -43,6 +45,7 @@ elif [ $1 == "compare" ]; then
     test-ptclContainerConstructor.py > tmp ; diff tmp results/test-ptclContainerConstructor.txt ; echo " "
     test-subStructure.py  > tmp            ; diff tmp results/test-subStructure.txt             ; echo " "
     test-strucDumpSave.py > tmp            ; diff tmp results/test-strucDumpSave.txt            ; echo " "
+    test-strucAdd.py      > tmp            ; diff tmp results/test-strucAdd.txt                 ; echo " "
 
     rm -rf tmp
     echo "If no output... tests passed"

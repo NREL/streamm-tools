@@ -22,6 +22,7 @@ atoms2 = ParticleContainer()
 
 atoms1.put(p1)
 atoms1.put(p2)
+#
 atoms2.put(p3)
 atoms2.put(p4)
 

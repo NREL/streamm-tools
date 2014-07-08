@@ -269,9 +269,10 @@ class ParticleContainer:
         'Magic' method to implement the '+=' operator
         
         Compare global IDs of particles and reassign globalIDs for particle
-        container using the max ID between the two lists
+        container using the max ID between the two lists.
 
-        Note: for now this reassigns ID always
+        Note: for now this reassigns ID always. Furthermore, any bond containers with
+              particleID already set will NOT be changed. See structureContainer iadd
         """
 
         keys1 = self.particles.keys()     # global IDs in this object
@@ -280,6 +281,9 @@ class ParticleContainer:
 
         for ptclkey2 in other.particles:
             self.put(other.particles[ptclkey2])
+            fromPtclID = ptclkey2
+            toPtclID   = self.maxgid
+            # print "Particle ID ", fromPtclID, " changed to ", toPtclID
             
         return self
 
@@ -325,11 +329,11 @@ class ParticleContainer:
         keys = self.particles.keys()
         
         if findID not in keys:
-            print "findID not found"
+            print "replaceID: findID not found"
             sys.exit(3)
 
         if newID in keys:
-            print "newID already exists"
+            print "replaceID: newID already exists"
             sys.exit(3)
 
         if newID < self.maxgid:
