@@ -204,17 +204,6 @@ class StructureContainer:
         return StructureContainer(subAtoms, subBonds)
 
 
-    def __iadd__(self, other):
-        """
-        'Magic' method to implement the '+=' operator
-        
-        Compare global IDs of particles and reassign globalIDs for particle
-        container using the max ID between the two lists
-
-        Note: for now this reassigns ID always
-        """
-
-
     def getpartnumb(self):
         """
         Return number of particles in a structure 
