@@ -6,6 +6,7 @@ from particles import Particle
 from particles import ParticleContainer
 from bonds     import Bond
 from bonds     import BondContainer
+import pbcs
 
 import copy
 import numpy as np 
@@ -52,10 +53,10 @@ class StructureContainer:
             raise TypeError
 
         # Length of cartesian box size [ [xmin, xmax], [ymin, ymax]...]
-        self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0,1.0] ]
+        self.boxLengths = [ [0.0, 100.0], [0.0, 100.0], [0.0,100.0] ]
 
         # Lattice vectors 
-        self.latticevec = [  np.array([1.0,0.0,0.0]) ,  np.array( [0.0,1.0,0.0]),  np.array( [0.0,0.0,1.0]) ]
+        self.latticevec = [  np.array([100.0,0.0,0.0]) ,  np.array( [0.0,100.0,0.0]),  np.array( [0.0,0.0,100.0]) ]
 
     def __del__(self):
         """
@@ -135,6 +136,17 @@ class StructureContainer:
                 del subBonds[gid]
                 
         return StructureContainer(subAtoms, subBonds)
+
+
+    def __iadd__(self, other):
+        """
+        'Magic' method to implement the '+=' operator
+        
+        Compare global IDs of particles and reassign globalIDs for particle
+        container using the max ID between the two lists
+
+        Note: for now this reassigns ID always
+        """
 
 
     def getpartnumb(self):
@@ -228,6 +240,29 @@ class StructureContainer:
 	density_i = total_mass_i/volume_i #/const_avo*10.0
 	
 	return density_i
+
+    def getlength(self):
+        """
+        Calculate length from maximum seperation between particles
+
+        Return
+          struc_len (float) 
+        
+        """
+        
+        sq_maxdr = -1000000.0 
+        for p_i, ptclObj_i in self.ptclC :
+             r_i = np.array( ptclObj_i.position )
+             for p_j, ptclObj_j in self.ptclC :
+                 r_j = np.array( ptclObj_j.position )
+                 r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
+                 if( r_ij_sq > sq_maxdr):
+                     sq_maxdr = r_ij_sq
+
+
+        struc_len = np.sqrt(sq_maxdr)
+
+        return struc_len
 
     def vec_shift(self,r_shift):
         """
@@ -523,6 +558,7 @@ class StructureContainer:
         f.close()
 
         # Place paticle data in sperate data structure 
+        struc_data = json_data["structure"]
         particle_data = json_data["structure"]["particle"]
 
         # Create structure container for particles 
@@ -547,6 +583,7 @@ class StructureContainer:
             pt_i.setTagsDict(tagsD)
             self.ptclC.put(pt_i)
 
+        # Read in bonds
         twobody_data =  json_data["structure"]["twobody"]
         bondC_i = BondContainer()
         for b_indx in range( len(twobody_data["bonds"] )):
@@ -554,6 +591,13 @@ class StructureContainer:
             a_j = int(twobody_data["bonds"][b_indx][1] )
             b_i = Bond( a_i+1, a_j+1 )            
             self.bondC.put(b_i)
+
+        # Read in lattice vectors
+        self.latticevec = []
+        lv_array = struc_data["latticevector"].split()
+        self.latticevec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
+        self.latticevec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
+        self.latticevec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
 
     def create_top(self,ff_charges):
         """

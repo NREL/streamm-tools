@@ -10,10 +10,11 @@ Run Molecular Dynamics simulation at low temperature NVT to get a minimized stru
 # travis.kemper@nrel.gov
 
 from structureContainer import StructureContainer
-import positionopperations as posopp
-import numpy as np 
-import sys , datetime, random
+import pbcs
 import mpiNREL
+
+import numpy as np 
+import sys , datetime, random, math 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
@@ -34,6 +35,8 @@ def get_options():
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on ")
     parser.add_option("--sol_json", dest="sol_json", default="",type="string",help=" json files of solvents to add to act on ")
 
+    # Solv
+    parser.add_option("--sol_buf", dest="sol_buf",  type=float, default=3.0, help=" intra solvent buffer " )
     # Cut-off
     #   should be replaced by Van der Waals radi  
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
@@ -120,11 +123,15 @@ def main():
         # Shift center of mass to origin
         oligo_i.shift_center_mass(origin)
         
+        # Record oligomer molecule length
+        oligo_length = oligo_i.getlength()
+        
         if( options.verbose ):
             log_lines = ""
             log_lines += "  Oligomers %d \n"%oligo_cnt 
             log_lines +=  "    Particles  %d \n"%nprt
             log_lines +=  "    Total mass   %f \n"%tot_mass
+            log_lines +=  "    Length   %f \n"%oligo_length
             log_lines +=  "    Bonds  %d \n"%nbonds
             print log_lines
             log_out.write(log_lines)
@@ -132,7 +139,10 @@ def main():
 
     sol_cnt     = 0   # Number of solvent to replicate 
     sol_nprt    = 0   # Total number of solvent in all the solture 
-    sol_mass    = 0.0    # Total mass of solvent in all the solture 
+    sol_mass    = 0.0    # Total mass of solvent in all the solture
+    sol_maxlength = -100000.0 
+    #
+
     for sol_i in sol_array:
         sol_cnt += 1
         nprt = len( sol_i.ptclC )
@@ -143,21 +153,30 @@ def main():
 
         # Shift center of mass to origin
         sol_i.shift_center_mass(origin)
-        
+
+        # Record solvent molecule length for grid spacing 
+        sol_length = sol_i.getlength()
+        if( sol_length > sol_maxlength):
+            sol_maxlength = sol_length
+
         if( options.verbose ):
             log_lines = ""
             log_lines += "  Solvents %d \n"%sol_cnt 
             log_lines +=  "    Particles  %d \n"%nprt
             log_lines +=  "    Total mass   %f \n"%tot_mass
+            log_lines +=  "    Length   %f \n"%sol_length
             log_lines +=  "    Bonds  %d \n"%nbonds
             print log_lines
             log_out.write(log_lines)
 
+    #
     # Calculate the number of oligomers and  solvent molecules
+    #
     if( options.perc_sol > 0.0 ):
         # Variables
         #   atoms_target - target number of atoms # options.atoms_target
         #   perc_sol - perecent solvent by mass
+        #   frac_sol - fraction solvent by mass
         #   sol_nprt - number atoms in the list of solvent molecules 
         #   oligo_nprt - number atoms in the list of oligomer molecules 
         #   n_sol_l - number of solvent list replications
@@ -168,42 +187,73 @@ def main():
         #   Equ 1 : perc_sol = n_sol_l*sol_mass/( n_sol_l*sol_mass + n_olgio_l*oligo_mass )
         #   Equ 2 : atoms_target =  n_sol_l*sol_nprt + n_olgio_l*oligo_nprt
         # Solutions
-        n_sol_l= int((-1.0*options.perc_sol*oligo_mass*float(options.atoms_target))/(options.perc_sol*sol_mass*float(oligo_nprt)  - options.perc_sol*oligo_mass*float(sol_nprt) - sol_mass*float(oligo_nprt) ))
+        frac_sol = options.perc_sol/100.0
+        n_sol_l= int((-1.0*frac_sol*oligo_mass*float(options.atoms_target))/(frac_sol*sol_mass*float(oligo_nprt)  - frac_sol*oligo_mass*float(sol_nprt) - sol_mass*float(oligo_nprt) ))
         n_olgio_l = int( (float(options.atoms_target) - float(sol_nprt)*float(n_sol_l))/float(oligo_nprt))
-        
+        # Check to be sure the grid is large enough
+        sol_length = sol_maxlength + options.sol_buf
+        sol_box_side = math.ceil( n_sol_l**(1.0/3.0) )
+        solv_box_l = sol_box_side*sol_length #+ mol_l_lj
+        sol_length_sq = sol_length*sol_length
     else:
         n_sol_l = 0
         n_olgio_l = int(float(options.atoms_target)/float(oligo_nprt))
-        
-
+        solv_box_l = 0.0 
 
     #
     # Calculate the box size for a target density 
     #
     target_density_amuang = options.den_target*const_avo/10.0 # densit in AMU/Angstrom^3
+    total_n = n_olgio_l*oligo_nprt + n_sol_l*sol_nprt
     total_mass = oligo_mass*n_olgio_l + n_sol_l*sol_mass
     volume_target_ang = total_mass/target_density_amuang    
     len_target_ang = volume_target_ang**(1.0/3.0)
+    
+    if( len_target_ang < solv_box_l ):
+        # Extend box length if too small to fit 
+        len_target_ang = solv_box_l
+        
     cut_ij_sq = options.atomic_cut* options.atomic_cut
+    # Calculate actual final structure properties
+    vol_f = len_target_ang**3.0
+    den_AMU_f = total_mass/vol_f
+    den_f = den_AMU_f/const_avo*10.0
+    perc_sol_f = (n_sol_l*sol_mass)/(n_sol_l*sol_mass + n_olgio_l*oligo_mass)
 
-    struc_sys = StructureContainer()  # Output replicated structure 
+    print n_sol_l,sol_mass,n_olgio_l,oligo_mass
+    
+    # oligomer molecule container
+    oligomer_rep = StructureContainer() 
     # Set lattice vector to new box size
     latvec_list = [np.array([len_target_ang,0.0,0.0]),np.array( [0.0,len_target_ang,0.0]),np.array( [0.0,0.0,len_target_ang]) ]    
-    struc_sys.setLatVec(latvec_list)
+    oligomer_rep.setLatVec(latvec_list)
+
+    # Solvent molecule container
+    sol_rep = StructureContainer()  
+    sol_rep.setLatVec(latvec_list)
+
+    
+    
     
     # Print script information and settings 
     if( rank == 0  ):
         
         log_lines =  "  Replication settings \n"
+        log_lines += "   - Tragets \n"
+        log_lines += "       Total atoms %d \n"%(options.atoms_target)
+        log_lines += "       Density %f g/cm^3 %f AMU/Angstrom^3 \n"%(options.den_target,target_density_amuang)
+        log_lines += "       Solvent mass percentage %f \n"%(options.perc_sol)
         log_lines += "   - Oligomers \n"
+        log_lines += "       Total atoms in set %d \n"%(sol_nprt)
         log_lines += "       Set of structures will replicated %d times \n"%(n_olgio_l)
         log_lines += "   - Solvents \n"
-        log_lines += "       Set of solvent structures will replicated %d times \n"%(n_sol_l)
-        log_lines += "   - Tragets \n"
-        log_lines += "       Solvent mass percentage %f \n"%(options.perc_sol)
-        log_lines += "       Density %f g/cm^3 %f AMU/Angstrom^3 \n"%(options.den_target,target_density_amuang)
-        log_lines += "       Total atoms %d \n"%(options.atoms_target)
-        log_lines += "       Giving a cubic cell with length of %f Angstroms \n"%(len_target_ang)
+        log_lines += "       Total atoms in set %d \n"%(oligo_nprt)
+        log_lines += "       Set of structures will replicated %d times \n"%(n_sol_l)
+        log_lines += "   - Final porperties  \n"
+        log_lines += "       Total atoms %d \n"%(total_n)
+        log_lines += "       Density %f g/cm^3 %f AMU/Angstrom^3 \n"%(den_f,den_AMU_f)
+        log_lines += "       Solvent mass percentage %f \n"%(perc_sol_f)
+        log_lines += "       Cubic cell with length of %f Angstroms \n"%(len_target_ang)
         log_lines += "   - Placement \n"
         log_lines += "       Maximum structure placements %d \n"%(options.max_mol_place)
         log_lines += "       Maximum number of restarts before box is expanded %d \n"%(options.max_sys)
@@ -212,7 +262,7 @@ def main():
         log_out.write(log_lines)
 
     p.barrier()
-    
+
     # Record initial time
     if( rank == 0  ): 
 	t_i = datetime.datetime.now()
@@ -256,11 +306,11 @@ def main():
                         n_dim = 3
                         r_random = np.zeros(n_dim)
                         for x_indx in range( n_dim ):
-                            r_random[x_indx] = random.randrange(0,ang_acc*int(struc_sys.latticevec[x_indx][x_indx]) )/float(ang_acc)
+                            r_random[x_indx] = random.randrange(0,ang_acc*int(oligomer_rep.latticevec[x_indx][x_indx]) )/float(ang_acc)
 
                         debug = 0
                         if( debug ):
-                            print " ran ",x_indx,(struc_sys.latticevec[x_indx][x_indx])
+                            print " ran ",x_indx,(oligomer_rep.latticevec[x_indx][x_indx])
                             print rot_angle_i,rot_angle_j,r_random
                             sys.exit(" Random # 's test 1")
 
@@ -277,21 +327,19 @@ def main():
                     struc_i.vec_shift(r_random)
 
                     overlap = 0
-                    if( len(struc_sys.ptclC) > 0 ):
+                    if( len(oligomer_rep.ptclC) > 0 ):
                         #
                         # If there are particles in the system check atoms do not overlap
                         #
                         for p_i, ptclObj_i in struc_i.ptclC :
                             r_i = np.array( ptclObj_i.position )
-                            for p_sys, ptclObj_sys in struc_sys.ptclC :
+                            for p_sys, ptclObj_sys in oligomer_rep.ptclC :
                                 r_sys = np.array( ptclObj_sys.position )
-                                r_ij_sq = posopp.sq_drij_c(r_i,r_j,LV)
+                                r_ij_sq = pbcs.sq_drij_c(r_i,r_sys,oligomer_rep.getLatVec() )
                                 if( r_ij_sq < cut_ij_sq ):
                                     overlap = 1
 
                     p.barrier() # Barrier for MPI_COMM_WORLD
-
-
                     #
                     # Reduce sum the overlap variable from all the processors
                     #   if it is zero everywhere there was no overlap detected 
@@ -302,7 +350,7 @@ def main():
                         # If no overlap detected add molecule to the system 
                         sys_oligo_n += 1
                         # add oligomer structure to system structure 
-                        struc_sys += struc_i
+                        oligomer_rep += struc_i
 
                         if( options.verbose ):
                             if( rank == 0  ):
@@ -331,17 +379,17 @@ def main():
                         sys_attempts += 1
 
                         # Save lattice vectors as to no loose any expansions 
-                        latvec_i = struc_sys.getLatVec()
+                        latvec_i = oligomer_rep.getLatVec()
                         # Delete system 
-                        del struc_sys
-                        struc_sys = StructureContainer()  # Output replicated structure
+                        del oligomer_rep
+                        oligomer_rep = StructureContainer()  # Output replicated structure
                         # Set lattice vectors 
-                        struc_sys.setLatVec(latvec_i) 
+                        oligomer_rep.setLatVec(latvec_i) 
 
 
                     if( sys_attempts >= options.max_sys  ):
                         # If the system has been reset over max_sys times expand the box size by lc_expand
-                        struc_sys.expandLatVec(options.lc_expand)
+                        oligomer_rep.expandLatVec(options.lc_expand)
                     
                         if( options.verbose ):                
                             if( rank == 0  ):
@@ -357,7 +405,129 @@ def main():
             p.barrier() # Barrier for MPI_COMM_WORLD
             if( options.verbose and rank == 0  ):
                 print " All oligomers  have been added "
+
+
+    sys_sol_n = 0    # Number of solvent add to the system
+    sys_attempts = 0  # Number of times the system has been reset
+    #
+    # Start adding molecules to the system
+    #
+    add_sol = True
+    while ( add_sol ):
+        #
+        # Initialize 
+        #
+        add_sol = True
+        strucadd_atempts = 0
+
+        print " Adding solvent "
+        
+        # Record intial time for pereformance testing 
+        if( rank == 0  ): 
+            tadd_i = datetime.datetime.now()
+
+        # Initialize lattice indexs
+        lat_indx = np.zeros(3)
+        dim_indx = -1
+        bad_grid_point = False 
+        for sol_l in range( n_olgio_l ):
+            # loop over the number of times each solvent in the solvent list needs to be replicated
+            if( bad_grid_point ): break 
+            for struc_i in sol_array:
+                overlap_found = True
+                if( bad_grid_point ): break 
+                while ( overlap_found ):
+
+                    dim_indx += 1
+                    if( dim_indx > 2 ): dim_indx = -1
+                    lat_indx[dim_indx]  += 1
+
+                    l_x = float(lat_indx[0])*sol_length
+                    l_y = float(lat_indx[1])*sol_length
+                    l_z = float(lat_indx[2])*sol_length
+
+                    if( l_x > oligomer_rep.lattvec[0][0] or l_y > oligomer_rep.lattvec[1][1] or l_y > oligomer_rep.lattvec[1][1] ):
+                        bad_grid_point = True
+                        break 
                     
+                    lat_pos = numpy.array( [l_x,l_y,l_z] )
+
+                    # Make sure there is no overlap with the added molecules
+                    overlap = 0
+                    for p_i, ptclObj_i in oligomer_rep.ptclC :
+                        r_i = np.array( ptclObj_i.position )
+                        for p_j, ptclObj_j in struc_i.ptclC :
+                            r_j = np.array( ptclObj_j.position )
+                            r_ij_sq = pbcs.sq_drij_c(r_i,r_j,oligomer_rep.getLatVec() )
+                            if( r_ij_sq < sol_length_sq ):
+                                overlap = 1
+
+                    p.barrier() # Barrier for MPI_COMM_WORLD
+                    #
+                    # Reduce sum the overlap variable from all the processors
+                    #   if it is zero everywhere there was no overlap detected 
+                    #
+                    overlap_sum = p.allReduceSum(overlap)
+
+                    if( overlap_sum ==  0 ):
+                        # If no overlap detected add molecule to the system 
+                        sys_sol_n += 1
+                        overlap_found = False 
+                        # Shift molecule to lattice point
+                        struc_i.vec_shift(lat_pos)
+
+                        sol_rep += struc_i
+                        
+                        if( options.verbose ):
+                            if( rank == 0  ):
+                                print "      -  Molecule ",sys_sol_n," has been added to the system after "
+
+                                if( options.ptime ):
+                                    t_f = datetime.datetime.now()
+                                    dt_sec  = t_f.second - t_i.second
+                                    dt_min  = t_f.minute - t_i.minute
+                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                    print "        - with placement time ",dt_min," min ",dt_sec," seconds "
+                    else:
+                        overlap_found = True
+                        
+        if( sys_sol_n == n_sol_l*sol_cnt ):
+            add_sol = False
+            p.barrier() # Barrier for MPI_COMM_WORLD
+            if( options.verbose and rank == 0  ):
+                print " All solvents  have been added "
+
+        else:
+            #
+            # If attempts to place solvent molecule into the system failed
+            #
+            sys_sol_n = 0                
+            sys_attempts += 1
+            #
+            # Save lattice vectors as to no loose any expansions
+            #
+            latvec_i = sol_rep.getLatVec()
+            #
+            # Delete system
+            #
+            del sol_rep
+            sol_rep = StructureContainer()  # Output replicated structure
+            #
+            # Set lattice vectors
+            #
+            sol_rep.setLatVec(latvec_i) 
+            #
+            # Expand the box size by lc_expand
+            #
+            oligomer_rep.expandLatVec(options.lc_expand)
+                    
+            if( options.verbose ):                
+                if( rank == 0  ):
+                    print '          - Lattice vectors will be expanded by (option lc_expand)',options.lc_expand
+                    
+            p.barrier() # Barrier for MPI_COMM_WORLD
+            
     if( rank == 0 ):
         log_out.close()
         
