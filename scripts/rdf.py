@@ -20,7 +20,7 @@ from particles import ParticleContainer
 from bonds     import BondContainer
 from structureContainer import StructureContainer
 import mpiNREL
-import json
+import json, math 
 import numpy as np
 import datetime
 
@@ -74,7 +74,7 @@ def get_options():
     # Frames
 
     parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
-    parser.add_option("--frame_f", dest="frame_f", type=int, default=0, help=" Final frame to read")
+    parser.add_option("--frame_f", dest="frame_f", type=int, default=10000, help=" Final frame to read")
     parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
     
         
@@ -82,60 +82,6 @@ def get_options():
         
     return options, args
    
-
-def getsys_json(json_file):
-    """
-    Return a new Structure object with partcleID's in input list
-        
-    Args:
-        ptclIDList (list) global particles ID's for which to return structure
-
-    Return:
-        New Structure() object. IDs in new object are unique
-    """
-
-    f = open(json_file, 'r')
-    json_data = json.load(f)
-    f.close()
-
-    # Place paticle data in sperate data structure 
-    particle_data = json_data["structure"]["particle"]
-
-    # Create structure container for particles 
-    struc_i = ParticleContainer()
-
-    for p_i in range( len( particle_data["number_id"])):
-        r_i = particle_data["position"][p_i]
-        atomic_symb = str( particle_data["type"][p_i] )
-        m_i = float(particle_data["mass"][p_i])
-        q_i = float(particle_data["charge"][p_i])
-        # Create particle
-        pt_i = Particle( r_i,atomic_symb,q_i,m_i )
-        # Find needed tags
-        chain_i = particle_data["chain"][p_i]
-        ring_i = particle_data["ring"][p_i]
-        resname_i = particle_data["resname"][p_i]
-        residue_i = particle_data["residue"][p_i]
-        linkid_i = particle_data["linkid"][p_i]
-        fftype_i = particle_data["fftype"][p_i]
-        # _i = particle_data[""][p_i]
-        # Add particle to structure 
-        tagsD = {"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i}
-        pt_i.setTagsDict(tagsD)
-        struc_i.put(pt_i)
-
-    twobody_data =  json_data["structure"]["twobody"]
-    bond_i = BondContainer()
-    for b_indx in rang( len(twobody_data["bonds"] )):
-        a_i = twobody_data["bonds"][0]
-        a_j = twobody_data["bonds"][0]
-        self.bondC.put(b_i)
-
-    # Put paticles and bonds into system 
-    system_i = StructureContainer(ptclC=struc_i,bondC=bond_i)
-    
-
-    return system_i
 
 def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
     """
@@ -159,19 +105,19 @@ def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fft
     if( len( f_resname ) ):
         search_i["resname"] = []
         for id_s in f_resname.split():
-            search_i["f_resname"].append(id_s)
+            search_i["resname"].append(id_s)
     if( len( f_residue ) ):
         search_i["residue"] = []
         for id_s in f_residue.split():
-            search_i["f_residue"].append(id_s)
+            search_i["residue"].append(id_s)
     if( len( f_linkid  ) ):
         search_i["linkid"] = []
         for id_s in f_linkid.split():
-            search_i["f_linkid"].append(id_s)
+            search_i["linkid"].append(id_s)
     if( len( f_fftype ) ):
         search_i["fftype"] = []
         for id_s in f_fftype.split():
-            search_i["f_fftype"].append(id_s)
+            search_i["fftype"].append(id_s)
             
     return search_i
     
@@ -192,7 +138,12 @@ def main():
             the amount of information in the log file can be increased using the verbose option ( -v ) 
         
     """
-
+    
+    #
+    # Formated ouput varables
+    #
+    sperator_line = "\n---------------------------------------------------------------------"
+    
     # Initialize mpi
     p = mpiNREL.getMPIObject()
 
@@ -200,20 +151,23 @@ def main():
     rank = p.getRank()
     size = p.getCommSize()
 
+
+
+    if( rank == 0 ):
+        # record initial time 
+        t_i = datetime.datetime.now()
+            
     options, args = get_options()
+
 
     # Read in system data from json file
     if( len(options.in_json)):
-        system_i = getsys_json(options.in_json)
+        struc_o = StructureContainer()
+        struc_o.getsys_json(options.in_json)
 
-    # Read in system data from json file
-    # 
-    # if( len(in_data)):
-    #    system_i = getsys_lmpdata(options.in_data)
-        
-    # Get paticle and bond structures
-    struc_o = system_i.ptclC
-    bond_i  = system_i.bondC
+        # Get paticle and bond structures
+        ptclC_o = struc_o.ptclC
+        bondC_o  = struc_o.bondC
     
     p.barrier()
     
@@ -234,57 +188,62 @@ def main():
      
     # Print system properties
     if( rank == 0 ):
-        sys_prop = system_i.printprop()
+        sys_prop = struc_o.printprop()
         print sys_prop
         log_out.write(str(sys_prop))
         
     # Create sub lists for RDF groups i and j
-    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)    
-    list_i = struc_o.getParticlesWithTags(search_i)
-
-    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)    
-    list_j = struc_o.getParticlesWithTags(search_j)
+    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
+    
+    if( rank == 0 ):
+        if( options.verbose ): print " Searching group i ",search_i
+    list_i = ptclC_o.getParticlesWithTags(search_i)
+    sum_i = len(list_i)
+    
+    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
+    if( rank == 0 ):
+        if( options.verbose ): print " Searching group j ",search_j
+    list_j = ptclC_o.getParticlesWithTags(search_j)
+    sum_j = len(list_j)
+    
+    
+    if( rank == 0 ):
+        if( options.verbose ): print " search finished "
     
     if( rank == 0 ):
         if( options.verbose ):
-            log_line = "  Particles of group i: %d "%(len(list_i))
+            # log_line += "\n  %d "%()
+            log_line  = "\n  Date %s "%(str(t_i))
+            log_line += "\n  Number of processors  %d "%(size)
+            log_line += "\n  Particles of group i: %d "%(sum_i)
+            log_line += sperator_line
+            log_line += "\n id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  "
+            log_line += sperator_line
+            for p_i, ptcl in ptclC_o(list_i):
+                log_line += "\n   %d %s %s %s %s %s %s "%(p_i,ptcl.type,ptcl.tagsDict["fftype"],ptcl.tagsDict["ring"],ptcl.tagsDict["resname"],ptcl.tagsDict["residue"],ptcl.tagsDict["linkid"])
+            log_line += "\n  Particles of group i: %d "%(sum_j)
+            log_line += sperator_line
+            log_line += "\n id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  "
+            log_line += sperator_line
+            for p_j, ptcl in ptclC_o(list_j):
+                log_line += "\n   %d %s %s %s %s %s %s "%(p_j,ptcl.type,ptcl.tagsDict["fftype"],ptcl.tagsDict["ring"],ptcl.tagsDict["resname"],ptcl.tagsDict["residue"],ptcl.tagsDict["linkid"])
+
+            log_line += sperator_line
+            log_line += "\n Frames "
+            log_line += "\n     Initial frame  %d "%(options.frame_o)
+            log_line += "\n     Step frame  %d  "%(options.frame_step)
+            log_line += "\n     Final frame  %d  "%(options.frame_f)
+
+                
             log_out.write(log_line)
             print log_line
-            log_line = "---------------------------------------------------------------------"
-            log_out.write(log_line)
-            print log_line
-            log_line = " id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  "
-            log_out.write(log_line)
-            print log_line
-            log_line = "---------------------------------------------------------------------"
-            log_out.write(log_line)
-            print log_line
-            for p_i, ptcl in struc_o(list_i):
-                log_line = "   %d %s %s %s %s %s %s "%(p_i,ptcl.type,ptcl.tagsDict["fftype"],ptcl.tagsDict["ring"],ptcl.tagsDict["resname"],ptcl.tagsDict["residue"],ptcl.tagsDict["linkid"])
-                log_out.write(log_line)
-                print log_line
-            log_line = "  Particles of group i: %d "%(len(list_j))
-            log_out.write(log_line)
-            print log_line
-            log_line = "---------------------------------------------------------------------"
-            log_out.write(log_line)
-            print log_line
-            log_line = " id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  "
-            log_out.write(log_line)
-            print log_line
-            log_line = "---------------------------------------------------------------------"
-            log_out.write(log_line)
-            print log_line
-            for p_j, ptcl in struc_o(list_j):
-                log_line = "   %d %s %s %s %s %s %s "%(p_j,ptcl.type,ptcl.tagsDict["fftype"],ptcl.tagsDict["ring"],ptcl.tagsDict["resname"],ptcl.tagsDict["residue"],ptcl.tagsDict["linkid"])
-                log_out.write(log_line)
-                print log_line
             
     # Calculate rdf relate values
     n_bins = int(options.r_cut/options.bin_size)
     sq_r_cut = options.r_cut**2
     rdf_cnt_ij = np.zeros(n_bins+1)    
-
+    volume_i = []
+    rdf_frames = 0 
     # Record initial time
 
     if( rank == 0  ): 
@@ -292,8 +251,12 @@ def main():
 
     if( len(options.in_lammpsxyz) ):
         
+        if( rank == 0 ):
+            if( options.verbose ): print "  Reading ",options.in_lammpsxyz
+            rdft_i = datetime.datetime.now()
+            
         # Initialize line count
-        NP = len( struc_i )
+        NP = len( ptclC_o )
         line_cnt = 0
         frame_cnt = 0
         pt_cnt = 0 
@@ -302,39 +265,143 @@ def main():
             for line in f:
                 line_cnt += 1
                 col = line.split()
-                
-            if( line_cnt == 1  ):
-                # Read first line to record number of particles NP
-                NP = int(col[0])
-                frame_cnt += 1
-                pt_cnt = 0 
-            elif( line_cnt > 2 and len(col) >= 4 ):
-                # Read lines and update particle postions 
-                pt_cnt += 1
-                pt_i = struc_i[pt_cnt]
-                pt_i.postion =  [ col[1],col[2],col[3] ]
-                atomic_symb = col[0]
-                #
-                #r_i = [ col[1],col[2],col[3] ]
-                #part_i = Particle( r_i,atomic_symb,q_i,m_i )
-                #struc_i.put(part_i)
 
-            if( line_cnt > 1  and line_cnt > NP + 2):
-                pt_cnt = 0 
-                if( options.frame_o >= frame_cnt and frame_cnt <= options.frame_f ):
-                    if( mod(frame_cnt/options.frame_step) ):
-                        rdf_cnt_ij = struc_i.calc_rdf(rdf_cnt_ij)
+                if( line_cnt == 1  ):
+                    # Read first line to record number of particles NP
+                    NP = int(col[0])
+                    frame_cnt += 1
+                    pt_cnt = 0 
+                elif( line_cnt > 2 and len(col) >= 4 ):
+                    # Read lines and update particle postions 
+                    pt_cnt += 1
+                    pt_i = ptclC_o[pt_cnt]
+                    pt_i.postion =  [ col[1],col[2],col[3] ]
+                    atomic_symb = col[0]
+                    #
+                    #r_i = [ col[1],col[2],col[3] ]
+                    #part_i = Particle( r_i,atomic_symb,q_i,m_i )
+                    #struc_i.put(part_i)
 
-                frame_cnt += 1
+                if( line_cnt > 1  and line_cnt > frame_cnt*(NP + 2) ):
+                    pt_cnt = 0
+
+                    if( options.frame_o <= frame_cnt and frame_cnt <= options.frame_f ):
+
+                        if( frame_cnt%options.frame_step == 0 ):
+                            rdf_frames += 1
+                            rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
+                            volume_i.append( struc_o.getVolume() )
+                            
+                            # Print output
+                            if( rank == 0 and options.verbose ):
+                                rdft_f = datetime.datetime.now()
+                                dt_sec  = rdft_f.second - rdft_i.second
+                                dt_min  = rdft_f.minute - rdft_i.minute
+                                if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                log_line = "\n       Frame  %d  rdf calculated in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
+                                log_out.write(log_line)
+                                print log_line
+                                # Rest intial time for next rdf calcution
+                                rdft_i = datetime.datetime.now()
+
+                    frame_cnt += 1
                 
             # Calculate rdf for last frame 
-            if( options.frame_o >= frame_cnt and frame_cnt <= options.frame_f ):
-                if( mod(frame_cnt/options.frame_step) ):
-                    rdf_cnt_ij = struc_i.calc_rdf(rdf_cnt_ij)
+            if( options.frame_o <= frame_cnt and frame_cnt <= options.frame_f ):
+                if( frame_cnt%options.frame_step  == 0 ):
+                    rdf_frames += 1
+                    rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
+                    volume_i.append( struc_o.getLatVec() )
             
+                    if( rank == 0 and options.verbose ):
+                        rdft_f = datetime.datetime.now()
+                        dt_sec  = rdft_f.second - rdft_i.second
+                        dt_min  = rdft_f.minute - rdft_i.minute
+                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                        log_line = "       Frame  %d  rdf calculated in %d min  %f sec \n"%(frame_cnt,dt_min,dt_sec)
+                        log_out.write(log_line)
+                        print log_line
+                        # Rest intial time for next rdf calcution
+                        rdft_i = datetime.datetime.now()
 
-    dat_out.close()
-    log_out.close()
+
+
+    
+    total_cnts = np.sum( rdf_cnt_ij)
+
+    box_vol_ave = np.average( volume_i )
+    vol_cut = 4.0*math.pi/3.0*options.r_cut**3
+    n_shperes = float(sum_i)*float(rdf_frames)
+    sphere_den_j = float(total_cnts)/vol_cut/n_shperes #/2.0  # N_B A^-3
+    box_den_i = float(sum_i )/float(box_vol_ave)
+    box_den_j = float(sum_j )/float(box_vol_ave)
+    
+    if( rank == 0 ):
+	if( options.verbose ):
+            
+		
+	    print "   Frames ",rdf_frames
+	    print "   Total counts ",total_cnts
+	    print "   Average box volume ",box_vol_ave
+	    print "   Volume of cut-off sphere ",vol_cut
+	    print "   Average box density i ",box_den_i," atoms/angstrom^3 "
+	    print "   Average box density j ",box_den_j," atoms/angstrom^3 "
+	    print "   Average cut-off sphere density ",sphere_den_j," atoms/angstrom^3 "
+		
+	# Write output 
+	#
+	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
+	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
+	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
+	dat_out.write("\n#    Frames %d  " % (rdf_frames))
+	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
+	dat_out.write("\n#    N_i %d " % (sum_i ))
+	dat_out.write("\n#    N_j %d " % (sum_j ))
+	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
+	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
+	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
+	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
+	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
+	dat_out.write("\n#    ")
+	dat_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
+	
+	for bin_index in range( 1,n_bins):
+		
+	    r_val = options.bin_size*float(bin_index)
+	    r_in = r_val - options.bin_size*0.5
+	    r_out = r_val + options.bin_size*0.5
+
+
+    
+	    dr_cnt = float( rdf_cnt_ij[bin_index] )
+	    dr_cnt_norm =     dr_cnt    /float(rdf_frames)
+	    dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
+	    dr_vol_apx = 4.0*math.pi*(  r_val**2 )
+	    
+	    dr_rho = dr_cnt_norm/dr_vol
+	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
+	    box_g = dr_rho/box_den_j/float( sum_i )
+	    
+	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
+	    
+
+        
+        t_f = datetime.datetime.now()
+        dt_sec  = t_f.second - t_i.second
+        dt_min  = t_f.minute - t_i.minute
+        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
+        log_line="\n  Finished time  " + str(t_f)
+        log_out.write(log_line)
+        log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+        log_out.write(log_line)
+
+	dat_out.close()
+	log_out.close()
+	    
 
 if __name__=="__main__":
     main()

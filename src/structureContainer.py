@@ -252,12 +252,12 @@ class StructureContainer:
         
         sq_maxdr = -1000000.0 
         for p_i, ptclObj_i in self.ptclC :
-             r_i = np.array( ptclObj_i.position )
-             for p_j, ptclObj_j in self.ptclC :
-                 r_j = np.array( ptclObj_j.position )
-                 r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
-                 if( r_ij_sq > sq_maxdr):
-                     sq_maxdr = r_ij_sq
+            r_i = np.array( ptclObj_i.position )
+            for p_j, ptclObj_j in self.ptclC :
+                r_j = np.array( ptclObj_j.position )
+                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
+                if( r_ij_sq > sq_maxdr):
+                    sq_maxdr = r_ij_sq
 
 
         struc_len = np.sqrt(sq_maxdr)
@@ -798,7 +798,7 @@ class StructureContainer:
 	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 
         
-    def calc_rdf(self, rdf_hist,bin_size,list_i,list_j):
+    def calc_rdf(self, rdf_cnt_ij,bin_size,list_i,list_j,sq_r_cut):
         """
         Calculate RDF for a group of particles
         """
@@ -806,23 +806,24 @@ class StructureContainer:
         #
         # Loop over list i
         #
-        for p_i, ptcl_i in self(list_i):
-            r_i = np.array( ptcl_i.postion )
+        for p_i, ptcl_i in self.ptclC(list_i):
+            r_i = np.array( ptcl_i.position )
             #
             # Loop over list j
             #
-            for p_j, ptcl_j in self(list_j):
-                r_j =  np.array( ptcl_j.postion )
+            for p_j, ptcl_j in self.ptclC(list_j):
+                
+                if( p_j > p_i):
 
+                    r_j =  np.array( ptcl_j.position )
+                    r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
+                    if( r_ij_sq <= sq_r_cut ):
+                        m_ij = np.sqrt(r_ij_sq)
+                        bin_index = int( round( m_ij/bin_size) )
+                        rdf_cnt_ij[bin_index] += 2
 
-                sq_r_ij = pbc.sq_drij(r_i,r_j,self.latticevec)
-
-
-                if( sq_r_ij <= sq_r_cut ):
-                    m_ij = np.sqrt(sq_r_ij)
-                    bin_index = int( round( m_ij/bin_size) )
-                    rdf_cnt_i[bin_index] += 2
-
+        return rdf_cnt_ij
+    
 
 
 
