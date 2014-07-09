@@ -9,6 +9,22 @@ usage() {
     echo " "
 }
 
+
+#
+# Runs test comparison and checks with results in ./results and assumes
+# form of the file testName.txt
+#
+compareTest() {
+
+    testName=$1
+    echo "------ Running test $testName --------"
+    $testName.py > tmp
+    diff tmp results/$testName.txt
+    rm -rf tmp
+    echo "-------------------------------------------------"
+    echo " "
+}
+
 if [ $# == 0 ]; then
     usage
 
@@ -36,19 +52,18 @@ elif [ $1 == "compare" ]; then
     echo "Comparing results against python test files"
     echo " " 
 
-    test-bondContainer.py > tmp            ; diff tmp results/test-bondContainer.txt        ; echo " "
-    test-particleConstructors.py > tmp     ; diff tmp results/test-particleConstructors.txt ; echo " "
-    test-particleSetInfo.py > tmp          ; diff tmp results/test-particleSetInfo.txt      ; echo " "
-    test-searchTags.py      > tmp          ; diff tmp results/test-searchTags.txt           ; echo " "
-    test-checkTypes.py      > tmp          ; diff tmp results/test-checkTypes.txt           ; echo " "
-    test-particleContainer.py > tmp        ; diff tmp results/test-particleContainer.txt    ; echo " "
-    test-ptclContainerConstructor.py > tmp ; diff tmp results/test-ptclContainerConstructor.txt ; echo " "
-    test-subStructure.py  > tmp            ; diff tmp results/test-subStructure.txt             ; echo " "
-    test-strucDumpSave.py > tmp            ; diff tmp results/test-strucDumpSave.txt            ; echo " "
-    test-strucAdd.py      > tmp            ; diff tmp results/test-strucAdd.txt                 ; echo " "
+    compareTest test-bondContainer
+    compareTest test-particleConstructors
+    compareTest test-particleSetInfo
+    compareTest test-searchTags
+    compareTest test-checkTypes
+    compareTest test-particleContainer
+    compareTest test-ptclContainerConstructor
+    compareTest test-subStructure
+    compareTest test-strucDumpSave
+    compareTest test-strucAdd
 
-    rm -rf tmp
-    echo "If no output... tests passed"
+    echo "If no output (other than status messages)... tests passed"
     echo " "
 
 else
