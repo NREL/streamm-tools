@@ -63,8 +63,11 @@ print "-------------------- After adding --------------------"
 polymer1 += polymer2
 print "polymer1 = ", polymer1
 
-print " "
 print "-------------------- Results (check above) --------------------"
 print " 1---b1---2---b2---3 + 1---b1----2   should go to"
 print " "
 print " 1---b1---2---b2---3   4---b3----5 \n"
+
+print " "
+print "------ After adding polymer 2 should be unchanged--------------"
+print "polymer2 = ", polymer2

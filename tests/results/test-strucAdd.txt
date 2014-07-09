@@ -55,6 +55,8 @@ polymer2 =
 
  
 -------------------- After adding --------------------
+Cleaning bond container
+Cleaning bond container
 polymer1 =  
 ************************************* 
  Global parameters: 
@@ -80,11 +82,32 @@ polymer1 =
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 3 {'type': 'hooke', 'length': 1.233, 'pgid1': 4, 'pgid2': 5}
 
- 
 -------------------- Results (check above) --------------------
  1---b1---2---b2---3 + 1---b1----2   should go to
  
  1---b1---2---b2---3   4---b3----5 
+
+ 
+------ After adding polymer 2 should be unchanged--------------
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [50.0, 0.3, -0.1], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 
 Cleaning structureContainer
 Cleaning particle container

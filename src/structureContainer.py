@@ -53,10 +53,11 @@ class StructureContainer:
             raise TypeError
 
         # Length of cartesian box size [ [xmin, xmax], [ymin, ymax]...]
-        self.boxLengths = [ [0.0, 100.0], [0.0, 100.0], [0.0,100.0] ]
+        self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0, 1.0] ]
 
         # Lattice vectors 
         self.latticevec = [  np.array([100.0,0.0,0.0]) ,  np.array( [0.0,100.0,0.0]),  np.array( [0.0,0.0,100.0]) ]
+
 
     def __del__(self):
         """
@@ -127,7 +128,6 @@ class StructureContainer:
 
 
 
-
     def __iadd__(self, other):
         """
         'Magic' method to implement the '+=' operator
@@ -136,19 +136,21 @@ class StructureContainer:
         container using the max ID between the two lists. Tracks these changes
         for all other (bond, angle, dihedral) containers that reference particleIDs
         """
-        # self.ptclC.particles
+
+        bondC = BondContainer()            # Local bond container copy so ptclIDs
+        bondC = copy.deepcopy(other.bondC) # inside can be changed (for adding below)
 
         keys1 = self.ptclC.particles.keys()   # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()  # global IDs in object being added
         self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
 
         for ptclkey2 in other.ptclC.particles:
-            self.ptclC.put(other.ptclC.particles[ptclkey2])  # Pushes ptcl to this struc's ptcl container
-            fromPtclID = ptclkey2                            # Track IDs from--->to
-            toPtclID   = self.ptclC.maxgid                   #   -->toID (to is the maxid of this ptclC)
-            other.bondC.replacePtclIDs(fromPtclID, toPtclID) # Replace ptclIDs in bond container (SWS: check if old container changed)
+            self.ptclC.put(other.ptclC.particles[ptclkey2]) # Pushes ptcl to this struc's ptcl container
+            fromPtclID = ptclkey2                           # Track IDs from--->to
+            toPtclID   = self.ptclC.maxgid                  #  --> toID (to is the maxid of this ptclC)
+            bondC.replacePtclIDs(fromPtclID, toPtclID)      # Replace ptclIDs in bond container (other left unchanged)
 
-        self.bondC  += other.bondC      # Now add bondC with 'corrected' IDs
+        self.bondC += bondC             # Now add bondC with 'corrected' IDs
         # self.angleC += other.angleC
 
         return self
