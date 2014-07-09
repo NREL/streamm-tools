@@ -1,6 +1,6 @@
 ************************************************************************************
  This test illustrates the different ways ParticleContainer can set Particle 
- object data
+ object data (eg the [] operator on ParticleContainer)
 ************************************************************************************ 
 
 Initial atoms1 state from an empty container, populated with put() 

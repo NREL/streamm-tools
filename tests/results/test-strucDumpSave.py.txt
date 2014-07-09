@@ -1,10 +1,5 @@
 ************************************************************************************
- This test shows how to set up Structure container with Particle/Bond-Containers 
-
- Shows how ID changed in Structure propagate to values set in BondContainer for its 
-    held particle ID values 
-
- Illustrates how a substructure method could return subgroup
+ This test shows how to save/dump/restore state of structureContainers using pickle
 ************************************************************************************ 
 
 Cleaning particle container

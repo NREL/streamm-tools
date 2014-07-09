@@ -35,10 +35,7 @@ from bonds import BondContainer
 from structureContainer import StructureContainer
 
 print "************************************************************************************"
-print " This test shows how to set up Structure container with Particle/Bond-Containers \n"
-print " Shows how ID changed in Structure propagate to values set in BondContainer for its "
-print "    held particle ID values \n"
-print " Illustrates how a substructure method could return subgroup"
+print " This test shows how to save/dump/restore state of structureContainers using pickle"
 print "************************************************************************************ \n"
 
 p1 = Particle( [0.2, 1.3,  33.0], "Si", 2.0, 1.23)
@@ -76,10 +73,6 @@ polymer1.dump('polymer1')
 
 polymerNew = StructureContainer()
 polymerNew.restore('polymer1.pkl')
-
-#import pickle
-#fileObj = open('polymer1.pkl', 'r')
-#polymerNew = pickle.load(fileObj)
 
 print "After load from pickle \n"
 print polymerNew

@@ -14,8 +14,7 @@ from structureContainer import StructureContainer
 
 
 print "************************************************************************************"
-print " This test shows various operators within Particle and ParticleContainer classes    "
-print " Also shows memory management structure and access methods"
+print " This test shows how to add StructureContainer objects together "
 print "************************************************************************************ \n"
 
 p1 = Particle( [0.2, 1.3,  33.0], "Si", 2.0, 1.23)

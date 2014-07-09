@@ -18,12 +18,25 @@ compareTest() {
 
     testName=$1
     echo "------ Running test $testName --------"
-    $testName.py > tmp
+    $testName > tmp
     diff tmp results/$testName.txt
     rm -rf tmp
     echo "-------------------------------------------------"
     echo " "
 }
+
+#
+# Checks new results in
+#
+newTest() {
+
+    testName=$1
+    echo "------ Checking in results for $testName --------"
+    $testName > results/$testName.txt
+    echo "-------------------------------------------------"
+    echo " "
+}
+
 
 if [ $# == 0 ]; then
     usage
@@ -34,17 +47,11 @@ elif [ $1 == "new" ]; then
     echo "Checking in new results for python test files"
     echo " " 
 
-    test-bondContainer.py            > results/test-bondContainer.txt
-    test-particleConstructors.py     > results/test-particleConstructors.txt
-    test-particleSetInfo.py          > results/test-particleSetInfo.txt
-    test-searchTags.py               > results/test-searchTags.txt
-    test-checkTypes.py               > results/test-checkTypes.txt
-    test-particleContainer.py        > results/test-particleContainer.txt
-    test-ptclContainerConstructor.py > results/test-ptclContainerConstructor.txt
-    test-subStructure.py             > results/test-subStructure.txt
-    test-strucDumpSave.py            > results/test-strucDumpSave.txt
-    test-strucDumpSave.py            > results/test-strucDumpSave.txt
-    test-strucAdd.py                 > results/test-strucAdd.txt
+    testNames=`ls -1 test-*.py`
+    for testName in $testNames; do
+	newTest $testName
+    done
+
 
 elif [ $1 == "compare" ]; then
 
@@ -52,19 +59,14 @@ elif [ $1 == "compare" ]; then
     echo "Comparing results against python test files"
     echo " " 
 
-    compareTest test-bondContainer
-    compareTest test-particleConstructors
-    compareTest test-particleSetInfo
-    compareTest test-searchTags
-    compareTest test-checkTypes
-    compareTest test-particleContainer
-    compareTest test-ptclContainerConstructor
-    compareTest test-subStructure
-    compareTest test-strucDumpSave
-    compareTest test-strucAdd
+    testNames=`ls -1 test-*.py`
+    for testName in $testNames; do
+	compareTest $testName
+    done
 
     echo "If no output (other than status messages)... tests passed"
     echo " "
+
 
 else
     echo "Argument not recognized"

@@ -1,6 +1,5 @@
 ************************************************************************************
- This test shows various operators within Particle and ParticleContainer classes    
- Also shows memory management structure and access methods
+ This test shows how to add StructureContainer objects together 
 ************************************************************************************ 
 
 Cleaning particle container

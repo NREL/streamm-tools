@@ -15,7 +15,7 @@ from bonds import BondContainer
 
 print "************************************************************************************"
 print " This test illustrates the different ways ParticleContainer can set Particle "
-print " object data"
+print " object data (eg the [] operator on ParticleContainer)"
 print "************************************************************************************ \n"
 
 p1 = Particle( [0.2, 1.3,  33.0], "Si", 2.0, 1.23)
