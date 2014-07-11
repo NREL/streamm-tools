@@ -13,8 +13,9 @@ scpHTMLtoStatic() {
 
     mv $modName.html $dirName
 
-    #echo "Moving developer docs ($modName) to --> cs.hpc.nrel.gov:static/$dirName [y] yes [n]no"
-    #read -e ans
+    # echo "Moving developer docs ($modName) to -->
+    # cs.hpc.nrel.gov:static/$dirName [y] yes [n]no"
+    # read -e ans
     #if [ $ans == "y" ]; then
     #	echo " "
     #	scp -r $modName.html cs.hpc.nrel.gov:static/$modName
@@ -38,3 +39,9 @@ scpHTMLtoStatic "structureContainer" "STREAMM"
 echo " "
 echo "Run: sftp cs.hpc.nrel.gov:static"
 echo "      put -r * ."
+
+#sftp cs.hpc.nrel.gov:
+#sftp>
+#   *  put  -r static
+#   * quit
+
