@@ -831,11 +831,12 @@ class Geometry:
         return sum(dR2)                       # Sum elements and take root
 
 
-    def rdistInBounds(self, pt1, pt2, rcutoff, bsize):
+    def rdistInBounds(self, pt1, pt2, rcutoff):
         """
         Only checks x-coord with cutoff to determine
         bound for Cartesian distance.
         """
+
         idir = 0
         dr  = math.fabs(pt1[idir] - pt2[idir])
         if (dr >= rcutoff):
