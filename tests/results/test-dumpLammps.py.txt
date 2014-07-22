@@ -1163,10 +1163,7 @@ Bonds
 
  
 Base class ParallelMsgr constructor called
-Derived class MsgrBoost constructor called
-I am process 0 of 1.
-Found boost.mpi module 
-
+Derived class MsgrSerial constructor called
 rad_avg     =  15.0
 rad_sig     =  0.025
 cutoff_dist =  56.5685424949

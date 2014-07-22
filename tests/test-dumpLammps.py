@@ -386,7 +386,7 @@ def setQDNeighbors(localList, globalList, cutoff_dist, bcLs):
 g=Geometry()
 
 # Get comm object
-p = mpiNREL.getMPIObject()
+p = mpiNREL.getMPISerialObject()
 rank = p.getRank()
 size = p.getCommSize()
 

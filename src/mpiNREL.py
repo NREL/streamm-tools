@@ -412,6 +412,17 @@ def getMPIObject(verbose=True):
     return mpiObj
 
 
+def getMPISerialObject(verbose=True):
+    """
+    Driver for comm classes.
+    Forces serial MPI-comm module
+
+    Returns: an mpi serial object
+    """
+    mpiObj = MsgrSerial(verbose)
+    return mpiObj
+
+
 def showExampleUsage():
     """
     Instructions and a sample code for testing the MPI routines.
