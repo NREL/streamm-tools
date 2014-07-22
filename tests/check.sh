@@ -11,6 +11,8 @@ usage() {
     echo "  1. create test with name test-*.py "
     echo "  2. do 'check.sh run'"
     echo "  3. double check that 'check.sh compare' gives no errors"
+    echo "  4. do 'check.sh new' to put new results in /tools/tests/results"
+    echo "  5. make sure to git add/commit/push new test and new results"
     echo " "
 }
 
@@ -20,7 +22,6 @@ usage() {
 # form of the file testName.txt
 #
 compareTest() {
-
     testName=$1
     echo "------ Running test $testName --------"
     $testName > tmp
@@ -31,7 +32,7 @@ compareTest() {
 }
 
 #
-# Checks new results in
+# Checks new results into repo
 #
 newTest() {
 
@@ -50,7 +51,8 @@ elif [ $1 == "new" ]; then
 
     echo " "
     echo "Checking in new results for python test files"
-    echo " " 
+    echo "Looking for tests named 'test-*.py'  "
+    echo " "
 
     testNames=`ls -1 test-*.py`
     for testName in $testNames; do
@@ -62,6 +64,7 @@ elif [ $1 == "compare" ]; then
 
     echo " "
     echo "Comparing results against python test files"
+    echo "Looking for tests named 'test-*.py'  "
     echo " " 
 
     testNames=`ls -1 test-*.py`
