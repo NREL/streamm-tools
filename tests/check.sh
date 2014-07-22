@@ -7,12 +7,14 @@ usage() {
     echo "    arg -- new:     Runs tests and copies output to results directory"
     echo "        -- compare: Runs tests and compares to files in results directory"
     echo " "
+    echo " "
     echo "To add a test:"
     echo "  1. create test with name test-*.py "
-    echo "  2. do 'check.sh run'"
-    echo "  3. double check that 'check.sh compare' gives no errors"
-    echo "  4. do 'check.sh new' to put new results in /tools/tests/results"
-    echo "  5. make sure to git add/commit/push new test and new results"
+    echo "     Note: test-*.py is assumed to print results to screen \n"
+    echo "  2. do 'check.sh run' \n"
+    echo "  3. double check that 'check.sh compare' gives no errors \n"
+    echo "  4. do 'check.sh new' to put new results in /tools/tests/results \n"
+    echo "  5. make sure to git add/commit/push new test and new results \n"
     echo " "
 }
 
