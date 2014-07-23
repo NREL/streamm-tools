@@ -378,18 +378,21 @@ class MsgrSerial(ParallelMsgr):
 
 
 
-def getMPIObject(verbose=True):
+def getMPIObject(verbose=True, localVerbose=True):
     """
     Driver for comm classes.
     Selects MPI-comm module if found and builds appropriate derived class
 
     Returns: an mpi object of the appropriate derived class
     """
+
+    print "localVerbose = ", localVerbose
+
     mpiObj=None
     try:
         from mpi4py import MPI as mpi
         mpiObj = MsgrMpi4py(mpi, verbose)
-        if mpiObj.getRank() == 0:
+        if (mpiObj.getRank()==0 and localVerbose):
             print "Found mpi4py module \n"
         mpiObj.barrier()
     except:
@@ -399,7 +402,7 @@ def getMPIObject(verbose=True):
         try:
             import boost.mpi as mpi
             mpiObj = MsgrBoost(mpi, verbose)
-            if mpiObj.getRank() == 0:
+            if (mpiObj.getRank()==0 and localVerbose):
                 print "Found boost.mpi module \n"
             mpiObj.barrier()
         except:
