@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import mpiNREL
-p = mpiNREL.getMPIObject(True, localVerbose=False)
+p = mpiNREL.getMPIObject(False, localVerbose=False)
 
 # MPI setup
 rank = p.getRank()

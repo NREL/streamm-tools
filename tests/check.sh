@@ -25,8 +25,9 @@ usage() {
 #
 compareTest() {
     testName=$1
+    runCmd=$2
     echo "------ Running test $testName --------"
-    $testName > tmp
+    $runCmd $testName > tmp
     diff tmp results/$testName.txt
     rm -rf tmp
     echo "-------------------------------------------------"
@@ -39,8 +40,9 @@ compareTest() {
 newTest() {
 
     testName=$1
+    runCmd=$2
     echo "------ Checking in results for $testName --------"
-    $testName > results/$testName.txt
+    $runCmd $testName > results/$testName.txt
     echo "-------------------------------------------------"
     echo " "
 }
@@ -56,9 +58,16 @@ elif [ $1 == "new" ]; then
     echo "Looking for tests named 'test-*.py'  "
     echo " "
 
+    # Serial test
     testNames=`ls -1 test-*.py`
     for testName in $testNames; do
 	newTest $testName
+    done
+
+    # Parallel test (np = 2)
+    testNames=`ls -1 test_n2-*.py`
+    for testName in $testNames; do
+	newTest $testName 'mpirun -n 2'
     done
 
 
@@ -69,9 +78,16 @@ elif [ $1 == "compare" ]; then
     echo "Looking for tests named 'test-*.py'  "
     echo " " 
 
+    # Serial test
     testNames=`ls -1 test-*.py`
     for testName in $testNames; do
 	compareTest $testName
+    done
+
+    # Parallel test (np = 2)
+    testNames=`ls -1 test_n2-*.py`
+    for testName in $testNames; do
+	compareTest $testName 'mpirun -n 2'
     done
 
     echo "If no output (other than status messages)... tests passed"
