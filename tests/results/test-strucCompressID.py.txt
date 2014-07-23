@@ -81,11 +81,6 @@ polymer2 =
 3 {'type': 'hooke', 'length': 1.233, 'pgid1': 4, 'pgid2': 5}
 4 {'type': 'hooke', 'length': 0.5, 'pgid1': 5, 'pgid2': 6}
 
-(toPtclID,fromPtclID) =  1   1   (1, <particles.Particle instance at 0x101595758>)
-(toPtclID,fromPtclID) =  2   3   (3, <particles.Particle instance at 0x1015957a0>)
-(toPtclID,fromPtclID) =  3   4   (4, <particles.Particle instance at 0x10158af80>)
-(toPtclID,fromPtclID) =  4   5   (5, <particles.Particle instance at 0x10158a518>)
-(toPtclID,fromPtclID) =  5   6   (6, <particles.Particle instance at 0x10158a7a0>)
 -------------------- After compressing --------------------
 polymer2 =  
 ************************************* 

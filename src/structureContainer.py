@@ -170,7 +170,7 @@ class StructureContainer:
             self.ptclC.particles[toPtclID] = self.ptclC.particles.pop(fromPtclID)
             self.bondC.replacePtclIDs(fromPtclID, toPtclID)   # Replace ptclIDs in bond container (other left unchanged)
             # self.angleC.replace(..)
-            print "(toPtclID,fromPtclID) = ", toPtclID," ",fromPtclID, " ", ptclTuple
+            # print "(toPtclID,fromPtclID) = ", toPtclID," ",fromPtclID, " ", ptclTuple
 
 
         for toBondID, bondTuple in enumerate(self.bondC):     # Enumerate returns (ID, obj) tuple for ptclTuple

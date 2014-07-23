@@ -33,8 +33,7 @@ bonds1   = BondContainer()
 bonds1.put(b1)
 bonds1.put(b2)
 
-polymer1 = StructureContainer(atoms1, bonds1)  # Complete structure 1 completely
-
+polymer1 = StructureContainer(atoms1, bonds1)  # Complete structure 1
 
 p1other = Particle( [0.0, 2.3, -20.1], "C",  1.0, 2.34)
 p2other = Particle( [50.0, 0.3, -0.1], "Ar", 2.0, 2.34)
@@ -53,8 +52,6 @@ bonds2   = BondContainer()
 bonds2.put(b1other)
 
 polymer2 = StructureContainer(atoms2, bonds2)  # Complete structure 1 completely
-                                               #polymer2.replacePtclIDs(1,6)
-                                               #polymer2.replacePtclIDs(2,8)
 
 del p1, p2, p3, p1other, p2other, b1, b2, b1other, atoms1, atoms2, bonds1, bonds2
 print "\n Cleaning memory for initial objects \n" 
