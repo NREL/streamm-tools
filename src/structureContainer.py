@@ -157,6 +157,28 @@ class StructureContainer:
 
 
 
+    def compressPtclIDs(self):
+        """
+        Replace all particle IDs such that if there are N particles in structure
+        the particle ID's run from 1...N. Tracks these changes
+        for all other (bond, angle, dihedral) containers that reference particleIDs
+        """
+
+        for toPtclID, ptclTuple in enumerate(self.ptclC):     # Enumerate returns (ID, obj) tuple for ptclTuple
+            toPtclID +=1                                      # Sets reordering index correctly
+            fromPtclID = ptclTuple[0]                         # Picks out ID from ptclTuple
+            self.ptclC.particles[toPtclID] = self.ptclC.particles.pop(fromPtclID)
+            self.bondC.replacePtclIDs(fromPtclID, toPtclID)   # Replace ptclIDs in bond container (other left unchanged)
+            # self.angleC.replace(..)
+            print "(toPtclID,fromPtclID) = ", toPtclID," ",fromPtclID, " ", ptclTuple
+
+
+        for toBondID, bondTuple in enumerate(self.bondC):     # Enumerate returns (ID, obj) tuple for ptclTuple
+            toBondID +=1                                      # Sets reordering index correctly
+            fromBondID = bondTuple[0]                         # Picks out ID from ptclTuple
+            self.bondC.bonds[toBondID] = self.bondC.bonds.pop(fromBondID)
+
+
     def replacePtclIDs(self, findPtclID, newPtclID):
         """
         Replace IDs that contain globalID of particle
