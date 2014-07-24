@@ -1,0 +1,92 @@
+***************************************************************************************
+ This test shows how to add StructureContainer objects together 
+ A special test to double-check re-labeling ... add a big container to a 'small' one 
+*************************************************************************************** 
+
+Cleaning particle container
+Cleaning particle container
+Cleaning bond container
+Cleaning bond container
+
+ Cleaning memory for initial objects 
+
+-------------------- Before adding --------------------
+polymer1 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [2.2, 2.2, 2.2], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.111, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 2.222, 'pgid1': 2, 'pgid2': 3}
+
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [1.11, 1.11, 1.11], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [2.22, 2.22, 2.22], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke-2', 'length': 1.1, 'pgid1': 1, 'pgid2': 2}
+
+ 
+-------------------- After adding --------------------
+Cleaning bond container
+Cleaning bond container
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [1.11, 1.11, 1.11], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [2.22, 2.22, 2.22], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
+4 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+5 {'position': [2.2, 2.2, 2.2], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+6 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke-2', 'length': 1.1, 'pgid1': 1, 'pgid2': 2}
+3 {'type': 'hooke', 'length': 1.111, 'pgid1': 4, 'pgid2': 5}
+4 {'type': 'hooke', 'length': 2.222, 'pgid1': 5, 'pgid2': 6}
+
+Cleaning structureContainer
+Cleaning particle container
+Cleaning bond container
+Cleaning structureContainer
+Cleaning particle container
+Cleaning bond container
+Cleaning bond container
+Cleaning particle container

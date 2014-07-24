@@ -142,7 +142,8 @@ class StructureContainer:
 
         keys1 = self.ptclC.particles.keys()   # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()  # global IDs in object being added
-        self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
+        self.ptclC.maxgid= max(keys1 + keys2)      # find max globalID in keys, set this object maxID
+        # self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
 
         for ptclkey2 in other.ptclC.particles:
             self.ptclC.put(other.ptclC.particles[ptclkey2]) # Pushes ptcl to this struc's ptcl container

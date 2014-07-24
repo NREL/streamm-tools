@@ -300,7 +300,7 @@ class ParticleContainer:
         NOTE:
             (1) One can imagine extra conditions on distances between ptcl being
                 inserted and current particles.
-            (2) This could check for uniqueness of all globalID's and throw error
+test            (2) This could check for uniqueness of all globalID's and throw error
                 for copies
         """
         

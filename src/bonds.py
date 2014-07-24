@@ -218,7 +218,10 @@ class BondContainer:
 
         keys1 = self.bonds.keys()         # global IDs in this object
         keys2 = other.bonds.keys()        # global IDs in object being added
-        self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
+        bothkeys = keys1 + keys2          # List of all keys
+
+        if len(bothkeys) > 0:                 # If keys not empty... proceed
+            self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
 
         for ptclkey2 in other.bonds:
             self.put(other.bonds[ptclkey2])
