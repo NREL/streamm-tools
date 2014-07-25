@@ -66,6 +66,14 @@ elif [ $1 == "new" ]; then
     echo "Looking for tests named 'test-*.py'  "
     echo " "
 
+    echo "Proceed [y]yes [n]no"
+    read -e ans
+    if [ $ans == "y" ]; then
+	echo " "
+    else
+	echo " "; exit
+    fi
+
     # Serial test
     testNames=`ls -1 test-*.py`
     for testName in $testNames; do

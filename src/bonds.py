@@ -250,37 +250,9 @@ class BondContainer:
             raise TypeError
 
 
-    def replacePtclIDs(self, findPtclID, newPtclID):
+    def replacePtclIDs(self, idFromTo):
         """
-        Replace s that contain globalID of particle
-
-        Args:
-            findPtclID (int) globalID of particle to search for
-            newPtclID  (int) globalID to replace findPtclID with
-
-        Returns:
-        """
-
-        for gid in self.bonds:
-            
-            bond = self.bonds[gid]
-            if findPtclID in bond:
-
-                if bond.pgid1 == findPtclID:
-                    bond.pgid1 = newPtclID
-                elif bond.pgid2 == findPtclID:
-                    bond.pgid2 = newPtclID
-                else:
-                    print "ptclID not found in bond"
-                    sys.exit(3)
-
-
-
-
-    def replacePtclIDsDict(self, idFromTo):
-        """
-        Replace ptclIDs given a dictionary
-        of ID changes # eg {1:3, 3:5, 2:20...}
+        Replace ptclIDs given a dictionary of ID changes # eg {1:3, 3:5, 2:20...}
                 
         Args:
             idFromTo (dict) map of ID changes

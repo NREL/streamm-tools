@@ -13,22 +13,9 @@ class Particle:
 
     Current use cases include: atoms, united-atoms and 'beads'
 
-    Possible tags:
-    ELN = []
-    ASYMB = []
-    CTYPE = []
-    CHARGES = []
-    R = []
-    VEL = []
-    ATYPE = []
-    AMASS = []
-    MOLNUMB = []
-    RING_NUMB = []
-    RESID = []
-    RESN = []
-    CHARN = []
-    UNITNUMB = [] 
-    UNITTYPE = []
+    Possible tags: ELN = [], ASYMB = [], CTYPE = [],  CHARGES = [],  R = [], VEL = []
+                   ATYPE = [], AMASS = [], MOLNUMB = [], RING_NUMB = [], RESID = [],
+                   RESN = [], CHARN = [], UNITNUMB = [], UNITTYPE = []
     """
 
     def __init__(self, pos=[], type="blank", charge=0.0, mass=1.0):
@@ -320,6 +307,7 @@ test            (2) This could check for uniqueness of all globalID's and throw 
         Args:
             findGID (int) ptcl ID to search
             newGID  (int) ptcl ID to replace findGID with
+
         Returns:
             Errors if
               - findGID not found
@@ -376,8 +364,8 @@ test            (2) This could check for uniqueness of all globalID's and throw 
                 subGroupGID.append(pid)          # so store pid of particle
             tagFoundBoolList = list()            # Reset tag found list
 
-
         return subGroupGID
+
         
 
     def getTypeInfoDict(self):
