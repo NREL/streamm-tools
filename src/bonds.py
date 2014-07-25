@@ -276,6 +276,35 @@ class BondContainer:
 
 
 
+
+    def replacePtclIDsDict(self, idFromTo):
+        """
+        Replace ptclIDs given a dictionary
+        of ID changes # eg {1:3, 3:5, 2:20...}
+                
+        Args:
+            idFromTo (dict) map of ID changes
+        """
+
+        fromIDs = idFromTo.keys()
+                
+        for gid in self.bonds:
+            
+            bond = self.bonds[gid]   # Bond object
+            pgid1 = bond.pgid1       # ptcl1 in bond
+            pgid2 = bond.pgid2       # ptcl2 in bond
+
+            if pgid1 in fromIDs:
+                toID = idFromTo[pgid1]
+                bond.pgid1 = toID
+
+            if pgid2 in fromIDs:
+                toID = idFromTo[pgid2]
+                bond.pgid2 = toID
+
+
+
+
     def getTypeInfoDict(self):
         """
         Return a map of type to (typeIndex, ??????)

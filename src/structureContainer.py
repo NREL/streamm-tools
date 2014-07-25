@@ -137,23 +137,28 @@ class StructureContainer:
         for all other (bond, angle, dihedral) containers that reference particleIDs
         """
 
+        idFromToDict = dict()  # Need to keep track of all ptcl ID changes at once
+                               # {fromID1:toID1, fromID2:toID2...}
+                               # eg {1:3, 3:5, 2:20...}
+        
         bondC = BondContainer()            # Local bond container copy so ptclIDs
         bondC = copy.deepcopy(other.bondC) # inside can be changed (for adding below)
 
-        keys1 = self.ptclC.particles.keys()   # global IDs of particles in this object
-        keys2 = other.ptclC.particles.keys()  # global IDs in object being added
-        self.ptclC.maxgid= max(keys1 + keys2)      # find max globalID in keys, set this object maxID
-        # self.maxgid = max(keys1 + keys2)      # find max globalID in keys, set this object maxID
+        keys1 = self.ptclC.particles.keys()    # global IDs of particles in this object
+        keys2 = other.ptclC.particles.keys()   # global IDs in object being added
+        self.ptclC.maxgid= max(keys1 + keys2)  # find max globalID in keys, set this object maxID
 
         for ptclkey2 in other.ptclC.particles:
             self.ptclC.put(other.ptclC.particles[ptclkey2]) # Pushes ptcl to this struc's ptcl container
             fromPtclID = ptclkey2                           # Track IDs from--->to
             toPtclID   = self.ptclC.maxgid                  #  --> toID (to is the maxid of this ptclC)
-            bondC.replacePtclIDs(fromPtclID, toPtclID)      # Replace ptclIDs in bond container (other left unchanged)
+            idFromToDict[fromPtclID]=toPtclID               # Store ID changes
 
-        self.bondC += bondC             # Now add bondC with 'corrected' IDs
-        # self.angleC += other.angleC
+        bondC.replacePtclIDsDict(idFromToDict)              # Use tracked list of ID changes
+        self.bondC += bondC                                 # Now add bondC with 'corrected' IDs
 
+        # self.angleC += other.angleC              # TBI
+        # angleC.replacePtclIDsDict(idFromToDict)  # TBI
         return self
 
 
@@ -165,19 +170,25 @@ class StructureContainer:
         for all other (bond, angle, dihedral) containers that reference particleIDs
         """
 
+        idFromToDict = dict()  # Need to keep track of all ptcl ID changes at once
+                               # {fromID1:toID1, fromID2:toID2...}
+                               # eg {1:3, 3:5, 2:20...}
+
         for toPtclID, ptclTuple in enumerate(self.ptclC):     # Enumerate returns (ID, obj) tuple for ptclTuple
             toPtclID +=1                                      # Sets reordering index correctly
             fromPtclID = ptclTuple[0]                         # Picks out ID from ptclTuple
-            self.ptclC.particles[toPtclID] = self.ptclC.particles.pop(fromPtclID)
-            self.bondC.replacePtclIDs(fromPtclID, toPtclID)   # Replace ptclIDs in bond container (other left unchanged)
-            # self.angleC.replace(..)
-            # print "(toPtclID,fromPtclID) = ", toPtclID," ",fromPtclID, " ", ptclTuple
+            idFromToDict[fromPtclID]=toPtclID                 # Store ID changes
+            ptclObj = self.ptclC.particles.pop(fromPtclID)    # Remove old ID
+            self.ptclC.particles[toPtclID] = ptclObj          # reassign ptcl obj as new ID
 
+        self.bondC.replacePtclIDsDict(idFromToDict)           # Use tracked list of ID changes
+        # self.angleC.replacePtclIDsDict(idFromToDict)        # TBI
 
-        for toBondID, bondTuple in enumerate(self.bondC):     # Enumerate returns (ID, obj) tuple for ptclTuple
-            toBondID +=1                                      # Sets reordering index correctly
-            fromBondID = bondTuple[0]                         # Picks out ID from ptclTuple
-            self.bondC.bonds[toBondID] = self.bondC.bonds.pop(fromBondID)
+        for toBondID, bondTuple in enumerate(self.bondC):   # Enumerate returns (ID, obj) tuple for ptclTuple
+            toBondID +=1                                    # Sets reordering index correctly
+            fromBondID = bondTuple[0]                       # Picks out ID from ptclTuple
+            bondObj = self.bondC.bonds.pop(fromBondID)      # Remove old ID
+            self.bondC.bonds[toBondID] = bondObj            # reassign bond obj as new ID
 
 
     def replacePtclIDs(self, findPtclID, newPtclID):
@@ -287,7 +298,6 @@ class StructureContainer:
 
         Method:
             Volume = ( v_i x v_j ) \dot v_k
-
         """
 
         br1 = np.cross(self.latticevec[0],self.latticevec[1])
