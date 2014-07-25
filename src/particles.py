@@ -268,9 +268,6 @@ class ParticleContainer:
 
         for ptclkey2 in other.particles:
             self.put(other.particles[ptclkey2])
-            fromPtclID = ptclkey2
-            toPtclID   = self.maxgid
-            # print "Particle ID ", fromPtclID, " changed to ", toPtclID
             
         return self
 
@@ -287,7 +284,7 @@ class ParticleContainer:
         NOTE:
             (1) One can imagine extra conditions on distances between ptcl being
                 inserted and current particles.
-test            (2) This could check for uniqueness of all globalID's and throw error
+            (2) This could check for uniqueness of all globalID's and throw error
                 for copies
         """
         
