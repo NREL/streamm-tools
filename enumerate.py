@@ -35,6 +35,9 @@ class BuildingBlockEnumerator(BuildingBlocks):
         self.good_strs = []
 
     def try_str(self, input_str, options, real_deal):
+
+        print "input_str", input_str
+
         # generate the structures and input files
         success = gen_monomer(input_str, self, options, write_files = real_deal)
         if (success == True and options.do_dimer and real_deal):
@@ -343,6 +346,19 @@ class BuildingBlockEnumerator(BuildingBlocks):
                             str = "%s %s %s %s %s %s %s" % (good_term[iterm1], good_acc[iacc1], sp, good_don[idon], sp, good_acc[iacc1], good_term[iterm1])
                             print "TRYING %s" % str
                             self.try_str(str, options, True)
+
+        print "NOTE: ------------ Spacers are between T, Af and D -----------------"
+        if "TSpADASpT" in classes:            
+            for iterm1 in range(0,len(good_term)):
+                for iacc1 in range(0,len(good_acc)):
+                    for idon in range(0,len(good_don)):                                    
+                        for ispc in range(0,len(allthespacers)):
+                            sp = "%s" % allthespacers[ispc]  ## one of the spacer names can be "", for no spacer
+                            str = "%s %s %s %s %s %s %s %s %s" % (good_term[iterm1], sp, good_acc[iacc1], sp, good_don[idon], sp, good_acc[iacc1], sp, good_term[iterm1])
+                            print "TRYING %s" % str
+                            self.try_str(str, options, True)
+
+
 
         if "TAfDAfT" in classes:
             print "NOTE: ------------ Spacers are between T, Af and D -----------------"

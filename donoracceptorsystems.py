@@ -251,6 +251,7 @@ def make_frags(bblocks, parts, rot_ctrl):
         c = parts[i]
         c = c.strip()
         reverse_attach = False
+        
         if (c[0] == "r"):
             # reverse attachment order of this block
             c = c[1:]
@@ -263,6 +264,11 @@ def make_frags(bblocks, parts, rot_ctrl):
             curparent = frag_template
             curresdict = bblocks.alldonresdict if len(bblocks.alldonres) > 0 else bblocks.allresdict
             i += 1
+            
+            # make_ff TK
+            newfrag.setall_resnumb(i)
+            newfrag.setall_restype(c)
+
         elif (c in bblocks.allaccdict):
             frag_template = bblocks.allaccdict[c]
             newfrag = Fragment(frag=frag_template)
@@ -270,6 +276,11 @@ def make_frags(bblocks, parts, rot_ctrl):
             curparent = frag_template
             curresdict = bblocks.allaccresdict if len(bblocks.allaccres) > 0 else bblocks.allresdict
             i += 1
+            
+            # make_ff TK
+            newfrag.setall_resnumb(i)
+            newfrag.setall_restype(c)
+
         elif (c in bblocks.allspacerdict):
             frag_template = bblocks.allspacerdict[c]
             newfrag = Fragment(frag=frag_template)
@@ -278,6 +289,11 @@ def make_frags(bblocks, parts, rot_ctrl):
             curparent = frag_template # now we allow to attach rgroups to spacer
             curresdict = bblocks.allspacerresdict if len(bblocks.allspacerres) > 0 else bblocks.allresdict
             i += 1
+            
+            # make_ff TK
+            newfrag.setall_resnumb(i)
+            newfrag.setall_restype(c)
+
         elif (c in bblocks.alltermdict):
             frag_template = bblocks.alltermdict[c]
             newfrag = Fragment(frag=frag_template)
@@ -285,6 +301,11 @@ def make_frags(bblocks, parts, rot_ctrl):
             curresdict = bblocks.alltermresdict if len(bblocks.alltermres) > 0 else bblocks.allresdict
             curparent = frag_template
             i += 1
+            
+            # make_ff TK
+            newfrag.setall_resnumb(i)
+            newfrag.setall_restype(c)
+
         elif c=='(':
             i = i+1
             c = parts[i]
@@ -307,6 +328,12 @@ def make_frags(bblocks, parts, rot_ctrl):
                         afrag.subtype = "rgroup"
                     subfrags.append(afrag)
                     subfragnames.append(c)
+                    
+            
+                    # make_ff TK
+                    afrag.setall_resnumb(i)
+                    afrag.setall_restype(c)
+
                 elif (c == "0" or c.lower() == "null"):
                     subfrags.append(None)
                     subfragnames.append("NULL")
@@ -400,10 +427,12 @@ def build_from_str(bblocks, s, options):
     for newfrag in frags:
         
         # make_ff TK
-        newfrag.setall_resnumb(fragidx+1)
-        newfrag.setall_restype(s)
+        #newfrag.setall_resnumb(fragidx+1)
+        #newfrag.setall_restype(s)
+
         
-        print "processing fragment of type : ", newfrag.type,fragidx,s
+        
+        print "processing fragment of type : ", newfrag.type," fragidx ",fragidx," s ",s
         #  print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria
         if (fragidx == 0):
             frag = Fragment(frag=newfrag)
@@ -754,9 +783,12 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
     Returns: bool ?
     """
     input_str = ""
+    
     for i in range (0,number):
         input_str += base_input_str 
         input_str += " "
+
+        print "concatonating  ",base_input_str," to input_str string "
 
     frag = build_from_str(bblocks, input_str, options)
 
@@ -779,6 +811,10 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         json_data = build_meta(frag, short_name, base_input_str, bblocks, options)
         json_data['metadata']['number'] = number
         json_data['metadata']['n'] = number
+
+        # Build file data
+        loc_dir = "%s/%s"%(os.getcwd(),struct_dir)
+        json_data['dir'] = loc_dir
 
         #   Get atomic information from fragment
         atomicsymb_list = frag.return_asymb()
@@ -809,9 +845,14 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         #
         if( options.make_ff ):
             
-            calc_prefix = "%s/%s_n%d" % (struct_dir, short_name, number)
-            system_i.create_top()
-            system_i.lmp_writedata(calc_prefix,options.norm_dihparam)
+            system_i.create_top(options.ff_charges)
+            loc_data_file = "%s_n%d.data" % ( short_name, number)
+            path_data_file = "%s/%s" % (struct_dir, loc_data_file)
+            system_i.lmp_writedata(path_data_file,options.norm_dihparam)
+
+            # Add created file to json file
+            json_data["ff_input"] = {}
+            json_data["ff_input"]["lmp_data"] = loc_data_file
 
         json_data = system_i.putstruc_json(json_data)
         
@@ -863,7 +904,7 @@ def get_options():
     # Force field options 
     parser.add_option("--make_ff", dest="make_ff", help="Generate force field input files from a finished calculation  ", action="store_true", default=False)
     parser.add_option("--norm_dihparam", dest="norm_dihparam",default=False,action="store_true",help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
-
+    parser.add_option("--ff_charges", dest="ff_charges", help="Use force field charges rather than charges in cply file  ", action="store_true", default=False)
 
     # these are really for enumerator, but they share options
     parser.add_option("-c", "--class", dest="struct_class",  type="string", default="DA", help="space separated string of classes of donor acceptor systems to enumerate, among DA ADA DAD DD AA DAD DDA, e.g. \"DA DAD\"")
@@ -891,7 +932,7 @@ def get_options():
 def main():
     options, args = get_options()
     input_str = args[0]
-    print "setting up files for input string = ", input_str
+    print "donoracceptorsystems: setting up files for input string = ", input_str
     
     # load the building blocks
     bblocks = BuildingBlocks(options.bblocks_dir, options.subsets_file)

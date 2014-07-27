@@ -1071,6 +1071,7 @@ class FragmentWithHeader(Fragment):
         # read from piece of Gaussian input file (lines are like xyz: "atom x y z")
         cnt = 0
         first = True
+        # print "fragments.py:read Reading file ", fname
         for ln in fileinput.input(fname):
             if (first):
                 # first line is, e.g. "D(R1,R1)"
@@ -1078,8 +1079,11 @@ class FragmentWithHeader(Fragment):
                 # we use these in donoracceptorsystems.make_frags() 
                 first = False
                 ln = ln.strip()
+                # print "ln = ", ln
                 self.rgroup_spec_str = ln
                 p1 = re.split("\(([^)]*)\)", ln)
+                # print "p1 = ", p1
+
                 p1 = p1[1].split(",")
                 self.rgroup_tokens = []
                 for p in p1:
