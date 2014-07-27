@@ -19,6 +19,8 @@ auenev = float(27.21138386)
 # This information is written to files, and used to generate plots of
 # absorption spectra with gnuplot
 
+
+# SWS: this returns 0 always
 def ns_get(fline):
     """ Parses a line containing 'td=nstates=ns/' embedded in other
         text to find and return the number of excited states from a
@@ -28,6 +30,8 @@ def ns_get(fline):
     ll = l[l.index('='):] # Remove everything before =ns*
     lll = ll[:ll.index('/')] # Remove / and everything after
     kns = int(lll.strip('=')) # Remove the = and assign to integer ns
+    print "kns = ", kns
+    print "ns = ", ns
     return ns
 
 def spec_get(fline):
@@ -48,11 +52,8 @@ def check_get(fline):
        file name.
        For example, "%chk=file.chk" returns the string "file"
     """
-
     l = fline[fline.index('=')+1:]
-    ll = l[:l.index('.chk')]
-    print "fline = ", fline
-    print "ll = ", ll
+    ll = l[:l.index('.chk')] 
     return ll
 
 def seconv_data(lmin,lmax,dl,ewidth,stinfo,spectrum):
@@ -76,7 +77,6 @@ def seconv_data(lmin,lmax,dl,ewidth,stinfo,spectrum):
             spect = spect + fosc*gaussl*2.64/ewidth
         callout = (l,spect)
         spectrum.append(callout)
-
 
 
 ####################################################################
@@ -160,6 +160,8 @@ if (len(sys.argv) != 7):
     sys.exit("Incorrect argument list")
 
 fname = sys.argv[1]
+print "fname = ",fname # SWS:
+
 jname = sys.argv[2]
 print "jname = ",jname
 
@@ -175,8 +177,9 @@ print ewidth,lmin,lmax,dl
 str_list = ["\nOpening file ","\"",fname,"\"\n"]
 print ''.join(str_list)
 ftddft = open(fname,"r")
+print "Opening file object ", ftddft #SWS:
 
-# Read through a gaussian output file (*.out) to get information about
+# Read through a gaussian output file (*.log) to get information about
 # the energy levels and generate an absorption spectrum
 
 stinfo = []
@@ -192,34 +195,44 @@ betas = False
 ns=0
 timedep = False
 
-
 for line in ftddft.readlines():
 
     if 'td=nstates=' in line.lower(): # Find the number of excited states
         timedep = True
         llow = line.lower()
-        ns = ns_get(llow)
+        ns = ns_get(llow)    # SWS: this returns 0.. incorrect variable set in method
+        print "------- td=nstates line found and timedep set to True ", line.lower()
+        print "ns = ", ns
+
         #print 'System has %d excited states ' % ns
         # Note that this will find two lines with nstates in normal output
 
     if 'Excited State' in line: # Find information about excited states
+
+        # print "------- Excited State line found ", line.lower()
+
         ex_info = (egap,lam,fosc) = spec_get(line)
-        #print "%.4f %.2f %.4f" % ex_info # ev lam osc.strength
+        # print "ex_info = ", ex_info
+        # print "%.4f %.2f %.4f" % ex_info # ev lam osc.strength
         stinfo.append(ex_info)
         gaplist.append(egap)
         lamlist.append(lam)
         fosclist.append(fosc)
 
-    #    print "line = ", line
-    #    if '%chk=' in line: # Extract the name of the checkpoint file (w/o .chk)
-    #        cfile = check_get(line.lower())
-    #        #print cfile,"\n"
+    if '%chk=' in line: # Extract the name of the checkpoint file (w/o .chk)
+        cfile = check_get(line.lower())
+        print "cfile = ", cfile
 
-    if 'Optimized Parameters' in line or timedep==True: converged=True
+    if 'Optimized Parameters' in line or timedep==True:
+        converged=True
 
-    if timedep==True: converged=True
+    if timedep==True:
+        converged=True
 
     if ('Tot=' in line and 'X=' in line and converged==True and timedep==False): # Get the dipole vector for the ground state and length (in Debye)
+
+        # print "Tot = X= line found for converged=True / timedep=False ", line
+
         dip_list = line.split()
         x = center("X",10)
         y = center("Y",10)
@@ -229,9 +242,13 @@ for line in ftddft.readlines():
         dy = center(dip_list[3],10)
         dz = center(dip_list[5],10)
         dtot = center(dip_list[7],10)
-        print dx, dy, dz, dtot
+        # print " dip_list ", dip_list
+        # print " Converged true/td=false", dx, dy, dz, dtot
 
     if ('Tot=' in line and 'X=' in line and timedep==True): # Get the dipole vector for the first excited state and length (in Debye)
+
+        # print "Tot = X= line found for converged=True / timedep=True ", line
+
         dip_list = line.split()
         x = center("X",10)
         y = center("Y",10)
@@ -241,7 +258,8 @@ for line in ftddft.readlines():
         d2y = center(dip_list[3],10)
         d2z = center(dip_list[5],10)
         d2tot = center(dip_list[7],10)
-        #print d2x, d2y, d2z, d2tot
+        # print " dip_list ", dip_list
+        # print " Converged true/td=true ", d2x, d2y, d2z, d2tot
         
 # Get the occupied and unoccupied levels
 # (after convergence has been assured)
@@ -272,7 +290,6 @@ for line in ftddft.readlines():
 
 ftddft.close()
 
-
 ########################################################
 # SWS: New method (empty if restart file not found)
 
@@ -296,8 +313,6 @@ tlumo = a_virtvals[0]
 opt_lumo = thomo + tgap
 
 #sticks = {'sticklabels':['Energy gap','Wavelength','Oscillator Strength'],'sticklist':stinfo}
-
-
 sticks = {'Energy gap (eV)':gaplist,'Wavelength (nm)':lamlist,'Oscillator strength':fosclist}
 
 #print sticks
@@ -312,8 +327,6 @@ spectrum = []
 seconv_data(lmin,lmax,dl,ewidth,stinfo,spectrum)
 
 #print spectrum
-
-
 spectra = {'broadening':ewidth,'xlabel':'Wavelength (nm)','ylabel':'Absorption (x 10^4 L/mol cm)','spectdata':spectrum}
 
 #print spectra
