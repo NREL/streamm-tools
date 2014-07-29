@@ -76,8 +76,9 @@ elif [ $1 == "new" ]; then
 
     # Serial test
     testNames=`ls -1 test-*.py`
+    runCmd="python"
     for testName in $testNames; do
-	newTest $testName
+	newTest $testName $runCmd
     done
 
     # Parallel test (np = 2)
