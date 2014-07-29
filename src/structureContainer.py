@@ -231,16 +231,22 @@ class StructureContainer:
         return StructureContainer(subAtoms, subBonds)
 
 
-
-    def getpartnumb(self):
+    def setPtclPositions(self, ptclPosList):
         """
-        Return number of particles in a structure 
-        """
-        NP = 0
-        for pid, ptclObj in self.ptclC :
-            NP += 1
+        Reset all particle positions from an indexed list
 
-        return NP
+        Args:
+            ptclPosList (list) [ [1, 0.5, 0.1, 12.0],
+                                 [2, 0.4, 33.3, -0.1] .....]
+        """
+
+        for ptclPos in ptclPosList:
+            index = ptclPos[0]
+            pos = ptclPos[1:]
+
+            ptclObj = self.ptclC.particles[index]
+            ptclObj.position = pos
+
 
     def setBoxLengths(self, bLs):
         """
@@ -268,6 +274,20 @@ class StructureContainer:
         Set length of lattice vector 
         """
         self.latvec = latvec_list
+
+
+    #########################################################
+
+    def getpartnumb(self):
+        """
+        Return number of particles in a structure 
+        """
+        NP = 0
+        for pid, ptclObj in self.ptclC :
+            NP += 1
+
+        return NP
+
 
     def expandLatVec(self, precent ):
         """
