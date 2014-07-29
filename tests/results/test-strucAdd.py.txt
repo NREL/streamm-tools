@@ -2,10 +2,6 @@
  This test shows how to add StructureContainer objects together 
 ************************************************************************************ 
 
-Cleaning particle container
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
 
  Cleaning memory for initial objects 
 
@@ -54,8 +50,6 @@ polymer2 =
 
  
 -------------------- After adding --------------------
-Cleaning bond container
-Cleaning bond container
 polymer1 =  
 ************************************* 
  Global parameters: 
@@ -109,10 +103,4 @@ polymer2 =
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
-Cleaning particle container

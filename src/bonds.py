@@ -94,8 +94,10 @@ class BondContainer:
         """
         Destructor, clears dictionary memory
         """
-        print "Cleaning bond container"
+        if self.verbose:
+            print "Cleaning particle container"
         del self.bonds
+
 
     def __len__(self):
         """

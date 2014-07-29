@@ -44,4 +44,3 @@ id =  6  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'Si',
 id =  7  ptclObj =  {'position': [8.0, 2.3, -20.1], 'charge': 1.0, 'type': 'O', 'mass': 8.0, 'tagsDict': {'ringnum': 3, 'molnum': 2, 'type': 'O'}}
 --------------------------------------------------------------------------------- 
 
-Cleaning particle container

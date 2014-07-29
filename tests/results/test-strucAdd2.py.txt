@@ -3,10 +3,6 @@
  A special test to double-check re-labeling ... add a big container to a 'small' one 
 *************************************************************************************** 
 
-Cleaning particle container
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
 
  Cleaning memory for initial objects 
 
@@ -55,8 +51,6 @@ polymer2 =
 
  
 -------------------- After adding --------------------
-Cleaning bond container
-Cleaning bond container
 polymer2 =  
 ************************************* 
  Global parameters: 
@@ -83,10 +77,4 @@ polymer2 =
 4 {'type': 'hooke', 'length': 2.222, 'pgid1': 5, 'pgid2': 6}
 
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
-Cleaning particle container

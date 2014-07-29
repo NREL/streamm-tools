@@ -2,8 +2,6 @@
  This test shows how to save/dump/restore state of structureContainers using pickle
 ************************************************************************************ 
 
-Cleaning particle container
-Cleaning bond container
 Initial state of structure before dump  
 ************************************* 
  Global parameters: 
@@ -31,11 +29,7 @@ Initial state of structure before dump
 
 -------------------------------------------------------------------------------- 
 
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 After load from pickle 
 
 
@@ -66,10 +60,4 @@ After load from pickle
 -------------------------------------------------------------------------------- 
 
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
-Cleaning particle container

@@ -146,7 +146,9 @@ class ParticleContainer:
         """
         Destructor, clears dictionary memory
         """
-        print "Cleaning particle container"
+        if self.verbose:
+            print "Cleaning particle container"
+
         del self.particles
 
 
@@ -162,7 +164,6 @@ class ParticleContainer:
         fileObj = open(filePrefix + '.pkl', 'w')
         pickle.dump(self, fileObj)
         fileObj.close()
-
 
 
     def __len__(self):

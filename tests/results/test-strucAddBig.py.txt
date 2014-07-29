@@ -2,65 +2,23 @@
  This is a speed/memory test for adding StructureContainer objects together 
 ************************************************************************************ 
 
-Cleaning particle container
-Cleaning particle container
 
  Cleaning memory for initial objects 
 
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning particle container
-Cleaning particle container
 
  Cleaning memory for initial objects 
 
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning particle container
-Cleaning particle container
 
  Cleaning memory for initial objects 
 
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning particle container
-Cleaning particle container
 
  Cleaning memory for initial objects 
 
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
-Cleaning bond container
-Cleaning particle container

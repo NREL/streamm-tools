@@ -42,5 +42,3 @@ Will print the new atoms1 after adding atoms1 += atoms2
 3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
-Cleaning particle container
-Cleaning particle container

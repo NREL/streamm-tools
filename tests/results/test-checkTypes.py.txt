@@ -20,4 +20,3 @@ atoms1 initially contains all of the following
 This call should exit with error message
 More than one mass found for  Si
 Check Particle() object initialization
-Cleaning particle container

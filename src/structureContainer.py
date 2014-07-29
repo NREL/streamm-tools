@@ -28,7 +28,7 @@ class StructureContainer:
     """
 
     # def __init__(self, ptctC, bondC, angleC, dihC):
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer()):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -52,6 +52,9 @@ class StructureContainer:
             print "2nd arg should be a BondContainer object"
             raise TypeError
 
+        # Debug print flag
+        self.verbose = verbose
+
         # Length of cartesian box size [ [xmin, xmax], [ymin, ymax]...]
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0, 1.0] ]
 
@@ -63,7 +66,9 @@ class StructureContainer:
         """
         Destructor, clears structure memory and calls held container destructors
         """
-        print "Cleaning structureContainer"
+        if self.verbose:
+            print "Cleaning structureContainer"
+            
         del self.ptclC
         del self.bondC
 
@@ -224,7 +229,6 @@ class StructureContainer:
                 del subBonds[gid]
                 
         return StructureContainer(subAtoms, subBonds)
-
 
 
 

@@ -24,4 +24,3 @@ atoms1 state
 Setting ID tag that does not exist 5 with p6 particle data ---> atoms1[5]=p6 
 
 Using [] operator for non-existent key
-Cleaning particle container

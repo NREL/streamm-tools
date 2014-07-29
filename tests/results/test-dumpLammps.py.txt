@@ -1183,12 +1183,6 @@ Begin gathering neighbor list
 Begin sorting neighbor list
 Begin building bond container
 length of bond container =  1000
-Cleaning particle container
-Cleaning bond container
 Cleaning structureContainer
-Cleaning particle container
-Cleaning bond container
 ParallelMsgr destructor called
  
-Cleaning bond container
-Cleaning particle container

@@ -35,4 +35,3 @@ Here's an issue... globalID's are assigned by ParticleContainer class
 Setting Bond object with gid's of Particles needs to be done after PC class set 
 or there could be conflicts 
 
-Cleaning bond container
