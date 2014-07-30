@@ -1,0 +1,58 @@
+************************************************************************************
+ This test shows how to save/dump/restore state of structureContainers using pickle
+************************************************************************************ 
+
+Initial state of structure before reset  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [-3.0, 100]
+      Ly = [-5, 23.0]
+      Lz = [34.3, 100.1]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
+
+new positions =  [[1, 0.111, 0.222, 0.333], [2, 0.222, 0.333, 0.444], [4, 0.444, 0.555, 0.666]]
+new positions from structure =  [[1, 0.111, 0.222, 0.333], [2, 0.222, 0.333, 0.444], [3, 5.0, 2.3, -20.1], [4, 0.444, 0.555, 0.666]]
+ 
+After position reset/get  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [-3.0, 100]
+      Ly = [-5, 23.0]
+      Lz = [34.3, 100.1]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.111, 0.222, 0.333], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [0.222, 0.333, 0.444], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.444, 0.555, 0.666], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
+
+Cleaning structureContainer
