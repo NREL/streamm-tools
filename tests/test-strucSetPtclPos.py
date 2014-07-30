@@ -77,4 +77,8 @@ print "new positions = ", newPtclPos
 
 polymer1.setPtclPositions(newPtclPos)
 
-print "After position reset ", polymer1
+ptclPosList = polymer1.getPtclPositions()
+
+print "new positions from structure = ", ptclPosList
+print " "
+print "After position reset/get ", polymer1

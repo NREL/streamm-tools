@@ -241,11 +241,33 @@ class StructureContainer:
         """
 
         for ptclPos in ptclPosList:
+            print "ptclPos = ", ptclPos
             index = ptclPos[0]
             pos = ptclPos[1:]
 
             ptclObj = self.ptclC.particles[index]
             ptclObj.position = pos
+
+
+
+    def getPtclPositions(self):
+        """
+        Return list of indexed particle positions
+        
+        Return: (list) [ [1, 0.5, 0.1, 12.0],
+                         [2, 0.4, 33.3, -0.1] .....]
+        """
+
+        idxPosList = list()
+        
+        for pid, ptclObj in self.ptclC:
+            pos = ptclObj.position       # Get pos directly from ptcl object
+            idxPos = copy.deepcopy(pos)  # Local copy for editing
+            idxPos.insert(0, pid)        # Prepend index to pos eg  [1, 0.5, 0.1, 12.0],
+            print "idxPos = ", idxPos
+            idxPosList.append(idxPos)    # Collect list of index positions
+            
+        return idxPosList
 
 
     def setBoxLengths(self, bLs):
