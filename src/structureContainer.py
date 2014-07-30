@@ -167,6 +167,7 @@ class StructureContainer:
 
 
 
+
     def compressPtclIDs(self):
         """
         Replace all particle IDs such that if there are N particles in structure
@@ -178,22 +179,37 @@ class StructureContainer:
                                # {fromID1:toID1, fromID2:toID2...}
                                # eg {1:3, 3:5, 2:20...}
 
-        for toPtclID, ptclTuple in enumerate(self.ptclC):     # Enumerate returns (ID, obj) tuple for ptclTuple
-            toPtclID +=1                                      # Sets reordering index correctly
-            fromPtclID = ptclTuple[0]                         # Picks out ID from ptclTuple
-            idFromToDict[fromPtclID]=toPtclID                 # Store ID changes
+        localDict = dict() # Local copy for reordering
+        
+        for toPtclID, ptclTuple in enumerate(self.ptclC): # Enumerate returns (ID, obj) tuple for ptclTuple
+            toPtclID +=1                                  # Sets reordering index correctly
+            fromPtclID = ptclTuple[0]                     # Picks out ID from ptclTuple
+            idFromToDict[fromPtclID]=toPtclID             # Store ID changes
+            ptclObj = self.ptclC[fromPtclID]              # Get particle object
+            localDict[toPtclID] = ptclObj                 # Set local dictionary with reordered index
 
-            self.ptclC.particles[toPtclID] = self.ptclC.particles.pop(fromPtclID) # Remove old ID / reassign ptcl obj as new ID
+        del self.ptclC.particles              # Ensure memory is free
+        self.ptclC.particles = localDict      # Assign reordered local copy to ptcl container
+        del localDict                         # Clear local memory
 
 
+        # ------ Redo bonds ------
         self.bondC.replacePtclIDs(idFromToDict)           # Use tracked list of ID changes
         # self.angleC.replacePtclIDs(idFromToDict)        # TBI
 
+
+        localDict = dict()
         for toBondID, bondTuple in enumerate(self.bondC):   # Enumerate returns (ID, obj) tuple for ptclTuple
             toBondID +=1                                    # Sets reordering index correctly
             fromBondID = bondTuple[0]                       # Picks out ID from ptclTuple
-            bondObj = self.bondC.bonds.pop(fromBondID)      # Remove old ID
-            self.bondC.bonds[toBondID] = bondObj            # reassign bond obj as new ID
+            bondObj = self.bondC[fromBondID]                # Get bond object
+            localDict[toBondID] = bondObj                   # Set local dict with reordered index
+
+        del self.bondC.bonds                       # Ensure memory is free
+        self.bondC.bonds = localDict               # Assign reordered local copy to bond container
+        del localDict
+        # bondObj = self.bondC.bonds.pop(fromBondID)      # Remove old ID
+        # self.bondC.bonds[toBondID] = bondObj            # reassign bond obj as new ID
 
 
 
