@@ -182,8 +182,9 @@ class StructureContainer:
             toPtclID +=1                                      # Sets reordering index correctly
             fromPtclID = ptclTuple[0]                         # Picks out ID from ptclTuple
             idFromToDict[fromPtclID]=toPtclID                 # Store ID changes
-            ptclObj = self.ptclC.particles.pop(fromPtclID)    # Remove old ID
-            self.ptclC.particles[toPtclID] = ptclObj          # reassign ptcl obj as new ID
+
+            self.ptclC.particles[toPtclID] = self.ptclC.particles.pop(fromPtclID) # Remove old ID / reassign ptcl obj as new ID
+
 
         self.bondC.replacePtclIDs(idFromToDict)           # Use tracked list of ID changes
         # self.angleC.replacePtclIDs(idFromToDict)        # TBI
