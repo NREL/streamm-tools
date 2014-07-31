@@ -166,8 +166,6 @@ class StructureContainer:
         return self
 
 
-
-
     def compressPtclIDs(self):
         """
         Replace all particle IDs such that if there are N particles in structure
@@ -635,6 +633,53 @@ class StructureContainer:
         # Close LAMMPS mapping file
         fileObj.close()
 
+    def maxminLatVec(self):
+        """
+        Set lattice vector based on the max min postion of the particles 
+        """
+        x_max = -100000.0
+        y_max = -100000.0
+        z_max = -100000.0
+        
+        x_min = 100000.0
+        y_min = 100000.0
+        z_min = 100000.0
+        l_max = -100000.0
+        
+        for pid, ptclObj in self.ptclC :
+
+            r_x = float(ptclObj.position[0])
+            r_y = float(ptclObj.position[1])
+            r_z = float(ptclObj.position[2])
+
+            if( r_x > x_max): x_max = r_x
+            if( r_y > y_max): y_max = r_y
+            if( r_z > z_max): z_max = r_z
+                
+            if( r_x < x_min): x_min = r_x
+            if( r_y < y_min): y_min = r_y
+            if( r_z < z_min): z_min = r_z
+
+
+        if( (x_max - x_min) > l_max ): l_max = (x_max - x_min)
+        if( (y_max - y_min) > l_max ): l_max = (y_max - y_min)
+        if( (z_max - z_min) > l_max ): l_max = (z_max - z_min)
+            
+        self.latticevec[0][0] = l_max
+        self.latticevec[1][1] = l_max
+        self.latticevec[2][2] = l_max
+        
+
+    def getchainnumb(self):
+        """
+        Return number of chains in a structure 
+        """
+        n_chains = 0
+        for pid, ptclObj in self.ptclC :
+            if( ptclObj.tagsDict["chain"] > n_chains): n_chains = ptclObj.tagsDict["chain"]
+
+        return n_chains
+
     def putstruc_json(self, json_data ):
         """
         Write a structure into json file
@@ -700,13 +745,30 @@ class StructureContainer:
         return json_data
 
 
+    def write_json(self,dir_id,output_id ):
+	"""
+	Write structure information into a json file
+	"""
+	
+	json_data = {}
+	json_data = self.putstruc_json(json_data)
+
+
+	json_file = dir_id+"/"+output_id + ".json"
+	f = open(json_file, 'w')
+        json.dump(json_data,f, indent=2)
+        f.close()
+
     def getsys_json(self, json_file):
         """
         Read in structure information from json file 
 
         Args:
-            json_file (json) file with structure information 
+            json_file (json) file with structure information
 
+        Return
+          json_data (json structure data )
+          
         """
 
         f = open(json_file, 'r')
@@ -717,7 +779,8 @@ class StructureContainer:
         struc_data = json_data["structure"]
         particle_data = json_data["structure"]["particle"]
 
-        # Create structure container for particles 
+        # Create structure container for particles
+        
 
         for p_i in range( len( particle_data["number_id"])):
             r_i = particle_data["position"][p_i]
@@ -727,7 +790,7 @@ class StructureContainer:
             # Create particle
             pt_i = Particle( r_i,atomic_symb,q_i,m_i )
             # Find needed tags
-            chain_i = particle_data["chain"][p_i]
+            chain_i = int( particle_data["chain"][p_i] )
             ring_i = particle_data["ring"][p_i]
             resname_i = particle_data["resname"][p_i]
             residue_i = particle_data["residue"][p_i]
@@ -745,7 +808,7 @@ class StructureContainer:
         for b_indx in range( len(twobody_data["bonds"] )):
             a_i = int(twobody_data["bonds"][b_indx][0] )
             a_j = int(twobody_data["bonds"][b_indx][1] )
-            b_i = Bond( a_i+1, a_j+1 )            
+            b_i = Bond( a_i, a_j )            
             self.bondC.put(b_i)
 
         # Read in lattice vectors
@@ -755,6 +818,8 @@ class StructureContainer:
         self.latticevec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
         self.latticevec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
 
+        return json_data
+    
     def create_top(self,ff_charges):
         """
         Find topology information for force-field input files 
@@ -774,12 +839,12 @@ class StructureContainer:
         
         for pid, ptclObj  in self.ptclC:
             ASYMB.append( ptclObj.type  )
-            R.append( np.array( ptclObj.position)  )
-            AMASS.append( ptclObj.mass  )
-            CHARGES.append( ptclObj.charge  )
-            MOLNUMB.append( ptclObj.tagsDict["chain"]  )
-            RESID.append( ptclObj.tagsDict["residue"]  )
-            RESN.append( ptclObj.tagsDict["resname"]  )
+            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )
+            AMASS.append( float( ptclObj.mass)  )
+            CHARGES.append( float( ptclObj.charge ) )
+            MOLNUMB.append( int( ptclObj.tagsDict["chain"] ) )
+            RESID.append( int( ptclObj.tagsDict["residue"] ) )
+            RESN.append(  ptclObj.tagsDict["resname"]  )
             
             
         # Direct copy of top.print_ff_files
@@ -871,10 +936,58 @@ class StructureContainer:
             #         oligomer = oligomer.guess_oplsaatypes()
 
 
-    def lmp_writedata(self,data_file,norm_dihparam):
+
+    def write_gro(self,dir_id,output_id ):
+        """
+        Write out gromacs gro file
+        """
+        # Version 1 will be dependent on Atomicpy
+        import gromacs 
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+       
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latticevec[0][0]
+        LV[1][1] = self.latticevec[1][1]
+        LV[2][2] = self.latticevec[2][2]
+        
+        out_gro = dir_id+"/"+output_id + ".gro"
+        gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
+
+    def lmp_writedata(self,data_file,norm_dihparam,itp_file):
         """
         Write out lammps data file
         """
+
+        check_bonds = True 
 
         # Version 1 will be dependent on Atomicpy
         import elements , lammps ,gromacs , atom_types, top , groups
@@ -908,13 +1021,14 @@ class StructureContainer:
         BONDS = []
         for b_i,bondObj in  self.bondC:
             BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+
                     
         # Set cubic lattice constant to 5 nm arbitrary 
         LV = np.zeros( (3,3) )
             
-        LV[0][0] = 200.0
-        LV[1][1] = 200.0
-        LV[2][2] = 200.0
+        LV[0][0] = self.latticevec[0][0]
+        LV[1][1] = self.latticevec[1][1]
+        LV[2][2] = self.latticevec[2][2]
         
         # Find atomic number based on atomic symbol 
         ELN = elements.asymb_eln(ASYMB)
@@ -922,14 +1036,55 @@ class StructureContainer:
         NA = len(ELN)
         
         # Create neighbor list form bonds
-        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        # NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
+
+        print_nb = False
+        # Make compatable with 0-(N-1) index of atoms 
+        for n_indx in range(len(NBLIST)):
+            if( print_nb):
+                print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
+            NBLIST[n_indx] =NBLIST[n_indx] -1
+        for n_indx in range(len(NBINDEX)-1):
+            if( print_nb):
+                print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
+            NBINDEX[n_indx] =NBINDEX[n_indx+1]
+
+        if( print_nb):
+
+            for p_i in range(len(self.ptclC)):
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i, ELN[p_i]," has ",N_i_f - N_i_o
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j," atomic # ", ELN[atom_j]
+        #
+        # Check that the altered neighbor list was done correctly 
+        #  
+        BONDS_check = top.nblist_bonds(NA,NBLIST, NBINDEX)
+        if( len(BONDS_check) != len(BONDS)):
+            sys.exit("error in bonds ")
+        else:
+            for b_i in range(len(BONDS)):                
+                if( BONDS[b_i][0] !=  BONDS_check[b_i][0] ):
+                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
+                    sys.exit("error in bonds ")
+                if( BONDS[b_i][1] !=  BONDS_check[b_i][1] ):
+                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
+                    sys.exit("error in bonds ")
+                    
+            #sys.exit(" checking bonds ")
+
+        
+        
         ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
         #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
         DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
         IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
 
         # Read in parameter files 
-        itp_file = "oplsaa.itp"
+        
         FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
 
         # Identify total number of atom types for lammps output 
@@ -953,6 +1108,108 @@ class StructureContainer:
 	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
 	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
 
+
+    def write_xmol(self, xmol_file,comment,append):
+        """
+        Write a structure  to an xmol file
+        
+        Args:
+          xmol_file    (str) xmol file name
+          comment  (str) for comment line 
+          append  (boolean) to append or create a new file 
+        Reutrns
+          null
+        """
+        # Open xmol file 
+        if(append):
+            F = open(xmol_file,"a")
+        else:
+            F = open(xmol_file,"w")
+            
+        # Loop over structures
+        NP = len( self.ptclC )
+        F.write(" %d \n" % NP )
+        F.write(" %s \n"%comment)
+        for pid, ptclObj  in self.ptclC:
+            r_i = ptclObj.position
+            atomic_symb = ptclObj.type
+            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
+        F.close()
+
+    
+
+    def bonded_nblist(self):
+        """
+        Create neighbor list of bonded particles
+
+
+        """
+        
+        debug = False 
+        NNAB  = 0
+
+        maxnnab = len(self.bondC)*2 + 1
+            
+        if(debug):
+            print " maxnnab",maxnnab
+            
+        #NBLIST = numpy.empty( maxnnab,  dtype=int )
+        #NBINDEX = numpy.empty( maxnnab,  dtype=int )
+
+        # python style nieghbor list
+        nblist_py = [] #numpy.empty( maxnnab,  dtype=int )
+
+        NBLIST = []
+        NBINDEX = []
+        NBLIST.append( 0 )
+        
+        # First create an N diminsional list of index lists for each particle
+
+        for p_i, prtclC in self.ptclC:
+            nblist_py.append( [  ] )
+        nblist_py.append( [  ] )
+
+        # bassed on bonds add index of neighbros to particle index of nblist_py
+        for b_i,bondObj in  self.bondC:
+            bnd_i = bondObj.pgid1 
+            bnd_j = bondObj.pgid2
+            
+            nblist_py[bnd_i].append( bnd_j )
+            nblist_py[bnd_j].append( bnd_i )
+
+        # Translate 2D into 1D array
+        #   mostly to match perviously writen fortran code
+        for p_i in range( len(nblist_py)):
+            # loop over  each particle p_i and get list of neighbors nlist_i
+            nlist_i = nblist_py[p_i]
+            NBINDEX.append( NNAB + 1 )
+            # Loop over neighbor list of each particle nlist_i and get neighbor p_j
+            for p_j in  nlist_i:
+                #if( p_j > p_i):
+                # remove redundent neighbors 
+                NNAB +=  1
+                # add to neighbor list 
+                NBLIST.append( p_j )
+
+        NBINDEX.append( NNAB + 1 )
+
+        if ( debug ):
+            print ' total nbs ',NNAB
+
+            for p_i, prtclC in self.ptclC:
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i,prtclC.type, " has ",N_i_f - N_i_o
+                					
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j, self.ptclC[atom_j].type
+                
+            sys.exit('bonded_nblist debug')
+            
+        return (NBLIST,NBINDEX)
+
+
         
     def calc_rdf(self, rdf_cnt_ij,bin_size,list_i,list_j,sq_r_cut):
         """
@@ -963,14 +1220,14 @@ class StructureContainer:
         # Loop over list i
         #
         for p_i, ptcl_i in self.ptclC(list_i):
-            r_i = np.array( ptcl_i.position )
+            r_i = np.array( [float(ptcl_i.position[0]),float(ptcl_i.position[1]),float(ptcl_i.position[2] )] )
             #
             # Loop over list j
             #
             for p_j, ptcl_j in self.ptclC(list_j):
                 
                 if( p_j > p_i):
-                    r_j =  np.array( ptcl_j.position )
+                    r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
                     r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
                     if( r_ij_sq <= sq_r_cut ):
                         m_ij = np.sqrt(r_ij_sq)
@@ -978,4 +1235,1058 @@ class StructureContainer:
                         rdf_cnt_ij[bin_index] += 2
 
         return rdf_cnt_ij
-    
+
+    def get_dihatoms(self,list_k,list_i,list_j,list_l):
+        """
+        Find sets of dihedrals in system
+
+        k-i-j-l
+
+        Arguments
+          list_k (list) of atom indexes in of the first bonded atom in the dihedral 
+          list_i (list) of atom indexes in of the second bonded atom in the dihedral 
+          list_j (list) of atom indexes in of the third bonded atom in the dihedral 
+          list_l (list) of atom indexes in of the fourth bonded atom in the dihedral
+        Return
+          angle_list (list) of four aotms in each dihedral 
+        """
+
+        import datetime
+
+        debug = False
+
+        if(debug):
+            print " list_k ",list_k
+            print " list_i ",list_i
+            print " list_j ",list_j
+            print " list_l ",list_l
+
+        
+        # Create neighbor list form bonds
+        NBLIST,NBINDEX = self.bonded_nblist()
+
+        
+        if(debug):
+            print " found     NBLIST,NBINDEX "
+           
+        #
+        # Find  atom groups k-i-j
+        #
+        angle_list = []
+        #
+        sum_angles = 0
+        #
+        # Find atom indices  of group i and j
+        #
+        #for p_k, ptcl_k  in self.ptclC(list_k):
+        for atom_k  in list_k:
+            if(debug):
+               t_i = datetime.datetime.now()
+
+	    N_k_o = NBINDEX[atom_k]
+	    N_k_f = NBINDEX[atom_k+1]
+
+            if(debug): print  "checking k ",atom_k,self.ptclC[atom_k].type," with ",N_k_f - N_k_o," nbs"
+	    
+	    for indx_i in range( N_k_o,N_k_f):
+                atom_i = NBLIST[indx_i]
+                add_i = False
+
+                if( debug ): print " checking i ",atom_i,self.ptclC[atom_i].type
+                
+                for  p_i in list_i:
+                    if( atom_i == p_i and atom_i > atom_k ):
+                        add_i = True
+                if( add_i ): #atom_i in list_i ):
+
+                    
+		    N_i_o = NBINDEX[atom_i]
+		    N_i_f = NBINDEX[atom_i+1] 
+					
+		    for indx_j in range( N_i_o,N_i_f):
+			atom_j = NBLIST[indx_j]
+			add_j = False
+
+                        if( debug ): print " checking j ",atom_j,self.ptclC[atom_j].type
+                            
+                        for  p_j  in list_j:
+                            if( atom_j == p_j and atom_j > atom_i ):
+                                add_j = True
+                        if( add_j ): # atom_j  in list_j  ):
+
+                            N_j_o = NBINDEX[atom_j]
+                            N_j_f = NBINDEX[atom_j+1] 
+
+                            for indx_l in range( N_j_o,N_j_f):
+                                atom_l = NBLIST[indx_l]
+                                add_l = False
+
+                                if( debug ):
+                                    print " checking l ",atom_l,self.ptclC[atom_l].type                                    
+                                for  p_l  in list_l:
+                                    if( atom_l == p_l and atom_l > atom_j ):
+                                        add_l = True
+                                if( add_l ): #atom_l  in list_l ):
+                                    angle_list.append( [atom_k,atom_i,atom_j,atom_l] )
+				    if(debug):
+
+                                        t_f = datetime.datetime.now()
+                                        dt_sec  = t_f.second - t_i.second
+                                        dt_min  = t_f.minute - t_i.minute
+                                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0         
+					print " found angle ",atom_k,atom_i,atom_j,atom_l
+                                        print "  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+
+        if ( debug ):
+            dih_cnt = 0 
+            for indx_kij in angle_list:
+                dih_cnt += 1 
+                a_k = indx_kij[0]                
+                a_i = indx_kij[1]
+                a_j = indx_kij[2]
+                a_l = indx_kij[3]
+                print dih_cnt," found angle ",a_k,a_i,a_j,a_l
+                                    
+            sys.exit('get_dihatoms debug')
+            
+	return angle_list
+
+    def getDihedral(self,a_k,a_i,a_j,a_l):
+        """
+        Calculate dihedral angle of set of particles
+
+        k
+           \
+             i  - j
+                    \
+                       l
+
+                       
+        
+        """
+
+        r_k = np.array( [ float( self.ptclC[a_k].position[0] ),float( self.ptclC[a_k].position[1] ),float( self.ptclC[a_k].position[2] ) ] )
+        r_i = np.array( [ float( self.ptclC[a_i].position[0] ),float( self.ptclC[a_i].position[1] ),float( self.ptclC[a_i].position[2] ) ] )
+        r_j = np.array( [ float( self.ptclC[a_j].position[0] ),float( self.ptclC[a_j].position[1] ),float( self.ptclC[a_j].position[2] ) ] )
+        r_l = np.array( [ float( self.ptclC[a_l].position[0] ),float( self.ptclC[a_l].position[1] ),float( self.ptclC[a_l].position[2] ) ] )
+
+        v1 = pbcs.norm_r_ij(r_k, r_i)
+        v2 = pbcs.norm_r_ij(r_i, r_j)
+        v3 = pbcs.norm_r_ij(r_j, r_l)
+
+        v1v2 = np.cross(v1,v2)
+        v2v3 = np.cross(v2,v3)
+
+
+        angle_i = pbcs.getAngle(v1v2,v2v3)
+        #
+        # Find sign of angle 
+        #
+        v1v3 = np.cross(v1,v3)
+        sign_v = np.dot(v2,v1v3)
+
+        if( sign_v > 0.0  ):
+            angle_i = -1.0*angle_i
+
+        return angle_i
+
+    def get_gromacs(self, gro_file,top_file):
+        """
+        Read in structure information from gromacs files
+
+        Args:
+          gro_file (str) gro file
+          top_file (str) top file
+      
+          
+        """
+        import gromacs , elements
+
+        GTYPE,R,VEL,LV = gromacs.read_gro(gro_file)
+        ATYPE,RESN,RESID,GTYPE,CHARN,CHARGES,AMASS,BONDS,ANGLES,DIH,MOLNUMB,MOLPNT,MOLLIST = gromacs.read_top(top_file)
+        ASYMB,ELN  = elements.mass_asymb(AMASS)
+        
+
+        for p_i in range( len( ASYMB)):
+            r_i =  [ float(R[p_i][0]), float(R[p_i][1]), float(R[p_i][2]) ] 
+            atomic_symb = str( ASYMB[p_i] )
+            m_i = float(AMASS[p_i])
+            q_i = float(CHARGES[p_i])
+            # Create particle
+            pt_i = Particle( r_i,atomic_symb,q_i,m_i )
+            # Find needed tags
+            chain_i = int( MOLNUMB[p_i] )
+            ring_i = 0 #particle_data["ring"][p_i]
+            resname_i = RESID[p_i]
+            residue_i = RESN[p_i]
+            linkid_i = "UNKNOWN" #particle_data["linkid"][p_i]
+            fftype_i =ATYPE[p_i]
+            gtype_i = GTYPE[p_i]
+            # _i = particle_data[""][p_i]
+            # Add particle to structure 
+            tagsD = {"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i,"gtype":gtype_i}
+            pt_i.setTagsDict(tagsD)
+            self.ptclC.put(pt_i)
+
+        # Read in bonds
+        for b_indx in range( len(BONDS )):
+            a_i = int(BONDS[b_indx][0] )
+            a_j = int(BONDS[b_indx][1] )
+            b_i = Bond( a_i + 1 , a_j + 1  )            
+            self.bondC.put(b_i)
+
+        # Read in lattice vectors
+        self.latticevec = []
+        self.latticevec.append(  np.array( [float(LV[0][0]),float(LV[0][1]),float(LV[0][2])] ) )
+        self.latticevec.append(  np.array( [float(LV[1][0]),float(LV[1][1]),float(LV[1][2])] ) )
+        self.latticevec.append(  np.array( [float(LV[2][0]),float(LV[2][1]),float(LV[2][2])] ) )
+
+
+    def get_gaussian(self,fchk_file,json_data):
+        """
+        Read in structure information from gaussian fchk file
+
+        Args:
+          fchk_file (str) grochkfile
+        
+        """
+        import numpy as np
+        # Energy conversion
+        # http://physics.nist.gov/cgi-bin/cuu/Value?threv
+        HtoeV = 27.211385
+
+        bohr2angstrom = 0.5291772086
+
+        
+        particle_data = json_data["structure"]["particle"]
+        
+        F = open(fchk_file,'r')
+        Lines = F.readlines()
+        F.close()
+
+        read_r = False
+        read_eln = False
+        read_esp = False
+        for line in Lines :
+            col = line.split()
+
+            if( read_r ):
+
+                if (  col[0] == "Force" and col[1] == "Field" ):
+                    read_r = False
+                    p_i = 0 
+                    for p_indx in range(NA):
+                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]
+                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]
+                        p_i += 1                         
+                        self.ptclC[p_i].position = vec_r_i
+                        particle_data["position"][p_indx] = vec_r_i
+                else:
+                    for r_i in  map(float,col) :
+                        R_all.append( r_i*bohr2angstrom )
+
+            if( read_eln ):
+                if ( eln_p_cnt == NA ):
+                    read_eln = False
+                else:                    
+                    for eln_i in  map(int,col):
+                        eln_p_cnt += 1                        
+                        if( eln_i != self.ptclC[eln_p_cnt].type ):
+                            print "  Particle ",eln_p_cnt, self.ptclC[eln_p_cnt].type," != ",eln_i
+
+            if( read_esp ):
+                if ( esp_p_cnt == NA ):
+                    read_esp = False
+                else:
+                    
+                    for q_i in  map(float,col):
+                        esp_p_cnt += 1
+                        p_indx = esp_p_cnt -1 
+                        self.ptclC[esp_p_cnt].charge = q_i
+                        particle_data["charge"][p_indx] = q_i
+                                                
+
+            if( len(col) > 2 ):
+                if( col[0] == "Total" and col[1] == "Energy" ):
+                    TOTAL_ENERGY = float( col[3] )*HtoeV
+
+            if( len(col) == 5 ):
+                if( col[0] == "Number" and col[1] == "of"  and col[2] == "atoms" ):
+                    NA = int(col[4])
+                    
+                    if( NA != len(self.ptclC) ):
+                        print " json file contains %d atoms and fchk file contains %d "%(self.ptclC,NA)
+                        sys.exit("inconsistent files ")
+
+            if( len(col) == 6 ):
+                if( col[0] == "Current" and col[1] == "cartesian"  and col[2] == "coordinates" ):
+                    read_r = True
+                    R_all = []
+
+
+            if( len(col) > 2  ):
+                if( col[0] == "Atomic" and col[1] == "numbers"   ):
+                    read_eln = True
+                    eln_p_cnt = 0
+
+            if( len(col) > 2  ):
+                if( col[0] == "ESP" and col[1] == "Charges"   ):
+                    read_esp = True
+                    esp_p_cnt = 0
+
+        return json_data
+
+
+    def set_cply_tags(self):
+        """
+        Set tags for new cply file 
+        Use ctype tag and bonding enviroment
+        """
+
+        # Version 1 will be dependent on Atomicpy
+        import elements , top 
+
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        CTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )
+            AMASS.append( float( ptclObj.mass)  )
+            CHARGES.append( float( ptclObj.charge ) )
+            MOLNUMB.append( int( ptclObj.tagsDict["chain"] ) )
+            RESID.append( int( ptclObj.tagsDict["residue"] ) )
+            RESN.append(  ptclObj.tagsDict["resname"]  )
+            CTYPE.append( ptclObj.tagsDict["linkid"]  )
+            
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        AMASS = elements.eln_amass(ELN)
+
+        #   Build covalent nieghbor list for bonded information 
+        NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+
+        verbose = True 
+        cply_tag = top.set_cply_tags(  verbose, ELN, CTYPE,RESN ,NBLIST, NBINDEX )
+        
+        atom_i = 0
+        for pid, ptclObj  in self.ptclC:
+            ptclObj.tagsDict["cply_tag"] = cply_tag[atom_i]
+
+            print " setting cply tag ",cply_tag[atom_i]
+            
+            atom_i +=1 
+
+    def replicate(self,p,options):
+
+        """
+        Replicate structures
+
+        Arguments
+            p (object) mpirNREL 
+
+            options
+                verbose
+                ptime
+                output_id
+                dir_id
+                json
+                top
+                gro
+                calc_overlap 
+
+                sol_json
+                sol_top
+                sol_gro
+
+                sol_buf
+                atomic_cut
+                den_target
+                atoms_target
+                max_mol_place
+                max_sys
+                lc_expand
+                perc_sol
+                itp_file
+                norm_dihparam
+
+
+        Returns: None
+
+        """
+        import mpiNREL
+        import file_io
+        from structureContainer import StructureContainer
+        import sys , datetime, random, math 
+
+        debug = False 
+        const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
+
+
+        # MPI setup
+        rank = p.getRank()
+        size = p.getCommSize()
+
+        # Open log file 
+        if( rank == 0  ):
+            log_file = options.output_id + ".log"
+            log_out = open(log_file,"w")
+
+            log_lines = " Running on %d processors  \n"%(size)
+            print log_lines
+            log_out.write(log_lines)
+            
+            t_i = datetime.datetime.now()
+
+        # Read in oligomers
+        #   from json files
+        oligo_array = []
+        if( len(options.json) > 0 ):
+            oligo_array = file_io.struc_array_json(oligo_array,options.json)
+        #    from gromacs  files
+        if( len(options.gro) > 0 ):
+            oligo_array = file_io.struc_array_gromacs(oligo_array,options.gro,options.top)
+
+        # Read in solvents
+        #   from json files 
+        sol_array = []
+        if( len(options.sol_json) > 0 ):
+            sol_array = file_io.struc_array_json(sol_array,options.sol_json)
+        #   from gromacs  files
+        if( len(options.gro) > 0 ):
+            sol_array = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top)
+
+        # Set location of origin
+        org = np.array( [0.0,0.0,0.0] )
+
+        oligo_cnt     = 0      # Number of oligomers to replicate 
+        oligo_nprt    = 0      # Total number of particles in all the oligomers 
+        oligo_mass    = 0.0    # Total mass of particles in all the oligomers
+        oligo_maxlength = 0.0 
+        for oligo_i in oligo_array:
+            oligo_cnt += 1
+            nprt = len( oligo_i.ptclC )
+
+            print "nprt",nprt
+
+            oligo_nprt += nprt 
+            tot_mass = oligo_i.getTotMass()
+            oligo_mass += tot_mass
+            nbonds = len( oligo_i.bondC )
+            # Shift center of mass to origin
+            oligo_i.shift_center_mass(org)
+
+            # Record oligomer molecule length
+            oligo_length = oligo_i.getlength()
+
+            # Record solvent molecule length for grid spacing 
+            oligo_length = oligo_i.getlength()
+            if( oligo_length > oligo_maxlength):
+                oligo_maxlength = oligo_length
+
+            if( options.verbose and rank == 0  ):
+                log_lines = ""
+                log_lines += "  Oligomers %d \n"%oligo_cnt 
+                log_lines +=  "    Particles  %d \n"%nprt
+                log_lines +=  "    Total mass   %f \n"%tot_mass
+                log_lines +=  "    Length   %f \n"%oligo_length
+                log_lines +=  "    Bonds  %d \n"%nbonds
+                print log_lines
+                log_out.write(log_lines)
+
+
+        sol_cnt     = 0   # Number of solvent to replicate 
+        sol_nprt    = 0   # Total number of solvent in all the solture 
+        sol_mass    = 0.0    # Total mass of solvent in all the solture
+        sol_maxlength = -100000.0 
+        #
+
+        for sol_i in sol_array:
+            sol_cnt += 1
+            nprt = len( sol_i.ptclC )
+            sol_nprt += nprt 
+            tot_mass = sol_i.getTotMass()
+            sol_mass += tot_mass
+            nbonds = len( sol_i.bondC )
+
+            # Shift center of mass to origin
+            sol_i.shift_center_mass(org)
+
+            # Record solvent molecule length for grid spacing 
+            sol_length = sol_i.getlength()
+            if( sol_length > sol_maxlength):
+                sol_maxlength = sol_length
+
+            if( options.verbose and rank == 0  ):
+                log_lines = ""
+                log_lines += "  Solvents %d \n"%sol_cnt 
+                log_lines +=  "    Particles  %d \n"%nprt
+                log_lines +=  "    Total mass   %f \n"%tot_mass
+                log_lines +=  "    Length   %f \n"%sol_length
+                log_lines +=  "    Bonds  %d \n"%nbonds
+                print log_lines
+                log_out.write(log_lines)
+
+        #
+        # Calculate the number of oligomers and  solvent molecules
+        #
+        if( options.perc_sol > 0.0 ):
+            # Variables
+            #   atoms_target - target number of atoms # options.atoms_target
+            #   perc_sol - perecent solvent by mass
+            #   frac_sol - fraction solvent by mass
+            #   sol_nprt - number atoms in the list of solvent molecules 
+            #   oligo_nprt - number atoms in the list of oligomer molecules 
+            #   n_sol_l - number of solvent list replications
+            #   n_olgio_l - number of oligomer list replications
+            #   sol_mass - mass of all the solvents in the solvent list
+            #   oligo_mass - mass of all the oligomers in the oligomer list
+            # Equations
+            #   Equ 1 : perc_sol = n_sol_l*sol_mass/( n_sol_l*sol_mass + n_olgio_l*oligo_mass )
+            #   Equ 2 : atoms_target =  n_sol_l*sol_nprt + n_olgio_l*oligo_nprt
+            # Solutions
+            frac_sol = options.perc_sol/100.0
+            n_sol_l= int((-1.0*frac_sol*oligo_mass*float(options.atoms_target))/(frac_sol*sol_mass*float(oligo_nprt)  - frac_sol*oligo_mass*float(sol_nprt) - sol_mass*float(oligo_nprt) ))
+            n_olgio_l = int( (float(options.atoms_target) - float(sol_nprt)*float(n_sol_l))/float(oligo_nprt))
+        else:
+            n_sol_l = 0
+            n_olgio_l = int(float(options.atoms_target)/float(oligo_nprt))
+            solv_box_l = 0.0
+
+
+            print " atoms_target oligo_bnprt ",float(options.atoms_target),float(oligo_nprt)
+
+        #
+        # Calculate the box size for a target density 
+        #
+        target_density_amuang = options.den_target*const_avo/10.0 # densit in AMU/Angstrom^3
+
+
+        total_n = n_olgio_l*oligo_nprt + n_sol_l*sol_nprt
+        total_mass = oligo_mass*n_olgio_l + n_sol_l*sol_mass
+        volume_target_ang = total_mass/target_density_amuang
+        len_target_ang = volume_target_ang**(1.0/3.0)
+
+        if( options.perc_sol > 0.0 ):
+            # Check to be sure the grid is large enough
+            sol_box_side = int(math.ceil(n_sol_l**(1.0/3.0) ) )         # Number of solvents per box side 
+            sol_length = sol_maxlength + options.sol_buf           # length of solvent 
+            sol_length_sq = sol_length*sol_length                  # length of solvent squared for overlap calculation 
+            vol_olgio = float(n_olgio_l)*(oligo_maxlength**3.0)    # Volume occupied by oligomer 
+            len_sol_box =  float(sol_box_side)*sol_length              # Length of pure solvent box
+            vol_sol = len_sol_box**3.0                                 # Volume occupied by solvent 
+            tot_mol_vol = vol_olgio + vol_sol                      # total volume for oligomers and solvents
+            len_tot_box = tot_mol_vol**(1.0/3.0)
+                
+            if( len_target_ang < len_tot_box ):
+                if( options.verbose and rank == 0 ):
+                    log_lines = "  Expanding box length from %f to %f based on the length of the solvent  "%(len_target_ang,len_tot_box)
+                    print log_lines
+                    log_out.write(log_lines)
+                    
+                len_target_ang = len_tot_box
+                volume_target_ang = len_tot_box**3.0
+
+            sol_grid_len = len_target_ang/float(sol_box_side)
+            
+            print "len_target_ang ",len_target_ang 
+            print "sol_grid_len ",sol_grid_len 
+            
+        else:
+            len_target_ang = volume_target_ang**(1.0/3.0)
+
+        cut_ij_sq = options.atomic_cut* options.atomic_cut
+        # Calculate actual final structure properties
+        vol_f = len_target_ang**3.0
+        den_AMU_f = total_mass/vol_f
+        den_f = den_AMU_f/const_avo*10.0
+        perc_sol_f = (n_sol_l*sol_mass)/(n_sol_l*sol_mass + n_olgio_l*oligo_mass)
+
+        # Recalculate solvent molecules along box length 
+        
+        print "target_density_amuang",target_density_amuang, options.den_target
+        print "total_n",total_n
+        print "total_mass",total_mass
+        print "len_target_ang",len_target_ang
+        print n_sol_l,sol_mass,n_olgio_l,oligo_mass
+
+        # oligomer molecule container
+        oligomer_rep = StructureContainer() 
+        # Set lattice vector to new box size
+        latvec_list = [np.array([len_target_ang,0.0,0.0]),np.array( [0.0,len_target_ang,0.0]),np.array( [0.0,0.0,len_target_ang]) ]
+        print "latvec_list" , latvec_list
+        oligomer_rep.setLatVec(latvec_list)
+
+
+        print " oligomer_rep. latticevec ",oligomer_rep.latticevec[0][0]
+                                
+
+        # Solvent molecule container
+        sol_rep = StructureContainer()  
+        sol_rep.setLatVec(latvec_list)
+
+        # Print script information and settings 
+        if( rank == 0  ):
+
+            log_lines =  "  Replication settings \n"
+            log_lines += "   - Tragets \n"
+            log_lines += "       Total atoms %d \n"%(options.atoms_target)
+            log_lines += "       Density %f g/cm^3 %f AMU/Angstrom^3 \n"%(options.den_target,target_density_amuang)
+            log_lines += "       Solvent mass percentage %f \n"%(options.perc_sol)
+            log_lines += "   - Oligomers \n"
+            log_lines += "       Total atoms in set %d \n"%(oligo_nprt)
+            log_lines += "       Set of structures will replicated %d times \n"%(n_olgio_l)
+            if( options.perc_sol > 0.0 ):
+                log_lines += "   - Solvents \n"
+                log_lines += "       Total atoms in set %d \n"%(sol_nprt)
+                log_lines += "       With a length of  %f Angstrom \n"%(sol_length)
+                log_lines += "       Set of structures will replicated %d times \n"%(n_sol_l)
+                log_lines += "       With an initial grid spacing of %f  \n"%(sol_grid_len)
+
+            log_lines += "   - Final porperties  \n"
+            log_lines += "       Total atoms %d \n"%(total_n)
+            log_lines += "       Volume %f Angstrom^3 \n"%(volume_target_ang)
+            log_lines += "       Density %f g/cm^3 %f AMU/Angstrom^3 \n"%(den_f,den_AMU_f)
+            log_lines += "       Solvent mass percentage %f \n"%(perc_sol_f)
+            log_lines += "       Cubic cell with length of %f Angstroms \n"%(len_target_ang)
+            log_lines += "   - Placement \n"
+            log_lines += "       Maximum structure placements %d \n"%(options.max_mol_place)
+            log_lines += "       Maximum number of restarts before box is expanded %d \n"%(options.max_sys)
+            log_lines += "       Percent of box size to add during expantion %8.2f \n"%(100*options.lc_expand)
+            log_lines += "   - id's \n"
+            log_lines += "       Directory %s \n"%(options.dir_id)	
+            log_lines += "       Output id %s \n"%(options.output_id)
+            print log_lines
+            log_out.write(log_lines)
+
+        p.barrier()
+        
+
+
+        #sys.exit(" debug 2 ")
+        
+        # Record initial time
+        if( rank == 0  ): 
+            t_i = datetime.datetime.now()
+
+        sys_oligo_n = 0     # Number of oligomers add to the system
+        sys_attempts = 0    # Number of times the system has been reset
+        struc_add_cnt = 0   # Total number of structures added to the final structure 
+        #
+        # Start adding molecules to the system
+        #
+        add_oligo = True
+
+        print " Adding %d  oligomers  "%n_olgio_l
+        while ( add_oligo ):
+            #
+            # Initialize 
+            #
+            add_oligo = True
+            overlap_found = True
+            strucadd_atempts = 0
+
+
+            # Record intial time for pereformance testing 
+            if( rank == 0  ): 
+                tadd_i = datetime.datetime.now()
+            for oligo_l in range( n_olgio_l ):
+                # loop over the number of times each oligomer in the oligomer list needs to be replicated
+                for struc_i in oligo_array:
+
+                    #
+                    # Place the atomic indices into list 
+                    # 
+                    pointIndices = range( len(struc_i.ptclC)  )
+                    if( debug ):
+                        print rank, size," splitOnProcs "
+                    # Create a list of atomic indices for each processor 
+                    myChunk  = p.splitListOnProcs(pointIndices)
+                    p_debug = False 
+                    if(p_debug):                
+                        print " cpu ",rank ," has atoms ",myChunk[0]," - ",myChunk[len(myChunk)-1],"  \n"
+
+                        sys.exit("P debug 1 ")
+                    
+                    # For each structure add to 
+                    while ( overlap_found ):
+                        strucadd_atempts += 1
+
+                        n_dim = 3
+                        rot_angle_i_o = 0.0 
+                        rot_angle_j_o = 0.0 
+                        r_random_o  = np.zeros(n_dim)
+                        
+                        if ( rank == 0 ):
+                            #
+                            #  Get random rotation angles from single processor  
+                            #
+                            ang_acc = 1000  # number of digets in random angle 
+                            rot_angle_i_o = float(random.randrange(0,ang_acc))*np.pi/float(ang_acc) # Random angle 1
+                            rot_angle_j_o = float(random.randrange(0,ang_acc))*np.pi/float(ang_acc) # Random angle 2
+                            #
+                            #  Get random translation from single processor 
+                            #
+                            r_random_o = np.zeros(n_dim)
+                            for x_indx in range( n_dim ):
+                                r_random_o[x_indx] = random.randrange(0,ang_acc*int(oligomer_rep.latticevec[x_indx][x_indx]) )/float(ang_acc)
+
+                            debug = 0
+                            if( debug ):
+                                print " ran ",x_indx,(oligomer_rep.latticevec[x_indx][x_indx])
+                                print rot_angle_i_o,rot_angle_j_o,r_random_o
+                                #sys.exit(" Random # 's test 1")
+                                
+                        p.barrier() # Barrier for MPI_COMM_WORLD
+                        #
+                        # Broadcast random rotation angles and translations to all processors 
+                        #
+                        rot_angle_i = p.bcast(rot_angle_i_o)
+                        rot_angle_j = p.bcast(rot_angle_j_o)
+                        r_random = p.bcast(r_random_o)
+                        p.barrier() # Barrier for MPI_COMM_WORLD
+                        #
+                        # Get coordinates of randomly rotated and shifted 
+                        #
+                        struc_i.shift_center_mass(org)
+                        struc_i.rotate(rot_angle_i,rot_angle_j)
+                        struc_i.vec_shift(r_random)
+
+                        overlap = 0
+                        if( len(oligomer_rep.ptclC) > 0 ):
+                            #
+                            # If there are particles in the system check atoms do not overlap
+                            #                            
+                            if( options.calc_overlap ):
+
+                                for p_i, ptclObj_i in struc_i.ptclC(myChunk):
+                                    r_i = np.array( ptclObj_i.position )
+                                    for p_sys, ptclObj_sys in oligomer_rep.ptclC :
+                                        r_sys = np.array( ptclObj_sys.position )
+                                        r_ij_sq = pbcs.sq_drij_c(r_i,r_sys,oligomer_rep.getLatVec() )
+                                        if( r_ij_sq < cut_ij_sq ):
+                                            overlap = 1
+
+                        p.barrier() # Barrier for MPI_COMM_WORLD
+                        #
+                        # Reduce sum the overlap variable from all the processors
+                        #   if it is zero everywhere there was no overlap detected 
+                        #
+                        overlap_sum = p.allReduceSum(overlap)
+                        p.barrier() # Barrier for MPI_COMM_WORLD
+                        
+                        if( overlap_sum ==  0 ):
+                            # If no overlap detected add molecule to the system 
+                            sys_oligo_n += 1
+                            struc_add_cnt += 1
+                            # Rest molecule numbers
+                            for pid, ptclObj in struc_i.ptclC :
+                                ptclObj.tagsDict["chain"] = struc_add_cnt
+
+                            # add oligomer structure to system structure 
+                            oligomer_rep += struc_i
+
+                            if( options.verbose ):
+                                if( rank == 0  ):
+                                    print "      -  Molecule ",sys_oligo_n," has been added to the system after ",strucadd_atempts," placment attempts "
+                                    print "         system has %d atoms and %d bonds "%(len(oligomer_rep.ptclC),len(oligomer_rep.bondC))
+                                    #print " Printing  oligomer_rep bonds "
+                                    #oligomer_rep.printbondlengths()
+
+                                    if( options.ptime ):
+                                        t_f = datetime.datetime.now()
+                                        dt_sec  = t_f.second - t_i.second
+                                        dt_min  = t_f.minute - t_i.minute
+                                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                        print "        - with placement time ",dt_min," min ",dt_sec," seconds "
+
+                            overlap_found = False
+                        else:
+                            overlap_found = True
+
+                        if( strucadd_atempts >= options.max_mol_place ):
+                            # If attempts to place molecule into the system exceed max set by max_mol_place
+
+                            #   reset system and star over 
+                            if(  rank == 0  ):
+                                if(  options.verbose ):
+                                    print "        -  Attempts to add molecule ",sys_oligo_n+1," has exceeded max attempts ",options.max_mol_place," system will be reset for the ",sys_attempts," time "
+
+                            sys_oligo_n = 0
+                            struc_add_cnt = 0 
+                            strucadd_atempts = 0
+                            sys_attempts += 1
+
+                            # Save lattice vectors as to no loose any expansions 
+                            latvec_i = oligomer_rep.getLatVec()
+                            # Delete system 
+                            del oligomer_rep
+                            oligomer_rep = StructureContainer()  # Output replicated structure
+                            # Set lattice vectors 
+                            oligomer_rep.setLatVec(latvec_i) 
+
+
+                        if( sys_attempts >= options.max_sys  ):
+                            # If the system has been reset over max_sys times expand the box size by lc_expand
+                            oligomer_rep.expandLatVec(options.lc_expand)
+
+                            # Save lattice vectors as to no loose any expansions 
+                            latvec_i = oligomer_rep.getLatVec()
+                            # Delete system 
+                            del oligomer_rep
+                            oligomer_rep = StructureContainer()  # Output replicated structure
+                            # Set lattice vectors 
+                            oligomer_rep.setLatVec(latvec_i) 
+
+                            sys_attempts = 0
+
+                            if( options.verbose ):                
+                                if( rank == 0  ):
+                                    print '          - Number of system resets has exceeded the maximum  (option max_sys) ',options.max_sys
+                                    print '          - Lattice vectors will be expanded by (option lc_expand)',options.lc_expand
+                                    print '             v_1 ',latvec_i[0]
+                                    print '             v_2 ',latvec_i[1]
+                                    print '             v_3 ',latvec_i[2]
+
+                p.barrier() # Barrier for MPI_COMM_WORLD
+
+
+            if( sys_oligo_n ==  n_olgio_l  ):
+                # If all the molecule have been added exit while loop and print system 
+                add_oligo = False
+                latvec_oligo = oligomer_rep.getLatVec()
+                p.barrier() # Barrier for MPI_COMM_WORLD
+                if( options.verbose and rank == 0  ):
+                    print " All oligomers  have been added "
+
+        # Add replicated oligmers to final structure
+        # self = StructureContainer()
+
+        debgu_n = False
+        if( debgu_n ):
+
+            print "self pre add "
+            print self.ptclC
+            print self.bondC
+
+            print "oligomer_rep"
+            print oligomer_rep.ptclC
+            print oligomer_rep.bondC
+
+
+        self =  oligomer_rep
+        self.setLatVec(latvec_oligo)
+        self.compressPtclIDs()
+        
+        if( debgu_n ):
+            print "self"
+            print self.ptclC
+            print self.bondC
+
+            sys.exit("debug ")
+
+        
+
+        if( options.perc_sol > 0.0 ):
+
+            sys_sol_n = 0    # Number of solvent add to the system
+            sys_attempts = 0  # Number of times the system has been reset
+            #
+            # Start adding molecules to the system
+            #
+            print " Adding %d  solvent  "%n_sol_l
+            add_sol = True
+            while ( add_sol ):
+                #
+                # Initialize 
+                #
+                strucadd_atempts = 0
+
+                # Record intial time for pereformance testing 
+                if( rank == 0  ): 
+                    tadd_i = datetime.datetime.now()
+
+                bad_grid_point = False 
+                for sol_l in range( n_sol_l ):
+
+                    #
+                    # 
+                    #
+                    print " starting %d of %d "%(sol_l,n_sol_l)
+
+                    # loop over the number of times each solvent in the solvent list needs to be replicated
+                    if( bad_grid_point ): break
+                    if( not add_sol): break 
+                    for struc_i in sol_array:
+                        overlap_found = True
+                        if( bad_grid_point ): break
+                        if( not add_sol): break 
+                        while ( overlap_found ):
+                            strucadd_atempts += 1
+                            for x_indx in range(sol_box_side):
+                                if( not add_sol): break 
+                                for y_indx in range(sol_box_side):
+                                    if( not add_sol): break 
+                                    for z_indx in range(sol_box_side):
+                                        
+                                        if( sys_sol_n == n_sol_l*sol_cnt ):
+                                            add_sol = False
+                                            break
+                                            
+                                
+                                        #l_x =  float(lat_indx[0])*sol_length
+                                        #l_y =  float(lat_indx[1])*sol_length
+                                        #l_z =  float(lat_indx[2])*sol_length
+
+                                        l_x =  float(x_indx)*sol_grid_len
+                                        l_y =  float(y_indx)*sol_grid_len
+                                        l_z =  float(z_indx)*sol_grid_len
+
+                                        print " Checking overlap for solvent %d at lattice point %f %f %f "%(sys_sol_n,l_x,l_y,l_z)
+
+                                        if( l_x > oligomer_rep.latticevec[0][0] or l_y > oligomer_rep.latticevec[1][1] or l_z > oligomer_rep.latticevec[2][2] ):
+                                            print " Lattic point beyond box %f %f %f "%(oligomer_rep.latticevec[0][0],oligomer_rep.latticevec[1][1], oligomer_rep.latticevec[2][2])
+                                            bad_grid_point = True
+                                            break 
+
+                                        lat_pos = np.array( [l_x,l_y,l_z] )
+
+                                        # Make sure there is no overlap with the added molecules
+                                        overlap = 0
+                                        for p_i, ptclObj_i in oligomer_rep.ptclC :
+                                            r_i = np.array( ptclObj_i.position )
+                                            r_ij_sq = pbcs.sq_drij_c(r_i,lat_pos,oligomer_rep.getLatVec() )
+                                            if( r_ij_sq < sol_length_sq ):
+                                                overlap = 1
+
+                                        p.barrier() # Barrier for MPI_COMM_WORLD
+                                        #
+                                        # Reduce sum the overlap variable from all the processors
+                                        #   if it is zero everywhere there was no overlap detected 
+                                        #
+                                        overlap_sum = p.allReduceSum(overlap)
+
+                                        if( overlap_sum ==  0 ):
+                                            # If no overlap detected add molecule to the system 
+                                            sys_sol_n += 1
+                                            overlap_found = False 
+                                            # Shift molecule to lattice point
+                                            struc_i.shift_center_mass(org)
+                                            struc_i.vec_shift(lat_pos)
+
+                                            sol_rep += struc_i
+
+                                            if( options.verbose ):
+                                                if( rank == 0  ):
+                                                    print "      -  Molecule %d  has been added to the system at lattice point %f %f %f  "%(sys_sol_n,l_x,l_y,l_z)
+
+                                                    if( options.ptime ):
+                                                        t_f = datetime.datetime.now()
+                                                        dt_sec  = t_f.second - t_i.second
+                                                        dt_min  = t_f.minute - t_i.minute
+                                                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                                        print "        - with placement time ",dt_min," min ",dt_sec," seconds "
+                                        else:
+                                            overlap_found = True
+
+                                            print "  lattice point was found to overlap "
+
+
+
+                if( sys_sol_n == n_sol_l*sol_cnt ):
+                    add_sol = False
+                    p.barrier() # Barrier for MPI_COMM_WORLD
+                    if( options.verbose and rank == 0  ):
+                        print " All solvents  have been added "
+
+                else:
+                    #
+                    # If attempts to place solvent molecule into the system failed
+                    #
+                    sys_sol_n = 0                
+                    sys_attempts += 1
+                    #
+                    # Save lattice vectors as to not loose any expansions
+                    #
+                    latvec_i = sol_rep.getLatVec()
+                    #
+                    # Delete system
+                    #
+                    del sol_rep
+                    sol_rep = StructureContainer()  # Output replicated structure
+                    #
+                    # Set lattice vectors
+                    #
+                    sol_rep.setLatVec(latvec_i)
+                    #
+                    #
+                    if( (sol_grid_len*0.90) > sol_length):
+                        # If grid spacing is larger than the solvent length shrink grid
+                        sol_grid_len = sol_grid_len*0.90
+                    else:
+                        # Otherwise increase volume and set grid spacing to solvent length
+                        sol_grid_len = sol_length
+                        #
+                        # Expand the box size by a single solvent length 
+                        #
+                        #sol_rep.expandLatVec(options.lc_expand)
+                        sol_rep.latticevec[0] = sol_rep.latticevec[0] + sol_length
+                        sol_rep.latticevec[1] = sol_rep.latticevec[1] + sol_length
+                        sol_rep.latticevec[2] = sol_rep.latticevec[2] + sol_length
+                        #
+                        # Increase the number of solvent molecules along the box by 1
+                        #
+                        sol_box_side += 1
+
+
+                    if( options.verbose ):                
+                        if( rank == 0  ):
+                            print '          - Lattice vectors will be expanded by solvent length %f ',sol_length
+
+                p.barrier() # Barrier for MPI_COMM_WORLD
+
+            # Add replicated solvents to final structure
+            self += sol_rep
+            self.setLatVec(sol_rep.latticevec)
+
+        
+
+        print "         f_rep has %d atoms and %d bonds "%(len(self.ptclC),len(self.bondC))
+        #self.printbondlengths()
+
+
+        if( rank == 0 ):
+
+
+            t_f = datetime.datetime.now()
+            dt_sec  = t_f.second - t_i.second
+            dt_min  = t_f.minute - t_i.minute
+            if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+            if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
+            log_line="\n  Finished time  " + str(t_f)
+            log_out.write(log_line)
+            log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+            log_out.write(log_line)
+
+            log_out.close()
+
+
+        debgu_n = False 
+        if( debgu_n ):
+            print "self"
+            print self.ptclC
+            print self.bondC
+
+            sys.exit("debug 2")
+
+        return self

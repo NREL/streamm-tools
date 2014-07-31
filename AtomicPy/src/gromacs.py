@@ -14,10 +14,11 @@ Kjtokcal = 0.239006
 
 
 
-def read_top(options,top_infile):
+def read_top(top_infile):
     """
     Read in topology file 
     """
+    verbose = False 
     
     # General python modules 
     import sys, numpy
@@ -52,7 +53,7 @@ def read_top(options,top_infile):
                     include_lines = F_inc.readlines()
                     F_inc.close()
                     
-                    if( options.verbose ):
+                    if( verbose ):
                         print "      Including ",include_file
                         
                     for l_inc in include_lines:
@@ -103,7 +104,7 @@ def read_top(options,top_infile):
 
     
     
-    if( options.verbose ):
+    if( verbose ):
         print "      Molecule types found ",len(MOLECULETYPE) 
         for mol_indx in range( len(MOLECULETYPE) ):
             print "         ",mol_indx+1,MOLECULETYPE[mol_indx]
@@ -218,7 +219,7 @@ def read_top(options,top_infile):
     MOL_DIH_INDEX.append( DIH_CNT + 1 )
     
     
-    if( options.verbose ):
+    if( verbose ):
         print "      Total molecules ",MOL_CNT
         for mol_indx in range( len(MOLECULECNT)):
             print "      Molecule id ",MOLECULECNT_ID[mol_indx]
@@ -351,7 +352,7 @@ def read_top(options,top_infile):
     return ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST
 
 
-def read_gro(options,in_gro):
+def read_gro(in_gro):
     """
     Read gromacs structure file
     """
