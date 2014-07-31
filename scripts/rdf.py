@@ -65,14 +65,14 @@ def get_options():
     parser.add_option("--linkid_i", dest="linkid_i", type="string", default="", help="select atoms of group i by  link id ")    
     parser.add_option("--fftype_i", dest="fftype_i", type="string", default="", help="select atoms of group i by force field type  ")
     # J
-    parser.add_option("--id_j", dest="id_j", type="string", default="", help=" select atoms of group i by id number  ")    
-    parser.add_option("--symb_j", dest="symb_j", type="string", default="", help=" select atoms of group i by (atomic) symbol   ")    
-    parser.add_option("--chains_j", dest="chains_j", type="string", default="", help="select atoms of group i by chain number  ")    
-    parser.add_option("--ring_j", dest="ring_j", type="string", default="", help="select atoms of group i by particles in a ring   ")    
-    parser.add_option("--resname_j", dest="resname_j", type="string", default="", help="select atoms of group i by residue name  ")    
-    parser.add_option("--residue_j", dest="residue_j", type="string", default="", help="select atoms of group i by resudue number  ")    
-    parser.add_option("--linkid_j", dest="linkid_j", type="string", default="", help="select atoms of group i by  link id ")    
-    parser.add_option("--fftype_j", dest="fftype_j", type="string", default="", help="select atoms of group i by force field type  ")    
+    parser.add_option("--id_j", dest="id_j", type="string", default="", help=" select atoms of group j by id number  ")    
+    parser.add_option("--symb_j", dest="symb_j", type="string", default="", help=" select atoms of group j by (atomic) symbol   ")    
+    parser.add_option("--chains_j", dest="chains_j", type="string", default="", help="select atoms of group j by chain number  ")    
+    parser.add_option("--ring_j", dest="ring_j", type="string", default="", help="select atoms of group j by particles in a ring   ")    
+    parser.add_option("--resname_j", dest="resname_j", type="string", default="", help="select atoms of group j by residue name  ")    
+    parser.add_option("--residue_j", dest="residue_j", type="string", default="", help="select atoms of group j by resudue number  ")    
+    parser.add_option("--linkid_j", dest="linkid_j", type="string", default="", help="select atoms of group j by  link id ")    
+    parser.add_option("--fftype_j", dest="fftype_j", type="string", default="", help="select atoms of group j by force field type  ")    
     
     # Frames
     parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
@@ -465,8 +465,6 @@ def main():
                                     if( add_ij ):
                                         #r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
                                         r_j =  ptcl_j.position #np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-
-                                        
                                         
                                         r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latticevec)
                                         if( r_ij_sq <= sq_r_cut ):
