@@ -1,0 +1,27 @@
+;  new ff parameters 
+ 
+  
+ [ defaults ]  
+ ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ  
+  1 3 yes  0.500000 0.500000  
+  
+  [ atomtypes ] 
+CT 6 12.01100 0.145 A 3.50000e-01 2.76144e-01 
+HC 1 1.00800 0.060 A 2.50000e-01 1.25520e-01 
+CZ 6 12.01100 0.395 A 3.65000e-01 6.27600e-01 
+NZ 7 14.00670 -0.430 A 3.20000e-01 7.11280e-01 
+ 
+  [ bondtypes ] 
+CT HC 1 0.10900 284512.0 ; CHARMM 22 parameter file  
+CT CZ 1 0.14700 326352.0 ; wlj 9/98 do 11/98  
+CZ NZ 1 0.11570 543920.0 ; wlj 9/98  
+ 
+  [ angletypes ] 
+HC CT HC 1 107.8 276.144  
+HC CT CZ 1 108.500 292.880 ; wlj  
+CT CZ NZ 1 180.000 1255.200 ; wlj  
+ 
+  [ dihedraltypes ] 
+
+   HC CT CZ NZ 3        0.00000000         0.00000000         0.00000000         0.00000000         0.00000000         0.00000000  ; nitriles    ;  HC - CT - CZ - NZ 
+ 
