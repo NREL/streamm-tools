@@ -90,30 +90,30 @@ def main():
     f_new = f_rep.replicate(p,options)
     #f_rep.compressPtclIDs()
 
-    print " f_new prop "
-    print f_new.ptclC
-    print f_new.bondC
+    #print " f_new prop "
+    #print f_new.ptclC
+    #print f_new.bondC
     
     if( rank == 0 ):    
         #  Write xmol file 
         xmol_file = options.dir_id +"/" + options.output_id + ".xmol"
-        n_part = f_rep.getpartnumb()
-        n_chains = f_rep.getchainnumb()
+        n_part = f_new.getpartnumb()
+        n_chains = f_new.getchainnumb()
         comment = " structure with %d particles and %d chains "%(n_part,n_chains)
         append = False 
-        f_rep.write_xmol(xmol_file,comment,append)
+        f_new.write_xmol(xmol_file,comment,append)
 
         # Write json file
-	f_rep.write_json(options.dir_id,options.output_id )
+	f_new.write_json(options.dir_id,options.output_id )
         
         #  Write Lammps input file
         #path_data_file = options.dir_id +"/" + options.output_id + ".data"
         #print " Writint file ",path_data_file
-        #f_rep.lmp_writedata(path_data_file,options.norm_dihparam,options.itp_file)
+        #f_new.lmp_writedata(path_data_file,options.norm_dihparam,options.itp_file)
 
         # Write gromacs input files python replicate.py   --gro SOL.gro --top SOL.top   --sol_gro SOL.gro   --sol_top SOL.top   --den_target 0.1  --atoms_target 100    --perc_sol 90
         
-        f_rep.write_gro(options.dir_id,options.output_id )
+        f_new.write_gro(options.dir_id,options.output_id )
 
 if __name__=="__main__":
     main()
