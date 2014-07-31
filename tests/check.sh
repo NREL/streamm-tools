@@ -97,8 +97,9 @@ elif [ $1 == "all" ]; then
 
     # Serial test
     testNames=`ls -1 test-*.py`
+    runCmd="python"
     for testName in $testNames; do
-	compareTest $testName
+	compareTest $testName $runCmd
     done
 
     # Parallel test (np = 2)
