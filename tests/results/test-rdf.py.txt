@@ -1,0 +1,58 @@
+localVerbose =  True
+ 
+Base class ParallelMsgr constructor called
+Derived class MsgrSerial constructor called
+No mpi module found, will use serial. 
+
+  Particles 507 
+    Volume 1000000.000000 
+    Mass 3542.341000 
+    Density 0.003542 
+  Lattice vectors 
+    v_i  [ 100.    0.    0.]
+    v_j  [   0.  100.    0.]
+    v_k  [   0.    0.  100.]
+  Bonds 531 
+None
+ Searching group i  {'fftype': ['C!']}
+ Searching group j  {'fftype': ['C!']}
+ search finished 
+
+  Date 2014-07-31 16:11:56.494689 
+  Number of processors  1 
+  Particles of group i: 18 
+---------------------------------------------------------------------
+ id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  
+---------------------------------------------------------------------
+  Particles of group i: 18 
+---------------------------------------------------------------------
+ id# ; type ; ff type ; ring # ; residue name ; residue # ; link id  
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+ Frames 
+     Initial frame  0 
+     Step frame  1  
+     Final frame  10000  
+  Reading  n5.xyz
+ calcuating rdf frame  1
+  proc frame  1
+ analysis of frame 1 on processor 1 
+ box from min max 47.099043 
+
+       Frame  1  rdf calculated in 0 min  0.000000 sec 
+       with volume 104480.741941 Angstroms^3 estimated from max/min
+      Wating for all processors to finish  
+      Finding averages 
+   Frames  1
+   Total counts  82.0
+   Average box volume  104480.741941
+   Volume of cut-off sphere  4188.79020479
+   Average box density i  0.000172280553005  atoms/angstrom^3 
+   Average box density j  0.000172280553005  atoms/angstrom^3 
+   Average cut-off sphere density  0.00108755877779  atoms/angstrom^3 
+
+  Finished time  2014-07-31 16:11:56.593280
+  Computation time 0 min 0 seconds 
+ParallelMsgr destructor called
+ 
+Cleaning structureContainer

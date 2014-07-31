@@ -165,3 +165,4 @@ Error: getSubStructure using non-zero ptcl list on empty container
 Cleaning structureContainer
 Cleaning structureContainer
 Cleaning structureContainer
+Cleaning structureContainer

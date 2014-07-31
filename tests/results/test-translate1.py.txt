@@ -1,0 +1,35 @@
+localVerbose =  True
+ 
+Base class ParallelMsgr constructor called
+Derived class MsgrSerial constructor called
+No mpi module found, will use serial. 
+
+     - Reading in  acc1_D1_R2R200_A2_R3_n1_R41n1R41n1R40n1__n5.json
+ Filter input by  {}
+  Particles 507 
+    Volume 1000000.000000 
+    Mass 3542.341000 
+    Density 0.003542 
+  Lattice vectors 
+    v_i  [ 100.    0.    0.]
+    v_j  [   0.  100.    0.]
+    v_k  [   0.    0.  100.]
+  Bonds 531 
+None
+
+  Date 2014-07-31 16:12:49.827781 
+  Number of processors  1 
+  Particles in filtered structure : 507 
+---------------------------------------------------------------------
+ Frames 
+     Initial frame  0 
+     Step frame  1  
+     Final frame  10000  
+     - Writing   n5.xyz
+ 
+
+  Computation time 0 min 1 seconds 
+ParallelMsgr destructor called
+ 
+Cleaning structureContainer
+Cleaning structureContainer

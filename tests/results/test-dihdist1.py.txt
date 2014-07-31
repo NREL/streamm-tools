@@ -1,0 +1,57 @@
+localVerbose =  True
+ 
+Base class ParallelMsgr constructor called
+Derived class MsgrSerial constructor called
+No mpi module found, will use serial. 
+
+     - Reading in  acc1_D1_R2R200_A2_R3_n1_R41n1R41n1R40n1__n5.json
+  Particles 507 
+    Volume 1000000.000000 
+    Mass 3542.341000 
+    Density 0.003542 
+  Lattice vectors 
+    v_i  [ 100.    0.    0.]
+    v_j  [   0.  100.    0.]
+    v_k  [   0.    0.  100.]
+  Bonds 531 
+None
+  searching for list k i j l 
+ Searching group k  {'fftype': ['S']}
+ Searching group i  {'fftype': ['C!']}
+ Searching group j  {'fftype': ['C!']}
+ Searching group l  {'fftype': ['S']}
+  searching finished 
+  Creating list of atomic indies of dihedrals 
+ search finished 
+  list creation finished 
+
+  Date 2014-07-31 16:11:55.433090 
+  Number of processors  1 
+---------------------------------------------------------------------
+  Particles of group l: 15 
+  Particles of group i: 18 
+  Particles of group j: 18 
+  Particles of group k: 15 
+---------------------------------------------------------------------
+ Frames 
+     Initial frame  0 
+     Step frame  1  
+     Final frame  10000  
+  Reading  n5.xyz
+proc 1  analysis of frame 1 on processor 1   box from min max 47.099043 
+ index 12 or index 16 or index 23 or index 25  -8.897148 dih_hist 4 hist_cnt[bin_index] 1 
+ index 25 or index 26 or index 108 or index 110  -100.055367 dih_hist 50 hist_cnt[bin_index] 1 
+ index 113 or index 117 or index 124 or index 126  -8.897148 dih_hist 4 hist_cnt[bin_index] 2 
+ index 126 or index 127 or index 209 or index 211  171.176354 dih_hist 86 hist_cnt[bin_index] 1 
+ index 214 or index 218 or index 225 or index 227  -8.897148 dih_hist 4 hist_cnt[bin_index] 3 
+ index 227 or index 228 or index 310 or index 312  -15.849691 dih_hist 8 hist_cnt[bin_index] 1 
+ index 315 or index 319 or index 326 or index 328  -8.897148 dih_hist 4 hist_cnt[bin_index] 4 
+ index 328 or index 329 or index 411 or index 413  122.765846 dih_hist 61 hist_cnt[bin_index] 1 
+ index 416 or index 420 or index 427 or index 429  -8.897147 dih_hist 4 hist_cnt[bin_index] 5 
+   Read frames  1
+
+  Finished time  2014-07-31 16:11:55.523554
+  Computation time 0 min 0 seconds 
+ParallelMsgr destructor called
+ 
+Cleaning structureContainer
