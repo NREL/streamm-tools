@@ -16,18 +16,6 @@ except:
     print "Error: numpy module not found, check PYTHONPATH for numpy install or module version"
     sys.exit(3)
 
-try:
-    import matplotlib.pyplot as plt
-except:
-    print "Error: matplotlib.pyplot module not found, check PYTHONPATH or install from source"
-    sys.exit(3)
-
-try:
-    from mpl_toolkits.mplot3d import Axes3D
-except:
-    print "Error: mpl_toolkits.mplot3d module not found, check PYTHONPATH or install from source"
-    sys.exit(3)
-
 
 try:
     from runjobs import Geometry, IO
