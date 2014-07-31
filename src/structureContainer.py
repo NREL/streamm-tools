@@ -156,10 +156,10 @@ class StructureContainer:
         """
 
         # Empty container checks
-        if len(other) == 0:  # If struc2 is empty (has no particles)
-            return self      # simply return current container
-        if len(self) == 0:   # If struc1 (this struc) is empty (has no particles)
-            return other     # simply return struc2
+        if len(other) == 0:             # If struc2 is empty (has no particles)
+            return self                 #   simply return unchanged current container
+        if len(self) == 0:              # If struc1 (this struc) is empty (has no particles)
+            return copy.deepcopy(other) #    full copy other and return
 
         idFromToDict = dict()  # Need to keep track of all ptcl ID changes at once
                                # {fromID1:toID1, fromID2:toID2...}

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 
 set_path="PYTHONPATH=../src/:../AtomicPy/src/"
