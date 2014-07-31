@@ -4,23 +4,26 @@
 usage() {
     echo " "
     echo "Usage: check.sh [arg]"
-    echo "    arg -- new:        Runs tests and copies output to results directory"
-    echo "        -- all:        Runs all tests and compares to files in results directory"
-    echo "        -- 'test-name' Run compare for 'test-name'"
+    echo "    arg -- new:         Runs tests and copies output to results directory"
+    echo "        -- all:         Runs all tests and compares to files in results directory"
+    echo "        -- clean:       Remove auxillary files generated from running tests"
+    echo "        -- 'test-name': Run compare for 'test-name'"
     echo " "
     echo " "
-    echo "To add a serial test:"
+    echo "To add a SERIAL test:"
     echo "   1. create test with name test-*.py "
     echo "      Note: test-*.py is assumed to print results to screen \n"
-    echo "   2. do 'check.sh run' \n"
+    echo "   2. do 'check.sh compare' \n"
     echo "   3. double check that 'check.sh compare' gives no errors \n"
     echo "   4. do 'check.sh new' to put new results in /tools/tests/results \n"
     echo "   5. make sure to git add/commit/push new test and new results \n"
     echo " "
-    echo "To add a parallel (np = 2) test:"
+    echo " "
+    echo "To add a PARALLEL (np = 2) test:"
     echo "   1. create test with name test_n2-*.py "
     echo "      Note: test-*.py is assumed to print results to screen \n"
     echo "   2. Repeat steps 2-5 for serial"
+    echo " "
     echo " "
     echo "Note: if parallel np > 2 tests needed script will need to be edited"
     echo " "
@@ -34,7 +37,7 @@ usage() {
 compareTest() {
     testName=$1
     runCmd=$2
-    echo "------ Running test $testName --------"
+    echo "------ Running $testName --------"
     $runCmd $testName > tmp
     diff tmp results/$testName.txt
     rm -rf tmp
@@ -111,6 +114,7 @@ elif [ $1 == "all" ]; then
     echo "If no output (other than status messages)... tests passed"
     echo " "
 
+
 elif [ $1 == "clean" ]; then
 
     echo " "
@@ -118,6 +122,7 @@ elif [ $1 == "clean" ]; then
     echo " "
 
     rm -rf *.pkl qd*dat stats.txt qd.data
+
 
 else
     echo "Parallel test will not run correctly (yet)?"

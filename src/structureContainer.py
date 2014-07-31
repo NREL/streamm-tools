@@ -226,8 +226,6 @@ class StructureContainer:
         del self.bondC.bonds                       # Ensure memory is free
         self.bondC.bonds = localDict               # Assign reordered local copy to bond container
         del localDict
-        # bondObj = self.bondC.bonds.pop(fromBondID)      # Remove old ID
-        # self.bondC.bonds[toBondID] = bondObj            # reassign bond obj as new ID
 
 
 
