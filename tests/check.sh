@@ -111,6 +111,15 @@ elif [ $1 == "all" ]; then
     echo "If no output (other than status messages)... tests passed"
     echo " "
 
+elif [ $1 == "clean" ]; then
+
+    echo " "
+    echo "Removing auxillary files generated during tests"
+    echo " "
+
+    rm -rf *.pkl qd*dat stats.txt qd.data
+
 else
+    echo "Parallel test will not run correctly (yet)?"
     compareTest $1
 fi

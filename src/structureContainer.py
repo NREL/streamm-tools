@@ -11,6 +11,7 @@ import pbcs
 import copy
 import numpy as np 
 import json
+import sys
 
 class StructureContainer:
     """
@@ -73,6 +74,14 @@ class StructureContainer:
         del self.bondC
 
 
+    def __len__(self):
+        """
+        'Magic' method for returning size of container. This is defined as the
+        size of the particle container
+        """
+        return len(self.ptclC)
+
+
     def dump(self, filePrefix):
         """
         Dump a pickled version of this object
@@ -80,7 +89,10 @@ class StructureContainer:
         Args:
             filePrefix (str): name of pickle file. will dump filePrefix.pkl
         """
-        
+
+        if self.verbose:
+            print "Dumping structure container to pickle file"
+
         import pickle 
         fileObj = open(filePrefix + '.pkl', 'w')
         pickle.dump(self, fileObj)
@@ -104,6 +116,8 @@ class StructureContainer:
         # Custom restore for each data member
         self.ptclC = copy.deepcopy(struc.ptclC)
         self.bondC = copy.deepcopy(struc.bondC)
+        # self.angleC = copy.deepcopy(struc.angleC)
+
         self.boxLengths = copy.deepcopy(struc.boxLengths)
         self.latticevec = copy.deepcopy(struc.latticevec)
 
@@ -128,17 +142,24 @@ class StructureContainer:
         strucStr += "************************************* \n"
         strucStr += str(self.ptclC)
         strucStr += str(self.bondC)
+        # strucStr += str(self.angleC)
         return strucStr
 
 
     def __iadd__(self, other):
         """
-        'Magic' method to implement the '+=' operator
+        'Magic' method to implement the '+=' operator (eg struc1 += struc2)
         
         Compare global IDs of particles and reassign globalIDs for particle
         container using the max ID between the two lists. Tracks these changes
         for all other (bond, angle, dihedral) containers that reference particleIDs
         """
+
+        # Empty container checks
+        if len(other) == 0:  # If struc2 is empty (has no particles)
+            return self      # simply return current container
+        if len(self) == 0:   # If struc1 (this struc) is empty (has no particles)
+            return other     # simply return struc2
 
         idFromToDict = dict()  # Need to keep track of all ptcl ID changes at once
                                # {fromID1:toID1, fromID2:toID2...}
@@ -195,7 +216,6 @@ class StructureContainer:
         self.bondC.replacePtclIDs(idFromToDict)           # Use tracked list of ID changes
         # self.angleC.replacePtclIDs(idFromToDict)        # TBI
 
-
         localDict = dict()
         for toBondID, bondTuple in enumerate(self.bondC):   # Enumerate returns (ID, obj) tuple for ptclTuple
             toBondID +=1                                    # Sets reordering index correctly
@@ -224,6 +244,10 @@ class StructureContainer:
         Return:
             New Structure() object. IDs in new object are unique
         """
+
+        if (len(self)==0 and len(ptclIDList)>0):
+            print "Error: getSubStructure using non-zero ptcl list on empty container"
+            sys.exit(0)
 
         subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
         bondIDList = self.bondC.keys()           # Get keys of bond container

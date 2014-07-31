@@ -29,6 +29,7 @@ Initial state of structure before dump
 
 -------------------------------------------------------------------------------- 
 
+Dumping structure container to pickle file
 Cleaning structureContainer
 After load from pickle 
 

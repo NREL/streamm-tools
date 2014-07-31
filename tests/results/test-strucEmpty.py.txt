@@ -1,0 +1,167 @@
+************************************************************************************
+ This shows operations on empty StructureContainer objects for 'robustness'
+************************************************************************************ 
+
+Non-empty container 
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+
+Empty container 
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+
+ Contains bond objects: 
+
+Testing empty dump
+Dumping structure container to pickle file
+Testing empty compressPtclIDs
+Testing empty getSubStructure
+subStruc =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+
+ Contains bond objects: 
+
+Testing empty getPtclPositions
+posList =  []
+------------------------------------------------------------------------------------ 
+
+Testing struc add --> non-empty (polymer1) += empty (polymer2)
+polymer1 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+
+------------------------------------------------------------------------------------ 
+
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+
+ Contains bond objects: 
+
+------------------------------------------------------------------------------------ 
+
+Testing struc add --> empty (polymer2) += non-empty (polymer1)
+Cleaning structureContainer
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+
+------------------------------------------------------------------------------------ 
+
+polymer1 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+
+------------------------------------------------------------------------------------ 
+
+Testing empty getSubStructure with non-zero id list (should return ERROR)
+Error: getSubStructure using non-zero ptcl list on empty container
+Cleaning structureContainer
+Cleaning structureContainer
+Cleaning structureContainer
