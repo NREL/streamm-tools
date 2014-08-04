@@ -1,8 +1,9 @@
 localVerbose =  True
  
 Base class ParallelMsgr constructor called
-Derived class MsgrSerial constructor called
-No mpi module found, will use serial. 
+Derived class MsgrMPI4PY constructor called
+I am process 0 of 1.
+Found mpi4py module 
 
  Running on 1 processors  
 
@@ -85,7 +86,7 @@ Cleaning structureContainer
          system has 72 atoms and 60 bonds 
       -  Molecule  13  has been added to the system after  1  placment attempts 
          system has 78 atoms and 65 bonds 
-      -  Molecule  14  has been added to the system after  2  placment attempts 
+      -  Molecule  14  has been added to the system after  1  placment attempts 
          system has 84 atoms and 70 bonds 
       -  Molecule  15  has been added to the system after  1  placment attempts 
          system has 90 atoms and 75 bonds 
@@ -97,36 +98,36 @@ Cleaning structureContainer
  Adding 16  solvent  
  starting 0 of 16 
  Checking overlap for solvent 0 at lattice point 0.000000 0.000000 0.000000 
-  lattice point was found to overlap 
- Checking overlap for solvent 0 at lattice point 0.000000 0.000000 9.409821 
 Cleaning structureContainer
-      -  Molecule 1  has been added to the system at lattice point 0.000000 0.000000 9.409821  
- Checking overlap for solvent 1 at lattice point 0.000000 0.000000 18.819643 
-      -  Molecule 2  has been added to the system at lattice point 0.000000 0.000000 18.819643  
- Checking overlap for solvent 2 at lattice point 0.000000 9.409821 0.000000 
-      -  Molecule 3  has been added to the system at lattice point 0.000000 9.409821 0.000000  
- Checking overlap for solvent 3 at lattice point 0.000000 9.409821 9.409821 
-      -  Molecule 4  has been added to the system at lattice point 0.000000 9.409821 9.409821  
- Checking overlap for solvent 4 at lattice point 0.000000 9.409821 18.819643 
-      -  Molecule 5  has been added to the system at lattice point 0.000000 9.409821 18.819643  
- Checking overlap for solvent 5 at lattice point 0.000000 18.819643 0.000000 
-      -  Molecule 6  has been added to the system at lattice point 0.000000 18.819643 0.000000  
- Checking overlap for solvent 6 at lattice point 0.000000 18.819643 9.409821 
+      -  Molecule 1  has been added to the system at lattice point 0.000000 0.000000 0.000000  
+ Checking overlap for solvent 1 at lattice point 0.000000 0.000000 9.409821 
+      -  Molecule 2  has been added to the system at lattice point 0.000000 0.000000 9.409821  
+ Checking overlap for solvent 2 at lattice point 0.000000 0.000000 18.819643 
+      -  Molecule 3  has been added to the system at lattice point 0.000000 0.000000 18.819643  
+ Checking overlap for solvent 3 at lattice point 0.000000 9.409821 0.000000 
+      -  Molecule 4  has been added to the system at lattice point 0.000000 9.409821 0.000000  
+ Checking overlap for solvent 4 at lattice point 0.000000 9.409821 9.409821 
+      -  Molecule 5  has been added to the system at lattice point 0.000000 9.409821 9.409821  
+ Checking overlap for solvent 5 at lattice point 0.000000 9.409821 18.819643 
+      -  Molecule 6  has been added to the system at lattice point 0.000000 9.409821 18.819643  
+ Checking overlap for solvent 6 at lattice point 0.000000 18.819643 0.000000 
+      -  Molecule 7  has been added to the system at lattice point 0.000000 18.819643 0.000000  
+ Checking overlap for solvent 7 at lattice point 0.000000 18.819643 9.409821 
   lattice point was found to overlap 
- Checking overlap for solvent 6 at lattice point 0.000000 18.819643 18.819643 
-      -  Molecule 7  has been added to the system at lattice point 0.000000 18.819643 18.819643  
- Checking overlap for solvent 7 at lattice point 9.409821 0.000000 0.000000 
-      -  Molecule 8  has been added to the system at lattice point 9.409821 0.000000 0.000000  
- Checking overlap for solvent 8 at lattice point 9.409821 0.000000 9.409821 
-      -  Molecule 9  has been added to the system at lattice point 9.409821 0.000000 9.409821  
- Checking overlap for solvent 9 at lattice point 9.409821 0.000000 18.819643 
-      -  Molecule 10  has been added to the system at lattice point 9.409821 0.000000 18.819643  
+ Checking overlap for solvent 7 at lattice point 0.000000 18.819643 18.819643 
+      -  Molecule 8  has been added to the system at lattice point 0.000000 18.819643 18.819643  
+ Checking overlap for solvent 8 at lattice point 9.409821 0.000000 0.000000 
+      -  Molecule 9  has been added to the system at lattice point 9.409821 0.000000 0.000000  
+ Checking overlap for solvent 9 at lattice point 9.409821 0.000000 9.409821 
+      -  Molecule 10  has been added to the system at lattice point 9.409821 0.000000 9.409821  
+ Checking overlap for solvent 10 at lattice point 9.409821 0.000000 18.819643 
+  lattice point was found to overlap 
  Checking overlap for solvent 10 at lattice point 9.409821 9.409821 0.000000 
       -  Molecule 11  has been added to the system at lattice point 9.409821 9.409821 0.000000  
  Checking overlap for solvent 11 at lattice point 9.409821 9.409821 9.409821 
+      -  Molecule 12  has been added to the system at lattice point 9.409821 9.409821 9.409821  
+ Checking overlap for solvent 12 at lattice point 9.409821 9.409821 18.819643 
   lattice point was found to overlap 
- Checking overlap for solvent 11 at lattice point 9.409821 9.409821 18.819643 
-      -  Molecule 12  has been added to the system at lattice point 9.409821 9.409821 18.819643  
  Checking overlap for solvent 12 at lattice point 9.409821 18.819643 0.000000 
       -  Molecule 13  has been added to the system at lattice point 9.409821 18.819643 0.000000  
  Checking overlap for solvent 13 at lattice point 9.409821 18.819643 9.409821 
@@ -136,9 +137,7 @@ Cleaning structureContainer
  Checking overlap for solvent 15 at lattice point 18.819643 0.000000 0.000000 
   lattice point was found to overlap 
  Checking overlap for solvent 15 at lattice point 18.819643 0.000000 9.409821 
-  lattice point was found to overlap 
- Checking overlap for solvent 15 at lattice point 18.819643 0.000000 18.819643 
-      -  Molecule 16  has been added to the system at lattice point 18.819643 0.000000 18.819643  
+      -  Molecule 16  has been added to the system at lattice point 18.819643 0.000000 9.409821  
  starting 1 of 16 
  All solvents  have been added 
          f_rep has 198 atoms and 165 bonds 

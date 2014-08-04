@@ -1,8 +1,9 @@
 localVerbose =  True
  
 Base class ParallelMsgr constructor called
-Derived class MsgrSerial constructor called
-No mpi module found, will use serial. 
+Derived class MsgrMPI4PY constructor called
+I am process 0 of 1.
+Found mpi4py module 
 
   Particles 507 
     Volume 1000000.000000 
@@ -18,7 +19,7 @@ None
  Searching group j  {'fftype': ['C!']}
  search finished 
 
-  Date 2014-07-31 16:11:56.494689 
+  Date 2014-08-04 17:42:10.789102 
   Number of processors  1 
   Particles of group i: 18 
 ---------------------------------------------------------------------
@@ -51,7 +52,7 @@ None
    Average box density j  0.000172280553005  atoms/angstrom^3 
    Average cut-off sphere density  0.00108755877779  atoms/angstrom^3 
 
-  Finished time  2014-07-31 16:11:56.593280
+  Finished time  2014-08-04 17:42:10.872150
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  
