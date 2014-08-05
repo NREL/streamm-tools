@@ -33,13 +33,17 @@ usage() {
 #
 # Runs test comparison and checks with results in ./results and assumes
 # form of the file testName.txt
+# Ignores lines with expressions matched in IGNORE_OPTION
 #
 compareTest() {
+
+    IGNORE_OPTIONS='-I Found* -I Date* -I Derived* -I Finished* -I Computation*'
+
     testName=$1
     runCmd=$2
-    echo "------ Running $testName --------"
+    echo "------ Running $runCmd $testName --------"
     $runCmd $testName > tmp
-    diff tmp results/$testName.txt
+    diff $IGNORE_OPTIONS tmp results/$testName.txt
     rm -rf tmp
     echo "-------------------------------------------------"
     echo " "
