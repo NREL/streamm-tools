@@ -60,7 +60,7 @@ class StructureContainer:
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0, 1.0] ]
 
         # Lattice vectors 
-        self.latticevec = [  np.array([100.0,0.0,0.0]) ,  np.array( [0.0,100.0,0.0]),  np.array( [0.0,0.0,100.0]) ]
+        self.latvec = [  np.array([100.0,0.0,0.0]) ,  np.array( [0.0,100.0,0.0]),  np.array( [0.0,0.0,100.0]) ]
 
 
     def __del__(self):
@@ -119,7 +119,7 @@ class StructureContainer:
         # self.angleC = copy.deepcopy(struc.angleC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
-        self.latticevec = copy.deepcopy(struc.latticevec)
+        self.latvec = copy.deepcopy(struc.latvec)
 
 
     def __str__(self):
@@ -183,6 +183,8 @@ class StructureContainer:
 
         # self.angleC += other.angleC                # TBI
         # angleC.replacePtclIDs(idFromToDict)        # TBI
+
+        
 
         return self
 
@@ -357,7 +359,7 @@ class StructureContainer:
         Get lattice vector 
         """
         
-        return self.latticevec
+        return self.latvec
 
     def getVolume(self):
         """
@@ -367,8 +369,8 @@ class StructureContainer:
             Volume = ( v_i x v_j ) \dot v_k
         """
 
-        br1 = np.cross(self.latticevec[0],self.latticevec[1])
-        vol = np.dot(br1,self.latticevec[2])
+        br1 = np.cross(self.latvec[0],self.latvec[1])
+        vol = np.dot(br1,self.latvec[2])
 
         return vol
 
@@ -412,7 +414,7 @@ class StructureContainer:
             r_i = np.array( ptclObj_i.position )
             for p_j, ptclObj_j in self.ptclC :
                 r_j = np.array( ptclObj_j.position )
-                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
+                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latvec)
                 if( r_ij_sq > sq_maxdr):
                     sq_maxdr = r_ij_sq
 
@@ -512,9 +514,9 @@ class StructureContainer:
         print "    Mass %f "%self.getTotMass()
         print "    Density %f "%self.getDen()
         print "  Lattice vectors "
-        print "    v_i ",self.latticevec[0]
-        print "    v_j ",self.latticevec[1]
-        print "    v_k ",self.latticevec[2]
+        print "    v_i ",self.latvec[0]
+        print "    v_j ",self.latvec[1]
+        print "    v_k ",self.latvec[2]
         print "  Bonds %d "%(len(self.bondC))
 
         
@@ -687,9 +689,9 @@ class StructureContainer:
         if( (y_max - y_min) > l_max ): l_max = (y_max - y_min)
         if( (z_max - z_min) > l_max ): l_max = (z_max - z_min)
             
-        self.latticevec[0][0] = l_max
-        self.latticevec[1][1] = l_max
-        self.latticevec[2][2] = l_max
+        self.latvec[0][0] = l_max
+        self.latvec[1][1] = l_max
+        self.latvec[2][2] = l_max
         
 
     def getchainnumb(self):
@@ -726,9 +728,9 @@ class StructureContainer:
         struc_data["fourbody"] = fourbody_data
     
 	# Structure data
-        lv_string = str( "%f %f %f %f %f %f %f %f %f " % ( self.latticevec[0][0], self.latticevec[0][1], self.latticevec[0][2], self.latticevec[1][0], self.latticevec[1][1], self.latticevec[1][2], self.latticevec[2][0], self.latticevec[2][1], self.latticevec[2][2]))
+        lv_string = str( "%f %f %f %f %f %f %f %f %f " % ( self.latvec[0][0], self.latvec[0][1], self.latvec[0][2], self.latvec[1][0], self.latvec[1][1], self.latvec[1][2], self.latvec[2][0], self.latvec[2][1], self.latvec[2][2]))
 
-	struc_data["latticevector"] = lv_string
+	struc_data["latvector"] = lv_string
 
 	# Particle data 
         particle_data["number_id"] = []
@@ -834,11 +836,11 @@ class StructureContainer:
             self.bondC.put(b_i)
 
         # Read in lattice vectors
-        self.latticevec = []
-        lv_array = struc_data["latticevector"].split()
-        self.latticevec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
-        self.latticevec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
-        self.latticevec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
+        self.latvec = []
+        lv_array = struc_data["latvector"].split()
+        self.latvec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
+        self.latvec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
+        self.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
 
         return json_data
     
@@ -997,9 +999,9 @@ class StructureContainer:
         # Set cubic lattice constant to 5 nm arbitrary 
         LV = np.zeros( (3,3) )
             
-        LV[0][0] = self.latticevec[0][0]
-        LV[1][1] = self.latticevec[1][1]
-        LV[2][2] = self.latticevec[2][2]
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
         
         out_gro = dir_id+"/"+output_id + ".gro"
         gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
@@ -1048,9 +1050,9 @@ class StructureContainer:
         # Set cubic lattice constant to 5 nm arbitrary 
         LV = np.zeros( (3,3) )
             
-        LV[0][0] = self.latticevec[0][0]
-        LV[1][1] = self.latticevec[1][1]
-        LV[2][2] = self.latticevec[2][2]
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
         
         # Find atomic number based on atomic symbol 
         ELN = elements.asymb_eln(ASYMB)
@@ -1250,7 +1252,7 @@ class StructureContainer:
                 
                 if( p_j > p_i):
                     r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-                    r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latticevec)
+                    r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latvec)
                     if( r_ij_sq <= sq_r_cut ):
                         m_ij = np.sqrt(r_ij_sq)
                         bin_index = int( round( m_ij/bin_size) )
@@ -1459,10 +1461,10 @@ class StructureContainer:
             self.bondC.put(b_i)
 
         # Read in lattice vectors
-        self.latticevec = []
-        self.latticevec.append(  np.array( [float(LV[0][0]),float(LV[0][1]),float(LV[0][2])] ) )
-        self.latticevec.append(  np.array( [float(LV[1][0]),float(LV[1][1]),float(LV[1][2])] ) )
-        self.latticevec.append(  np.array( [float(LV[2][0]),float(LV[2][1]),float(LV[2][2])] ) )
+        self.latvec = []
+        self.latvec.append(  np.array( [float(LV[0][0]),float(LV[0][1]),float(LV[0][2])] ) )
+        self.latvec.append(  np.array( [float(LV[1][0]),float(LV[1][1]),float(LV[1][2])] ) )
+        self.latvec.append(  np.array( [float(LV[2][0]),float(LV[2][1]),float(LV[2][2])] ) )
 
 
     def get_gaussian(self,fchk_file,json_data):
@@ -1847,13 +1849,19 @@ class StructureContainer:
         print "latvec_list" , latvec_list
         oligomer_rep.setLatVec(latvec_list)
 
+        print " oligomer_rep.getLatVec() ",oligomer_rep.getLatVec()
 
-        print " oligomer_rep. latticevec ",oligomer_rep.latticevec[0][0]
                                 
 
         # Solvent molecule container
         sol_rep = StructureContainer()  
         sol_rep.setLatVec(latvec_list)
+        self.setLatVec(latvec_list)
+
+        print " s1 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s1 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s1 self. .getLatVec() ",self.getLatVec()
+        
 
         # Print script information and settings 
         if( rank == 0  ):
@@ -1924,6 +1932,12 @@ class StructureContainer:
                 # loop over the number of times each oligomer in the oligomer list needs to be replicated
                 for struc_i in oligo_array:
 
+
+                    print " s12 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                    print " s12 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                    print " s12 self. .getLatVec() ",self.getLatVec()
+
+        
                     #
                     # Place the atomic indices into list 
                     # 
@@ -1959,11 +1973,11 @@ class StructureContainer:
                             #
                             r_random_o = np.zeros(n_dim)
                             for x_indx in range( n_dim ):
-                                r_random_o[x_indx] = random.randrange(0,ang_acc*int(oligomer_rep.latticevec[x_indx][x_indx]) )/float(ang_acc)
+                                r_random_o[x_indx] = random.randrange(0,ang_acc*int(oligomer_rep.latvec[x_indx][x_indx]) )/float(ang_acc)
 
                             debug = 0
                             if( debug ):
-                                print " ran ",x_indx,(oligomer_rep.latticevec[x_indx][x_indx])
+                                print " ran ",x_indx,(oligomer_rep.latvec[x_indx][x_indx])
                                 print rot_angle_i_o,rot_angle_j_o,r_random_o
                                 #sys.exit(" Random # 's test 1")
                                 
@@ -2005,6 +2019,11 @@ class StructureContainer:
                         overlap_sum = p.allReduceSum(overlap)
                         p.barrier() # Barrier for MPI_COMM_WORLD
                         
+                        print " s13 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                        print " s13 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                        print " s13 self. .getLatVec() ",self.getLatVec()
+
+        
                         if( overlap_sum ==  0 ):
                             # If no overlap detected add molecule to the system 
                             sys_oligo_n += 1
@@ -2013,7 +2032,8 @@ class StructureContainer:
                             for pid, ptclObj in struc_i.ptclC :
                                 ptclObj.tagsDict["chain"] = struc_add_cnt
 
-                            # add oligomer structure to system structure 
+                            # add oligomer structure to system structure
+                            struc_i.setLatVec(oligomer_rep.getLatVec())
                             oligomer_rep += struc_i
 
                             if( options.verbose ):
@@ -2022,6 +2042,12 @@ class StructureContainer:
                                     print "         system has %d atoms and %d bonds "%(len(oligomer_rep.ptclC),len(oligomer_rep.bondC))
                                     #print " Printing  oligomer_rep bonds "
                                     #oligomer_rep.printbondlengths()
+
+
+                                    print " s11 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                                    print " s11 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                                    print " s11 self. .getLatVec() ",self.getLatVec()
+
 
                                     if( options.ptime ):
                                         t_f = datetime.datetime.now()
@@ -2041,6 +2067,11 @@ class StructureContainer:
                             #   reset system and star over 
                             if(  rank == 0  ):
                                 if(  options.verbose ):
+
+
+                                    print " add0 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+
+
                                     print "        -  Attempts to add molecule ",sys_oligo_n+1," has exceeded max attempts ",options.max_mol_place," system will be reset for the ",sys_attempts," time "
 
                             sys_oligo_n = 0
@@ -2050,6 +2081,9 @@ class StructureContainer:
 
                             # Save lattice vectors as to no loose any expansions 
                             latvec_i = oligomer_rep.getLatVec()
+
+                            print " saving s1 latvec_i ",latvec_i
+                            
                             # Delete system 
                             del oligomer_rep
                             oligomer_rep = StructureContainer()  # Output replicated structure
@@ -2058,11 +2092,20 @@ class StructureContainer:
 
 
                         if( sys_attempts >= options.max_sys  ):
+
+
+                            print " exp0 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+
+
                             # If the system has been reset over max_sys times expand the box size by lc_expand
                             oligomer_rep.expandLatVec(options.lc_expand)
 
                             # Save lattice vectors as to no loose any expansions 
                             latvec_i = oligomer_rep.getLatVec()
+
+
+                            print " exp1 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                            
                             # Delete system 
                             del oligomer_rep
                             oligomer_rep = StructureContainer()  # Output replicated structure
@@ -2105,10 +2148,16 @@ class StructureContainer:
             print oligomer_rep.bondC
 
 
+        print " s21 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s21 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s21 self. .getLatVec() ",self.getLatVec()
+                
+
         self =  oligomer_rep
         self.setLatVec(latvec_oligo)
-        self.compressPtclIDs()
-        
+        # Rest solvent lattice vectors to match oligo 
+        sol_rep.setLatVec(latvec_oligo)
+
         if( debgu_n ):
             print "self"
             print self.ptclC
@@ -2116,7 +2165,11 @@ class StructureContainer:
 
             sys.exit("debug ")
 
-        
+
+        print " s2 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s2 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s2 self. .getLatVec() ",self.getLatVec()
+                
 
         if( options.perc_sol > 0.0 ):
 
@@ -2175,8 +2228,8 @@ class StructureContainer:
 
                                         print " Checking overlap for solvent %d at lattice point %f %f %f "%(sys_sol_n,l_x,l_y,l_z)
 
-                                        if( l_x > oligomer_rep.latticevec[0][0] or l_y > oligomer_rep.latticevec[1][1] or l_z > oligomer_rep.latticevec[2][2] ):
-                                            print " Lattic point beyond box %f %f %f "%(oligomer_rep.latticevec[0][0],oligomer_rep.latticevec[1][1], oligomer_rep.latticevec[2][2])
+                                        if( l_x > oligomer_rep.latvec[0][0] or l_y > oligomer_rep.latvec[1][1] or l_z > oligomer_rep.latvec[2][2] ):
+                                            print " Lattic point beyond box %f %f %f "%(oligomer_rep.latvec[0][0],oligomer_rep.latvec[1][1], oligomer_rep.latvec[2][2])
                                             bad_grid_point = True
                                             break 
 
@@ -2205,6 +2258,7 @@ class StructureContainer:
                                             struc_i.shift_center_mass(org)
                                             struc_i.vec_shift(lat_pos)
 
+                                            struc_i.setLatVec(sol_rep.getLatVec())
                                             sol_rep += struc_i
 
                                             if( options.verbose ):
@@ -2262,9 +2316,9 @@ class StructureContainer:
                         # Expand the box size by a single solvent length 
                         #
                         #sol_rep.expandLatVec(options.lc_expand)
-                        sol_rep.latticevec[0] = sol_rep.latticevec[0] + sol_length
-                        sol_rep.latticevec[1] = sol_rep.latticevec[1] + sol_length
-                        sol_rep.latticevec[2] = sol_rep.latticevec[2] + sol_length
+                        sol_rep.latvec[0] = sol_rep.latvec[0] + sol_length
+                        sol_rep.latvec[1] = sol_rep.latvec[1] + sol_length
+                        sol_rep.latvec[2] = sol_rep.latvec[2] + sol_length
                         #
                         # Increase the number of solvent molecules along the box by 1
                         #
@@ -2279,11 +2333,19 @@ class StructureContainer:
 
             # Add replicated solvents to final structure
             self += sol_rep
-            self.setLatVec(sol_rep.latticevec)
+            self.setLatVec(sol_rep.latvec)
 
         
 
+        print " s3 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s3 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s3 self. .getLatVec() ",self.getLatVec()
+                
+
+        self.compressPtclIDs()
+        
         print "         f_rep has %d atoms and %d bonds "%(len(self.ptclC),len(self.bondC))
+        print "             lat vec ",sol_rep.latvec
         #self.printbondlengths()
 
 
