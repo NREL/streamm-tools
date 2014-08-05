@@ -837,7 +837,7 @@ class StructureContainer:
 
         # Read in lattice vectors
         self.latvec = []
-        lv_array = struc_data["latvector"].split()
+        lv_array = struc_data["latticevector"].split()
         self.latvec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
         self.latvec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
         self.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
