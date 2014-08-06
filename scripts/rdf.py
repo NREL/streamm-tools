@@ -339,7 +339,7 @@ def main():
 
                                     debug = 1
                                     if( debug ):
-                                        print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latticevec[0][0]
+                                        print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec[0][0]
 
                                     #rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
                                     #
@@ -373,7 +373,7 @@ def main():
                                                 if( ptcl_i.tagsDict["chain"]  != ptcl_j.tagsDict["chain"] ): add_ij = False
                                             if( add_ij ):
                                                 r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-                                                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latticevec)
+                                                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latvec)
                                                 if( r_ij_sq <= sq_r_cut ):
                                                     m_ij = np.sqrt(r_ij_sq)
                                                     bin_index = int( round( m_ij/options.bin_size) )
@@ -433,7 +433,7 @@ def main():
                             volume_i.append( vol_i )
                             volume_sum_i +=  vol_i
 
-                            print " box from min max %f "%struc_o.latticevec[0][0]
+                            print " box from min max %f "%struc_o.latvec[0][0]
 
                             #rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
                             #
@@ -466,7 +466,7 @@ def main():
                                         #r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
                                         r_j =  ptcl_j.position #np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
                                         
-                                        r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latticevec)
+                                        r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latvec)
                                         if( r_ij_sq <= sq_r_cut ):
                                             m_ij = np.sqrt(r_ij_sq)
                                             bin_index = int( round( m_ij/options.bin_size) )
