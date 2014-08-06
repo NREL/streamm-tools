@@ -34,6 +34,8 @@
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 5, 'pgid2': 3}
 
+ Contains angle objects: 
+
 
 5--'b1'---2
  -        |
@@ -70,6 +72,8 @@ Testing polymer1.getSubStructure([5,2])
 
  Contains bond objects: 
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 5, 'pgid2': 2}
+
+ Contains angle objects: 
 
 
 5--'b1'---2
@@ -109,6 +113,8 @@ polymer1 Struture after returning sub-structure
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 5, 'pgid2': 3}
 
+ Contains angle objects: 
+
 ********************************************************** 
 
 -------------------------------------------------------------------------------- 
@@ -140,6 +146,8 @@ Cleaning structureContainer
  Contains bond objects: 
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+
+ Contains angle objects: 
 
 
 5--'b1'---2

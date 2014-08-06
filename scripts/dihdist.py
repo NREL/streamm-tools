@@ -362,7 +362,7 @@ def dihdist():
 
                                 debug = 1
                                 if( debug ):
-                                    print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latticevec[0][0]
+                                    print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec[0][0]
                                 #
                                 # Loop over lists
                                 #
@@ -386,7 +386,7 @@ def dihdist():
 
                         debug = 1
                         if( debug ):
-                            print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latticevec[0][0]
+                            print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec[0][0]
 
                         #
                         # Loop over lists

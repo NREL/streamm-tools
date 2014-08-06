@@ -1,7 +1,9 @@
 """
-Class data structures for atomic data
+Class data structures for simulation data
 """
 import copy, sys
+
+from structureContainer import StructureContainer
 
 class Simulation:
     """
@@ -20,79 +22,69 @@ class Simulation:
           converts a StructureContainer at step1 to a StructureContainer at step2
     """
 
-    def __init__(self, pos=[], type="blank", charge=0.0, mass=1.0):
+    def __init__(self, name):
         """
-        Constructor for a general simluation object.
-
+        Constructor for a general simulation object.
+        
         Args:
-            pos     (list)  Cartesian position vector
-            type     (str)  String identifier (eg, Si, UA1, Bead1)
-            charge (float)  Charge value in units of [e]
-            mass   (float)  Mass in units of [?]
+            name (str): String identifier for object (eg GaussianJuly21)
         """
-        
-        if isinstance(pos, list):
-            self.position = pos
-        else:
-            print "1st arg should be list of floats"
-            raise TypeError
 
-        if isinstance(type, str):
-            self.type = type
+        if isinstance(name, str):
+            self.simulationName = name   # String name of simulation code (eg GaussianJuly21)
         else:
-            print "2nd arg should be string type"
+            print "1st arg should be string name for the simulation"
             raise TypeError
+            
+        self.simulationExec = ""     # String name of simulation code executable (eg lmp)
+        self.inputFileNames = list() # List of file name strings (SWS: full paths?)
+        # others?
 
-        if isinstance(charge, float):
-            self.charge = charge
-        else:
-            print "3rd arg should be float value"
-            raise TypeError
+    def __str__(self):
+        """
+        Print out name of simulation object (for logging/status)
+        """
+        return self.simulationName
 
-        if isinstance(mass, float):
-            self.mass = mass
-        else:
-            print "4th arg should be float value"
-            raise TypeError
-
-        # Tags dictionary. To be set by caller
-        self.tagsDict=dict()
-        self.tagsDict["type"] = type
-        
 
     def __del__(self):
         """
         Destructor, clears object memory
         """
-        del self.tagsDict
-        del self.position
+        del self.inputFileNames
+
 
 
 
 class SimulationContainer:
     """
-    Main data structure for holding Particle objects. Map of global
-    particle ID (integer) to Particle object instances
+    Container class that associates Simulation objects with StructureContainer objects
+    A Simulation is an object that is capable of 'constructing' an external simulation
+    that uses a StructureContainer as an input and generates a StructureContainer as an
+    output. Therefore a Simulation object should be thought of a 'function' that transforms
+    a StructureContainer at state n (sC_n) to one at sC_(n+1).
+
+    One of the primary data structures is a dictionary mapping StructureContainer-s to
+    Simulation-s. An element of this dictionary will be tuple of StructureContainer-s
+    mapped to a Simulation object. So:
+
+      n      --> state index
+      sC_n   --> instance of StructureContainer at state n
+      simObj --> instance of Simulation
+
+      with a dictionary element of the form  n: (sC_n, simObj, sC_n+1)
+      eg.  { 1: (sC_1, simObjGaussian, sC_2), 2:(sC_2, simObjLammps, sC_3),....}
     """
 
-    def __init__(self, idList=[], verbose=False):
+    def __init__(self, verbose=False):
         """
         Constructor: sets up a dictionary for indexing 'Particle' objects
 
         Args:
-            idList (list): of particle IDs. If empty then ID starts at 1.
-                If not empty then ID's (keys) are inititalized with empty particle objects
             verbose (bool): flag for printing status/debug info
         """
         self.verbose=verbose
-        self.particles=dict()                              # Creates empty dict struc
-        self.particles={key: Particle() for key in idList} # Creates empty Particle objs
-                                                           #  if idList not empty
-
-        if len(idList) == 0:         # If list not set in constructor arg
-            self.maxgid=0            # default=0 if idList empty
-        else:                        #
-            self.maxgid=max(idList)  # take max in list for maxgid
+        self.sc2sim = dict()         # Main object mapping structure containers to sims
 
 
     def __del__(self):
@@ -100,9 +92,9 @@ class SimulationContainer:
         Destructor, clears dictionary memory
         """
         if self.verbose:
-            print "Cleaning particle container"
+            print "Cleaning simulation container"
 
-        del self.particles
+        del self.sc2sim
 
 
     def dump(self, filePrefix):
@@ -123,7 +115,7 @@ class SimulationContainer:
         """
         'Magic' method for returning size of container
         """
-        return len(self.particles)
+        return len(self.sc2sim)
 
 
     def __str__(self):
@@ -131,75 +123,71 @@ class SimulationContainer:
         'Magic' method for printng contents of container
         """
 
-        ptclStr="\n Contains particle objects: \n"
-        for gid in self.particles:
-            ptclStr = ptclStr + str(gid) + " " + str(self.particles[gid].__dict__) + "\n"
-        return ptclStr
+        simStr="\n Contains simulations objects: \n"
+        for simIndex, simTuple in self.sc2sim.iteritems():
+            simObj = simTuple[1]
+            simStr = simStr + " " + str(simIndex) + " " + str(simObj) + "\n"
+        return simStr
 
 
-    def __setitem__(self, gid, ptcl):
+    def __setitem__(self, simIndex, simTuple):
         """
         'Magic' method implementing obj[]=value operator
-        Performs deep copy of value so container is managing memory
-        If gid exists in container then particle object is overwritten.
-        If gid does not exist then particle object is inserted in container
-        using the 'put()' method.
         """
-        if gid in self.particles.keys():
-            self.particles[gid]=copy.deepcopy(ptcl)
+
+        sC_n1  = simTuple[0]  # structureContainer at state n
+        simObj = simTuple[1]  # Simulation object
+        sC_n2  = simTuple[2]  # structureContainer at state n+1
+
+        if not isinstance(sC_n1, StructureContainer):
+            print "1st element of tuple should be a StructureContainer object"
+            raise TypeError
+            sys.exit(3)
+            
+        if not isinstance(simObj, Simulation):
+            print "2nd element of tuple should be a Simulation object"
+            raise TypeError
+            sys.exit(3)
+            
+        if not isinstance(sC_n2, StructureContainer):
+            print "3rd element of tuple should be a StructureContainer object"
+            raise TypeError
+            sys.exit(3)            
+
+        if simIndex not in self.sc2sim.keys():
+            e0 = copy.deepcopy(sC_n1)    
+            e1 = copy.deepcopy(simObj)
+            e2 = copy.deepcopy(sC_n2)
+            self.sc2sim[simIndex]=(e0, e1, e2)
         else:
-            print "Using [] operator for non-existent key"
+            print "Using [] operator for pre-existing key"
             sys.exit(3)
 
 
-    def __getitem__(self, gid):
+    def __getitem__(self, simIndex):
         """
         'Magic' method implementing obj[] operator.
         Operations on returned elements change container
         """
-        return self.particles[gid]
+        return self.sc2sim[simIndex]
 
 
-    def __delitem__(self, gid):
+    def __delitem__(self, simIndex):
         """
         'Magic' method implementing del obj[] operator
         """
-        del self.particles[gid]
+        del self.sc2sim[simIndex]
 
 
     def __iter__(self):
         """
         'Magic' method implementing (for x in 'this')....
         """
-        # return iter(self.particles)
-        return self.particles.iteritems()
-
-
-    def __call__(self, idSubList=None):
-        """
-        Callable magic method. Returns iterator to subset particle dictionary
-
-        Args:
-             idSubList (list) list of pid-s of particle objects to be returned
-             
-        Returns: iterator to subset of particle dictionary
-        """
-
-        subGroupDct = dict()
-        
-        if idSubList != None:
-            for pid, ptclObj in self.particles.iteritems():
-                if pid in idSubList:
-                    subGroupDct[pid] = ptclObj
-            return subGroupDct.iteritems()
-        
-        else:
-            print "Callable ParticleContainer requires a list of subgroup particle IDs"
-            sys.exit(3)
+        return self.sc2sim.iteritems()
 
 
     def __contains__(self, gid):
         """
         'Magic' method implementing in keyword (key in obj')....
         """
-        return gid in self.particles
+        return gid in self.sc2sim

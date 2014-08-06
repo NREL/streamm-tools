@@ -24,6 +24,8 @@ Non-empty container
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 
+ Contains angle objects: 
+
 Empty container 
 ************************************* 
  Global parameters: 
@@ -40,6 +42,8 @@ Empty container
  Contains particle objects: 
 
  Contains bond objects: 
+
+ Contains angle objects: 
 
 Testing empty dump
 Dumping structure container to pickle file
@@ -61,6 +65,8 @@ subStruc =
  Contains particle objects: 
 
  Contains bond objects: 
+
+ Contains angle objects: 
 
 Testing empty getPtclPositions
 posList =  []
@@ -89,6 +95,8 @@ polymer1 =
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 
+ Contains angle objects: 
+
 ------------------------------------------------------------------------------------ 
 
 polymer2 =  
@@ -107,6 +115,8 @@ polymer2 =
  Contains particle objects: 
 
  Contains bond objects: 
+
+ Contains angle objects: 
 
 ------------------------------------------------------------------------------------ 
 
@@ -134,6 +144,8 @@ polymer2 =
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 
+ Contains angle objects: 
+
 ------------------------------------------------------------------------------------ 
 
 polymer1 =  
@@ -157,6 +169,8 @@ polymer1 =
  Contains bond objects: 
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+
+ Contains angle objects: 
 
 ------------------------------------------------------------------------------------ 
 

@@ -1,9 +1,9 @@
 localVerbose =  True
  
 Base class ParallelMsgr constructor called
-Derived class MsgrMPI4PY constructor called
+Derived class MsgrBoost constructor called
 I am process 0 of 1.
-Found mpi4py module 
+Found boost.mpi module 
 
      - Reading in  acc1_D1_R2R200_A2_R3_n1_R41n1R41n1R40n1__n5.json
   Particles 507 
@@ -26,7 +26,7 @@ None
  search finished 
   list creation finished 
 
-  Date 2014-08-04 17:42:09.846853 
+  Date 2014-08-06 15:33:09.384005 
   Number of processors  1 
 ---------------------------------------------------------------------
   Particles of group l: 15 
@@ -51,7 +51,7 @@ proc 1  analysis of frame 1 on processor 1   box from min max 47.099043
  index 416 or index 420 or index 427 or index 429  -8.897147 dih_hist 4 hist_cnt[bin_index] 5 
    Read frames  1
 
-  Finished time  2014-08-04 17:42:09.925294
+  Finished time  2014-08-06 15:33:09.462008
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  

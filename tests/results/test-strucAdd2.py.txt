@@ -29,6 +29,8 @@ polymer1 =
 1 {'type': 'hooke', 'length': 1.111, 'pgid1': 1, 'pgid2': 2}
 2 {'type': 'hooke', 'length': 2.222, 'pgid1': 2, 'pgid2': 3}
 
+ Contains angle objects: 
+
 polymer2 =  
 ************************************* 
  Global parameters: 
@@ -48,6 +50,8 @@ polymer2 =
 
  Contains bond objects: 
 1 {'type': 'hooke-2', 'length': 1.1, 'pgid1': 1, 'pgid2': 2}
+
+ Contains angle objects: 
 
  
 -------------------- After adding --------------------
@@ -75,6 +79,8 @@ polymer2 =
 1 {'type': 'hooke-2', 'length': 1.1, 'pgid1': 1, 'pgid2': 2}
 3 {'type': 'hooke', 'length': 1.111, 'pgid1': 4, 'pgid2': 5}
 4 {'type': 'hooke', 'length': 2.222, 'pgid1': 5, 'pgid2': 6}
+
+ Contains angle objects: 
 
 Cleaning structureContainer
 Cleaning structureContainer

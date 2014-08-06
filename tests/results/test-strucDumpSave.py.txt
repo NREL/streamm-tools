@@ -27,6 +27,8 @@ Initial state of structure before dump
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
 
+ Contains angle objects: 
+
 -------------------------------------------------------------------------------- 
 
 Dumping structure container to pickle file
@@ -57,6 +59,8 @@ After load from pickle
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
+
+ Contains angle objects: 
 
 -------------------------------------------------------------------------------- 
 

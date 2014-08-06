@@ -1,0 +1,125 @@
+************************************************************************************
+ This test shows structureContainer functionality with angles included
+************************************************************************************ 
+
+
+ Cleaning memory for initial objects 
+
+-------------------- Initial structures --------------------
+polymer1 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+3 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+4 {'position': [0.0, 0.0, 0.0], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.11, 'pgid1': 1, 'pgid2': 3}
+2 {'type': 'hooke', 'length': 2.22, 'pgid1': 3, 'pgid2': 4}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 1, 'pgid3': 4, 'pgid2': 3}
+
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [4.4, 4.4, 4.4], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [5.5, 5.5, 5.5], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [6.6, 6.6, 6.6], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 3.33, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 4.44, 'pgid1': 2, 'pgid2': 3}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+
+ 
+-------------- After adding  (polymer2 += polymer1) ----------------
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [4.4, 4.4, 4.4], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [5.5, 5.5, 5.5], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [6.6, 6.6, 6.6], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+5 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+6 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+7 {'position': [0.0, 0.0, 0.0], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 3.33, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 4.44, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 1.11, 'pgid1': 5, 'pgid2': 6}
+4 {'type': 'hooke', 'length': 2.22, 'pgid1': 6, 'pgid2': 7}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 5, 'pgid3': 7, 'pgid2': 6}
+
+-------------------- After compressing --------------------
+polymer2 =  
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [4.4, 4.4, 4.4], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+2 {'position': [5.5, 5.5, 5.5], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [6.6, 6.6, 6.6], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+5 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+6 {'position': [0.0, 0.0, 0.0], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 3.33, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 4.44, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 1.11, 'pgid1': 4, 'pgid2': 5}
+4 {'type': 'hooke', 'length': 2.22, 'pgid1': 5, 'pgid2': 6}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5}
+
+Cleaning structureContainer
+Cleaning structureContainer

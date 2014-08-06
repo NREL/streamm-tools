@@ -35,7 +35,6 @@ bonds1.put(b2)
 
 polymer1 = StructureContainer(atoms1, bonds1)  # Complete structure 1 completely
 
-
 p1other = Particle( [0.0, 2.3, -20.1], "C",  1.0, 2.34)
 p2other = Particle( [50.0, 0.3, -0.1], "Ar", 2.0, 2.34)
 

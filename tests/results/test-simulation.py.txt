@@ -1,5 +1,5 @@
 ************************************************************************************
- This test shows how to add StructureContainer objects together 
+ This test shows basics of the Simulation classes
 ************************************************************************************ 
 
 
@@ -25,8 +25,6 @@ polymer1 =
 3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
  Contains bond objects: 
-1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
-2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 
  Contains angle objects: 
 
@@ -44,17 +42,24 @@ polymer2 =
 ************************************* 
 
  Contains particle objects: 
-1 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
-3 {'position': [50.0, 0.3, -0.1], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
  Contains bond objects: 
-1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 3}
 
  Contains angle objects: 
 
  
--------------------- After adding --------------------
-polymer2 =  
+
+ Cleaning memory for simulation objects 
+
+simC =  
+ Contains simulations objects: 
+ 1 GaussianJuly2014
+ 2 Lammps012038
+
+simTuple1 init struc  =  
 ************************************* 
  Global parameters: 
 ************************************* 
@@ -68,21 +73,16 @@ polymer2 =
 ************************************* 
 
  Contains particle objects: 
-1 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
-3 {'position': [50.0, 0.3, -0.1], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
-4 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
-5 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
-6 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
  Contains bond objects: 
-1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 3}
-3 {'type': 'hooke', 'length': 1.233, 'pgid1': 4, 'pgid2': 5}
-4 {'type': 'hooke', 'length': 0.5, 'pgid1': 5, 'pgid2': 6}
 
  Contains angle objects: 
 
--------------------- After compressing --------------------
-polymer2 =  
+simTuple1 simulation  =  {'simulationExec': '', 'simulationName': 'GaussianJuly2014', 'inputFileNames': []}
+simTuple1 final struc =  
 ************************************* 
  Global parameters: 
 ************************************* 
@@ -96,18 +96,11 @@ polymer2 =
 ************************************* 
 
  Contains particle objects: 
-1 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
-2 {'position': [50.0, 0.3, -0.1], 'charge': 2.0, 'type': 'Ar', 'mass': 2.34, 'tagsDict': {'type': 'Ar'}}
-3 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
-4 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
-5 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+1 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
 
  Contains bond objects: 
-1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 2}
-2 {'type': 'hooke', 'length': 1.233, 'pgid1': 3, 'pgid2': 4}
-3 {'type': 'hooke', 'length': 0.5, 'pgid1': 4, 'pgid2': 5}
 
  Contains angle objects: 
 
-Cleaning structureContainer
-Cleaning structureContainer

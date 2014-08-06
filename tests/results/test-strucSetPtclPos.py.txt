@@ -27,6 +27,8 @@ Initial state of structure before reset
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
 
+ Contains angle objects: 
+
 new positions =  [[1, 0.111, 0.222, 0.333], [2, 0.222, 0.333, 0.444], [4, 0.444, 0.555, 0.666]]
 new positions from structure =  [[1, 0.111, 0.222, 0.333], [2, 0.222, 0.333, 0.444], [3, 5.0, 2.3, -20.1], [4, 0.444, 0.555, 0.666]]
  
@@ -54,5 +56,7 @@ After position reset/get
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
 4 {'type': 'hooke', 'length': 0.828, 'pgid1': 1, 'pgid2': 3}
+
+ Contains angle objects: 
 
 Cleaning structureContainer

@@ -1,0 +1,34 @@
+************************************************************************************
+ This test shows various operators within Angle and AngleContainer classes          
+ Also shows memory management structure and access methods                          
+************************************************************************************ 
+
+
+ Cleaning memory for initial objects 
+
+angles1 container
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+
+ 
+angles2 container
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5}
+
+Testing 'in' operator (1 in angles1)
+angles1 contains gid 1
+Testing 'in' operator (5 in angles1)
+key not found in angles1
+ 
+Will print the new angles1 after adding angles1 += angles2
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5}
+
+Check for pre-existing angle
+angle 1--2--3 exists
+Check for pre-existing angle
+angle 2--3--1 does NOT exists

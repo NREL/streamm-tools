@@ -6,8 +6,10 @@ from particles import Particle
 from particles import ParticleContainer
 from bonds     import Bond
 from bonds     import BondContainer
-import pbcs
+from angles    import Angle
+from angles    import AngleContainer
 
+import pbcs
 import copy
 import numpy as np 
 import json
@@ -28,8 +30,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    # def __init__(self, ptctC, bondC, angleC, dihC):
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), verbose=True):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -37,7 +38,7 @@ class StructureContainer:
         Args:
             ptclC  (ParticleContainer)  
             bondC  (BondContainer)  
-            angleC (AngleContainer)  * not implemented
+            angleC (AngleContainer)
             dihC   (DihedralContainer) * not implemented
         """
         
@@ -52,6 +53,13 @@ class StructureContainer:
         else:
             print "2nd arg should be a BondContainer object"
             raise TypeError
+
+        if isinstance(angleC, AngleContainer):
+            self.angleC = copy.deepcopy(angleC)
+        else:
+            print "3rd arg should be an AngleContainer object"
+            raise TypeError
+
 
         # Debug print flag
         self.verbose = verbose
@@ -72,6 +80,7 @@ class StructureContainer:
             
         del self.ptclC
         del self.bondC
+        del self.angleC
 
 
     def __len__(self):
@@ -116,7 +125,8 @@ class StructureContainer:
         # Custom restore for each data member
         self.ptclC = copy.deepcopy(struc.ptclC)
         self.bondC = copy.deepcopy(struc.bondC)
-        # self.angleC = copy.deepcopy(struc.angleC)
+        self.angleC = copy.deepcopy(struc.angleC)
+        # self.dihC   = copy.deepcopy(struc.angleC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
         self.latvec = copy.deepcopy(struc.latvec)
@@ -142,7 +152,8 @@ class StructureContainer:
         strucStr += "************************************* \n"
         strucStr += str(self.ptclC)
         strucStr += str(self.bondC)
-        # strucStr += str(self.angleC)
+        strucStr += str(self.angleC)
+        # strucStr += str(self.dihC)
         return strucStr
 
 
@@ -165,8 +176,10 @@ class StructureContainer:
                                # {fromID1:toID1, fromID2:toID2...}
                                # eg {1:3, 3:5, 2:20...}
         
-        bondC = BondContainer()            # Local bond container copy so ptclIDs
-        bondC = copy.deepcopy(other.bondC) # inside can be changed (for adding below)
+        bondC  = BondContainer()              # Local bond container copy so ptclIDs
+        angleC = AngleContainer()             # Local angle container copy so ptclIDs
+        bondC  = copy.deepcopy(other.bondC)   #  inside can be changed (for adding below)
+        angleC = copy.deepcopy(other.angleC)  #  inside can be changed (for adding below)
 
         keys1 = self.ptclC.particles.keys()    # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()   # global IDs in object being added
@@ -178,15 +191,17 @@ class StructureContainer:
             toPtclID   = self.ptclC.maxgid                  #  --> toID (to is the maxid of this ptclC)
             idFromToDict[fromPtclID]=toPtclID               # Store ID changes
 
-        bondC.replacePtclIDs(idFromToDict)              # Use tracked list of ID changes
-        self.bondC += bondC                             # Now add bondC with 'corrected' IDs
+        bondC.replacePtclIDs(idFromToDict)       # Use tracked list of ID changes
+        self.bondC += bondC                      # Now add bondC with 'corrected' IDs
 
-        # self.angleC += other.angleC                # TBI
-        # angleC.replacePtclIDs(idFromToDict)        # TBI
+        angleC.replacePtclIDs(idFromToDict)    # Now add angleC with 'corrected' IDs
+        self.angleC += angleC                  # Use tracked list of ID changes
 
-        
+        # self.dihC += other.dihC                # TBI
+        # dihC.replacePtclIDs(idFromToDict)      # TBI
 
         return self
+
 
 
     def compressPtclIDs(self):
@@ -213,10 +228,8 @@ class StructureContainer:
         self.ptclC.particles = localDict      # Assign reordered local copy to ptcl container
         del localDict                         # Clear local memory
 
-
-        # ------ Redo bonds ------
-        self.bondC.replacePtclIDs(idFromToDict)           # Use tracked list of ID changes
-        # self.angleC.replacePtclIDs(idFromToDict)        # TBI
+        # ----------- Redo bonds -------------
+        self.bondC.replacePtclIDs(idFromToDict)         # Use tracked list of ID changes bonds
 
         localDict = dict()
         for toBondID, bondTuple in enumerate(self.bondC):   # Enumerate returns (ID, obj) tuple for ptclTuple
@@ -227,6 +240,21 @@ class StructureContainer:
 
         del self.bondC.bonds                       # Ensure memory is free
         self.bondC.bonds = localDict               # Assign reordered local copy to bond container
+        del localDict
+
+        # ------------ Redo angles -------------
+        self.angleC.replacePtclIDs(idFromToDict)        # Use tracked list of ID changes angles
+        # self.dihC.replacePtclIDs(idFromToDict)        # TBI
+
+        localDict = dict()
+        for toAngleID, angleTuple in enumerate(self.angleC): # Enumerate returns (ID, obj) tuple for ptclTuple
+            toAngleID +=1                                    # Sets reordering index correctly
+            fromAngleID = angleTuple[0]                      # Picks out ID from ptclTuple
+            angleObj = self.angleC[fromAngleID]              # Get angle object
+            localDict[toAngleID] = angleObj                  # Set local dict with reordered index
+
+        del self.angleC.angles                    # Ensure memory is free
+        self.angleC.angles = localDict            # Assign reordered local copy to bond container
         del localDict
 
 
