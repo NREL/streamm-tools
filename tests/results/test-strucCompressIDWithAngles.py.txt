@@ -31,6 +31,8 @@ polymer1 =
  Contains angle objects: 
 1 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 1, 'pgid3': 4, 'pgid2': 3}
 
+ Contains dihedral objects: 
+
 polymer2 =  
 ************************************* 
  Global parameters: 
@@ -55,6 +57,8 @@ polymer2 =
 
  Contains angle objects: 
 1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+
+ Contains dihedral objects: 
 
  
 -------------- After adding  (polymer2 += polymer1) ----------------
@@ -89,6 +93,8 @@ polymer2 =
 1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
 2 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 5, 'pgid3': 7, 'pgid2': 6}
 
+ Contains dihedral objects: 
+
 -------------------- After compressing --------------------
 polymer2 =  
 ************************************* 
@@ -120,6 +126,8 @@ polymer2 =
  Contains angle objects: 
 1 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
 2 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5}
+
+ Contains dihedral objects: 
 
 Cleaning structureContainer
 Cleaning structureContainer

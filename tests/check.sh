@@ -125,8 +125,9 @@ elif [ $1 == "clean" ]; then
     echo "Removing auxillary files generated during tests"
     echo " "
 
-    rm -rf *.pkl qd*dat stats.txt qd.data
-
+    rm -rf *.pkl qd*dat stats.txt qd.data trans.dat trans.log
+    rm -rf test_rdf.log test_rdf.dat
+    rm -rf replicate.gro replicate.json replicate.log replicate.xmol
 
 else
     echo "Parallel test will not run correctly (yet)?"

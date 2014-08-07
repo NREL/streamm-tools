@@ -26,7 +26,7 @@ None
  search finished 
   list creation finished 
 
-  Date 2014-08-07 10:07:16.743014 
+  Date 2014-08-07 11:19:10.450429 
   Number of processors  1 
 ---------------------------------------------------------------------
   Particles of group l: 15 
@@ -51,7 +51,7 @@ proc 1  analysis of frame 1 on processor 1   box from min max 47.099043
  index 416 or index 420 or index 427 or index 429  -8.897147 dih_hist 4 hist_cnt[bin_index] 5 
    Read frames  1
 
-  Finished time  2014-08-07 10:07:16.823620
+  Finished time  2014-08-07 11:19:10.525875
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  

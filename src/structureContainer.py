@@ -8,6 +8,8 @@ from bonds     import Bond
 from bonds     import BondContainer
 from angles    import Angle
 from angles    import AngleContainer
+from dihedrals import Dihedral
+from dihedrals import DihedralContainer
 
 import pbcs
 import copy
@@ -31,7 +33,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), verbose=True):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -40,7 +42,7 @@ class StructureContainer:
             ptclC  (ParticleContainer)  
             bondC  (BondContainer)  
             angleC (AngleContainer)
-            dihC   (DihedralContainer) * not implemented
+            dihC   (DihedralContainer)
         """
         
         if isinstance(ptclC, ParticleContainer):
@@ -59,6 +61,12 @@ class StructureContainer:
             self.angleC = copy.deepcopy(angleC)
         else:
             print "3rd arg should be an AngleContainer object"
+            raise TypeError
+
+        if isinstance(dihC, DihedralContainer):
+            self.dihC = copy.deepcopy(dihC)
+        else:
+            print "4rd arg should be an DihedralContainer object"
             raise TypeError
 
 
@@ -82,6 +90,7 @@ class StructureContainer:
         del self.ptclC
         del self.bondC
         del self.angleC
+        del self.dihC
 
 
     def __len__(self):
@@ -124,10 +133,10 @@ class StructureContainer:
         fileObj.close()
 
         # Custom restore for each data member
-        self.ptclC = copy.deepcopy(struc.ptclC)
-        self.bondC = copy.deepcopy(struc.bondC)
+        self.ptclC  = copy.deepcopy(struc.ptclC)
+        self.bondC  = copy.deepcopy(struc.bondC)
         self.angleC = copy.deepcopy(struc.angleC)
-        # self.dihC   = copy.deepcopy(struc.angleC)
+        self.dihC   = copy.deepcopy(struc.dihC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
         self.latvec = copy.deepcopy(struc.latvec)
@@ -154,7 +163,7 @@ class StructureContainer:
         strucStr += str(self.ptclC)
         strucStr += str(self.bondC)
         strucStr += str(self.angleC)
-        # strucStr += str(self.dihC)
+        strucStr += str(self.dihC)
         return strucStr
 
 
@@ -179,8 +188,10 @@ class StructureContainer:
         
         bondC  = BondContainer()              # Local bond container copy so ptclIDs
         angleC = AngleContainer()             # Local angle container copy so ptclIDs
+        dihC   = DihedralContainer()          # Local dihedral container copy so ptclIDs
         bondC  = copy.deepcopy(other.bondC)   #  inside can be changed (for adding below)
         angleC = copy.deepcopy(other.angleC)  #  inside can be changed (for adding below)
+        dihC   = copy.deepcopy(other.dihC)    #  inside can be changed (for adding below)
 
         keys1 = self.ptclC.particles.keys()    # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()   # global IDs in object being added
@@ -192,14 +203,15 @@ class StructureContainer:
             toPtclID   = self.ptclC.maxgid                  #  --> toID (to is the maxid of this ptclC)
             idFromToDict[fromPtclID]=toPtclID               # Store ID changes
 
-        bondC.replacePtclIDs(idFromToDict)       # Use tracked list of ID changes
-        self.bondC += bondC                      # Now add bondC with 'corrected' IDs
+
+        bondC.replacePtclIDs(idFromToDict)     # Use tracked list of ID changes
+        self.bondC += bondC                    # Now add bondC with 'corrected' IDs
 
         angleC.replacePtclIDs(idFromToDict)    # Now add angleC with 'corrected' IDs
         self.angleC += angleC                  # Use tracked list of ID changes
 
-        # self.dihC += other.dihC                # TBI
-        # dihC.replacePtclIDs(idFromToDict)      # TBI
+        self.dihC += other.dihC                # Now add dihC with 'corrected' IDs
+        dihC.replacePtclIDs(idFromToDict)      # Use tracked list of ID changes
 
         return self
 
@@ -245,7 +257,6 @@ class StructureContainer:
 
         # ------------ Redo angles -------------
         self.angleC.replacePtclIDs(idFromToDict)        # Use tracked list of ID changes angles
-        # self.dihC.replacePtclIDs(idFromToDict)        # TBI
 
         localDict = dict()
         for toAngleID, angleTuple in enumerate(self.angleC): # Enumerate returns (ID, obj) tuple for ptclTuple
@@ -256,6 +267,20 @@ class StructureContainer:
 
         del self.angleC.angles                    # Ensure memory is free
         self.angleC.angles = localDict            # Assign reordered local copy to bond container
+        del localDict
+
+        # ------------ Redo dihedrals-----------
+        self.dihC.replacePtclIDs(idFromToDict)  # Use tracked list of ID changes angles
+
+        localDict = dict()
+        for toDihedralID, dihedralTuple in enumerate(self.dihC): # Enumerate returns (ID, obj) tuple for ptclTuple
+            toDihedralID +=1                                     # Sets reordering index correctly
+            fromDihedralID = dihedralTuple[0]                    # Picks out ID from ptclTuple
+            dihedralObj = self.dihC[fromDihedralID]              # Get dihedral object
+            localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
+
+        del self.dihC.dihedrals                    # Ensure memory is free
+        self.dihC.dihedrals = localDict            # Assign reordered local copy to bond container
         del localDict
 
 
@@ -274,13 +299,21 @@ class StructureContainer:
             New Structure() object. IDs in new object are unique
         """
 
+        if ( (len(self.angleC) > 0) or (len(self.dihC) > 0) ):
+            print "Error: getSubStructure not implemented yet for angles and/or dihedrals"
+            sys.exit(0)
+
         if (len(self)==0 and len(ptclIDList)>0):
             print "Error: getSubStructure using non-zero ptcl list on empty container"
             sys.exit(0)
 
         subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
+
         bondIDList = self.bondC.keys()           # Get keys of bond container
         subBonds = BondContainer(bondIDList)     # Intitialize subbond container
+
+        angleIDList = self.angleC.keys()         # Get keys of angle container
+        subAngles = AngleContainer(angleIDList)  # Initialize subangle container
 
         # Grab particles from IDlist and put into sub-particle container
         for pgid in ptclIDList:
@@ -297,6 +330,7 @@ class StructureContainer:
                 del subBonds[gid]
                 
         return StructureContainer(subAtoms, subBonds)
+
 
 
     def setPtclPositions(self, ptclPosList):
@@ -362,8 +396,6 @@ class StructureContainer:
         self.latvec = latvec_list
 
 
-
-
     def readOutput(self, fileName):
         """
         This is the 'effective' base class interface for a method
@@ -408,7 +440,6 @@ class StructureContainer:
 
         print "No StructureContainer:writeInput method defined for pure base class"
         sys.exit(0)
-
 
 
 

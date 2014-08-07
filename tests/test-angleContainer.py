@@ -23,19 +23,19 @@ p1 = Particle( [1.1, 1.1, 1.1], "Si", 2.0, 1.23)
 p2 = Particle( [2.2, 2.2, 2.2], "Si",  1.0, 2.34)
 p3 = Particle( [3.3, 3.3, 3.3], "Si",  1.0, 2.34)
 #
-p4 = Particle( [4.4, 4.4, 4.4], "C",  1.0, 2.34)
-p5 = Particle( [5.5, 5.5, 5.5], "C",  1.0, 2.34)
-p6 = Particle( [6.6, 6.6, 6.6], "C",  1.0, 2.34)
+p4 = Particle( [4.4, 4.4, 4.4], "C",  1.0, 2.34)  # ptcl 1
+p5 = Particle( [5.5, 5.5, 5.5], "C",  1.0, 2.34)  # ptcl 2
+p6 = Particle( [6.6, 6.6, 6.6], "C",  1.0, 2.34)  # ptcl 3
 
 b1 = Bond( 1, 2, 1.11, "hooke")
 b2 = Bond( 2, 3, 2.22, "hooke")
 #
-b3 = Bond( 4, 5, 3.33, "hooke")
-b4 = Bond( 5, 6, 4.44, "hooke")
+b3 = Bond( 1, 2, 3.33, "hooke")
+b4 = Bond( 2, 3, 4.44, "hooke")
 
 a1 = Angle(1, 2, 3, 1.11, "harmonic")
 #
-a2 = Angle(4, 5, 6, 2.22, "harmonic")
+a2 = Angle(1, 2, 3, 2.22, "harmonic")
 
 atoms1 = ParticleContainer()
 atoms2 = ParticleContainer()

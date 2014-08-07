@@ -30,6 +30,8 @@ polymer1 =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 polymer2 =  
 ************************************* 
  Global parameters: 
@@ -51,6 +53,8 @@ polymer2 =
 1 {'type': 'hooke', 'length': 1.233, 'pgid1': 1, 'pgid2': 3}
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
  
 -------------------- After adding --------------------
@@ -81,6 +85,8 @@ polymer2 =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 -------------------- After compressing --------------------
 polymer2 =  
 ************************************* 
@@ -108,6 +114,8 @@ polymer2 =
 3 {'type': 'hooke', 'length': 0.5, 'pgid1': 4, 'pgid2': 5}
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
 Cleaning structureContainer
 Cleaning structureContainer

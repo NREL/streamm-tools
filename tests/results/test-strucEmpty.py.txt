@@ -26,6 +26,8 @@ Non-empty container
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 Empty container 
 ************************************* 
  Global parameters: 
@@ -44,6 +46,8 @@ Empty container
  Contains bond objects: 
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
 Testing empty dump
 Dumping structure container to pickle file
@@ -67,6 +71,8 @@ subStruc =
  Contains bond objects: 
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
 Testing empty getPtclPositions
 posList =  []
@@ -97,6 +103,8 @@ polymer1 =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 ------------------------------------------------------------------------------------ 
 
 polymer2 =  
@@ -117,6 +125,8 @@ polymer2 =
  Contains bond objects: 
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
 ------------------------------------------------------------------------------------ 
 
@@ -146,6 +156,8 @@ polymer2 =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 ------------------------------------------------------------------------------------ 
 
 polymer1 =  
@@ -171,6 +183,8 @@ polymer1 =
 2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
 ------------------------------------------------------------------------------------ 
 

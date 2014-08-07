@@ -28,6 +28,8 @@ polymer1 =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 polymer2 =  
 ************************************* 
  Global parameters: 
@@ -49,6 +51,8 @@ polymer2 =
  Contains bond objects: 
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 
  
 
@@ -81,6 +85,8 @@ simTuple1 init struc  =
 
  Contains angle objects: 
 
+ Contains dihedral objects: 
+
 simTuple1 simulation  =  {'simulationExec': '', 'simulationName': 'GaussianJuly2014', 'inputFileNames': []}
 simTuple1 final struc =  
 ************************************* 
@@ -103,4 +109,6 @@ simTuple1 final struc =
  Contains bond objects: 
 
  Contains angle objects: 
+
+ Contains dihedral objects: 
 

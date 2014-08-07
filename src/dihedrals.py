@@ -3,21 +3,22 @@ Class data structures for 2, 3, 4 point groupings of Particle objects
 """
 import copy, sys
 
-class Angle:
+class Dihedral:
     """
-    Data structure for describing any 3-point associatiaon of Particle-s
+    Data structure for describing any 4-point associatiaon of Particle-s
     """
 
-    def __init__(self, pgid1=0, pgid2=0, pgid3=0, theta0=0.0, type="blank"):
+    def __init__(self, pgid1=0, pgid2=0, pgid3=0, pgid4=0, theta0=0.0, type="blank"):
         """
-        Constructor for a general angle. Checks for types in arguments
+        Constructor for a general dihedral. Checks for types in arguments
         and throws a TypeError when appropriate
 
         Args:
-            pgid1   (int)   GlobalID of Particle object in angle
-            pgid2   (int)   GlobalID of Particle object in angle
-            pgid3   (int)   GlobalID of Particle object in angle
-            theta0  (float) Equilibrium angle (in radians)
+            pgid1   (int)   GlobalID of Particle object in dihedral
+            pgid2   (int)   GlobalID of Particle object in dihedral
+            pgid3   (int)   GlobalID of Particle object in dihedral
+            pgid4   (int)   GlobalID of Particle object in dihedral
+            theta0  (float) Equilibrium dihedral (in radians)
             type   (str)   Charge value in units of [e]
         """
         
@@ -39,16 +40,22 @@ class Angle:
             print "3rd arg should be int type"
             raise TypeError
 
+        if isinstance(pgid4, int):
+            self.pgid4 = pgid4
+        else:
+            print "4rd arg should be int type"
+            raise TypeError
+
         if isinstance(theta0, float):
             self.theta0 = theta0
         else:
-            print "4th arg should be float value"
+            print "5th arg should be float value"
             raise TypeError
 
         if isinstance(type, str):
             self.type = type
         else:
-            print "5th arg should be string value"
+            print "6th arg should be string value"
             raise TypeError
 
 
@@ -66,32 +73,33 @@ class Angle:
         """
         if ( (pgid == self.pgid1) or \
              (pgid == self.pgid2) or \
-             (pgid == self.pgid3) ):
+             (pgid == self.pgid3) or \
+             (pgid == self.pgid4) ):
             return True
         else:
             return False
 
 
 
-class AngleContainer:
+class DihedralContainer:
     """
-    Main data structure for holding Angle objects. Map of global
-    angle ID (integer) to Angle object instances
+    Main data structure for holding Dihedral objects. Map of global
+    dihedral ID (integer) to Dihedral object instances
     """
 
     def __init__(self, idList=[], verbose=False):
         """
-        Constructor: sets up a dictionary for indexing 'Angle' objects
+        Constructor: sets up a dictionary for indexing 'Dihedral' objects
 
         Args:
-            idList (list): of angle IDs. If empty then ID starts at 1.
-                If not empty then ID's (keys) are inititalized with Angle objects
+            idList (list): of dihedral IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with Dihedral objects
             verbose (bool): flag for printing status/debug info        
         """
         self.verbose=verbose
-        self.angles=dict()                           # Creates empty dict struc
-        self.angles={key: Angle() for key in idList} # Creates empty Angle objs
-                                                     #  if idList not empty
+        self.dihedrals=dict()                              # Creates empty dict struc
+        self.dihedrals={key: Dihedral() for key in idList} # Creates empty Dihedral objs
+                                                           #  if idList not empty
 
         if len(idList) == 0:         # If list not set in constructor arg
             self.maxgid=0            # default=0 if idList empty
@@ -105,43 +113,43 @@ class AngleContainer:
         """
         if self.verbose:
             print "Cleaning particle container"
-        del self.angles
+        del self.dihedrals
 
 
     def __len__(self):
         """
         'Magic' method for returning size of container
         """
-        return len(self.angles)
+        return len(self.dihedrals)
 
     def __str__(self):
         """
         'Magic' method for printng contents
         """
 
-        angleStr="\n Contains angle objects: \n"
-        for gid in self.angles:
-            angleStr = angleStr + str(gid) + " " + str(self.angles[gid].__dict__) + "\n"
-        return angleStr
+        dihedralStr="\n Contains dihedral objects: \n"
+        for gid in self.dihedrals:
+            dihedralStr = dihedralStr + str(gid) + " " + str(self.dihedrals[gid].__dict__) + "\n"
+        return dihedralStr
 
 
     def keys(self):
         """
         Return list of all ptcl IDs (keys) currently in container
         """
-        keyList = self.angles.keys()
+        keyList = self.dihedrals.keys()
         return keyList
 
 
-    def __setitem__(self, gid, angle):
+    def __setitem__(self, gid, dihedral):
         """
         'Magic' method implementing obj[]=value operator
         Performs deep copy of value so container is managing memory
         """
-        if gid in self.angles.keys():
-            self.angles[gid]=copy.deepcopy(angle)
+        if gid in self.dihedrals.keys():
+            self.dihedrals[gid]=copy.deepcopy(dihedral)
         else:
-            print "Cannot add angle object to non-existent ID"
+            print "Cannot add dihedral object to non-existent ID"
             sys.exit(3) 
 
 
@@ -150,26 +158,26 @@ class AngleContainer:
         'Magic' method implementing obj[] operator
         Operations on returned elements change container
         """
-        return self.angles[gid]
+        return self.dihedrals[gid]
 
 
     def __delitem__(self, gid):
         """
         'Magic' method implementing del obj[] operator
         """
-        del self.angles[gid]
+        del self.dihedrals[gid]
 
 
     def __iter__(self):
         """
         'Magic' method implementing (for x in 'this')....
         """
-        return self.angles.iteritems()
+        return self.dihedrals.iteritems()
 
 
     def __call__(self, idSubList=None):
         """
-        Callable magic method. Returns iterator to subset angles dictionary
+        Callable magic method. Returns iterator to subset dihedrals dictionary
 
         Args:
              idSubList (list) list of pid-s of particle objects to be returned
@@ -180,13 +188,13 @@ class AngleContainer:
         subGroupDct = dict()
         
         if idSubList != None:
-            for gid, angleObj in self.angles.iteritems():
+            for gid, dihedralObj in self.dihedrals.iteritems():
                 if gid in idSubList:
-                    subGroupDct[gid] = angleObj
+                    subGroupDct[gid] = dihedralObj
             return subGroupDct.iteritems()
 
         else:
-            print "Callable AngleContainer requires a list of subgroup angle IDs"
+            print "Callable DihedralContainer requires a list of subgroup dihedral IDs"
             sys.exit(3)
 
 
@@ -194,25 +202,25 @@ class AngleContainer:
         """
         'Magic' method implementing in keyword (key in obj')....
         """
-        return gid in self.angles
+        return gid in self.dihedrals
 
 
-    def hasAngle(self, angleList):
+    def hasDihedral(self, dihedralList):
         """
-        Check the ptcl IDs in angleList for any angle in container that is similar
-        eg angle 1-2-3 is same as angle 3-2-1
+        Check the ptcl IDs in dihedralList for any dihedral in container that is similar
+        eg dihedral 1-2-3-4 is same as dihedral 4-3-2-1
 
-        Args: (list) ptcl IDs defining angle to search for
+        Args: (list) ptcl IDs defining dihedral to search for
         
-        Returns: (bool) is angle in container
+        Returns: (bool) is dihedral in container
         """
 
-        for gid, angleObj in self.angles.iteritems():
-            angle = [angleObj.pgid1, angleObj.pgid2, angleObj.pgid3] # Angle ID list
-            angleRev = copy.deepcopy(angle)                          # Make reverse angle
-            angleRev.reverse()                                       #  ID list
+        for gid, dObj in self.dihedrals.iteritems():
+            dihedral = [dObj.pgid1, dObj.pgid2, dObj.pgid3, dObj.pgid4] # Dihedral ID list#
+            dihedralRev = copy.deepcopy(dihedral)                       # Make reverse dihedral
+            dihedralRev.reverse()                                       #  ID list
 
-            if ( (angle == angleList) or (angleRev == angleList) ):
+            if ( (dihedral == dihedralList) or (dihedralRev == dihedralList) ):
                 return True
             
         return False
@@ -222,43 +230,43 @@ class AngleContainer:
         """
         'Magic' method to implement the '+=' operator
         
-        Compare global IDs of angles and reassign globalIDs for angle
+        Compare global IDs of dihedrals and reassign globalIDs for dihedral
         container using the max ID between the two lists
 
         Note: for now this reassigns ID always
         """
 
-        keys1 = self.angles.keys()        # global IDs in this object
-        keys2 = other.angles.keys()       # global IDs in object being added
+        keys1 = self.dihedrals.keys()        # global IDs in this object
+        keys2 = other.dihedrals.keys()       # global IDs in object being added
         bothkeys = keys1 + keys2          # List of all keys
 
         if len(bothkeys) > 0:                 # If keys not empty... proceed
             self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
 
-        for ptclkey2 in other.angles:
-            self.put(other.angles[ptclkey2])
+        for ptclkey2 in other.dihedrals:
+            self.put(other.dihedrals[ptclkey2])
 
         return self
 
 
-    def put(self, angle):
+    def put(self, dihedral):
         """
-        Append 'Angle' object to this container. Updates globalID for container
+        Append 'Dihedral' object to this container. Updates globalID for container
         by incrementing the maxgid member
 
         Args:
             ptcl (Particle) correctly initialized Particle object
 
         NOTE:
-            (1) One can imagine extra conditions on angles inserted
+            (1) One can imagine extra conditions on dihedrals inserted
             (2) This could check for uniqueness of all globalID's and throw error for copies
         """
         
-        if isinstance(angle, Angle):
+        if isinstance(dihedral, Dihedral):
             self.maxgid += 1
-            self.angles[self.maxgid] = copy.deepcopy(angle)
+            self.dihedrals[self.maxgid] = copy.deepcopy(dihedral)
         else:
-            print "Attempting to add non-Angle type to container"
+            print "Attempting to add non-Dihedral type to container"
             raise TypeError
 
 
@@ -272,24 +280,29 @@ class AngleContainer:
 
         fromIDs = idFromTo.keys()
                 
-        for gid in self.angles:
+        for gid in self.dihedrals:
             
-            angle = self.angles[gid]  # Angle object
-            pgid1 = angle.pgid1       # ptcl1 in angle
-            pgid2 = angle.pgid2       # ptcl2 in angle
-            pgid3 = angle.pgid3       # ptcl3 in angle
+            dihedral = self.dihedrals[gid]  # Dihedral object
+            pgid1 = dihedral.pgid1          # ptcl1 in dihedral
+            pgid2 = dihedral.pgid2          # ptcl2 in dihedral
+            pgid3 = dihedral.pgid3          # ptcl3 in dihedral
+            pgid4 = dihedral.pgid4          # ptcl4 in dihedral
             
             if pgid1 in fromIDs:
                 toID = idFromTo[pgid1]
-                angle.pgid1 = toID
+                dihedral.pgid1 = toID
 
             if pgid2 in fromIDs:
                 toID = idFromTo[pgid2]
-                angle.pgid2 = toID
+                dihedral.pgid2 = toID
 
             if pgid3 in fromIDs:
                 toID = idFromTo[pgid3]
-                angle.pgid3 = toID
+                dihedral.pgid3 = toID
+
+            if pgid4 in fromIDs:
+                toID = idFromTo[pgid4]
+                dihedral.pgid4 = toID
 
 
 
@@ -306,9 +319,9 @@ class AngleContainer:
 
         # Look for types and get unique list
         typeList = list()
-        for gid, angleObj in self.angles.iteritems():
-            angleType = angleObj.type
-            typeList.append(angleType)
+        for gid, dihedralObj in self.dihedrals.iteritems():
+            dihedralType = dihedralObj.type
+            typeList.append(dihedralType)
         typeList = list(set(typeList))
         
         # Generate list of unique type for keys to initialize dictionary

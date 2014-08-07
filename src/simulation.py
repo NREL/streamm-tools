@@ -39,6 +39,7 @@ class Simulation:
         self.simulationExec = ""     # String name of simulation code executable (eg lmp)
         self.inputFileNames = list() # List of file name strings (SWS: full paths?)
         # others?
+        # self.strucC = StructureContainer()
 
     def __str__(self):
         """
@@ -52,6 +53,8 @@ class Simulation:
         Destructor, clears object memory
         """
         del self.inputFileNames
+
+
 
 
 
