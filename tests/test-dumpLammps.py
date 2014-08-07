@@ -8,7 +8,8 @@ from particles import ParticleContainer
 from bonds import Bond
 from bonds import BondContainer
 
-from structureContainer import StructureContainer
+# from structureContainer import StructureContainer
+from lammps1_StructureContainer import lammps1_StructureContainer
 
 try:
     import numpy as np
@@ -487,8 +488,14 @@ if rank == 0:
 ############################################################################
 # Write LAMMPS file with atoms/bonds
 
-strucQD = StructureContainer(nanoPtcls, nanoBonds)
-# strucQD = StructureContainer(nanoPtcls)
+# strucQD = StructureContainer(nanoPtcls, nanoBonds)
+strucQD = lammps1_StructureContainer(nanoPtcls, nanoBonds)
+
+if isinstance(strucQD, lammps1_StructureContainer):
+    print "strucQD is a lammps1_StructureContainer"
+else:
+    print "strucQD is NOT a lammps1_StructureContainer"
+
 
 boxSizes = sysLs
 strucQD.setBoxLengths(boxSizes)
@@ -507,7 +514,8 @@ bondParamMap = {("normBond", "Kenergy"):1.0, ("normBond", "r0"):big_bond_min}
 
 if rank == 0:
     # nanoPtcls.scatterPlot()
-    strucQD.dumpLammpsInputFile("qd.data", ptclParamMap, bondParamMap)
+    # strucQD.dumpLammpsInputFile("qd.data", ptclParamMap, bondParamMap)
+    strucQD.writeInput("qd.data", ptclParamMap, bondParamMap)
 
 # For format of test check
 os.system("cat qd.data")

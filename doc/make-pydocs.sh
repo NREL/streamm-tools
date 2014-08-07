@@ -32,11 +32,13 @@ echo " "
 
 scpHTMLtoStatic "mpiNREL"            "mpiNREL"
 scpHTMLtoStatic "runjobs"            "runjobs"
-scpHTMLtoStatic "particles"          "STREAMM"
-scpHTMLtoStatic "bonds"              "STREAMM"
-scpHTMLtoStatic "angles"             "STREAMM"
-scpHTMLtoStatic "structureContainer" "STREAMM"
-scpHTMLtoStatic "simulation"         "STREAMM"
+
+scpHTMLtoStatic "particles"                  "STREAMM"
+scpHTMLtoStatic "bonds"                      "STREAMM"
+scpHTMLtoStatic "angles"                     "STREAMM"
+scpHTMLtoStatic "structureContainer"         "STREAMM"
+scpHTMLtoStatic "lammps1_StructureContainer" "STREAMM"
+scpHTMLtoStatic "simulation"                 "STREAMM"
 
 echo " "
 echo "Run: sftp cs.hpc.nrel.gov:static"

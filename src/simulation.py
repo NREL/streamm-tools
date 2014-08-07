@@ -83,8 +83,8 @@ class SimulationContainer:
         Args:
             verbose (bool): flag for printing status/debug info
         """
-        self.verbose=verbose
-        self.sc2sim = dict()         # Main object mapping structure containers to sims
+        self.verbose=verbose     # verbose flag for debugging/status
+        self.sc2sim = dict()     # Main object mapping structure containers to sims
 
 
     def __del__(self):

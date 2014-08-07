@@ -1183,6 +1183,7 @@ Begin gathering neighbor list
 Begin sorting neighbor list
 Begin building bond container
 length of bond container =  1000
+strucQD is a lammps1_StructureContainer
 Cleaning structureContainer
 ParallelMsgr destructor called
  
