@@ -18,7 +18,7 @@ Found boost.mpi module
   Bonds 531 
 None
 
-  Date 2014-08-07 11:19:17.732718 
+  Date 2014-08-07 18:22:56.095058 
   Number of processors  1 
   Particles in filtered structure : 507 
 ---------------------------------------------------------------------

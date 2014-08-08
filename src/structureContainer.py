@@ -299,8 +299,9 @@ class StructureContainer:
             New Structure() object. IDs in new object are unique
         """
 
-        if ( (len(self.angleC) > 0) or (len(self.dihC) > 0) ):
-            print "Error: getSubStructure not implemented yet for angles and/or dihedrals"
+        # if ( (len(self.angleC) > 0) or (len(self.dihC) > 0) ):
+        if ( len(self.dihC) > 0 ):            
+            print "Error: getSubStructure not implemented yet for dihedrals"
             sys.exit(0)
 
         if (len(self)==0 and len(ptclIDList)>0):
@@ -328,8 +329,17 @@ class StructureContainer:
             else:
                 # Need to remove empty key generated above
                 del subBonds[gid]
-                
-        return StructureContainer(subAtoms, subBonds)
+
+        # For each angle object in container check that both
+        # particles in angle are in ptcl search list
+        for gid, angleObj in self.angleC:
+            if ( (angleObj.pgid1 in ptclIDList) and (angleObj.pgid2 in ptclIDList) and (angleObj.pgid3 in ptclIDList) ):
+                subAngles[gid] = angleObj
+            else:
+                # Need to remove empty key generated above
+                del subAngles[gid]
+
+        return StructureContainer(subAtoms, subBonds, subAngles)
 
 
 

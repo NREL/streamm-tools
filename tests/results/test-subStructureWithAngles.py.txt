@@ -1,0 +1,176 @@
+************************************************************************************
+ This test shows how to set up Structure container with Particle/Bond-Containers 
+
+ Shows how ID changed in Structure propagate to values set in BondContainer for its 
+    held particle ID values 
+
+ Illustrates how a substructure method could return subgroup
+************************************************************************************ 
+
+********************************************************** 
+
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+5 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 5, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+4 {'type': 'hooke', 'length': 0.828, 'pgid1': 5, 'pgid2': 3}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.111, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 2.222, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3}
+
+ Contains dihedral objects: 
+
+
+5--'b1'---2
+ -    'a1'|
+  -       'b2'
+   'b4'   |
+     -    |'a2'
+       -  3---'b3'---4
+
+********************************************************** 
+
+-------------------------------------------------------------------------------- 
+
+********************************************************** 
+
+Testing polymer1.getSubStructure([5,2])
+   currently ID's are reassigned in substructure 
+
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+5 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 5, 'pgid2': 2}
+
+ Contains angle objects: 
+
+ Contains dihedral objects: 
+
+
+5--'b1'---2
+ -    'a1'|
+  -       'b2'
+   'b4'   |
+     -    |'a2'
+       -  3---'b3'---4
+
+********************************************************** 
+
+********************************************************** 
+
+polymer1 Struture after returning sub-structure
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+5 {'position': [0.2, 1.3, 33.0], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.233, 'pgid1': 5, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+4 {'type': 'hooke', 'length': 0.828, 'pgid1': 5, 'pgid2': 3}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.111, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 2.222, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3}
+
+ Contains dihedral objects: 
+
+********************************************************** 
+
+-------------------------------------------------------------------------------- 
+
+********************************************************** 
+
+Testing polymer1.getSubStructure([2,3,4])
+   currently ID's are reassigned in substructure 
+
+Cleaning structureContainer
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+2 {'position': [5.0, 2.3, -22.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+3 {'position': [5.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+4 {'position': [0.0, 2.3, -20.1], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+2 {'type': 'hooke', 'length': 0.5, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 2.301, 'pgid1': 3, 'pgid2': 4}
+
+ Contains angle objects: 
+2 {'type': 'harmonic', 'theta0': 2.222, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3}
+
+ Contains dihedral objects: 
+
+
+5--'b1'---2
+ -    'a1'|
+  -       'b2'
+   'b4'   |
+     -    |'a2'
+       -  3---'b3'---4
+
+********************************************************** 
+
+Cleaning structureContainer
+Cleaning structureContainer

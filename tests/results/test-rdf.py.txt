@@ -19,7 +19,7 @@ None
  Searching group j  {'fftype': ['C!']}
  search finished 
 
-  Date 2014-08-07 11:19:11.309649 
+  Date 2014-08-07 18:22:49.669575 
   Number of processors  1 
   Particles of group i: 18 
 ---------------------------------------------------------------------
@@ -52,7 +52,7 @@ None
    Average box density j  0.000172280553005  atoms/angstrom^3 
    Average cut-off sphere density  0.00108755877779  atoms/angstrom^3 
 
-  Finished time  2014-08-07 11:19:11.400634
+  Finished time  2014-08-07 18:22:49.762712
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  
