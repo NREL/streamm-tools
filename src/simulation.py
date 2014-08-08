@@ -38,7 +38,7 @@ class Simulation:
             
         self.simulationExec = ""     # String name of simulation code executable (eg lmp)
         self.inputFileNames = list() # List of file name strings (SWS: full paths?)
-        # others?
+
         # self.strucC = StructureContainer()
 
     def __str__(self):
@@ -53,6 +53,63 @@ class Simulation:
         Destructor, clears object memory
         """
         del self.inputFileNames
+
+
+    def setStructureContainer(self, strucC):
+        """
+        Setter for the structure container
+        """
+        self.strucC = strucC
+
+
+
+
+    def readOutput(self, fileName):
+        """
+        This is the 'effective' base class interface for a method
+        that reads in an external output file and populates an instance
+        of this class object
+
+        This method should be redefined for each kind of file types
+        (typically defined by simulation version eg LAMMPS, Gaussian etc)
+        The derived classes must implement the following:
+        
+        def readOutput(self, fileName):
+          ...
+          ...
+        return None
+
+        Args:
+            fileName (str) string of filename to input
+        """
+
+        print "No StructureContainer:readOutput method defined for pure base class"
+        sys.exit(0)
+
+
+    def writeInput(self, fileName):
+        """
+        This is the 'effective' base class interface for a method
+        that writes an input file based on the internal attributes of an instance
+        of the StructureContainer
+
+        This method should be redefined for each kind of file types
+        (typically defined by simulation version eg LAMMPS, Gaussian etc)
+        The derived classes must implement the following:
+        
+        def writeOutput(self, fileName):
+          ...
+          ...
+        return None
+
+        Args:
+            fileName (str) string of filename to input
+        """
+
+        print "No StructureContainer:writeInput method defined for pure base class"
+        sys.exit(0)
+
+
 
 
 

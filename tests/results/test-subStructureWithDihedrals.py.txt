@@ -1,0 +1,94 @@
+************************************************************************************
+ Illustrates how a substructure method returns subgroup with all 4 types
+************************************************************************************ 
+
+********************************************************** 
+
+polymer1 Structure before returning sub-structure
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+1 {'position': [1.1, 1.1, 1.1], 'charge': 2.0, 'type': 'Si', 'mass': 1.23, 'tagsDict': {'type': 'Si'}}
+2 {'position': [2.2, 2.2, 2.2], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+3 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+4 {'position': [4.4, 4.4, 4.4], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+5 {'position': [5.5, 5.5, 5.5], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+6 {'position': [6.6, 6.6, 6.6], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+7 {'position': [7.7, 7.7, 7.7], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+8 {'position': [8.8, 8.8, 8.8], 'charge': 1.0, 'type': 'C', 'mass': 2.34, 'tagsDict': {'type': 'C'}}
+
+ Contains bond objects: 
+1 {'type': 'hooke', 'length': 1.11, 'pgid1': 1, 'pgid2': 2}
+2 {'type': 'hooke', 'length': 2.22, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 3.33, 'pgid1': 3, 'pgid2': 4}
+4 {'type': 'hooke', 'length': 4.44, 'pgid1': 4, 'pgid2': 5}
+5 {'type': 'hooke', 'length': 5.55, 'pgid1': 5, 'pgid2': 6}
+6 {'type': 'hooke', 'length': 6.66, 'pgid1': 6, 'pgid2': 7}
+7 {'type': 'hooke', 'length': 7.77, 'pgid1': 7, 'pgid2': 8}
+
+ Contains angle objects: 
+1 {'type': 'harmonic', 'theta0': 1.11, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2}
+2 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3}
+3 {'type': 'harmonic', 'theta0': 3.33, 'pgid1': 3, 'pgid3': 5, 'pgid2': 4}
+4 {'type': 'harmonic', 'theta0': 4.44, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5}
+5 {'type': 'harmonic', 'theta0': 5.55, 'pgid1': 5, 'pgid3': 7, 'pgid2': 6}
+6 {'type': 'harmonic', 'theta0': 6.66, 'pgid1': 6, 'pgid3': 8, 'pgid2': 7}
+
+ Contains dihedral objects: 
+1 {'pgid4': 4, 'theta0': 1.11, 'pgid1': 1, 'pgid3': 3, 'pgid2': 2, 'type': 'stiff'}
+2 {'pgid4': 5, 'theta0': 2.22, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3, 'type': 'stiff'}
+3 {'pgid4': 6, 'theta0': 3.33, 'pgid1': 3, 'pgid3': 5, 'pgid2': 4, 'type': 'stiff'}
+4 {'pgid4': 7, 'theta0': 4.44, 'pgid1': 4, 'pgid3': 6, 'pgid2': 5, 'type': 'stiff'}
+5 {'pgid4': 8, 'theta0': 5.55, 'pgid1': 5, 'pgid3': 7, 'pgid2': 6, 'type': 'stiff'}
+
+********************************************************** 
+
+-------------------------------------------------------------------------------- 
+
+********************************************************** 
+
+Testing polymer1.getSubStructure([2,3,4])
+   currently ID's are reassigned in substructure 
+
+
+************************************* 
+ Global parameters: 
+************************************* 
+  Box lengths: 
+      Lx = [0.0, 1.0]
+      Ly = [0.0, 1.0]
+      Lz = [0.0, 1.0]
+
+************************************* 
+ Structure contains: 
+************************************* 
+
+ Contains particle objects: 
+2 {'position': [2.2, 2.2, 2.2], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+3 {'position': [3.3, 3.3, 3.3], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+4 {'position': [4.4, 4.4, 4.4], 'charge': 1.0, 'type': 'Si', 'mass': 2.34, 'tagsDict': {'type': 'Si'}}
+
+ Contains bond objects: 
+2 {'type': 'hooke', 'length': 2.22, 'pgid1': 2, 'pgid2': 3}
+3 {'type': 'hooke', 'length': 3.33, 'pgid1': 3, 'pgid2': 4}
+
+ Contains angle objects: 
+2 {'type': 'harmonic', 'theta0': 2.22, 'pgid1': 2, 'pgid3': 4, 'pgid2': 3}
+
+ Contains dihedral objects: 
+
+********************************************************** 
+
+Cleaning structureContainer
+Cleaning structureContainer

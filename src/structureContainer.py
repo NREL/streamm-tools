@@ -139,7 +139,7 @@ class StructureContainer:
         self.dihC   = copy.deepcopy(struc.dihC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
-        self.latvec = copy.deepcopy(struc.latvec)
+        self.latvec     = copy.deepcopy(struc.latvec)
 
 
     def __str__(self):
@@ -204,14 +204,14 @@ class StructureContainer:
             idFromToDict[fromPtclID]=toPtclID               # Store ID changes
 
 
-        bondC.replacePtclIDs(idFromToDict)     # Use tracked list of ID changes
-        self.bondC += bondC                    # Now add bondC with 'corrected' IDs
+        bondC.replacePtclIDs(idFromToDict)  # Use tracked list of ID changes
+        self.bondC += bondC                 # Now add bondC with 'corrected' IDs
 
-        angleC.replacePtclIDs(idFromToDict)    # Now add angleC with 'corrected' IDs
-        self.angleC += angleC                  # Use tracked list of ID changes
+        angleC.replacePtclIDs(idFromToDict) # Now add angleC with 'corrected' IDs
+        self.angleC += angleC               # Use tracked list of ID changes
 
-        self.dihC += other.dihC                # Now add dihC with 'corrected' IDs
-        dihC.replacePtclIDs(idFromToDict)      # Use tracked list of ID changes
+        dihC.replacePtclIDs(idFromToDict)   # Use tracked list of ID changes
+        self.dihC += dihC                   # Now add dihC with 'corrected' IDs
 
         return self
 
@@ -299,11 +299,6 @@ class StructureContainer:
             New Structure() object. IDs in new object are unique
         """
 
-        # if ( (len(self.angleC) > 0) or (len(self.dihC) > 0) ):
-        if ( len(self.dihC) > 0 ):            
-            print "Error: getSubStructure not implemented yet for dihedrals"
-            sys.exit(0)
-
         if (len(self)==0 and len(ptclIDList)>0):
             print "Error: getSubStructure using non-zero ptcl list on empty container"
             sys.exit(0)
@@ -316,6 +311,9 @@ class StructureContainer:
         angleIDList = self.angleC.keys()         # Get keys of angle container
         subAngles = AngleContainer(angleIDList)  # Initialize subangle container
 
+        dihedralIDList = self.dihC.keys()                 # Get keys of dihedral container
+        subDihedrals = DihedralContainer(dihedralIDList)  # Initialize subdihedral container        
+
         # Grab particles from IDlist and put into sub-particle container
         for pgid in ptclIDList:
             atom = self.ptclC[pgid]
@@ -324,7 +322,8 @@ class StructureContainer:
         # For each bond object in container check that both
         # particles in bond are in ptcl search list
         for gid, bondObj in self.bondC:
-            if ( (bondObj.pgid1 in ptclIDList) and (bondObj.pgid2 in ptclIDList) ):
+            if ( (bondObj.pgid1 in ptclIDList) and \
+                 (bondObj.pgid2 in ptclIDList) ):
                 subBonds[gid] = bondObj
             else:
                 # Need to remove empty key generated above
@@ -333,13 +332,27 @@ class StructureContainer:
         # For each angle object in container check that both
         # particles in angle are in ptcl search list
         for gid, angleObj in self.angleC:
-            if ( (angleObj.pgid1 in ptclIDList) and (angleObj.pgid2 in ptclIDList) and (angleObj.pgid3 in ptclIDList) ):
+            if ( (angleObj.pgid1 in ptclIDList) and \
+                 (angleObj.pgid2 in ptclIDList) and \
+                 (angleObj.pgid3 in ptclIDList) ):
                 subAngles[gid] = angleObj
             else:
                 # Need to remove empty key generated above
                 del subAngles[gid]
 
-        return StructureContainer(subAtoms, subBonds, subAngles)
+        # For each dihedral object in container check that both
+        # particles in dihedral are in ptcl search list
+        for gid, dObj in self.dihC:
+            if ( (dObj.pgid1 in ptclIDList) and \
+                 (dObj.pgid2 in ptclIDList) and \
+                 (dObj.pgid3 in ptclIDList) and \
+                 (dObj.pgid4 in ptclIDList) ):
+                subDihedrals[gid] = dObj
+            else:
+                # Need to remove empty key generated above
+                del subDihedrals[gid]
+
+        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
 
 
 

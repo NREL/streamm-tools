@@ -236,8 +236,8 @@ class DihedralContainer:
         Note: for now this reassigns ID always
         """
 
-        keys1 = self.dihedrals.keys()        # global IDs in this object
-        keys2 = other.dihedrals.keys()       # global IDs in object being added
+        keys1 = self.dihedrals.keys()     # global IDs in this object
+        keys2 = other.dihedrals.keys()    # global IDs in object being added
         bothkeys = keys1 + keys2          # List of all keys
 
         if len(bothkeys) > 0:                 # If keys not empty... proceed
