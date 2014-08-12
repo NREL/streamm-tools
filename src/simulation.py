@@ -38,8 +38,8 @@ class Simulation:
             
         self.simulationExec = ""     # String name of simulation code executable (eg lmp)
         self.inputFileNames = list() # List of file name strings (SWS: full paths?)
-
         # self.strucC = StructureContainer()
+        self.isStrucSet = False
 
     def __str__(self):
         """
@@ -47,21 +47,39 @@ class Simulation:
         """
         return self.simulationName
 
+    def printStruc(self):
+        """
+        Dump contents of held structure container
+        """
+        if self.isStrucSet:
+            print "---------- Simulation object contains ------------"
+            print self.strucC
+        else:
+            print "No structure container set"
 
     def __del__(self):
         """
         Destructor, clears object memory
         """
         del self.inputFileNames
-
+        if self.isStrucSet:
+            del self.strucC
 
     def setStructureContainer(self, strucC):
         """
-        Setter for the structure container
+        Setter for the structure container.
         """
         self.strucC = strucC
+        self.isStrucSet = True
 
-
+    def copyStructureContainerInto(self, strucC):
+        """
+        Set the structure container. Deep copy performed,
+        so that external changes to structure container are not
+        reflected here.
+        """
+        self.strucC = copy.deepcopy(strucC)        
+        self.isStrucSet = True
 
 
     def readOutput(self, fileName):

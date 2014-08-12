@@ -3,14 +3,14 @@ Derived class for structure container
 """
 
 try:
-    import structureContainer as sc
+    import simulation as sim
 except:
     print "Error: structureContainer module not found"
     print "Check setup.sh path script"
     sys.exit(3)
 
 
-class lammps1_StructureContainer(sc.StructureContainer):
+class SimulationLAMMPS1(sim.Simulation):
     """
     Dervied class implementing input/output methods specific to an application
     """
@@ -35,14 +35,14 @@ class lammps1_StructureContainer(sc.StructureContainer):
             print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
             sys.exit(3)
 
-        n_atoms = len(self.ptclC)  # Obtaining particle size from container
-        n_bonds = len(self.bondC)  # " "
+        n_atoms = len(self.strucC.ptclC)  # Obtaining particle size from container
+        n_bonds = len(self.strucC.bondC)  # " "
         n_angles = 0
         n_dihedrals = 0
         n_impropers = 0
 
-        ptclTypeInfo = self.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
-        bondTypeInfo = self.bondC.getTypeInfoDict()  # map of "type":typeIndex
+        ptclTypeInfo = self.strucC.ptclC.getTypeInfoDict()  # map of "type":[typeIndex, mass, charge]
+        bondTypeInfo = self.strucC.bondC.getTypeInfoDict()  # map of "type":typeIndex
 
         # Returns map of type,parameter tuple and value
         # SWS: particular to this method
@@ -52,9 +52,9 @@ class lammps1_StructureContainer(sc.StructureContainer):
         n_dtypes = 0 
         n_imptypes = 0
 
-        xL = self.boxLengths[0]
-        yL = self.boxLengths[1]
-        zL = self.boxLengths[2]
+        xL = self.strucC.boxLengths[0]
+        yL = self.strucC.boxLengths[1]
+        zL = self.strucC.boxLengths[2]
 
         # Open file, write header info
         fileObj = open( inputName, 'w' )
@@ -111,7 +111,7 @@ class lammps1_StructureContainer(sc.StructureContainer):
         ptclFormatStr = "%5d %5d %5d %12.8f %12.6f %12.6f %12.6f \n"
         fileObj.write('Atoms \n')
         fileObj.write('\n')
-        for pid, ptclObj in self.ptclC:
+        for pid, ptclObj in self.strucC.ptclC:
             pos = ptclObj.position
             mol = ptclObj.tagsDict["molnum"]
             mol = int(mol)
@@ -125,7 +125,7 @@ class lammps1_StructureContainer(sc.StructureContainer):
         if (n_bonds > 0):
             fileObj.write('Bonds \n')
             fileObj.write('\n')
-        for gid, bondObj in self.bondC:
+        for gid, bondObj in self.strucC.bondC:
             pid1 = bondObj.pgid1
             pid2 = bondObj.pgid2
             bondType = 1
@@ -135,7 +135,6 @@ class lammps1_StructureContainer(sc.StructureContainer):
         
         # Close LAMMPS file
         fileObj.close()
-
 
         #
         # Print type mapping info

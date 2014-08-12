@@ -109,10 +109,9 @@ class Particle:
             if (self.tagsDict[key]==value):     # Determine if key,value match
                 return True
      
-        # If loop above has not returned with a found (True) state
-        # then return with False (meaning not ANY value in valueList was present
+        # If loop above has not returned with a found (True) state then
+        # return with False (meaning not ANY value in valueList was present
         return False
-
 
 
 

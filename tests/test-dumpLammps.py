@@ -8,8 +8,9 @@ from particles import ParticleContainer
 from bonds import Bond
 from bonds import BondContainer
 
-# from structureContainer import StructureContainer
-from lammps1_StructureContainer import lammps1_StructureContainer
+from structureContainer import StructureContainer
+# from lammps1_StructureContainer import lammps1_StructureContainer
+from simulationLAMMPS1 import SimulationLAMMPS1
 
 try:
     import numpy as np
@@ -390,11 +391,9 @@ random.seed(0)
 #
 #############################################################################################
 
-
 rad_avg = 15.0     # Moving to use this to make
 rad_sig = 0.025    # initial cubic grid thats used to pass to MD
 ptcl_dist = 10.0   # 
-
 
 # NOTE: this is an arbitrary choice
 cutoff_dist   = math.sqrt(2)*((2.00 * rad_avg) + ptcl_dist)
@@ -488,13 +487,15 @@ if rank == 0:
 ############################################################################
 # Write LAMMPS file with atoms/bonds
 
-# strucQD = StructureContainer(nanoPtcls, nanoBonds)
-strucQD = lammps1_StructureContainer(nanoPtcls, nanoBonds)
+strucQD = StructureContainer(nanoPtcls, nanoBonds)
+# strucQD = lammps1_StructureContainer(nanoPtcls, nanoBonds)
+simObjQD = SimulationLAMMPS1("LammpsAug14")
+simObjQD.setStructureContainer(strucQD)
 
-if isinstance(strucQD, lammps1_StructureContainer):
-    print "strucQD is a lammps1_StructureContainer"
+if isinstance(simObjQD, SimulationLAMMPS1):
+    print "strucQD is a SimulationLAMMPS1"
 else:
-    print "strucQD is NOT a lammps1_StructureContainer"
+    print "strucQD is NOT a SimulationLAMMPS1"
 
 
 boxSizes = sysLs
@@ -515,7 +516,8 @@ bondParamMap = {("normBond", "Kenergy"):1.0, ("normBond", "r0"):big_bond_min}
 if rank == 0:
     # nanoPtcls.scatterPlot()
     # strucQD.dumpLammpsInputFile("qd.data", ptclParamMap, bondParamMap)
-    strucQD.writeInput("qd.data", ptclParamMap, bondParamMap)
+    # strucQD.writeInput("qd.data", ptclParamMap, bondParamMap)
+    simObjQD.writeInput("qd.data", ptclParamMap, bondParamMap)
 
 # For format of test check
 os.system("cat qd.data")

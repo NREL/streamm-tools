@@ -11,13 +11,13 @@ from bonds import Bond
 from bonds import BondContainer
 
 from structureContainer import StructureContainer
-
 from simulation import Simulation
-from simulation import SimulationContainer
 
 
 print "************************************************************************************"
 print " This test shows basics of the Simulation classes"
+print " Highlights differences between setting reference to the structure"
+print "  container and a deepcopy"
 print "************************************************************************************ \n"
 
 p1 = Particle( [0.2, 1.3,  33.0], "Si", 2.0, 1.23)
@@ -44,15 +44,23 @@ print " "
 simObj1 = Simulation("GaussianJuly2014")
 simObj2 = Simulation("Lammps012038")
 
-simC = SimulationContainer(verbose=False)
-simC[1] = (polymer1, simObj1, polymer2)
-simC[2] = (polymer1, simObj2, polymer2)
+simObj1.setStructureContainer(polymer1)
+simObj2.copyStructureContainerInto(polymer1)
 
-del simObj1, simObj2
-print "\n Cleaning memory for simulation objects \n"
-print "simC = ", simC
+del polymer1.ptclC[1]
 
-simTuple1 = simC[1]
-print "simTuple1 init struc  = ", simTuple1[0]
-print "simTuple1 simulation  = ", simTuple1[1].__dict__
-print "simTuple1 final struc = ", simTuple1[2]
+print "-------------------- After changing polymer1 struc --------------------"
+print "polymer1 = ", polymer1
+simObj1.printStruc()
+simObj2.printStruc()
+
+#simC = SimulationContainer(verbose=False)
+#simC[1] = (polymer1, simObj1, polymer2)
+#simC[2] = (polymer1, simObj2, polymer2)
+#del simObj1, simObj2
+#print "\n Cleaning memory for simulation objects \n"
+#print "simC = ", simC
+#simTuple1 = simC[1]
+#print "simTuple1 init struc  = ", simTuple1[0]
+#print "simTuple1 simulation  = ", simTuple1[1].__dict__
+#print "simTuple1 final struc = ", simTuple1[2]
