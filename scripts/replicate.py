@@ -34,6 +34,9 @@ def get_options():
     parser.add_option("-d","--dir_id", dest="dir_id", default=".",type="string",help=" path of output files   ")
     parser.add_option("--calc_overlap", dest="calc_overlap", default=1,type="int",help=" Turn on or off calculation of molecular overlap, handy to build a quick input file" )
 
+    # SWS: adding option so random stream is fixed for testing
+    parser.add_option("--fixed_rnd_seed", dest="fixed_rnd_seed", action="store_true", default=False, help=" Fixes random number stream in replicate method in structureContainer (set to True for regression testing")
+
     # json files to act on
     parser.add_option("-j","--json", dest="json", default="",type="string",help=" json files to act on ")
     parser.add_option("--sol_json", dest="sol_json", default="",type="string",help=" json files of solvents to add to act on ")

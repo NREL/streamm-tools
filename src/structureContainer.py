@@ -1650,7 +1650,10 @@ class StructureContainer:
         debug = False 
         const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
-
+        # If options set for fixed then set random seed (for regression testing)
+        if options.fixed_rnd_seed:
+            random.seed(0)
+        
         # MPI setup
         rank = p.getRank()
         size = p.getCommSize()
