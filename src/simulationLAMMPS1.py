@@ -15,25 +15,67 @@ class SimulationLAMMPS1(sim.Simulation):
     Dervied class implementing input/output methods specific to an application
     """
 
-    def writeInput(self, inputName, pairCoeffDct=dict(), bondCoeffDct=dict() ):
+    def __init__(self, name, verbose=False):
+        """
+        Constructor for derived class. The base class constructor is called
+        explicitly
+        """
+
+        # Base class constructor is called
+        sim.Simulation.__init__(self, name, verbose)
+
+        if verbose:
+            print "Simulation derived class 'LAMMPS1' constructor called"
+
+        self.verbose = verbose
+        self.pairCoeffDct = dict()
+        self.bondCoeffDct = dict()
+
+    def setCoeffs(self, pairCoeffDct=dict(), bondCoeffDct=dict()):
+        """
+        Set coefficients for input file write. Specific to this derived class
+        
+        Args:
+            pairCoeffDct (dict) dictionary of potential parameters eg...
+                {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0, ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
+            bondCoeffDct (dict) ""
+        """
+        
+        if not isinstance(pairCoeffDct, dict):
+            print "setCoeffs: pairCoeffDct should be a python dictionary"
+            sys.exit(3)
+
+        if not isinstance(bondCoeffDct, dict):
+            print "setCoeffs: bondCoeffDct should be a python dictionary"
+            sys.exit(3)
+
+        self.pairCoeffDct = pairCoeffDct
+        self.bondCoeffDct = bondCoeffDct
+
+
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+
+        # Base class destructor is called ?? needed
+        sim.Simulation.__del__(self)
+
+        if self.verbose:
+            print "Cleaning derived simulation object LAMMPS1"
+
+        del self.pairCoeffDct
+        del self.bondCoeffDct
+
+
+    def writeInput(self, inputName):
         """
         Write out a LAMMPS input data file from all available held
         data (particles, bonds, angles, dihedrals)
 
         Args:
             inputName    (str)  name of LAMMPS input file to write
-            pairCoeffDct (dict) dictionary of potential parameters eg...
-                {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0, ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
-            bondCoeffDct (dict) ""
         """
-
-        if not isinstance(pairCoeffDct, dict):
-            print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
-            sys.exit(3)
-
-        if not isinstance(bondCoeffDct, dict):
-            print "dumpLammpsInputFile: pairCoeffDct should be a python dictionary"
-            sys.exit(3)
 
         n_atoms = len(self.strucC.ptclC)  # Obtaining particle size from container
         n_bonds = len(self.strucC.bondC)  # " "
@@ -92,8 +134,8 @@ class SimulationLAMMPS1(sim.Simulation):
         for typ in ptclTypeInfo.keys(): # list of types eg ["Si", "C", ..]
             info = ptclTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
             tIndex = info[0]            # type index for 'typ' (eg "Si")
-            epsilon = pairCoeffDct[(typ, "epsilon")]
-            sigma   = pairCoeffDct[(typ, "sigma")]
+            epsilon = self.pairCoeffDct[(typ, "epsilon")]
+            sigma   = self.pairCoeffDct[(typ, "sigma")]
             fileObj.write( pairCoeffFormatStr % (tIndex, epsilon, sigma  ) )
         fileObj.write('\n')
 
@@ -103,8 +145,8 @@ class SimulationLAMMPS1(sim.Simulation):
             fileObj.write('\n')
             for typ in bondTypeInfo.keys(): # list of types eg ["Si", "C", ..]
                 tIndex  = bondTypeInfo[typ]    # map of "type":[typeIndex, mass, charge]
-                kenergy = bondCoeffDct[(typ, "Kenergy")]
-                r0      = bondCoeffDct[(typ, "r0")]
+                kenergy = self.bondCoeffDct[(typ, "Kenergy")]
+                r0      = self.bondCoeffDct[(typ, "r0")]
                 fileObj.write( bondCoeffFormatStr % (tIndex, kenergy, r0) )
             fileObj.write('\n')
 

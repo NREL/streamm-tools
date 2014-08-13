@@ -2,21 +2,15 @@
 Class data structures for atomic data
 """
 
-from particles import Particle
-from particles import ParticleContainer
-from bonds     import Bond
-from bonds     import BondContainer
-from angles    import Angle
-from angles    import AngleContainer
-from dihedrals import Dihedral
-from dihedrals import DihedralContainer
+from particles import Particle, ParticleContainer
+from bonds     import Bond,     BondContainer
+from angles    import Angle,    AngleContainer
+from dihedrals import Dihedral, DihedralContainer
 
 import pbcs
-import copy
+import copy, json, sys, os
 import numpy as np 
-import json
-import sys
-import os
+
 
 class StructureContainer:
     """

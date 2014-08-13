@@ -2,14 +2,10 @@
 
 import os, sys, math, random, time
 
-from particles import Particle
-from particles import ParticleContainer
-
-from bonds import Bond
-from bonds import BondContainer
+from particles import Particle, ParticleContainer
+from bonds     import Bond,     BondContainer
 
 from structureContainer import StructureContainer
-# from lammps1_StructureContainer import lammps1_StructureContainer
 from simulationLAMMPS1 import SimulationLAMMPS1
 
 try:
@@ -17,7 +13,6 @@ try:
 except:
     print "Error: numpy module not found, check PYTHONPATH for numpy install or module version"
     sys.exit(3)
-
 
 try:
     from runjobs import Geometry, IO
@@ -28,7 +23,6 @@ except:
     print "   export PYTHONPATH"
     sys.exit(3)
 
-
 try:
     import mpiNREL
 except:
@@ -37,7 +31,6 @@ except:
     print "   PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
     print "   export PYTHONPATH"
     sys.exit(3)
-
 
 
 
@@ -457,7 +450,6 @@ for ptPos in allPoints:
         pt = Particle(ptPos[1:], type="QDsmall", mass=1.0)
         tagsD = {"molnum":1, "QDSizeAvg":15.0}
 
-
     pt.setTagsDict(tagsD)
     nanoPtcls.put(pt)
 
@@ -488,8 +480,7 @@ if rank == 0:
 # Write LAMMPS file with atoms/bonds
 
 strucQD = StructureContainer(nanoPtcls, nanoBonds)
-# strucQD = lammps1_StructureContainer(nanoPtcls, nanoBonds)
-simObjQD = SimulationLAMMPS1("LammpsAug14")
+simObjQD = SimulationLAMMPS1("LammpsAug14", verbose=False)
 simObjQD.setStructureContainer(strucQD)
 
 if isinstance(simObjQD, SimulationLAMMPS1):
@@ -517,7 +508,9 @@ if rank == 0:
     # nanoPtcls.scatterPlot()
     # strucQD.dumpLammpsInputFile("qd.data", ptclParamMap, bondParamMap)
     # strucQD.writeInput("qd.data", ptclParamMap, bondParamMap)
-    simObjQD.writeInput("qd.data", ptclParamMap, bondParamMap)
+    # simObjQD.writeInput("qd.data", ptclParamMap, bondParamMap)
+    simObjQD.setCoeffs(ptclParamMap, bondParamMap)
+    simObjQD.writeInput("qd.data")
 
 # For format of test check
 os.system("cat qd.data")
