@@ -59,14 +59,14 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose ): print "      Reading in ",options.in_top
-        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options,options.in_top)
+        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options.in_top)
         ASYMB , ELN  = elements.mass_asymb(AMASS)
     #
     # Get coord
     #
     if( len(options.in_gro) ):
         if( options.verbose ): print "     Reading in ",options.in_gro
-        GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
+        GTYPE, R, VEL, LV = gromacs.read_gro(options.in_gro)
     #
     # Define rdf groups 
     #
@@ -169,7 +169,7 @@ def main():
     for frame_i in range(options.frame_o,options.frame_f+1):
 	frame_id = "n"+str(frame_i)+options.frame_sufx
 	if( file_io.file_exists( frame_id ) ):
-	    GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
+	    GTYPE, R_f, VEL, LV = gromacs.read_gro(frame_id)
 	    volume_i.append(  prop.volume( LV ) )
 	    frame_cnt += 1 
 	    # xmol.print_xmol(ASYMB,R_i,file_xmol)

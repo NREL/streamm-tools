@@ -145,14 +145,14 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose ): print  "     - Reading in ",options.in_top
-        ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options,options.in_top)
+        ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options.in_top)
         ASYMB_i,ELN_i  = elements.mass_asymb(AMASS_i)
     #
     # Get gro file 
     #
     if( len(options.in_gro) ):
         if( options.verbose ): print  "     - Reading in ",options.in_gro
-        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)        
+        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options.in_gro)        
     #
     # Read in parameter file 
     #

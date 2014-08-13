@@ -37,6 +37,7 @@ def get_options():
     parser.add_option("--filter_unit_i", dest="filter_unit_i", type="string", default="", help=" filter atoms by unit name ")
     parser.add_option("--filter_cord_i", dest="filter_cord_i", type="string", default="", help=" filter atoms by cordination ")
     parser.add_option("--filter_mol_i", dest="filter_mol_i", type="string", default="", help=" filter atoms by molecule number  ")
+
     parser.add_option("--filter_lmptype_i", dest="filter_lmptype_i", type="string", default="", help=" filter atoms by lammps type ")
 
     parser.add_option("--filter_eln_j", dest="filter_eln_j", type="string", default="", help=" filter atoms by atomic number ")
@@ -45,6 +46,7 @@ def get_options():
     parser.add_option("--filter_unit_j", dest="filter_unit_j", type="string", default="", help=" filter atoms by unit name ")
     parser.add_option("--filter_cord_j", dest="filter_cord_j", type="string", default="", help=" filter atoms by cordination ")
     parser.add_option("--filter_mol_j", dest="filter_mol_j", type="string", default="", help=" filter atoms by molecule number  ")
+    
     parser.add_option("--filter_lmptype_j", dest="filter_lmptype_j", type="string", default="", help=" filter atoms by lammps type ")
 
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
@@ -228,21 +230,11 @@ def main():
         RESID = []
         RESN = []
         CHARN = []
-        VEL = []
-        CTYPE = []
-        UNITNUMB = []
-        UNITTYPE = []
-        RING_NUMB  = []
         for i in range( len(ELN) ):
             GTYPE.append(ASYMB[i])
             RESID.append("MOL")
             CHARN.append(MOLNUMB[i])
             RESN.append(MOLNUMB[i])
-            VEL.append( numpy.array( [0.0 ,0.0 ,0.0]) )
-            CTYPE.append(MOLNUMB[i])
-            UNITNUMB.append(MOLNUMB[i])
-            UNITTYPE.append(MOLNUMB[i])
-            RING_NUMB.append(MOLNUMB[i])
             #
         N_MOL,MOLPNT,MOLLIST = groups.molecule_list(MOLNUMB)
         NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
@@ -255,10 +247,9 @@ def main():
     if( len(options.in_lammpsxyz) ):
 
         if( rank == 0 ):
-            dat_line = "\n#   Lammps xyz file %s  "% (options.in_lammpsxyz)
             if( options.verbose ):
                 print  "     - Reading in ",options.in_lammpsxyz
-            dat_out.write(dat_line)
+            dat_out.write("\n#   Lammps xyz file %s  "% (options.in_lammpsxyz))
 
         # Some issues with this read in
         #   will read in on processor 0 and broadcast
@@ -274,16 +265,7 @@ def main():
             if( options.verbose ):
                 print  "       with ",n_frames," frames "
 
-    # modify based on lammpsxyz read in 
-    p.barrier()
-    n_frames  = p.bcast( n_frames)
-    p.barrier()
-
-    if( options.frame_f == -1 ):
-        options.frame_f  = n_frames - 1
-        if( options.verbose and  rank == 0 ):
-            print "  modify frame_f to ",options.frame_f," rank ",rank 
-
+        #
     # Calculate square of cut off
     #
     sq_r_cut = options.r_cut**2
@@ -292,7 +274,6 @@ def main():
     #
     vol_o = prop.volume( LV )
     NP = len( ELN )
-    N_MOL = max(MOLNUMB) + 1 
     NUMB_DENSITY = float(NP)/vol_o
     options.n_den = NUMB_DENSITY
     #
@@ -300,7 +281,7 @@ def main():
     #
     n_bins = int(options.r_cut/options.bin_size)
     #
-    # Define rdf groups
+    # Define rdf groups 
     #
     id_list_i  = options.id_i.split()
     id_list_j  = options.id_j.split()
@@ -358,34 +339,7 @@ def main():
     # Print info 
     #
     if( rank == 0  ):
-
-        t_i = datetime.datetime.now()
-        log_line = "\n Start time " + str(t_i)
-        log_out.write(log_line)
-
-        dat_out.write("\n#   Date "+str(t_i))
-        dat_out.write("\n#   Number of processors  "+str(size))
-        dat_out.write("\n#   System ")
-        dat_out.write("\n#     Molecules  %d "%(N_MOL))
-        dat_out.write("\n#     Particles  %d "%(NP))
-        dat_out.write("\n#   Options ")
-        dat_out.write("\n#     bin size  %f "%(options.bin_size))
-        dat_out.write("\n#     bins  %d "%(n_bins))
-        dat_out.write("\n#     box length for max  %f "%(LV[0][0]))
-        dat_out.write("\n#     Initial frame  %d "%(options.frame_o))
-        dat_out.write("\n#     Step frame  %d "%(options.frame_step))
-        dat_out.write("\n#     Final frame  %d "%(options.frame_f))
-        dat_out.write("\n#   Output ")
-        dat_out.write("\n#    Frame count; Frame number ; Average length (A); Standard deviation (A), box length (A)")
-
-        dat_line ="     Initial frame  %d "%(options.frame_o)
-        print dat_line
-        dat_line ="     Step frame  %d "%(options.frame_step)
-        print dat_line
-        dat_line ="     Final frame  %d "%(options.frame_f)
-        print dat_line
-        
-        print "   - Properties and options "
+        print "   - Initial properties and options "
 	print "     Cut off radius ",options.r_cut," angstroms"
 	print "     Bin size ",options.bin_size," angstroms"
 	print "     Number of bins ",n_bins
@@ -438,22 +392,12 @@ def main():
     #
     for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
         frame_read = False
-        if( options.verbose and rank == 0 ):
-            print "Checking frame ",frame_i
-            
-        if( options.read_gros ):
-
-            frame_id = "frames/n"+str(frame_i)+options.frame_sufx
-            if( file_io.file_exists( frame_id ) ):
-                if( options.verbose and rank == 0 ):
-                    print "    - reading ",frame_id
-                GTYPE, R_f, VEL, LV = gromacs.read_gro(frame_id)
-                frame_read = True
-                
+        
         if( len(options.in_lammpsxyz) ):
             # R_f = get_lmp_frame(lammpsxyz_lines,len(ASYMB_sys),frame_i)
 
-            R_f = []
+            R_f_i = []
+            R_f_j = []
 
             # Read in R_f from xyz file
             #   This is done on processor 0 to avoid broadcasting the very large lammpsxyz_lines around
@@ -476,18 +420,31 @@ def main():
 
                     col =  lammpsxyz_lines[lammpsxyz_line_cnt].split()
                     if( len(col) >= 4 ):
-                        type_i = int(col[0]) - 1
-                        
-                        if( type_i != ( ATYPE_IND[atom_i] ) ):
-                            print " Reference file not commpatable with ",options.in_lammpsxyz
-                            print " atom ",atom_i+1," in reference type ",ATYPE_IND_sys[atom_i] +1 ," and ",type_i," in ",options.in_lammpsxyz
-                            sys.exit(" Lammps atom types do not agree ")
-
-
+                        type_i = int(col[0])
                         r_x = float(col[1])
                         r_y = float(col[2])
                         r_z = float(col[3])
-                        R_f.append( numpy.array( [r_x,r_y,r_z] ) )
+
+                        add_atom_i = 1
+                        if(  len(options.filter_lmptype_i) ):
+                            add_atom_i = 0
+                            for f_id in options.filter_lmptype.split():
+                                lmp_t = int( f_id )
+                                if( type_i == lmp_t ):
+                                    add_atom_i = 1  
+                        if( add_atom_i ):
+                            R_f_i.append( numpy.array( [r_x,r_y,r_z] ) )
+                            
+                        add_atom_j = 1
+                        if(  len(options.filter_lmptype_j) ):
+                            add_atom_j = 0
+                            for f_id in options.filter_lmptype.split():
+                                lmp_t = int( f_id )
+                                if( type_j == lmp_t ):
+                                    add_atom_j = 1  
+                        if( add_atom_j ):
+                            R_f_j.append( numpy.array( [r_x,r_y,r_z] ) )
+                            
                         if( r_x > r_max ): r_max = r_x
                         if( r_y > r_max ): r_max = r_y
                         if( r_z > r_max ): r_max = r_z
@@ -508,67 +465,34 @@ def main():
 
             # Broadcast R_f and LV  to all processors  
             p.barrier()
-            R_f = p.bcast(R_f)
+            R_f_i = p.bcast(R_f_i)
+            R_f_j = p.bcast(R_f_j)
             LV = p.bcast(LV)
             p.barrier()
 
-            frame_read = True
+#            frame_read = True
             
-        if( frame_read ):
+        #if( frame_read ):
 
             volume_i.append(  prop.volume( LV ) )
-            frame_cnt += 1
-
-            if( rank == 0 ):
-                log_line = "   Reading frame %d "%frame_cnt
-                if( options.verbose):
-                    print log_line
-                log_out.write(log_line)
-                
+            frame_cnt += 1 
             # xmol.print_xmol(ASYMB,R_i,file_xmol)
             #
             # Loop over lists
             #
             #
-            for l_indx_i in myChunk_i:
-                atom_i = list_i[l_indx_i]
-                r_i = R_f[atom_i]
-                #
-                # using nieghbor list has no clear pereforance advantages if update every frame
-                #  and not update every frame is beyond the intelegence of this program
-                #
-                #if( options.nb_list ):
-                #    list_j = []
-                #    N_o = NBINDEX[atom_i]
-                #    N_f = NBINDEX[atom_i+1] - 1
-                #    
-                #    print atom_i
-                #    print N_o,N_f
-                #    
-                #    for indx in range( N_o,N_f+1):
-                #	atom_j = NBLIST[indx]
-                #		    
-                #	add_ij = 0
-                #	for id_indx in range( len(id_j)):
-                #	    if( id_j[id_indx] == ATYPE[atom_j].strip()  ): add_ij = 1
-                #	    if( id_j[id_indx] == GTYPE[atom_j].strip()  ): add_ij = 1
-                #	if( add_ij ):
-                #	    list_j.append(atom_j)
-                #
-                for atom_j in list_j:
+            atom_i = -1 
+            
+            for r_i in R_f_i:
+                atom_i += 1
+                atom_j = -1 
+                for r_j in R_f_j:
+                    atom_j += 1
                     add_ij = 1
                     if( atom_i >= atom_j ):
                         add_ij = 0
-                    #
-                    # Check for intra vs. inter molecular
-                    #
-                    if( options.mol_inter ):
-                        if( MOLNUMB[atom_i] == MOLNUMB[atom_j] ): add_ij = 0 
-                    if( options.mol_intra ):
-                        if( MOLNUMB[atom_i] != MOLNUMB[atom_j] ): add_ij = 0 
+                        
                     if( add_ij ):
-
-                        r_j = R_f[atom_j]
 
                         if( options.cubic ):
                             sq_r_ij = prop.sq_drij_c(r_i,r_j,LV)
@@ -636,20 +560,22 @@ def main():
 		
 	# Write output 
 	#
-	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
-	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
-	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
-	dat_out.write("\n#    Frames %d  " % (frame_cnt))
-	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
-	dat_out.write("\n#    N_i %d " % (sum_i ))
-	dat_out.write("\n#    N_j %d " % (sum_j ))
-	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
-	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
-	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
-	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
-	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
-	dat_out.write("\n#    ")
-	dat_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+	rdf_file = options.rdf_out
+	F_out = open(rdf_file,"w")
+	F_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
+	F_out.write("\n#    Bin-size %f  " % (options.bin_size))
+	F_out.write("\n#    Cut-off %f  " % (options.r_cut))
+	F_out.write("\n#    Frames %d  " % (frame_cnt))
+	F_out.write("\n#    Total_cnts %d  " % (total_cnts))
+	F_out.write("\n#    N_i %d " % (sum_i ))
+	F_out.write("\n#    N_j %d " % (sum_j ))
+	F_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
+	F_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
+	F_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
+	F_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
+	F_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
+	F_out.write("\n#    ")
+	F_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
 	
 	for bin_index in range( 1,n_bins):
@@ -669,22 +595,9 @@ def main():
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
 	    
-	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
+	    F_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
 	    
-	dat_out.close()
-
-        
-        t_f = datetime.datetime.now()
-        dt_sec  = t_f.second - t_i.second
-        dt_min  = t_f.minute - t_i.minute
-        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
-        log_line="\n  Finished time  " + str(t_f)
-        log_out.write(log_line)
-        log_line="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
-        log_out.write(log_line)
-
-	log_out.close()
+	F_out.close()
 	    
 	
 if __name__=="__main__":

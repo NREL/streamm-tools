@@ -908,12 +908,34 @@ class StructureContainer:
 
         d_mass = 0
         d_charge = 0
-        RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+
+        find_rings = True 
+        if( find_rings ):
+            RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
+        else:
+            zero = 0.0
+
+            RINGLIST = []
+            RINGINDEX = []
+            RING_NUMB = []
+
+            # relabel based on neighbors
+            NA = len(ELN)
+            for i in range(NA):
+                RINGLIST.append(zero)
+                RING_NUMB.append(zero)
+                RINGINDEX.append(zero)
+
+            RINGLIST.append(zero)
+            RINGINDEX.append(zero)
 
         # Asign oplsaa atom types
         ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
 
-        ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+        #ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
+        ATYPE ,RESID, CHARGES = atom_types.set_pmmatypes(ff_charges, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )        
+        ATYPE,RESID,CHARGES,CG_SET,CHARN = atom_types.set_ptmatypes( ff_charges, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN )
+
         #Refind inter ring types
         ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
 

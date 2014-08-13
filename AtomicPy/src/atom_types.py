@@ -341,7 +341,7 @@ def oplsaa( update_chr,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUM
          
     return (ATYPE,CHARGES)
 
-def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
+def set_ptmatypes( update_chr, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN ):
     """
     Set nitroxyl atom types for TEMPO 
     """
@@ -356,12 +356,6 @@ def set_ptmatypes( options, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NB
     
     
     NA = len(ELN)
-
-
-    
-    charge_total = options.sys_q
-    update_chr = options.ff_charges
-
 
     # Set default charges, which will be over writen in some cases 
     for atom_i in range(NA):
@@ -702,7 +696,7 @@ def set_iontypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,
             
     return ( ATYPE,RESID,CHARGES )
 
-def set_pmmatypes(charge_total,update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
+def set_pmmatypes(update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB ):
     """
     Set atom types for PMMA monomer
     """
