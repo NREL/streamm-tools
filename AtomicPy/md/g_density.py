@@ -32,8 +32,8 @@ def main():
     gro_file = sys.argv[1]
     top_infile = sys.argv[2]
      
-    GTYPE, R, VEL, LV = gromacs.read_gro(options,gro_file)
-    ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST= gromacs.read_top(options,top_infile)
+    GTYPE, R, VEL, LV = gromacs.read_gro(gro_file)
+    ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST= gromacs.read_top(top_infile)
     ASYMB , ELN  = elements.mass_asymb(AMASS) 
     
     

@@ -99,14 +99,14 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose and rank == 0 ): print "      Reading in ",options.in_top
-        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options,options.in_top)
+        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options.in_top)
         ASYMB , ELN  = elements.mass_asymb(AMASS)
     #
     # Get coord
     #
     if( len(options.in_gro) ):
         if( options.verbose and rank == 0 ): print "     Reading in ",options.in_gro
-        GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
+        GTYPE, R, VEL, LV = gromacs.read_gro(options.in_gro)
     #
     # Get lammps data file 
     #
@@ -288,7 +288,7 @@ def main():
     for frame_i in range(options.frame_o,options.frame_f+1,options.frame_step):
 	frame_id = "frames/n"+str(frame_i)+options.frame_sufx
 	if( file_io.file_exists( frame_id ) ):
-	    GTYPE, R_f, VEL, LV = gromacs.read_gro(options,frame_id)
+	    GTYPE, R_f, VEL, LV = gromacs.read_gro(frame_id)
 	    frame_cnt += 1
 
 	    sum_dr_massi_mass = 0 

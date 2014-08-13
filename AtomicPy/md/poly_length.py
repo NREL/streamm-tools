@@ -137,7 +137,7 @@ def main():
                 print "      Reading in ",options.in_top
         dat_out.write("\n#   Gromacs top file %s  "% (options.in_top))
             
-        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options,options.in_top)
+        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST = gromacs.read_top(options.in_top)
         ASYMB , ELN  = elements.mass_asymb(AMASS)
         p.barrier()
     #
@@ -149,7 +149,7 @@ def main():
                 print "     Reading in ",options.in_gro
             dat_out.write("\n#   Gromacs gro file %s  "% (options.in_gro))
             
-        GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
+        GTYPE, R, VEL, LV = gromacs.read_gro(options.in_gro)
         p.barrier()
         
     #

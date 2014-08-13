@@ -165,14 +165,14 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose ): print  "     - Reading in ",options.in_top
-        ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options,options.in_top)
+        ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options.in_top)
         ASYMB_i,ELN_i  = elements.mass_asymb(AMASS_i)
     #
     # Get gro file 
     #
     if( len(options.in_gro) ):
         if( options.verbose ): print  "     - Reading in ",options.in_gro
-        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)
+        GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options.in_gro)
 
     if( debug):
         print " Molecule "
@@ -185,14 +185,14 @@ def main():
     #
     if( len(options.sol_top) ):
         if( options.verbose ): print  "     - Reading in ",options.sol_top
-        ATYPE_s,RESN_s,RESID_s,GTYPE_s,CHARN_s,CHARGES_s,AMASS_s,BONDS_s,ANGLES_s,DIH_s,MOLNUMB_s,MOLPNT_s,MOLLIST_s = gromacs.read_top(options,options.sol_top)
+        ATYPE_s,RESN_s,RESID_s,GTYPE_s,CHARN_s,CHARGES_s,AMASS_s,BONDS_s,ANGLES_s,DIH_s,MOLNUMB_s,MOLPNT_s,MOLLIST_s = gromacs.read_top(options.sol_top)
         ASYMB_s,ELN_s  = elements.mass_asymb(AMASS_s)
     #
     # Get gro file 
     #
     if( len(options.sol_gro) ):
         if( options.verbose ): print  "     - Reading in ",options.sol_gro
-        GTYPE_s,R_s,VEL_s,LV_s = gromacs.read_gro(options,options.sol_gro)            
+        GTYPE_s,R_s,VEL_s,LV_s = gromacs.read_gro(options.sol_gro)            
 
     if( debug):
         print " solvent  "

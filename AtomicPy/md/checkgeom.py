@@ -341,14 +341,14 @@ def main():
 
     if( REF_SUF == '.gro' ):
         # read in gro
-        GT_1, R_1, VEL_1, LV_1 =   gromacs.read_gro(options,REF_FILE)
+        GT_1, R_1, VEL_1, LV_1 =   gromacs.read_gro(REF_FILE)
 
         # red in top
         sys_var = sys_var + 1
         REF_FILE = sys.argv[sys_var]
         REF_SUF = REF_FILE[-4:]
         if( REF_SUF == '.top' ):
-            AT_1 , RESN_1 , RESID_1 , GTYPE_1 ,CHARN_1 , CHARGES_1 ,AMASS_1,BONDS_1,ANGLES_1,DIH_1, MOLNUMB_1, MOLPNT_1, MOLLIST_1 = gromacs.read_top(options,REF_FILE)
+            AT_1 , RESN_1 , RESID_1 , GTYPE_1 ,CHARN_1 , CHARGES_1 ,AMASS_1,BONDS_1,ANGLES_1,DIH_1, MOLNUMB_1, MOLPNT_1, MOLLIST_1 = gromacs.read_top(REF_FILE)
             
         else :
             print ' second file should be a top file'
@@ -363,14 +363,14 @@ def main():
 
     if( REF_SUF == '.gro' ):
         # read in gro
-        GT_2, R_2, VEL_2, LV_2 =   gromacs.read_gro(options,REF_FILE)
+        GT_2, R_2, VEL_2, LV_2 =   gromacs.read_gro(REF_FILE)
 
         # red in top
         sys_var = sys_var + 1
         REF_FILE = sys.argv[sys_var]
         REF_SUF = REF_FILE[-4:]
         if( REF_SUF == '.top' ):
-            AT_2 , RESN_2 , RESID_2 , GTYPE_2 ,CHARN_2 , CHARGES_2 ,AMASS_2,BONDS_2,ANGLES_2,DIH_2, MOLNUMB_2, MOLPNT_2, MOLLIST_2 = gromacs.read_top(options,REF_FILE)
+            AT_2 , RESN_2 , RESID_2 , GTYPE_2 ,CHARN_2 , CHARGES_2 ,AMASS_2,BONDS_2,ANGLES_2,DIH_2, MOLNUMB_2, MOLPNT_2, MOLLIST_2 = gromacs.read_top(REF_FILE)
             
         else :
             print ' ',sys_var,'  file should be a top file'

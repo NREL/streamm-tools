@@ -270,12 +270,12 @@ def main():
 
     if( len(options.in_gro) ):
         if( options.verbose ): print "  Reading in ",options.in_gro
-        GTYPE, R, VEL, LV = gromacs.read_gro(options,options.in_gro)
+        GTYPE, R, VEL, LV = gromacs.read_gro(options.in_gro)
         
     # Read in gro file
     if( len(options.in_top) ):
         if( options.verbose ): print "  Reading in ",options.in_top
-        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST  = gromacs.read_top(options,options.in_top)
+        ATYPE , RESN , RESID , GTYPE ,CHARN , CHARGES ,AMASS,BONDS,ANGLES,DIH, MOLNUMB, MOLPNT, MOLLIST  = gromacs.read_top(options.in_top)
         ASYMB , ELN  = elements.mass_asymb(AMASS) 
         
     # Retype special atom types and replace element
