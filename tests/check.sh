@@ -115,6 +115,12 @@ elif [ $1 == "all" ]; then
 	compareTest $testName 'mpirun -n 2'
     done
 
+    # Parallel test (series of parallel runs that are calling mpirun internally)
+    testNames=`ls -1 test_nX-*.py`
+    for testName in $testNames; do
+	compareTest $testName
+    done
+
     echo "If no output (other than status messages)... tests passed"
     echo " "
 

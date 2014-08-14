@@ -1,4 +1,3 @@
-localVerbose =  True
  
 Base class ParallelMsgr constructor called
 Derived class MsgrBoost constructor called

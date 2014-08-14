@@ -67,6 +67,14 @@ class SimulationLAMMPS1(sim.Simulation):
         del self.pairCoeffDct
         del self.bondCoeffDct
 
+    """
+    def writeInput(self,....):
+        writeInputSetting()
+        writeInputDataFile()
+        writeInputOther()
+
+    def writeInputDataFile(self, inputName):        
+    """
 
     def writeInput(self, inputName):
         """

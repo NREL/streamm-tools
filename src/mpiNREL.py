@@ -126,26 +126,37 @@ class ParallelMsgr:
         'chunk' of list belonging to each processor. Note, no communication
         is performed, input data is known globally.
 
+        Split algorithm will guarantee returning a list that has 'rank'
+        number of elements. Not all local lists will in general be the same length.
+
+        NOTE: If len(data) > rank some of the elements of the split list will be of
+        zero length, so the local list on some processors can be empty. Calling program
+        should account for this.
+
         Args:
             data: list of data [..]
         Returns:
-            list of data 'for' this processor
+            list of data for this local processor
         """
 
-        parts     = self.commSize                  # Number of procesors
-        numData   = float(len(data))               # Global size of data list
-        dataPProc = int(math.ceil(numData/parts))  # Est. num of data on each proc
+        parts = self.commSize             # Number of procesors
+        newseq = []                       # New partitioned list
 
-        # Make 'parts' number of chunks
-        plist=[data[x:x+dataPProc] for x in xrange(0, len(data), dataPProc)]
+        n = len(data) / parts   # min items per subsequence
+        r = len(data) % parts   # remaindered items
+        b,e = 0, n + min(1, r) # first split
+        for i in range(parts):
+            newseq.append(data[b:e])
+            r = max(0, r-1)             # use up remainders
+            b,e = e, e + n + min(1, r)  # min(1,r) is always 0 or 1
+        plist = newseq                  # Make 'parts' number of chunks
 
         # Error check or return results
         if len(plist) != parts:
-            if self.rank == 0:
-                print " " 
-                print "Partitioning failed, check data length and #-procs"
-                print "   len(plist) = ", len(plist)
-                print "        parts = ", parts
+            print " " 
+            print "Partitioning failed, check data length and #-procs"
+            print "   len(plist) = ", len(plist), " on proc ", self.rank
+            print "        parts = ", parts, " on proc ", self.rank
             sys.exit(0)
         else:
             return plist[self.rank]
@@ -385,8 +396,6 @@ def getMPIObject(verbose=True, localVerbose=True):
 
     Returns: an mpi object of the appropriate derived class
     """
-
-    print "localVerbose = ", localVerbose
 
     mpiObj=None
     try:

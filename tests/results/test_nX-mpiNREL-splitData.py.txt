@@ -1,0 +1,72 @@
+myPoints =  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  on proc  0
+myPoints =  [0, 1, 2, 3, 4]  on proc  0
+myPoints =  [5, 6, 7, 8, 9]  on proc  1
+myPoints =  [0, 1]  on proc  0
+myPoints =  [2, 3]  on proc  1
+myPoints =  [4, 5]  on proc  2
+myPoints =  [6, 7]  on proc  3
+myPoints =  [8]  on proc  4
+myPoints =  [9]  on proc  5
+myPoints =  [0]  on proc  0
+myPoints =  [1]  on proc  1
+myPoints =  [2]  on proc  2
+myPoints =  [3]  on proc  3
+myPoints =  [4]  on proc  4
+myPoints =  [5]  on proc  5
+myPoints =  [6]  on proc  6
+myPoints =  [7]  on proc  7
+myPoints =  [8]  on proc  8
+myPoints =  [9]  on proc  9
+myPoints =  [0]  on proc  0
+myPoints =  [1]  on proc  1
+myPoints =  [2]  on proc  2
+myPoints =  [3]  on proc  3
+myPoints =  [4]  on proc  4
+myPoints =  [5]  on proc  5
+myPoints =  [6]  on proc  6
+myPoints =  [7]  on proc  7
+myPoints =  [8]  on proc  8
+myPoints =  [9]  on proc  9
+myPoints =  []  on proc  10
+myPoints =  [0]  on proc  0
+myPoints =  [1]  on proc  1
+myPoints =  [2]  on proc  2
+myPoints =  [3]  on proc  3
+myPoints =  [4]  on proc  4
+myPoints =  [5]  on proc  5
+myPoints =  [6]  on proc  6
+myPoints =  [7]  on proc  7
+myPoints =  [8]  on proc  8
+myPoints =  [9]  on proc  9
+myPoints =  []  on proc  10
+myPoints =  []  on proc  11
+------------------------------------------------------------------
+For processors =  1
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+For processors =  2
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+For processors =  6
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+For processors =  10
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+For processors =  11
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+For processors =  12
+
+------------------------------------------------------------------
+

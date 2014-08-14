@@ -1,5 +1,3 @@
-localVerbose =  False
-localVerbose =  False
 Before broadcast x =  12.3456  on processor  0
 Before broadcast x =  0  on processor  1
 After broadcast x =  12.3456  on processor  0
