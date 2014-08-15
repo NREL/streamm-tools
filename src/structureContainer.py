@@ -17,6 +17,8 @@ import numpy as np
 import json
 import sys
 import os
+import groups 
+
 
 class StructureContainer:
     """
@@ -856,6 +858,7 @@ class StructureContainer:
         MOLNUMB = []
         RESID = []
         RESN = []
+        GTYPE = []
         
         for pid, ptclObj  in self.ptclC:
             ASYMB.append( ptclObj.type  )
@@ -865,6 +868,7 @@ class StructureContainer:
             MOLNUMB.append( int( ptclObj.tagsDict["chain"] ) )
             RESID.append( int( ptclObj.tagsDict["residue"] ) )
             RESN.append(  ptclObj.tagsDict["resname"]  )
+            GTYPE.append( ptclObj.tagsDict["gtype"] )
             
             
         # Direct copy of top.print_ff_files
@@ -885,14 +889,42 @@ class StructureContainer:
         AMASS = elements.eln_amass(ELN)
 
         #   Initialize  topology values
-        GTYPE = top.initialize_gtype( ELN )
+        #GTYPE = top.initialize_gtype( ELN )  # need to do this in frag read in 
         CHARN = top.initialize_charn( ELN )        
 
-        #   Build covalent nieghbor list for bonded information 
-        NBLIST, NBINDEX = top.build_covnablist(ELN,R)
-
         NA = len(ELN)
-        BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
+        
+        find_bonds = False 
+        if( find_bonds ):
+
+            #   Build covalent nieghbor list for bonded information 
+            NBLIST, NBINDEX = top.build_covnablist(ELN,R)
+            BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
+
+            print_bonds = True
+            if( print_bonds ):
+                for b_indx in range(len(BONDS)):
+                    print " bond ",BONDS[b_indx][0]+1,BONDS[b_indx][1]+1
+
+                sys.exit(" print bonds from proximity ")
+        else:
+            BONDS = []
+            for b_i,bondObj in  self.bondC:
+                pt_i = bondObj.pgid1
+                pt_j = bondObj.pgid2
+                BONDS.append( [pt_i-1,pt_j-1])
+                print "create_top  bond ",pt_i,pt_j
+
+            NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+            #sys.exit(" passing bonds checking ")
+            
+
+        print_bonds = True
+        if( print_bonds ):
+            for b_indx in range(len(BONDS)):
+                print " bond ",BONDS[b_indx][0]+1,BONDS[b_indx][1]+1
+            
+        
         ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
         #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
         DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
@@ -915,7 +947,7 @@ class StructureContainer:
         d_mass = 0
         d_charge = 0
 
-        find_rings = True 
+        find_rings = False 
         if( find_rings ):
             RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
         else:
@@ -946,7 +978,7 @@ class StructureContainer:
         ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
 
         # Update structure information
-        pt_cnt = 0 
+        pt_cnt = 0
         for pid, ptclObj  in self.ptclC:
              ptclObj.tagsDict["fftype"] = ATYPE[pt_cnt]
              ptclObj.mass = AMASS[pt_cnt]
@@ -955,12 +987,12 @@ class StructureContainer:
              pt_cnt += 1 
 
         # Add bonds to system
-        for i in range( len(BONDS) ):
-            #
-            a_i = BONDS[i][0] 
-            a_j = BONDS[i][1]
-            b_i = Bond( a_i+1, a_j+1 )
-            self.bondC.put(b_i)
+        #for i in range( len(BONDS) ):
+        #    #
+        #    a_i = BONDS[i][0] 
+        #    a_j = BONDS[i][1]
+        #    b_i = Bond( a_i+1, a_j+1 )
+        #    self.bondC.put(b_i)
 
             #  Sudo code
             #   Read in parameter file
@@ -1008,11 +1040,16 @@ class StructureContainer:
             AMASS.append( float(ptclObj.mass)  )
             CHARGES.append( float(ptclObj.charge)  )
             MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
-            RESID.append( ptclObj.tagsDict["resname"]  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
             RESN.append( int(ptclObj.tagsDict["residue"])  )
             ATYPE.append( ptclObj.tagsDict["fftype"]  )
             RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
             GTYPE.append( ptclObj.tagsDict["gtype"]  )
+
+
+            print " GTYPE ", ptclObj.tagsDict["gtype"] 
+            print " RESID ", ptclObj.tagsDict["resname"] 
+            print " RESN ", ptclObj.tagsDict["residue"] 
        
         # Set cubic lattice constant to 5 nm arbitrary 
         LV = np.zeros( (3,3) )
@@ -1024,6 +1061,130 @@ class StructureContainer:
         out_gro = dir_id+"/"+output_id + ".gro"
         gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
 
+    def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class
+        """
+        Write out gromacs gro file
+        """
+        # Version 1 will be dependent on Atomicpy
+        import gromacs , elements, top , lammps, groups 
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+       
+        BONDS = []
+        for b_i,bondObj in  self.bondC:
+            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+
+            print " make_top bonds ",bondObj.pgid1 , bondObj.pgid2
+
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        NA = len(ELN)
+        
+        # Create neighbor list form bonds
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        #NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
+
+        print_nb = True
+        # Make compatable with 0-(N-1) index of atoms 
+        #for n_indx in range(len(NBLIST)):
+        #    if( print_nb):
+        #        print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
+        #    NBLIST[n_indx] =NBLIST[n_indx] -1
+        #for n_indx in range(len(NBINDEX)-1):
+        #    if( print_nb):
+        #        print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
+        #    NBINDEX[n_indx] =NBINDEX[n_indx+1]
+        #
+        if( print_nb):
+
+            for p_i in range(len(self.ptclC)):
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i+1, ELN[p_i]," has ",N_i_f - N_i_o
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j+1," atomic # ", ELN[atom_j]
+                    
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+
+        for a_indx in range(len(ANGLES)):
+            print " angles ",ANGLES[a_indx][0]+1,ANGLES[a_indx][1]+1,ANGLES[a_indx][2]+1
+        
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+
+        #
+        # Set charge groups
+        #
+        verbose = False 
+        CG_SET = []
+        CHARN = []
+        one = 1
+        for i in range( len(ELN) ):
+            CG_SET.append(one)
+            CHARN.append(one)
+        CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
+
+        # Read in parameter files 
+        
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+
+        # Identify total number of atom types for lammps output 
+        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+        # Check atom types to be sure each atom of the same type has the same number of neighbors 
+        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    
+        IMPTYPE_F  = top.imp_parameters(itp_file)
+
+        top_file = dir_id+"/"+output_id + ".top"
+        DIH_CONST = []
+        DIH_CONST_ANGLE = []
+        gromacs.print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+               ,DIH_CONST,DIH_CONST_ANGLE
+               ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+               ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+        
     def lmp_writedata(self,data_file,norm_dihparam,itp_file):
         """
         Write out lammps data file
@@ -1186,6 +1347,7 @@ class StructureContainer:
 
 
         """
+        sys.exit("bonded_nblist not working !!! ")
         
         debug = False 
         NNAB  = 0
@@ -1214,10 +1376,12 @@ class StructureContainer:
         # bassed on bonds add index of neighbros to particle index of nblist_py
         for b_i,bondObj in  self.bondC:
             bnd_i = bondObj.pgid1 
-            bnd_j = bondObj.pgid2
+            bnd_j = bondObj.pgid2 
             
             nblist_py[bnd_i].append( bnd_j )
             nblist_py[bnd_j].append( bnd_i )
+
+            print " adding bond bonded_nblist",bnd_i,bnd_j
 
         # Translate 2D into 1D array
         #   mostly to match perviously writen fortran code
@@ -1227,11 +1391,14 @@ class StructureContainer:
             NBINDEX.append( NNAB + 1 )
             # Loop over neighbor list of each particle nlist_i and get neighbor p_j
             for p_j in  nlist_i:
-                #if( p_j > p_i):
-                # remove redundent neighbors 
-                NNAB +=  1
-                # add to neighbor list 
-                NBLIST.append( p_j )
+
+                print " p_i ",p_i," p_j ",p_j
+                
+                if( p_j > p_i):
+                    # remove redundent neighbors 
+                    NNAB +=  1
+                    # add to neighbor list 
+                    NBLIST.append( p_j )
 
         NBINDEX.append( NNAB + 1 )
 
