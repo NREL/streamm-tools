@@ -948,6 +948,7 @@ class StructureContainer:
         d_charge = 0
 
         find_rings = False 
+        NA = len(ELN)
         if( find_rings ):
             RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
         else:
@@ -958,7 +959,6 @@ class StructureContainer:
             RING_NUMB = []
 
             # relabel based on neighbors
-            NA = len(ELN)
             for i in range(NA):
                 RINGLIST.append(zero)
                 RING_NUMB.append(zero)
@@ -971,8 +971,18 @@ class StructureContainer:
         ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
 
         #ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-        ATYPE ,RESID, CHARGES = atom_types.set_pmmatypes(ff_charges, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )        
+        ATYPE ,RESID, CHARGES = atom_types.set_pmmatypes(ff_charges, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )
+
+        
         ATYPE,RESID,CHARGES,CG_SET,CHARN = atom_types.set_ptmatypes( ff_charges, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN )
+
+        debug = False 
+        if(debug):
+            # relabel based on neighbors
+            NA = len(ELN)
+            for i in range(NA):
+                print  i+1,ATYPE[i] ,RESID[i], CHARGES[i]
+            sys.exit(" atom chagre check 1 ")
 
         #Refind inter ring types
         ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
@@ -1066,7 +1076,7 @@ class StructureContainer:
         Write out gromacs gro file
         """
         # Version 1 will be dependent on Atomicpy
-        import gromacs , elements, top , lammps, groups 
+        import gromacs , elements, top , lammps, groups , atom_types
 
         # New options that need to be passed 
         limdih =  0
@@ -1174,8 +1184,11 @@ class StructureContainer:
         BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
         ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
         DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
-    
+
         IMPTYPE_F  = top.imp_parameters(itp_file)
+
+        IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
+
 
         top_file = dir_id+"/"+output_id + ".top"
         DIH_CONST = []
@@ -1424,7 +1437,7 @@ class StructureContainer:
         """
         Calculate RDF for a group of particles
         """
-
+        print_vmd = True 
         #
         # Loop over list i
         #
@@ -1442,6 +1455,9 @@ class StructureContainer:
                         m_ij = np.sqrt(r_ij_sq)
                         bin_index = int( round( m_ij/bin_size) )
                         rdf_cnt_ij[bin_index] += 2
+
+                        if( print_vmd ):
+                            print " index %d or %d "%(p_i,p_j)
 
         return rdf_cnt_ij
 
