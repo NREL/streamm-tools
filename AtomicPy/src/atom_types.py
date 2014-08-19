@@ -351,6 +351,7 @@ def set_ptmatypes( update_chr, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST
         
         
     residue = 'PTMA'
+    methyl_C = "C6"
 
     debug = 0
     
@@ -361,10 +362,10 @@ def set_ptmatypes( update_chr, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST
     for atom_i in range(NA):
 
         if(debug): print ASYMB[atom_i]
-        if ATYPE[atom_i] == 'HC' :
-            if( update_chr ): CHARGES[atom_i] =  0.06
-        if ATYPE[atom_i] == 'CT' :
-            if( update_chr ): CHARGES[atom_i] =  -0.18
+        #if ATYPE[atom_i] == 'HC' :
+        #    if( update_chr ): CHARGES[atom_i] =  0.06
+        #if ATYPE[atom_i] == 'CT' :
+        #    if( update_chr ): CHARGES[atom_i] =  -0.18
         if ASYMB[atom_i].strip() == 'LP' :
             ATYPE[atom_i] = 'LP'
             RESID[atom_i] = residue
@@ -543,7 +544,7 @@ def set_ptmatypes( update_chr, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST
                                                                                             #if( update_chr ): CHARGES[atom_q] = q_H3
                                                                                             RESID[atom_q] = 'BCK' # residue
                                                                                         
-                                                                                if( GTYPE[atom_p].strip()  == options.methyl_C.strip() ): #or  # ELCNT_l[1] == 3 ):
+                                                                                if( GTYPE[atom_p].strip()  == "C36" or  GTYPE[atom_p].strip()  == "C77"  ): #or  # ELCNT_l[1] == 3 ):
                                                                                     
                                                                                     if( update_chr ): CHARGES[atom_p] = q_CH3
                                                                                     RESID[atom_p] = residue
@@ -703,9 +704,21 @@ def set_pmmatypes(update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RING
     import sys,top 
     
     NA = len(ELN)
-    
-    debug = 0
-    update_chr = 1 
+    methyl_C = "C6"
+
+    debug = 1
+    update_chr = True
+
+    # Version 2
+    q_OMe = -0.251
+    q_OHMe = 0.13
+    q_C = 0.894
+    q_O = -0.611
+    q_OS = -0.313
+    q_BC =  -0.012
+    q_CH2 = -0.12
+    q_CH3 = -0.46
+    q_H3 = 0.121
 
     # Version 1
     q_OMe = -0.041
@@ -719,17 +732,6 @@ def set_pmmatypes(update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RING
     q_H3 = 0.06
 
     residue = 'PMMA' 
-
-    # Version 2
-    q_OMe = -0.251
-    q_OHMe = 0.13
-    q_C = 0.894
-    q_O = -0.611
-    q_OS = -0.313
-    q_BC =  -0.012
-    q_CH2 = -0.12
-    q_CH3 = -0.46
-    q_H3 = 0.121
 
     # Find pmma segments and label charges
     for i in range(NA):
@@ -802,13 +804,15 @@ def set_pmmatypes(update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RING
                                                     if( debug ):
                                                         print " changing " , ATYPE[m],ELN[m],RESID[m],GTYPE[m],k
                                                         print "    to ",residue
-                                                        sys.exit('set_pmmacharges')
+                                                        #sys.exit('set_pmmacharges')
                                     # Hack to not reasign terminal methyls 
-                                    if( ATYPE[l] == 'CT' and GTYPE[l].strip() == 'C19' ):
+                                    if( ATYPE[l] == 'CT' and GTYPE[l].strip() == methyl_C  ):
                                         #if( ELCNT[1] == 3 ):
                                         #    if( update_chr ): CHARGES[k] = q_CH3
                                         if( ELCNT_l[1] == 3 ):
                                             if( update_chr ): CHARGES[l] = q_CH3
+                                            if( debug ):
+                                                print " found pmma methyl ", ATYPE[l],ELN[l],RESID[l],GTYPE[l],CHARGES[l],l
                                             RESID[l] = residue
                                             Nl_o = NBINDEX[l]
                                             Nl_f = NBINDEX[l+1] - 1
@@ -821,19 +825,19 @@ def set_pmmatypes(update_chr, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RING
                                                     if( debug ):
                                                         print " changing " , ATYPE[m],ELN[m],RESID[m],GTYPE[m],k
                                                         print "    to ",residue
-                                                        sys.exit('set_pmmacharges')
+                                                        #sys.exit('set_pmmacharges')
 
 
 
     # Hack
     for i in range(NA):
-        if ( GTYPE[i].strip() == 'C19' ):
+        if ( GTYPE[i].strip() == methyl_C ):
             N_o = NBINDEX[i]
             N_f = NBINDEX[i+1] - 1
             for indx in range( N_o,N_f+1):
                 j = NBLIST[indx]
-                if ( GTYPE[j].strip() == 'C4' ):
-                    #if( update_chr ): CHARGES[i] = q_CH3
+                if ( GTYPE[j].strip() == 'C2' ):
+                    if( update_chr ): CHARGES[i] = q_CH3
                     RESID[i] = residue
 
     return ( ATYPE,RESID,CHARGES)

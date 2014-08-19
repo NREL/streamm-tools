@@ -200,11 +200,12 @@ def main():
 		r_il = r_l - r_j
 		
 		angle_i = prop.getDihedral(r_k,r_i,r_j,r_l)
+                abs_angle_i = np.absolute(angle_i)
 		#angle_kij =  prop.getAngle(r_ik,r_ij)
 		
 		#print "in idhedrals angle_i ",angle_i
 		
-		bin_index = int( round( angle_i/options.bin_size) )
+		bin_index = int( round( abs_angle_i/options.bin_size) )
 		hist_cnt[bin_index] += 1
 		
 		if( options.verbose ):
