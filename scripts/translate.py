@@ -387,7 +387,12 @@ def main():
         #
         if( len(options.out_gro) ):
             if( options.verbose ): print  "     - Writing  ",options.out_gro
-            print " Not yet supported "
+                #print " Not yet supported "
+            dir_id = "./"
+
+            for pid, ptclObj  in struc_i.ptclC:
+                 ptclObj.tagsDict["gtype"] =  ptclObj.tagsDict["fftype"]  
+            struc_i.write_gro(dir_id,options.out_gro ) # Move out of class
             #gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
 
 

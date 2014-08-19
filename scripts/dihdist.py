@@ -370,7 +370,7 @@ def dihdist():
 
                     frame_cnt += 1
                 
-            # Calculate rdf for last frame
+            # Calculate 
 
             if( options.frame_o <= frame_cnt ):
 

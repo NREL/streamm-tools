@@ -831,7 +831,7 @@ class StructureContainer:
 
         # Read in lattice vectors
         self.latvec = []
-        lv_array = struc_data["latticevector"].split()
+        lv_array = struc_data["latvector"].split()
         self.latvec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
         self.latvec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
         self.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
@@ -1356,7 +1356,7 @@ class StructureContainer:
 
 
         """
-        sys.exit("bonded_nblist not working !!! ")
+        #sys.exit("bonded_nblist not working !!! ")
         
         debug = False 
         NNAB  = 0
@@ -1403,11 +1403,11 @@ class StructureContainer:
 
                 print " p_i ",p_i," p_j ",p_j
                 
-                if( p_j > p_i):
-                    # remove redundent neighbors 
-                    NNAB +=  1
-                    # add to neighbor list 
-                    NBLIST.append( p_j )
+                #if( p_j > p_i):
+                # remove redundent neighbors 
+                NNAB +=  1
+                # add to neighbor list 
+                NBLIST.append( p_j )
 
         NBINDEX.append( NNAB + 1 )
 
@@ -1474,7 +1474,7 @@ class StructureContainer:
 
         import datetime
 
-        debug = False
+        debug = True
 
         if(debug):
             print " list_k ",list_k
@@ -1516,7 +1516,7 @@ class StructureContainer:
                 if( debug ): print " checking i ",atom_i,self.ptclC[atom_i].type
                 
                 for  p_i in list_i:
-                    if( atom_i == p_i and atom_i > atom_k ):
+                    if( atom_i == p_i ): #and atom_i > atom_k ):
                         add_i = True
                 if( add_i ): #atom_i in list_i ):
 
@@ -1531,7 +1531,7 @@ class StructureContainer:
                         if( debug ): print " checking j ",atom_j,self.ptclC[atom_j].type
                             
                         for  p_j  in list_j:
-                            if( atom_j == p_j and atom_j > atom_i ):
+                            if( atom_j == p_j ): #and atom_j > atom_i ):
                                 add_j = True
                         if( add_j ): # atom_j  in list_j  ):
 
@@ -1545,19 +1545,33 @@ class StructureContainer:
                                 if( debug ):
                                     print " checking l ",atom_l,self.ptclC[atom_l].type                                    
                                 for  p_l  in list_l:
-                                    if( atom_l == p_l and atom_l > atom_j ):
+                                    if( atom_l == p_l ): #and atom_l > atom_j ):
                                         add_l = True
                                 if( add_l ): #atom_l  in list_l ):
-                                    angle_list.append( [atom_k,atom_i,atom_j,atom_l] )
-				    if(debug):
+                                    # Check to make sure not in list already
+                                    add_dih = True
+                                    for indx_kij in angle_list:
+                                        a_k = indx_kij[0]                
+                                        a_i = indx_kij[1]
+                                        a_j = indx_kij[2]
+                                        a_l = indx_kij[3]
+                                        if( atom_k == a_k and atom_i == a_i and atom_j == a_j and atom_l == a_l ):
+                                            add_dih = False 
+                                        if( atom_k == a_l and atom_i == a_j and atom_j == a_i and atom_l == a_k ):
+                                            add_dih = False 
+                                    if(add_dih ):
+                                        angle_list.append( [atom_k,atom_i,atom_j,atom_l] )
 
-                                        t_f = datetime.datetime.now()
-                                        dt_sec  = t_f.second - t_i.second
-                                        dt_min  = t_f.minute - t_i.minute
-                                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0         
-					print " found angle ",atom_k,atom_i,atom_j,atom_l
-                                        print "  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+                                        if(debug):
+
+                                            t_f = datetime.datetime.now()
+                                            dt_sec  = t_f.second - t_i.second
+                                            dt_min  = t_f.minute - t_i.minute
+                                            if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                            if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0         
+                                            print " found angle ",atom_k,atom_i,atom_j,atom_l
+                                            print "  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+                                        
 
         if ( debug ):
             dih_cnt = 0 
