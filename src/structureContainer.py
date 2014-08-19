@@ -1474,7 +1474,7 @@ class StructureContainer:
 
         import datetime
 
-        debug = True
+        debug = False
 
         if(debug):
             print " list_k ",list_k
