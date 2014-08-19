@@ -1390,7 +1390,7 @@ class StructureContainer:
             nblist_py[bnd_i].append( bnd_j )
             nblist_py[bnd_j].append( bnd_i )
 
-            print " adding bond bonded_nblist",bnd_i,bnd_j
+            if(debug): print " adding bond bonded_nblist",bnd_i,bnd_j
 
         # Translate 2D into 1D array
         #   mostly to match perviously writen fortran code
@@ -1401,7 +1401,7 @@ class StructureContainer:
             # Loop over neighbor list of each particle nlist_i and get neighbor p_j
             for p_j in  nlist_i:
 
-                print " p_i ",p_i," p_j ",p_j
+                if(debug): print " p_i ",p_i," p_j ",p_j
                 
                 #if( p_j > p_i):
                 # remove redundent neighbors 
