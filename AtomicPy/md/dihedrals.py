@@ -145,11 +145,22 @@ def main():
 				for id_indx in range( len(id_list_l)):
 				    if( id_list_l[id_indx] == ATYPE[atom_l].strip() ): add_l = 1
 				    if( id_list_l[id_indx] == GTYPE[atom_l].strip() ): add_l = 1
-				if( add_l ):
-					    
-				    if(debug):
-				        angle_list.append( [atom_k,atom_i,atom_j,atom_l] )
-					print " found angle ",atom_k,atom_i,atom_j,atom_l
+				if( add_l ):#atom_l  in list_l ):
+                                    # Check to make sure not in list already
+                                    add_dih = True
+                                    for indx_kij in angle_list:
+                                        a_k = indx_kij[0]                
+                                        a_i = indx_kij[1]
+                                        a_j = indx_kij[2]
+                                        a_l = indx_kij[3]
+                                        if( atom_k == a_k and atom_i == a_i and atom_j == a_j and atom_l == a_l ):
+                                            add_dih = False 
+                                        if( atom_k == a_l and atom_i == a_j and atom_j == a_i and atom_l == a_k ):
+                                            add_dih = False 
+                                    if(add_dih ):
+				        angle_list.append( [atom_k,atom_i,atom_j,atom_l] )					    
+                                        if(debug):
+                                            print " found angle ",atom_k,atom_i,atom_j,atom_l
 	
 	    
     if( p_time ): t_i = datetime.datetime.now()
@@ -200,7 +211,7 @@ def main():
 		r_il = r_l - r_j
 		
 		angle_i = prop.getDihedral(r_k,r_i,r_j,r_l)
-                abs_angle_i = np.absolute(angle_i)
+                abs_angle_i = numpy.absolute(angle_i)
 		#angle_kij =  prop.getAngle(r_ik,r_ij)
 		
 		#print "in idhedrals angle_i ",angle_i
@@ -210,7 +221,7 @@ def main():
 		
 		if( options.verbose ):
 		    #print " # ",a_k,a_i,a_j,angle_i
-		    print " # ",bin_index,a_k,a_i,a_j,a_l,angle_i,abs_angle_i
+		    print " # ",a_k,a_i,a_j,a_l,angle_i
 		
 	else:
 	    print " Error frame ",frame_id," does not exist "
@@ -250,7 +261,7 @@ def main():
     F_out.write("\n#    ")
     F_out.write("\n# bin index ; cnt    ; cnt/frame  ")
     
-    for bin_index in range(0, n_bins+1):
+    for bin_index in range( 0,n_bins+1):
 	    
 	hist_val = options.bin_size*float(bin_index)
 	
