@@ -1600,21 +1600,40 @@ class StructureContainer:
                        
         
         """
-
+        debug = False
+        
         r_k = np.array( [ float( self.ptclC[a_k].position[0] ),float( self.ptclC[a_k].position[1] ),float( self.ptclC[a_k].position[2] ) ] )
         r_i = np.array( [ float( self.ptclC[a_i].position[0] ),float( self.ptclC[a_i].position[1] ),float( self.ptclC[a_i].position[2] ) ] )
         r_j = np.array( [ float( self.ptclC[a_j].position[0] ),float( self.ptclC[a_j].position[1] ),float( self.ptclC[a_j].position[2] ) ] )
         r_l = np.array( [ float( self.ptclC[a_l].position[0] ),float( self.ptclC[a_l].position[1] ),float( self.ptclC[a_l].position[2] ) ] )
 
-        v1 = pbcs.norm_r_ij(r_k, r_i)
-        v2 = pbcs.norm_r_ij(r_i, r_j)
-        v3 = pbcs.norm_r_ij(r_j, r_l)
+        if( debug ):
+            print " lat vec ",self.latvec
+            print "r_k ",r_k
+            print "r_i ",r_i
+            print "r_j ",r_j
+            print "r_l ",r_l
+
+        v1 = pbcs.norm_r_ij(r_k, r_i,self.latvec)
+        v2 = pbcs.norm_r_ij(r_i, r_j,self.latvec)
+        v3 = pbcs.norm_r_ij(r_j, r_l,self.latvec)
 
         v1v2 = np.cross(v1,v2)
         v2v3 = np.cross(v2,v3)
 
 
         angle_i = pbcs.getAngle(v1v2,v2v3)
+
+        
+        if( debug):
+            print "v1 ",v1
+            print "v2 ",v2
+            print "v3 ",v3
+            print "v1v2 ",v1v2
+            print "v2v3 ",v2v3
+            print "angle_i ",angle_i
+
+
         #
         # Find sign of angle 
         #
