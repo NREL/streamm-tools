@@ -210,7 +210,7 @@ def main():
 		
 		if( options.verbose ):
 		    #print " # ",a_k,a_i,a_j,angle_i
-		    print " # ",a_k,a_i,a_j,a_l,angle_i
+		    print " # ",bin_index,a_k,a_i,a_j,a_l,angle_i,abs_angle_i
 		
 	else:
 	    print " Error frame ",frame_id," does not exist "
@@ -250,7 +250,7 @@ def main():
     F_out.write("\n#    ")
     F_out.write("\n# bin index ; cnt    ; cnt/frame  ")
     
-    for bin_index in range( 0,n_bins):
+    for bin_index in range(0, n_bins+1):
 	    
 	hist_val = options.bin_size*float(bin_index)
 	
