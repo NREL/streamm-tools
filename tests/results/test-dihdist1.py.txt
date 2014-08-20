@@ -1,8 +1,7 @@
  
 Base class ParallelMsgr constructor called
-Derived class MsgrBoost constructor called
-I am process 0 of 1.
-Found boost.mpi module 
+Derived class MsgrSerial constructor called
+No mpi module found, will use serial. 
 
      - Reading in  acc1_D1_R2R200_A2_R3_n1_R41n1R41n1R40n1__n5.json
   Particles 507 
@@ -25,7 +24,7 @@ None
  search finished 
   list creation finished 
 
-  Date 2014-08-14 14:26:06.199860 
+  Date 2014-08-20 11:21:29.650907 
   Number of processors  1 
 ---------------------------------------------------------------------
   Particles of group l: 15 
@@ -39,18 +38,15 @@ None
      Final frame  10000  
   Reading  n5.xyz
 proc 1  analysis of frame 1 on processor 1   box from min max 47.099043 
- index 12 or index 16 or index 23 or index 25  -8.897148 dih_hist 4 hist_cnt[bin_index] 1 
- index 25 or index 26 or index 108 or index 110  -100.055367 dih_hist 50 hist_cnt[bin_index] 1 
- index 113 or index 117 or index 124 or index 126  -8.897148 dih_hist 4 hist_cnt[bin_index] 2 
- index 126 or index 127 or index 209 or index 211  171.176354 dih_hist 86 hist_cnt[bin_index] 1 
- index 214 or index 218 or index 225 or index 227  -8.897148 dih_hist 4 hist_cnt[bin_index] 3 
- index 227 or index 228 or index 310 or index 312  -15.849691 dih_hist 8 hist_cnt[bin_index] 1 
- index 315 or index 319 or index 326 or index 328  -8.897148 dih_hist 4 hist_cnt[bin_index] 4 
- index 328 or index 329 or index 411 or index 413  122.765846 dih_hist 61 hist_cnt[bin_index] 1 
- index 416 or index 420 or index 427 or index 429  -8.897147 dih_hist 4 hist_cnt[bin_index] 5 
-   Read frames  1
+#    Frames 1 
+#    Bin-size 2.000000  
+#    Total_cnts 9  
+#    Average Box Volume 104480.741941 
+# 
+# bin index ; cnt    ; cnt/Total_cnts  
+sum_check  9.0
 
-  Finished time  2014-08-14 14:26:06.271559
+  Finished time  2014-08-20 11:21:29.735700
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  
