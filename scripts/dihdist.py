@@ -411,7 +411,7 @@ def dihdist():
 	    print dat_line
 
         if( debug ):
-            #sum_check = 0 
+            sum_check = 0 
         for bin_index in range( 0,n_bins+1):
             hist_val = options.bin_size*float(bin_index)
             
