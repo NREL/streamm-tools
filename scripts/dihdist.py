@@ -132,7 +132,7 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
     Loop over dihedrals and calculate histogram 
     """
     
-    debug = True
+    debug = False
     
     #
     dih_cnt = 0
@@ -151,7 +151,8 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
 
         
         if( debug ):
-            print " index %d or index %d or index %d or index %d  %f dih_hist %d hist_cnt[bin_index] %d "%(a_k-1,a_i-1,a_j-1,a_l-1,angle_i,bin_index, hist_cnt[bin_index])
+            hist_val = bin_size*float(bin_index)
+            print " index %d or index %d or index %d or index %d  %f bin_index %d hist_cnt %d hist_val %f "%(a_k-1,a_i-1,a_j-1,a_l-1,angle_i,bin_index, hist_cnt[bin_index],hist_val)
 
     return hist_cnt
 
@@ -183,6 +184,7 @@ def dihdist():
     if( rank == 0 ):
         # record initial time 
         t_i = datetime.datetime.now()
+        
     #        
     # Read options 
     #
@@ -315,9 +317,6 @@ def dihdist():
     volume_i = []
     volume_sum_i = 0.0 
 
-    if( rank == 0  ): 
-	t_i = datetime.datetime.now()
-
     if( len(options.in_lammpsxyz) ):
         
         if( rank == 0 ):
@@ -395,19 +394,38 @@ def dihdist():
 
     if( rank == 0 ):
         hist_sum = np.sum(hist_cnt)
+        box_vol_ave = np.average( volume_i )
+    
+
+        # Write output 
+        #
+        dat_line = "#    Frames %d " %  (calc_frames)
+        dat_line += "\n#    Bin-size %f  " % (options.bin_size)
+        dat_line += "\n#    Total_cnts %d  " % (hist_sum)
+        dat_line += "\n#    Average Box Volume %f " % ( box_vol_ave) 
+        dat_line += "\n# "
+        dat_line += "\n# bin index ; cnt    ; cnt/Total_cnts  "
+        dat_out.write(dat_line)
+        
 	if( options.verbose ):
-	    print "   Read frames ",calc_frames
-            
-        for bin_index in range( 1,n_bins):
+	    print dat_line
+
+        if( debug ):
+            #sum_check = 0 
+        for bin_index in range( 0,n_bins+1):
             hist_val = options.bin_size*float(bin_index)
             
             #print " hist_cnt[bin_index] ",bin_index, hist_cnt[bin_index]
             
-            val_cnt = float( hist_cnt[bin_index] )
-            cnt_fnorm =     val_cnt    /hist_sum #float(calc_frames)
-            dat_out.write("\n  %d %f %f %f  " % (bin_index,hist_val,val_cnt,cnt_fnorm) )
+            val_cnt =  hist_cnt[bin_index] 
+            cnt_fnorm =   float(val_cnt)/float(hist_sum) #float(calc_frames)
+
             
-    
+            dat_out.write("\n  %d %f %f %f  " % (bin_index,hist_val,val_cnt,cnt_fnorm) )
+
+            if( debug ): sum_check += val_cnt
+
+        if( debug ): print "sum_check ",sum_check
         
         t_f = datetime.datetime.now()
         dt_sec  = t_f.second - t_i.second
