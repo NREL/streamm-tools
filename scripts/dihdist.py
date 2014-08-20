@@ -132,7 +132,7 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
     Loop over dihedrals and calculate histogram 
     """
     
-    debug = False
+    debug = True
     
     #
     dih_cnt = 0
@@ -146,6 +146,12 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
 
         angle_i = struc_o.getDihedral(a_k,a_i,a_j,a_l)
         abs_angle_i = np.absolute(angle_i)
+
+        if( abs_angle_i > 180.0 - bin_size/2.0 ):
+            if( debug ):
+                print " rescaling angle ",abs_angle_i," to ", abs_angle_i  -180.0 
+            abs_angle_i += -180.0
+                
         bin_index = int( round( abs_angle_i/bin_size) )
         hist_cnt[bin_index] += 1
 
