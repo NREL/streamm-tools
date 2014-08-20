@@ -147,17 +147,22 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
         angle_i = struc_o.getDihedral(a_k,a_i,a_j,a_l)
         abs_angle_i = np.absolute(angle_i)
 
-        if( abs_angle_i > 180.0 - bin_size/2.0 ):
-            if( debug ):
-                print " rescaling angle ",abs_angle_i," to ", abs_angle_i  -180.0 
-            abs_angle_i += -180.0
-                
-        bin_index = int( round( abs_angle_i/bin_size) )
+        #if( abs_angle_i > 180.0 - bin_size/2.0 ):
+        #    if( debug ):
+        #        print " rescaling angle ",abs_angle_i," to ", abs_angle_i  -180.0 
+        #    abs_angle_i += -180.0
+        if( abs_angle_i <= 180.0 ):
+            # Acount for round off errors 
+            abs_angle_i += -0.0001
+            
+        bin_index = int(  abs_angle_i/bin_size ) 
         hist_cnt[bin_index] += 1
 
         
         if( debug ):
-            hist_val = bin_size*float(bin_index)
+            hist_val = bin_size*float(bin_index) + bin_size/2.0
+            if( bin_index == 0 ): hist_val = 0.0 
+            if( hist_val == 179.0 ): hist_val = 180.0 
             print " index %d or index %d or index %d or index %d  %f bin_index %d hist_cnt %d hist_val %f "%(a_k-1,a_i-1,a_j-1,a_l-1,angle_i,bin_index, hist_cnt[bin_index],hist_val)
 
     return hist_cnt
@@ -367,7 +372,7 @@ def dihdist():
 
                                 debug = 1
                                 if( debug ):
-                                    print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec[0][0]
+                                    print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec [0][0]
                                 #
                                 # Loop over lists
                                 #
@@ -419,8 +424,10 @@ def dihdist():
         if( debug ):
             sum_check = 0 
         for bin_index in range( 0,n_bins+1):
-            hist_val = options.bin_size*float(bin_index)
-            
+            hist_val = options.bin_size*float(bin_index) + options.bin_size/2.0
+            if( bin_index == 0 ): hist_val = 0.0
+            if( hist_val == 179.0 ): hist_val = 180.0 
+                        
             #print " hist_cnt[bin_index] ",bin_index, hist_cnt[bin_index]
             
             val_cnt =  hist_cnt[bin_index] 
