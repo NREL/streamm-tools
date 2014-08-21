@@ -271,7 +271,7 @@ def main():
         if( hist_val == 179.0 ): hist_val = 180.0 
         #hist_val = options.bin_size*float(bin_index)
 	
-	val_cnt = float( hist_cnt[bin_index] )
+	val_cnt = float( hist_cnt[bin_index] ) 
 	cnt_fnorm =     val_cnt    /float(frame_cnt)
 	
 	F_out.write("\n  %d %f %f %f  " % (bin_index,hist_val,val_cnt,cnt_fnorm) )

@@ -655,7 +655,7 @@ def multiplicity(ELN,Q):
     return M
 
 
-def getDihedral(a,b,c,d):
+def getDihedral(a,b,c,d,LV):
     """
     Calculate dihedral angle 
     """
@@ -674,9 +674,9 @@ def getDihedral(a,b,c,d):
         print " c ",c
         print " d ",d
         
-    v1 = getNormedVector(a, b)
-    v2 = getNormedVector(b, c)
-    v3 = getNormedVector(c, d)
+    v1 = getNormedVector(a, b,LV)
+    v2 = getNormedVector(b, c,LV)
+    v3 = getNormedVector(c, d,LV)
     v1v2 = numpy.cross(v1,v2)
     v2v3 = numpy.cross(v2,v3)
     
@@ -693,13 +693,20 @@ def getDihedral(a,b,c,d):
     
     return angle_i
 
-def getNormedVector(a,b):
+def getNormedVector(a,b,LV):
     """
     Normailze vector 
     """
     import numpy 
 
-    delta_ba = b-a
+    
+    r_ij = b - a
+    
+    r_x = r_ij[0] - LV[0,0] * round( r_ij[0]/  LV[0,0] )
+    r_y = r_ij[1] - LV[1,1] * round( r_ij[1]/  LV[1,1] )
+    r_z = r_ij[2] - LV[2,2] * round( r_ij[2]/  LV[2,2] )
+    
+    delta_ba = numpy.array( [r_x,r_y,r_z] )
     return (delta_ba)/numpy.linalg.norm(delta_ba)
 
 def getAngle(a,b):
