@@ -210,7 +210,7 @@ def main():
 		r_l = R_f[a_l]
 		r_il = r_l - r_j
 		
-		angle_i = prop.getDihedral(r_k,r_i,r_j,r_l)
+		angle_i = prop.getDihedral(r_k,r_i,r_j,r_l,LV)
                 abs_angle_i = numpy.absolute(angle_i)
 		#angle_kij =  prop.getAngle(r_ik,r_ij)
 		
