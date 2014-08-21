@@ -2,6 +2,7 @@
 
 import mpiNREL
 p = mpiNREL.getMPIObject(False, localVerbose=False)
+# p = mpiNREL.getMPIObject(True, localVerbose=True)
 
 # MPI setup
 rank = p.getRank()

@@ -4,10 +4,11 @@
 usage() {
     echo " "
     echo "Usage: check.sh [arg]"
-    echo "    arg -- new:         Runs tests and copies output to results directory"
-    echo "        -- all:         Runs all tests and compares to files in results directory"
-    echo "        -- clean:       Remove auxillary files generated from running tests"
-    echo "        -- 'test-name': Run compare for 'test-name'"
+    echo "    arg -- new            : Runs tests and copies output to results directory"
+    echo "        -- all            : Runs all tests and compares to files in results directory"
+    echo "        -- clean          : Remove auxillary files generated from running tests"
+    echo "        -- 'test-name'    : Run compare for 'test-name'"
+    echo "        -- 'test-name' n2 : Run compare for 'test-name' for test requiring 2 procs"
     echo " "
     echo " "
     echo "To add a SERIAL test:"
@@ -35,19 +36,36 @@ usage() {
 # form of the file testName.txt
 # Ignores lines with expressions matched in IGNORE_OPTION
 #
+# Checks length of the diff status file and returns passed if 0 and
+# failed if > 0
+#
 compareTest() {
 
     IGNORE_OPTIONS='-I Found* -I Date* -I Derived* -I Finished* -I Computation*'
-
     testName=$1
     runCmd=$2
-    echo "------ Running $runCmd $testName --------"
+
     $runCmd $testName > tmp
-    diff $IGNORE_OPTIONS tmp results/$testName.txt
+    diff $IGNORE_OPTIONS tmp results/$testName.txt > $testName.stat
+    diffLength=`wc -l $testName.stat | awk '{print $1}'`
     rm -rf tmp
-    echo "-------------------------------------------------"
-    echo " "
+
+    # Calculate length of status message
+    TOTAL_COLUMNS=60
+    lineLength=`echo "Running $runCmd $testName: " |wc -c`
+    COLUMNS=$((TOTAL_COLUMNS-lineLength))
+
+    # Status message
+    if [ $diffLength == '0' ]; then
+	printf "Running $runCmd $testName: %${COLUMNS}s\n" "Passed"
+    else
+        echo   "-----------------------------------------------------------"
+	printf "Running $runCmd $testName: %${COLUMNS}s\n"          "FAILED"
+	echo   "        Check $testName.stat for details                   "
+        echo   "-----------------------------------------------------------"
+    fi
 }
+
 
 #
 # Checks new results into repo
@@ -56,9 +74,9 @@ newTest() {
 
     testName=$1
     runCmd=$2
-    echo "------ Checking in results for $testName --------"
+    echo "--------- Checking in results for $testName ---------"
     $runCmd $testName > results/$testName.txt
-    echo "-------------------------------------------------"
+    echo "-----------------------------------------------------"
     echo " "
 }
 
@@ -91,7 +109,7 @@ elif [ $1 == "new" ]; then
     # Parallel test (np = 2)
     testNames=`ls -1 test_n2-*.py`
     for testName in $testNames; do
-	newTest $testName 'mpirun -n 2'
+	newTest $testName ' mpirun -n 2'
     done
 
 
@@ -104,7 +122,7 @@ elif [ $1 == "all" ]; then
 
     # Serial test
     testNames=`ls -1 test-*.py`
-    runCmd="python"
+    runCmd=""
     for testName in $testNames; do
 	compareTest $testName $runCmd
     done
@@ -121,7 +139,6 @@ elif [ $1 == "all" ]; then
 	compareTest $testName
     done
 
-    echo "If no output (other than status messages)... tests passed"
     echo " "
 
 
@@ -134,8 +151,20 @@ elif [ $1 == "clean" ]; then
     rm -rf *.pkl qd*dat stats.txt qd.data trans.dat trans.log
     rm -rf test_rdf.log test_rdf.dat
     rm -rf replicate.gro replicate.json replicate.log replicate.xmol
+    rm -rf test*.py.stat
 
 else
-    echo "Parallel test will not run correctly (yet)?"
-    compareTest $1
+
+    echo " "
+    echo "Parallel tests should have 'n2' as argument (see help)"
+    echo " "
+
+    if [ $# == 2 ]; then
+	if [ $2 == 'n2' ]; then
+	    compareTest $1 'mpirun -n 2'
+	fi
+    else
+	compareTest $1
+    fi
+
 fi

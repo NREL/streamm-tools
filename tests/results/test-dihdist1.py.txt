@@ -1,7 +1,8 @@
  
 Base class ParallelMsgr constructor called
-Derived class MsgrSerial constructor called
-No mpi module found, will use serial. 
+Derived class MsgrBoost constructor called
+I am process 0 of 1.
+Found boost.mpi module 
 
      - Reading in  acc1_D1_R2R200_A2_R3_n1_R41n1R41n1R40n1__n5.json
   Particles 507 
@@ -24,7 +25,7 @@ None
  search finished 
   list creation finished 
 
-  Date 2014-08-20 11:21:29.650907 
+  Date 2014-08-20 17:41:43.418923 
   Number of processors  1 
 ---------------------------------------------------------------------
   Particles of group l: 15 
@@ -46,7 +47,7 @@ proc 1  analysis of frame 1 on processor 1   box from min max 47.099043
 # bin index ; cnt    ; cnt/Total_cnts  
 sum_check  9.0
 
-  Finished time  2014-08-20 11:21:29.735700
+  Finished time  2014-08-20 17:41:43.491756
   Computation time 0 min 0 seconds 
 ParallelMsgr destructor called
  

@@ -4,11 +4,11 @@ import sys, os
 
 def runSplitTest(np):
     # np = 2
-    print "------------------------------------------------------------------"
-    print "For processors = ", str(np) + "\n"
+    # print "------------------------------------------------------------------"
+    # print "For processors = ", str(np) + "\n"
     cmdStr = "mpirun -n " + str(np) + " splitTest.py"
     os.system(cmdStr)
-    print "------------------------------------------------------------------\n"
+    # print "------------------------------------------------------------------\n"
 
 runSplitTest(1)
 runSplitTest(2)

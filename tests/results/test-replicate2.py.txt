@@ -1,7 +1,8 @@
  
 Base class ParallelMsgr constructor called
-Derived class MsgrSerial constructor called
-No mpi module found, will use serial. 
+Derived class MsgrBoost constructor called
+I am process 0 of 1.
+Found boost.mpi module 
 
  Running on 1 processors  
 
