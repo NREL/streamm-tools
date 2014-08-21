@@ -215,8 +215,12 @@ def main():
 		#angle_kij =  prop.getAngle(r_ik,r_ij)
 		
 		#print "in idhedrals angle_i ",angle_i
-		
-		bin_index = int( round( abs_angle_i/options.bin_size) )
+                if( abs_angle_i <= 180.0 ):
+                    # Acount for round off errors 
+                    abs_angle_i += -0.0001
+            
+                bin_index = int(  abs_angle_i/options.bin_size ) 
+		#bin_index = int( round( abs_angle_i/options.bin_size) )
 		hist_cnt[bin_index] += 1
 		
 		if( options.verbose ):
@@ -261,12 +265,13 @@ def main():
     F_out.write("\n#    ")
     F_out.write("\n# bin index ; cnt    ; cnt/frame  ")
     
-    for bin_index in range( 0,n_bins+1):
-	    
-	hist_val = options.bin_size*float(bin_index)
+    for bin_index in range( 0,n_bins):
+        hist_val = options.bin_size*float(bin_index) + options.bin_size/2.0
+        if( bin_index == 0 ): hist_val = 0.0
+        if( hist_val == 179.0 ): hist_val = 180.0 
+        #hist_val = options.bin_size*float(bin_index)
 	
 	val_cnt = float( hist_cnt[bin_index] )
-	
 	cnt_fnorm =     val_cnt    /float(frame_cnt)
 	
 	F_out.write("\n  %d %f %f %f  " % (bin_index,hist_val,val_cnt,cnt_fnorm) )
