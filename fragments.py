@@ -376,6 +376,19 @@ class Structure:
         f.write(templ)
         f.close()
     
+    def write_pbs(self, pbs_template_name, xyz_name, job_name, repo_location):
+        from string import replace
+        f = file(pbs_template_name)
+        templ = f.read()
+        f.close()
+        templ = replace(templ, "<job_name>", job_name)
+        templ = replace(templ, "<repo_location>", repo_location)
+        pbs_name = replace(xyz_name, "xyz", "pbs")
+        f = file(pbs_name, "w")
+        f.write(templ)
+        f.close()
+    
+    """
     def write_pbs(self, pbs_template_name, xyz_name, job_name):
         from string import replace
         f = file(pbs_template_name)
@@ -386,7 +399,9 @@ class Structure:
         f = file(pbs_name, "w")
         f.write(templ)
         f.close()
-    
+    """    
+
+
     def write_meta(self, d,  xyz_name):
         from string import replace
         import json
