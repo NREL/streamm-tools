@@ -792,6 +792,15 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
 
     frag = build_from_str(bblocks, input_str, options)
 
+    #
+    # Remote template file directories checks
+    #
+    repoPath=options.repoPath
+    if ( not os.path.exists(repoPath) ):
+        print "OPV pbs/com template files not found. Check opv-project repo location"
+        sys.exit(0)
+
+
     if (frag != None and write_files):
         short_name = collapse(base_input_str)
         struct_dir = "%s/%s" % (options.mols_dir, short_name)
@@ -800,12 +809,41 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         xyz_name = "%s/acc%d_%s_n%d.xyz" % (struct_dir, options.accuracy, short_name, number)
         job_name = "acc%d_%s_n%d" % (options.accuracy, short_name, number)
         frag.write_xyz(xyz_name)
-        frag.write_com("donoracceptor.com.template",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
-        frag.write_pbs("donoracceptor.pbs.template",  xyz_name, job_name)
 
+        fullFilePath=os.path.join(repoPath,"donoracceptor.com.template")
+        if ( not os.path.exists(fullFilePath) ):
+            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
+            sys.exit(0)
+        frag.write_com(fullFilePath, xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+
+        fullFilePath=os.path.join(repoPath,"donoracceptor.pbs.template")
+        if ( not os.path.exists(fullFilePath) ):
+            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
+            sys.exit(0)
+        frag.write_pbs(fullFilePath, xyz_name, job_name)
+
+
+        #
         # SWS: adding new file templates explicitly for restart com files
-        frag.write_com_restart("donoracceptor.com.template.r1",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
-        frag.write_com_restart("donoracceptor.com.template.r2",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+        #
+        fullFilePath=os.path.join(repoPath,"donoracceptor.com.template.r1")
+        if ( not os.path.exists(fullFilePath) ):
+            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
+            sys.exit(0)
+        frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+
+        fullFilePath=os.path.join(repoPath,"donoracceptor.com.template.r2")
+        if ( not os.path.exists(fullFilePath) ):
+            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
+            sys.exit(0)
+        frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+
+
+        # frag.write_com("donoracceptor.com.template",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+        # frag.write_pbs("donoracceptor.pbs.template",  xyz_name, job_name)
+        # SWS: adding new file templates explicitly for restart com files
+        # frag.write_com_restart("donoracceptor.com.template.r1",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+        # frag.write_com_restart("donoracceptor.com.template.r2",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
 
         # Build meta data 
         json_data = build_meta(frag, short_name, base_input_str, bblocks, options)
@@ -909,6 +947,10 @@ def get_options():
     # these are really for enumerator, but they share options
     parser.add_option("-c", "--class", dest="struct_class",  type="string", default="DA", help="space separated string of classes of donor acceptor systems to enumerate, among DA ADA DAD DD AA DAD DDA, e.g. \"DA DAD\"")
     parser.add_option("-e", "--equal_blocks_ok", dest="equal_blocks_ok", help="generate DiADi cases, etc", action="store_true", default=False)
+
+    # this path points to the top-level OPV-repo to get pbs/com template files
+    parser.add_option("--repoPath", dest="repoPath",  type="string", default=".",
+                                    help="location of opv-project repo where com/pbs templates are located. Default is current directory")
 
     (options, args) = parser.parse_args()
     print "accuracy = ", options.accuracy
