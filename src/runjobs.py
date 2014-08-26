@@ -302,19 +302,20 @@ class Job:
     """
 
     def __init__(self, repopath, exe,
-                 inputfile, script, verbose=False):
+                 inputfile, script, auxFileList=[], verbose=False):
         """
         Constructor
         """
 
-        self.repopath = repopath     # Path to repo for common files
-        self.exe = exe               # Name of executable binary
-        self.inputfile = inputfile   # Name of input file
-        self.script = script         # Name of script for PBS
+        self.repopath = repopath             # Path to repo for common files
+        self.exe = exe                       # Name of executable binary
+        self.inputfile = inputfile           # Name of input file
+        self.script = script                 # Name of script for PBS
         self.suffix = script.split('.')[-1]  # Suffix on PBS script
-        self.verbose = verbose       # Flag for debug printing
-        self.inputEditorSet  = False # Flag if input  file editor set
-        self.scriptEditorSet = False # Flag if script file editor set
+        self.verbose = verbose               # Flag for debug printing
+        self.inputEditorSet  = False         # Flag if input  file editor set
+        self.scriptEditorSet = False         # Flag if script file editor set
+        self.auxFileList = auxFileList       # List of optional files
 
         if (self.verbose):
             print " "
@@ -336,15 +337,23 @@ class Job:
         inputPath  = os.path.join(self.repopath, self.inputfile)
         scriptPath = os.path.join(self.repopath, self.script)
         if (not os.path.exists(exePath)):
-            print "Executable ", exePath, " not found"
+            print "Executable ", exePath, " not found \n"
             sys.exit(1)
         if (not os.path.exists(inputPath)):
-            print "Input file template ", inputPath, " not found"
+            print "Input file template ", inputPath, " not found \n"
             sys.exit(1)
         if (not os.path.exists(scriptPath)):
-            print "Queue script ", scriptPath, " not found"
+            print "Queue script ", scriptPath, " not found \n"
             sys.exit(1)
-            
+
+        # Check for full paths of all auxillary files
+        for f in self.auxFileList:
+            auxPath = os.path.join(self.repopath, f)
+            if (not os.path.exists(auxPath)):
+                print "Auxillary file ", auxPath, " not found \n"
+                sys.exit(1)
+
+
     # Destructor
     def __del__(self):
         if (self.verbose):
@@ -427,6 +436,12 @@ class Job:
         shutil.copy2(exePath,    self.rundir)
         shutil.copy2(inputPath,  self.rundir)
         shutil.copy2(scriptPath, self.rundir)
+
+        # Copy auxillary repo files to run directory
+        for f in self.auxFileList:
+            auxPath = os.path.join(self.repopath, f)
+            shutil.copy2(auxPath, self.rundir)
+            sys.exit(1)
 
         # Copy repo script name to run directory with run dir name
         # Note: this CHANGES class data
