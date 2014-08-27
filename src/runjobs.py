@@ -349,6 +349,7 @@ class Job:
         # Check for full paths of all auxillary files
         for f in self.auxFileList:
             auxPath = os.path.join(self.repopath, f)
+            print "auxPath = ", auxPath
             if (not os.path.exists(auxPath)):
                 print "Auxillary file ", auxPath, " not found \n"
                 sys.exit(1)
@@ -427,10 +428,10 @@ class Job:
         if (self.verbose):
             print " "
             print "Creating/setting up job directory ", self.rundir
-            print "   exePath    = ", exePath
-            print "   inputPath  = ", inputPath
-            print "   scriptPath = ", scriptPath
-            print " "
+            print "   exePath     = ", exePath
+            print "   inputPath   = ", inputPath
+            print "   scriptPath  = ", scriptPath
+            print "   auxFileList = ", self.auxFileList
 
         # Copy repo files to run directory
         shutil.copy2(exePath,    self.rundir)
@@ -440,8 +441,8 @@ class Job:
         # Copy auxillary repo files to run directory
         for f in self.auxFileList:
             auxPath = os.path.join(self.repopath, f)
+            print "auxPath = ", auxPath, " to ", self.rundir
             shutil.copy2(auxPath, self.rundir)
-            sys.exit(1)
 
         # Copy repo script name to run directory with run dir name
         # Note: this CHANGES class data
