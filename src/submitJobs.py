@@ -291,12 +291,20 @@ try:
     print "Gaussian job status module found"
 except:
     print "status for Gaussian not found"
+
 try:
     from status import ChargeTransJobStatus
     js=ChargeTransJobStatus()
     print "ChargeTrans job status module found"
 except:
     print "status for ChargeTrans not found"
+
+try:
+    from status import ProspectJobStatus
+    js=ProspectJobStatus()
+    print "Prospect job status module found"
+except:
+    print "status for Prospect not found"
 
 
 # Main submit jobs section
