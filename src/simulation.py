@@ -59,6 +59,7 @@ class Simulation:
         else:
             print "No structure container set"
 
+
     def __del__(self):
         """
         Destructor, clears object memory
