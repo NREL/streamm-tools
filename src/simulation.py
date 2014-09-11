@@ -43,11 +43,19 @@ class Simulation:
         self.inputFileNames = list() # List of file name strings (SWS: full paths?)
         self.isStrucSet = False
 
+    def getSimName(self):
+        """
+        Return name used to create the simulation object
+        """
+        return self.simulationName
+
+
     def __str__(self):
         """
         Print out name of simulation object (for logging/status)
         """
         return self.simulationName
+
 
     def printStruc(self):
         """

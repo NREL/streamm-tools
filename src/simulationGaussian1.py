@@ -1,5 +1,5 @@
 """
-Derived class for structure container
+Derived class for simulation object
 """
 
 try:
@@ -13,6 +13,20 @@ except:
 class SimulationGaussian1(sim.Simulation):
     """
     Dervied class implementing input/output methods specific to an application
+    The Gaussian input file has two links 1.) one ground-state 2). TD DFT for excited state calc
+    e.g.
+
+    %chk=acc1_D1_eff_R3R300_A84___n1.chk 
+    #P opt b3lyp/6-31g(d) geom=check guess=check  pop=full density=current
+
+    acc1_D1_eff_R3R300_A84___n1 ground-state 
+
+    0 1 
+     <atoms>
+
+    --Link1-- 
+    %chk=acc1_D1_eff_R3R300_A84___n1.chk 
+    #P b3lyp td=nstates=12/6-31g(d) geom=check guess=check  pop=full density=current
     """
 
     def __init__(self, name, verbose=False):
@@ -24,34 +38,62 @@ class SimulationGaussian1(sim.Simulation):
         # Base class constructor is called
         sim.Simulation.__init__(self, name, verbose)
 
+        # Chop off 'n1,n2..' from name
+        self.oligomerNum = name.split('_')[-1]
+        if ('n' not in self.oligomerNum):
+            print "Run name does not contain n1, n2 or n*"
+            sys.exit(0)
+
         if verbose:
             print "Simulation derived class 'Gaussian1' constructor called"
 
         self.verbose = verbose
-        self.paramRunStr = str()
-        self.labelRunStr = str()
+        self.functional = str()  
+        self.basisOPT = str()     # Basis for geo optim
+        self.basisEXT = str()     # Basis for TD-DFT
 
 
-    def setCoeffs(self, pStr, lStr):
+    def getOligomerNum(self):
         """
-        Set the options/parameter string for Gaussian run
-        
+        Return oligomer number string from run name. Assuming run name for
+        contains n1,n2....
+        """
+        return self.oligomerNum
+
+
+    def setCoeffs(self, fct, bsOPT, bsEXT=None):
+        """
+        Set the main model parameters of functional and basis
+
         Args:
-            pStr (str): Parameter string at top of input file
-                        eg #P opt=Cartesian iop(1/7=12000) AM1 scf=qc
-            lStr (str): Label string for the run eg  'semi-empirical pre-optimiz'
+            fct   (str): Gaussian functional
+            bsOPT (str): Basis set to determine accuracy for geo opt.
+            bsEXT (str): Basis set to determine accuracy for TD-DFT step
+                         If not specified, then set to bsOPT
         """
         
-        if not isinstance(pStr, str):
-            print "setCoeffs: paramRunStr should be a string"
+        if not isinstance(fct, str):
+            print "setCoeffs: fct should be a string"
             sys.exit(3)
+        else:
+            self.functional = fct
 
-        if not isinstance(lStr, str):
-            print "setCoeffs: labelRunStr should be a string"
+
+        if not isinstance(bsOPT, str):
+            print "setCoeffs: bsOPT should be a string"
             sys.exit(3)
+        else:
+            self.basisOPT = bsOPT
 
-        self.paramRunStr = pStr
-        self.labelRunStr = lStr
+
+        if bsEXT == None:
+            self.basisEXT = bsOPT
+        else:
+            if not isinstance(bsEXT, str):
+                print "setCoeffs: bsEXT should be a string if specified"
+                sys.exit(3)
+            else:
+                self.basisEXT = bsEXT
 
 
     def __del__(self):
@@ -64,6 +106,16 @@ class SimulationGaussian1(sim.Simulation):
 
         if self.verbose:
             print "Cleaning derived simulation object Gaussian1"
+
+
+    def _parseBasisString(self, bstr):
+        """
+        Parse functional/basis string from database
+        bstr="trans//camb3lyp/6-31g"
+        """
+        blist = bstr.split('/')     # [ 'trans', '', 'camb3lyp', '6-31g']
+        blist[:] = (value for value in blist if value != '') # Remove all spaces
+        return blist
 
 
     """
@@ -90,14 +142,20 @@ class SimulationGaussian1(sim.Simulation):
         jobName = inputName.split('.com')[0]  # Assumes input filename struc is ***..com
         n_atoms = len(self.strucC.ptclC)      # Obtaining particle size from container
 
+        # Hardwired run/link strings (associated with this derived class)
+        paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
+        paramRunStrRX += " geom=check guess=check  pop=full density=current"
+        paramRunStrTD = "#P " + self.functional + " td=nstates=12/" + self.basisEXT
+        paramRunStrTD += " geom=check guess=check  pop=full density=current"
+
         #
         # Open file, write header info
         #
         fileObj = open( inputName, 'w' )
         fileObj.write("%chk=" + jobName + ".chk \n")
-        fileObj.write(self.paramRunStr + "\n")
+        fileObj.write(paramRunStrRX + "\n")
         fileObj.write("\n")
-        fileObj.write(jobName + " " + self.labelRunStr + "\n")
+        fileObj.write(jobName + " ground-state \n")
         fileObj.write("\n")
         fileObj.write("0 1 \n")
 
@@ -110,6 +168,18 @@ class SimulationGaussian1(sim.Simulation):
             typ = ptclObj.type
             fileObj.write( ptclFormatStr % (typ, pos[0], pos[1], pos[2] ) )
         fileObj.write('\n')
-        
+
+        #
+        # Write out link for time-dependent calculation
+        #
+        fileObj.write('\n')
+        fileObj.write('--Link1-- \n')
+        fileObj.write("%chk=" + jobName + ".chk \n")
+        fileObj.write(paramRunStrTD + "\n")
+        fileObj.write("\n")        
+        fileObj.write(jobName + " TD-DFT \n")
+        fileObj.write("\n")
+        fileObj.write("0 1 \n")
+
         # Close Gaussian file
         fileObj.close()
