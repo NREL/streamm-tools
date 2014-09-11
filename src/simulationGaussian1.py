@@ -38,19 +38,52 @@ class SimulationGaussian1(sim.Simulation):
         # Base class constructor is called
         sim.Simulation.__init__(self, name, verbose)
 
+        # Local list of split name on '_'
+        # eg ['acc1', 'D1', 'R2R200', 'Sp2', '00', 'A48', '', 'Sp2', '00', '', 'n2']
+        sp = name.split('_')
+
         # Chop off 'n1,n2..' from name
-        self.oligomerNum = name.split('_')[-1]
+        self.oligomerNum = sp[-1]
         if ('n' not in self.oligomerNum):
             print "Run name does not contain n1, n2 or n*"
             sys.exit(0)
 
+        # Find 'accuracy tag' and chop off of simulation object name
+        accTag  = sp[0] + "_"                   # eg 'acc1_'
+        self.bareTag = name.replace(accTag,"")  # eg 'D1_R2R200_Sp2_00_A48__Sp2_00__n2'
+
+        self.verbose = verbose
         if verbose:
             print "Simulation derived class 'Gaussian1' constructor called"
 
-        self.verbose = verbose
         self.functional = str()  
-        self.basisOPT = str()     # Basis for geo optim
-        self.basisEXT = str()     # Basis for TD-DFT
+        self.basisOPT   = str()   # Basis for geo optim
+        self.basisEXT   = str()   # Basis for TD-DFT
+        self.dbBasisStr = str()   # Database func/basis 'code'
+
+
+    def getBareTag(self):
+        """
+        Return 'bare tag' without accuracy label
+        """
+        return self.bareTag
+
+
+    def getDBBasisStr(self):
+        """
+        Return dbBasisStr
+        """
+        return self.dbBasisStr
+
+
+    def setDBBasisStr(self,s):
+        """
+        Set dbBasisStr
+        
+        Args:
+            s (str) basis string in database
+        """
+        self.dbBasisStr=s
 
 
     def getOligomerNum(self):
@@ -78,13 +111,11 @@ class SimulationGaussian1(sim.Simulation):
         else:
             self.functional = fct
 
-
         if not isinstance(bsOPT, str):
             print "setCoeffs: bsOPT should be a string"
             sys.exit(3)
         else:
             self.basisOPT = bsOPT
-
 
         if bsEXT == None:
             self.basisEXT = bsOPT
@@ -116,7 +147,6 @@ class SimulationGaussian1(sim.Simulation):
         blist = bstr.split('/')     # [ 'trans', '', 'camb3lyp', '6-31g']
         blist[:] = (value for value in blist if value != '') # Remove all spaces
         return blist
-
 
     """
     def writeInput(self,....):
