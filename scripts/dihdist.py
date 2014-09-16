@@ -132,7 +132,7 @@ def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
     Loop over dihedrals and calculate histogram 
     """
     
-    debug = True
+    debug = False
     
     #
     dih_cnt = 0

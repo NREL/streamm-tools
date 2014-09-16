@@ -41,11 +41,14 @@ def norm_r_ij(r_i,r_j,latticevec):
     """
     Normailze difference between two vectors 
     """
+
+    debug = False
     
     delta_ij = delta_r_c(r_i,r_j,latticevec)
-    
-    print "delta_ij ",delta_ij
-    print " mag ",np.linalg.norm(delta_ij)
+
+    if( debug):
+        print "delta_ij ",delta_ij
+        print " mag ",np.linalg.norm(delta_ij)
     
     return (delta_ij)/np.linalg.norm(delta_ij)
 
