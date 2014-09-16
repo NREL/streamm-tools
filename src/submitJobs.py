@@ -152,17 +152,19 @@ else:
 #############################################################################
 
 
-
-
-
 def getJobInfo(td, ptn, chkQueue=False):
     """
-    Runs recursive glob on directory structure starting at
-    'td'  -- top directory to search for scripts
-    'ptn' -- script name search string
+    Runs recursive glob on directory structure starting at top-level directory
+    Checks paths and formats paths, file names. Runs 'finish' condition check
+    and returns in list
 
-    Checks paths and formats paths, file names
-    Runs 'finish' condition check and returns in tuple
+    Args:
+        td (string)    : top directory to search for scripts
+        ptn (string)   : script name search string
+        chkQueue (bool): Whether to check PBS queue
+
+    Returns: List of job info. Each element is
+             job = (test-runs/runDir1/runDir-1.1, job.mb, True/False)
     """
 
     global stdIO
@@ -289,12 +291,20 @@ try:
     print "Gaussian job status module found"
 except:
     print "status for Gaussian not found"
+
 try:
     from status import ChargeTransJobStatus
     js=ChargeTransJobStatus()
     print "ChargeTrans job status module found"
 except:
     print "status for ChargeTrans not found"
+
+try:
+    from status import ProspectJobStatus
+    js=ProspectJobStatus()
+    print "Prospect job status module found"
+except:
+    print "status for Prospect not found"
 
 
 # Main submit jobs section

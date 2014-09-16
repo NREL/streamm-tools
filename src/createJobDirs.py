@@ -154,10 +154,10 @@ def runCreateJobsDirs(jobj, jobEditorList, scriptEditor):
 # USER-Editable: Main parameters
 # 
 ########################################################################################
-repoDirPath='./jobrun-template'           # Path to repo for common files
-execName='transport-intel'                # Name of executable binary in repo
-inputName='transport.in'                  # Name of input file (template) in repo
-scriptName='script-chg.mb'                # Name of script for PBS (template) in repo
+repoDirPath='./jobrun-template'        # Path to repo for common files
+execName='prospect'                    # Name of executable binary in repo
+inputName='prospect.in'                # Name of input file (template) in repo
+scriptName='script-chg.mb'             # Name of script for PBS (template) in repo
 ########################################################################################
 
 
