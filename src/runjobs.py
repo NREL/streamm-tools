@@ -442,10 +442,15 @@ class Job:
             auxPath = os.path.join(self.repopath, f)
             shutil.copy2(auxPath, self.rundir)
 
+        # Unique integer timestamp for script names
+        # (when submitting simul. from different directories)
+        import time
+        timeStamp = int(time.time())
+
         # Copy repo script name to run directory with run dir name
         # Note: this CHANGES class data
         oldScriptFullPath = os.path.join(self.rundir, self.script)
-        self.script = self.rundirName + "." + self.suffix
+        self.script = self.rundirName + "-" + str(timeStamp) + "." + self.suffix
         newScriptFullPath = os.path.join(self.rundir, self.script)
         shutil.move(oldScriptFullPath, newScriptFullPath)
 
