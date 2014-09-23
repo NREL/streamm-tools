@@ -68,12 +68,12 @@ def read(xmol_file):
     return(struc_array)
             
     
-def write(struc_array,xmol_file):
+def write(ptclC,xmol_file):
     """
     Write a structure array to an xmol file
 
     Args:
-        struc_array  (list) containing structures to write
+        strucC  (2) containing structures to write
         xmol_file    (str) xmol file name
     Reutrns
         null
@@ -83,15 +83,13 @@ def write(struc_array,xmol_file):
     # Open xmol file 
     F = open(xmol_file,"w")
     # Loop over structures
-    for struc_i in struc_array:
-        frame_cnt += 1 
-        NP = len( struc_i )
-        F.write(" %d \n" % NP )
-        F.write(" Frame   %d \n"%frame_cnt)
-        for pid, ptclObj  in struc_i:
-            r_i = ptclObj.position
-            atomic_symb = ptclObj.type
-            F.write( "%5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )
+    frame_cnt = 1
+    F.write(" %d \n" % (len( ptclC )) )
+    F.write(" Frame   %d \n"%frame_cnt)
+    for pid, ptclObj  in ptclC:
+        r_i = ptclObj.position
+        atomic_symb = ptclObj.type
+        F.write( "%5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )
     F.close()
 
     

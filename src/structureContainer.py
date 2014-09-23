@@ -2,10 +2,12 @@
 Class data structures for atomic data
 """
 
-from particles import Particle, ParticleContainer
-from bonds     import Bond,     BondContainer
-from angles    import Angle,    AngleContainer
-from dihedrals import Dihedral, DihedralContainer
+from particles     import Particle, ParticleContainer
+from bonds         import Bond,     BondContainer
+from angles        import Angle,    AngleContainer
+from dihedrals     import Dihedral, DihedralContainer
+from periodictable import periodictable
+
 
 import pbcs
 import copy
@@ -13,8 +15,6 @@ import numpy as np
 import json
 import sys
 import os
-import groups 
-
 
 class StructureContainer:
     """
@@ -711,15 +711,11 @@ class StructureContainer:
         #   
         struc_data = {}        # Data for entire structure  
         particle_data = {}     # Data for particles and positions 
-        twobody_data = {}   # Data for connections between particles (two body interactions) 
-        threebody_data = {}        # Data for angles between particles (three body interactions) 
-        fourbody_data = {}     # Data for dihedrals between particles  (four body interactions) 
+        bonded_data = {}   # Data for connections between particles (two body interactions) 
         
         json_data["structure"] = struc_data
         struc_data["particle"] = particle_data
-        struc_data["twobody"] = twobody_data
-        struc_data["threebody"] = threebody_data
-        struc_data["fourbody"] = fourbody_data
+        struc_data["bonded"] = bonded_data
     
 	# Structure data
         lv_string = str( "%f %f %f %f %f %f %f %f %f " % ( self.latvec[0][0], self.latvec[0][1], self.latvec[0][2], self.latvec[1][0], self.latvec[1][1], self.latvec[1][2], self.latvec[2][0], self.latvec[2][1], self.latvec[2][2]))
@@ -738,6 +734,11 @@ class StructureContainer:
         particle_data["residue"] = []
         particle_data["linkid"] = []
         particle_data["fftype"] = []
+        
+        particle_data["symbol"] = []
+        particle_data["number"] = []
+        particle_data["cov_radii"] = []
+        particle_data["vdw_radii"] = []
 
 	# Loop over particles and ad them to json data 
         for  pid, ptclObj in self.ptclC:
@@ -754,11 +755,31 @@ class StructureContainer:
             particle_data["linkid"].append( ptclObj.tagsDict["linkid"] )        
             particle_data["fftype"].append( ptclObj.tagsDict["fftype"] )        
 
-        twobody_data["bonds"] = []
+            particle_data["symbol"].append( ptclObj.tagsDict["symbol"] )        
+            particle_data["number"].append( ptclObj.tagsDict["number"] )        
+            particle_data["cov_radii"].append( ptclObj.tagsDict["cov_radii"] )        
+            particle_data["vdw_radii"].append( ptclObj.tagsDict["vdw_radii"] )        
+
+        bonded_data["bonds"] = []
         for b_i,bondObj in  self.bondC:
             pt_i = bondObj.pgid1
             pt_j = bondObj.pgid2
-            twobody_data["bonds"].append( [pt_i,pt_j])
+            bonded_data["bonds"].append( [pt_i,pt_j])
+            
+        bonded_data["angles"] = []
+        for a_i,angleObj in  self.angleC:
+            pt_k = angleObj.pgid1
+            pt_i = angleObj.pgid2
+            pt_j = angleObj.pgid3
+            bonded_data["angles"].append( [pt_k,pt_i,pt_j])
+              
+        bonded_data["dihedrals"] = []
+        for d_i,dihObj in  self.dihC:
+            pt_k = angleObj.pgid1
+            pt_i = angleObj.pgid2
+            pt_j = angleObj.pgid3
+            pt_l = angleObj.pgid4
+            bonded_data["dihedrals"].append( [pt_k,pt_i,pt_j,pt_l])
             
         return json_data
 
@@ -789,6 +810,9 @@ class StructureContainer:
           
         """
 
+        # Load periodic table 
+        pt = periodictable()
+
         f = open(json_file, 'r')
         json_data = json.load(f)
         f.close()
@@ -815,19 +839,40 @@ class StructureContainer:
             linkid_i = particle_data["linkid"][p_i]
             fftype_i = particle_data["fftype"][p_i]
             # _i = particle_data[""][p_i]
-            # Add particle to structure 
-            tagsD = {"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i}
+            # Add particle to structure
+            # Get element information
+            el = pt.getelementWithSymbol(atomic_symb)
+            tagsD={"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i,"symbol":atomic_symb,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
             pt_i.setTagsDict(tagsD)
             self.ptclC.put(pt_i)
 
         # Read in bonds
-        twobody_data =  json_data["structure"]["twobody"]
+        bonded_data =  json_data["structure"]["bonded"]
         bondC_i = BondContainer()
-        for b_indx in range( len(twobody_data["bonds"] )):
-            a_i = int(twobody_data["bonds"][b_indx][0] )
-            a_j = int(twobody_data["bonds"][b_indx][1] )
+        for b_indx in range( len(bonded_data["bonds"] )):
+            a_i = int(bonded_data["bonds"][b_indx][0] )
+            a_j = int(bonded_data["bonds"][b_indx][1] )
             b_i = Bond( a_i, a_j )            
             self.bondC.put(b_i)
+
+        # Read in angles
+        angleC_i = AngleContainer()
+        for a_indx in range( len(bonded_data["angles"] )):
+            a_k = int(bonded_data["angles"][a_indx][0] )
+            a_i = int(bonded_data["angles"][a_indx][1] )
+            a_j = int(bonded_data["angles"][a_indx][2] )
+            a_i = Angles( a_k,a_i, a_j )            
+            self.angleC.put(a_i)
+
+        # Read in dihedrals
+        dihC_i = DihedralContainer()
+        for d_indx in range( len(bonded_data["dihedrals"] )):
+            a_k = int(bonded_data["dihedrals"][b_indx][0] )
+            a_i = int(bonded_data["dihedrals"][b_indx][1] )
+            a_j = int(bonded_data["dihedrals"][b_indx][2] )
+            a_l = int(bonded_data["dihedrals"][b_indx][3] )
+            d_i = Dihedral( a_k,a_i, a_j,a_l )            
+            self.dihC.put(d_i)
 
         # Read in lattice vectors
         self.latvec = []
@@ -838,184 +883,6 @@ class StructureContainer:
 
         return json_data
     
-    def create_top(self,ff_charges): # Move out of class (or derived class)
-        """
-        Find topology information for force-field input files 
-        """
-
-        # Version 1 will be dependent on Atomicpy
-        import elements , lammps ,gromacs , atom_types, top 
-
-        # Create list to pass to Atomicpy
-        ASYMB = []
-        R = []
-        AMASS = []
-        CHARGES = []
-        MOLNUMB = []
-        RESID = []
-        RESN = []
-        GTYPE = []
-        
-        for pid, ptclObj  in self.ptclC:
-            ASYMB.append( ptclObj.type  )
-            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )
-            AMASS.append( float( ptclObj.mass)  )
-            CHARGES.append( float( ptclObj.charge ) )
-            MOLNUMB.append( int( ptclObj.tagsDict["chain"] ) )
-            RESID.append( int( ptclObj.tagsDict["residue"] ) )
-            RESN.append(  ptclObj.tagsDict["resname"]  )
-            GTYPE.append( ptclObj.tagsDict["gtype"] )
-            
-            
-        # Direct copy of top.print_ff_files
-            
-
-        # Read in ff file
-        #itp_file = 'ff.itp'
-        ##print "   Read in parameters from ",itp_file
-        #FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
-                 
-        # New options that need to be passed 
-        limdih =  0
-        limitdih_n = 1
-        verbose = True 
-
-        # Find atomic number based on atomic symbol 
-        ELN = elements.asymb_eln(ASYMB)
-        AMASS = elements.eln_amass(ELN)
-
-        #   Initialize  topology values
-        #GTYPE = top.initialize_gtype( ELN )  # need to do this in frag read in 
-        CHARN = top.initialize_charn( ELN )        
-
-        NA = len(ELN)
-        
-        find_bonds = False 
-        if( find_bonds ):
-
-            #   Build covalent nieghbor list for bonded information 
-            NBLIST, NBINDEX = top.build_covnablist(ELN,R)
-            BONDS = top.nblist_bonds(NA,NBLIST, NBINDEX)
-
-            print_bonds = True
-            if( print_bonds ):
-                for b_indx in range(len(BONDS)):
-                    print " bond ",BONDS[b_indx][0]+1,BONDS[b_indx][1]+1
-
-                sys.exit(" print bonds from proximity ")
-        else:
-            BONDS = []
-            for b_i,bondObj in  self.bondC:
-                pt_i = bondObj.pgid1
-                pt_j = bondObj.pgid2
-                BONDS.append( [pt_i-1,pt_j-1])
-                print "create_top  bond ",pt_i,pt_j
-
-            NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
-            #sys.exit(" passing bonds checking ")
-            
-
-        print_bonds = True
-        if( print_bonds ):
-            for b_indx in range(len(BONDS)):
-                print " bond ",BONDS[b_indx][0]+1,BONDS[b_indx][1]+1
-            
-        
-        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
-        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
-        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
-
-        #
-        # Set charge groups
-        #
-        CG_SET = []
-        one = 1
-        for i in range( len(ELN) ):
-            CG_SET.append(one)
-        #
-
-        if( verbose ):
-            print "      Finding atom types  "
-            if( ff_charges ):
-                print "      Using ff charges "
-
-        d_mass = 0
-        d_charge = 0
-
-        find_rings = False 
-        NA = len(ELN)
-        if( find_rings ):
-            RINGLIST, RINGINDEX , RING_NUMB = top.find_rings(ELN,NBLIST,NBINDEX)
-        else:
-            zero = 0.0
-
-            RINGLIST = []
-            RINGINDEX = []
-            RING_NUMB = []
-
-            # relabel based on neighbors
-            for i in range(NA):
-                RINGLIST.append(zero)
-                RING_NUMB.append(zero)
-                RINGINDEX.append(zero)
-
-            RINGLIST.append(zero)
-            RINGINDEX.append(zero)
-
-        # Asign oplsaa atom types
-        ATYPE, CHARGES = atom_types.oplsaa( ff_charges,ELN,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB)
-
-        #ATYPE , CHARGES = atom_types.biaryl_types( ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-        ATYPE ,RESID, CHARGES = atom_types.set_pmmatypes(ff_charges, ELN, ATYPE,GTYPE,RESID,CHARGES,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB )
-
-        
-        ATYPE,RESID,CHARGES,CG_SET,CHARN = atom_types.set_ptmatypes( ff_charges, ELN,ASYMB, ATYPE,GTYPE,RESID,CHARGES,AMASS,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB,CG_SET,CHARN )
-
-        debug = False 
-        if(debug):
-            # relabel based on neighbors
-            NA = len(ELN)
-            for i in range(NA):
-                print  i+1,ATYPE[i] ,RESID[i], CHARGES[i]
-            sys.exit(" atom chagre check 1 ")
-
-        #Refind inter ring types
-        ATYPE , CHARGES  = atom_types.interring_types(ff_charges, ATYPE, ELN,NBLIST,NBINDEX,RINGLIST, RINGINDEX , RING_NUMB, CHARGES )
-
-        # Update structure information
-        pt_cnt = 0
-        for pid, ptclObj  in self.ptclC:
-             ptclObj.tagsDict["fftype"] = ATYPE[pt_cnt]
-             ptclObj.mass = AMASS[pt_cnt]
-             ptclObj.charge = CHARGES[pt_cnt]
-             ptclObj.tagsDict["ring"] = RING_NUMB[pt_cnt]
-             pt_cnt += 1 
-
-        # Add bonds to system
-        #for i in range( len(BONDS) ):
-        #    #
-        #    a_i = BONDS[i][0] 
-        #    a_j = BONDS[i][1]
-        #    b_i = Bond( a_i+1, a_j+1 )
-        #    self.bondC.put(b_i)
-
-            #  Sudo code
-            #   Read in parameter file
-            #      gromacs itp file
-            #      tinker parameter file
-            #      lammps parameters in data file
-            #   Find bonds
-            #      from gaussian output optimization
-            #      distance cut-off
-            #         system_i = system_i.bonds()
-            #   Find Rings
-            #   Guess atom types
-            #      amber
-            #      oplsaa
-            #         oligomer = oligomer.guess_oplsaatypes()
-
-
 
     def write_gro(self,dir_id,output_id ): # Move out of class
         """
@@ -1348,86 +1215,6 @@ class StructureContainer:
             F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
         F.close()
 
-    
-
-    def bonded_nblist(self):
-        """
-        Create neighbor list of bonded particles
-
-
-        """
-        #sys.exit("bonded_nblist not working !!! ")
-        
-        debug = False 
-        NNAB  = 0
-
-        maxnnab = len(self.bondC)*2 + 1
-            
-        if(debug):
-            print " maxnnab",maxnnab
-            
-        #NBLIST = numpy.empty( maxnnab,  dtype=int )
-        #NBINDEX = numpy.empty( maxnnab,  dtype=int )
-
-        # python style nieghbor list
-        nblist_py = [] #numpy.empty( maxnnab,  dtype=int )
-
-        NBLIST = []
-        NBINDEX = []
-        NBLIST.append( 0 )
-        
-        # First create an N diminsional list of index lists for each particle
-
-        for p_i, prtclC in self.ptclC:
-            nblist_py.append( [  ] )
-        nblist_py.append( [  ] )
-
-        # bassed on bonds add index of neighbros to particle index of nblist_py
-        for b_i,bondObj in  self.bondC:
-            bnd_i = bondObj.pgid1 
-            bnd_j = bondObj.pgid2 
-            
-            nblist_py[bnd_i].append( bnd_j )
-            nblist_py[bnd_j].append( bnd_i )
-
-            if(debug): print " adding bond bonded_nblist",bnd_i,bnd_j
-
-        # Translate 2D into 1D array
-        #   mostly to match perviously writen fortran code
-        for p_i in range( len(nblist_py)):
-            # loop over  each particle p_i and get list of neighbors nlist_i
-            nlist_i = nblist_py[p_i]
-            NBINDEX.append( NNAB + 1 )
-            # Loop over neighbor list of each particle nlist_i and get neighbor p_j
-            for p_j in  nlist_i:
-
-                if(debug): print " p_i ",p_i," p_j ",p_j
-                
-                #if( p_j > p_i):
-                # remove redundent neighbors 
-                NNAB +=  1
-                # add to neighbor list 
-                NBLIST.append( p_j )
-
-        NBINDEX.append( NNAB + 1 )
-
-        if ( debug ):
-            print ' total nbs ',NNAB
-
-            for p_i, prtclC in self.ptclC:
-                N_i_o = NBINDEX[p_i]
-                N_i_f = NBINDEX[p_i+1]
-                print " atom ",p_i,prtclC.type, " has ",N_i_f - N_i_o
-                					
-                for indx_j in range( N_i_o,N_i_f):
-                    atom_j = NBLIST[indx_j]
-                    print "      nb ",atom_j, self.ptclC[atom_j].type
-                
-            sys.exit('bonded_nblist debug')
-            
-        return (NBLIST,NBINDEX)
-
-
         
     def calc_rdf(self, rdf_cnt_ij,bin_size,list_i,list_j,sq_r_cut):
         """
@@ -1473,6 +1260,7 @@ class StructureContainer:
         """
 
         import datetime
+        import topology
 
         debug = False
 
@@ -1484,7 +1272,8 @@ class StructureContainer:
 
         
         # Create neighbor list form bonds
-        NBLIST,NBINDEX = self.bonded_nblist()
+        cov_nblist, cov_nbindx = topology.build_covnablist(self)
+        #NBLIST,NBINDEX = self.bonded_nblist()
 
         
         if(debug):
@@ -1504,13 +1293,13 @@ class StructureContainer:
             if(debug):
                t_i = datetime.datetime.now()
 
-	    N_k_o = NBINDEX[atom_k]
-	    N_k_f = NBINDEX[atom_k+1]
+	    N_k_o = cov_nbindx[atom_k]
+	    N_k_f = cov_nbindx[atom_k+1]
 
             if(debug): print  "checking k ",atom_k,self.ptclC[atom_k].type," with ",N_k_f - N_k_o," nbs"
 	    
 	    for indx_i in range( N_k_o,N_k_f):
-                atom_i = NBLIST[indx_i]
+                atom_i = cov_nblist[indx_i]
                 add_i = False
 
                 if( debug ): print " checking i ",atom_i,self.ptclC[atom_i].type
@@ -1521,11 +1310,11 @@ class StructureContainer:
                 if( add_i ): #atom_i in list_i ):
 
                     
-		    N_i_o = NBINDEX[atom_i]
-		    N_i_f = NBINDEX[atom_i+1] 
+		    N_i_o = cov_nbindx[atom_i]
+		    N_i_f = cov_nbindx[atom_i+1] 
 					
 		    for indx_j in range( N_i_o,N_i_f):
-			atom_j = NBLIST[indx_j]
+			atom_j = cov_nblist[indx_j]
 			add_j = False
 
                         if( debug ): print " checking j ",atom_j,self.ptclC[atom_j].type
@@ -1535,11 +1324,11 @@ class StructureContainer:
                                 add_j = True
                         if( add_j ): # atom_j  in list_j  ):
 
-                            N_j_o = NBINDEX[atom_j]
-                            N_j_f = NBINDEX[atom_j+1] 
+                            N_j_o = cov_nbindx[atom_j]
+                            N_j_f = cov_nbindx[atom_j+1] 
 
                             for indx_l in range( N_j_o,N_j_f):
-                                atom_l = NBLIST[indx_l]
+                                atom_l = cov_nblist[indx_l]
                                 add_l = False
 
                                 if( debug ):
