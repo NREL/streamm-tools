@@ -128,8 +128,7 @@ def read_top(strucC, top_infile):
     Read in GROMACS topology file
 
     """
-    verbose = False 
-
+    
     # General python modules 
     import sys, numpy
 
@@ -137,7 +136,8 @@ def read_top(strucC, top_infile):
     import file_io
     from periodictable import periodictable
 
-    debug = 0
+    debug = False 
+    verbose = False 
 
     # Load periodic table 
     pt = periodictable()
@@ -385,16 +385,37 @@ def read_top(strucC, top_infile):
     MOL_CNT = -1 
 
 
-    debug = 0
-
     # Check to see if a previous read has occured
     pt_overwrite = False
     if( len(strucC.ptclC) > 0 ):
         pt_overwrite = True
+
+    # Find number of atoms in top file
+    # Loop over molecules
+    pt_cnt_i = 0 
+    for repeat_indx in range( len(MOLECULECNT) ):
+        mol_id = MOLECULECNT_ID[repeat_indx]
+        
+        
+        # Find molecule type
+        id_n = -1
+        for id_indx in range( len(MOLECULETYPE) ):
+            id_type = MOLECULETYPE[id_indx]
+            if( id_type == mol_id ):
+                id_n = id_indx
+        if( id_n < 0 ):
+            sys.exit(" error in .top read in")
+            
+        # Repeat atoms
+        N_o = MOL_ATOMS_INDEX[id_n] #- 1
+        N_f = MOL_ATOMS_INDEX[id_n+1] - 1
+        np_mol = N_f - N_o + 1
+        pt_cnt_i += np_mol*MOLECULECNT[repeat_indx]
+        
     # Check of conistent number of atoms
     if( pt_overwrite ):
         pt_cnt = len(strucC.ptclC)
-        if( pt_cnt  != ATOMS_CNT + 1):
+        if( pt_cnt  != pt_cnt_i):
             print " Current structure has %d atoms and %s has %d"%(pt_cnt,top_infile,ATOMS_CNT+1)
             sys.exit(" Inconsistent number of atoms " )
 
@@ -408,12 +429,21 @@ def read_top(strucC, top_infile):
     if( len(strucC.dihC) > 0 ):
         dih_overwrite = True
 
+
+
+    #debug = True
+    if( debug):
+        print "len(MOLECULECNT) ",len(MOLECULECNT)
+        #sys.exit(" mol mult debug ")
+
     # Loop over molecules
     for repeat_indx in range( len(MOLECULECNT) ):
         mol_id = MOLECULECNT_ID[repeat_indx]
         # Find molecule type
         id_n = -1
-        if( debug): print " searching molecule types ",len(MOLECULETYPE)
+        if( debug):
+            print "mol_id ",mol_id
+            print " searching molecule types ",len(MOLECULETYPE)
         for id_indx in range( len(MOLECULETYPE) ):
             id_type = MOLECULETYPE[id_indx]
             if( id_type == mol_id ):
@@ -446,13 +476,14 @@ def read_top(strucC, top_infile):
                     pt_i = strucC.ptclC[A_CNT+1]
                     pt_i.charge = q_i
                     pt_i.mass = m_i
+                    if( debug ):
+                        print " updating ",A_CNT+1
                 else:
                     r_i = [0.0,0.0,0.0]
                     type_i = "??"
                     pt_i = Particle( r_i,type_i,m_i,q_i ) 
                     strucC.ptclC.put(pt_i) 
 
-                
                 pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx]
                 pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx]
                 pt_i.tagsDict["resname"] = RESN_l[atom_indx]
@@ -460,9 +491,11 @@ def read_top(strucC, top_infile):
                 pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                 pt_i.tagsDict["chain"] = MOL_CNT + 1
 
+                if( debug ):
+                    print " particle ",A_CNT+1,pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"] 
 
                 #el = pt.getelementWithSymbol(atomic_symb)
-                #el.symbol,el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii
+                #el.symbol,el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radi
                 #pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx]
 
                 

@@ -600,14 +600,16 @@ def main():
         if( rank == 0 and options.verbose ):
             print " mdanalysis groups "
             print "    uni_i  %d "%n_i
+            print "  p_cnt ; number ; name ; type ; resname ; resid ; resnum ; mass ; coord "
             p_i = 0
-            p_j = 0
             for a_i in  uni_i.atoms:
                 p_i += 1
-                print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i.mass,coord[a_i.number]
+                print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i,resnum,a_i.mass,coord[a_i.number]
+            p_j = 0
             print "    uni_j  %d "%n_j
             for a_j in  uni_j.atoms:
-                print a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j.mass,coord[a_j.number]
+                p_j += 1
+                print p_j,a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j,resnum,a_j.mass,coord[a_j.number]
 
 
         # Allocate distance matrix 
