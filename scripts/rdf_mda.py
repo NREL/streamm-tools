@@ -48,6 +48,7 @@ def get_options():
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     parser.add_option("-p","--ptime", dest="ptime", default=False,action="store_true", help="Print performance information  ")
     parser.add_option("-o","--output_id", dest="output_id", default="rdf",type="string",help=" prefix for output files  ")
+    parser.add_option("--print_grps", dest="print_grps",default=False,action="store_true",help=" Print atoms in each group  ")
     #
     # Input files
     #
@@ -545,27 +546,6 @@ def main():
                                 rdft_i = datetime.datetime.now()
 
 
-    if( debug):
-
-        # Read in using mdanalysis
-        universe =  Universe(options.in_gro)
-        un =  universe.selectAtoms("resname * ")
-        coord = un.coordinates()
-
-        print "    coord[0] ",   coord[0]
-
-
-        # Relabel segments to correspond to lists i and j
-        for pid_i in list_i:
-            print pid_i,ptclC_o[pid_i].tagsDict["gtype"],ptclC_o[pid_i].position," from u ",universe.atoms[pid_i-1].name #, universe.coord[pid_i-1]
-            universe.atoms[pid_i-1].resname = "grpi"
-        uni_i = universe.selectAtoms(" resname grpi ")
-        coor_i = uni_i.coordinates()
-
-        print "    coor_i[0] ",   coor_i[0]
-
-
-        sys.exit("gro testing ")
 
     if( len(options.in_xtc ) and  len(options.in_gro) ):
         if( rank == 0 ):
@@ -580,13 +560,13 @@ def main():
         
         # Relabel segments to correspond to lists i and j
         for pid_i in list_i:
-            print pid_i,ptclC_o[pid_i].tagsDict["gtype"],ptclC_o[pid_i].position," from u ",universe.atoms[pid_i-1].name , universe.coord[pid_i-1]
+            #print pid_i,ptclC_o[pid_i].tagsDict["gtype"],ptclC_o[pid_i].position," from u ",universe.atoms[pid_i-1].name , universe.coord[pid_i-1]
             universe.atoms[pid_i-1].resname = "grpi"
             universe.atoms[pid_i-1].resnum = ptclC_o[pid_i].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
         uni_i = universe.selectAtoms(" resname grpi ")
 
         for pid_j in list_j:
-            print pid_j,ptclC_o[pid_j].tagsDict["gtype"]," from u ",universe.atoms[pid_j-1].name
+            #print pid_j,ptclC_o[pid_j].tagsDict["gtype"]," from u ",universe.atoms[pid_j-1].name
             universe.atoms[pid_j-1].resname = "grpj"
             universe.atoms[pid_j-1].resnum = ptclC_o[pid_j].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
         uni_j = universe.selectAtoms(" resname grpj ")
@@ -600,16 +580,19 @@ def main():
         if( rank == 0 and options.verbose ):
             print " mdanalysis groups "
             print "    uni_i  %d "%n_i
-            print "  p_cnt ; number ; name ; type ; resname ; resid ; resnum ; mass ; coord "
-            p_i = 0
-            for a_i in  uni_i.atoms:
-                p_i += 1
-                print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i,resnum,a_i.mass,coord[a_i.number]
-            p_j = 0
+            
+            if( options.print_grps ):
+                print "  p_cnt ; number ; name ; type ; resname ; resid ; resnum ; mass ; coord "
+                p_i = 0
+                for a_i in  uni_i.atoms:
+                    p_i += 1
+                    print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i.resnum,a_i.mass,coord[a_i.number]
             print "    uni_j  %d "%n_j
-            for a_j in  uni_j.atoms:
-                p_j += 1
-                print p_j,a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j,resnum,a_j.mass,coord[a_j.number]
+            if( options.print_grps ):
+                p_j = 0
+                for a_j in  uni_j.atoms:
+                    p_j += 1
+                    print p_j,a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j.resnum,a_j.mass,coord[a_j.number]
 
 
         # Allocate distance matrix 
