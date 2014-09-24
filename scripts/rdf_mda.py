@@ -787,9 +787,7 @@ def main():
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
 	    
-	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
-	    
-
+	    dat_out.write("\n  %d %f %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
         
         t_f = datetime.datetime.now()
         dt_sec  = t_f.second - t_i.second
