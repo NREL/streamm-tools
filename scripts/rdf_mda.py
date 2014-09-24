@@ -768,9 +768,9 @@ def main():
 	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
 	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
 	dat_out.write("\n#    ")
-	dat_out.write("\n# bin index ; r     ; count_ave/frame ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+	dat_out.write("\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
-	
+	cnt_sum = 0.0 
 	for bin_index in range( 1,n_bins):
 		
 	    r_val = options.bin_size*float(bin_index)
@@ -779,6 +779,7 @@ def main():
     
 	    dr_cnt = float( rdf_cnt[bin_index] )
 	    dr_cnt_norm =     dr_cnt    /float(rdf_frames)
+            cnt_sum += dr_cnt_norm/float(sum_i)
 	    dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
 	    dr_vol_apx = 4.0*math.pi*(  r_val**2 )
 	    
@@ -786,7 +787,7 @@ def main():
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
 	    
-	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,dr_vol,dr_vol_apx,sphere_g,box_g) )
+	    dat_out.write("\n  %d %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
 	    
 
         
