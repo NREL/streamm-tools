@@ -16,6 +16,22 @@ import sys
 import numpy as np 
 import datetime
 
+from bonds         import Bond,     BondContainer
+from angles        import Angle,    AngleContainer
+from dihedrals     import Dihedral, DihedralContainer
+from parameters import ParameterContainer
+#from periodictable import periodictable
+
+import atomtypes
+
+def set_param(strucC):
+    """
+    Set force-field parameters
+    """
+
+    paramC = ParameterContainer()
+
+    return paramC
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
@@ -33,23 +49,41 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
         print " Angles ",len(strucC.angleC) 
         print " Dihedrals ",len(strucC.dihC) 
 
+    # Create nearest neighbor list 
     cov_nblist, cov_nbindx = build_covnablist(strucC)
     # Check bonds
     if( len(strucC.bondC) <= 0 ):
-        if( verbose ):
-            print "    Finding bonds "
         nblist_bonds(strucC,cov_nblist, cov_nbindx)
+        if( verbose ):
+            print "    Found bonds  %d "%(len(strucC.bondC))
     # Check angles
     if( len(strucC.angleC) <= 0 ):
-        if( verbose ):
-            print "    Finding angles "
         nblist_angles(strucC,cov_nblist, cov_nbindx)
+        if( verbose ):
+            print "    Found angles  %d "%(len(strucC.angleC))
     # Check dihedrals
     if( len(strucC.dihC) <= 0 ):
-        if( verbose ):
-            print "    Finding dihedrals  "
         nblist_dih(strucC,cov_nblist, cov_nbindx)
-        
+        if( verbose ):
+            print "    Found dihedrals  %d "%(len(strucC.dihC))
+
+    # Find rings
+    strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
+
+    # Asign atom types
+    ff_charges = False 
+    strucC = atomtypes.oplsaa( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    strucC = atomtypes.set_ptmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+                                               
+    if(debug):
+        print len(strucC.ptclC)
+        for pid_i in range(1,len(strucC.ptclC)+1):
+            print  pid_i, strucC.ptclC[pid_i].tagsDict["number"],strucC.ptclC[pid_i].tagsDict["ring"],strucC.ptclC[pid_i].tagsDict["fftype"]
+
+                
 
 def nblist_bonds(strucC,cov_nblist, cov_nbindx):
     import sys
@@ -70,7 +104,7 @@ def nblist_angles(strucC,cov_nblist, cov_nbindx):
     """
     Generate angles from neighbor list 
     """
-     
+
     for pid_i, ptclObj_i  in strucC.ptclC:    
         N_o = cov_nbindx[pid_i ]
         N_f = cov_nbindx[pid_i+ 1 ] - 1
@@ -81,7 +115,7 @@ def nblist_angles(strucC,cov_nblist, cov_nbindx):
                 for indx_k in range( indx_j+1,N_f+1):
                     pid_k = cov_nblist[indx_k]
                     if ( pid_j != pid_k ):
-                        a_i = Angles( pid_k,pid_i, pid_j )            
+                        a_i = Angle( pid_k,pid_i, pid_j )            
                         strucC.angleC.put(a_i)
 
 def nblist_dih(strucC,cov_nblist, cov_nbindx):
@@ -116,18 +150,18 @@ def nblist_dih(strucC,cov_nblist, cov_nbindx):
 					if(  limitdih_n ==  2 and atom_k != atom_k_i and atom_l != atom_l_i ):
 
                                             d_i = Dihedral( pid_k, pid_i, pid_j, pid_l )            
-                                            self.dihC.put(d_i)
+                                            strucC.dihC.put(d_i)
                                             dih_ij_cnt += 1
 					    atom_k_i = pid_k
 					    atom_l_i = pid_l
 					elif( limitdih_n !=  2 ):
                                             d_i = Dihedral( pid_k, pid_i, pid_j, pid_l )            
-                                            self.dihC.put(d_i)
+                                            strucC.dihC.put(d_i)
 					    dih_ij_cnt += 1
 					
 				else:
                                     d_i = Dihedral( pid_k, pid_i, pid_j, pid_l )            
-                                    self.dihC.put(d_i)
+                                    strucC.dihC.put(d_i)
     
 
 def build_covnablist(strucC):
@@ -290,6 +324,248 @@ def bonded_nblist(strucC):
         sys.exit('bonded_nblist debug')
 
     return (NBLIST,NBINDEX)
+
+
+def calc_nnab(i,NBINDEX):
+    """
+    Return number of nieghbors for a given atom 
+    """
+    #
+    # Find number of elements 
+    #
+    N_o = NBINDEX[ i  ]
+    N_f = NBINDEX[  i+1  ] - 1 
+    NNAB = N_f - N_o + 1
+    return NNAB
+
+
+def calc_elcnt(i,strucC,NBLIST,NBINDEX):
+    """
+    Return 
+    """
+    
+    import numpy
+    #
+    # Find number of elements 
+    #
+    ELCNT = numpy.zeros(120, dtype =int )
+    N_o = NBINDEX[ i  ]
+    N_f = NBINDEX[  i+1  ] - 1 
+    for indx in range( N_o,N_f+1):
+        j = NBLIST[indx]
+        el_j = int( strucC.ptclC[j].tagsDict["number"] )
+	if( el_j >= 0 ):
+	    ELCNT[el_j] = ELCNT[el_j] + 1
+
+    return ELCNT 
+
+
+def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    import sys
+    """
+    Find atoms in conjugated rings 
+    """
+    
+    debug = False 
+    
+    R_SET = []
+    RING_ATOMS = []
+    BAD_PATH = []
+
+    #a_i = pid_o -1 
+    one = 1
+    zero = 0
+    atoms_in_ring = 0
+    # relabel based on neighbors
+    n_ptcl = len(strucC.ptclC)
+
+    if(debug):
+        print " for a system of %d partiles checking particle %d "%(n_ptcl,pid_o)
+        
+    for pid_i in range(n_ptcl+1): 
+        R_SET.append(one)
+        
+    R_SET[pid_o] = 0 
+    r_term = 1
+    cnt = 0
+    p_cnt = 0
+    if(debug): print ' initializing ring ',pid_o,ptclObj_o.tagsDict["number"]
+
+    last_i = pid_o
+    NNAB_last = calc_nnab(pid_i,cov_nbindx)
+    while ( r_term ):
+        N_o = cov_nbindx[last_i]
+        N_f = cov_nbindx[last_i+1] - 1
+
+        for n_indx in range( N_o,N_f+1):
+            j = cov_nblist[n_indx]
+            cnt = cnt + 1
+            if( cnt > NNAB_last+1 ):
+                p_cnt = p_cnt + 1
+                if(debug): print ' bad path found resetting '
+                for ring_a in range(len(RING_ATOMS)):
+                    j = RING_ATOMS[ring_a]
+                    
+                    
+                BAD_PATH.append(j)
+                RING_ATOMS = []
+                for pid_k in range(n_ptcl):
+                    R_SET[pid_k] = one
+                atoms_in_ring = 0
+                R_SET[pid_o] = 0 
+                cnt = 0
+                last_i = pid_o
+                
+                if(debug): print '  resetting last_i to ',pid_o,ptclObj_o.tagsDict["number"]
+                    
+                for bad_i in range( len(BAD_PATH)):
+                    j = BAD_PATH[bad_i]
+                    R_SET[j] = 0
+                    if(debug): print '  bad path atoms ',strucC.ptclC[j].tagsDict["number"]
+                break
+                    
+            if( atoms_in_ring  > 1 and j == pid_o ):
+                r_term = 0
+                if(debug): print ' ring found with ',atoms_in_ring 
+                break
+
+            number_j = strucC.ptclC[j].tagsDict["number"]
+            NNAB_j = calc_nnab(j,cov_nbindx)
+            ELCNT_j = calc_elcnt(j,strucC,cov_nblist,cov_nbindx)
+            ring_type = 0
+	    
+	    debug = 0
+            if(debug):
+		print '           with ', number_j
+		print '           with ', NNAB_j,
+		print '           with ', R_SET[j]
+		
+            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
+            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = 1 # ATYPE[j] == 'CA' ):
+            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
+            if( ring_type ):
+                atoms_in_ring = atoms_in_ring + 1
+                RING_ATOMS.append(j)
+                R_SET[j] = 0
+                last_i = j
+                cnt = 0
+                NNAB_last = NNAB_j 
+                if(debug): print '   atom ',j,number_j,' added '
+                break
+            
+        if (p_cnt > 100 ):
+            if(debug): print '     max paths considered ',100
+            r_term = 0
+            
+    return RING_ATOMS
+
+def find_rings(strucC,cov_nblist, cov_nbindx):
+    """
+    Find conjugate rings
+    """
+    import sys
+        
+    RINGLIST = []
+    RINGINDEX = []
+    RING_NUMB = []
+
+    debug = 0
+    
+    IN_RING = []
+
+    n_ptcl = len(strucC.ptclC)
+    one = 0 
+    zero = 0 
+    ring_cnt = 0
+    a_cnt = 0
+    # relabel based on neighbors
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        IN_RING.append(one)
+        RINGLIST.append(zero)
+        RING_NUMB.append(zero)
+        RINGINDEX.append(zero)
+
+    RING_NUMB.append(zero)
+    RINGLIST.append(zero)
+    RINGINDEX.append(zero)
+        
+        
+    # relabel based on neighbors
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        RING_ATOMS = id_ring(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx)
+            
+        if ( len(RING_ATOMS) > 1 ):
+            # If member of ring alread part of another ring add new ring to existing ring
+            r_numb = 0 
+            for ring_a in range(len(RING_ATOMS)):
+                j = RING_ATOMS[ring_a]
+                if( RING_NUMB[j] != 0 ):
+                    r_numb = RING_NUMB[j]
+            if( r_numb == 0 ):
+                ring_cnt = ring_cnt + 1
+                r_numb = ring_cnt 
+                #print ' new ring ',ring_cnt
+                 
+            for ring_a in range(len(RING_ATOMS)):
+                j = RING_ATOMS[ring_a]
+                if( RING_NUMB[j] == 0 ): 
+                    a_cnt = a_cnt + 1
+                    RING_NUMB[j] = r_numb
+
+    a_cnt = 0
+    for r_numb in range(1,ring_cnt+1):
+        RINGINDEX[r_numb] = a_cnt + 1
+        for i in range(n_ptcl):
+            if( RING_NUMB[i] == r_numb ):
+                a_cnt = a_cnt + 1
+                RINGLIST[a_cnt] = i
+                
+    RINGINDEX[ring_cnt+1] = a_cnt + 1
+
+
+    # Set attached H to have same ring #
+    attach_H = False
+    if( attach_H ):
+
+        for r_numb in range(1,ring_cnt+1):
+            N_o = RINGINDEX[r_numb]
+            N_f = RINGINDEX[r_numb+1] - 1
+            print ' Ring ', r_numb
+            for r_indx in range(N_o,N_f+1):
+                i = RINGLIST[r_indx]
+                N_o = cov_nbindx[i]
+                N_f = cov_nbindx[i+1] - 1
+                for n_indx in range( N_o,N_f+1):
+                    j = cov_nblist[n_indx]
+                    if( strucC.ptclC[j].tagsDict["number"] == 1 ):
+                        RING_NUMB[j] = r_numb
+		
+
+    # update particles 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        ptclObj_i.tagsDict["ring"] =  RING_NUMB[pid_i]
+        #print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],
+	    		
+	    
+
+    debug = 0
+    if(debug):
+        print ring_cnt , " rings found "
+        for r_numb in range(1,ring_cnt+1):
+            N_o = RINGINDEX[r_numb]
+            N_f = RINGINDEX[r_numb+1] - 1
+            print ' Ring ', r_numb
+            for r_indx in range(N_o,N_f+1):
+                i = RINGLIST[r_indx]
+                print ' type ',strucC.ptclC[i].tagsDict["number"],' or ',i,RING_NUMB[i]
+                #sys.exit('find_rings')
+                
+        for pid_i, ptclObj_i  in strucC.ptclC:    
+            print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],ptclObj_i.tagsDict["ring"]
+	    
+	sys.exit('top.find_rings')
+
+    return ( strucC, RINGLIST, RINGINDEX  )
 
 '''
 
