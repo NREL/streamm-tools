@@ -977,9 +977,45 @@ def get_options():
     else:
         print "Not using subsets because options.subsets_file = ", options.subsets_file
 
-
     if (not os.path.isdir(options.mols_dir)):
         os.mkdir(options.mols_dir)
+
+
+    # Track dates when mols output directories created
+    mols_fulldir = os.path.abspath(options.mols_dir)
+    molsTrackFile=os.path.join(options.opvPath, ".molsTrackFile")
+
+    # Get time info for repo version tracking
+    import datetime as dt
+    tobj = dt.datetime.today()
+
+    year   = tobj.year
+    month  = tobj.month
+    day    = tobj.day
+    hour   = tobj.hour
+    second = tobj.second
+    dateStamp = str(year) + "-" + str(month) + "-" + str(day)
+
+    if ( os.path.exists(molsTrackFile) ):
+        fobj = open(molsTrackFile, 'a')
+    else:
+        fobj = open(molsTrackFile, 'w')
+
+    repoTrackString = "Tracking " + mols_fulldir + "\n"
+    fobj.write(repoTrackString)
+    fobj.close()
+
+    molsTimeStampFile = os.path.join(mols_fulldir, 'timestamp.dat')
+
+    print "molsTrackFile     = ", molsTrackFile
+    print "mols_fulldir      = ", mols_fulldir
+    print "molsTimeStampFile = ", molsTimeStampFile
+
+    if not os.path.exists(molsTimeStampFile):
+        fobj = open(molsTimeStampFile, 'w')
+        repoTrackString = "This directory created_on " + dateStamp + "\n"
+        fobj.write(repoTrackString)
+        fobj.close()
 
     return options, args
 
