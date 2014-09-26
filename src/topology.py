@@ -18,20 +18,544 @@ import datetime
 
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
+
 from dihedrals     import Dihedral, DihedralContainer
+
 from parameters import ParameterContainer
+#from particles import ParticleContainer
+from structureContainer import StructureContainer
+
 #from periodictable import periodictable
 
 import atomtypes
 
-def set_param(strucC):
+def set_param(struc_o,param_all):
     """
     Set force-field parameters
     """
 
-    paramC = ParameterContainer()
+    ptclC_o =  struc_o.ptclC
+    bondC_o  = struc_o.bondC
+    angleC_o  = struc_o.angleC
+    dihC_o  = struc_o.dihC
+    
+    ljtypC_all =  param_all.ljtypC
+    btypC_all =  param_all.btypC
+    atypC_all =  param_all.atypC
+    dtypC_all =  param_all.dtypC
+    
+    #
+    # Create new parameter container to hold each unique type
+    #   which exsists in the structure container struc_i
+    #   this is necessary for parameter outputs to no have
+    #   redundent values 
+    #
+    paramC_p = ParameterContainer()
+    
+    ljtypC_p =  paramC_p.ljtypC
+    btypC_p =  paramC_p.btypC
+    atypC_p =  paramC_p.atypC
+    dtypC_p =  paramC_p.dtypC
+    
+    #
+    # Count atom types
+    #
+    debug = 1
+    for pid_o, ptclObj_o  in ptclC_o:    
+        new_type = True
+        lj_p = 0
+        fftype_i = ptclObj_o.tagsDict["fftype"]
+        mass_i = ptclObj_o.mass
+        for lj_p, ljObj_p  in ljtypC_p:    
+            if( fftype_i == ljObj_p.ptype1 ):
+                new_type = False
+                ptclObj_o.type = str(lj_p)
+                if(debug): print ' maches previous ', lj_p,ljObj_p.ptype1
+                
+        if( new_type ):
+            # Find type in ljtypC_all
+            cnt_check = 0
+            ptclObj_o.type = str(lj_p+1)
+            for lj_all, ljObj_all  in ljtypC_all:
+                if( fftype_i == ljObj_all.ptype1):
+                    # Set mass of particle type
+                    #   This is need for some force-field input files (LAMMPS)
+                    ljObj_all.setmass( mass_i )
+                    ljtypC_p.put(ljObj_all)
+                    cnt_check += 1
+                    
+            if( cnt_check < 1 ):
+                print " No LJ parameters were found for atom type %s ",fftype_i
+                #raise TypeError
+            elif( cnt_check > 1 ):
+                print " Multiple LJ parameters were found for atom type %s ",fftype_i
+                #raise TypeError
+                    
 
-    return paramC
+    debug = 0
+    if(debug):
+        print " types found %d "%(len(ljtypC_p))
+        for lj_p, ljObj_p  in ljtypC_p: 
+            print ljObj_p.ptype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
+        print "  All particles should have new type labeled as interger stored as a string "
+        for pid_o, ptclObj_o  in ptclC_o:
+            print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
+        sys.exit('find_types')
+
+
+
+    #
+    # Count bonds types
+    #
+    debug = 1
+    for b_o, bondObj_o  in bondC_o:    
+        new_type = True
+        btyp_p = 0
+        fftype_i =  ptclC_o[ bondObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ bondObj_o.pgid2 ].tagsDict["fftype"]
+        for btyp_p, btypObj_p  in btypC_p:
+            p_i = btypObj_p.pgid1 
+            p_j = btypObj_p.pgid2
+            if( fftype_i == p_i  and  fftype_j == p_j ):
+                new_type = False
+                bondObj_o.type = str(btyp_p)
+                break 
+            elif( fftype_j == p_i  and  fftype_i == p_j ):
+                new_type = False
+                bondObj_o.type = str(btyp_p)
+                break 
+                
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            bondObj_o.type = str(btyp_p+1)
+            for b_all, btypObj_all  in btypC_all:
+                all_i = btypObj_all.pgid1 
+                all_j = btypObj_all.pgid2
+                if( fftype_i == all_i  and  fftype_j == all_j ):
+                    btypC_p.put(btypObj_all)
+                    cnt_check += 1
+                if( fftype_j == all_i  and  fftype_i == all_j ):
+                    btypC_p.put(btypObj_all)
+                    cnt_check += 1
+                    
+            if( cnt_check < 1 ):
+                print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_ij)
+                #raise TypeError
+            elif( cnt_check > 1 ):
+                print " Multiple Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_ij)
+                #raise TypeError
+                    
+
+    #
+    # Count angles types
+    #
+    debug = 1
+    for a_o,angleObj_o in angleC_o:
+        new_type = True
+        atyp_p = 0
+        fftype_k =  ptclC_o[ angleObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ angleObj_o.pgid2 ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ angleObj_o.pgid3 ].tagsDict["fftype"]
+        for atyp_p, atypObj_p  in atypC_p:
+            p_k = atypObj_p.pgid1 
+            p_i = atypObj_p.pgid2 
+            p_j = atypObj_p.pgid3
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j ):
+                new_type = False
+                atypObj_p.type = str(atyp_p)
+                break 
+            if( fftype_j == p_k  and  fftype_i == p_i  and  fftype_k == p_j ):
+                new_type = False
+                atypObj_p.type = str(atyp_p)
+                break 
+                
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            atypObj_p.type = str(atyp_p+1)
+            for a_all, atypObj_all  in atypC_all:
+                all_k = atypObj_all.pgid1 
+                all_i = atypObj_all.pgid2 
+                all_j = atypObj_all.pgid3
+                if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
+                    cnt_check += 1
+                if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
+                    cnt_check += 1
+
+            if( cnt_check == 1 ):
+                atypC_p.put(atypObj_all)
+                                    
+            elif( cnt_check < 1 ):
+                print " No Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                #raise TypeError
+            elif( cnt_check > 1 ):
+                atypC_p.put(atypObj_all)
+                print " Multiple Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                #raise TypeError
+                    
+    #
+    # Count dihedrals types
+    #
+    debug = 1
+    for d_o,dihObj_o in dihC_o:
+        new_type = True
+        dtyp_p = 0
+        fftype_k =  ptclC_o[ dihObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ dihObj_o.pgid2 ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ dihObj_o.pgid3 ].tagsDict["fftype"]
+        fftype_l =  ptclC_o[ dihObj_o.pgid4 ].tagsDict["fftype"]
+        for dtyp_p, dtypObj_p  in dtypC_p:
+            p_k = dtypObj_p.pgid1 
+            p_i = dtypObj_p.pgid2 
+            p_j = dtypObj_p.pgid3
+            p_l = dtypObj_p.pgid4
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
+                new_type = False
+                dihObj_o.type = str(dtyp_p)
+                break 
+            if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
+                new_type = False
+                dihObj_o.type = str(dtyp_p)
+                break 
+                
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            dihObj_o.type = str(dtyp_p+1)
+            for d_all, dtypObj_all  in dtypC_all:
+                all_k = atypObj_all.pgid1 
+                all_i = atypObj_all.pgid2 
+                all_j = atypObj_all.pgid3
+                all_l = atypObj_all.pgid4
+
+                if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
+                    cnt_check += 1
+                if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == all_l   ):
+                    cnt_check += 1
+                if ( fftype_k == all_k and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
+                    cnt_check += 1
+                if ( fftype_l == 'X' and  fftype_j == all_j and   fftype_i == all_i  and fftype_k == 'X'   ):
+                    cnt_check += 1
+                if ( fftype_l == 'X' and  fftype_j == all_j and   fftype_i == all_i  and fftype_k == all_k  ):
+                    cnt_check += 1
+                if ( fftype_l == all_l and fftype_j == all_j and   fftype_i == all_i  and fftype_k == 'X'   ):
+                    cnt_check += 1
+
+            if( cnt_check == 1 ):
+                dtypC_p.put(dtypObj_all)
+                
+            elif( cnt_check < 1 ):
+                print " No Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                #raise TypeError
+            elif( cnt_check > 1 ):
+                dtypC_p.put(dtypObj_all)
+                print " Multiple Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                #raise TypeError
+                  
+        
+    debug = 0
+    if( debug ):
+        for i in range(n_atoms):
+            print i,ATYPE[i],ATYPE_IND[i]
+
+        print len( ATYPE_REF), len(ATYPE_MASS)
+        for i in range( len(ATYPE_MASS)):
+            print i,ATYPE_REF[i],ATYPE_MASS[i]
+
+        print ' angle types ',len(ANGTYPE_REF) 
+        for i in range( len(ANGTYPE_REF) ):
+            print i,ANGTYPE_REF[i]
+            
+        print ' dihedra types ',len(DTYPE_REF) 
+        for i in range( len(DTYPE_REF) ):
+            print i,DTYPE_REF[i]
+            
+        for i in range( len(DTYPE_IND) ):
+            print i,DTYPE_IND[i] #,DIH[i]
+
+        sys.exit('lmp_types')
+        
+
+    return param_struc
+
+    """
+    # Identify total number of atom types for lammps output 
+    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF =
+
+    lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+
+    ATYPE_NNAB =
+
+    top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)    
+    #ATYPE_EP, ATYPE_SIG = top.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    
+    ATYPE_EP, ATYPE_SIG =
+
+    top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+    
+    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  =
+
+    top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+    
+    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K =
+
+
+    top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C =
+
+    top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    
+    IMPTYPE_F  =
+
+    top.imp_parameters(options.itp_file)
+    """
+
+    return struc_i,param_i
+
+
+def find_types(struc_o,param_all):
+    """
+    Find all the force-field parameters associated with a structure 
+    """
+
+    ptclC_o =  struc_o.ptclC
+    bondC_o  = struc_o.bondC
+    angleC_o  = struc_o.angleC
+    dihC_o  = struc_o.dihC
+    
+    #param_i = ParameterContainer()
+    #
+    # Create new parameter container to hold each unique type
+    #   which exsists in the structure container struc_i
+    #   this is necessary for parameter outputs to no have
+    #   redundent values 
+    #
+    paramC_o = ParameterContainer()
+    
+    ljtypC_p =  paramC_p.ljtypC
+    btypC_p =  paramC_p.btypC
+    atypC_p =  paramC_p.atypC
+    dtypC_p =  paramC_p.dtypC
+    
+    #
+    # Count atom types
+    #
+    debug = 1
+    for pid_o, ptclObj_o  in ptclC_o:    
+        new_type = 1
+        lpid_p = 0
+        for lpid_p, ptclObj_p  in ptclC_p:    
+            if( ptclObj_o.tagsDict["fftype"] == ptclObj_p.tagsDict["fftype"] ):
+                new_type = 0
+                ptclObj_o.type = str( lpid_p )
+                if(debug): print ' maches previous ',ptclObj_p.tagsDict["fftype"]
+        if( new_type ):
+            ptclC_p.put(ptclObj_o)
+            ptclObj_o.type = str( lpid_p + 1 )
+            if(debug): print ' new type found ',ptclObj_o.tagsDict["fftype"]
+
+    debug = 0
+    if(debug):
+        print " types found %d "%(len(ptclC_p))
+        for lpid_p, ptclObj_p  in ptclC_p:
+            print ptclObj_p.tagsDict["fftype"],ptclObj_p.type
+        print "  All particles should have new type labeled as interger stored as a string "
+        for pid_o, ptclObj_o  in ptclC_o:
+            print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
+        sys.exit('find_types')
+
+
+
+    #
+    # Count bonds types
+    #
+    debug = 1
+    if( debug ):
+        print " len( bondC_o)",len( bondC_o)
+    if( len( bondC_o) > 0 ):
+        for b_o,bondObj_o in bondC_o:
+            new_type = 1
+            b_p = 0
+            AT_i =  ptclC_o[ bondObj_o.pgid1 ].tagsDict["fftype"]
+            AT_j =  ptclC_o[ bondObj_o.pgid2 ].tagsDict["fftype"]
+            for b_p,bondObj_p in bondC_p:
+                p_i = ptclC_o[ bondObj_p.pgid1 ].tagsDict["fftype"]
+                p_j = ptclC_o[ bondObj_p.pgid2 ].tagsDict["fftype"]
+                if ( AT_i == p_i  and  AT_j == p_j ):
+                    new_type = 0
+                    bondObj_o.type = b_p
+                    break
+                if ( AT_j == p_i  and  AT_i == p_j ):
+                    new_type = 0
+                    bondObj_o.type = b_p
+                    break
+                
+            # If new 
+            if( new_type ):
+                bondC_p.put(bondObj_o)
+                bondObj_o.type = str( b_p + 1 )
+                #if(debug): print ' New bond type %s - %s  type -> %d '%(AT_i ,  AT_j, b_p + 1 )
+                
+            if(debug):
+                print 'Bond type %s - %s  type -> %s '%(AT_i ,  AT_j,bondObj_o.type  )
+
+    if(debug): sys.exit('BTYPE_IND')
+    #
+    # Count angles types
+    #
+    if( len(angleC_o) > 0):
+        # 
+        for a_o,angleObj_o in angleC_o:
+            new_type = 1
+            AT_k =  ptclC_o[ angleObj_o.pgid1 ].tagsDict["fftype"]
+            AT_i =  ptclC_o[ angleObj_o.pgid2 ].tagsDict["fftype"]
+            AT_j =  ptclC_o[ angleObj_o.pgid3 ].tagsDict["fftype"]
+            a_p = 0
+            for a_p,angleObj_p in angleC_p:
+                p_k = ptclC_o[ angleObj_p.pgid1 ].tagsDict["fftype"]
+                p_i = ptclC_o[ angleObj_p.pgid2 ].tagsDict["fftype"]
+                p_j = ptclC_o[ angleObj_p.pgid3 ].tagsDict["fftype"]
+                if ( AT_k == p_k and  AT_i == p_i and  AT_j == p_j ):
+                    new_type = 0
+                    angleC_p.put(angleObj_o)
+                    break
+    
+                if ( AT_j == p_k and  AT_i == p_i and  AT_k == p_j ):
+                    new_type = 0
+                    angleC_p.put(angleObj_o)
+                    break
+    
+            # If new 
+            if( new_type ):
+                angleC_p.put(angleObj_o)
+                bondObj_o.type = str( a_p + 1 )
+                if(debug):
+                    print  ' new angle type ',AT_i ,  AT_j , AT_k
+
+    #
+    # Count dihedrals types
+    #
+    debug = 0
+    if( len(DIH) > 0 ):
+        TYPE_CNT = 0
+        AT_i = ATYPE[ DIH[0][0] ]
+        AT_j = ATYPE[ DIH[0][1] ]
+        AT_k = ATYPE[ DIH[0][2] ]
+        AT_l = ATYPE[ DIH[0][3] ]
+
+        DTYPE_IND.append( TYPE_CNT )
+        DTYPE_REF.append( [ AT_i ,  AT_j , AT_k , AT_l ] )
+        
+        if(debug): print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l
+        #
+            
+        for d_i,dihObj in  self.dihC:
+            new_type = 1
+            AT_i = ATYPE[ DIH[dih_indx][0] ]
+            AT_j = ATYPE[ DIH[dih_indx][1] ]
+            AT_k = ATYPE[ DIH[dih_indx][2] ]
+            AT_l = ATYPE[ DIH[dih_indx][3] ]
+    
+            if(debug):
+                print "  Checking ",AT_i ,  AT_j , AT_k , AT_l 
+    
+            for ind in range( len( DTYPE_REF ) ):
+                if ( DTYPE_REF[ind][0] == AT_i   and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and  AT_l == DTYPE_REF[ind][3]   ):
+                    new_type = 0
+                    DTYPE_IND.append( ind )
+                    break
+                if ( DTYPE_REF[ind][0] == AT_l and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_i   ):
+                    new_type = 0
+                    DTYPE_IND.append( ind )
+                    break
+                
+            if( new_type ):
+                for ind in range( len( DTYPE_REF ) ):
+                    
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_l   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == AT_i and  AT_j == DTYPE_REF[ind][1] and  AT_k == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+    
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == 'X' and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == AT_i  ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                    if ( DTYPE_REF[ind][0] == AT_l and  AT_k == DTYPE_REF[ind][1] and  AT_j == DTYPE_REF[ind][2] and DTYPE_REF[ind][3] == 'X'   ):
+                        new_type = 0
+                        DTYPE_IND.append( ind )
+                        break
+                        
+            # If new 
+            if( new_type ):
+                TYPE_CNT += 1
+                DTYPE_IND.append( TYPE_CNT )
+                DTYPE_REF.append( [ AT_i ,  AT_j , AT_k , AT_l ] )
+            
+                if( debug ):
+                    print ' new dihedral type ',TYPE_CNT,AT_i ,  AT_j , AT_k , AT_l #," = ",DTYPE_REF[ind
+                    #print '     '
+                
+            else:
+            #   print '      dihedral type ',ind,AT_i ,  AT_j , AT_k , AT_l ," = ",DTYPE_REF[ind]
+                if( debug ):print '  type found ',DTYPE_IND[dih_indx],DIH[dih_indx],ind,DTYPE_REF[ind]
+             
+             
+    if( debug ):
+        sys.exit( "  checkin dih types ")
+            
+    debug = 0
+    if( debug ):
+        
+            
+        for dih_indx in range( len(DIH) ):
+            new_type = 1
+            AT_i = ATYPE[ DIH[dih_indx][0] ]
+            AT_j = ATYPE[ DIH[dih_indx][1] ]
+            AT_k = ATYPE[ DIH[dih_indx][2] ]
+            AT_l = ATYPE[ DIH[dih_indx][3] ]
+            type_cnt = DTYPE_IND[dih_indx]
+            print '  dihedral type ',type_cnt,AT_i ,  AT_j , AT_k , AT_l,DTYPE_REF[ type_cnt ]
+        sys.exit('lmp_types')
+        
+    debug = 0
+    if( debug ):
+        for i in range(n_atoms):
+            print i,ATYPE[i],ATYPE_IND[i]
+
+        print len( ATYPE_REF), len(ATYPE_MASS)
+        for i in range( len(ATYPE_MASS)):
+            print i,ATYPE_REF[i],ATYPE_MASS[i]
+
+        print ' angle types ',len(ANGTYPE_REF) 
+        for i in range( len(ANGTYPE_REF) ):
+            print i,ANGTYPE_REF[i]
+            
+        print ' dihedra types ',len(DTYPE_REF) 
+        for i in range( len(DTYPE_REF) ):
+            print i,DTYPE_REF[i]
+            
+        for i in range( len(DTYPE_IND) ):
+            print i,DTYPE_IND[i] #,DIH[i]
+
+        sys.exit('lmp_types')
+        
+
+    return param_struc
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
@@ -83,7 +607,8 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
         for pid_i in range(1,len(strucC.ptclC)+1):
             print  pid_i, strucC.ptclC[pid_i].tagsDict["number"],strucC.ptclC[pid_i].tagsDict["ring"],strucC.ptclC[pid_i].tagsDict["fftype"]
 
-                
+    return strucC
+
 
 def nblist_bonds(strucC,cov_nblist, cov_nbindx):
     import sys
