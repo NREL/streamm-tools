@@ -75,14 +75,19 @@ def set_param(struc_o,param_all):
         if( new_type ):
             # Find type in ljtypC_all
             cnt_check = 0
+            type_found = False 
             ptclObj_o.type = str(lj_p+1)
             for lj_all, ljObj_all  in ljtypC_all:
                 if( fftype_i == ljObj_all.ptype1):
+                    cnt_check += 1
+                    type_found = True 
+                if( type_found ):
                     # Set mass of particle type
                     #   This is need for some force-field input files (LAMMPS)
                     ljObj_all.setmass( mass_i )
                     ljtypC_p.put(ljObj_all)
-                    cnt_check += 1
+                    type_found = False 
+                    
                     
             if( cnt_check < 1 ):
                 print " No LJ parameters were found for atom type %s ",fftype_i
@@ -91,18 +96,6 @@ def set_param(struc_o,param_all):
                 print " Multiple LJ parameters were found for atom type %s ",fftype_i
                 #raise TypeError
                     
-
-    debug = 0
-    if(debug):
-        print " types found %d "%(len(ljtypC_p))
-        for lj_p, ljObj_p  in ljtypC_p: 
-            print ljObj_p.ptype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
-        print "  All particles should have new type labeled as interger stored as a string "
-        for pid_o, ptclObj_o  in ptclC_o:
-            print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
-        sys.exit('find_types')
-
-
 
     #
     # Count bonds types
@@ -114,13 +107,13 @@ def set_param(struc_o,param_all):
         fftype_i =  ptclC_o[ bondObj_o.pgid1 ].tagsDict["fftype"]
         fftype_j =  ptclC_o[ bondObj_o.pgid2 ].tagsDict["fftype"]
         for btyp_p, btypObj_p  in btypC_p:
-            p_i = btypObj_p.pgid1 
-            p_j = btypObj_p.pgid2
+            p_i = btypObj_p.ptype1 
+            p_j = btypObj_p.ptype2
             if( fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
                 bondObj_o.type = str(btyp_p)
                 break 
-            elif( fftype_j == p_i  and  fftype_i == p_j ):
+            elif( fftype_i == p_j  and  fftype_j == p_i ):
                 new_type = False
                 bondObj_o.type = str(btyp_p)
                 break 
@@ -128,22 +121,27 @@ def set_param(struc_o,param_all):
         if( new_type ):
             # Find type in btypC_all
             cnt_check = 0
+            type_found = False 
             bondObj_o.type = str(btyp_p+1)
             for b_all, btypObj_all  in btypC_all:
-                all_i = btypObj_all.pgid1 
-                all_j = btypObj_all.pgid2
+                all_i = btypObj_all.ptype1 
+                all_j = btypObj_all.ptype2
                 if( fftype_i == all_i  and  fftype_j == all_j ):
-                    btypC_p.put(btypObj_all)
                     cnt_check += 1
+                    type_found = True 
                 if( fftype_j == all_i  and  fftype_i == all_j ):
-                    btypC_p.put(btypObj_all)
                     cnt_check += 1
+                    type_found = True 
+                if( type_found ):
+                    btypC_p.put(btypObj_all)
+                    type_found = False 
                     
             if( cnt_check < 1 ):
-                print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_ij)
+                print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
                 #raise TypeError
             elif( cnt_check > 1 ):
-                print " Multiple Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_ij)
+                btypC_p.put(btypObj_all)
+                print " Multiple Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
                 #raise TypeError
                     
 
@@ -158,40 +156,43 @@ def set_param(struc_o,param_all):
         fftype_i =  ptclC_o[ angleObj_o.pgid2 ].tagsDict["fftype"]
         fftype_j =  ptclC_o[ angleObj_o.pgid3 ].tagsDict["fftype"]
         for atyp_p, atypObj_p  in atypC_p:
-            p_k = atypObj_p.pgid1 
-            p_i = atypObj_p.pgid2 
-            p_j = atypObj_p.pgid3
+            p_k = atypObj_p.ptype1 
+            p_i = atypObj_p.ptype2 
+            p_j = atypObj_p.ptype3
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
-                atypObj_p.type = str(atyp_p)
+                angleObj_o.type = str(atyp_p)
                 break 
             if( fftype_j == p_k  and  fftype_i == p_i  and  fftype_k == p_j ):
                 new_type = False
-                atypObj_p.type = str(atyp_p)
+                angleObj_o.type = str(atyp_p)
                 break 
                 
         if( new_type ):
             # Find type in btypC_all
             cnt_check = 0
-            atypObj_p.type = str(atyp_p+1)
+            type_found = False 
+            angleObj_o.type = str(atyp_p+1)
             for a_all, atypObj_all  in atypC_all:
-                all_k = atypObj_all.pgid1 
-                all_i = atypObj_all.pgid2 
-                all_j = atypObj_all.pgid3
+                all_k = atypObj_all.ptype1 
+                all_i = atypObj_all.ptype2 
+                all_j = atypObj_all.ptype3
                 if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
                     cnt_check += 1
+                    type_found = True 
                 if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
                     cnt_check += 1
+                    type_found = True 
 
-            if( cnt_check == 1 ):
-                atypC_p.put(atypObj_all)
-                                    
-            elif( cnt_check < 1 ):
-                print " No Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                if( type_found ):
+                    atypC_p.put(atypObj_all)
+                    type_found = False
+                    
+            if( cnt_check < 1 ):
+                print " No Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
                 #raise TypeError
             elif( cnt_check > 1 ):
-                atypC_p.put(atypObj_all)
-                print " Multiple Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                print " Multiple Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
                 #raise TypeError
                     
     #
@@ -206,10 +207,10 @@ def set_param(struc_o,param_all):
         fftype_j =  ptclC_o[ dihObj_o.pgid3 ].tagsDict["fftype"]
         fftype_l =  ptclC_o[ dihObj_o.pgid4 ].tagsDict["fftype"]
         for dtyp_p, dtypObj_p  in dtypC_p:
-            p_k = dtypObj_p.pgid1 
-            p_i = dtypObj_p.pgid2 
-            p_j = dtypObj_p.pgid3
-            p_l = dtypObj_p.pgid4
+            p_k = dtypObj_p.ptype1 
+            p_i = dtypObj_p.ptype2 
+            p_j = dtypObj_p.ptype3
+            p_l = dtypObj_p.ptype4
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
                 new_type = False
                 dihObj_o.type = str(dtyp_p)
@@ -222,103 +223,79 @@ def set_param(struc_o,param_all):
         if( new_type ):
             # Find type in btypC_all
             cnt_check = 0
+            type_found = False 
             dihObj_o.type = str(dtyp_p+1)
             for d_all, dtypObj_all  in dtypC_all:
-                all_k = atypObj_all.pgid1 
-                all_i = atypObj_all.pgid2 
-                all_j = atypObj_all.pgid3
-                all_l = atypObj_all.pgid4
+                all_k = dtypObj_all.ptype1 
+                all_i = dtypObj_all.ptype2 
+                all_j = dtypObj_all.ptype3
+                all_l = dtypObj_all.ptype4
 
+                if ( fftype_k == all_k and  fftype_i == all_i and  fftype_j == all_j and fftype_l == all_l   ):
+                    cnt_check += 1
+                    type_found = True
                 if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
                     cnt_check += 1
+                    type_found = True
                 if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == all_l   ):
                     cnt_check += 1
+                    type_found = True
                 if ( fftype_k == all_k and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
                     cnt_check += 1
-                if ( fftype_l == 'X' and  fftype_j == all_j and   fftype_i == all_i  and fftype_k == 'X'   ):
+                    type_found = True
+                    
+                if ( fftype_l == all_k and fftype_j == all_i and   fftype_i == all_j  and fftype_k == all_l   ):
                     cnt_check += 1
-                if ( fftype_l == 'X' and  fftype_j == all_j and   fftype_i == all_i  and fftype_k == all_k  ):
+                    type_found = True
+                if ( fftype_l == 'X' and  fftype_j == all_i and   fftype_i == all_j  and fftype_k == 'X'   ):
                     cnt_check += 1
-                if ( fftype_l == all_l and fftype_j == all_j and   fftype_i == all_i  and fftype_k == 'X'   ):
+                    type_found = True
+                if ( fftype_l == 'X' and  fftype_j == all_i and   fftype_i == all_j  and fftype_k == all_l  ):
                     cnt_check += 1
-
-            if( cnt_check == 1 ):
-                dtypC_p.put(dtypObj_all)
-                
-            elif( cnt_check < 1 ):
-                print " No Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                    type_found = True
+                if ( fftype_l == all_k and fftype_j == all_i and   fftype_i == all_j  and fftype_k == 'X'   ):
+                    cnt_check += 1
+                    type_found = True
+                    
+                if( cnt_check == 1 ):
+                    dtypC_p.put(dtypObj_all)
+                    type_found = False 
+                    
+            if( cnt_check < 1 ):
+                print " No Angles parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
                 #raise TypeError
             elif( cnt_check > 1 ):
-                dtypC_p.put(dtypObj_all)
-                print " Multiple Angles parameters were found for bond type %s-%s "%(fftype_k,fftype_i,fftype_j)
+                print " Multiple Angles parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
                 #raise TypeError
                   
-        
+    debug = 1
+    if(debug):
+        print " LJ atom types found %d "%(len(ljtypC_p))
+        for lj_p, ljObj_p  in ljtypC_p: 
+            print lj_p,ljObj_p.ptype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
+        print " Bond types found %d "%(len(btypC_p))
+        for btyp_p, btypObj_p  in btypC_p:
+            print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2
+        print " Angle types found %d "%(len(atypC_p))
+        for atyp_p, atypObj_p  in atypC_p:
+            print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3
+        print " Dih types found %d "%(len(dtypC_p))
+        for dtyp_p, dtypObj_p  in dtypC_p:
+            print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4
+        sys.exit('find_types')
+
     debug = 0
-    if( debug ):
-        for i in range(n_atoms):
-            print i,ATYPE[i],ATYPE_IND[i]
+    if(debug):
+        print "  All particles should have new type labeled as interger stored as a string "
+        for pid_o, ptclObj_o  in ptclC_o:
+            print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
 
-        print len( ATYPE_REF), len(ATYPE_MASS)
-        for i in range( len(ATYPE_MASS)):
-            print i,ATYPE_REF[i],ATYPE_MASS[i]
-
-        print ' angle types ',len(ANGTYPE_REF) 
-        for i in range( len(ANGTYPE_REF) ):
-            print i,ANGTYPE_REF[i]
-            
-        print ' dihedra types ',len(DTYPE_REF) 
-        for i in range( len(DTYPE_REF) ):
-            print i,DTYPE_REF[i]
-            
-        for i in range( len(DTYPE_IND) ):
-            print i,DTYPE_IND[i] #,DIH[i]
-
-        sys.exit('lmp_types')
-        
-
-    return param_struc
-
-    """
-    # Identify total number of atom types for lammps output 
-    ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF =
-
-    lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+    return paramC_p
 
 
-    ATYPE_NNAB =
-
-    top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)    
-    #ATYPE_EP, ATYPE_SIG = top.atom_parameters(ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-    
-    ATYPE_EP, ATYPE_SIG =
-
-    top.atom_parameters(options.itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-    
-    BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  =
-
-    top.bond_parameters(options.itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-    
-    ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K =
-
-
-    top.angle_parameters(options.itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-    DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C =
-
-    top.dih_parameters(options.itp_file, options.norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
-    
-    IMPTYPE_F  =
-
-    top.imp_parameters(options.itp_file)
-    """
-
-    return struc_i,param_i
-
-
+"""
 def find_types(struc_o,param_all):
-    """
     Find all the force-field parameters associated with a structure 
-    """
 
     ptclC_o =  struc_o.ptclC
     bondC_o  = struc_o.bondC
@@ -558,9 +535,7 @@ def find_types(struc_o,param_all):
     return param_struc
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
-    """
     Find topology information for force-field input files 
-    """
 
     # New options that need to be passed 
     limdih =  0
@@ -608,7 +583,7 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
             print  pid_i, strucC.ptclC[pid_i].tagsDict["number"],strucC.ptclC[pid_i].tagsDict["ring"],strucC.ptclC[pid_i].tagsDict["fftype"]
 
     return strucC
-
+"""
 
 def nblist_bonds(strucC,cov_nblist, cov_nbindx):
     import sys
