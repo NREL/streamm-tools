@@ -30,14 +30,14 @@ from structureContainer import StructureContainer
 
 import atomtypes
 
-
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
     Find topology information for force-field input files
     """
-
+    
     # New options that need to be passed
     limdih = 0
+
     limitdih_n = 1
     verbose = True
     debug = True
@@ -62,8 +62,8 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     # Check dihedrals
     if( len(strucC.dihC) <= 0 ):
         nblist_dih(strucC,cov_nblist, cov_nbindx)
-        if( verbose ):
-            print " Found dihedrals %d "%(len(strucC.dihC))
+    if( verbose ):
+        print " Found dihedrals %d "%(len(strucC.dihC))
 
     # Find rings
     strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
@@ -75,12 +75,12 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-                                               
     if(debug):
         print len(strucC.ptclC)
         for pid_i in range(1,len(strucC.ptclC)+1):
             print pid_i, strucC.ptclC[pid_i].tagsDict["number"],strucC.ptclC[pid_i].tagsDict["ring"],strucC.ptclC[pid_i].tagsDict["fftype"]
 
+    return strucC
 
 
 def set_param(struc_o,param_all):
@@ -114,7 +114,7 @@ def set_param(struc_o,param_all):
     #
     # Count atom types
     #
-    debug = 1
+    debug = 0
     for pid_o, ptclObj_o  in ptclC_o:    
         new_type = True
         lj_p = 0
@@ -154,7 +154,7 @@ def set_param(struc_o,param_all):
     #
     # Count bonds types
     #
-    debug = 1
+    debug = 0
     for b_o, bondObj_o  in bondC_o:    
         new_type = True
         btyp_p = 0
@@ -181,28 +181,30 @@ def set_param(struc_o,param_all):
                 all_i = btypObj_all.ptype1 
                 all_j = btypObj_all.ptype2
                 if( fftype_i == all_i  and  fftype_j == all_j ):
-                    cnt_check += 1
                     type_found = True 
                 if( fftype_j == all_i  and  fftype_i == all_j ):
-                    cnt_check += 1
                     type_found = True 
                 if( type_found ):
+                    cnt_check += 1
                     btypC_p.put(btypObj_all)
+                    if( debug ):
+                        print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
                     type_found = False 
                     
             if( cnt_check < 1 ):
                 print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
-                #raise TypeError
+                raise TypeError
             elif( cnt_check > 1 ):
-                btypC_p.put(btypObj_all)
-                print " Multiple Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
-                #raise TypeError
+                print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
+                for btyp_p, btypObj_p  in btypC_p:
+                    print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2                    
+                raise TypeError
                     
 
     #
     # Count angles types
     #
-    debug = 1
+    debug = 0
     for a_o,angleObj_o in angleC_o:
         new_type = True
         atyp_p = 0
@@ -232,27 +234,31 @@ def set_param(struc_o,param_all):
                 all_i = atypObj_all.ptype2 
                 all_j = atypObj_all.ptype3
                 if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
-                    cnt_check += 1
                     type_found = True 
                 if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
-                    cnt_check += 1
                     type_found = True 
 
                 if( type_found ):
+                    cnt_check += 1
                     atypC_p.put(atypObj_all)
                     type_found = False
+                    if( debug ):
+                        print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
                     
             if( cnt_check < 1 ):
                 print " No Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
-                #raise TypeError
+                raise TypeError
             elif( cnt_check > 1 ):
-                print " Multiple Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
-                #raise TypeError
+                print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
+                for atyp_p, atypObj_p  in atypC_p:
+                    print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3
+
+                raise TypeError
                     
     #
     # Count dihedrals types
     #
-    debug = 1
+    debug = 0
     for d_o,dihObj_o in dihC_o:
         new_type = True
         dtyp_p = 0
@@ -260,6 +266,10 @@ def set_param(struc_o,param_all):
         fftype_i =  ptclC_o[ dihObj_o.pgid2 ].tagsDict["fftype"]
         fftype_j =  ptclC_o[ dihObj_o.pgid3 ].tagsDict["fftype"]
         fftype_l =  ptclC_o[ dihObj_o.pgid4 ].tagsDict["fftype"]
+
+        if( debug):
+            print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+        
         for dtyp_p, dtypObj_p  in dtypC_p:
             p_k = dtypObj_p.ptype1 
             p_i = dtypObj_p.ptype2 
@@ -268,10 +278,18 @@ def set_param(struc_o,param_all):
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
                 new_type = False
                 dihObj_o.type = str(dtyp_p)
+
+                if( debug):
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
+                    
                 break 
             if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
                 new_type = False
                 dihObj_o.type = str(dtyp_p)
+
+                if( debug):
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
+
                 break 
                 
         if( new_type ):
@@ -279,57 +297,105 @@ def set_param(struc_o,param_all):
             cnt_check = 0
             type_found = False 
             dihObj_o.type = str(dtyp_p+1)
+
+            if( debug):
+                print "  new type "
+
+            copy_type = False 
             for d_all, dtypObj_all  in dtypC_all:
                 all_k = dtypObj_all.ptype1 
                 all_i = dtypObj_all.ptype2 
                 all_j = dtypObj_all.ptype3
                 all_l = dtypObj_all.ptype4
 
-                if ( fftype_k == all_k and  fftype_i == all_i and  fftype_j == all_j and fftype_l == all_l   ):
+                if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                    copy_type = True    
+                if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                    copy_type = True
+
+                if( copy_type ):
                     cnt_check += 1
+                    dtypObj_temp = copy.deepcopy(dtypObj_all)
                     type_found = True
-                if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
-                    cnt_check += 1
-                    type_found = True
-                if ( fftype_k == 'X' and  fftype_i == all_i and  fftype_j == all_j and fftype_l == all_l   ):
-                    cnt_check += 1
-                    type_found = True
-                if ( fftype_k == all_k and  fftype_i == all_i and  fftype_j == all_j and fftype_l == 'X'   ):
-                    cnt_check += 1
-                    type_found = True
+                    copy_type = False 
+
                     
-                if ( fftype_l == all_k and fftype_j == all_i and   fftype_i == all_j  and fftype_k == all_l   ):
-                    cnt_check += 1
-                    type_found = True
-                if ( fftype_l == 'X' and  fftype_j == all_i and   fftype_i == all_j  and fftype_k == 'X'   ):
-                    cnt_check += 1
-                    type_found = True
-                if ( fftype_l == 'X' and  fftype_j == all_i and   fftype_i == all_j  and fftype_k == all_l  ):
-                    cnt_check += 1
-                    type_found = True
-                if ( fftype_l == all_k and fftype_j == all_i and   fftype_i == all_j  and fftype_k == 'X'   ):
-                    cnt_check += 1
-                    type_found = True
+                    if( debug ):
+                        print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                        print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
                     
-                if( cnt_check == 1 ):
-                    dtypObj_temp = copy.deepcopy(ljtyp)
-                    # Set FF types to read in bond to remove X's 
-                    dtypObj_temp.ptype1 = fftype_k
-                    dtypObj_temp.ptype2 = fftype_i
-                    dtypObj_temp.ptype3 = fftype_j
-                    dtypObj_temp.ptype4 = fftype_l
-                    
-                    dtypC_p.put(dtypObj_temp)
-                    type_found = False 
-                    
+            if( not type_found ):
+                
+                copy_type = False 
+                for d_all, dtypObj_all  in dtypC_all:
+                    all_k = dtypObj_all.ptype1 
+                    all_i = dtypObj_all.ptype2 
+                    all_j = dtypObj_all.ptype3
+                    all_l = dtypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                        copy_type = True
+                    if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l  ):
+                        copy_type = True
+                    if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+                    if( copy_type ):
+                        cnt_check += 1
+                        dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                            
+            if( not type_found ):
+                copy_type = False 
+                for d_all, dtypObj_all  in dtypC_all:
+                    all_k = dtypObj_all.ptype1 
+                    all_i = dtypObj_all.ptype2 
+                    all_j = dtypObj_all.ptype3
+                    all_l = dtypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+
+                    if( copy_type ):
+                        cnt_check += 1
+                        dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+
             if( cnt_check < 1 ):
-                print " No Angles parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
-                #raise TypeError
+                print " No Dih parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
             elif( cnt_check > 1 ):
-                print " Multiple Angles parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
-                #raise TypeError
+                print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
+
+            if( type_found ):
+                # Set FF types to read in bond to remove X's 
+                dtypObj_temp.ptype1 = fftype_k
+                dtypObj_temp.ptype2 = fftype_i
+                dtypObj_temp.ptype3 = fftype_j
+                dtypObj_temp.ptype4 = fftype_l
+                    
+                dtypC_p.put(dtypObj_temp)
+                
+
+                if( debug ):
+                    print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " adding new type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                    print " len(dtypC_p) ",len(dtypC_p) 
+                        
                   
-    debug = 1
+    debug = 0
     if(debug):
         print " LJ atom types found %d "%(len(ljtypC_p))
         for lj_p, ljObj_p  in ljtypC_p: 
