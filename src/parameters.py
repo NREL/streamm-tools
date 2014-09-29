@@ -5,7 +5,7 @@ import copy, sys
 
 class ljtype:
     """
-    Set of LJ parameters 
+    Set of LJ particle parameters 
     """
 
     def __init__(self, ptype1="blank"):
@@ -13,7 +13,7 @@ class ljtype:
         Constructor for a Lennard-Jones parameter.
         
         Args:
-             ptype1  (str)   Atom type 
+             ptype1  (str)   Force-field particle type 
         """
 
         if isinstance(ptype1, str):
@@ -26,6 +26,7 @@ class ljtype:
         # Set default values for parameters
         self.epsilon = 0.0
         self.sigma = 0.0 
+        self.mass = 0.0 
 
     def __del__(self):
         """
@@ -42,7 +43,22 @@ class ljtype:
                 
         return strucStr
 
-    def setparam(epsilon,sigma):
+    def setmass(self,mass):
+        """
+        set mass of LJ particle 
+
+
+        Args:
+            mass (float)  mass  AMU  
+        """
+
+        if isinstance(mass, float):
+            self.mass = mass
+        else:
+            print "1st arg should be float"
+            raise TypeError
+
+    def setparam(self,epsilon,sigma):
         """
         set Harmonic parameters
 
@@ -52,7 +68,6 @@ class ljtype:
             epsilon (float)  energy  kcal/mol  
             sigma    (float) distance
         """
-        
 
         if isinstance(epsilon, float):
             self.epsilon = epsilon
@@ -490,6 +505,12 @@ class LJtypesContainer:
     
 
 
+    def __len__(self):
+        """
+        'Magic' method for returning size of container
+        """
+        return len(self.ljtypes)
+
 class BondtypesContainer:
     """
     Container for bondtype
@@ -536,6 +557,13 @@ class BondtypesContainer:
         # return iter(self.particles)
         return self.bondtypes.iteritems()
     
+
+
+    def __len__(self):
+        """
+        'Magic' method for returning size of container
+        """
+        return len(self.bondtypes)
 
 
 class AngletypesContainer:
@@ -585,6 +613,12 @@ class AngletypesContainer:
         return self.angletypes.iteritems()
     
 
+    def __len__(self):
+        """
+        'Magic' method for returning size of container
+        """
+        return len(self.angletypes)
+
 class DihtypesContainer:
     """
     Container for dihtype 
@@ -631,6 +665,12 @@ class DihtypesContainer:
         return self.dihtypes.iteritems()
     
 
+    def __len__(self):
+        """
+        'Magic' method for returning size of container
+        """
+        return len(self.dihtypes)
+
 class ParameterContainer:
     """
     Container for force-field parameters
@@ -676,4 +716,5 @@ class ParameterContainer:
         """
         Destructor, clears object memory
         """
+
 

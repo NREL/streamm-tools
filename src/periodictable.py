@@ -558,7 +558,12 @@ class periodictable:
         for el_symb in self.elements:
             if( el_symb == symbol_i ):
                 el =  self.elements[el_symb]
-                
+        try:
+            el
+        except NameError:
+            print "No element found for atomi symbol %s "%(symbol_i)
+            raise Error 
+            
         return el
 
     

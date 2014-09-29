@@ -35,7 +35,7 @@ def file_exists(filename):
         return False
 
 
-def struc_array_json(struc_array,json_list):
+def struc_array_json(struc_array,param_array,json_list):
     """
     Loop over list of json files and place each structure container into a list
 
@@ -63,9 +63,10 @@ def struc_array_json(struc_array,json_list):
 
                 struc_i,param_i,json_data_i = getsys_json(struc_i,param_i,json_file)
 		struc_array.append(struc_i)
+		param_array.append(param_i)
 
 		
-    return struc_array
+    return struc_array,param_array
 
 
 def struc_array_gromacs(struc_array,gro_list,top_list):
@@ -123,8 +124,13 @@ def read_ref(ref_file):
         json_file = "%s/%s.json"%(col[0],col[1])
         json_list.append(json_file)
 
+    for oligo_list in json_ref['systems']:
+        col = oligo_list #.split()
+        json_file = "%s/%s.json"%(col[0],col[1])
+        json_list.append(json_file)
+
     return json_list
-        
+
 def parse_jsons(jsons_input):
     """
     Parse a list of json files
