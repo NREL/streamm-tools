@@ -11,7 +11,9 @@ k-i-j-l
 # travis.kemper@nrel.gov
 
 from structureContainer import StructureContainer
-import mpiNREL
+from parameters import ParameterContainer
+
+import mpiNREL, lammps , file_io
 import datetime, sys
 import numpy as np
 
@@ -26,8 +28,9 @@ def get_options():
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
 
-    # json files to act on
+    # input files to act on
     parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file, which read in first then over writen by subsequent input files")
+    parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
     parser.add_option("-o","--output_id", dest="output_id", default="trans",type="string",help=" prefix for output files  ")
 
     parser.add_option("--bin_size", dest="bin_size", type=float, default=2.00, help=" Bin size in degrees ")
@@ -88,44 +91,6 @@ def get_options():
         
     return options, args
    
-
-def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
-    """
-    Create a dictionary to pass to particle search
-    """
-    
-    search_i = {}
-
-    if( len( f_symb ) ):
-        search_i["type"] = []
-        for id_s in f_symb.split():
-            search_i["type"].append(id_s)
-    if( len( f_chain ) ):
-        search_i["chain"] = []
-        for id_s in f_chain.split():
-            search_i["chain"].append(id_s)
-    if( len( f_ring ) ):
-        search_i["ring"] = []
-        for id_s in f_ring.split():
-            search_i["f_ring"].append(id_s)
-    if( len( f_resname ) ):
-        search_i["resname"] = []
-        for id_s in f_resname.split():
-            search_i["resname"].append(id_s)
-    if( len( f_residue ) ):
-        search_i["residue"] = []
-        for id_s in f_residue.split():
-            search_i["residue"].append(id_s)
-    if( len( f_linkid  ) ):
-        search_i["linkid"] = []
-        for id_s in f_linkid.split():
-            search_i["linkid"].append(id_s)
-    if( len( f_fftype ) ):
-        search_i["fftype"] = []
-        for id_s in f_fftype.split():
-            search_i["fftype"].append(id_s)
-            
-    return search_i
 
 def dih_hist(angle_list,struc_o,bin_size,hist_cnt):
     """
@@ -204,18 +169,24 @@ def dihdist():
     #  Initialize blank system 
     # 
     struc_o = StructureContainer()
+    param_i = ParameterContainer()
     #
-    # Read in json file
+    # Read in system data from json file
     #
-    if( len(options.in_json) ):
-        if( rank == 0 and options.verbose ):
-            print  "     - Reading in ",options.in_json
-        json_data_i = struc_o.getsys_json(options.in_json)
+    if( len(options.in_json)):
 
+        struc_o,param_i,json_data = file_io.getsys_json(struc_o,param_i,options.in_json)
 
-        # Get paticle and bond structures
-        ptclC_o = struc_o.ptclC
-        bondC_o  = struc_o.bondC
+    # 
+    # Read lammps data file 
+    #
+    if( len(options.in_data) ):
+        if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
+        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+    
+    # Get paticle and bond structures
+    ptclC_o = struc_o.ptclC
+    bondC_o  = struc_o.bondC
     
     p.barrier()
     
@@ -246,28 +217,28 @@ def dihdist():
     if( rank == 0 and options.verbose  ):
         print "  searching for list k i j l "
         
-    search_k = create_search(options.id_k,options.symb_k,options.chains_k,options.ring_k,options.resname_k,options.residue_k,options.linkid_k,options.fftype_k)
+    search_k = file_io.create_search(options.id_k,options.symb_k,options.chains_k,options.ring_k,options.resname_k,options.residue_k,options.linkid_k,options.fftype_k)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group k ",search_k
     list_k = ptclC_o.getParticlesWithTags(search_k)
     sum_k = len(list_k)
     
     
-    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
+    search_i = file_io.create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
     
     if( rank == 0 ):
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
     sum_i = len(list_i)
     
-    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
+    search_j = file_io.create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group j ",search_j
     list_j = ptclC_o.getParticlesWithTags(search_j)
     sum_j = len(list_j)
     
     
-    search_l = create_search(options.id_l,options.symb_l,options.chains_l,options.ring_l,options.resname_l,options.residue_l,options.linkid_l,options.fftype_l)
+    search_l = file_io.create_search(options.id_l,options.symb_l,options.chains_l,options.ring_l,options.resname_l,options.residue_l,options.linkid_l,options.fftype_l)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group l ",search_l
     list_l = ptclC_o.getParticlesWithTags(search_l)

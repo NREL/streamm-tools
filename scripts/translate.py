@@ -12,7 +12,7 @@ import datetime
 from string import replace
 
 from structureContainer import StructureContainer
-import mpiNREL
+import mpiNREL, lammps , gromacs , file_io 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
@@ -161,39 +161,34 @@ def main():
     #  Initialize blank system 
     # 
     struc_o = StructureContainer()
+    
+    #struc_o = file_io.get_strucC( options.in_json, options.in_gro , options.in_top, options.in_data )
     #
     # Read in json file
     #
     if( len(options.in_json) ):
-        if( options.verbose ):
+        if( rank == 0 and options.verbose ):
             print  "     - Reading in ",options.in_json
         json_data_i = struc_o.getsys_json(options.in_json)
-
-    # 
-    # Get lammps data file 
     #
-    if( len(options.in_data) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_data            
-        sys.exit(" option not yet supported ")
-        #ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,DIH_i,DTYPE_IND_i,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,MOLNUMB_i,ATYPE_IND_i,CHARGES_i,R_i , ATYPE_i, BONDS_i ,BTYPE_IND_i, ANGLES_i ,ANGTYPE_IND_i, LV_i = lammps.read_data(options.in_data)
-
+    # Read gro file 
+    #
+    if( len(options.in_gro) ):
+        if( options.verbose ): print  "     GROMACS .gro file ",options.in_gro
+        struc_o = gromacs.read_gro(struc_o,options.in_gro)
     #
     # Read in top file
     #
     if( len(options.in_top) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_top
-        sys.exit(" option not yet supported ")
-        #ATYPE_i,RESN_i,RESID_i,GTYPE_i,CHARN_i,CHARGES_i,AMASS_i,BONDS_i,ANGLES_i,DIH_i,MOLNUMB_i,MOLPNT_i,MOLLIST_i = gromacs.read_top(options,options.in_top)
-        #ASYMB_i,ELN_i  = elements.mass_asymb(AMASS_i)
+        if( options.verbose ): print  "     GROMACS .top file ",options.in_top
+        struc_o,ljmixrule = gromacs.read_top(struc_o,options.in_top)
+    # 
+    # Read lammps data file 
     #
-    # Get gro file 
-    #
-    if( len(options.in_gro) ):
-        if( options.verbose ): print  "     - Reading in ",options.in_gro
-        sys.exit(" option not yet supported ")
-        #GTYPE_i,R_i,VEL_i,LV_i = gromacs.read_gro(options,options.in_gro)        
-
-
+    if( len(options.in_data) ):
+        if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
+        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+        
     #
     # Read in ff file
     #

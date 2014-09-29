@@ -10,8 +10,10 @@ Run Molecular Dynamics simulation at low temperature NVT to get a minimized stru
 # travis.kemper@nrel.gov
 
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import pbcs
-import mpiNREL
+import mpiNREL, file_io
 
 import numpy as np 
 import sys , datetime, random, math 
@@ -62,7 +64,6 @@ def get_options():
 
     # Force filed stuff should be read in from json 
     parser.add_option("--itp_file", dest="itp_file", help=" itp file for all force field parameters  ", default="oplsaa_biaryl.itp")
-
     parser.add_option("--norm_dihparam", dest="norm_dihparam",default=False,action="store_true",help="Normalize dihedral potential terms if single dihedral is specified in itp file  ")
 
     (options, args) = parser.parse_args()
@@ -89,8 +90,27 @@ def main():
     rank = p.getRank()
     size = p.getCommSize()
 
+    # Read in oligomers
+    #   from json files
+    oligo_array = []
+    oligo_param_array = []
+    #    from gromacs  files
+    if( len(options.gro) > 0 ):
+        oligo_array = file_io.struc_array_gromacs(oligo_array,options.gro,options.top)
+
+    # Read in solvents
+    #   from json files 
+    sol_array = []
+    sol_param_array = []
+    #   from gromacs  files
+    if( len(options.gro) > 0 ):
+        sol_array = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top)
+
+
     f_rep = StructureContainer()
-    f_new = f_rep.replicate(p,options)
+    paramC = ParameterContainer()
+    
+    f_new = pbcs.replicate(p,options,oligo_array,sol_array)
     #f_rep.compressPtclIDs()
 
     #print " f_new prop "
@@ -107,7 +127,8 @@ def main():
         f_new.write_xmol(xmol_file,comment,append)
 
         # Write json file
-	f_new.write_json(options.dir_id,options.output_id )
+        
+	#file_io.write_json(f_new,paramC,options.dir_id,options.output_id )
         
         #  Write Lammps input file
         #path_data_file = options.dir_id +"/" + options.output_id + ".data"
@@ -116,7 +137,7 @@ def main():
 
         # Write gromacs input files python replicate.py   --gro SOL.gro --top SOL.top   --sol_gro SOL.gro   --sol_top SOL.top   --den_target 0.1  --atoms_target 100    --perc_sol 90
         
-        f_new.write_gro(options.dir_id,options.output_id )
+        #f_new.write_gro(options.dir_id,options.output_id )
 
 if __name__=="__main__":
     main()

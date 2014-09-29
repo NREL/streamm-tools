@@ -19,8 +19,12 @@ from particles import Particle
 from particles import ParticleContainer
 from bonds     import BondContainer
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import mpiNREL
-import pbcs
+import pbcs, file_io , lammps 
+
+
 import json, math , sys 
 import numpy as np
 import datetime
@@ -86,44 +90,6 @@ def get_options():
     return options, args
    
 
-def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
-    """
-    Create a dictionary to pass to particle search
-    """
-    
-    search_i = {}
-
-    if( len( f_symb ) ):
-        search_i["type"] = []
-        for id_s in f_symb.split():
-            search_i["type"].append(id_s)
-    if( len( f_chain ) ):
-        search_i["chain"] = []
-        for id_s in f_chain.split():
-            search_i["chain"].append(id_s)
-    if( len( f_ring ) ):
-        search_i["ring"] = []
-        for id_s in f_ring.split():
-            search_i["f_ring"].append(id_s)
-    if( len( f_resname ) ):
-        search_i["resname"] = []
-        for id_s in f_resname.split():
-            search_i["resname"].append(id_s)
-    if( len( f_residue ) ):
-        search_i["residue"] = []
-        for id_s in f_residue.split():
-            search_i["residue"].append(id_s)
-    if( len( f_linkid  ) ):
-        search_i["linkid"] = []
-        for id_s in f_linkid.split():
-            search_i["linkid"].append(id_s)
-    if( len( f_fftype ) ):
-        search_i["fftype"] = []
-        for id_s in f_fftype.split():
-            search_i["fftype"].append(id_s)
-            
-    return search_i
-    
 def main():
     """
     Calculate radial distribution (RDF) based on specified atom types
@@ -160,15 +126,28 @@ def main():
             
     options, args = get_options()
 
-
+    #
+    #  Initialize blank system 
+    # 
+    struc_o = StructureContainer()
+    param_i = ParameterContainer()
+    #
     # Read in system data from json file
+    #
     if( len(options.in_json)):
-        struc_o = StructureContainer()
-        struc_o.getsys_json(options.in_json)
 
-        # Get paticle and bond structures
-        ptclC_o = struc_o.ptclC
-        bondC_o  = struc_o.bondC
+        struc_o,param_i,json_data = file_io.getsys_json(struc_o,param_i,options.in_json)
+
+    # 
+    # Read lammps data file 
+    #
+    if( len(options.in_data) ):
+        if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
+        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+    
+    # Get paticle and bond structures
+    ptclC_o = struc_o.ptclC
+    bondC_o  = struc_o.bondC
     
     p.barrier()
     
@@ -199,14 +178,14 @@ def main():
         log_out.write(str(sys_prop))
         
     # Create sub lists for RDF groups i and j
-    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
+    search_i = file_io.create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
     
     if( rank == 0 ):
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
     sum_i = len(list_i)
     
-    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
+    search_j = file_io.create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group j ",search_j
     list_j = ptclC_o.getParticlesWithTags(search_j)
@@ -390,13 +369,17 @@ def main():
                         
                                 # Print output
                                 if( rank == 0 and options.verbose ):
-                                    rdft_f = datetime.datetime.now()
-                                    dt_sec  = rdft_f.second - rdft_i.second
-                                    dt_min  = rdft_f.minute - rdft_i.minute
-                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                    if ( dt_min < 0 ): dt_min = 60.0 - dt_min
-                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                    log_line = "\n       Frame  %d  rdf calculated in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
+                                    log_line = "\n       Frame  %d  "%frame_cnt
+                                    if( prtCl_time ):
+
+                                        rdft_f = datetime.datetime.now()
+                                        dt_sec  = rdft_f.second - rdft_i.second
+                                        dt_min  = rdft_f.minute - rdft_i.minute
+                                        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                        if ( dt_min < 0 ): dt_min = 60.0 - dt_min
+                                        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                        log_line += "\n       rdf calculated in %d min  %f sec "%(dt_min,dt_sec)
+                                    
                                     log_line  += "\n       with volume %f Angstroms^3 estimated from max/min"%(vol_i)
                                     log_out.write(log_line)
                                     print log_line
@@ -485,13 +468,15 @@ def main():
                         
                             # Print output
                             if( rank == 0 and options.verbose ):
-                                rdft_f = datetime.datetime.now()
-                                dt_sec  = rdft_f.second - rdft_i.second
-                                dt_min  = rdft_f.minute - rdft_i.minute
-                                if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                if ( dt_min < 0 ): dt_min = 60.0 - dt_min
-                                if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                log_line = "\n       Frame  %d  rdf calculated in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
+                                log_line =  "\n       Frame  %d  "%frame_cnt
+                                if( prtCl_time ):
+                                    rdft_f = datetime.datetime.now()
+                                    dt_sec  = rdft_f.second - rdft_i.second
+                                    dt_min  = rdft_f.minute - rdft_i.minute
+                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+                                    if ( dt_min < 0 ): dt_min = 60.0 - dt_min
+                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
+                                    log_line += "      rdf calculated in %d min  %f sec "%(dt_min,dt_sec)
                                 log_line  += "\n       with volume %f Angstroms^3 estimated from max/min"%(vol_i)
                                 log_out.write(log_line)
                                 print log_line
