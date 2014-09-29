@@ -200,7 +200,8 @@ def main():
 
         log_out.write(log_line)
         print log_line
-        
+
+    #struc_o = file_io.get_strucC( options.in_json, options.in_gro , options.in_top, options.in_data )
     #
     # Read in json file
     #
@@ -600,7 +601,7 @@ def main():
 
 
         # Create include matrix of pairs to include
-        #include_ij = [[None]*n_j]*n_i
+        # include_ij = [[None]*n_j]*n_i
         # had to use numpy list since regular list was asigning values include_ij[:][p_j] instead of include_ij[p_i][p_j]
         # not sure why 
         include_ij =  numpy.zeros((n_i,n_j), dtype=numpy.int)
