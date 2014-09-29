@@ -96,6 +96,7 @@ def showInfo():
     print "    # Name of executable binary in repo         - execName    = ", execName
     print "    # Name of input file (template) in repo     - inputName   = ", inputName
     print "    # Name of script for PBS (template) in repo - scriptName  = ", scriptName
+    print "    # Auxillary files to copy                   - auxFileList = ", auxFileList
     print "   "
     print "  To change these defaults below, set options (see help, run with -h)"
     print "    # Top-level dir where runs will be created  - topRunDir   = ", topRunDir
@@ -149,15 +150,40 @@ def runCreateJobsDirs(jobj, jobEditorList, scriptEditor):
 
 
 
+
+
+##################################################################
+#
+# Set host specific paths /commands
+#
+##################################################################
+hostname=os.getenv('HOSTNAME')
+
+if ( "login" in hostname or "n0" in hostname):
+    prospect_exe="prospect-intel"
+elif ( "stc" in hostname ):
+    prospect_exe="prospect-gcc"
+else:
+    print "Hostname not recognized"
+    sys.exit(0)
+##################################################################
+
+
+
 ########################################################################################
 #
 # USER-Editable: Main parameters
 # 
 ########################################################################################
-repoDirPath='./jobrun-template'        # Path to repo for common files
-execName='prospect'                    # Name of executable binary in repo
-inputName='prospect.in'                # Name of input file (template) in repo
-scriptName='script-chg.mb'             # Name of script for PBS (template) in repo
+repoDirPath='./jobrun-template'      # Path to repo for common files
+# execName='prospect-intel'          # Name of executable binary in repo
+execName=prospect_exe                # Name of executable binary in repo
+inputName='prospect.in'              # Name of input file (template) in repo
+scriptName='script-chg.pbs'          # Name of script for PBS (template) in repo
+auxFileList=[
+'raw2vtk.py',
+'prospect-viz.in'
+]                                    # Names of auxillary files to copy to run dirs
 ########################################################################################
 
 
@@ -207,8 +233,8 @@ elif (dryrun):
 #
 else:
 
-    j0=Job(repoDirPath, execName, inputName, scriptName, jverbosity)  # Creating initial job object
-    runCreateJobsDirs(j0, jobsEditorList, scriptFileEditor)           # Main (changing script editor in method)
+    j0=Job(repoDirPath, execName, inputName, scriptName, auxFileList, verbose=jverbosity)  # Creating initial job object
+    runCreateJobsDirs(j0, jobsEditorList, scriptFileEditor)                                # Main (changing script editor in method)
 
     # Copy the editor.py module used to create jobs
     # in top run directory
