@@ -26,7 +26,7 @@ from parameters import ParameterContainer
 #from particles import ParticleContainer
 from structureContainer import StructureContainer
 
-#from periodictable import periodictable
+#from periodictable import periodictabled
 
 import atomtypes
 
