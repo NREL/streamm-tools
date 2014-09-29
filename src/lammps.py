@@ -12,6 +12,7 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from periodictable import periodictable
 
 def read_lmpdata( strucC , data_file):
     """
@@ -34,6 +35,11 @@ def read_lmpdata( strucC , data_file):
     
     debug = 0
     verbose = 0
+
+
+    # Load periodic table 
+    pt = periodictable()
+    
 
     if( file_io.file_exists(data_file )):
         if( debug ): print "Reading in ",data_file
@@ -313,10 +319,11 @@ def read_lmpdata( strucC , data_file):
             lmptype_i = int(col[2]) - 1
             q_i = float(col[3])
             m_i = ATYPE_MASS[lmptype_i]
+            el = pt.getelementWithMass(m_i)
             r_i =  [ float(col[4]),float(col[5]),float(col[6])] 
             type_i = "??"
 
-            tagsD = {"chain":chain_i}
+            tagsD = {"chain":chain_i,"symbol":el.symbol,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
             if( pt_overwrite ):
                 pt_i = strucC.ptclC[cnt_Atoms]
                 pt_i.setTagsDict(tagsD)

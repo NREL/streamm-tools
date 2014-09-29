@@ -331,7 +331,7 @@ class dihtype:
         strucStr =  " dihedral  %s - %s - %s - %s type %s "%(self.ptype1,self.ptype2,self.ptype3,self.ptype4,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic d = %f n = %f K = %f " %(self.d,self.n ,self.kb )
+            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f " %(self.d,self.mult ,self.kb,self.theat_s )
         
         return strucStr
 

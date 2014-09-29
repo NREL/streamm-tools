@@ -82,6 +82,7 @@ def struc_array_gromacs(struc_array,gro_list,top_list):
       struc_array (list) of structure objects
       
     """
+    import gromacs 
 
     # Read in structure containers from json files 
     if( len(gro_list) > 0  and len(top_list) > 0 ):
@@ -95,7 +96,9 @@ def struc_array_gromacs(struc_array,gro_list,top_list):
 		
                 print " Reading in gro file ",gro_files[g_cnt]," with top file ",top_files[g_cnt]
                 struc_i = StructureContainer()
-                struc_i, json_data_i = struc_i.get_gromacs(struc_i, gro_files[g_cnt],top_files[g_cnt])
+                struc_i = gromacs.read_gro(struc_i,gro_files[g_cnt])
+                struc_i,ljmixrule = gromacs.read_top(struc_i,top_files[g_cnt])
+                #struc_i, json_data_i = struc_i.get_gromacs(struc_i, gro_files[g_cnt],top_files[g_cnt])
 		struc_array.append(struc_i)
 		
     return struc_array
@@ -319,13 +322,13 @@ def putstruc_json(strucC, paramC, json_data ):  # Move out of class
     return json_data
 
 
-def write_json(strucC,dir_id,output_id ):
+def write_json(strucC,paramC,dir_id,output_id ):
     """
     Write structure information into a json file
     """
 
     json_data = {}
-    json_data = self.putstruc_json(json_data)
+    json_data = putstruc_json(strucC,paramC,json_data)
 
 
     json_file = dir_id+"/"+output_id + ".json"
@@ -354,128 +357,161 @@ def getsys_json(strucC,paramC, json_file):
     json_data = json.load(f)
     f.close()
 
-    # Place paticle data in sperate data structure 
-    struc_data = json_data["structure"]
-    particle_data = json_data["structure"]["particle"]
-    bonded_data =  json_data["structure"]["bonded"]
-    ffparameter_data = json_data["structure"]["ffparameter"]
+    # Place paticle data in sperate data structure
+    try:
+        json_data["structure"]
+    except NameError:
+        print " No structure data "        
+    else:
+        struc_data = json_data["structure"]        
+        # Read in lattice vectors
+        strucC.latvec = []
+        lv_array = struc_data["latvector"].split()
+        strucC.latvec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
+        strucC.latvec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
+        strucC.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
 
-    # Create structure container for particles
+        try:
+            json_data["structure"]["particle"]
+        except NameError:
+            print " No particle structure data "        
+        else:
+            particle_data = json_data["structure"]["particle"]
 
-
-    for p_i in range( len( particle_data["number_id"])):
-        r_i = particle_data["position"][p_i]
-        atomic_symb = str( particle_data["symbol"][p_i] )
-        m_i = float(particle_data["mass"][p_i])
-        q_i = float(particle_data["charge"][p_i])
-        # Create particle
-        pt_i = Particle( r_i,atomic_symb,q_i,m_i )
-        # Find needed tags
-        chain_i = int( particle_data["chain"][p_i] )
-        ring_i = particle_data["ring"][p_i]
-        resname_i = particle_data["resname"][p_i]
-        residue_i = particle_data["residue"][p_i]
-        linkid_i = particle_data["linkid"][p_i]
-        fftype_i = particle_data["fftype"][p_i]
-        # _i = particle_data[""][p_i]
-        # Add particle to structure
-        # Get element information
-        el = pt.getelementWithSymbol(atomic_symb)
-        tagsD={"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i,"symbol":atomic_symb,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
-        pt_i.setTagsDict(tagsD)
-        strucC.ptclC.put(pt_i)
-
-    # Read in bonds
-    bondC_i = BondContainer()
-    for b_indx in range( len(bonded_data["bonds"] )):
-        a_i = int(bonded_data["bonds"][b_indx][0] )
-        a_j = int(bonded_data["bonds"][b_indx][1] )
-        b_i = Bond( a_i, a_j )            
-        strucC.bondC.put(b_i)
-
-    # Read in angles
-    angleC_i = AngleContainer()
-    for a_indx in range( len(bonded_data["angles"] )):
-        a_k = int(bonded_data["angles"][a_indx][0] )
-        a_i = int(bonded_data["angles"][a_indx][1] )
-        a_j = int(bonded_data["angles"][a_indx][2] )
-        a_i = Angle( a_k,a_i, a_j )            
-        strucC.angleC.put(a_i)
-
-    # Read in dihedrals
-    dihC_i = DihedralContainer()
-    for d_indx in range( len(bonded_data["dihedrals"] )):
-        a_k = int(bonded_data["dihedrals"][b_indx][0] )
-        a_i = int(bonded_data["dihedrals"][b_indx][1] )
-        a_j = int(bonded_data["dihedrals"][b_indx][2] )
-        a_l = int(bonded_data["dihedrals"][b_indx][3] )
-        d_i = Dihedral( a_k,a_i, a_j,a_l )            
-        strucC.dihC.put(d_i)
-
-    # Read in lattice vectors
-    strucC.latvec = []
-    lv_array = struc_data["latvector"].split()
-    strucC.latvec.append(  np.array( [float(lv_array[0]),float(lv_array[1]),float(lv_array[2])] ) )
-    strucC.latvec.append(  np.array( [float(lv_array[3]),float(lv_array[4]),float(lv_array[5])] ) )
-    strucC.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
+            # Create structure container for particles
+            for p_i in range( len( particle_data["number_id"])):
 
 
+                r_i = particle_data["position"][p_i]
+                m_i = float(particle_data["mass"][p_i])
+                q_i = float(particle_data["charge"][p_i])
+                try:
+                    particle_data["symbol"][p_i]
+                except NameError:
+                    print " No symbol particle structure data "
+                    atomic_symb = str( particle_data["type"][p_i] )
+                else:
+                    particle_data = json_data["structure"]["particle"]
+                    atomic_symb = str( particle_data["symbol"][p_i] )
 
-    ljtypC_p = paramC.ljtypC
-    btypC_p = paramC.btypC
-    atypC_p = paramC.atypC
-    dtypC_p = paramC.dtypC
-
-    #print 'ffparameter_data["ljtypes"] ',ffparameter_data["ljtypes"]
-    
-    for lj_list in ffparameter_data["ljtypes"] :
-        print lj_list
-        print lj_list[0]
-        
-        ljObj_p = ljtype( str(lj_list[0]) )
-        ljObj_p.setmass(float(lj_list[1]) )
-        ljObj_p.setparam( float(lj_list[2]),float(lj_list[3]) )
-        ljtypC_p.put(ljObj_p)
-        #print ljObj_p
-
-        #    sys.exit("ljtypes debug ")
-        
-    for btyp_list  in ffparameter_data["bondtypes"]:
-        btype = str(btyp_list[0])
-        btypObj_p = bondtype( str(btyp_list[1]) , str(btyp_list[2]), btype )
-        if( btype == "harmonic" ):
-            btypObj_p.setharmonic(float(btyp_list[3]),float(btyp_list[4]) )
-        btypC_p.put(btypObj_p)
-        
-    for atyp_list  in ffparameter_data["angletypes"]:
+                # Create particle
+                pt_i = Particle( r_i,atomic_symb,q_i,m_i )
+                # Find needed tags
+                chain_i = int( particle_data["chain"][p_i] )
+                ring_i = particle_data["ring"][p_i]
+                resname_i = particle_data["resname"][p_i]
+                residue_i = particle_data["residue"][p_i]
+                linkid_i = particle_data["linkid"][p_i]
+                fftype_i = particle_data["fftype"][p_i]
+                # _i = particle_data[""][p_i]
+                # Add particle to structure
+                # Get element information
+                el = pt.getelementWithSymbol(atomic_symb)
+                tagsD={"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i,"symbol":atomic_symb,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
+                pt_i.setTagsDict(tagsD)
+                strucC.ptclC.put(pt_i)
 
         
-        atype = str(atyp_list[0])
-        atypObj_p = angletype( str(atyp_list[1]) , str(atyp_list[2]) , str(atyp_list[3]) , atype )
-        if( atype == "harmonic" ):
-            atypObj_p.setharmonic(float(atyp_list[4]),float(atyp_list[5]) )
-        atypC_p.put(atypObj_p)
-        
-    for dtyp_list in ffparameter_data["dihtypes"]:
-        dtype = str(dtyp_list[0])
-        dtypObj_p = dihtype( str(dtyp_list[1]) , str(dtyp_list[2]) , str(dtyp_list[3]) , str(dtyp_list[4]) , dtype )
-        if( dtype== "harmonic" ):
-            dtypObj_p.setharmonic(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[8]),float(dtyp_list[7]) )
-        if( dtype== "opls" ):
-            dtypObj_p.setopls(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[7]),float(dtyp_list[8]) )
-        if( dtype== "rb" ):
-            dtypObj_p.setharmonic(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]) )
+    try:
+        json_data["structure"]["bonded"]
+    except NameError:
+        print " No bonded structure data "        
+    else:
+        bonded_data =  json_data["structure"]["bonded"]
 
-            
-        dtypC_p.put(dtypObj_p)
+        # Read in bonds
+        for b_indx in range( len(bonded_data["bonds"] )):
+            a_i = int(bonded_data["bonds"][b_indx][0] )
+            a_j = int(bonded_data["bonds"][b_indx][1] )
+            b_i = Bond( a_i, a_j )            
+            strucC.bondC.put(b_i)
+
+        # Read in angles
+        for a_indx in range( len(bonded_data["angles"] )):
+            a_k = int(bonded_data["angles"][a_indx][0] )
+            a_i = int(bonded_data["angles"][a_indx][1] )
+            a_j = int(bonded_data["angles"][a_indx][2] )
+            a_i = Angle( a_k,a_i, a_j )            
+            strucC.angleC.put(a_i)
+
+        # Read in dihedrals
+        for d_indx in range( len(bonded_data["dihedrals"] )):
+            a_k = int(bonded_data["dihedrals"][b_indx][0] )
+            a_i = int(bonded_data["dihedrals"][b_indx][1] )
+            a_j = int(bonded_data["dihedrals"][b_indx][2] )
+            a_l = int(bonded_data["dihedrals"][b_indx][3] )
+            d_i = Dihedral( a_k,a_i, a_j,a_l )            
+            strucC.dihC.put(d_i)
+
+
+        
+    try:
+        json_data["structure"]["ffparameter"]
+    except NameError:
+        print " No ffparameter structure data "        
+    else:
+        ffparameter_data = json_data["structure"]["ffparameter"]
+
+
+        ljtypC_p = paramC.ljtypC
+        btypC_p = paramC.btypC
+        atypC_p = paramC.atypC
+        dtypC_p = paramC.dtypC
+
+        #print 'ffparameter_data["ljtypes"] ',ffparameter_data["ljtypes"]
+
+        for lj_list in ffparameter_data["ljtypes"] :
+            print lj_list
+            print lj_list[0]
+
+            ljObj_p = ljtype( str(lj_list[0]) )
+            ljObj_p.setmass(float(lj_list[1]) )
+            ljObj_p.setparam( float(lj_list[2]),float(lj_list[3]) )
+            ljtypC_p.put(ljObj_p)
+            #print ljObj_p
+
+            #    sys.exit("ljtypes debug ")
+
+        for btyp_list  in ffparameter_data["bondtypes"]:
+            btype = str(btyp_list[0])
+            btypObj_p = bondtype( str(btyp_list[1]) , str(btyp_list[2]), btype )
+            if( btype == "harmonic" ):
+                btypObj_p.setharmonic(float(btyp_list[3]),float(btyp_list[4]) )
+            btypC_p.put(btypObj_p)
+
+        for atyp_list  in ffparameter_data["angletypes"]:
+            atype = str(atyp_list[0])
+            atypObj_p = angletype( str(atyp_list[1]) , str(atyp_list[2]) , str(atyp_list[3]) , atype )
+            if( atype == "harmonic" ):
+                atypObj_p.setharmonic(float(atyp_list[4]),float(atyp_list[5]) )
+            atypC_p.put(atypObj_p)
+
+        for dtyp_list in ffparameter_data["dihtypes"]:
+            dtype = str(dtyp_list[0])
+            dtypObj_p = dihtype( str(dtyp_list[1]) , str(dtyp_list[2]) , str(dtyp_list[3]) , str(dtyp_list[4]) , dtype )
+            if( dtype== "harmonic" ):
+                dtypObj_p.setharmonic(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[8]),float(dtyp_list[7]) )
+            if( dtype== "opls" ):
+                dtypObj_p.setopls(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[7]),float(dtyp_list[8]) )
+            if( dtype== "rb" ):
+                dtypObj_p.setrb(float(dtyp_list[5]),float(dtyp_list[6]),float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]) )
+
+
+            dtypC_p.put(dtypObj_p)
         
 
     return strucC,paramC,json_data
     
 
+"""
+No long used as new functions
+
+gromacs.read_top
+gromacs.read_gro
+
+are working 
 
 def get_gromacs(strucC, gro_file,top_file):  # Move out of class
-    """
     Read in structure information from gromacs files
 
     Args:
@@ -483,7 +519,6 @@ def get_gromacs(strucC, gro_file,top_file):  # Move out of class
         top_file (str) top file
 
 
-    """
     sys.exit("get_gromacs in file io needs to be updated ")
     
     import gromacs , elements
@@ -528,3 +563,43 @@ def get_gromacs(strucC, gro_file,top_file):  # Move out of class
     strucC.latvec.append(  np.array( [float(LV[2][0]),float(LV[2][1]),float(LV[2][2])] ) )
 
     return strucC
+"""
+
+def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
+    """
+    Create a dictionary to pass to particle search
+    """
+    
+    search_i = {}
+
+    if( len( f_symb ) ):
+        search_i["symbol"] = []
+        for id_s in f_symb.split():
+            search_i["symbol"].append(id_s)
+    if( len( f_chain ) ):
+        search_i["chain"] = []
+        for id_s in f_chain.split():
+            search_i["chain"].append(id_s)
+    if( len( f_ring ) ):
+        search_i["ring"] = []
+        for id_s in f_ring.split():
+            search_i["f_ring"].append(id_s)
+    if( len( f_resname ) ):
+        search_i["resname"] = []
+        for id_s in f_resname.split():
+            search_i["resname"].append(id_s)
+    if( len( f_residue ) ):
+        search_i["residue"] = []
+        for id_s in f_residue.split():
+            search_i["residue"].append(id_s)
+    if( len( f_linkid  ) ):
+        search_i["linkid"] = []
+        for id_s in f_linkid.split():
+            search_i["linkid"].append(id_s)
+    if( len( f_fftype ) ):
+        search_i["fftype"] = []
+        for id_s in f_fftype.split():
+            search_i["fftype"].append(id_s)
+            
+    return search_i
+    

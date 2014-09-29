@@ -62,8 +62,10 @@ def read_gro(strucC,in_gro):
         pt_overwrite = True
     # Check of conistent number of atoms
     n_pt = int( Lines[1])
+    pt_cnt = len(strucC.ptclC)
     if( pt_overwrite ):
-        if(  len(strucC.ptclC) + 1 != n_pt):
+        if( pt_cnt != n_pt):
+            print " Current structure has %d atoms and %s has %d"%(pt_cnt,in_gro,n_pt)
             sys.exit(" Inconsistent number of atoms " )
     #
     # Read in .gro file
@@ -416,7 +418,7 @@ def read_top(strucC, top_infile):
     if( pt_overwrite ):
         pt_cnt = len(strucC.ptclC)
         if( pt_cnt  != pt_cnt_i):
-            print " Current structure has %d atoms and %s has %d"%(pt_cnt,top_infile,ATOMS_CNT+1)
+            print " Current structure has %d atoms and %s has %d"%(pt_cnt,top_infile,pt_cnt_i)
             sys.exit(" Inconsistent number of atoms " )
 
     bonds_overwrite = False
@@ -428,8 +430,6 @@ def read_top(strucC, top_infile):
     dih_overwrite = False
     if( len(strucC.dihC) > 0 ):
         dih_overwrite = True
-
-
 
     #debug = True
     if( debug):
@@ -456,7 +456,7 @@ def read_top(strucC, top_infile):
 
         for mol_repeat in range( MOLECULECNT[repeat_indx]):
             MOL_CNT += 1
-            MOLPNT.append( A_CNT+1 )
+            MOLPNT.append( A_CNT + 1 )
 
             # Repeat atoms
             N_o = MOL_ATOMS_INDEX[id_n] #- 1
@@ -587,7 +587,7 @@ def read_top(strucC, top_infile):
     return (strucC,ljmixrule)
 
 
-def read_itp( ff_file, ljmixrule):
+def read_itp( parmC, ff_file, ljmixrule):
     """
     Read a gromacs paramter file
 
@@ -604,8 +604,6 @@ def read_itp( ff_file, ljmixrule):
     KJ_KCAL = 0.23901
     GRO_SIG = 5.61230943
     NM_ANG = 10.0
-
-    parmC = ParameterContainer()
 
     FF_ATOMTYPES = []
     FF_BONDTYPES = []
@@ -646,7 +644,7 @@ def read_itp( ff_file, ljmixrule):
                         parmC.ljtypC.put(ljtyp_i)
                         #print btyp_i
     if( debug):
-        print " Bonds have been read in "
+        print " LJ paramters have been read in "
         for  ljid, ljtypObj in parmC.ljtypC:
             print ljtypObj
         
