@@ -233,12 +233,42 @@ def main():
     if( len(options.in_data) ):
         if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
         struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+
+
+    # 
+    # Read in trajectory 
+    #
+    if( len(options.in_xtc ) and  len(options.in_gro) ):
+        if( rank == 0 ):
+            if( options.verbose ): print "  Reading  %s and %s "%(options.in_xtc,options.in_gro)
+        universe =  Universe(options.in_gro, options.in_xtc)
+    elif(len(options.in_gro) ):
+        if( rank == 0 ):
+            if( options.verbose ): print "  Reading  %s "%(options.in_gro)
+        universe =  Universe(options.in_gro)
+    elif( len(options.in_dcd ) and  len(options.in_data) ):
+        if( rank == 0 ):
+            if( options.verbose ): print "  Reading  %s and %s "%(options.in_xtc,options.in_gro)
+        universe =  Universe(options.in_dcd, options.in_data)
+        
+    elif(len(options.in_gro) ):
+        if( rank == 0 ):
+            if( options.verbose ): print "  Reading  %s "%(options.in_gro)
+        universe =  Universe(options.in_gro)
+
+    else:
+        sys.exit("Trajectory read in error ")
+
+
         
     p.barrier()
     
     # Get paticle and bond structures
     ptclC_o = struc_o.ptclC
     bondC_o  = struc_o.bondC
+    un =  universe.selectAtoms("resname * ")
+    coord = un.coordinates()
+    
         
     # Check options
     if( options.mol_inter and options.mol_intra and rank == 0  ):
@@ -257,6 +287,13 @@ def main():
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
     sum_i = len(list_i)
+
+    # Relabel segments to correspond to lists i
+    for pid_i in list_i:
+        #print pid_i,ptclC_o[pid_i].tagsDict["gtype"],ptclC_o[pid_i].position," from u ",universe.atoms[pid_i-1].name , universe.coord[pid_i-1]
+        universe.atoms[pid_i-1].resname = "grpi"
+        universe.atoms[pid_i-1].resnum = ptclC_o[pid_i].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
+    uni_i = universe.selectAtoms(" resname grpi ")
     
     search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j,options.gtype_i)
     if( rank == 0 ):
@@ -264,6 +301,37 @@ def main():
     list_j = ptclC_o.getParticlesWithTags(search_j)
     sum_j = len(list_j)
     
+    # Relabel segments to correspond to lists j
+    for pid_j in list_j:
+        #print pid_j,ptclC_o[pid_j].tagsDict["gtype"]," from u ",universe.atoms[pid_j-1].name
+        universe.atoms[pid_j-1].resname = "grpj"
+        universe.atoms[pid_j-1].resnum = ptclC_o[pid_j].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
+    uni_j = universe.selectAtoms(" resname grpj ")
+
+    n_i = uni_i.numberOfAtoms()
+    n_j = uni_j.numberOfAtoms()
+
+    coor_i = uni_i.coordinates()
+    coor_j = uni_j.coordinates()
+
+    if( rank == 0 and options.verbose ):
+        print " mdanalysis groups "
+        print "    uni_i  %d "%n_i
+
+        if( options.print_grps ):
+            print "  p_cnt ; number ; name ; type ; resname ; resid ; resnum ; mass ; coord "
+            p_i = 0
+            for a_i in  uni_i.atoms:
+                p_i += 1
+                print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i.resnum,a_i.mass,coord[a_i.number]
+        print "    uni_j  %d "%n_j
+        if( options.print_grps ):
+            p_j = 0
+            for a_j in  uni_j.atoms:
+                p_j += 1
+                print p_j,a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j.resnum,a_j.mass,coord[a_j.number]
+
+            
     if( rank == 0 ):
         if( options.verbose ): print " search finished "
     
@@ -329,6 +397,229 @@ def main():
     rdf *= 0
     rdf = rdf.astype(numpy.float64)  # avoid possible problems with '/' later on
 
+
+
+    if( rank == 0 ):
+        if( options.verbose ): print "  Reading  %s and %s "%(options.in_xtc,options.in_gro)
+        rdft_i = datetime.datetime.now()
+
+    # Allocate distance matrix 
+    dist = numpy.zeros((n_i,n_j), dtype=numpy.float64)
+
+
+    # Create include matrix of pairs to include
+    # include_ij = [[None]*n_j]*n_i
+    # had to use numpy list since regular list was asigning values include_ij[:][p_j] instead of include_ij[p_i][p_j]
+    # not sure why 
+    include_ij =  numpy.zeros((n_i,n_j), dtype=numpy.int)
+
+    p_i = -1
+
+    # Relabel segments to correspond to lists i and j
+    for a_i in  uni_i.atoms:
+        p_i += 1
+        p_j = -1
+        for a_j in  uni_j.atoms:
+            p_j += 1
+
+            #print p_i,p_j
+            #print include_ij
+
+            add_ij = 1
+            if( a_j.number <= a_i.number ):
+                add_ij = 0
+            #
+            # Check for intra vs. inter molecular
+            #
+            if( options.mol_inter ):
+                if( a_i.resnum  == a_j.resnum ):
+                    add_ij = 0
+            if( options.mol_intra ):
+                if(  a_i.resnum  != a_j.resnum ):
+                    add_ij = 0
+
+            include_ij[p_i][p_j] = add_ij
+
+    debug = False 
+    if( debug):
+        print " len(include_ij) ", len(include_ij)
+        print " len(include_ij[0]) ", len(include_ij[0])
+        print "include_ij[0][1]",include_ij[0][1]
+        print include_ij[n_i-1][n_j-1]
+
+        sys.exit(" include array size 0 ")
+        for p_i in range(n_i):
+            for p_j in range(n_j):
+
+                print " for pair  ",include_ij[p_i][p_j],p_i,p_j,dist[p_i,p_j] 
+
+        sys.exit(" include array size ")
+
+    volume_sum_i = 0
+    rdf_frames = 0 
+
+    # setting the skip for the traj
+    # does not seem to work 
+    #universe.trajectory.skip = options.frame_step
+
+    for ts in universe.trajectory:
+        if( options.frame_o <= ts.frame ):
+            if( ts.frame <= options.frame_f  or  options.readall_f  ):
+                if( ts.frame%options.frame_step == 0 ):
+
+                    print "Frame %4d with volume %f " % (ts.frame, ts.volume)
+                    rdf_frames += 1 
+                    volume_sum_i += ts.volume      # correct unitcell volume
+                    box = ts.dimensions
+                    coor_i = uni_i.coordinates()
+                    coor_j = uni_j.coordinates()            
+                    distance_array(coor_i,coor_j, box, result=dist)  # use pre-allocated array, box not fully correct!!
+
+                    for p_i in range(n_i):
+                        for p_j in range(n_j):
+
+                            #if( debug):
+                            #    print " checking ",include_ij[p_i][p_j],p_i,p_j,dist[p_i,p_j] 
+
+                            if( include_ij[p_i][p_j] == 1 ):
+                                if( dist[p_i,p_j] <= options.r_cut ):
+                                    bin_index = int( round( dist[p_i,p_j] / options.bin_size) )
+                                    rdf_cnt_ij[bin_index] += 2
+                                    """
+                            else:
+                                # Set unincluded pairs to have a seperation beyond the cut off
+                                    dist[p_i,p_j] = options.r_cut + 1.0
+                                    """
+
+                    #new_rdf, edges = numpy.histogram(dist, bins=n_bins, range=(dmin, dmax))
+                    #rdf += new_rdf
+
+        #numframes = universe.trajectory.numframes / universe.trajectory.skip
+
+        """
+        volume_sum_i /= rdf_frames    # average volume
+
+        # Normalize RDF
+        radii = 0.5*(edges[1:] + edges[:-1])
+        vol = (4./3.)*numpy.pi*(numpy.power(edges[1:],3)-numpy.power(edges[:-1], 3))
+        # normalization to the average density n/volume_sum_i in the simulation
+        density = n_i / volume_sum_i
+        # This is inaccurate when solutes take up substantial amount
+        # of space. In this case you might want to use
+        ## import MDAnalysis.core.units
+        ## density = MDAnalysis.core.units.convert(1.0, 'water', 'Angstrom^{-3}')
+        norm = density * n_i*n_j * rdf_frames
+        rdf /= norm * vol
+
+        outfile = './rdf_mda.dat'
+        with open(outfile,'w') as output:
+            for radius,gofr in izip(radii, rdf):
+                output.write("%(radius)8.3f \t %(gofr)8.3f\n" % vars())
+            p.barrier() # Barrier for MPI_COMM_WORLD
+
+        """
+            
+    if( options.verbose and rank == 0 ):
+	print "      Wating for all processors to finish  "                                
+    p.barrier()			
+    if( options.verbose and rank == 0 ):
+	print "      Finding averages "
+    #
+    # Find averages
+    #
+    debug = 0 
+    rdf_cnt = np.zeros(n_bins+1)   
+    for bin_index in range( n_bins+1):
+	# Sum rdf_cnt of each bin on each processor 
+	rdf_cnt[bin_index] = p.allReduceSum(rdf_cnt_ij[bin_index])
+
+        # print " Proc %d rdf_cnt_ij %f sum %f "% (rank,rdf_cnt_ij[bin_index],rdf_cnt[bin_index] )
+    
+    p.barrier() # Barrier for MPI_COMM_WORLD
+
+    
+    #
+    # Calculate rdf results 
+    # 
+    total_cnts = np.sum( rdf_cnt )
+    volume_sum = volume_sum_i #p.allReduceSum(volume_sum_i)
+    box_vol_ave = volume_sum/float(rdf_frames)
+    vol_cut = 4.0*math.pi/3.0*options.r_cut**3
+    n_shperes = float(sum_i)*float(rdf_frames)
+    sphere_den_j = float(total_cnts)/vol_cut/n_shperes #/2.0  # N_B A^-3
+    box_den_i = float(sum_i )/float(box_vol_ave)
+    box_den_j = float(sum_j )/float(box_vol_ave)
+    
+    if( rank == 0 ):
+	if( options.verbose ):
+            
+		
+	    print "   Frames ",rdf_frames
+	    print "   Total counts ",total_cnts
+	    print "   Average box volume ",box_vol_ave
+	    print "   Volume of cut-off sphere ",vol_cut
+	    print "   Average box density i ",box_den_i," atoms/angstrom^3 "
+	    print "   Average box density j ",box_den_j," atoms/angstrom^3 "
+	    print "   Average cut-off sphere density ",sphere_den_j," atoms/angstrom^3 "
+		
+	# Write output 
+	#
+	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
+	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
+	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
+	dat_out.write("\n#    Frames %d  " % (rdf_frames))
+	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
+	dat_out.write("\n#    N_i %d " % (sum_i ))
+	dat_out.write("\n#    N_j %d " % (sum_j ))
+	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
+	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
+	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
+	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
+	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
+	dat_out.write("\n#    ")
+	dat_out.write("\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
+	cnt_sum = 0.0 
+	for bin_index in range( 1,n_bins):
+	    
+	    r_val = options.bin_size*float(bin_index)
+	    r_in = r_val - options.bin_size*0.5
+	    r_out = r_val + options.bin_size*0.5
+    
+	    dr_cnt = float( rdf_cnt[bin_index] )
+	    dr_cnt_norm =     dr_cnt    /float(rdf_frames)
+            cnt_sum += dr_cnt_norm/float(sum_i)
+	    dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
+	    dr_vol_apx = 4.0*math.pi*(  r_val**2 )
+	    
+	    dr_rho = dr_cnt_norm/dr_vol
+	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
+	    box_g = dr_rho/box_den_j/float( sum_i )
+	    
+	    dat_out.write("\n  %d %f %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
+        
+        t_f = datetime.datetime.now()
+        dt_sec  = t_f.second - t_i.second
+        dt_min  = t_f.minute - t_i.minute
+        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
+        if ( dt_min < 0 ): dt_min = 60.0 - dt_min
+        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
+        log_line="\n  Finished time  " + str(t_f)
+        log_line+="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
+        if( options.verbose ):
+            print log_line
+        log_out.write(log_line)
+
+	dat_out.close()
+	log_out.close()
+	    
+
+if __name__=="__main__":
+    main()
+   
+
+
+"""
     if( len(options.in_lammpsxyz) ):
         
         if( rank == 0 ):
@@ -549,268 +840,4 @@ def main():
                                 # Rest intial time for next rdf calcution
                                 rdft_i = datetime.datetime.now()
 
-
-
-    if( len(options.in_xtc ) and  len(options.in_gro) ):
-        if( rank == 0 ):
-            if( options.verbose ): print "  Reading  %s and %s "%(options.in_xtc,options.in_gro)
-            rdft_i = datetime.datetime.now()
-        # Read in using mdanalysis
-        universe =  Universe(options.in_gro, options.in_xtc)
-        un =  universe.selectAtoms("resname * ")
-        coord = un.coordinates()
-        #print " len(coord)",len(coord)
-
-        
-        # Relabel segments to correspond to lists i and j
-        for pid_i in list_i:
-            #print pid_i,ptclC_o[pid_i].tagsDict["gtype"],ptclC_o[pid_i].position," from u ",universe.atoms[pid_i-1].name , universe.coord[pid_i-1]
-            universe.atoms[pid_i-1].resname = "grpi"
-            universe.atoms[pid_i-1].resnum = ptclC_o[pid_i].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
-        uni_i = universe.selectAtoms(" resname grpi ")
-
-        for pid_j in list_j:
-            #print pid_j,ptclC_o[pid_j].tagsDict["gtype"]," from u ",universe.atoms[pid_j-1].name
-            universe.atoms[pid_j-1].resname = "grpj"
-            universe.atoms[pid_j-1].resnum = ptclC_o[pid_j].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
-        uni_j = universe.selectAtoms(" resname grpj ")
-        
-        n_i = uni_i.numberOfAtoms()
-        n_j = uni_j.numberOfAtoms()
-
-        coor_i = uni_i.coordinates()
-        coor_j = uni_j.coordinates()
-
-        if( rank == 0 and options.verbose ):
-            print " mdanalysis groups "
-            print "    uni_i  %d "%n_i
-            
-            if( options.print_grps ):
-                print "  p_cnt ; number ; name ; type ; resname ; resid ; resnum ; mass ; coord "
-                p_i = 0
-                for a_i in  uni_i.atoms:
-                    p_i += 1
-                    print p_i,a_i.number,a_i.name,a_i.type,a_i.resname,a_i.resid,a_i.resnum,a_i.mass,coord[a_i.number]
-            print "    uni_j  %d "%n_j
-            if( options.print_grps ):
-                p_j = 0
-                for a_j in  uni_j.atoms:
-                    p_j += 1
-                    print p_j,a_j.number,a_j.name,a_j.type,a_j.resname,a_j.resid,a_j.resnum,a_j.mass,coord[a_j.number]
-
-
-        # Allocate distance matrix 
-        dist = numpy.zeros((n_i,n_j), dtype=numpy.float64)
-
-
-        # Create include matrix of pairs to include
-        # include_ij = [[None]*n_j]*n_i
-        # had to use numpy list since regular list was asigning values include_ij[:][p_j] instead of include_ij[p_i][p_j]
-        # not sure why 
-        include_ij =  numpy.zeros((n_i,n_j), dtype=numpy.int)
-
-        p_i = -1
-        
-        # Relabel segments to correspond to lists i and j
-        for a_i in  uni_i.atoms:
-            p_i += 1
-            p_j = -1
-            for a_j in  uni_j.atoms:
-                p_j += 1
-
-                #print p_i,p_j
-                #print include_ij
-
-                add_ij = 1
-                if( a_j.number <= a_i.number ):
-                    add_ij = 0
-                #
-                # Check for intra vs. inter molecular
-                #
-                if( options.mol_inter ):
-                    if( a_i.resnum  == a_j.resnum ):
-                        add_ij = 0
-                if( options.mol_intra ):
-                    if(  a_i.resnum  != a_j.resnum ):
-                        add_ij = 0
-
-                include_ij[p_i][p_j] = add_ij
-
-        debug = False 
-        if( debug):
-            print " len(include_ij) ", len(include_ij)
-            print " len(include_ij[0]) ", len(include_ij[0])
-            print "include_ij[0][1]",include_ij[0][1]
-            print include_ij[n_i-1][n_j-1]
-
-            sys.exit(" include array size 0 ")
-            for p_i in range(n_i):
-                for p_j in range(n_j):
-                    
-                    print " for pair  ",include_ij[p_i][p_j],p_i,p_j,dist[p_i,p_j] 
-                                    
-            sys.exit(" include array size ")
-
-        volume_sum_i = 0
-        rdf_frames = 0 
-
-        # setting the skip for the traj
-        # does not seem to work 
-        #universe.trajectory.skip = options.frame_step
-        
-        for ts in universe.trajectory:
-            if( options.frame_o <= ts.frame ):
-                if( ts.frame <= options.frame_f  or  options.readall_f  ):
-                    if( ts.frame%options.frame_step == 0 ):
-
-                        print "Frame %4d with volume %f " % (ts.frame, ts.volume)
-                        rdf_frames += 1 
-                        volume_sum_i += ts.volume      # correct unitcell volume
-                        box = ts.dimensions
-                        coor_i = uni_i.coordinates()
-                        coor_j = uni_j.coordinates()            
-                        distance_array(coor_i,coor_j, box, result=dist)  # use pre-allocated array, box not fully correct!!
-
-                        for p_i in range(n_i):
-                            for p_j in range(n_j):
-
-                                #if( debug):
-                                #    print " checking ",include_ij[p_i][p_j],p_i,p_j,dist[p_i,p_j] 
-                                    
-                                if( include_ij[p_i][p_j] == 1 ):
-                                    if( dist[p_i,p_j] <= options.r_cut ):
-                                        bin_index = int( round( dist[p_i,p_j] / options.bin_size) )
-                                        rdf_cnt_ij[bin_index] += 2
-                                else:
-                                    # Set unincluded pairs to have a seperation beyond the cut off
-                                     dist[p_i,p_j] = options.r_cut + 1.0 
-
-                        new_rdf, edges = numpy.histogram(dist, bins=n_bins, range=(dmin, dmax))
-                        rdf += new_rdf
-
-        #numframes = universe.trajectory.numframes / universe.trajectory.skip
-
-        """
-        volume_sum_i /= rdf_frames    # average volume
-
-        # Normalize RDF
-        radii = 0.5*(edges[1:] + edges[:-1])
-        vol = (4./3.)*numpy.pi*(numpy.power(edges[1:],3)-numpy.power(edges[:-1], 3))
-        # normalization to the average density n/volume_sum_i in the simulation
-        density = n_i / volume_sum_i
-        # This is inaccurate when solutes take up substantial amount
-        # of space. In this case you might want to use
-        ## import MDAnalysis.core.units
-        ## density = MDAnalysis.core.units.convert(1.0, 'water', 'Angstrom^{-3}')
-        norm = density * n_i*n_j * rdf_frames
-        rdf /= norm * vol
-
-        outfile = './rdf_mda.dat'
-        with open(outfile,'w') as output:
-            for radius,gofr in izip(radii, rdf):
-                output.write("%(radius)8.3f \t %(gofr)8.3f\n" % vars())
-            p.barrier() # Barrier for MPI_COMM_WORLD
-
-        """
-            
-    if( options.verbose and rank == 0 ):
-	print "      Wating for all processors to finish  "                                
-    p.barrier()			
-    if( options.verbose and rank == 0 ):
-	print "      Finding averages "
-    #
-    # Find averages
-    #
-    debug = 0 
-    rdf_cnt = np.zeros(n_bins+1)   
-    for bin_index in range( n_bins+1):
-	# Sum rdf_cnt of each bin on each processor 
-	rdf_cnt[bin_index] = p.allReduceSum(rdf_cnt_ij[bin_index])
-
-        # print " Proc %d rdf_cnt_ij %f sum %f "% (rank,rdf_cnt_ij[bin_index],rdf_cnt[bin_index] )
-    
-    p.barrier() # Barrier for MPI_COMM_WORLD
-
-    
-    #
-    # Calculate rdf results 
-    # 
-    total_cnts = np.sum( rdf_cnt )
-    volume_sum = volume_sum_i #p.allReduceSum(volume_sum_i)
-
-    print " volume_sum,float(rdf_frames)", volume_sum,float(rdf_frames)
-    
-    box_vol_ave = volume_sum/float(rdf_frames)
-    vol_cut = 4.0*math.pi/3.0*options.r_cut**3
-    n_shperes = float(sum_i)*float(rdf_frames)
-    sphere_den_j = float(total_cnts)/vol_cut/n_shperes #/2.0  # N_B A^-3
-    box_den_i = float(sum_i )/float(box_vol_ave)
-    box_den_j = float(sum_j )/float(box_vol_ave)
-    
-    if( rank == 0 ):
-	if( options.verbose ):
-            
-		
-	    print "   Frames ",rdf_frames
-	    print "   Total counts ",total_cnts
-	    print "   Average box volume ",box_vol_ave
-	    print "   Volume of cut-off sphere ",vol_cut
-	    print "   Average box density i ",box_den_i," atoms/angstrom^3 "
-	    print "   Average box density j ",box_den_j," atoms/angstrom^3 "
-	    print "   Average cut-off sphere density ",sphere_den_j," atoms/angstrom^3 "
-		
-	# Write output 
-	#
-	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
-	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
-	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
-	dat_out.write("\n#    Frames %d  " % (rdf_frames))
-	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
-	dat_out.write("\n#    N_i %d " % (sum_i ))
-	dat_out.write("\n#    N_j %d " % (sum_j ))
-	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
-	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
-	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
-	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
-	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
-	dat_out.write("\n#    ")
-	dat_out.write("\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
-	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
-	cnt_sum = 0.0 
-	for bin_index in range( 1,n_bins):
-	    
-	    r_val = options.bin_size*float(bin_index)
-	    r_in = r_val - options.bin_size*0.5
-	    r_out = r_val + options.bin_size*0.5
-    
-	    dr_cnt = float( rdf_cnt[bin_index] )
-	    dr_cnt_norm =     dr_cnt    /float(rdf_frames)
-            cnt_sum += dr_cnt_norm/float(sum_i)
-	    dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
-	    dr_vol_apx = 4.0*math.pi*(  r_val**2 )
-	    
-	    dr_rho = dr_cnt_norm/dr_vol
-	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
-	    box_g = dr_rho/box_den_j/float( sum_i )
-	    
-	    dat_out.write("\n  %d %f %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
-        
-        t_f = datetime.datetime.now()
-        dt_sec  = t_f.second - t_i.second
-        dt_min  = t_f.minute - t_i.minute
-        if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-        if ( dt_min < 0 ): dt_min = 60.0 - dt_min
-        if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0 
-        log_line="\n  Finished time  " + str(t_f)
-        log_line+="\n  Computation time "+str(dt_min) + " min "+str(dt_sec)+" seconds "
-        if( options.verbose ):
-            print log_line
-        log_out.write(log_line)
-
-	dat_out.close()
-	log_out.close()
-	    
-
-if __name__=="__main__":
-    main()
-   
+"""
