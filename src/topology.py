@@ -506,7 +506,7 @@ def build_covnablist(strucC):
     """
 
     debug = False 
-    p_time = True
+    p_time = False
     
     n_ptcl = len( strucC.ptclC )
     maxnnab = n_ptcl*12            # Assume max nieghbors as fcc 
