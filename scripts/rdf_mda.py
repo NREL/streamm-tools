@@ -80,6 +80,7 @@ def get_options():
     parser.add_option("--residue_i", dest="residue_i", type="string", default="", help="select atoms of group i by resudue number  ")    
     parser.add_option("--linkid_i", dest="linkid_i", type="string", default="", help="select atoms of group i by  link id ")    
     parser.add_option("--fftype_i", dest="fftype_i", type="string", default="", help="select atoms of group i by force field type  ")
+    parser.add_option("--gtype_i", dest="gtype_i", type="string", default="", help="select atoms of group i by gromacs id   ")
     # J
     parser.add_option("--id_j", dest="id_j", type="string", default="", help=" select atoms of group j by id number  ")    
     parser.add_option("--symb_j", dest="symb_j", type="string", default="", help=" select atoms of group j by (atomic) symbol   ")    
@@ -89,12 +90,13 @@ def get_options():
     parser.add_option("--residue_j", dest="residue_j", type="string", default="", help="select atoms of group j by resudue number  ")    
     parser.add_option("--linkid_j", dest="linkid_j", type="string", default="", help="select atoms of group j by  link id ")    
     parser.add_option("--fftype_j", dest="fftype_j", type="string", default="", help="select atoms of group j by force field type  ")    
+    parser.add_option("--gtype_j", dest="gtype_j", type="string", default="", help="select atoms of group j by force field type  ")    
     
     # Frames
     parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
     parser.add_option("--frame_f", dest="frame_f", type=int, default=10000, help=" Final frame to read")
     parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
-    parser.add_option("--readall_f", dest="readall_f", default=False,action="store_true", help=" Read to end of trajectory file (negates frame_f value)")
+    #parser.add_option("--readall_f", dest="readall_f", default=False,action="store_true", help=" Read to end of trajectory file (negates frame_f value)")
 
         
     (options, args) = parser.parse_args()
@@ -102,7 +104,7 @@ def get_options():
     return options, args
    
 
-def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
+def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype,f_gtype):
     """
     Create a dictionary to pass to particle search
     """
@@ -137,6 +139,10 @@ def  create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fft
         search_i["fftype"] = []
         for id_s in f_fftype.split():
             search_i["fftype"].append(id_s)
+    if( len( f_gtype ) ):
+        search_i["gtype"] = []
+        for id_s in f_gtype.split():
+            search_i["gtype"].append(id_s)
             
     return search_i
     
@@ -246,13 +252,13 @@ def main():
         log_out.write(str(sys_prop))
         
     # Create sub lists for RDF groups i and j
-    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i)
+    search_i = create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i,options.gtype_i)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
     sum_i = len(list_i)
     
-    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j)
+    search_j = create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j,options.gtype_i)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group j ",search_j
     list_j = ptclC_o.getParticlesWithTags(search_j)
@@ -454,9 +460,6 @@ def main():
                     frame_cnt += 1
                 
             # Calculate rdf for last frame
-
-                    
-
             if( options.frame_o <= frame_cnt ):
 
                 if( frame_cnt <= options.frame_f  or  options.readall_f  ):
@@ -687,6 +690,7 @@ def main():
 
         #numframes = universe.trajectory.numframes / universe.trajectory.skip
 
+        """
         volume_sum_i /= rdf_frames    # average volume
 
         # Normalize RDF
@@ -707,7 +711,7 @@ def main():
                 output.write("%(radius)8.3f \t %(gofr)8.3f\n" % vars())
             p.barrier() # Barrier for MPI_COMM_WORLD
 
-    
+        """
             
     if( options.verbose and rank == 0 ):
 	print "      Wating for all processors to finish  "                                
@@ -724,8 +728,6 @@ def main():
 	rdf_cnt[bin_index] = p.allReduceSum(rdf_cnt_ij[bin_index])
 
         # print " Proc %d rdf_cnt_ij %f sum %f "% (rank,rdf_cnt_ij[bin_index],rdf_cnt[bin_index] )
-
-
     
     p.barrier() # Barrier for MPI_COMM_WORLD
 
@@ -735,6 +737,9 @@ def main():
     # 
     total_cnts = np.sum( rdf_cnt )
     volume_sum = volume_sum_i #p.allReduceSum(volume_sum_i)
+
+    print " volume_sum,float(rdf_frames)", volume_sum,float(rdf_frames)
+    
     box_vol_ave = volume_sum/float(rdf_frames)
     vol_cut = 4.0*math.pi/3.0*options.r_cut**3
     n_shperes = float(sum_i)*float(rdf_frames)
@@ -773,7 +778,7 @@ def main():
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
 	cnt_sum = 0.0 
 	for bin_index in range( 1,n_bins):
-		
+	    
 	    r_val = options.bin_size*float(bin_index)
 	    r_in = r_val - options.bin_size*0.5
 	    r_out = r_val + options.bin_size*0.5
