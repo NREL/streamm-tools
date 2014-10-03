@@ -34,6 +34,8 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
     Find topology information for force-field input files
     """
+
+    rerun_bonded = True 
     
     # New options that need to be passed
     limdih = 0
@@ -43,24 +45,30 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     debug = True
 
     if( debug):
-        print " Bonds ",len(strucC.bondC)
-        print " Angles ",len(strucC.angleC)
-        print " Dihedrals ",len(strucC.dihC)
+        print " Read in %d Bonds "%len(strucC.bondC)
+        print " Read in %d Angles "%len(strucC.angleC)
+        print " Read in %d Dihedrals "%len(strucC.dihC)
 
     # Create nearest neighbor list
     cov_nblist, cov_nbindx = build_covnablist(strucC)
     # Check bonds
-    if( len(strucC.bondC) <= 0 ):
+    if( len(strucC.bondC) <= 0 or rerun_bonded ):
+        if( rerun_bonded ):
+            strucC.bondC.clear()
         nblist_bonds(strucC,cov_nblist, cov_nbindx)
         if( verbose ):
             print " Found bonds %d "%(len(strucC.bondC))
     # Check angles
-    if( len(strucC.angleC) <= 0 ):
+    if( len(strucC.angleC) <= 0  or rerun_bonded ):
+        if( rerun_bonded ):
+            strucC.angleC.clear()
         nblist_angles(strucC,cov_nblist, cov_nbindx)
         if( verbose ):
             print " Found angles %d "%(len(strucC.angleC))
     # Check dihedrals
-    if( len(strucC.dihC) <= 0 ):
+    if( len(strucC.dihC) <= 0  or rerun_bonded ):
+        if( rerun_bonded ):
+            strucC.dihC.clear()
         nblist_dih(strucC,cov_nblist, cov_nbindx)
     if( verbose ):
         print " Found dihedrals %d "%(len(strucC.dihC))
@@ -84,10 +92,10 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
         for pid_i in range(1,len(strucC.ptclC)+1):
             print pid_i, strucC.ptclC[pid_i].tagsDict["number"],strucC.ptclC[pid_i].tagsDict["ring"],strucC.ptclC[pid_i].tagsDict["fftype"]
 
-    return strucC
+    return strucC,cov_nblist, cov_nbindx
 
 
-def set_param(struc_o,param_all):
+def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     """
     Set force-field parameters
     """
@@ -261,18 +269,20 @@ def set_param(struc_o,param_all):
     #
     # Count dihedrals types
     #
-    debug = False
+    debug = False 
     for d_o,dihObj_o in dihC_o:
         new_type = True
         dtyp_p = 0
+        pid_i = dihObj_o.pgid2 
+        pid_j = dihObj_o.pgid3
         fftype_k =  ptclC_o[ dihObj_o.pgid1 ].tagsDict["fftype"]
-        fftype_i =  ptclC_o[ dihObj_o.pgid2 ].tagsDict["fftype"]
-        fftype_j =  ptclC_o[ dihObj_o.pgid3 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[pid_j ].tagsDict["fftype"]
         fftype_l =  ptclC_o[ dihObj_o.pgid4 ].tagsDict["fftype"]
 
         if( debug):
             print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
-        
+        # Check to see if dihedral type is already in parameter set for the structure container
         for dtyp_p, dtypObj_p  in dtypC_p:
             p_k = dtypObj_p.ptype1 
             p_i = dtypObj_p.ptype2 
@@ -284,25 +294,26 @@ def set_param(struc_o,param_all):
 
                 if( debug):
                     print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
-                    
-                break 
+                break
             if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
                 new_type = False
                 dihObj_o.type = str(dtyp_p)
 
                 if( debug):
                     print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
+                break
 
-                break 
-                
+        # If it is not in the parameter set for the struture container
+        #  find it in the parameters from the reference parameter file 
         if( new_type ):
             # Find type in btypC_all
             cnt_check = 0
             type_found = False 
+            # Set type to new type = last type+1
             dihObj_o.type = str(dtyp_p+1)
 
             if( debug):
-                print "  new type "
+                print "  new type checking against %d read in parameters "%len(dtypC_all)
 
             copy_type = False 
             for d_all, dtypObj_all  in dtypC_all:
@@ -328,7 +339,8 @@ def set_param(struc_o,param_all):
                         print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
                     
             if( not type_found ):
-                
+                if(debug):
+                    print " checking  X - FF - FF - FF "
                 copy_type = False 
                 for d_all, dtypObj_all  in dtypC_all:
                     all_k = dtypObj_all.ptype1 
@@ -354,6 +366,8 @@ def set_param(struc_o,param_all):
                             print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
                             
             if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - X "
                 copy_type = False 
                 for d_all, dtypObj_all  in dtypC_all:
                     all_k = dtypObj_all.ptype1 
@@ -385,22 +399,42 @@ def set_param(struc_o,param_all):
                 raise TypeError
 
             if( type_found ):
+                if( debug ):
+
+                    print " adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.ptype1,dtypObj_temp.ptype2,dtypObj_temp.ptype3,dtypObj_temp.ptype4
+                
                 # Set FF types to read in bond to remove X's 
                 dtypObj_temp.ptype1 = fftype_k
                 dtypObj_temp.ptype2 = fftype_i
                 dtypObj_temp.ptype3 = fftype_j
                 dtypObj_temp.ptype4 = fftype_l
+
+
+                if( norm_dihparam ):
+                    # normalize by number of nieghbors
+                    dihen_norm = 1.0
+                    if( debug):
+                        print " Normalizing dihedral potential "
+                        print " finding types for ",pid_i,pid_j
+                    NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
+                    NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
                     
+                    dihen_norm = float( NNAB_i + NNAB_j)/2.0
+
+                    if(debug): print " dihen_norm ",dihen_norm
+                    print " dihen_norm ",dihen_norm
+
+                    dtypObj_temp.normforceconstants(dihen_norm)
+                
                 dtypC_p.put(dtypObj_temp)
                 
 
                 if( debug ):
                     print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                    print " adding new type to dtypC_p  from ",all_k,all_i,all_j,all_l
                     print " len(dtypC_p) ",len(dtypC_p) 
                         
                   
-    debug = 0
+    debug = False 
     if(debug):
         print " LJ atom types found %d "%(len(ljtypC_p))
         for lj_p, ljObj_p  in ljtypC_p: 
@@ -431,6 +465,11 @@ def nblist_bonds(strucC,cov_nblist, cov_nbindx):
     """
     Generate bonds from neighbor list
     """
+    debug = False
+
+    if( debug):
+        print " Initial # of bonds ",len(strucC.bondC)
+    
     for pid_i, ptclObj_i  in strucC.ptclC:    
         N_o = cov_nbindx[pid_i ]
         N_f = cov_nbindx[pid_i+ 1 ] - 1
@@ -439,6 +478,10 @@ def nblist_bonds(strucC,cov_nblist, cov_nbindx):
             if( pid_j > pid_i):
                 b_i = Bond( pid_i, pid_j )            
                 strucC.bondC.put(b_i)
+
+    if( debug):
+        print " Final # of bonds ",len(strucC.bondC)
+        sys.exit(" debug nblist_bonds")
 
 def nblist_angles(strucC,cov_nblist, cov_nbindx):
     import sys

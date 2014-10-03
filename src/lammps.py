@@ -29,7 +29,6 @@ def read_lmpdata( strucC , data_file):
     
     """
     
-    
     import file_io
     import sys, numpy
     
@@ -538,9 +537,10 @@ def write_data(strucC,parmC,data_file):
             klist = dtypObj_p.get_oplsklist()
             F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
 
-    #F.write('\n')
-    #F.write(' Improper Coeffs \n')
-    #F.write('\n')
+    F.write('\n')
+    F.write(' Improper Coeffs \n')
+    F.write('\n 1   0.0 0.0 ')
+    F.write('\n')
     F.write('\n')
     F.write(' Atoms \n')
     F.write('\n')

@@ -94,7 +94,7 @@ class ljtype:
         return self.mass
         
 
-    def get_epsilon(self):
+    def get_epsilon(self,en_units="kcal"):
         """
         Return epsilon of LJ particle
         """
@@ -501,6 +501,14 @@ class dihtype:
             print "4th arg should be float"
             raise TypeError
 
+        # Translate to Ryckaert-Bellemans function
+        self.C0 = k2 + 0.5*(k1+k3)
+        self.C1 = 0.5*(-1.0*k1+3.0*k3)
+        self.C2 = -1.0*k2 + 4.0*k3
+        self.C3 = -2.0*k3
+        self.C4 = -4.0*k4
+        self.C5 = 0.0
+
 
     def setrb(self,C0,C1,C2,C3,C4,C5):
         """
@@ -552,8 +560,12 @@ class dihtype:
         else:
             print "6th arg should be float"
             raise TypeError
-
-
+        # Translate to opls 
+        self.k1 = -1.0*( 2.0*C1 + 3.0*C3/2.0)
+        self.k2 = -1.0*( C2 + C4)
+        self.k3 = -0.5*C3
+        self.k4 = -0.25*C4
+                            
     def get_rbClist(self):
         """
         Return list of rb constants 0-5 type
@@ -568,6 +580,29 @@ class dihtype:
 
         return Clist
 
+    def normforceconstants(self,dihen_norm):
+        """
+        Divide all force constants by a value
+        """
+        
+        # Haromic 
+        self.kb = self.kb/dihen_norm
+
+        # Fourier opls coefficients 
+        self.k1 = self.k1/dihen_norm
+        self.k2 = self.k2/dihen_norm
+        self.k3 = self.k3/dihen_norm
+        self.k4 = self.k4/dihen_norm
+
+        # Ryckaert-Bellemans function coefficients 
+        self.C0 = self.C0/dihen_norm
+        self.C1 = self.C1/dihen_norm
+        self.C2 = self.C2/dihen_norm
+        self.C3 = self.C3/dihen_norm
+        self.C4 = self.C4/dihen_norm
+        self.C5 = self.C5/dihen_norm
+
+        
     def get_oplsklist(self):
         """
         Return list of rb constants 0-5 type

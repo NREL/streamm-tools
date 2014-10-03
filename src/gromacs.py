@@ -7,8 +7,9 @@ subroutines for gromacs file manipulation
 # NREL
 # Initial Date 05/07/2013
 # Email travis.kemper@nrel.gov
-# Version 4.00 
+# Version 4.00
 
+import units 
 
 from particles  import Particle
 from bonds      import Bond,     BondContainer
@@ -23,7 +24,6 @@ from parameters import ljtype
 from parameters import bondtype
 from parameters import angletype
 from parameters import dihtype
-
 
 def read_gro(strucC,in_gro):
     """
@@ -42,7 +42,7 @@ def read_gro(strucC,in_gro):
     # atomicpy functions
     import file_io
 
-    debug = False 
+    debug = False
 
     if( file_io.file_exists(in_gro )):
         if( debug ):
@@ -79,12 +79,11 @@ def read_gro(strucC,in_gro):
             ptcl_cnt += 1 
             #
             g = line[10:15]
-            x = line[20:28]
-            y = line[28:36]
-            z = line[36:44]
-            # Convert from nm to angstroms 
+            x = units.convert_nm_angstroms( float( line[20:28] ))
+            y = units.convert_nm_angstroms( float(line[28:36]))
+            z = units.convert_nm_angstroms( float(line[36:44]))
             #r_i =  numpy.array(  [float(x)*10,float(y)*10,float(z)*10] )
-            r_i =    [float(x)*10,float(y)*10,float(z)*10]
+            r_i =    [x,y,z]
             if(debug):
                 print " particle ",ptcl_cnt,g,r_i
             if( pt_overwrite ):
@@ -105,19 +104,19 @@ def read_gro(strucC,in_gro):
     col = line.split()
     n_vec = int( len(col))
     if( n_vec == 3 ):
-        strucC.latvec[0][0] = float( col[0] )*10
-        strucC.latvec[1][1] = float( col[1] )*10
-        strucC.latvec[2][2] = float( col[2] )*10
+        strucC.latvec[0][0] = units.convert_nm_angstroms(float( col[0] ) )
+        strucC.latvec[1][1] = units.convert_nm_angstroms(float( col[1] ) )
+        strucC.latvec[2][2] = units.convert_nm_angstroms(float( col[2] ) )
     if( n_vec == 9 ):
-        strucC.latvec[0][0] = float( col[0] )*10
-        strucC.latvec[1][1] = float( col[1] )*10
-        strucC.latvec[2][2] = float( col[2] )*10
-        strucC.latvec[0][1] = float( col[3] )*10
-        strucC.latvec[0][2] = float( col[4] )*10
-        strucC.latvec[1][0] = float( col[5] )*10
-        strucC.latvec[1][2] = float( col[6] )*10
-        strucC.latvec[2][0] = float( col[7] )*10
-        strucC.latvec[2][1] = float( col[8] )*10
+        strucC.latvec[0][0] = units.convert_nm_angstroms(float( col[0] ) )
+        strucC.latvec[1][1] = units.convert_nm_angstroms(float( col[1] ) )
+        strucC.latvec[2][2] = units.convert_nm_angstroms(float( col[2] ) )
+        strucC.latvec[0][1] = units.convert_nm_angstroms(float( col[3] ) )
+        strucC.latvec[0][2] = units.convert_nm_angstroms(float( col[4] ) )
+        strucC.latvec[1][0] = units.convert_nm_angstroms(float( col[5] ) )
+        strucC.latvec[1][2] = units.convert_nm_angstroms(float( col[6] ) )
+        strucC.latvec[2][0] = units.convert_nm_angstroms(float( col[7] ) )
+        strucC.latvec[2][1] = units.convert_nm_angstroms(float( col[8] ) )
 
     if( debug ):
         print "      Box size ",strucC.latvec[0][0],strucC.latvec[1][1],strucC.latvec[2][2]," angstorms "
@@ -484,10 +483,10 @@ def read_top(strucC, top_infile):
                     pt_i = Particle( r_i,type_i,m_i,q_i ) 
                     strucC.ptclC.put(pt_i) 
 
-                pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx]
-                pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx]
-                pt_i.tagsDict["resname"] = RESN_l[atom_indx]
-                pt_i.tagsDict["residue"] = RESID_l[atom_indx]
+                pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
+                pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
+                pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
+                pt_i.tagsDict["residue"] = RESN_l[atom_indx]
                 pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                 pt_i.tagsDict["chain"] = MOL_CNT + 1
 
@@ -601,10 +600,6 @@ def read_itp( parmC, ff_file, ljmixrule):
     
     debug = False
 
-    KJ_KCAL = 0.23901
-    GRO_SIG = 5.61230943
-    NM_ANG = 10.0
-
     FF_ATOMTYPES = []
     FF_BONDTYPES = []
     FF_ANGLETYPES = []
@@ -630,17 +625,19 @@ def read_itp( parmC, ff_file, ljmixrule):
                     if ( col[0][:1] != ';' ):
                         ptype1 = col[0]
                         ljtyp_i = ljtype(ptype1)
-                        # Set parameters according to type 
+                        # Set parameters according to type
+                        mass_i = float( col[2] )
                         g_sig = float(col[5])
                         g_ep  = float(col[6])
-                        if( ljmixrule == 2 ):
-                            epsilon = g_ep*GRO_SIG
-                        elif( ljmixrule == 3 ):
-                            epsilon = g_ep*NM_ANG
+                        if( ljmixrule == 2 or ljmixrule == 3 ):
+                            sigma = units.convert_nm_angstroms(g_sig)
+                            epsilon = units.convert_kJmol_kcalmol(g_ep)
                         else:
                             print "uknown mixing rule for LJ parameters "
                             sys.exit(" error")
-                        
+
+                        ljtyp_i.setmass(mass_i)
+                        ljtyp_i.setparam(epsilon,sigma)
                         parmC.ljtypC.put(ljtyp_i)
                         #print btyp_i
     if( debug):
@@ -668,8 +665,8 @@ def read_itp( parmC, ff_file, ljmixrule):
                         # Set parameters according to type 
                         g_type = int( col[2] )                    # Gromacs id 
                         if( g_type == 1 ):
-                            r0 = float(col[3])*NM_ANG 
-                            kb = float(col[4])*KJ_KCAL/NM_ANG/NM_ANG/2
+                            r0 = units.convert_nm_angstroms( float(col[3]) )
+                            kb = units.convert_g_bond_kb( float(col[4]) )
                             btype = "harmonic"
                         btyp_i = bondtype(ptype1,ptype2,btype)
 
@@ -704,8 +701,8 @@ def read_itp( parmC, ff_file, ljmixrule):
                         # Set parameters according to type 
                         gfunc_type = int( col[3] )                    # Gromacs id 
                         if( gfunc_type == 1 ):
-                            theta0 = float( col[4] )
-                            kb = float( col[5] )*KJ_KCAL/2
+                            theta0 = float( col[4] )        # degrees 
+                            kb = units.convert_g_angle_kb( float( col[5] ) )
                             atype = "harmonic"
                         atyp_i = angletype(ptype1,ptype2,ptype3,atype)
 
@@ -745,7 +742,7 @@ def read_itp( parmC, ff_file, ljmixrule):
 
                         if( gfunc_type == 1 or gfunc_type == 4 ):
                             theat_s = float( col[5] )
-                            kb = float( col[6] )*KJ_KCAL
+                            kb = units.convert_kJmol_kcalmol( float( col[6] ) )
                             mult = float( col[7] )
                             dtype = "harmonic"
                             # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
@@ -753,43 +750,32 @@ def read_itp( parmC, ff_file, ljmixrule):
 
                         elif( gfunc_type == 2 ):
                             e0 = float( col[5] )
-                            ke = float( col[6] )*KJ_KCAL
+                            ke = units.convert_kJmol_kcalmol( float( col[6] ) )
                             dtype = "improper"
                             # V = 1/2 ke( e-e0)^2
 
                         elif( gfunc_type == 3 ):
-                            C0 = float( col[5] )*KJ_KCAL
-                            C1 = float( col[6] )*KJ_KCAL
-                            C2 = float( col[7] )*KJ_KCAL
-                            C3 = float( col[8] )*KJ_KCAL
-                            C4 = float( col[9] )*KJ_KCAL
-                            C5 = float( col[10] )*KJ_KCAL
+                            C0 = units.convert_kJmol_kcalmol( float( col[5] ) )
+                            C1 = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            C2 = units.convert_kJmol_kcalmol( float( col[7] ) )
+                            C3 = units.convert_kJmol_kcalmol( float( col[8] ) )
+                            C4 = units.convert_kJmol_kcalmol( float( col[9] ) )
+                            C5 = units.convert_kJmol_kcalmol( float( col[10] ) )
                             dtype = "rb"
                             # Ryckaert-Bellemans function
                             # Vrb(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
-                            # Translate to opls 
-                            k1 = -1.0*( 2.0*C1 + 3.0*C3/2.0)
-                            k2 = -1.0*( C2 + C4)
-                            k3 = -0.5*C3
-                            k4 = -0.25*C4
 
                         elif( gfunc_type == 5 ):
-                            k1 = float( col[5] )*KJ_KCAL
-                            k2 = float( col[6] )*KJ_KCAL
-                            k3 = float( col[7] )*KJ_KCAL
-                            k4 = float( col[8] )*KJ_KCAL
+                            k1 = units.convert_kJmol_kcalmol( float( col[5] ) )
+                            k2 = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            k3 = units.convert_kJmol_kcalmol( float( col[7] ) )
+                            k4 = units.convert_kJmol_kcalmol( float( col[8] ) )
                             dtype = "opls"
                             # opls function
-                            # Translate to Ryckaert-Bellemans function
-                            C0 = k2 + 0.5*(k1+k3)
-                            C1 = 0.5*(-1.0*k1+3.0*k3)
-                            C2 = -1.0*k2 + 4.0*k3
-                            C3 = -2.0*k3
-                            C4 = -4.0*k4
-                            C5 = 0.0
+                            
                         elif( gfunc_type == 9 ):
                             theat_s = float( col[4] )
-                            kb = float( col[5] )
+                            kb = units.convert_kJmol_kcalmol( float( col[5] ) )
                             mult = float( col[6] )
                             dtype = "multiharmonic"
 
@@ -803,10 +789,10 @@ def read_itp( parmC, ff_file, ljmixrule):
                             d = 1.0 
                             dtyp_i.setharmonic(d, mult, kb,theat_s)
 
-                        if( gfunc_type == 3  or gfunc_type == 5  ):
-                            dtyp_i.setopls(k1,k2,k3,k4)
-                            dtyp_i.setrb(C0,C1,C2,C3,C4,C5)
-
+                        if( gfunc_type == 3 ):
+                            dtyp_i.setrb(C0,C1,C2,C3,C4,C5)  # Sets oplsa as well since they are equivalent 
+                        if(  gfunc_type == 5  ):
+                            dtyp_i.setopls(k1,k2,k3,k4)   # Sets rb as well since they are equivalent 
 
                         parmC.dtypC.put(dtyp_i)
                         #print btyp_i

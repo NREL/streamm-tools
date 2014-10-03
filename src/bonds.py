@@ -62,8 +62,6 @@ class Bond:
         else:
             return False
 
-
-
 class BondContainer:
     """
     Main data structure for holding Bond objects. Map of global
@@ -97,6 +95,14 @@ class BondContainer:
         if self.verbose:
             print "Cleaning particle container"
         del self.bonds
+
+
+    def clear(self):
+        """
+        Clears bonds out of BondContainer
+        """
+        self.maxgid = 0
+        self.bonds=dict()                          # Creates empty dict struc
 
 
     def __len__(self):

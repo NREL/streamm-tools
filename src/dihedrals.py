@@ -116,6 +116,14 @@ class DihedralContainer:
         del self.dihedrals
 
 
+    def clear(self):
+        """
+        Clears dihedrals out of DihedralContainer
+        """
+        self.maxgid = 0
+        self.dihedrals=dict()                          # Creates empty dict struc
+
+
     def __len__(self):
         """
         'Magic' method for returning size of container
