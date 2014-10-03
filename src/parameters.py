@@ -81,6 +81,31 @@ class ljtype:
             print "2nd arg should be float"
             raise TypeError
 
+    def get_ptype1(self):
+        """
+        Return ptype1 of LJ particle
+        """
+        return self.ptype1
+    
+    def get_mass(self):
+        """
+        Return mass of LJ particle
+        """
+        return self.mass
+        
+
+    def get_epsilon(self):
+        """
+        Return epsilon of LJ particle
+        """
+        return self.epsilon
+        
+
+    def get_sigma(self):
+        """
+        Return sigma of LJ particle
+        """
+        return self.sigma
         
 
 class bondtype:
@@ -162,6 +187,36 @@ class bondtype:
             print "2nd arg should be float"
             raise TypeError
     
+    def get_type(self):
+        """
+        Return bond type
+        """
+        return self.type
+
+    def get_ptype1(self):
+        """
+        Return bond ptype1
+        """
+        return self.ptype1
+
+    def get_ptype2(self):
+        """
+        Return bond ptype2
+        """
+        return self.ptype2
+
+    def get_r0(self):
+        """
+        Return r0 type
+        """
+        return self.r0
+
+    def get_kb(self):
+        """
+        Return kb type
+        """
+        return self.kb
+
         
 class angletype:
     """
@@ -228,7 +283,7 @@ class angletype:
 
     def setharmonic(self, theta0, kb):
         """
-        set Harmonic parameters
+        set Harmonic angle parameters
 
         E = kb( theta - theta_0 )^2 
 
@@ -248,6 +303,42 @@ class angletype:
         else:
             print "2nd arg should be float"
             raise TypeError
+
+    def get_type(self):
+        """
+        Return angle  type
+        """
+        return self.type
+
+    def get_ptype1(self):
+        """
+        Return angle  ptype1
+        """
+        return self.ptype1
+
+    def get_ptype2(self):
+        """
+        Return angle  ptype2
+        """
+        return self.ptype2
+
+    def get_ptype3(self):
+        """
+        Return angle  ptype3
+        """
+        return self.ptype3
+
+    def get_theta0(self):
+        """
+        Return theta0 type
+        """
+        return self.theta0
+
+    def get_kb(self):
+        """
+        Return kb type
+        """
+        return self.kb
 
 
 class dihtype:
@@ -333,6 +424,12 @@ class dihtype:
         if( self.type ==  "harmonic" ):
             strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f " %(self.d,self.mult ,self.kb,self.theat_s )
         
+        if( self.type ==  "opls" ):
+            strucStr += "\n  k1 = %f k2 = %f k3 = %f k4 = %f " %(self.k1,self.k2,self.k3,self.k4 )
+
+        if( self.type ==  "rb" ):
+            strucStr += "\n  C0 = %f  C1 = %f C2 = %f C3 = %f C4 = %f  C5 = %f " %(self.C0,self.C1,self.C2,self.C3,self.C4,self.C5 )
+
         return strucStr
 
 
@@ -455,6 +552,81 @@ class dihtype:
         else:
             print "6th arg should be float"
             raise TypeError
+
+
+    def get_rbClist(self):
+        """
+        Return list of rb constants 0-5 type
+        """
+        Clist = []
+        Clist.append(self.C0)
+        Clist.append(self.C1)
+        Clist.append(self.C2)
+        Clist.append(self.C3)
+        Clist.append(self.C4)
+        Clist.append(self.C5)
+
+        return Clist
+
+    def get_oplsklist(self):
+        """
+        Return list of rb constants 0-5 type
+        """
+        klist = []
+        klist.append(self.k1)
+        klist.append(self.k2)
+        klist.append(self.k3)
+        klist.append(self.k4)
+
+        return klist
+
+    def get_type(self):
+        """
+        Return dih type
+        """
+        return self.type
+
+    def get_ptype1(self):
+        """
+        Return dih ptype1
+        """
+        return self.ptype1
+
+    def get_ptype2(self):
+        """
+        Return dih ptype2
+        """
+        return self.ptype2
+
+    def get_ptype3(self):
+        """
+        Return dih ptype3
+        """
+        return self.ptype3
+
+    def get_ptype4(self):
+        """
+        Return dih ptype4
+        """
+        return self.ptype4
+
+    def get_d(self):
+        """
+        Return dih d
+        """
+        return self.d
+
+    def get_kb(self):
+        """
+        Return dih kb
+        """
+        return self.kb
+
+    def get_mult(self):
+        """
+        Return dih mult
+        """
+        return self.mult
 
 
 class LJtypesContainer:
@@ -619,6 +791,30 @@ class AngletypesContainer:
         """
         return len(self.angletypes)
 
+
+    def findtype(self,fftype_k,fftype_i,fftype_j):
+        """
+        Find angletypes with a given set of particle types k-i-j
+        """
+
+        type_found = False
+        cnt_check = 0
+        for a_all, atypObj_all  in self:
+            all_k = atypObj_all.ptype1 
+            all_i = atypObj_all.ptype2 
+            all_j = atypObj_all.ptype3
+
+            if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
+                type_found = True 
+            if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
+                type_found = True 
+
+            if( type_found ):
+                cnt_check += 1
+                print atypObj_all
+
+
+        
 class DihtypesContainer:
     """
     Container for dihtype 
@@ -670,6 +866,36 @@ class DihtypesContainer:
         'Magic' method for returning size of container
         """
         return len(self.dihtypes)
+
+
+
+    def findtype(self,fftype_k,fftype_i,fftype_j,fftype_l):
+        """
+        Find angletypes with a given set of particle types k-i-j
+        """
+
+        type_found = False
+        cnt_check = 0
+
+        for d_all, dtypObj_all  in self:
+            all_k = dtypObj_all.ptype1 
+            all_i = dtypObj_all.ptype2 
+            all_j = dtypObj_all.ptype3
+            all_l = dtypObj_all.ptype4
+
+            if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                type_found = True    
+            if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                type_found = True
+
+            
+        
+            if( type_found ):
+                cnt_check += 1
+                print " dih cnt_check ",cnt_check
+                print dtypObj_all
+
+
 
 class ParameterContainer:
     """

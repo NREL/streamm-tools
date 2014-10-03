@@ -71,10 +71,14 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     # Asign atom types
     ff_charges = False
     strucC = atomtypes.oplsaa( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-    strucC = atomtypes.set_ptmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-    strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+
+    set_ptma = False
+    if(set_ptma):
+        strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+        strucC = atomtypes.set_ptmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+        
     if(debug):
         print len(strucC.ptclC)
         for pid_i in range(1,len(strucC.ptclC)+1):
@@ -155,7 +159,7 @@ def set_param(struc_o,param_all):
     # Count bonds types
     #
     debug = 0
-    for b_o, bondObj_o  in bondC_o:    
+    for b_o, bondObj_o  in bondC_o:
         new_type = True
         btyp_p = 0
         fftype_i =  ptclC_o[ bondObj_o.pgid1 ].tagsDict["fftype"]
@@ -250,15 +254,14 @@ def set_param(struc_o,param_all):
                 raise TypeError
             elif( cnt_check > 1 ):
                 print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
-                for atyp_p, atypObj_p  in atypC_p:
-                    print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3
+                atypC_p.findtype(fftype_k,fftype_i,fftype_j)
 
                 raise TypeError
                     
     #
     # Count dihedrals types
     #
-    debug = 0
+    debug = False
     for d_o,dihObj_o in dihC_o:
         new_type = True
         dtyp_p = 0
@@ -376,7 +379,9 @@ def set_param(struc_o,param_all):
                 print " No Dih parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
             elif( cnt_check > 1 ):
-                print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print " %d Dih parameters were found for bond type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print dtypObj_temp
+                #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
 
             if( type_found ):

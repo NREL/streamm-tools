@@ -417,6 +417,13 @@ class StructureContainer:
         self.latvec = latvec_list
 
 
+    def get_latvec(self ):
+        """
+        Get lattice vector 
+        """
+        return self.latvec
+
+
     def readOutput(self, fileName):
         """
         This is the 'effective' base class interface for a method

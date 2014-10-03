@@ -454,3 +454,137 @@ def read_lmpdata( strucC , data_file):
     #      
     return (strucC)
 
+
+def write_data(strucC,parmC,data_file):
+
+    """
+    Write data file
+    """
+    import sys, math
+    # 
+    #
+    # ' print lammps data file '
+    #
+
+    # Calculate totals
+    n_atoms = len( strucC.ptclC  )
+    n_bonds = int(len(strucC.bondC))
+    n_angles = int(len(strucC.angleC))
+    n_dihedrals = int(len(strucC.dihC))
+    n_impropers = 0
+    n_atypes = int(len( parmC.ljtypC )) #+ 1
+    n_btypes = int(len( parmC.btypC )) #+ 1
+    n_angtypes = int(len( parmC.atypC )) #+ 1
+    n_dtypes = int(len( parmC.dtypC)) #+ 1
+    n_imptypes = 1
+    # Calculate box size
+    latvec = strucC.get_latvec()
+    
+    bmn_x = latvec[0][0]/-2.0
+    bmx_x = latvec[0][0]/2.0
+    bmn_y = latvec[1][1]/-2.0
+    bmx_y = latvec[1][1]/2.0
+    bmn_z = latvec[2][2]/-2.0
+    bmx_z = latvec[2][2]/2.0
+
+    F = open( data_file, 'w' )
+    F.write('  Lammps data file \n')
+    F.write('\n')
+    F.write( "%10d  atoms \n" % n_atoms )
+    F.write( "%10d  bonds \n" %  n_bonds )
+    F.write( "%10d  angles \n" % n_angles )
+    F.write( "%10d  dihedrals \n" %  n_dihedrals )
+    F.write( "%10d  impropers \n" % n_impropers  )
+    F.write('\n')
+    F.write( "%10d  atom types \n" % n_atypes  )
+    F.write( "%10d  bond types \n" % n_btypes )
+    F.write( "%10d  angle types \n" % n_angtypes )
+    F.write( "%10d  dihedral types \n" % n_dtypes )
+    F.write( "%10d  improper types \n" % n_imptypes )
+    F.write('\n')
+    F.write( "%16.8f %16.8f   xlo xhi \n" %  (bmn_x , bmx_x) )
+    F.write( "%16.8f %16.8f   ylo yhi \n" %  (bmn_y , bmx_y ) )
+    F.write( "%16.8f %16.8f   zlo zhi \n" %  (bmn_z , bmx_z) )
+    F.write('\n')
+    F.write( ' Masses \n')
+    F.write('\n')
+    for lj_p, ljObj_p  in parmC.ljtypC:
+        F.write( "%10d %16.8f   # %5s \n" % ( lj_p , ljObj_p.get_mass() , ljObj_p.get_ptype1()  ) )
+    F.write('\n')
+    F.write(' Pair Coeffs \n')
+    F.write('\n')
+    for lj_p, ljObj_p  in parmC.ljtypC:
+        F.write( "%10d %12.6f %12.6f  \n" % (lj_p, ljObj_p.get_epsilon(),  ljObj_p.get_sigma()  ) )
+    F.write('\n')
+    F.write(' Bond Coeffs \n')
+    F.write('\n')
+    for btyp_p, btypObj_p  in parmC.btypC:    
+        if( btypObj_p.get_type() == "harmonic"):
+            F.write( "%10d %12.6f %12.6f # %5s %5s  \n" % (btyp_p,btypObj_p.get_kb(),btypObj_p.get_r0(), btypObj_p.get_ptype1(), btypObj_p.get_ptype2() ) )
+    F.write('\n')
+    F.write(' Angle Coeffs \n')
+    F.write('\n')
+    for atyp_p, atypObj_p  in parmC.atypC:    
+        if( atypObj_p.get_type() == "harmonic"):
+            F.write( "%10d %12.6f %12.6f # %5s %5s  %5s   \n" % (atyp_p,atypObj_p.get_kb(),atypObj_p.get_theta0(), atypObj_p.get_ptype1(),atypObj_p.get_ptype2(),atypObj_p.get_ptype3() ) )
+    F.write('\n')
+    F.write(' Dihedral Coeffs \n')
+    F.write('\n')
+    for dtyp_p, dtypObj_p  in parmC.dtypC:    
+        if( dtypObj_p.get_type() == "harmonic"):
+            F.write( "%10d %12.6f %12.6f  %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,dtypObj_p.get_d(),dtypObj_p.get_kb(),dtypObj_p.get_mult(), dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+        if( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
+            # Get opls parameters
+            klist = dtypObj_p.get_oplsklist()
+            F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+
+    #F.write('\n')
+    #F.write(' Improper Coeffs \n')
+    #F.write('\n')
+    F.write('\n')
+    F.write(' Atoms \n')
+    F.write('\n')
+    TOTAL_CHARGE = 0.0
+    for pid_o, ptclObj_o  in strucC.ptclC:
+        fftype_i = ptclObj_o.tagsDict["fftype"]
+        chain_i = ptclObj_o.tagsDict["chain"]
+        charge_i = ptclObj_o.charge
+        type_indx = int(ptclObj_o.type)
+        r_i = ptclObj_o.position 
+        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,type_indx,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
+        TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
+        
+    F.write('\n')
+    F.write(' Bonds \n')
+    F.write('\n')
+    for b_o, bondObj_o  in strucC.bondC:
+        #
+        AT_i =  strucC.ptclC[ bondObj_o.pgid1 ].tagsDict["fftype"]
+        AT_j =  strucC.ptclC[ bondObj_o.pgid2 ].tagsDict["fftype"]
+        #
+        b_ind = int(bondObj_o.type)
+        #
+        F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (b_o,b_ind,bondObj_o.pgid1,bondObj_o.pgid2, AT_i, AT_j ) )
+    F.write('\n')
+    F.write(' Angles \n')
+    F.write('\n')
+    for a_o, angleObj_o in strucC.angleC:
+        a_k = angleObj_o.pgid1
+        a_i = angleObj_o.pgid2
+        a_j = angleObj_o.pgid3
+        a_ind = int(angleObj_o.type)
+        F.write(  '%9d %8d %9d %9d %9d \n' % (a_o,a_ind,a_k,a_i,a_j) )
+    F.write(  '\n' )
+    F.write(' Dihedrals \n')
+    F.write('\n')
+    for d_o,dihObj_o in strucC.dihC:
+        d_k = dihObj_o.pgid1
+        d_i = dihObj_o.pgid2
+        d_j = dihObj_o.pgid3
+        d_l = dihObj_o.pgid4
+        d_ind = int(dihObj_o.type)
+        F.write(  '%9d %8d %9d %9d %9d %9d \n' % (d_o,d_ind,d_k,d_i,d_j,d_l) )
+        #F.write( '\n' )
+        #F.write(' Impropers \n')
+
+    F.close()

@@ -122,15 +122,24 @@ def read_ref(ref_file):
 
     json_list = []
 
-    for oligo_list in json_ref['oligomers']:
-        col = oligo_list #.split()
-        json_file = "%s/%s.json"%(col[0],col[1])
-        json_list.append(json_file)
+    # Place paticle data in sperate data structure
+    if( 'oligomers' in json_ref):
+        for oligo_list in json_ref['oligomers']:
+            col = oligo_list #.split()
+            json_file = "%s/%s.json"%(col[0],col[1])
+            json_list.append(json_file)
+    else:
+        print " No oligomers found in  %s "%(ref_file)     
 
-    for oligo_list in json_ref['systems']:
-        col = oligo_list #.split()
-        json_file = "%s/%s.json"%(col[0],col[1])
-        json_list.append(json_file)
+
+    # Place paticle data in sperate data structure
+    if( 'systems' in json_ref):
+        for oligo_list in json_ref['systems']:
+            col = oligo_list #.split()
+            json_file = "%s/%s.json"%(col[0],col[1])
+            json_list.append(json_file)
+    else:
+        print " No systems found in  %s "%(ref_file)     
 
     return json_list
 
@@ -238,14 +247,16 @@ def putstruc_json(strucC, paramC, json_data ):  # Move out of class
     for b_i,bondObj in  strucC.bondC:
         pt_i = bondObj.pgid1
         pt_j = bondObj.pgid2
-        bonded_data["bonds"].append( [pt_i,pt_j])
+        type_i = bondObj.type 
+        bonded_data["bonds"].append( [type_i, pt_i,pt_j])
 
     bonded_data["angles"] = []
     for a_i,angleObj in  strucC.angleC:
         pt_k = angleObj.pgid1
         pt_i = angleObj.pgid2
         pt_j = angleObj.pgid3
-        bonded_data["angles"].append( [pt_k,pt_i,pt_j])
+        type_i = angleObj.type 
+        bonded_data["angles"].append( [type_i,pt_k,pt_i,pt_j])
 
     bonded_data["dihedrals"] = []
     for d_i,dihObj in  strucC.dihC:
@@ -253,7 +264,8 @@ def putstruc_json(strucC, paramC, json_data ):  # Move out of class
         pt_i = dihObj.pgid2
         pt_j = dihObj.pgid3
         pt_l = dihObj.pgid4
-        bonded_data["dihedrals"].append( [pt_k,pt_i,pt_j,pt_l])
+        type_i = bondObj.type 
+        bonded_data["dihedrals"].append( [type_i,pt_k,pt_i,pt_j,pt_l])
 
     ljtypC_p = paramC.ljtypC
     btypC_p = paramC.btypC
@@ -393,9 +405,10 @@ def getsys_json(strucC,paramC, json_file):
                 else:
                     particle_data = json_data["structure"]["particle"]
                     atomic_symb = str( particle_data["symbol"][p_i] )
-
+                    
+                type_i = str( particle_data["type"][p_i] )
                 # Create particle
-                pt_i = Particle( r_i,atomic_symb,q_i,m_i )
+                pt_i = Particle( r_i,type_i,q_i,m_i )
                 # Find needed tags
                 chain_i = int( particle_data["chain"][p_i] )
                 ring_i = particle_data["ring"][p_i]
@@ -421,26 +434,32 @@ def getsys_json(strucC,paramC, json_file):
 
         # Read in bonds
         for b_indx in range( len(bonded_data["bonds"] )):
-            a_i = int(bonded_data["bonds"][b_indx][0] )
-            a_j = int(bonded_data["bonds"][b_indx][1] )
-            b_i = Bond( a_i, a_j )            
+            type_i = str(bonded_data["bonds"][b_indx][0] )
+            a_i = int(bonded_data["bonds"][b_indx][1] )
+            a_j = int(bonded_data["bonds"][b_indx][2] )
+            r_i = 0.0
+            b_i = Bond( a_i, a_j,r_i,type_i )            
             strucC.bondC.put(b_i)
 
         # Read in angles
         for a_indx in range( len(bonded_data["angles"] )):
-            a_k = int(bonded_data["angles"][a_indx][0] )
-            a_i = int(bonded_data["angles"][a_indx][1] )
-            a_j = int(bonded_data["angles"][a_indx][2] )
-            a_i = Angle( a_k,a_i, a_j )            
+            type_i = str(bonded_data["bonds"][b_indx][0] )
+            a_k = int(bonded_data["angles"][a_indx][1] )
+            a_i = int(bonded_data["angles"][a_indx][2] )
+            a_j = int(bonded_data["angles"][a_indx][3] )
+            theta_i = 0.0
+            a_i = Angle( a_k,a_i, a_j,theta_i,type_i )            
             strucC.angleC.put(a_i)
 
         # Read in dihedrals
         for d_indx in range( len(bonded_data["dihedrals"] )):
-            a_k = int(bonded_data["dihedrals"][b_indx][0] )
-            a_i = int(bonded_data["dihedrals"][b_indx][1] )
-            a_j = int(bonded_data["dihedrals"][b_indx][2] )
-            a_l = int(bonded_data["dihedrals"][b_indx][3] )
-            d_i = Dihedral( a_k,a_i, a_j,a_l )            
+            type_i = str(bonded_data["dihedrals"][b_indx][0] )
+            a_k = int(bonded_data["dihedrals"][b_indx][1] )
+            a_i = int(bonded_data["dihedrals"][b_indx][2] )
+            a_j = int(bonded_data["dihedrals"][b_indx][3] )
+            a_l = int(bonded_data["dihedrals"][b_indx][4] )
+            theta_i = 0.0
+            d_i = Dihedral( a_k,a_i, a_j,a_l,theta_i,type_i )  
             strucC.dihC.put(d_i)
 
 
