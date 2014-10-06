@@ -12,7 +12,8 @@ import datetime
 from string import replace
 
 from structureContainer import StructureContainer
-import mpiNREL, lammps , gromacs , file_io 
+import particles 
+import mpiNREL, lammps , gromacs , file_io , xmol 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
@@ -58,7 +59,6 @@ def get_options():
     #
     # Filters
     #
-
     parser.add_option("--id", dest="id", type="string", default="", help=" select atoms of group by number  ")    
     parser.add_option("--symb", dest="symb", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
     parser.add_option("--chains", dest="chains", type="string", default="", help="select atoms of group by chain number  ")    
@@ -67,6 +67,7 @@ def get_options():
     parser.add_option("--residue", dest="residue", type="string", default="", help="select atoms of group by resudue number  ")    
     parser.add_option("--linkid", dest="linkid", type="string", default="", help="select atoms of group by  linkd ")    
     parser.add_option("--fftype", dest="fftype", type="string", default="", help="select atoms of group by force field type  ")
+    parser.add_option("--gtype", dest="gtype", type="string", default="", help="select atoms of group by force field type  ")
     
     #parser.add_option("--filter_eln", dest="filter_eln", type="string", default="", help=" filter atoms by atomic number ")
     #parser.add_option("--filter_fftype", dest="filter_fftype", type="string", default="", help=" filter atoms by force field type ")
@@ -87,44 +88,6 @@ def get_options():
     return options, args
    
 
-def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype):
-    """
-    Create a dictionary to pass to particle search
-    """
-    
-    search_i = {}
-
-    if( len( f_symb ) ):
-        search_i["type"] = []
-        for id_s in f_symb.split():
-            search_i["type"].append(id_s)
-    if( len( f_chain ) ):
-        search_i["chain"] = []
-        for id_s in f_chain.split():
-            search_i["chain"].append(id_s)
-    if( len( f_ring ) ):
-        search_i["ring"] = []
-        for id_s in f_ring.split():
-            search_i["f_ring"].append(id_s)
-    if( len( f_resname ) ):
-        search_i["resname"] = []
-        for id_s in f_resname.split():
-            search_i["resname"].append(id_s)
-    if( len( f_residue ) ):
-        search_i["residue"] = []
-        for id_s in f_residue.split():
-            search_i["residue"].append(id_s)
-    if( len( f_linkid  ) ):
-        search_i["linkid"] = []
-        for id_s in f_linkid.split():
-            search_i["linkid"].append(id_s)
-    if( len( f_fftype ) ):
-        search_i["fftype"] = []
-        for id_s in f_fftype.split():
-            search_i["fftype"].append(id_s)
-            
-    return search_i
-    
 def main():
     """
     Read in files and create new files
@@ -203,10 +166,19 @@ def main():
     #
     ptclC_o = struc_o.ptclC
     bondC_o  = struc_o.bondC
+
+    debug = False
+    if( debug):
+        
+        for pid,pt_i in ptclC_o:
+            print " p1 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
+        sys.exit("p1")
+    
+    
     #   
     # Filter particles
     #
-    search_o = create_search(options.id,options.symb,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype)
+    search_o = particles.create_search(options.id,options.symb,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype,options.gtype)
     if( rank == 0 ):
         if( options.verbose ): print " Filter input by ",search_o
     list_f = ptclC_o.getParticlesWithTags(search_o)
@@ -214,6 +186,14 @@ def main():
     struc_i = struc_o.getSubStructure(list_f)
     ptclC_i = struc_i.ptclC
 
+    debug = False
+    if( debug):
+        
+        for pid,pt_i in ptclC_i:
+            print " p2 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
+        sys.exit("p2")
+    
+    
     #
     # Open output files 
     #
@@ -382,11 +362,10 @@ def main():
         #
         if( len(options.out_gro) ):
             if( options.verbose ): print  "     - Writing  ",options.out_gro
-                #print " Not yet supported "
             dir_id = "./"
 
-            for pid, ptclObj  in struc_i.ptclC:
-                 ptclObj.tagsDict["gtype"] =  ptclObj.tagsDict["fftype"]  
+            #for pid, ptclObj  in struc_i.ptclC:
+            #     ptclObj.tagsDict["gtype"] =  ptclObj.tagsDict["fftype"]  
             struc_i.write_gro(dir_id,options.out_gro ) # Move out of class
             #gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
 
@@ -396,7 +375,7 @@ def main():
             if( options.verbose ): print  "     - Writing  ",options.out_xyz
             comment = " final structure "
             append = False 
-            struc_i.write_xmol(options.out_xyz,comment,append)
+            xmol.write(struc_i.ptclC,options.out_xyz,comment,append)
 
         #  Write Lammps data file
         if( len(options.out_data) ):
