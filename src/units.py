@@ -37,10 +37,26 @@ kcalmol_H = 0.001593601
 #eV_kcalmol = 96.4853
 eV_H = 0.03674931 
 
+
+# http://physics.nist.gov/cgi-bin/cuu/Value?na
+const_avo = 6.02214129 # x10^23 mol^-1 
+
+
 # grosig_kcalmol = 5.61230943
 
+def convert_gcm3_AMUA3(den_gmc3):
+    """
+    Convert density from g/cm^3 to AMU Angstroms^-3
+    """
+    return den_gmc3*const_avo/10.0
+    
 
-
+def convert_AMUA3_gcm3(den_AMUA3):
+    """
+    Convert density from AMU Angstroms^-3 to  g/cm^3
+    """
+    return den_AMUA3/const_avo*10.0
+    
 def convert_nm_angstroms(d_angstroms):
     """
     convert nm to angstroms

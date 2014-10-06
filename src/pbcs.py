@@ -11,6 +11,9 @@ Vector opperations for particles in a box
 
 import numpy as np
 
+
+
+
 def delta_r_c(r_i,r_j,latticevec):
 
     # Find magnitude of dr_ij
@@ -78,7 +81,7 @@ def getAngle(r_i,r_j):
     return ang_deg
 
 
-def replicate(p,options,oligo_array,sol_array): # Move outside of class
+def replicate(p,options,oligo_array,sol_array): 
 
     """
     Replicate structures
@@ -118,12 +121,11 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
 
     """
     import mpiNREL
-    import file_io
+    import file_io, units 
     from structureContainer import StructureContainer
     import sys , datetime, random, math 
 
     debug = False 
-    const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
     # If options set for fixed then set random seed (for regression testing)
     if options.fixed_rnd_seed:
@@ -214,7 +216,6 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
             log_lines +=  "    Bonds  %d \n"%nbonds
             print log_lines
             log_out.write(log_lines)
-
     #
     # Calculate the number of oligomers and  solvent molecules
     #
@@ -247,7 +248,7 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
     #
     # Calculate the box size for a target density 
     #
-    target_density_amuang = options.den_target*const_avo/10.0 # densit in AMU/Angstrom^3
+    target_density_amuang = units.convert_gcm3_AMUA3( options.den_target) # densit in AMU/Angstrom^3
 
 
     total_n = n_olgio_l*oligo_nprt + n_sol_l*sol_nprt
@@ -287,7 +288,7 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
     # Calculate actual final structure properties
     vol_f = len_target_ang**3.0
     den_AMU_f = total_mass/vol_f
-    den_f = den_AMU_f/const_avo*10.0
+    den_f = units.convert_AMUA3_gcm3(den_AMU_f)
     perc_sol_f = (n_sol_l*sol_mass)/(n_sol_l*sol_mass + n_olgio_l*oligo_mass)
 
     # Recalculate solvent molecules along box length 
@@ -302,10 +303,13 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
     oligomer_rep = StructureContainer() 
     # Set lattice vector to new box size
     latvec_list = [np.array([len_target_ang,0.0,0.0]),np.array( [0.0,len_target_ang,0.0]),np.array( [0.0,0.0,len_target_ang]) ]
-    print "latvec_list" , latvec_list
+
+    if(debug):
+        print "latvec_list" , latvec_list
     oligomer_rep.setLatVec(latvec_list)
 
-    print " oligomer_rep.getLatVec() ",oligomer_rep.getLatVec()
+    if(debug):
+        print " oligomer_rep.getLatVec() ",oligomer_rep.getLatVec()
 
 
     strucC = StructureContainer()
@@ -315,9 +319,10 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
     sol_rep.setLatVec(latvec_list)
     strucC.setLatVec(latvec_list)
 
-    print " s1 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-    print " s1 sol_rep.getLatVec() ",sol_rep.getLatVec()
-    print " s1 strucC. .getLatVec() ",strucC.getLatVec()
+    if(debug):
+        print " s1 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s1 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s1 strucC. .getLatVec() ",strucC.getLatVec()
 
 
     # Print script information and settings 
@@ -390,9 +395,10 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
             for struc_i in oligo_array:
 
 
-                print " s12 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-                print " s12 sol_rep.getLatVec() ",sol_rep.getLatVec()
-                print " s12 strucC. .getLatVec() ",strucC.getLatVec()
+                if(debug):
+                    print " s12 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                    print " s12 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                    print " s12 strucC. .getLatVec() ",strucC.getLatVec()
 
 
                 #
@@ -476,9 +482,10 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
                     overlap_sum = p.allReduceSum(overlap)
                     p.barrier() # Barrier for MPI_COMM_WORLD
 
-                    print " s13 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-                    print " s13 sol_rep.getLatVec() ",sol_rep.getLatVec()
-                    print " s13 strucC. .getLatVec() ",strucC.getLatVec()
+                    if(debug):
+                        print " s13 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                        print " s13 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                        print " s13 strucC. .getLatVec() ",strucC.getLatVec()
 
 
                     if( overlap_sum ==  0 ):
@@ -500,10 +507,10 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
                                 #print " Printing  oligomer_rep bonds "
                                 #oligomer_rep.printbondlengths()
 
-
-                                print " s11 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-                                print " s11 sol_rep.getLatVec() ",sol_rep.getLatVec()
-                                print " s11 strucC. .getLatVec() ",strucC.getLatVec()
+                                if(debug):
+                                    print " s11 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+                                    print " s11 sol_rep.getLatVec() ",sol_rep.getLatVec()
+                                    print " s11 strucC. .getLatVec() ",strucC.getLatVec()
 
 
                                 if( options.ptime ):
@@ -605,9 +612,11 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
         print oligomer_rep.bondC
 
 
-    print " s21 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-    print " s21 sol_rep.getLatVec() ",sol_rep.getLatVec()
-    print " s21 strucC. .getLatVec() ",strucC.getLatVec()
+    if(debug):
+
+        print " s21 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s21 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s21 strucC. .getLatVec() ",strucC.getLatVec()
 
 
     strucC =  oligomer_rep
@@ -622,10 +631,11 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
 
         sys.exit("debug ")
 
+    if(debug):
 
-    print " s2 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-    print " s2 sol_rep.getLatVec() ",sol_rep.getLatVec()
-    print " s2 strucC. .getLatVec() ",strucC.getLatVec()
+        print " s2 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s2 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s2 strucC. .getLatVec() ",strucC.getLatVec()
 
 
     if( options.perc_sol > 0.0 ):
@@ -793,22 +803,22 @@ def replicate(p,options,oligo_array,sol_array): # Move outside of class
         strucC.setLatVec(sol_rep.latvec)
 
 
-
-    print " s3 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
-    print " s3 sol_rep.getLatVec() ",sol_rep.getLatVec()
-    print " s3 strucC. .getLatVec() ",strucC.getLatVec()
+    if(debug):
+        print " s3 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
+        print " s3 sol_rep.getLatVec() ",sol_rep.getLatVec()
+        print " s3 strucC. .getLatVec() ",strucC.getLatVec()
 
 
     strucC.compressPtclIDs()
 
     print "         f_rep has %d atoms and %d bonds "%(len(strucC.ptclC),len(strucC.bondC))
-    print "             lat vec ",sol_rep.latvec
+    print "             lat vec 1 ",sol_rep.latvec[0]
+    print "             lat vec 2 ",sol_rep.latvec[1]
+    print "             lat vec 3 ",sol_rep.latvec[2]
     #strucC.printbondlengths()
 
 
     if( rank == 0 ):
-
-
         t_f = datetime.datetime.now()
         dt_sec  = t_f.second - t_i.second
         dt_min  = t_f.minute - t_i.minute

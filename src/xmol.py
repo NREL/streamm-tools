@@ -88,7 +88,7 @@ def write(ptclC,xmol_file):
     F.write(" Frame   %d \n"%frame_cnt)
     for pid, ptclObj  in ptclC:
         r_i = ptclObj.position
-        atomic_symb = ptclObj.type
+        atomic_symb = ptclObj.tagsDict['symbol']
         F.write( "%5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )
     F.close()
 
