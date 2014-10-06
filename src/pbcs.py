@@ -463,7 +463,7 @@ def replicate(p,options,oligo_array,sol_array):
                     if( len(oligomer_rep.ptclC) > 0 ):
                         #
                         # If there are particles in the system check atoms do not overlap
-                        #                            
+                        #   
                         if( options.calc_overlap ):
 
                             for p_i, ptclObj_i in struc_i.ptclC(myChunk):

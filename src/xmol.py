@@ -68,29 +68,33 @@ def read(xmol_file):
     return(struc_array)
             
     
-def write(ptclC,xmol_file):
+
+def write(ptclC, xmol_file,comment,append):
+
     """
-    Write a structure array to an xmol file
+    Write a structure  to an xmol file
 
     Args:
-        strucC  (2) containing structures to write
         xmol_file    (str) xmol file name
+        comment  (str) for comment line 
+        append  (boolean) to append or create a new file 
     Reutrns
         null
     """
-    # Initialize frame cnt
-    frame_cnt = 0 
     # Open xmol file 
-    F = open(xmol_file,"w")
+    if(append):
+        F = open(xmol_file,"a")
+    else:
+        F = open(xmol_file,"w")
+
     # Loop over structures
-    frame_cnt = 1
-    F.write(" %d \n" % (len( ptclC )) )
-    F.write(" Frame   %d \n"%frame_cnt)
+    NP = len( ptclC )
+    F.write(" %d \n" % NP )
+    F.write(" %s \n"%comment)
     for pid, ptclObj  in ptclC:
         r_i = ptclObj.position
         atomic_symb = ptclObj.tagsDict['symbol']
-        F.write( "%5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )
+        F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
     F.close()
 
-    
-        
+

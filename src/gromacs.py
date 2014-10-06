@@ -57,13 +57,13 @@ def read_gro(strucC,in_gro):
     F.close()
 
     # Check to see if a previous read has occured
-    pt_overwrite = False
+    pt_update = False
     if( len(strucC.ptclC) > 0 ):
-        pt_overwrite = True
+        pt_update = True
     # Check of conistent number of atoms
     n_pt = int( Lines[1])
     pt_cnt = len(strucC.ptclC)
-    if( pt_overwrite ):
+    if( pt_update ):
         if( pt_cnt != n_pt):
             print " Current structure has %d atoms and %s has %d"%(pt_cnt,in_gro,n_pt)
             sys.exit(" Inconsistent number of atoms " )
@@ -78,6 +78,7 @@ def read_gro(strucC,in_gro):
             # Set particle i 
             ptcl_cnt += 1 
             #
+            resname_i = line[5:10].strip()            
             g = line[10:15]
             x = units.convert_nm_angstroms( float( line[20:28] ))
             y = units.convert_nm_angstroms( float(line[28:36]))
@@ -86,13 +87,14 @@ def read_gro(strucC,in_gro):
             r_i =    [x,y,z]
             if(debug):
                 print " particle ",ptcl_cnt,g,r_i
-            if( pt_overwrite ):
+            if( pt_update ):
                 pt_i = strucC.ptclC[ptcl_cnt]
+                pt_i.tagsDict["resname"] =  resname_i
                 pt_i.tagsDict["gtype"] =  g
                 pt_i.position = r_i 
             else:
                 pt_i = Particle( r_i ) 
-                tagsD = {"gtype":g}
+                tagsD = {"gtype":g,"resname":resname_i}
                 pt_i.setTagsDict(tagsD)
                 strucC.ptclC.put(pt_i)
 
@@ -138,7 +140,7 @@ def read_top(strucC, top_infile):
     from periodictable import periodictable
 
     debug = False 
-    verbose = False 
+    verbose = True 
 
     # Load periodic table 
     pt = periodictable()
@@ -387,9 +389,11 @@ def read_top(strucC, top_infile):
 
 
     # Check to see if a previous read has occured
-    pt_overwrite = False
+    pt_update = False
     if( len(strucC.ptclC) > 0 ):
-        pt_overwrite = True
+        if(  verbose ): #rank == 0 and
+            print "Exisiting particles will updated with top information "
+        pt_update = True
 
     # Find number of atoms in top file
     # Loop over molecules
@@ -414,7 +418,7 @@ def read_top(strucC, top_infile):
         pt_cnt_i += np_mol*MOLECULECNT[repeat_indx]
         
     # Check of conistent number of atoms
-    if( pt_overwrite ):
+    if( pt_update ):
         pt_cnt = len(strucC.ptclC)
         if( pt_cnt  != pt_cnt_i):
             print " Current structure has %d atoms and %s has %d"%(pt_cnt,top_infile,pt_cnt_i)
@@ -471,10 +475,8 @@ def read_top(strucC, top_infile):
                 A_CNT += 1
                 m_i = AMASS_l[atom_indx]
                 q_i = CHARGES_l[atom_indx]
-                if( pt_overwrite ):
+                if( pt_update ):
                     pt_i = strucC.ptclC[A_CNT+1]
-                    pt_i.charge = q_i
-                    pt_i.mass = m_i
                     if( debug ):
                         print " updating ",A_CNT+1
                 else:
@@ -483,20 +485,31 @@ def read_top(strucC, top_infile):
                     pt_i = Particle( r_i,type_i,m_i,q_i ) 
                     strucC.ptclC.put(pt_i) 
 
+                pt_i.charge = q_i
+                pt_i.mass = m_i
                 pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
                 pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
                 pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
                 pt_i.tagsDict["residue"] = RESN_l[atom_indx]
                 pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                 pt_i.tagsDict["chain"] = MOL_CNT + 1
+                
+                el = pt.getelementWithMass(m_i)
+                if( el.symbol == "VS" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+
+                # HACK !!
+                if(  ATYPE_l[atom_indx].strip() == "LP" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+
+                pt_i.tagsDict["symbol"] = el.symbol
+                pt_i.tagsDict["number"] = el.number
+                pt_i.tagsDict["cov_radii"] = el.cov_radii
+                pt_i.tagsDict["vdw_radi"] = el.vdw_radii
+                #pt_i.tagsDict[""] = el.
 
                 if( debug ):
-                    print " particle ",A_CNT+1,pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"] 
-
-                #el = pt.getelementWithSymbol(atomic_symb)
-                #el.symbol,el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radi
-                #pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx]
-
+                    print " particle ",A_CNT+1,pt_i.tagsDict["symbol"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"] 
                 
                 #
                 # Reference atom # in global list

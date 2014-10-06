@@ -67,16 +67,16 @@ class element():
         del self.cov_radii
         del self.vdw_radii
 
-    def symbol(self):
+    def get_symbol(self):
         return self.symbol
 
-    def mass(self):
+    def get_mass(self):
         return self.mass
 
-    def cov_radii(self):
+    def get_cov_radii(self):
         return self.cov_radii
 
-    def vdw_radii(self):
+    def get_vdw_radii(self):
         return self.vdw_radii
     
 
@@ -547,6 +547,18 @@ class periodictable:
             el_mass_int = int( self.elements[el_symb].mass )
             if( mass_i_int == el_mass_int ):
                 el =  self.elements[el_symb]
+        try:
+            el
+        except NameError:
+            print "No element found for atomi with mass %s "%(mass_i)
+            print " will assign it to element with symbol VS "
+            symbol_i = "VS"
+            el_indx = 0
+            mass_i = mass_i
+            cov_radii_i = 1.5
+            vdw_radii_i = 2.0 
+            el =  element(symbol_i,el_indx,mass_i,cov_radii_i,vdw_radii_i)
+
 
         return el
 
@@ -562,7 +574,14 @@ class periodictable:
             el
         except NameError:
             print "No element found for atomi symbol %s "%(symbol_i)
-            raise Error 
+            print " will assign it to element with index 0 "
+            el_indx = 0
+            mass_i = 0.0
+            cov_radii_i = 1.5
+            vdw_radii_i = 2.0 
+            el =  element(symbol_i,el_indx,mass_i,cov_radii_i,vdw_radii_i)
+
+            #raise Error 
             
         return el
 
