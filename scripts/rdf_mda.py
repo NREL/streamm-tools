@@ -21,7 +21,8 @@ from MDAnalysis.core.distances import * ##distance_array
 #import MDAnalysis.core.units            # for bulk water density
 
 
-# Scott's new classes 
+# Scott's new classes
+import particles
 from particles import Particle
 from particles import ParticleContainer
 from bonds     import BondContainer
@@ -208,12 +209,10 @@ def main():
         if( rank == 0 ):
             if( options.verbose ): print "  Reading  %s and %s "%(options.in_xtc,options.in_gro)
         universe =  Universe(options.in_dcd, options.in_data)
-        
     elif(len(options.in_gro) ):
         if( rank == 0 ):
             if( options.verbose ): print "  Reading  %s "%(options.in_gro)
         universe =  Universe(options.in_gro)
-
     else:
         sys.exit("Trajectory read in error ")
 
@@ -243,6 +242,8 @@ def main():
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
     sum_i = len(list_i)
+    if( rank == 0 ):
+        if( options.verbose ): print "   patricles group i ",sum_i
 
     # Relabel segments to correspond to lists i
     for pid_i in list_i:
@@ -256,6 +257,8 @@ def main():
         if( options.verbose ): print " Searching group j ",search_j
     list_j = ptclC_o.getParticlesWithTags(search_j)
     sum_j = len(list_j)
+    if( rank == 0 ):
+        if( options.verbose ): print "   patricles group j ",sum_j
     
     # Relabel segments to correspond to lists j
     for pid_j in list_j:
