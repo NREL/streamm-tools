@@ -97,8 +97,7 @@ def get_options():
     parser.add_option("--frame_o", dest="frame_o", type=int, default=0, help=" Initial frame to read")
     parser.add_option("--frame_f", dest="frame_f", type=int, default=10000, help=" Final frame to read")
     parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
-    #parser.add_option("--readall_f", dest="readall_f", default=False,action="store_true", help=" Read to end of trajectory file (negates frame_f value)")
-
+    parser.add_option("--readall_f", dest="readall_f", default=True,action="store_true", help=" Read to end of trajectory file (negates frame_f value)")
         
     (options, args) = parser.parse_args()
         
