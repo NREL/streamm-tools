@@ -145,9 +145,6 @@ def main():
         log_file = options.output_id + ".log"
         log_out = open(log_file,"w") 
 
-        dat_file = options.output_id + ".dat"
-        dat_out = open(dat_file,"w") 
-        dat_out.write("#   Input ")
 
     p.barrier()
     
@@ -524,6 +521,9 @@ def main():
 		
 	# Write output 
 	#
+        dat_file = options.output_id + ".dat"
+        dat_out = open(dat_file,"w") 
+        dat_out.write("#   Input ")
 	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
 	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
 	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
