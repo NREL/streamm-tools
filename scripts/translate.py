@@ -60,7 +60,8 @@ def get_options():
     # Filters
     #
     parser.add_option("--id", dest="id", type="string", default="", help=" select atoms of group by number  ")    
-    parser.add_option("--symb", dest="symb", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
+    parser.add_option("--symbol", dest="symbol", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
+    parser.add_option("--type", dest="type", type="string", default="", help=" select type  ")    
     parser.add_option("--chains", dest="chains", type="string", default="", help="select atoms of group by chain number  ")    
     parser.add_option("--ring", dest="ring", type="string", default="", help="select atoms of group by particlesn a ring   ")    
     parser.add_option("--resname", dest="resname", type="string", default="", help="select atoms of group by residue name  ")    
@@ -178,7 +179,7 @@ def main():
     #   
     # Filter particles
     #
-    search_o = particles.create_search(options.id,options.symb,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype,options.gtype)
+    search_o = particles.create_search(options.id,options.type,options.symbol,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype,options.gtype)
     if( rank == 0 ):
         if( options.verbose ): print " Filter input by ",search_o
     list_f = ptclC_o.getParticlesWithTags(search_o)

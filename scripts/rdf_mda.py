@@ -74,7 +74,8 @@ def get_options():
     # Searchable properties
     # I
     parser.add_option("--id_i", dest="id_i", type="string", default="", help=" select atoms of group i by id number  ")    
-    parser.add_option("--symb_i", dest="symb_i", type="string", default="", help=" select atoms of group i by (atomic) symbol   ")    
+    parser.add_option("--symbol_i", dest="symbol_i", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
+    parser.add_option("--type_i", dest="type_i", type="string", default="", help=" select type  ")    
     parser.add_option("--chains_i", dest="chains_i", type="string", default="", help="select atoms of group i by chain number  ")    
     parser.add_option("--ring_i", dest="ring_i", type="string", default="", help="select atoms of group i by particles in a ring   ")    
     parser.add_option("--resname_i", dest="resname_i", type="string", default="", help="select atoms of group i by residue name  ")    
@@ -84,7 +85,8 @@ def get_options():
     parser.add_option("--gtype_i", dest="gtype_i", type="string", default="", help="select atoms of group i by gromacs id   ")
     # J
     parser.add_option("--id_j", dest="id_j", type="string", default="", help=" select atoms of group j by id number  ")    
-    parser.add_option("--symb_j", dest="symb_j", type="string", default="", help=" select atoms of group j by (atomic) symbol   ")    
+    parser.add_option("--symbol_j", dest="symbol_j", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
+    parser.add_option("--type_j", dest="type_j", type="string", default="", help=" select type  ")    
     parser.add_option("--chains_j", dest="chains_j", type="string", default="", help="select atoms of group j by chain number  ")    
     parser.add_option("--ring_j", dest="ring_j", type="string", default="", help="select atoms of group j by particles in a ring   ")    
     parser.add_option("--resname_j", dest="resname_j", type="string", default="", help="select atoms of group j by residue name  ")    
@@ -233,7 +235,7 @@ def main():
         log_out.write(str(sys_prop))
         
     # Create sub lists for RDF groups i and j
-    search_i = particles.create_search(options.id_i,options.symb_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i,options.gtype_i)
+    search_i = particles.create_search(options.id_i,options.type_i,options.symbol_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i,options.gtype_i)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group i ",search_i
     list_i = ptclC_o.getParticlesWithTags(search_i)
@@ -248,7 +250,7 @@ def main():
         universe.atoms[pid_i-1].resnum = ptclC_o[pid_i].tagsDict["chain"]  # Set resnum to chain number for inter/intra rdf's
     uni_i = universe.selectAtoms(" resname grpi ")
     
-    search_j = particles.create_search(options.id_j,options.symb_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j,options.gtype_j)
+    search_j = particles.create_search(options.id_j,options.type_j,options.symbol_j,options.chains_j,options.ring_j,options.resname_j,options.residue_j,options.linkid_j,options.fftype_j,options.gtype_j)
     if( rank == 0 ):
         if( options.verbose ): print " Searching group j ",search_j
     list_j = ptclC_o.getParticlesWithTags(search_j)
