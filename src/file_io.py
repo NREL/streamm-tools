@@ -267,7 +267,7 @@ def putstruc_json(strucC, paramC, json_data ):  # Move out of class
         pt_i = dihObj.pgid2
         pt_j = dihObj.pgid3
         pt_l = dihObj.pgid4
-        type_i = bondObj.type 
+        type_i = dihObj.type 
         bonded_data["dihedrals"].append( [type_i,pt_k,pt_i,pt_j,pt_l])
 
     ljtypC_p = paramC.ljtypC
@@ -444,7 +444,7 @@ def getsys_json(strucC,paramC, json_file):
 
             # Read in angles
             for a_indx in range( len(bonded_data["angles"] )):
-                type_i = str(bonded_data["bonds"][b_indx][0] )
+                type_i = str(bonded_data["angles"][a_indx][0] )
                 a_k = int(bonded_data["angles"][a_indx][1] )
                 a_i = int(bonded_data["angles"][a_indx][2] )
                 a_j = int(bonded_data["angles"][a_indx][3] )
@@ -454,11 +454,11 @@ def getsys_json(strucC,paramC, json_file):
 
             # Read in dihedrals
             for d_indx in range( len(bonded_data["dihedrals"] )):
-                type_i = str(bonded_data["dihedrals"][b_indx][0] )
-                a_k = int(bonded_data["dihedrals"][b_indx][1] )
-                a_i = int(bonded_data["dihedrals"][b_indx][2] )
-                a_j = int(bonded_data["dihedrals"][b_indx][3] )
-                a_l = int(bonded_data["dihedrals"][b_indx][4] )
+                type_i = str(bonded_data["dihedrals"][d_indx][0] )
+                a_k = int(bonded_data["dihedrals"][d_indx][1] )
+                a_i = int(bonded_data["dihedrals"][d_indx][2] )
+                a_j = int(bonded_data["dihedrals"][d_indx][3] )
+                a_l = int(bonded_data["dihedrals"][d_indx][4] )
                 theta_i = 0.0
                 d_i = Dihedral( a_k,a_i, a_j,a_l,theta_i,type_i )  
                 strucC.dihC.put(d_i)

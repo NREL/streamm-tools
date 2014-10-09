@@ -456,7 +456,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         for pid_o, ptclObj_o  in ptclC_o:
             print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
 
-    return paramC_p
+    return paramC_p,struc_o
 
 
 
