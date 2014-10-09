@@ -4,17 +4,21 @@ Class data structures for atomic data
 import copy, sys
 
 
-def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype,f_gtype):
+def create_search(f_id,f_type,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype,f_gtype):
     """
     Create a dictionary to pass to particle search
     """
     
     search_i = {}
 
-    if( len( f_symb ) ):
+    if( len( f_type ) ):
         search_i["type"] = []
         for id_s in f_symb.split():
             search_i["type"].append(id_s)
+    if( len( f_symb ) ):
+        search_i["symbol"] = []
+        for id_s in f_symb.split():
+            search_i["symbol"].append(id_s)
     if( len( f_chain ) ):
         search_i["chain"] = []
         for id_s in f_chain.split():

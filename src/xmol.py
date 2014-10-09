@@ -12,7 +12,7 @@ from particles import Particle
 from particles import ParticleContainer
 
 
-def read(xmol_file):
+def read(xmol_file,format):
     """
     Read in xmol file
     
@@ -23,8 +23,11 @@ def read(xmol_file):
         struc_array (list) of ParticleContainer's for each frame
         
     """
+
+    verbose = False
+    
     # Initialize structure array for containing multiple frames
-    struc_array = []
+    ptclC_array = []
     
     # Initialize number of particles to zero for frame checking
     NP = 0
@@ -33,7 +36,7 @@ def read(xmol_file):
     m_i = 0.0 
     # Initialize line count and structure count 
     line_cnt = 0
-    struc_cnt = 0 
+    ptclC_cnt = 0 
     # Read in file line by line 
     with open(xmol_file) as f:
         for line in f:
@@ -42,32 +45,44 @@ def read(xmol_file):
             if( line_cnt == 1  ):
                 # Read first line to record number of particles NP
                 NP = int(col[0])
-                struc_i =  ParticleContainer()
-                struc_cnt += 1 
+                ptclC_i =  ParticleContainer()
+                ptclC_cnt += 1 
             elif( line_cnt > 2 and len(col) >= 4 ):
-                # Read lines and add particles to structure 
-                atomic_symb = col[0]
+                # Read lines and add particles to structure
+                if( format == "atomic_symb" ):
+                    atomic_symb = col[0]
+                elif( format == "lammps" ):
+                    part_type = str(col[0])
+                    atomic_symb = "C"
+                else:
+                    atomic_symb = "C"
+                    
                 r_i = [ col[1],col[2],col[3] ]
                 part_i = Particle( r_i,atomic_symb,q_i,m_i )
-                struc_i.put(part_i)
+                ptclC_i.put(part_i)
                 del part_i
                 
-            if( line_cnt > 1  and line_cnt > struc_cnt*(NP + 2) ):
+            if( line_cnt > 1  and line_cnt > ptclC_cnt*(NP + 2) ):
                 # xmol file contains multiple frames
                 #   store in structure array 
-                struc_array.append(struc_i)
+                ptclC_array.append(ptclC_i)
                 #   reinitialize struc_i ParticleContainer
-                del struc_i
-                struc_i =  ParticleContainer()
-                struc_cnt += 1 
+                del ptclC_i
+                ptclC_i =  ParticleContainer()
+                ptclC_cnt += 1 
 
     # Append last structure
-    struc_array.append(struc_i)
-    del struc_i
+    ptclC_array.append(ptclC_i)
+    del ptclC_i
+
+
+
+    for pid,pt_i in  struc_o.ptclC:
+        print pid,pt_i.type, pt_i.postion
+    sys.exit("debug xmol read in 1")
     
-    return(struc_array)
+    return(ptclC_array)
             
-    
 
 def write(ptclC, xmol_file,comment,append):
 

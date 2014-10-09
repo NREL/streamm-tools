@@ -416,7 +416,6 @@ class StructureContainer:
         """
         self.latvec = latvec_list
 
-
     def get_latvec(self ):
         """
         Get lattice vector 

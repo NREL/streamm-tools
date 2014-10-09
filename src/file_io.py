@@ -25,6 +25,9 @@ from parameters    import bondtype, BondtypesContainer
 from parameters    import angletype,AngletypesContainer
 from parameters    import dihtype,  DihtypesContainer
 
+# Stream modules 
+import lammps , gromacs , xmol
+
 
 
 def file_exists(filename):
@@ -615,3 +618,51 @@ def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_ffty
             
     return search_i
     
+def getstrucC(struc_o, in_json, in_gro , in_top, in_data, in_xmol,xmol_format ):
+    """
+    Read in Structure data from simulation output files
+    """
+    verbose = False
+    #
+    # Read in json file
+    #
+    if( len(in_json) ):
+        if( rank == 0 and verbose ):
+            print  "     - Reading in ",in_json
+        json_data_i = struc_o.getsys_json(in_json)
+    #
+    # Read gro file 
+    #
+    if( len(in_gro) ):
+        if( verbose ): print  "     GROMACS .gro file ",in_gro
+        struc_o = gromacs.read_gro(struc_o,in_gro)
+    #
+    # Read in top file
+    #
+    if( len(in_top) ):
+        if( verbose ): print  "     GROMACS .top file ",in_top
+        struc_o,ljmixrule = gromacs.read_top(struc_o,in_top)
+    # 
+    # Read lammps data file 
+    #
+    if( len(in_data) ):
+        if( verbose ): print  "     LAMMPS data file ",in_data            
+        struc_o = lammps.read_lmpdata(struc_o,in_data)
+    # 
+    # Read xmol file 
+    #
+    if( len(in_xmol) ):
+        if( verbose ): print  "     xmol data file ",in_xmol
+        ptclC_array = xmol.read(in_xmol,xmol_format)
+        # Set last set of positions as the particles in the structure 
+        struc_o.ptclC = ptclC_array[:-1]
+
+        for pid,pt_i in  struc_o.ptclC:
+            print pid,pt_i.type, pt_i.postion
+        sys.exit("debug xmol read in 1")
+    #
+    # HOOMD input file 
+    #
+    #a = hoomd_xml.hoomd_xml(sys.argv[1])
+
+    return struc_o
