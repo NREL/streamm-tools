@@ -28,7 +28,7 @@ from structureContainer import StructureContainer
 
 #from periodictable import periodictabled
 
-import atomtypes
+import atomtypes, pbcs
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
@@ -100,6 +100,11 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     Set force-field parameters
     """
 
+    log_file = "param.log"
+    param_out = open(log_file,"w")
+
+    
+
     ptclC_o =  struc_o.ptclC
     bondC_o  = struc_o.bondC
     angleC_o  = struc_o.angleC
@@ -157,7 +162,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     
             if( cnt_check < 1 ):
                 print " No LJ parameters were found for atom type %s ",fftype_i
-                #raise TypeError
+                #raise TypeErrorb
             elif( cnt_check > 1 ):
                 print " Multiple LJ parameters were found for atom type %s ",fftype_i
                 #raise TypeError
@@ -170,18 +175,28 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     for b_o, bondObj_o  in bondC_o:
         new_type = True
         btyp_p = 0
-        fftype_i =  ptclC_o[ bondObj_o.pgid1 ].tagsDict["fftype"]
-        fftype_j =  ptclC_o[ bondObj_o.pgid2 ].tagsDict["fftype"]
+        pid_i = bondObj_o.pgid1
+        pid_j = bondObj_o.pgid2
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ pid_j ].tagsDict["fftype"]
+        r_i = np.array( ptclC_o[ bondObj_o.pgid1 ].position  )
+        r_j = np.array( ptclC_o[ bondObj_o.pgid2 ].position  )
+        bond_len = np.linalg.norm(pbcs.delta_r_c(r_i,r_j,struc_o.get_latvec() ))
+        
         for btyp_p, btypObj_p  in btypC_p:
             p_i = btypObj_p.ptype1 
             p_j = btypObj_p.ptype2
             if( fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
                 bondObj_o.type = str(btyp_p)
+                log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
+                param_out.write(log_line)
                 break 
             elif( fftype_i == p_j  and  fftype_j == p_i ):
                 new_type = False
                 bondObj_o.type = str(btyp_p)
+                log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
+                param_out.write(log_line)
                 break 
                 
         if( new_type ):
@@ -195,13 +210,17 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 if( fftype_i == all_i  and  fftype_j == all_j ):
                     type_found = True 
                 if( fftype_j == all_i  and  fftype_i == all_j ):
-                    type_found = True 
+                    type_found = True
+                    
                 if( type_found ):
                     cnt_check += 1
                     btypC_p.put(btypObj_all)
                     if( debug ):
                         print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
+                        
                     type_found = False 
+                    log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_all.get_r0(),bond_len-btypObj_all.get_r0() )
+                    param_out.write(log_line)
                     
             if( cnt_check < 1 ):
                 print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
@@ -220,20 +239,36 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     for a_o,angleObj_o in angleC_o:
         new_type = True
         atyp_p = 0
+        pid_k = angleObj_o.pgid1
+        pid_i = angleObj_o.pgid2
+        pid_j = angleObj_o.pgid3
         fftype_k =  ptclC_o[ angleObj_o.pgid1 ].tagsDict["fftype"]
         fftype_i =  ptclC_o[ angleObj_o.pgid2 ].tagsDict["fftype"]
         fftype_j =  ptclC_o[ angleObj_o.pgid3 ].tagsDict["fftype"]
+        r_k = np.array( ptclC_o[ pid_k ].position  )
+        r_i = np.array( ptclC_o[ pid_i ].position  )
+        r_j = np.array( ptclC_o[ pid_j ].position  )
+        r_ik = pbcs.delta_r_c(r_i,r_k,struc_o.get_latvec() )
+        r_ij = pbcs.delta_r_c(r_i,r_j,struc_o.get_latvec() )
+        angle_kij = pbcs.getAngle(r_ik,r_ij)
         for atyp_p, atypObj_p  in atypC_p:
             p_k = atypObj_p.ptype1 
             p_i = atypObj_p.ptype2 
             p_j = atypObj_p.ptype3
+            theta0_kij = atypObj_p.get_theta0()
+            delta_theta = angle_kij - theta0_kij
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
                 angleObj_o.type = str(atyp_p)
+                log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
+                param_out.write(log_line)
+                    
                 break 
             if( fftype_j == p_k  and  fftype_i == p_i  and  fftype_k == p_j ):
                 new_type = False
                 angleObj_o.type = str(atyp_p)
+                log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
+                param_out.write(log_line)
                 break 
                 
         if( new_type ):
@@ -245,6 +280,8 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 all_k = atypObj_all.ptype1 
                 all_i = atypObj_all.ptype2 
                 all_j = atypObj_all.ptype3
+                theta0_kij =  atypObj_all.get_theta0()
+                delta_theta = angle_kij-theta0_kij
                 if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
                     type_found = True 
                 if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
@@ -256,12 +293,16 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     type_found = False
                     if( debug ):
                         print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
+                    log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p+1,theta0_kij,delta_theta )
+                    param_out.write(log_line)
                     
             if( cnt_check < 1 ):
                 print " No Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
                 raise TypeError
             elif( cnt_check > 1 ):
-                print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
+                log_line=" %d Angles parameters were found for angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f  \n"%(cnt_check,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij )
+                #param_out.write(log_line)
+                print log_line
                 atypC_p.findtype(fftype_k,fftype_i,fftype_j)
 
                 raise TypeError
@@ -455,6 +496,8 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         print "  All particles should have new type labeled as interger stored as a string "
         for pid_o, ptclObj_o  in ptclC_o:
             print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
+
+    param_out.close()
 
     return paramC_p,struc_o
 

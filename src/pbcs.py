@@ -11,9 +11,6 @@ Vector opperations for particles in a box
 
 import numpy as np
 
-
-
-
 def delta_r_c(r_i,r_j,latticevec):
 
     # Find magnitude of dr_ij
