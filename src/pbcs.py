@@ -246,7 +246,13 @@ def replicate(p,options,oligo_array,sol_array):
     # Calculate the box size for a target density 
     #
     target_density_amuang = units.convert_gcm3_AMUA3( options.den_target) # densit in AMU/Angstrom^3
-
+    
+    #
+    if( n_olgio_l + n_sol_l <= 0 ):
+        print "  n_olgio_l ",n_olgio_l
+        print "  n_sol_l ",n_sol_l
+        print " Specified number of target atoms %d produced no replications "%(options.atoms_target)
+        sys.exit("error")
 
     total_n = n_olgio_l*oligo_nprt + n_sol_l*sol_nprt
     total_mass = oligo_mass*n_olgio_l + n_sol_l*sol_mass
@@ -359,7 +365,6 @@ def replicate(p,options,oligo_array,sol_array):
     p.barrier()
 
 
-
     #sys.exit(" debug 2 ")
 
     # Record initial time
@@ -368,7 +373,16 @@ def replicate(p,options,oligo_array,sol_array):
 
     sys_oligo_n = 0     # Number of oligomers add to the system
     sys_attempts = 0    # Number of times the system has been reset
-    struc_add_cnt = 0   # Total number of structures added to the final structure 
+    struc_add_cnt = 0   # Total number of structures added to the final structure
+
+    max_oligo_residue_number_list = [] # Max residue number for relabeling
+    for struc_i in oligo_array:
+        max_i = 0 
+        for pid, ptclObj in struc_i.ptclC :
+            if( ptclObj.tagsDict["residue"] > max_i ):
+                max_i  = ptclObj.tagsDict["residue"]
+        max_oligo_residue_number_list.append(max_i)
+        
     #
     # Start adding molecules to the system
     #
@@ -389,9 +403,10 @@ def replicate(p,options,oligo_array,sol_array):
             tadd_i = datetime.datetime.now()
         for oligo_l in range( n_olgio_l ):
             # loop over the number of times each oligomer in the oligomer list needs to be replicated
+            o_cnt = -1
             for struc_i in oligo_array:
-
-
+                o_cnt += 1 
+                max_oligo_residue_number = max_oligo_residue_number_list[o_cnt]
                 if(debug):
                     print " s12 oligomer_rep. .getLatVec() ",oligomer_rep.getLatVec()
                     print " s12 sol_rep.getLatVec() ",sol_rep.getLatVec()
@@ -492,6 +507,11 @@ def replicate(p,options,oligo_array,sol_array):
                         # Rest molecule numbers
                         for pid, ptclObj in struc_i.ptclC :
                             ptclObj.tagsDict["chain"] = struc_add_cnt
+                            if( sys_oligo_n > 1 ):
+                                res_numb_i = max_oligo_residue_number + ptclObj.tagsDict["residue"]
+                                ptclObj.tagsDict["residue"] = res_numb_i
+
+                            
 
                         # add oligomer structure to system structure
                         struc_i.setLatVec(oligomer_rep.getLatVec())
