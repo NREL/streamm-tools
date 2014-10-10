@@ -33,7 +33,7 @@ def read_lmpdata( strucC , data_file):
     import sys, numpy
     
     debug = 0
-    verbose = 0
+    verbose = True
 
 
     # Load periodic table 
@@ -109,7 +109,9 @@ def read_lmpdata( strucC , data_file):
         pt_overwrite = True
     # Check of conistent number of atoms
     if( pt_overwrite ):
-        if(  len(strucC.ptclC) + 1 != n_atoms):
+        if(  len(strucC.ptclC)  != n_atoms):
+            print "  %d atoms in passed structure "%(len(strucC.ptclC))
+            print "  %d atoms in data file "%(n_atoms)
             sys.exit(" Inconsistent number of atoms " )
 
     bonds_overwrite = False
@@ -320,12 +322,16 @@ def read_lmpdata( strucC , data_file):
             m_i = ATYPE_MASS[lmptype_i]
             el = pt.getelementWithMass(m_i)
             r_i =  [ float(col[4]),float(col[5]),float(col[6])] 
-            type_i = "??"
+            type_i = lmptype_i
 
             tagsD = {"chain":chain_i,"symbol":el.symbol,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
             if( pt_overwrite ):
-                pt_i = strucC.ptclC[cnt_Atoms]
-                pt_i.setTagsDict(tagsD)
+                pt_i = strucC.ptclC[ind+1]
+                #pt_i.setTagsDict(tagsD)
+                #pt_i.tagsDict["chain"] = chain_i
+                #pt_i.tagsDict["symbol"] = chain_i
+                #pt_i.tagsDict["number"] = chain_i
+                #pt_i.tagsDict["mass"] = chain_i
                 pt_i.position = r_i
                 pt_i.charge = q_i
                 pt_i.mass = m_i
