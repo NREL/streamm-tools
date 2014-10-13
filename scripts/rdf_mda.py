@@ -68,7 +68,8 @@ def get_options():
     parser.add_option("--mol_intra",dest="mol_intra", default=False,action="store_true", help="Use only intra molecular rdf's")
     
     # Bins
-    parser.add_option("--r_cut", dest="r_cut", type=float, default=10.0, help=" Cut off radius in angstroms ")
+    parser.add_option("--r_cut", dest="r_cut", type=float, default=20.0, help=" Cut off radius in angstroms ")
+    parser.add_option("--box_cut",dest="box_cut", default=False,action="store_true", help="Set cut off to half the box length")
     parser.add_option("--bin_size", dest="bin_size", type=float, default=0.10, help=" Bin size in angstroms")
     
     # Searchable properties
@@ -227,7 +228,11 @@ def main():
     if( options.mol_inter and options.mol_intra and rank == 0  ):
 	print " Options --mol_inter and --mol_intra are mutually exclusive "
 	sys.exit("Error is specified options ")
-     
+        
+    if( options.box_cut ):
+        latvec = struc_o.getLatVec()
+        options.r_cut = latvec[0][0]/2.0 
+        
     # Print system properties
     if( rank == 0 ):
         sys_prop = struc_o.printprop()
@@ -412,7 +417,7 @@ def main():
 
         sys.exit(" include array size ")
 
-    volume_sum_i = 0
+    volume_sum_i = 0.0
     rdf_frames = 0 
 
     # setting the skip for the traj
@@ -505,41 +510,38 @@ def main():
     box_vol_ave = volume_sum/float(rdf_frames)
     vol_cut = 4.0*math.pi/3.0*options.r_cut**3
     n_shperes = float(sum_i)*float(rdf_frames)
-    sphere_den_j = float(total_cnts)/vol_cut/n_shperes #/2.0  # N_B A^-3
+    sphere_den_j = float(total_cnts)/vol_cut/n_shperes/2.0  # N_B A^-3
     box_den_i = float(sum_i )/float(box_vol_ave)
     box_den_j = float(sum_j )/float(box_vol_ave)
     
     if( rank == 0 ):
-	if( options.verbose ):
             
-		
-	    print "   Frames ",rdf_frames
-	    print "   Total counts ",total_cnts
-	    print "   Average box volume ",box_vol_ave
-	    print "   Volume of cut-off sphere ",vol_cut
-	    print "   Average box density i ",box_den_i," atoms/angstrom^3 "
-	    print "   Average box density j ",box_den_j," atoms/angstrom^3 "
-	    print "   Average cut-off sphere density ",sphere_den_j," atoms/angstrom^3 "
-		
 	# Write output 
 	#
+        dat_lines ="#   Input "
+	dat_lines +="\n#    Initial frame %d frame step %d " %  (options.frame_o,options.frame_step)
+	dat_lines +="\n#    RDF frames %d  " %  (rdf_frames)
+	dat_lines +="\n#    Bin-size %f  " % (options.bin_size)
+	dat_lines +="\n#    Cut-off %f  " % (options.r_cut)
+	dat_lines +="\n#    Total_cnts %d  " % (total_cnts)
+	dat_lines +="\n#    N_i %d " % (sum_i )
+	dat_lines +="\n#    N_j %d " % (sum_j )
+	dat_lines +="\n#    Box averages " 
+	dat_lines +="\n#      Average Box Volume %f " % ( box_vol_ave) 
+	dat_lines +="\n#      Box density i %f N A^-3 " % (box_den_i )
+	dat_lines +="\n#      Box density j %f N A^-3 " % (box_den_j )
+	dat_lines +="\n#    Sphere averages " 
+	dat_lines +="\n#      N spheres %d " % (n_shperes )
+	dat_lines +="\n#      Sphere volume  %f A^3 " % (vol_cut )
+	dat_lines +="\n#      Average Sphere density j  %f N A^3 " % (sphere_den_j )
+	dat_lines +="\n#    "
+	dat_lines +="\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  "
+        if( options.verbose ):
+            print dat_lines
         dat_file = options.output_id + ".dat"
         dat_out = open(dat_file,"w") 
-        dat_out.write("#   Input ")
-	dat_out.write("# RDF frames %d %d " %  (options.frame_o,options.frame_f))
-	dat_out.write("\n#    Bin-size %f  " % (options.bin_size))
-	dat_out.write("\n#    Cut-off %f  " % (options.r_cut))
-	dat_out.write("\n#    Frames %d  " % (rdf_frames))
-	dat_out.write("\n#    Total_cnts %d  " % (total_cnts))
-	dat_out.write("\n#    N_i %d " % (sum_i ))
-	dat_out.write("\n#    N_j %d " % (sum_j ))
-	dat_out.write("\n#    Average Box Volume %f " % ( box_vol_ave) )
-	dat_out.write("\n#    Box density i %f N A^-3 " % (box_den_i ))
-	dat_out.write("\n#    Box density j %f N A^-3 " % (box_den_j ))
-	dat_out.write("\n#    Sphere volume  %f A^3 " % (vol_cut ))
-	dat_out.write("\n#    Average Sphere density  %f N A^3 " % (sphere_den_j ))
-	dat_out.write("\n#    ")
-	dat_out.write("\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  ")
+        dat_out.write(dat_lines)
+        #
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
 	cnt_sum = 0.0 
 	for bin_index in range( 1,n_bins):

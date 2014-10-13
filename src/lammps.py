@@ -322,7 +322,7 @@ def read_lmpdata( strucC , data_file):
             m_i = ATYPE_MASS[lmptype_i]
             el = pt.getelementWithMass(m_i)
             r_i =  [ float(col[4]),float(col[5]),float(col[6])] 
-            type_i = lmptype_i
+            type_i = str(lmptype_i)
 
             tagsD = {"chain":chain_i,"symbol":el.symbol,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
             if( pt_overwrite ):

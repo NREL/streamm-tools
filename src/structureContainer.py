@@ -2,19 +2,19 @@
 Class data structures for atomic data
 """
 
+import copy
+import numpy as np 
+import json
+import sys
+import os
+
 from particles     import Particle, ParticleContainer
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
 from dihedrals     import Dihedral, DihedralContainer
 from periodictable import periodictable
 
-
-import pbcs
-import copy
-import numpy as np 
-import json
-import sys
-import os
+import pbcs, units
 
 class StructureContainer:
     """
@@ -503,7 +503,7 @@ class StructureContainer:
         Calculate volume
 
         Method:
-            Volume = ( v_i x v_j ) \dot v_k
+            Volume = ( v_i x v_j ) . v_k
         """
 
         br1 = np.cross(self.latvec[0],self.latvec[1])
@@ -528,12 +528,11 @@ class StructureContainer:
         Calculate density of system 
 
         """
-	# const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
 	volume_i = self.getVolume()    
 	total_mass_i = self.getTotMass()
 
-	density_i = total_mass_i/volume_i #/const_avo*10.0
+	density_i = units.convert_AMUA3_gcm3(total_mass_i/volume_i) 
 	
 	return density_i
 
