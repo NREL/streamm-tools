@@ -231,7 +231,7 @@ def main():
         
     if( options.box_cut ):
         latvec = struc_o.getLatVec()
-        options.r_cut = latvec[0][0]/2.0 
+        options.r_cut = math.floor(latvec[0][0]/2.0)
         
     # Print system properties
     if( rank == 0 ):
