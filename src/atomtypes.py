@@ -587,7 +587,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
     """
 
     methyl_C = "C6"
-    debug = 1
+    debug = False
 
     # Version 2
     q_OMe = -0.251

@@ -938,7 +938,7 @@ def print_top(strucC,top_file):
     F.close()
 
 
-def print_itp(paramC,itp_file):
+def print_itp(paramC,itp_file,ff_type):
     """"
     Write gromacs parameter file
     """
@@ -947,11 +947,10 @@ def print_itp(paramC,itp_file):
     F.write(';  new ff parameters \n')
     F.write(' \n ')
     
-    ff_type = "oplsaa"
     if( ff_type == "oplsaa" ):
             
         nbfunc = 1
-        combrule = 3
+        ljmixrule = 3
         genpairs = "yes"
         fudgeLJ = 0.5
         fudgeQQ = 0.5
@@ -959,7 +958,7 @@ def print_itp(paramC,itp_file):
     elif( ff_type == "amber" ):
 
         nbfunc = 1
-        combrule = 2
+        ljmixrule = 2
         genpairs = "yes"
         fudgeLJ = 0.5
         fudgeQQ = 0.8333
@@ -970,7 +969,7 @@ def print_itp(paramC,itp_file):
     
     F.write(' \n [ defaults ] ')
     F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
-    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,ljmixrule,genpairs,fudgeLJ,fudgeQQ  ))
     F.write(' \n ')
     F.write(' \n ')
 
@@ -1031,7 +1030,7 @@ def print_itp(paramC,itp_file):
             theat_s = dtypObj_p.get_theat_s()
             kb = units.convert_kcalmol_kJmol( dtypObj_p.get_kb() )
             mult =  dtypObj_p.get_mult()
-            print "  theat_s , kb ,mult ",theat_s , kb ,mult
+            #print "  theat_s , kb ,mult ",theat_s , kb ,mult
             out_line = "\n %s   %s   %s   %s  %d   %f  %f  %d "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,theat_s,kb,mult)
         elif( g_type == 2  ):
             e0, ke_kcalmol  = dtypObj_p.getimp()

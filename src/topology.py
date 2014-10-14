@@ -364,20 +364,20 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 new_type = False
                 dihObj_o.set_lmpindx(dtyp_p)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
-                print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
-                print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
 
                 if( debug):
+                    print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                    print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
                     print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
                 break
             if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
                 new_type = False
                 dihObj_o.set_lmpindx(dtyp_p)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
-                print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
-                print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
 
                 if( debug):
+                    print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                    print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
                     print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
                 break
 
@@ -534,7 +534,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
         sys.exit('find_types')
 
-    debug = True 
+    debug = False 
     if(debug):
         print "  All particles should have new type labeled as interger stored as a string "
         for pid_o, ptclObj_o  in ptclC_o:
