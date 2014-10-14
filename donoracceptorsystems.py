@@ -793,7 +793,7 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
     # Set REPOLOCATION in pbs template script
     repoPath=options.repoPath
 
-    # If repoPath not set from options set to default /projects/opv/PUBLISH-'user'-datestame
+    # If repoPath not set from options set to default /projects/opv/PUBLISH-'user'-datestamen
     if (repoPath == None):
         userName = os.getenv("USER")
         timeStamp = strftime("%Y_%b_%d_%a_%H_%M", gmtime())
