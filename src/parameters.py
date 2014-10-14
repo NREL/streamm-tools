@@ -27,6 +27,9 @@ class ljtype:
         self.epsilon = 0.0
         self.sigma = 0.0 
         self.mass = 0.0 
+        self.charge = 0.0 
+        self.pid = 0
+        self.ptype = "A"  # atomic
 
     def __del__(self):
         """
@@ -42,6 +45,21 @@ class ljtype:
         strucStr =  " LJ  %s  epsilon %f sigma %f "%(self.ptype1, self.epsilon, self.sigma )
                 
         return strucStr
+
+    def setpid(self,pid):
+        """
+        set particle id
+
+
+        Args:
+            pid (int)  element number for atomic types 
+        """
+
+        if isinstance(pid, int):
+            self.pid = pid
+        else:
+            print "1st arg should be int"
+            raise TypeError
 
     def setmass(self,mass):
         """
@@ -145,6 +163,42 @@ class bondtype:
         self.r0 = 0.0
         self.kb = 0.0 
 
+
+
+        # Lammps and gromacs index
+        self.lmpindx = 0 
+        self.g_indx = 0 
+
+
+    def set_lmpindx(self,lmpindx):
+        """
+        Set bond type index for lammps
+        """
+        self.lmpindx = lmpindx
+        
+        
+    def get_lmpindx(self):
+        """
+        Return bond type index for lammps
+        """
+        return self.lmpindx
+
+
+    def set_g_indx(self,g_indx):
+        """
+        Set bond type index for gromacs 
+        """
+        self.g_indx = g_indx
+        
+        
+    def get_g_indx(self):
+        """
+        Return bond type index for gromacs
+        """
+        return self.g_indx
+
+
+
     def __del__(self):
         """
         Destructor, clears object memory
@@ -159,7 +213,7 @@ class bondtype:
         strucStr =  " bond  %s - %s type %s "%(self.ptype1,self.ptype2,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic r_0 = %f K = %f " %(self.r0 ,self.kb )
+            strucStr += "\n  harmonic r_0 = %f K = %f lammps index %d  gromcas index %d  " %(self.r0 ,self.kb,self.lmpindx ,self.g_indx )
                 
         return strucStr
 
@@ -262,6 +316,38 @@ class angletype:
         self.theta0 = 0.0
         self.kb = 0.0 
 
+        # Lammps and gromacs index
+        self.lmpindx = 0 
+        self.g_indx = 0 
+
+
+    def set_lmpindx(self,lmpindx):
+        """
+        Set bond type index for lammps
+        """
+        self.lmpindx = lmpindx
+        
+        
+    def get_lmpindx(self):
+        """
+        Return bond type index for lammps
+        """
+        return self.lmpindx
+
+
+    def set_g_indx(self,g_indx):
+        """
+        Set bond type index for gromacs 
+        """
+        self.g_indx = g_indx
+        
+        
+    def get_g_indx(self):
+        """
+        Return bond type index for gromacs
+        """
+        return self.g_indx
+
     def __del__(self):
         """
         Destructor, clears object memory
@@ -276,8 +362,8 @@ class angletype:
         strucStr =  " angle  %s - %s - %s type %s "%(self.ptype1,self.ptype2,self.ptype3,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic theta_0 = %f K = %f " %(self.theta0 ,self.kb )
-        
+            strucStr += "\n  harmonic theta_0 = %f K = %f lammps index %d  gromcas index %d  " %(self.theta0 ,self.kb,self.lmpindx ,self.g_indx )
+
         return strucStr
 
 
@@ -408,6 +494,38 @@ class dihtype:
         self.C4 = 0.0 
         self.C5 = 0.0 
 
+        # Lammps and gromacs index
+        self.lmpindx = 0 
+        self.g_indx = 0 
+
+
+    def set_lmpindx(self,lmpindx):
+        """
+        Set bond type index for lammps
+        """
+        self.lmpindx = lmpindx
+        
+        
+    def get_lmpindx(self):
+        """
+        Return bond type index for lammps
+        """
+        return self.lmpindx
+
+
+    def set_g_indx(self,g_indx):
+        """
+        Set bond type index for gromacs 
+        """
+        self.g_indx = g_indx
+        
+        
+    def get_g_indx(self):
+        """
+        Return bond type index for gromacs
+        """
+        return self.g_indx
+
     def __del__(self):
         """
         Destructor, clears object memory
@@ -422,13 +540,13 @@ class dihtype:
         strucStr =  " dihedral  %s - %s - %s - %s type %s "%(self.ptype1,self.ptype2,self.ptype3,self.ptype4,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f " %(self.d,self.mult ,self.kb,self.theat_s )
-        
+            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theat_s,self.lmpindx ,self.g_indx )
+        if( self.type ==  "multiharmonic" ):
+            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theat_s,self.lmpindx ,self.g_indx )
         if( self.type ==  "opls" ):
-            strucStr += "\n  k1 = %f k2 = %f k3 = %f k4 = %f " %(self.k1,self.k2,self.k3,self.k4 )
-
+            strucStr += "\n  k1 = %f k2 = %f k3 = %f k4 = %f lammps index %d  gromcas index %d " %(self.k1,self.k2,self.k3,self.k4,self.lmpindx ,self.g_indx )
         if( self.type ==  "rb" ):
-            strucStr += "\n  C0 = %f  C1 = %f C2 = %f C3 = %f C4 = %f  C5 = %f " %(self.C0,self.C1,self.C2,self.C3,self.C4,self.C5 )
+            strucStr += "\n  C0 = %f  C1 = %f C2 = %f C3 = %f C4 = %f  C5 = %f lammps index %d  gromcas index %d " %(self.C0,self.C1,self.C2,self.C3,self.C4,self.C5 ,self.lmpindx ,self.g_indx)
 
         return strucStr
 
@@ -443,6 +561,7 @@ class dihtype:
             d     (float) 
             mult     (float) 
             kb     (float) force constant    kcal/mol
+            theat_s     (float) angle degrees 
         """
 
         if isinstance(d, float):
@@ -464,6 +583,46 @@ class dihtype:
             raise TypeError
 
 
+        if isinstance(theat_s, float):
+            self.theat_s = theat_s
+        else:
+            print "4th arg should be float"
+            raise TypeError
+
+
+    def setimp(self, e0, ke):
+        """
+        set Harmonic parameters
+
+        E = ?
+
+        Args:
+            e0     (float) 
+            kb     (float) force constant    kcal/mol
+        """
+
+        if isinstance(e0, float):
+            self.e0 = e0
+        else:
+            print "1st arg should be float"
+            raise TypeError
+
+        if isinstance(ke, float):
+            self.ke = ke
+        else:
+            print "2nd arg should be float"
+            raise TypeError
+
+    def getimp(self):
+        """
+        Get Improper parameters
+
+        Return:
+            e0     (float) 
+            kb     (float) force constant    kcal/mol
+        """
+        return self.e0, self.ke
+    
     def setopls(self,k1,k2,k3,k4):
         """
         set opls parameters
@@ -645,6 +804,12 @@ class dihtype:
         """
         return self.ptype4
 
+    def get_theat_s(self):
+        """
+        Return dih theat_s
+        """
+        return self.theat_s
+
     def get_d(self):
         """
         Return dih d
@@ -663,6 +828,12 @@ class dihtype:
         """
         return self.mult
 
+
+    def get_mult(self):
+        """
+        Return dih mult
+        """
+        return self.mult
 
 class LJtypesContainer:
     """

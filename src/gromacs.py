@@ -9,6 +9,8 @@ subroutines for gromacs file manipulation
 # Email travis.kemper@nrel.gov
 # Version 4.00
 
+import sys 
+
 import units 
 
 from particles  import Particle
@@ -682,7 +684,8 @@ def read_itp( parmC, ff_file, ljmixrule):
                             kb = units.convert_g_bond_kb( float(col[4]) )
                             btype = "harmonic"
                         btyp_i = bondtype(ptype1,ptype2,btype)
-
+                        btyp_i.set_g_indx(g_type)
+                        
                         if( g_type == 1 ):
                             btyp_i.setharmonic(r0,kb)
 
@@ -718,6 +721,7 @@ def read_itp( parmC, ff_file, ljmixrule):
                             kb = units.convert_g_angle_kb( float( col[5] ) )
                             atype = "harmonic"
                         atyp_i = angletype(ptype1,ptype2,ptype3,atype)
+                        atyp_i.set_g_indx(gfunc_type)
 
                         if( gfunc_type == 1 ):
                             atyp_i.setharmonic(theta0,kb)
@@ -787,9 +791,9 @@ def read_itp( parmC, ff_file, ljmixrule):
                             # opls function
                             
                         elif( gfunc_type == 9 ):
-                            theat_s = float( col[4] )
-                            kb = units.convert_kJmol_kcalmol( float( col[5] ) )
-                            mult = float( col[6] )
+                            theat_s = float( col[5] )
+                            kb = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            mult = float( col[7] )
                             dtype = "multiharmonic"
 
                         else:
@@ -797,23 +801,857 @@ def read_itp( parmC, ff_file, ljmixrule):
                             raise TypeError
 
                         dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                        dtyp_i.set_g_indx(gfunc_type)
 
                         if( gfunc_type == 1 or  gfunc_type == 9  ):
                             d = 1.0 
                             dtyp_i.setharmonic(d, mult, kb,theat_s)
 
+                        if( gfunc_type == 2 ):
+                            dtyp_i.setimp(e0,ke) 
+
+                            
                         if( gfunc_type == 3 ):
                             dtyp_i.setrb(C0,C1,C2,C3,C4,C5)  # Sets oplsa as well since they are equivalent 
                         if(  gfunc_type == 5  ):
                             dtyp_i.setopls(k1,k2,k3,k4)   # Sets rb as well since they are equivalent 
 
                         parmC.dtypC.put(dtyp_i)
+
                         #print btyp_i
+    debug = False
     if( debug):
         print " Dihedrals have been read in "
         for  did, dtypObj in parmC.dtypC:
             print dtypObj
+        sys.exit(" itp dih readin debug ")
 
     return parmC
 
 
+
+def print_gro(strucC,gro_file):
+    """
+    Write gromacs structure file 
+    """
+
+    import sys 
+    #
+    # printing gro 
+    #
+    F = open( gro_file, 'w' )
+    F.write( ' log to top ')
+    F.write( "\n %-2i "  % int(len(strucC.ptclC)) )
+    atom_indx = 0 
+    for pid, ptclObj  in strucC.ptclC:
+        atom_indx += 1
+        if( atom_indx > 10000): atom_indx = 1
+        r_i = ptclObj.position
+        r_i_nm = [units.convert_angstroms_nm(r_i[0]) ,units.convert_angstroms_nm(r_i[1]) ,units.convert_angstroms_nm(r_i[2]) ]
+        F.write( "\n%5d%-5s%5s%5d%8.3f%8.3f%8.3f"  % ( ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],atom_indx,r_i_nm[0],r_i_nm[1],r_i_nm[2] ))
+
+    latvec = strucC.get_latvec()
+    F.write( "\n %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f \n" % ( latvec[0][0]/10.0,latvec[1][1]/10.0,latvec[2][2]/10.0,latvec[0][1]/10.0,latvec[0][2]/10.0,latvec[1][0]/10.0,latvec[1][2]/10.0,latvec[2][0]/10.0,latvec[2][1]/10.0))
+    F.close()
+
+def print_top(strucC,top_file):
+    """
+    Write gromacs topology file
+    """
+
+    spc = str(' ')
+    
+    F = open( top_file, 'w' )
+    #
+    # write atoms 
+    #
+    F.write('; top file for gromacs \n ')
+    F.write('\n')
+    F.write('; force field file \n')
+    F.write('#include "ff-new.itp"  \n')
+    F.write('\n')
+    F.write( '[ moleculetype ] \n')
+    F.write( ' MOL           3 \n')
+    F.write('\n')
+    F.write( '[ atoms ] \n' )
+    TOTAL_CHARGE = 0.0
+
+    for pid, ptclObj  in strucC.ptclC:
+        # print i,ATYPE[i] ,RESN[i] ,RESID[i] ,GTYPE[i],CHARN[i],CHARGES[i] ,AMASS[i]
+        F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.mass) )
+        TOTAL_CHARGE = TOTAL_CHARGE + float(ptclObj.charge)
+
+    print ' Total charge = ',TOTAL_CHARGE
+    F.write( '' + '\n' )
+    #
+    # write bonds
+    #
+    F.write( ' [ bonds ] \n' )
+    print len(strucC.bondC) , ' number of bonds'
+    for b_o, bondObj_o  in strucC.bondC:
+        pid_i = bondObj_o.pgid1
+        pid_j = bondObj_o.pgid2
+        gfunc_type = bondObj_o.get_g_indx()
+        F.write(  '%10d %10d %5d \n' % (pid_i,pid_j,gfunc_type) )
+    F.write(  '\n' )
+    #
+    # write angles
+    #
+    F.write( ' [ angles ] \n' )
+    print len(strucC.angleC)-1 , ' number of angles'
+    for a_o,angleObj_o in strucC.angleC:
+        pid_k = angleObj_o.pgid1
+        pid_i = angleObj_o.pgid2
+        pid_j = angleObj_o.pgid3
+        gfunc_type = angleObj_o.get_g_indx()
+        F.write(  '%10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,gfunc_type) )
+    F.write( '\n' )
+    #
+    # write dihedrals
+    #
+    debug = 0
+    line = str( '[ dihedrals ]' )
+    F.write( line + '\n' )        
+    print len(strucC.dihC), ' number of dihedrals '
+    for d_o,dihObj_o in strucC.dihC:
+        pid_k = dihObj_o.pgid1
+        pid_i = dihObj_o.pgid2
+        pid_j = dihObj_o.pgid3
+        pid_l = dihObj_o.pgid4
+        #if(debug): print ' dihedral index ',ind, pid_k,pid_i,pid_j,pid_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1]
+        gfunc_type = dihObj_o.get_g_indx()
+        F.write(  '%10d %10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,pid_l,gfunc_type) )
+        
+    F.write( '\n' )
+    # Print tail
+    if(debug): sys.exit("debug imps ")
+    
+    F.write(' [ system ]  \n ')
+    F.write(' Molecular \n')
+    F.write('\n')
+    F.write('  [ molecules ]  \n ')
+    F.write(' MOL    1  \n')
+    F.write('\n')
+    # close top file 
+    F.close()
+
+    F.close()
+
+
+def print_itp(paramC,itp_file):
+    """"
+    Write gromacs parameter file
+    """
+    
+    F = open( itp_file,'w')
+    F.write(';  new ff parameters \n')
+    F.write(' \n ')
+    
+    ff_type = "oplsaa"
+    if( ff_type == "oplsaa" ):
+            
+        nbfunc = 1
+        combrule = 3
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.5
+        
+    elif( ff_type == "amber" ):
+
+        nbfunc = 1
+        combrule = 2
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.8333
+        
+    else:
+        print " force-field type unknown  "
+
+    
+    F.write(' \n [ defaults ] ')
+    F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
+    F.write(' \n ')
+    F.write(' \n ')
+
+    ljtypC_p =  paramC.ljtypC
+    btypC_p =  paramC.btypC
+    atypC_p =  paramC.atypC
+    dtypC_p =  paramC.dtypC
+
+    #
+    # Write particle types   
+    #
+    F.write('\n [ atomtypes ] ')
+    for lj_p, ljObj_p  in ljtypC_p:
+        sigma = units.convert_angstroms_nm( ljObj_p.sigma )
+        epsilon = units.convert_kcalmol_kJmol( ljObj_p.epsilon )
+        out_line = "\n %s   %d  %f %f %s %f %f  "%(ljObj_p.ptype1,ljObj_p.pid,ljObj_p.mass,ljObj_p.charge,ljObj_p.ptype,sigma,epsilon)
+        F.write(out_line)
+
+    F.write(' \n ')
+    #
+    # Write bond types
+    #
+    F.write('\n [ bondtypes ] ')
+    for b_p, btypeObj_p  in btypC_p:
+        g_type = btypeObj_p.get_g_indx()
+        if( g_type == 1 ):
+            r0 = units.convert_angstroms_nm(  btypeObj_p.get_r0() )
+            kb = units.convert_kb_g_bond( btypeObj_p.get_kb()) 
+            out_line = "\n %s   %s  %d   %f  %f  "%(btypeObj_p.get_ptype1(),btypeObj_p.get_ptype2(),g_type,r0,kb)
+        else:
+            print "  unknown gromacs bond type index  ",g_type
+            sys.exit(" error in printing itp file ")
+            
+        F.write(out_line)
+    F.write(' \n ')
+    #
+    # Write angle  types
+    #
+    F.write('\n [ angletypes ] ')
+    for a_p,atypeObj_p in atypC_p:        
+        g_type = atypeObj_p.get_g_indx()
+        if( g_type == 1  ):
+            theta0 = atypeObj_p.get_theta0()
+            kb = units.convert_kb_g_angle( atypeObj_p.get_kb()) 
+            out_line = "\n %s   %s   %s  %d   %f  %f  "%(atypeObj_p.get_ptype1(),atypeObj_p.get_ptype2(),atypeObj_p.get_ptype3(),g_type,theta0,kb)
+        else:
+            print "  unknown gromacs angle type index  ",g_type
+            sys.exit(" error in printing itp file ")
+        F.write(out_line)
+    F.write(' \n ')
+    #
+    # Write dihedral  types
+    #
+    F.write('\n [ dihedraltypes ] ')
+    for d_p,dtypObj_p in dtypC_p:
+        g_type = dtypObj_p.get_g_indx()
+        if( g_type == 1 or g_type == 4  or g_type == 9 ):
+            theat_s = dtypObj_p.get_theat_s()
+            kb = units.convert_kcalmol_kJmol( dtypObj_p.get_kb() )
+            mult =  dtypObj_p.get_mult()
+            print "  theat_s , kb ,mult ",theat_s , kb ,mult
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  %d "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,theat_s,kb,mult)
+        elif( g_type == 2  ):
+            e0, ke_kcalmol  = dtypObj_p.getimp()
+            ke = units.convert_kcalmol_kJmol( ke_kcalmol )
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,e0, ke)            
+        elif( g_type == 3  ):
+            Clist_kcalmol  = dtypObj_p.get_rbClist()
+            Clist = []
+            for Cindx in Clist_kcalmol:
+                Clist.append( units.convert_kcalmol_kJmol(Cindx))
+                
+            out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Cindx[0],Cindx[1],Cindx[2],Cindx[3],Cindx[4],Cindx[5])            
+        else:
+            print "  unknown gromacs angle type index  ",g_type
+            sys.exit(" error in printing itp file ")
+        F.write(out_line)
+
+    F.write(' \n ')
+
+
+    F.close()
+    
+
+        
+"""
+
+    #
+    if( len(DIH_CONST) > 0 ):
+        F.write( '\n' )
+        F.write( '[ dihedral_restraints ] \n' )
+        F.write( '; ai   aj    ak    al  type  label  phi  dphi  kfac  power \n' )
+        const_type = 1
+        const_phi = DIH_CONST_ANGLE
+        const_dphi = 0
+        const_kfac = 20000.0
+        #for indx_const in range( len( DIH_CONST) ):
+        #    print DIH_CONST[indx_const]
+        #    print DIH_CONST[indx_const][0],DIH_CONST[indx_const][1],DIH_CONST[indx_const][2],DIH_CONST[indx_const][3]
+        #    print const_type,const_phi,const_dphi,const_kfac
+        #    F.write( " %8d %8d %8d %8d %8d %f12.6 %8d %16.6 " % (DIH_CONST[indx_const][0],DIH_CONST[indx_const][1],DIH_CONST[indx_const][2],DIH_CONST[indx_const][3],const_type,const_phi,const_dphi,const_kfac))
+        #F.write( " %8d %8d %8d %8d %8d %12.6f %8d %16.6f \n" % (DIH_CONST[0],DIH_CONST[1],DIH_CONST[2],DIH_CONST[3],const_type,const_phi,const_dphi,const_kfac))
+        F.write( " %8d %8d %8d %8d  %8d 1 %12.6f %8d %16.6f  1 \n" % (DIH_CONST[0],DIH_CONST[1],DIH_CONST[2],DIH_CONST[3],const_type,const_phi,const_dphi,const_kfac))
+    #
+    # write improper dihedrals 
+    #
+    debug = 0
+    for i in range( len(IMPS) ):
+        a_i = IMPS[i][0] + 1
+        a_j = IMPS[i][1] + 1
+        a_k = IMPS[i][2] + 1
+        a_l = IMPS[i][3] + 1
+        ind = 1 # IMPTYPE_IND[i] - 1
+        if(debug): print ' improper dihedral index ',i, ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1],IMPTYPE_F[i]
+        #if(debug): print ' dihedral index ',ind, a_i,a_j,a_k,a_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1],IMPTYPE_F[i]
+        # func_type = IMPTYPE_F[ind]
+        # Hack 
+        func_type = IMPTYPE_F[i]
+        F.write(  '%10d %10d %10d %10d %5d \n' % (a_i,a_j,a_k,a_l,func_type) )
+    F.write( '\n' )
+    # Print tail
+    if(debug): sys.exit("debug imps ")
+    
+def print_itp(new_itp,norm_dihparam,ASYMB,ATYPE,BONDS,ANGLES,DIH,IMPS,NBLIST,NBINDEX,FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES):
+    Write gromacs parameter file
+    
+    import sys,top
+    #
+    # ' checking connections '
+    #
+    F = open( new_itp,'w')
+    F.write(';  new ff parameters \n')
+    F.write(' \n ')
+    
+    ff_type = "oplsaa"
+    if( ff_type == "oplsaa" ):
+            
+        nbfunc = 1
+        combrule = 3
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.5
+        
+    elif( ff_type == "amber" ):
+
+        nbfunc = 1
+        combrule = 2
+        genpairs = "yes"
+        fudgeLJ = 0.5
+        fudgeQQ = 0.8333
+        
+    else:
+        print " force-field type unknown  "
+        
+
+    F.write(' \n [ defaults ] ')
+    F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combrule,genpairs,fudgeLJ,fudgeQQ  ))
+    F.write(' \n ')
+    F.write(' \n ')
+    #
+    # Check atom types 
+    #
+    debug = 0
+    AT_LIST = []
+    F.write(' [ atomtypes ] \n')
+    for i in range( len(ATYPE) ):
+        
+        check = 1
+        for ff_i in range (len(FF_ATOMTYPES)):
+            #print ATYPE[i] , FF_ATOMTYPES[ff_i]
+            AT_i = ATYPE[i]
+            FF_i = FF_ATOMTYPES[ff_i] #.split()
+            if( debug):
+                print  AT_i , FF_i[0]
+            if ( AT_i == FF_i[0] ):
+                #
+                # check if new atom type
+                #
+                at_new = 1
+                for at_indx in range( len(AT_LIST) ):
+                    if( AT_LIST[at_indx] == AT_i ):
+                        at_new = 0
+                if( at_new ):
+                    AT_LIST.append( AT_i )
+                    ff_line = '%s \n' % ' '.join(map(str, FF_ATOMTYPES[ff_i]))
+                    F.write(  ff_line )
+                    
+                check = 0
+                break
+        if check :
+            print ' atom type ',i,ASYMB[i],' ',ATYPE[i],'  not in ff'
+            print ' grep "',ATYPE[i],'" ','ff.itp'
+            sys.exit(' unknow ff specification found in gromacs.print_itp ')
+            
+    F.write(' \n ')
+    #
+    # Check bonds  
+    #
+    NBD_LIST = []*2
+    F.write(' [ bondtypes ] \n')
+    for i in range( len(BONDS)):        
+        check = 1
+        for ff_i in range (len(FF_BONDTYPES)):
+            # print BONDS[i]
+            a_i = BONDS[i][0] 
+            a_j = BONDS[i][1] 
+            AT_i = ATYPE[ BONDS[i][0] ]
+            AT_j = ATYPE[ BONDS[i][1] ]
+            FF_l = FF_BONDTYPES[ff_i] #.split() 
+            if ( AT_i == FF_l[0] and  AT_j == FF_l[1]   ):
+                check = 0
+                break
+            if (  AT_i == FF_l[1] and  AT_j == FF_l[0]  ):
+                check = 0
+                break
+            
+        if check :
+            #print ' bond ',i,' ',AT_i,'(',ASYMB[a_i],GTYPE[a_i],')',' - ',AT_j,'(',ASYMB[a_j],GTYPE[a_j],')','  not in ff'
+            print ' bond ',i,' ',AT_i,'(',ASYMB[a_i],')',' - ',AT_j,'(',ASYMB[a_j],')','  not in ff'
+            print ' grep "',AT_i,'" ','ff.itp',' | grep "',AT_j
+            print ' index ',a_i,' or index ',a_j
+            sys.exit(' unknow ff specification ')
+        else:
+            # print AT_i,AT_j,'  good '
+            #
+            # check if new bond type
+            #
+            new = 1
+            for indx in range( len(NBD_LIST) ):
+                if( NBD_LIST[indx][0] == FF_l[0] and NBD_LIST[indx][1] == FF_l[1]   ):
+                    new = 0
+            if( new ):
+                NBD_LIST.append( [ FF_l[0] ,FF_l[1]  ] )
+                ff_line = '%s  \n' % ' '.join(map(str, FF_BONDTYPES[ff_i] ))
+                F.write(  ff_line )
+    F.write(' \n ')
+    #
+    # Check angles 
+    #
+    ANG_LIST = []*3
+    F.write(' [ angletypes ] \n')
+    for i in range( len(ANGLES)):        
+        check = 1
+        for ff_i in range (len(FF_ANGLETYPES)):
+            # print BONDS[i]
+            AT_i = ATYPE[ ANGLES[i][0] ]
+            AT_j = ATYPE[ ANGLES[i][1] ]
+            AT_k = ATYPE[ ANGLES[i][2] ]
+            FF_l = FF_ANGLETYPES[ff_i] #.split() 
+            if ( AT_i == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2]   ):
+                check = 0
+                break
+            if ( AT_k == FF_l[0] and  AT_j == FF_l[1] and  AT_i == FF_l[2]   ):
+                check = 0
+                break
+            
+        if check :
+            print ' angle ',i,' ',AT_i,' - ',AT_j,' - ',AT_k,'  not in ff'
+            print ' grep "',AT_i,'" ','ff.itp',' | grep "',AT_j ,'" | grep "',AT_k,'"'
+            print ' index ',ANGLES[i][0] -1 ,' or index ',ANGLES[i][1]-1,' or index ',ANGLES[i][2]-1
+            sys.exit(' unknow ff specification ')
+        else:
+            # print AT_i,AT_j,AT_k,'  good '
+            #
+            # check if new bond type
+            #
+            new = 1
+            for indx in range( len(ANG_LIST) ):
+                if( ANG_LIST[indx][0] == FF_l[0] and ANG_LIST[indx][1] == FF_l[1] and ANG_LIST[indx][2] == FF_l[2]   ):
+                    new = 0
+            if( new ):
+                ANG_LIST.append( [ FF_l[0] ,FF_l[1] ,FF_l[2]  ] )
+                ff_line = '%s  \n' % ' '.join(map(str, FF_ANGLETYPES[ff_i] ))
+                F.write(  ff_line )
+                
+    F.write(' \n ')
+    #
+    # Check dihedrals
+    #
+    debug = 0
+    DIH_LIST = []*4
+    F.write(' [ dihedraltypes ] \n')
+    for i in range( len(DIH)):        
+        check = 1
+        for ff_i in range (len(FF_DIHTYPES)):
+            # print BONDS[i]
+            AT_i = ATYPE[ DIH[i][0] ]
+            AT_j = ATYPE[ DIH[i][1] ]
+            AT_k = ATYPE[ DIH[i][2] ]
+            AT_l = ATYPE[ DIH[i][3] ]
+            FF_l = FF_DIHTYPES[ff_i] #.split()
+
+            if ( AT_i == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  AT_l == FF_l[3]   ):
+                check = 0
+                break
+            if ( AT_l == FF_l[0] and  AT_k == FF_l[1] and  AT_j == FF_l[2] and  AT_i == FF_l[3]   ):
+                check = 0
+                break
+        
+        if check :
+            
+            for ff_i in range ( len(FF_DIHTYPES) ):
+                
+                FF_l = FF_DIHTYPES[ff_i] #.split()
+                    
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_i   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == AT_l and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break    
+            
+            if check :
+                print ' dih ',i,' ',AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l,'  not in ff'
+                # print  FF_DIHTYP[ff_i]
+                sys.exit(' unknow ff specification ')
+            
+            
+        #if( not check ):
+
+        # print AT_i,AT_j,AT_k,AT_l,'  good '
+        #
+        # check if new dih type
+        #
+        new = 1
+        for indx in range( len(DIH_LIST) ):
+            if( DIH_LIST[indx][0] == AT_i and DIH_LIST[indx][1] == AT_j and DIH_LIST[indx][2] == AT_k and DIH_LIST[indx][3] == AT_l   ):
+                new = 0
+                
+        if( new ):
+            DIH_LIST.append( [ AT_i,AT_j,AT_k,AT_l] )
+            #
+            # If dihedrals in reference itp file are for single set of atoms 
+            #
+            FF_DIHTYPES_mod = [ AT_i,AT_j,AT_k,AT_l ]
+            #
+            if( norm_dihparam ):
+                atom_i =  DIH[i][1]  
+                atom_j =  DIH[i][2] 
+                NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX) - 1
+                NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX) - 1
+                n_mod = float( NNAB_i + NNAB_j )/ 2.0
+                #FF_DIHTYPES_mod = []
+                if(debug):
+                    print ''
+                    print ' pre mod ',FF_DIHTYPES[ff_i]
+                    print "     nb_i nb_j",NNAB_i,NNAB_j
+                    print '     n norm ',n_mod
+                
+                mod_val = -1
+                ind_max = 12
+                if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
+                if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
+                for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
+                    if( debug): print ' index ',indx_dihff,ind_max, FF_DIHTYPES[ff_i][indx_dihff] 
+                    if ( indx_dihff > 4 and mod_val < 0 ):
+                        mod_val = 1
+                    if ( FF_DIHTYPES[ff_i][indx_dihff] == ';' or indx_dihff > ind_max ):
+                        mod_val = 0
+                        
+                    if( mod_val == 1 ):
+                        if(debug):
+                            print indx_dihff
+                            print " val to mod ", FF_DIHTYPES[ff_i][indx_dihff] 
+                        FF_DIHTYPES_mod.append( str( " %16.8f " % (float( FF_DIHTYPES[ff_i][indx_dihff]  ) /n_mod)))
+                    else:
+                        FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
+                    
+                if(debug):  print ' post mod ',FF_DIHTYPES_mod
+                ff_line = '  %s  ' % ' '.join(map(str, FF_DIHTYPES_mod ) )
+            else:
+                for indx_dihff in range (4,len(FF_DIHTYPES[ff_i])):
+                    FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] )
+                    
+                ff_line =  '  %s ' % ' ' .join(map(str, FF_DIHTYPES_mod ) )
+            
+            #ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES[ff_i][0:5] ) )
+            #ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
+            #ff_line = '\n %s  %s  %s  %s  %s ' % ,AT_i,AT_j,AT_k,AT_l
+            F.write(  '\n %s  ;  %s - %s - %s - %s ' % (ff_line,AT_i,AT_j,AT_k,AT_l  ) )
+            
+    if( debug):
+        sys.exit("norm ")
+    #
+    # Check improper dihedrals
+    #
+    debug = 0
+    IMPS_LIST = []*4
+    for i in range( len(IMPS)):
+        check = 1
+        for ff_i in range (len(FF_DIHTYPES)):
+            # print BONDS[i]
+            AT_i = ATYPE[ IMPS[i][0] ]
+            AT_j = ATYPE[ IMPS[i][1] ]
+            AT_k = ATYPE[ IMPS[i][2] ]
+            AT_l = ATYPE[ IMPS[i][3] ]
+            FF_l = FF_DIHTYPES[ff_i] #.split()
+
+            if ( AT_i == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  AT_l == FF_l[3]   ):
+                check = 0
+                break
+            if ( AT_l == FF_l[0] and  AT_j == FF_l[1] and  AT_k == FF_l[2] and  AT_i == FF_l[3]   ):
+                check = 0
+                break
+            
+        
+        if check :
+            for ff_i in range (len(FF_DIHTYPES)):
+                # print BONDS[i]
+                AT_i = ATYPE[ IMPS[i][0] ]
+                AT_j = ATYPE[ IMPS[i][1] ]
+                AT_k = ATYPE[ IMPS[i][2] ]
+                AT_l = ATYPE[ IMPS[i][3] ]
+                FF_l = FF_DIHTYPES[ff_i] #.split()
+    
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_k == FF_l[1] and  AT_j == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_l   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == 'X' and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == AT_i   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == AT_i and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+                if ( FF_l[0] == AT_l and  AT_j == FF_l[1] and  AT_k == FF_l[2] and FF_l[3] == 'X'   ):
+                    check = 0
+                    break
+            
+        if check :
+            print ' dih ',i,' ',AT_i,' - ',AT_j,' - ',AT_k,' - ',AT_l,'  not in ff'
+            # print  FF_DIHTYP[ff_i]
+            sys.exit(' unknow ff specification ')
+        else:
+            # print AT_i,AT_j,AT_k,AT_l,'  good '
+            #
+            # check if new dih type
+            #
+            new = 1
+            for indx in range( len(IMPS_LIST) ):
+                if( IMPS_LIST[indx][0] == FF_l[0] and IMPS_LIST[indx][1] == FF_l[1] and IMPS_LIST[indx][2] == FF_l[2] and IMPS_LIST[indx][3] == FF_l[3]   ):
+                    new = 0
+                    
+            if( new ):
+                IMPS_LIST.append( [ FF_l[0] ,FF_l[1] ,FF_l[2] ,FF_l[3] ] )
+                
+                #
+                #atom_i =  DIH[i][1]  
+                #atom_j =  DIH[i][2] 
+                #NNAB_i = top.calc_nnab(atom_i,NBLIST,NBINDEX) - 1
+                #NNAB_j = top.calc_nnab(atom_j,NBLIST,NBINDEX) - 1
+                #n_mod = float( NNAB_i + NNAB_j)
+                #FF_DIHTYPES_mod = []
+                #if(debug):
+                #    print ''
+                #    print ' pre mod ',FF_DIHTYPES[ff_i]
+                #    print n_mod 
+                #
+                #mod_val = -1
+                #ind_max = 12
+                #if( debug ): print ' dih type ',FF_DIHTYPES[ff_i][4]
+                #if( int(FF_DIHTYPES[ff_i][4].strip()) == 9 ): ind_max = 6
+                #FF_DIHTYPES_mod =[]
+                #for indx_dihff in range (len(FF_DIHTYPES[ff_i])):
+                #    if( debug): print ' index ',indx_dihff,ind_max
+                #    if ( indx_dihff > 4 and mod_val < 0 ):
+                #        mod_val = 1
+                #    if ( FF_DIHTYPES[ff_i][indx_dihff] == ';' or indx_dihff > ind_max ):
+                #        mod_val = 0
+                #    if( mod_val == 1 ):
+                #        if(debug):
+                #            print indx_dihff
+                #            print " val to mod ", FF_DIHTYPES[ff_i][indx_dihff] 
+                #        FF_DIHTYPES_mod.append( str( " %16.8f " % (float( FF_DIHTYPES[ff_i][indx_dihff]  ) /n_mod)))
+                #    else:
+                #        FF_DIHTYPES_mod.append(  FF_DIHTYPES[ff_i][indx_dihff] ) 
+                #         
+                #if(debug):  print ' post mod ',FF_DIHTYPES_mod 
+                
+                #ff_line = '%s  ' % ' '.join(map(str, FF_DIHTYPES[ff_i][0:5] ) )
+                #ff_line = '%s  \n' % ' '.join(map(str, FF_DIHTYPES_mod ) )
+                ff_line =  '%s ' % ' '.join(map(str, FF_DIHTYPES[ff_i] ) )
+                #ff_line = '\n %s  %s  %s  %s  %s ' % ,AT_i,AT_j,AT_k,AT_l
+                F.write(  '\n %s  ;  %s - %s - %s - %s ' % (ff_line,AT_i,AT_j,AT_k,AT_l  ) )
+                                                
+                                                
+    F.write(  '\n ')
+    F.close()
+    debug = 0
+    if(debug): sys.exit('print_itp')
+
+    return  ( AT_LIST,NBD_LIST,ANG_LIST, DIH_LIST )
+
+    def write_gro(self,dir_id,output_id ): # Move out of class
+        Write out gromacs gro file
+        # Version 1 will be dependent on Atomicpy
+        import gromacs 
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+
+
+            print " GTYPE ", ptclObj.tagsDict["gtype"] 
+            print " RESID ", ptclObj.tagsDict["resname"] 
+            print " RESN ", ptclObj.tagsDict["residue"] 
+       
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        out_gro = dir_id+"/"+output_id + ".gro"
+        gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
+
+    def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class
+        Write out gromacs gro file
+        # Version 1 will be dependent on Atomicpy
+        import gromacs , elements, top , lammps, groups , atom_types
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+       
+        BONDS = []
+        for b_i,bondObj in  self.bondC:
+            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+
+            print " make_top bonds ",bondObj.pgid1 , bondObj.pgid2
+
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        NA = len(ELN)
+        
+        # Create neighbor list form bonds
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        #NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
+
+        print_nb = True
+        # Make compatable with 0-(N-1) index of atoms 
+        #for n_indx in range(len(NBLIST)):
+        #    if( print_nb):
+        #        print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
+        #    NBLIST[n_indx] =NBLIST[n_indx] -1
+        #for n_indx in range(len(NBINDEX)-1):
+        #    if( print_nb):
+        #        print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
+        #    NBINDEX[n_indx] =NBINDEX[n_indx+1]
+        #
+        if( print_nb):
+
+            for p_i in range(len(self.ptclC)):
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i+1, ELN[p_i]," has ",N_i_f - N_i_o
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j+1," atomic # ", ELN[atom_j]
+                    
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+
+        for a_indx in range(len(ANGLES)):
+            print " angles ",ANGLES[a_indx][0]+1,ANGLES[a_indx][1]+1,ANGLES[a_indx][2]+1
+        
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+
+        #
+        # Set charge groups
+        #
+        verbose = False 
+        CG_SET = []
+        CHARN = []
+        one = 1
+        for i in range( len(ELN) ):
+            CG_SET.append(one)
+            CHARN.append(one)
+        CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
+
+        # Read in parameter files 
+        
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+
+        # Identify total number of atom types for lammps output 
+        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+        # Check atom types to be sure each atom of the same type has the same number of neighbors 
+        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+
+        IMPTYPE_F  = top.imp_parameters(itp_file)
+
+        IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
+
+
+        top_file = dir_id+"/"+output_id + ".top"
+        DIH_CONST = []
+        DIH_CONST_ANGLE = []
+        gromacs.print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+               ,DIH_CONST,DIH_CONST_ANGLE
+               ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+               ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+"""

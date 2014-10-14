@@ -703,8 +703,6 @@ class StructureContainer:
 
         return n_chains
 
-
-
     def write_gro(self,dir_id,output_id ): # Move out of class
         """
         Write out gromacs gro file

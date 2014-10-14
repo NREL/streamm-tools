@@ -57,17 +57,17 @@ def convert_AMUA3_gcm3(den_AMUA3):
     """
     return den_AMUA3/const_avo*10.0
     
-def convert_nm_angstroms(d_angstroms):
+def convert_nm_angstroms(d_nm):
     """
     convert nm to angstroms
     """
-    return d_angstroms*nm_angstroms
+    return d_nm*nm_angstroms
     
-def convert_angstroms_nm(d_nm):
+def convert_angstroms_nm(d_angstroms):
     """
-    convert nm to angstroms
+    convert angstroms to nm 
     """
-    return d_nm/nm_angstroms
+    return d_angstroms/nm_angstroms
     
     
 def convert_kJmol_kcalmol(en_kJmol):
@@ -172,6 +172,17 @@ def convert_g_bond_kb(g_kb):
     return g_kb*kJmol_kcalmol/nm_angstroms/nm_angstroms/2.0
 
 
+def convert_kb_g_bond(g_kb):
+    """
+    convert to gromacs harmonic bond parameter in
+       2.0 kJ/mol /nm /nm
+    from general bond parameter defined by lammps
+       kcal/mol /angstrom/angstrom
+    """
+    return g_kb/kJmol_kcalmol*nm_angstroms*nm_angstroms*2.0
+
+
+
 def convert_g_angle_kb(g_ka):
     """
     convert gromacs harmonic angle parameter in
@@ -180,6 +191,16 @@ def convert_g_angle_kb(g_ka):
        kcal/mol 
     """
     return g_ka*kJmol_kcalmol/2.0
+
+    
+def convert_kb_g_angle(g_ka):
+    """
+    convert to gromacs harmonic angle parameter in
+       2.0 kJ/mol
+    from general angle parameter defined by lammps
+       kcal/mol 
+    """
+    return g_ka/kJmol_kcalmol*2.0
 
     
     

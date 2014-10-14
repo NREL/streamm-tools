@@ -59,6 +59,10 @@ class Dihedral:
             raise TypeError
 
 
+        self.lmpindx = 0
+        self.g_indx = 0
+        
+
     def __del__(self):
         """
         Destructor, clears object memory
@@ -78,6 +82,34 @@ class Dihedral:
             return True
         else:
             return False
+
+
+    def set_lmpindx(self,lmpindx):
+        """
+        Set bond type index for lammps
+        """
+        self.lmpindx = lmpindx
+        
+        
+    def get_lmpindx(self):
+        """
+        Return bond type index for lammps
+        """
+        return self.lmpindx
+
+
+    def set_g_indx(self,g_indx):
+        """
+        Set bond type index for gromacs 
+        """
+        self.g_indx = g_indx
+        
+        
+    def get_g_indx(self):
+        """
+        Return bond type index for gromacs
+        """
+        return self.g_indx
 
 
 

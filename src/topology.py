@@ -35,12 +35,16 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     Find topology information for force-field input files
     """
 
-    rerun_bonded = True 
-    
-    # New options that need to be passed
-    limdih = 0
 
+
+    # New options that need to be passed
+    rerun_bonded = False  
+    set_biaryl = False
+    set_ptma = True
+
+    limdih = 0
     limitdih_n = 1
+    
     verbose = True
     debug = True
 
@@ -49,15 +53,20 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
         print " Read in %d Angles "%len(strucC.angleC)
         print " Read in %d Dihedrals "%len(strucC.dihC)
 
-    # Create nearest neighbor list
-    cov_nblist, cov_nbindx = build_covnablist(strucC)
     # Check bonds
     if( len(strucC.bondC) <= 0 or rerun_bonded ):
+        # Create nearest neighbor list
+        cov_nblist, cov_nbindx = build_covnablist(strucC)
         if( rerun_bonded ):
             strucC.bondC.clear()
         nblist_bonds(strucC,cov_nblist, cov_nbindx)
         if( verbose ):
             print " Found bonds %d "%(len(strucC.bondC))
+    else:
+        # Build nieghbor list with provided bonds 
+        cov_nblist, cov_nbindx = bonded_nblist(strucC) 
+        if( verbose ):
+            print " Read in bonds %d "%(len(strucC.bondC))
     # Check angles
     if( len(strucC.angleC) <= 0  or rerun_bonded ):
         if( rerun_bonded ):
@@ -77,16 +86,29 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
 
     # Asign atom types
-    ff_charges = False
     strucC = atomtypes.oplsaa( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-    strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-    strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    
+    if(set_biaryl):
+        strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+        strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
 
-    set_ptma = False
+
+    debug = False
+    if( debug):
+        for pid_o, ptclObj_o  in strucC.ptclC:
+            print "create_top particles ",ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["gtype"],ptclObj_o.tagsDict["resname"]
+        sys.exit("create_top 2 print particles in strucC.ptclC")
+
+
+
     if(set_ptma):
         strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
         strucC = atomtypes.set_ptmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-        
+
+    #if( set_qgroup ):
+    strucC = set_chargegroups( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
+    qgroup_maxvol(strucC)
+    
     if(debug):
         print len(strucC.ptclC)
         for pid_i in range(1,len(strucC.ptclC)+1):
@@ -155,6 +177,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 if( type_found ):
                     # Set mass of particle type
                     #   This is need for some force-field input files (LAMMPS)
+                    ljObj_all.setpid( ptclObj_o.tagsDict["number"] )
                     ljObj_all.setmass( mass_i )
                     ljtypC_p.put(ljObj_all)
                     type_found = False 
@@ -188,13 +211,15 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             p_j = btypObj_p.ptype2
             if( fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
-                bondObj_o.type = str(btyp_p)
+                bondObj_o.set_lmpindx(btyp_p)
+                bondObj_o.set_g_indx(btypObj_p.get_g_indx())
                 log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
                 param_out.write(log_line)
                 break 
             elif( fftype_i == p_j  and  fftype_j == p_i ):
                 new_type = False
-                bondObj_o.type = str(btyp_p)
+                bondObj_o.set_lmpindx(btyp_p)
+                bondObj_o.set_g_indx(btypObj_p.get_g_indx())
                 log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
                 param_out.write(log_line)
                 break 
@@ -203,7 +228,8 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             # Find type in btypC_all
             cnt_check = 0
             type_found = False 
-            bondObj_o.type = str(btyp_p+1)
+            bondObj_o.set_lmpindx(btyp_p+1)
+            
             for b_all, btypObj_all  in btypC_all:
                 all_i = btypObj_all.ptype1 
                 all_j = btypObj_all.ptype2
@@ -214,6 +240,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     
                 if( type_found ):
                     cnt_check += 1
+                    bondObj_o.set_g_indx(btypObj_all.get_g_indx())
                     btypC_p.put(btypObj_all)
                     if( debug ):
                         print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
@@ -259,14 +286,17 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             delta_theta = angle_kij - theta0_kij
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j ):
                 new_type = False
-                angleObj_o.type = str(atyp_p)
+                angleObj_o.set_lmpindx(atyp_p)
+                angleObj_o.set_g_indx(atypObj_p.get_g_indx())
+                
                 log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
                 param_out.write(log_line)
                     
                 break 
             if( fftype_j == p_k  and  fftype_i == p_i  and  fftype_k == p_j ):
                 new_type = False
-                angleObj_o.type = str(atyp_p)
+                angleObj_o.set_lmpindx(atyp_p)
+                angleObj_o.set_g_indx(atypObj_p.get_g_indx())
                 log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
                 param_out.write(log_line)
                 break 
@@ -275,7 +305,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             # Find type in btypC_all
             cnt_check = 0
             type_found = False 
-            angleObj_o.type = str(atyp_p+1)
+            angleObj_o.set_lmpindx(atyp_p+1)
             for a_all, atypObj_all  in atypC_all:
                 all_k = atypObj_all.ptype1 
                 all_i = atypObj_all.ptype2 
@@ -289,6 +319,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
 
                 if( type_found ):
                     cnt_check += 1
+                    angleObj_o.set_g_indx(atypObj_all.get_g_indx())
                     atypC_p.put(atypObj_all)
                     type_found = False
                     if( debug ):
@@ -331,17 +362,23 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             p_l = dtypObj_p.ptype4
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
                 new_type = False
-                dihObj_o.type = str(dtyp_p)
+                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+                print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
 
                 if( debug):
-                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
                 break
             if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
                 new_type = False
-                dihObj_o.type = str(dtyp_p)
+                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+                print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
 
                 if( debug):
-                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
                 break
 
         # If it is not in the parameter set for the struture container
@@ -351,7 +388,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             cnt_check = 0
             type_found = False 
             # Set type to new type = last type+1
-            dihObj_o.type = str(dtyp_p+1)
+            dihObj_o.set_lmpindx(dtyp_p+1)
 
             if( debug):
                 print "  new type checking against %d read in parameters "%len(dtypC_all)
@@ -371,10 +408,9 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 if( copy_type ):
                     cnt_check += 1
                     dtypObj_temp = copy.deepcopy(dtypObj_all)
+                    #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
                     type_found = True
                     copy_type = False 
-
-                    
                     if( debug ):
                         print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                         print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
@@ -397,9 +433,11 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                         copy_type = True
                     if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
                         copy_type = True
+                        
                     if( copy_type ):
                         cnt_check += 1
                         dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
                         type_found = True 
                         copy_type = False 
                         if( debug ):
@@ -424,6 +462,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     if( copy_type ):
                         cnt_check += 1
                         dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
                         type_found = True 
                         copy_type = False 
                         if( debug ):
@@ -466,13 +505,17 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     print " dihen_norm ",dihen_norm
 
                     dtypObj_temp.normforceconstants(dihen_norm)
-                
+
+
+                dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
                 dtypC_p.put(dtypObj_temp)
                 
 
                 if( debug ):
                     print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                     print " len(dtypC_p) ",len(dtypC_p) 
+                    print " dtypObj_temp.get_lmpindx()  ",dtypObj_temp.get_lmpindx() 
+                    print " dtypObj_temp.get_g_indx()  ",dtypObj_temp.get_g_indx() 
                         
                   
     debug = False 
@@ -482,20 +525,22 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             print lj_p,ljObj_p.ptype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
         print " Bond types found %d "%(len(btypC_p))
         for btyp_p, btypObj_p  in btypC_p:
-            print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2
+            print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2,btypObj_p.get_lmpindx(),btypObj_p.get_g_indx()
         print " Angle types found %d "%(len(atypC_p))
         for atyp_p, atypObj_p  in atypC_p:
-            print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3
+            print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3,atypObj_p.get_lmpindx(),atypObj_p.get_g_indx()
         print " Dih types found %d "%(len(dtypC_p))
         for dtyp_p, dtypObj_p  in dtypC_p:
-            print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4
+            print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
         sys.exit('find_types')
 
-    debug = 0
+    debug = True 
     if(debug):
         print "  All particles should have new type labeled as interger stored as a string "
         for pid_o, ptclObj_o  in ptclC_o:
             print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
+        for d_o,dihObj_o in dihC_o:
+            print " lmpindx() g_indx()  ",d_o,dihObj_o.pgid1,dihObj_o.pgid2,dihObj_o.pgid3,dihObj_o.pgid4, dihObj_o.get_lmpindx() ,dihObj_o.get_g_indx() 
 
     param_out.close()
 
@@ -589,7 +634,6 @@ def nblist_dih(strucC,cov_nblist, cov_nbindx):
 				else:
                                     d_i = Dihedral( pid_k, pid_i, pid_j, pid_l )            
                                     strucC.dihC.put(d_i)
-    
 
 def build_covnablist(strucC):
     """
@@ -676,11 +720,68 @@ def build_covnablist(strucC):
     return (cov_nblist, cov_nbindx)
 
 
+def build_nablist_bonds(strucC):
+    """
+    Build nieghbor list using bonded information 
+    """
+    import sys,numpy
+
+    debug = 0
+    NNAB  = 0
+    
+    maxnnab = len(strucC.bondC)*2 + 1
+    #NBLIST = numpy.empty( maxnnab,  dtype=int )
+    #NBINDEX = numpy.empty( maxnnab,  dtype=int )
+    
+    # python style nieghbor list
+    nblist_py = [] #numpy.empty( maxnnab,  dtype=int )
+    
+    NBLIST = []
+    NBINDEX = []
+    NBLIST.append( 0 )
+    
+    for atom_i in range( len(strucC.ptclC)):
+	nblist_py.append( [  ] )
+        
+    # Loop over bonds and record neighbors 
+    for b in range(  len(BONDS) ) :
+	bnd_i = BONDS[b][0]
+	bnd_j = BONDS[b][1]
+	
+	nblist_py[bnd_i].append( bnd_j )
+	nblist_py[bnd_j].append( bnd_i )
+	
+    # Translate 2D into 1D array
+    #   mostly to match perviously writen fortran code
+    
+    for nbs_i in range( len(nblist_py)):
+	nlist_i = nblist_py[nbs_i]
+	NBINDEX.append( NNAB + 1 )
+	for nb_i in  nlist_i:
+	    NNAB +=  1
+	    NBLIST.append( nb_i )
+
+    NBINDEX.append( NNAB + 1 )
+    
+	
+    debug = 0
+    if ( debug ):
+       print ' total nbs ',NNAB,' total bonds ',len(BONDS)
+       for i in range( len(ELN)):
+	    N_o = NBINDEX[ i  ]
+	    N_f = NBINDEX[ i + 1 ] - 1
+	    NNAB = N_f - N_o + 1
+	    print ' atom ', i,' ',ELN[i],NNAB,N_o,nblist_py[i]
+	    
+	#sys.exit('debug')
+    return (NBLIST,NBINDEX)
+
+
+
 def bonded_nblist(strucC):
     """
     Create neighbor list of bonded particles
     """
-    sys.exit("bonded_nblist not working !!! ")
         
     debug = False
 
@@ -719,14 +820,17 @@ def bonded_nblist(strucC):
 
     # Translate 2D into 1D array
     #   mostly to match perviously writen fortran code
-    for p_i in range( len(nblist_py)):
+    for nblis_indx in range( len(nblist_py)):
         # loop over  each particle p_i and get list of neighbors nlist_i
-        nlist_i = nblist_py[p_i]
+        nlist_i = nblist_py[nblis_indx]
         NBINDEX.append( NNAB + 1 )
         # Loop over neighbor list of each particle nlist_i and get neighbor p_j
+        p_i = nblis_indx #+ 1
         for p_j in  nlist_i:
 
-            if(debug): print " p_i ",p_i," p_j ",p_j
+            if(debug):
+                print "nblis_indx",nblis_indx
+                print " p_i ",p_i," p_j ",p_j
 
             #if( p_j > p_i):
             # remove redundent neighbors 
@@ -993,6 +1097,267 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
 	sys.exit('top.find_rings')
 
     return ( strucC, RINGLIST, RINGINDEX  )
+
+
+
+def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx ):
+    """
+    Set charge groups 
+    """
+    debug = False
+    verbose = True 
+    
+    if( verbose ):
+	print "   Setting charge groups "
+    
+    
+    # initialize 
+    n_groups = 0
+
+
+    #CG_SET = []
+    #for pid_i, ptclObj_i  in strucC.ptclC:
+    #        CG_SET.append(True) 
+
+        
+    # set rings as charge groups
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        # If unset set chrge group 
+        #    if( CG_SET[i] ):
+        if( ptclObj_i.tagsDict["qgroup"] == 0  ):
+            if( ptclObj_i.tagsDict["ring"] > 0 ):
+                ptclObj_i.tagsDict["qgroup"] = ptclObj_i.tagsDict["ring"]
+                #CG_SET[i] = 0
+                #if(debug): print i,ASYMB[i],   RING_NUMB[i]
+                if(  ptclObj_i.tagsDict["ring"] >  n_groups ):
+                    n_groups = n_groups + 1
+                
+    #if( debug): sys.exit('ring charge groups')
+            
+    # set methyls and alkyls 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        # If unset set chrge group
+        #    if( CG_SET[i] ):
+        if( ptclObj_i.tagsDict["qgroup"] == 0  ):
+            NNAB = calc_nnab(pid_i,cov_nbindx)
+            ELCNT = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+            if( ptclObj_i.tagsDict["number"] == 6 and ELCNT[1] > 0 ):  # CH_n ( Methyls / alkyl ) 
+                n_groups = n_groups + 1
+                #CG_SET[i] = 0
+                ptclObj_i.tagsDict["qgroup"] = n_groups
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["number"] == 1 ):
+                        ptclObj_j.tagsDict["qgroup"] = n_groups
+                        #CG_SET[j] = 0
+			
+            if(  ptclObj_i.tagsDict["fftype"]  == 'C' ):  # 
+                n_groups = n_groups + 1
+                #CG_SET[i] = 0
+                ptclObj_i.tagsDict["qgroup"] = n_groups
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["number"] == 8 ):
+                        ptclObj_j.tagsDict["qgroup"] = n_groups
+
+                    #if ( ELN[j] == 8 ):
+                    #    CHARN[j] = n_groups
+                    #    CG_SET[j] = 0
+
+            if(  ptclObj_i.tagsDict["fftype"] == 'ON' ):  # nitroxide
+                n_groups = n_groups + 1
+                #CG_SET[i] = 0
+                ptclObj_i.tagsDict["qgroup"] = n_groups
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["qgroup"] == 0 ):
+                        ptclObj_j.tagsDict["qgroup"] = n_groups
+
+                    #j = cov_nblist[j_indx]
+                    #if ( CG_SET[j]  ):
+		    #CHARN[j] = n_groups
+                    #	CG_SET[j] = 0
+
+    # check unset heavy atom groups
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        # If unset set chrge group
+        #    if( CG_SET[i] ):
+        if( ptclObj_i.tagsDict["qgroup"] == 0  ):
+            NNAB = calc_nnab(pid_i,cov_nbindx)
+            ELCNT = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+            if( ptclObj_i.tagsDict["number"] == 6 or ptclObj_i.tagsDict["number"] == 8 ):  #
+		q_g = 0 
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["qgroup"] != 0 ):
+                        q_g = ptclObj_j.tagsDict["qgroup"]
+                        break
+
+		if( q_g  == 0 ):
+			
+		    n_groups = n_groups + 1
+		    #CG_SET[i] = 0
+		    ptclObj_i.tagsDict["qgroup"] = n_groups
+		else:
+		    #CG_SET[i] = 0
+		    ptclObj_i.tagsDict["qgroup"] = q_g
+		    
+		#print " unset carbon set to ",ptclObj_i.tagsDict["qgroup"]
+			
+
+            if( ptclObj_i.tagsDict["fftype"] == 'CA' ):  # conjugate
+                n_groups = n_groups + 1
+                # CG_SET[i] = 0
+                ptclObj_i.tagsDict["qgroup"] = n_groups
+ 
+                    
+
+    # set light atom groups 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        # If unset set chrge group
+        #    if( CG_SET[i] ):
+        if( ptclObj_i.tagsDict["qgroup"] == 0  ):
+            NNAB = calc_nnab(pid_i,cov_nbindx)
+            ELCNT = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+            
+            if ( ptclObj_i.tagsDict["number"] == 1 or  ptclObj_i.tagsDict["number"] == 9 ):
+                j_set = 0
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["qgroup"] != 0 ):
+                        n_groups = ptclObj_j.tagsDict["qgroup"]
+                        j_set = 1
+                if( j_set ):
+                    ptclObj_i.tagsDict["qgroup"] = n_groups
+                    #CG_SET[i] = 0
+                else :
+                    print ptclObj_i.tagsDict["symbol"] ,' connected to unset atom '
+                    print ptclObj_i.tagsDict["symbol"] , " - ",ptclObj_j.tagsDict["symbol"] 
+                    print ptclObj_i.tagsDict["fftype"] , " - ",ptclObj_j.tagsDict["fftype"] 
+                    #for i in range(NA):
+                    #    print i,ASYMB[i],ATYPE[i]
+                    sys.exit('charge group error')
+                    
+            if (ptclObj_i.tagsDict["fftype"] == 'LP' ):
+                j_set = 0
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if (ptclObj_j.tagsDict["qgroup"] != 0 ):
+                        n_groups = ptclObj_j.tagsDict["qgroup"]
+                        j_set = 1
+                if( j_set ):
+                    ptclObj_i.tagsDict["qgroup"] = n_groups
+
+                else :
+                    print ' lone pair connected to unset atom '
+                    print ptclObj_i.tagsDict["symbol"] , " - ",ptclObj_j.tagsDict["symbol"] 
+                    print ptclObj_i.tagsDict["fftype"] , " - ",ptclObj_j.tagsDict["fftype"] 
+                    sys.exit('charge group error')
+                    
+
+		
+    debug = 0
+    if( debug ):
+        for pid_i, ptclObj_i  in strucC.ptclC:
+            # If unset set chrge group
+             print i,ASYMB[i],CG_SET[i],ptclObj_i.tagsDict["qgroup"],  RING_NUMB[i]
+	     
+	     
+    # Check for unset atoms 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        if( ptclObj_i.tagsDict["qgroup"] == 0 ):
+            NNAB = calc_nnab(pid_i,cov_nbindx)
+            ELCNT = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+            
+            print i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["fftype"],NNAB,ELCNT[6],ELCNT[1],' not set '
+	    sys.exit('charge group error')
+            #else :
+            # print ASYMB[i],ATYPE[i],NNAB,ELCNT[6],ELCNT[1],GTYPE[i],' set '
+
+    return strucC
+
+def qgroup_maxvol(strucC):
+    """
+    Find the maximum volume of the charge groups
+    """
+
+    qgrp_max = 0 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        if( ptclObj_i.tagsDict["qgroup"] > qgrp_max ):
+            qgrp_max = ptclObj_i.tagsDict["qgroup"]
+
+
+    print "    Charge groups ",qgrp_max
+    a_max = 0
+    a_min = 1e16
+
+    dr_x_max = -1e16
+    dV_max = -1e16
+
+    for q_g in range( 1,qgrp_max+1 ):
+        atom_cnt = 0
+
+        r_x_min = 1e16 
+        r_y_min = 1e16
+        r_z_min = 1e16
+        r_x_max = -1e16 
+        r_y_max = -1e16
+        r_z_max = -1e16
+
+        for pid_i, ptclObj_i  in strucC.ptclC:
+            if( ptclObj_i.tagsDict["qgroup"] == q_g ):
+                atom_cnt += 1
+
+                #print R[i]
+
+                if( ptclObj_i.position[0] < r_x_min  ): r_x_min =  ptclObj_i.position[0]
+                if( ptclObj_i.position[1] < r_y_min  ): r_y_min =  ptclObj_i.position[1] 
+                if( ptclObj_i.position[2] < r_z_min  ): r_z_min =  ptclObj_i.position[2] 
+                if( ptclObj_i.position[0] > r_x_max  ): r_x_max =  ptclObj_i.position[0] 
+                if( ptclObj_i.position[1] > r_y_max  ): r_y_max =  ptclObj_i.position[1] 
+                if( ptclObj_i.position[2] > r_z_max  ): r_z_max =  ptclObj_i.position[2] 
+
+
+        if( atom_cnt == 0 ): print "      Group ",q_g," has 0 atoms "
+
+        if( atom_cnt > a_max ): a_max = atom_cnt
+        if( atom_cnt < a_min ): a_min = atom_cnt
+
+        dr_x = r_x_max - r_x_min
+        dr_y = r_y_max - r_y_min
+        dr_z = r_z_max - r_z_min
+
+        if( dr_x > dr_x_max ): dr_x_max = dr_x 
+        if( dr_y > dr_x_max ): dr_x_max = dr_y
+        if( dr_z > dr_x_max ): dr_x_max = dr_z 
+
+        # Cubic PBC's
+        #dr_x_pbc,dr_y_pbc,dr_z_pbc = prop.pbc_r_c(dr_x,dr_y,dr_z,LV)	    
+
+        dV = dr_x*dr_y*dr_z
+        if( dV > dV_max ): dV_max = dV
+
+        #print "      Group ",q_g," has ",atom_cnt," atoms in volume ",dV," A^3 "
+
+    print "    Max atoms in group ",a_max
+    print "    Min atoms in group ",a_min
+    print "    Max dr and dV ",dr_x_max, dV_max
+
+	
 
 '''
 
