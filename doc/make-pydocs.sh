@@ -39,6 +39,8 @@ scpHTMLtoStatic "dihedrals"                  "STREAMM"
 scpHTMLtoStatic "structureContainer"         "STREAMM"
 scpHTMLtoStatic "simulation"                 "STREAMM"
 scpHTMLtoStatic "simulationLAMMPS1"          "STREAMM"
+scpHTMLtoStatic "simulationGaussian1"        "STREAMM"
+
 
 echo " "
 echo "Run: sftp cs.hpc.nrel.gov:static"
