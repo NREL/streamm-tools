@@ -330,12 +330,13 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
     Set nitroxyl atom types for TEMPO 
     """
     
-        
+
+    set_resnames = False 
     resname_i = 'PTMA'
     methyl_C = "C6"
 
     debug = 0
-    
+     
     
     # Set default charges, which will be over writen in some cases 
     for pid_i, ptclObj_i  in strucC.ptclC:
@@ -347,7 +348,7 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
         #    if( update_chr ): ptclObj_i.charge =  -0.18
         if ptclObj_i.tagsDict["symbol"].strip() == 'LP' :
             ptclObj_i.tagsDict["fftype"] = 'LP'
-            ptclObj_i.tagsDict["resname"] = resname_i
+            if(set_resnames): ptclObj_i.tagsDict["resname"] = resname_i
             ptclObj_i.mass = 9.0 
             if( update_chr ): ptclObj_i.charge =  -0.11
         
@@ -420,7 +421,7 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
 
                     ptclObj_i.tagsDict["fftype"] = 'NN'
                     if( update_chr ): ptclObj_i.charge = q_NN
-                    ptclObj_i.tagsDict["resname"] = resname_i
+                    if(set_resnames): ptclObj_i.tagsDict["resname"] = resname_i
                     for indx_i in range( Ni_o,Ni_f+1):
                         pid_j = cov_nblist[indx_i]
                         ptclObj_j = strucC.ptclC[pid_j]
@@ -428,22 +429,22 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                             ptclObj_j.tagsDict["fftype"] = 'ON'
                             if( update_chr ): ptclObj_j.charge = q_ON
                                     
-                            ptclObj_j.tagsDict["resname"] = resname_i
+                            if(set_resnames): ptclObj_j.tagsDict["resname"] = resname_i
                         if ( ptclObj_j.tagsDict["number"] == 6 ):
                             ptclObj_j.tagsDict["fftype"]= 'CT'
                             if( update_chr ): ptclObj_j.charge = q_CNN
-                            ptclObj_j.tagsDict["resname"] = resname_i
+                            if(set_resnames): ptclObj_j.tagsDict["resname"] = resname_i
                             Nj_o = cov_nbindx[ pid_j ]
                             Nj_f = cov_nbindx[ pid_j +1  ] - 1
                             for indx_j in range(Nj_o,Nj_f+1):
                                 pid_k = cov_nblist[indx_j]
                                 ptclObj_k = strucC.ptclC[pid_k]
-                                ptclObj_k.tagsDict["resname"]  = resname_i
+                                if(set_resnames):  ptclObj_k.tagsDict["resname"]  = resname_i
                                 ELCNT_k = top.calc_elcnt(pid_k,strucC,cov_nblist,cov_nbindx)
                                 if( ptclObj_k.tagsDict["number"] == 6 ):
                                     if ( ELCNT_k[1] == 3 ):
                                         if( update_chr ):  ptclObj_k.charge =  q_CTN
-                                        ptclObj_k.tagsDict["resname"]  = resname_i
+                                        if(set_resnames):  ptclObj_k.tagsDict["resname"]  = resname_i
                                         Nk_o = cov_nbindx[ pid_k ]
                                         Nk_f = cov_nbindx[ pid_k+1  ] - 1
                                         for indx_k in range(Nk_o,Nk_f+1):
@@ -452,48 +453,48 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                                             if( ptclObj_l.tagsDict["number"] == 1):
                                                 ptclObj_l.tagsDict["fftype"] = 'HN'
                                                 if( update_chr ): ptclObj_l.charge=  q_HN
-                                                ptclObj_l.tagsDict["3"] = resname_i
+                                                if(set_resnames):  ptclObj_l.tagsDict["3"] = resname_i
                                             
                                     if ( ELCNT_k[1] == 2  and ELCNT_k[1] == 2 ):       
                                         if( update_chr ): ptclObj_k.charge =  q_CT2
-                                        ptclObj_k.tagsDict["resname"] = resname_i
+                                        if(set_resnames): ptclObj_k.tagsDict["resname"] = resname_i
                                         Nk_o = cov_nbindx[ pid_k ]
                                         Nk_f = cov_nbindx[ pid_k+1  ] - 1
                                         for indx_k in range(Nk_o,Nk_f+1):
                                             pid_l = cov_nblist[indx_k]
                                             ptclObj_l = strucC.ptclC[pid_l]
-                                            ptclObj_l.tagsDict["resname"] = resname_i
+                                            if(set_resnames):  ptclObj_l.tagsDict["resname"] = resname_i
                                             if( ptclObj_l.tagsDict["number"] == 1 ):
                                                 if( update_chr ): ptclObj_l.charge =  q_HCT2
-                                                ptclObj_l.tagsDict["resname"] = resname_i
+                                                if(set_resnames): ptclObj_l.tagsDict["resname"] = resname_i
                                             if( ptclObj_l.tagsDict["number"] == 6 and pid_l != pid_k and pid_l != pid_j ):
                                                 ptclObj_l.tagsDict["fftype"] = 'CT'
                                                 if( update_chr ): ptclObj_l.charge =  q_Cp
-                                                ptclObj_l.tagsDict["resname"] = resname_i
+                                                if(set_resnames):  ptclObj_l.tagsDict["resname"] = resname_i
                                                 Nl_o = cov_nbindx[ pid_l ]
                                                 Nl_f = cov_nbindx[ pid_l+1  ] - 1
                                                 for indx_l in range(Nl_o,Nl_f+1):
                                                     pid_m = cov_nblist[indx_l]
                                                     ptclObj_m = strucC.ptclC[pid_m]
-                                                    ptclObj_m.tagsDict["resname"]  = resname_i
+                                                    if(set_resnames): ptclObj_m.tagsDict["resname"]  = resname_i
                                                     if( ptclObj_m.tagsDict["number"]  == 1 ):
                                                         ptclObj_m.tagsDict["fftype"] = 'H1'
                                                         if( update_chr ): ptclObj_m.charge =  q_H1
-                                                        ptclObj_m.tagsDict["resname"]  = resname_i
+                                                        if(set_resnames): ptclObj_m.tagsDict["resname"]  = resname_i
                                                     if( ptclObj_m.tagsDict["number"]  == 8 ):
                                                         ptclObj_m.tagsDict["fftype"]  = 'OS'
                                                         if( update_chr ): ptclObj_m.charge  =  q_OS
-                                                        ptclObj_m.tagsDict["resname"] = resname_i
+                                                        if(set_resnames): ptclObj_m.tagsDict["resname"] = resname_i
                                                         Nm_o = cov_nbindx[ pid_m ]
                                                         Nm_f = cov_nbindx[ pid_m + 1 ] - 1
                                                         for indx_m in range(Nm_o,Nm_f+1):
                                                             pid_n = cov_nblist[indx_m]
                                                             ptclObj_n = strucC.ptclC[pid_n]
-                                                            ptclObj_n.tagsDict["resname"] = resname_i
+                                                            if(set_resnames): ptclObj_n.tagsDict["resname"] = resname_i
                                                             if( ptclObj_n.tagsDict["number"] == 6 and pid_n != pid_l ):
                                                                 ptclObj_n.tagsDict["fftype"]  = 'C'
                                                                 if( update_chr ): ptclObj_n.charge   =  q_C
-                                                                ptclObj_n.tagsDict["resname"]  = resname_i
+                                                                if(set_resnames): ptclObj_n.tagsDict["resname"]  = resname_i
                                                                 Nn_o = cov_nbindx[ pid_n ]
                                                                 Nn_f = cov_nbindx[ pid_n+1  ] - 1
                                                                 for indx_n in range(Nn_o,Nn_f+1):
@@ -502,11 +503,11 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                                                                     if( ptclObj_o.tagsDict["number"] == 8 and pid_o != pid_m ):
                                                                         ptclObj_o.tagsDict["fftype"] = 'O'
                                                                         if( update_chr ): ptclObj_o.charge  =  q_O
-                                                                        ptclObj_o.tagsDict["resname"] = resname_i
+                                                                        if(set_resnames): ptclObj_o.tagsDict["resname"] = resname_i
                                                                     if( ptclObj_o.tagsDict["number"]  == 6 ):
                                                                         ptclObj_o.tagsDict["fftype"] = 'CT'
                                                                         if( update_chr ): ptclObj_o.charge=  q_Cb1
-                                                                        ptclObj_o.tagsDict["resname"]= 'BCK' #resname_i
+                                                                        if(set_resnames): ptclObj_o.tagsDict["resname"]= 'BCK' #resname_i
                                                                         No_o = cov_nbindx[ pid_o ]
                                                                         No_f = cov_nbindx[ pid_o+1  ] - 1
                                                                         for indx_o in range(No_o,No_f+1):
@@ -517,7 +518,7 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                                                                                 if( ELCNT_p[1] == 2 ):
                                                                                     ptclObj_p.tagsDict["fftype"] = 'CT'
                                                                                     if( update_chr ): ptclObj_p.charge =  q_CH2
-                                                                                    ptclObj_p.tagsDict["resname"] = 'BCK' #resname_i
+                                                                                    if(set_resnames): ptclObj_p.tagsDict["resname"] = 'BCK' #resname_i
                                                                                     Np_o = cov_nbindx[ pid_p ]
                                                                                     Np_f = cov_nbindx[ pid_p+1  ] - 1
                                                                                     for indx_p in range(Np_o,Np_f+1):
@@ -526,12 +527,12 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                                                                                         if( ptclObj_q.tagsDict["number"]  == 1 ):
                                                                                             #ATYPE[pid_q] = 'H1'
                                                                                             #if( update_chr ): CHARGES[pid_q] = q_H3
-                                                                                            ptclObj_q.tagsDict["resname"] = 'BCK' # resname_i
+                                                                                            if(set_resnames): ptclObj_q.tagsDict["resname"] = 'BCK' # resname_i
                                                                                         
                                                                                 if( ptclObj_p.tagsDict["gtype"].strip()  == "C36" or ptclObj_p.tagsDict["gtype"].strip()  == "C77"  ): #or  # ELCNT_l[1] == 3 ):
                                                                                     
                                                                                     if( update_chr ): ptclObj_p.charge = q_CH3
-                                                                                    ptclObj_p.tagsDict["resname"] = resname_i
+                                                                                    if(set_resnames): ptclObj_p.tagsDict["resname"] = resname_i
                                                                                     Np_o = cov_nbindx[pid_p]
                                                                                     Np_f = cov_nbindx[pid_p+1] - 1
                                                                                     for indx_p in range( Np_o,Np_f+1):
@@ -540,7 +541,7 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
                                                                                         if( ptclObj_q.tagsDict["number"]  == 1 ):
                                                                                             #ATYPE[pid_q] = 'H1'
                                                                                             if( update_chr ): ptclObj_q.charge = q_H3
-                                                                                            ptclObj_q.tagsDict["resname"] = resname_i
+                                                                                            if(set_resnames): ptclObj_q.tagsDict["resname"] = resname_i
                                                                                             
                                                     
 
@@ -549,8 +550,6 @@ def set_ptmatypes( update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov
         for pid_i, ptclObj_i  in strucC.ptclC:
             print pid_i ,ptclObj_i.tagsDict["number"] ,ptclObj_i.tagsDict["gtype"],ptclObj_i.tagsDict["fftype"],ptclObj_i.charge ,ptclObj_i.tagsDict["resname"]
         sys.exit('ptma_types ')
-
-
     #
     ## Set charge groups 
     #n_groups = 0
@@ -588,6 +587,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
 
     methyl_C = "C6"
     debug = False
+    set_resnames = False
 
     # Version 2
     q_OMe = -0.251
@@ -630,14 +630,14 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                     pmma_oxygen = 1
             if( pmma_oxygen == 1 ):
                 if( update_chr ): ptclObj_i.charge = q_OS
-                ptclObj_i.tagsDict["resname"] = residue
+                if(set_resnames): ptclObj_i.tagsDict["resname"] = residue
                 for indx in range( N_o,N_f+1):
                     pid_j = cov_nblist[indx]
                     ptclObj_j = strucC.ptclC[pid_j]
                     if( ptclObj_j.tagsDict["fftype"] == 'CT' ):
                         if( update_chr ):
                             ptclObj_j.charge = q_OMe
-                        ptclObj_j.tagsDict["resname"] = residue
+                        if(set_resnames): ptclObj_j.tagsDict["resname"] = residue
                         Nj_o = cov_nbindx[pid_j]
                         Nj_f = cov_nbindx[pid_j+1] - 1
                         for indx_j in range( Nj_o,Nj_f+1):
@@ -646,12 +646,12 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                             if( ptclObj_k.tagsDict["fftype"] == 'HC' ):
                                 ptclObj_k.tagsDict["fftype"]  = 'H1'
                                 if( update_chr ): ptclObj_k.charge = q_OHMe
-                                ptclObj_k.tagsDict["resname"] = residue
+                                if(set_resnames):  ptclObj_k.tagsDict["resname"] = residue
                                 #
  
                     if( ptclObj_j.tagsDict["fftype"] == 'C' ):
                         if( update_chr ): ptclObj_j.charge = q_C
-                        ptclObj_j.tagsDict["resname"] = residue
+                        if(set_resnames):  ptclObj_j.tagsDict["resname"] = residue
                         Nj_o = cov_nbindx[pid_j]
                         Nj_f = cov_nbindx[pid_j+1] - 1
                         for indx_j in range( Nj_o,Nj_f+1):
@@ -659,10 +659,10 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                             ptclObj_k = strucC.ptclC[pid_k]
                             if( ptclObj_k.tagsDict["fftype"]  == 'O' ):
                                 if( update_chr ): ptclObj_k.charge = q_O
-                                ptclObj_k.tagsDict["resname"] = residue
+                                if(set_resnames): ptclObj_k.tagsDict["resname"] = residue
                             if( ptclObj_k.tagsDict["fftype"]  == 'CT' ):
                                 if( update_chr ): ptclObj_k.charge = q_BC
-                                ptclObj_k.tagsDict["resname"] = residue
+                                if(set_resnames): ptclObj_k.tagsDict["resname"] = residue
                                 Nk_o = cov_nbindx[pid_k]
                                 Nk_f = cov_nbindx[pid_k+1] - 1
                                 for indx_k in range( Nk_o,Nk_f+1):
@@ -675,7 +675,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                                         #    RESID[l] = residue
                                         if( ELCNT_l[1] == 2 ):
                                             if( update_chr ): ptclObj_l.charge = q_CH2
-                                            ptclObj_l.tagsDict["resname"] = residue
+                                            if(set_resnames): ptclObj_l.tagsDict["resname"] = residue
                                             Nl_o = cov_nbindx[pid_l]
                                             Nl_f = cov_nbindx[pid_l+1] - 1
                                             for indx_m in range( Nl_o,Nl_f+1):
@@ -684,7 +684,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                                                 if( ptclObj_m.tagsDict["number"]  == 1 ):
                                                     #ATYPE[k] = 'H1'
                                                     #if( update_chr ): CHARGES[k] = q_OHMe
-                                                    ptclObj_m.tagsDict["resname"]  = residue
+                                                    if(set_resnames):  ptclObj_m.tagsDict["resname"]  = residue
                                                     if( debug ):
                                                         print " changing " ,  ptclObj_l.tagsDict["number"],ptclObj_l.tagsDict["symbol"],ptclObj_l.tagsDict["fftype"],ptclObj_l.tagsDict["resname"]
                                                         print "    to ",residue
@@ -697,7 +697,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                                             if( update_chr ): ptclObj_l.charge  = q_CH3
                                             if( debug ):
                                                 print " found pmma methyl ",  ptclObj_l.tagsDict["number"],ptclObj_l.tagsDict["symbol"],ptclObj_l.tagsDict["fftype"],ptclObj_l.tagsDict["resname"]
-                                            ptclObj_l.tagsDict["resname"] = residue
+                                            if(set_resnames): ptclObj_l.tagsDict["resname"] = residue
                                             Nl_o = cov_nbindx[pid_l]
                                             Nl_f = cov_nbindx[pid_l+1] - 1
                                             for indx_m in range( Nl_o,Nl_f+1):
@@ -706,7 +706,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                                                 if( ptclObj_m.tagsDict["number"]  == 1 ):
                                                     #ATYPE[k] = 'H1'
                                                     if( update_chr ): ptclObj_m.charge = q_H3
-                                                    ptclObj_m.tagsDict["resname"]  = residue
+                                                    if(set_resnames): ptclObj_m.tagsDict["resname"]  = residue
                                                     if( debug ):
                                                         print " changing " , ptclObj_l.tagsDict["number"],ptclObj_l.tagsDict["symbol"],ptclObj_l.tagsDict["fftype"],ptclObj_l.tagsDict["resname"]
                                                         print "    to ",residue
@@ -724,7 +724,7 @@ def set_pmmatypes(update_chr,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_
                 ptclObj_j = strucC.ptclC[pid_j]
                 if (ptclObj_j.tagsDict["fftype"].strip()== 'C2' ):
                     if( update_chr ): ptclObj_i.charge = q_CH3
-                    ptclObj_j.tagsDict["resname"] = residue
+                    if(set_resnames):  ptclObj_j.tagsDict["resname"] = residue
 
     return strucC
                     
