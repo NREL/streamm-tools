@@ -203,7 +203,7 @@ class SimulationGaussian1(sim.Simulation):
         # This input name prefix will be used in all private
         # 'self._writeXXX...' methods  called here
         #
-        tmpName = "acc." + str(self.functional) + "." + str(self.basisOPT) + "_" + \
+        tmpName = "acc_" + str(self.functional) + "_" + str(self.basisOPT) + "_" + \
                   self.bareTag + "_" + self.oligomerNum
 
         # Translate problematic characters in input file names
@@ -302,7 +302,8 @@ class SimulationGaussian1(sim.Simulation):
  
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
-        paramRunStrRX += " geom=check guess=check  pop=full density=current"
+        # paramRunStrRX += " geom=check guess=check  pop=full density=current"
+        paramRunStrRX += " pop=full density=current"
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
         paramRunStrTD += " geom=check guess=check  pop=full density=current"
 
