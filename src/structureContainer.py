@@ -1327,7 +1327,7 @@ class StructureContainer:
                     NA = int(col[4])
                     
                     if( NA != len(self.ptclC) ):
-                        print " json file contains %d atoms and fchk file contains %d "%(self.ptclC,NA)
+                        print " json file contains %d atoms and fchk file contains %d "%(len(self.ptclC),NA)
                         sys.exit("inconsistent files ")
 
             if( len(col) == 6 ):

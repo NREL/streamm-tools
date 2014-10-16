@@ -1098,7 +1098,15 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
 
     return ( strucC, RINGLIST, RINGINDEX  )
 
-
+def get_nrings(strucC):
+    """
+    Return the number of rings in a structure
+    """
+    nrings = 0 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        if( ptclObj_i.tagsDict["ring"] > nrings ):
+            nrings = ptclObj_i.tagsDict["ring"]
+    return nrings
 
 def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx ):
     """
@@ -1357,6 +1365,40 @@ def qgroup_maxvol(strucC):
     print "    Min atoms in group ",a_min
     print "    Max dr and dV ",dr_x_max, dV_max
 
+
+def find_conections(strucC,cov_nblist, cov_nbindx, ring_nblist, ring_nbindex ):
+    """
+    Find inter conjugated ring  atoms 
+    """
+    import sys, numpy 
+           
+    RING_CONNECT = []
+    debug = 0
+    NA = len(strucC.ptclC)
+    ADDED =  numpy.zeros(NA+1, dtype=int )    
+    # Find Ring linkers
+    for pid_i, ptclObj_i  in strucC.ptclC:        
+        if ( ptclObj_i.tagsDict["number"] == 6 ) :
+            NNAB = calc_nnab(pid_i,cov_nbindx)
+            if( NNAB == 3 ):  # if sp2
+                ELCNT = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+                N_o = cov_nbindx[pid_i]
+                N_f = cov_nbindx[pid_i+1] - 1
+                for j_indx in range( N_o,N_f+1):
+                    pid_j = cov_nblist[j_indx]
+                    ptclObj_j = strucC.ptclC[pid_j]
+                    if ( ADDED[pid_j] == 0 ):
+                        NNAB_j = calc_nnab(pid_j,cov_nbindx)
+                        if( NNAB_j == 3 ):  # if sp2
+                            if(   ptclObj_i.tagsDict["ring"] !=  ptclObj_j.tagsDict["ring"] ): # ring linker
+                                ADDED[pid_i] = 1
+                                ADDED[pid_j] = 1
+                                if(debug):
+                                    print i,' and ',j,' link ',ELN[i],ELN[j]
+                                    print ' ', RING_NUMB[i] , RING_NUMB[j]
+                                RING_CONNECT.append( [pid_i,pid_j])
+
+    return RING_CONNECT
 	
 
 '''

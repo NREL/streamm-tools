@@ -562,6 +562,30 @@ class periodictable:
 
         return el
 
+    def getelementWithNumber(self,atomic_number_i):
+        """
+        Find element based on atomic number 
+        """
+        for el_symb in self.elements:
+            el_n_i = int( self.elements[el_symb].number )
+            if( el_n_i == atomic_number_i ):
+                el =  self.elements[el_symb]
+        try:
+            el
+        except NameError:
+            print "No element found for atomic with number %s "%(atomic_number_i)
+            print " will assign it to element with symbol VS "
+            symbol_i = "VS"
+            el_indx = 0
+            mass_i = mass_i
+            cov_radii_i = 1.5
+            vdw_radii_i = 2.0 
+            el =  element(symbol_i,el_indx,mass_i,cov_radii_i,vdw_radii_i)
+
+
+        return el
+
+    
     
     def getelementWithSymbol(self,symbol_i):
         """
