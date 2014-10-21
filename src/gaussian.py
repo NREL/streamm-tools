@@ -123,7 +123,6 @@ def read_fchk(strucC,fchk_file):
                     for pid_i in range(1,NA+1):
                         pt_i = Particle( [0.0,0.0,0.0] )
                         strucC.ptclC.put(pt_i)
-                        
 
         if( len(col) == 6 ):
             if( col[0] == "Current" and col[1] == "cartesian"  and col[2] == "coordinates" ):
@@ -141,7 +140,7 @@ def read_fchk(strucC,fchk_file):
                 read_esp = True
                 esp_p_cnt = 0
 
-    return strucC
+    return strucC,TOTAL_ENERGY
 
     
 def get_dih_id( zmatrix ):
@@ -283,7 +282,7 @@ def read_dihlist(dlist_name):
             dih_indx = col[1]
             DIH_TAG.append( col[2] )
             DIH_ID.append( col[3] )
-            DIH_VAL.append(  col[4] )
+            DIH_VAL.append(  float( col[4]) )
             a_l = int( col[5] ) - 1
             a_i = int( col[6] ) - 1
             a_j = int( col[7] ) - 1
@@ -318,7 +317,7 @@ def write_dihlist(dlist_name,strucC, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS ):
     flist.close()
 
 
-def constrain_dih_zmatrix(zmatrix,DIH_ID,DIH_TAG,cent_angle,cent_indx):
+def constrain_dih_zmatrix(zmatrix,DIH_ID,DIH_TAG,DIH_VAL,cent_angle,cent_indx):
     """
     Modify zmatrix to have a Constants dihedral value 
     """
@@ -348,6 +347,7 @@ def constrain_dih_zmatrix(zmatrix,DIH_ID,DIH_TAG,cent_angle,cent_indx):
     for  dih_indx in  range(len(DIH_ID)):
 	if (  DIH_ID[dih_indx] !=  DIH_ID[cent_indx]):
             if(  DIH_TAG[dih_indx] != "relax"  ):
+                print dih_indx,DIH_ID[dih_indx],DIH_VAL[dih_indx]
                 con_zmatrix +=   ' %s %8.4f   F  \n'%(DIH_ID[dih_indx],DIH_VAL[dih_indx])
 	else:
 	    con_zmatrix +=  '%s %8.4f  F  \n'%(DIH_ID[dih_indx],cent_angle)

@@ -656,6 +656,10 @@ def build_covnablist(strucC):
 
     if( p_time ): t_i = datetime.datetime.now()
 
+    if( len( strucC.ptclC) <= 0 ):
+        error_line = " empyt particle container passed to  build_covnablist "
+        sys.exit(error_line)
+
     for pid_i, ptclObj_i  in strucC.ptclC:
         cov_nbindx[pid_i] = NNAB + 1
         el_symb = ptclObj_i.tagsDict["symbol"]

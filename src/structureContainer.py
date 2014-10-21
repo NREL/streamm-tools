@@ -1303,8 +1303,8 @@ class StructureContainer:
                 else:                    
                     for eln_i in  map(int,col):
                         eln_p_cnt += 1                        
-                        if( eln_i != self.ptclC[eln_p_cnt].type ):
-                            print "  Particle ",eln_p_cnt, self.ptclC[eln_p_cnt].type," != ",eln_i
+                        #if( eln_i != self.ptclC[eln_p_cnt].type ):
+                        #    print "  Particle ",eln_p_cnt, self.ptclC[eln_p_cnt].type," != ",eln_i
 
             if( read_esp ):
                 if ( esp_p_cnt == NA ):

@@ -666,3 +666,27 @@ def getstrucC(struc_o, in_json, in_gro , in_top, in_data, in_xmol,xmol_format ):
     #a = hoomd_xml.hoomd_xml(sys.argv[1])
 
     return struc_o
+
+def write_calcinfo(calc_type,loc_dir,job_dir,job_name,status):
+    """
+    Write info for calculation
+    """
+
+    calc_info_list = [calc_type,loc_dir,job_dir,job_name,status]
+
+    return calc_info_list
+
+    
+def read_calcinfo(calc_info_list):
+    """
+    Read info for calculation
+    """
+
+    calc_type  = calc_info_list[0].strip()
+    loc_dir   = calc_info_list[1].strip()
+    job_dir  = calc_info_list[2].strip()
+    job_name  = calc_info_list[3].strip()
+    status    = calc_info_list[4].strip()
+
+    return calc_type,loc_dir,job_dir,job_name,status
+    
