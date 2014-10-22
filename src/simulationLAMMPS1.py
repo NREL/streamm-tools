@@ -36,9 +36,8 @@ class SimulationLAMMPS1(sim.Simulation):
         Set coefficients for input file write. Specific to this derived class
         
         Args:
-            pairCoeffDct (dict) dictionary of potential parameters eg...
-                {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0, ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
-            bondCoeffDct (dict) ""
+            pairCoeffDct (dict) dictionary of potential parameters eg... {("Si", "epsilon"):2.30, ("Si", "sigma"):1.0, ("C",  "epsilon"):0.50, ("C",  "sigma"): 0.1 }
+            bondCoeffDct (dict) dictionary of potentail parameters for bonds
         """
         
         if not isinstance(pairCoeffDct, dict):

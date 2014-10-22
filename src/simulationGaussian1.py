@@ -150,8 +150,7 @@ class SimulationGaussian1(sim.Simulation):
         Args:
             fct   (str): Gaussian functional
             bsOPT (str): Basis set to determine accuracy for geo opt.
-            bsEXT (str): Basis set to determine accuracy for TD-DFT step
-                         If not specified, then set to bsOPT
+            bsEXT (str): Basis set to determine accuracy for TD-DFT step. If not specified, then set to bsOPT
         """
         
         if not isinstance(fct, str):

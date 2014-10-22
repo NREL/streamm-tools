@@ -20,7 +20,7 @@ class Simulation:
     to access any template files needed to setup simulation
 
     NOTE:
-       1. This is not the simulation code itself and does no calculations.
+    1. This is not the simulation code itself and does no calculations.
     """
 
     def __init__(self, name, verbose=False):
@@ -129,14 +129,13 @@ class Simulation:
         The derived classes must implement the following:
         
         def readOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
             fileName (str) string of filename to input
         """
-
         print "No Simulation:readOutput method defined for pure base class"
         sys.exit(0)
 
@@ -152,14 +151,13 @@ class Simulation:
         The derived classes must implement the following:
         
         def writeOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
             fileName (str) string of filename to input
         """
-
         print "No Simulation:writeInput method defined for pure base class"
         sys.exit(0)
 

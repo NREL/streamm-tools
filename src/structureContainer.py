@@ -8,7 +8,6 @@ from angles        import Angle,    AngleContainer
 from dihedrals     import Dihedral, DihedralContainer
 from periodictable import periodictable
 
-
 import pbcs
 import copy
 import numpy as np 
@@ -434,8 +433,8 @@ class StructureContainer:
         The derived classes must implement the following:
         
         def readOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
@@ -457,17 +456,15 @@ class StructureContainer:
         The derived classes must implement the following:
         
         def writeOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
             fileName (str) string of filename to input
         """
-
         print "No StructureContainer:writeInput method defined for pure base class"
         sys.exit(0)
-
 
 
     #########################################################
