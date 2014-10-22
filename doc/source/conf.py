@@ -33,7 +33,10 @@ sys.path.append(os.path.abspath('sphinxext'))
 # Point to source python module so docstrings can be generated
 sys.path.append(os.path.abspath('../../src'))
 
-sys.path.append('/Users/ssides/opv-project/tools/src')
+# SWS: (set location of tools-tests?)  Point to tools-tests so docstrings can be generated
+sys.path.append(os.path.abspath('../../../tools-tests'))
+
+# sys.path.append('/Users/ssides/opv-project/tools/src')
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

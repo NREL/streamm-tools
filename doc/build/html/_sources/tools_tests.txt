@@ -4,5 +4,23 @@
 
 
 *******************************
-Running tests
+Unit tests
 *******************************
+
+
+Running tests
+========================
+
+Run the check.sh script.
+
+
+Test descriptions
+========================
+.. automodule:: test_particleContainer
+   :members:
+
+.. automodule:: test_angleContainer
+   :members:
+
+
+
