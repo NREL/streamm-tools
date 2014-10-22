@@ -9,7 +9,7 @@ Getting starting
 .. _download-from-github:
 
 Download from Github:
-===================
+============================
 
 The STREAMM *tools* code is maintained in a Github repository at https://github.nrel.gov/streamm/tools hosted by the National Renewable Energy Lab (NREL). The main STREAMM repo contains many projects that use the tools code as well as the separate suite of unit/regression tests. The web based interface allows one to download the tools repo using the GUI. The tools repo can be downloaded using the linux command line ::
 
@@ -26,15 +26,13 @@ The tools repo contains the following directories and files
 - src               -- Main classes implementing the STREAMM tools functionality
 
 
-..  _configure-tools
-
+..  _configure-tools:
 
 Configure tools
-===================
+============================
 
 A current list of python module dependencies on the Peregrine cluster
-at NREL (our default test platform) is as follows ::
-
+at NREL (our default test platform) is as follows
 
 Cython==0.20.1
 GridDataFormats==0.2.4

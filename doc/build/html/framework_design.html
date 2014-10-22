@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
-    <link rel="next" title="&lt;no title&gt;" href="db_interface.html" />
+    <link rel="next" title="Interface to NREL database" href="db_interface.html" />
     <link rel="prev" title="Running tests" href="tools_tests.html" /> 
   </head>
   <body role="document">
@@ -42,7 +42,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="db_interface.html" title="&lt;no title&gt;"
+          <a href="db_interface.html" title="Interface to NREL database"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="tools_tests.html" title="Running tests"
@@ -59,8 +59,8 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">STREAMM design</a><ul>
-<li><a class="reference internal" href="#structure-objects">Structure Objects</a></li>
-<li><a class="reference internal" href="#simulation-objects">Simulation Objects</a></li>
+<li><a class="reference internal" href="#structurecontainer-class">StructureContainer Class</a></li>
+<li><a class="reference internal" href="#simulation-class">Simulation Class</a></li>
 <li><a class="reference internal" href="#algorithms">Algorithms</a></li>
 </ul>
 </li>
@@ -71,7 +71,7 @@
                         title="previous chapter">Running tests</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="db_interface.html"
-                        title="next chapter">&lt;no title&gt;</a></p>
+                        title="next chapter">Interface to NREL database</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -100,13 +100,38 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="streamm-design">
-<h1>STREAMM design<a class="headerlink" href="#streamm-design" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="structure-objects">
-<h2>Structure Objects<a class="headerlink" href="#structure-objects" title="Permalink to this headline">¶</a></h2>
+  <span class="target" id="framework-design"></span><div class="section" id="streamm-design">
+<span id="index-0"></span><h1>STREAMM design<a class="headerlink" href="#streamm-design" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="structurecontainer-class">
+<h2>StructureContainer Class<a class="headerlink" href="#structurecontainer-class" title="Permalink to this headline">¶</a></h2>
+<p>The StructureContainer class is a data structure for describing a
+collection of discrete particles. These particles have unique integer
+IDs and spatial positions and can have user specified attributes such
+as mass, charge and type. These particles can have 2-body (bond),
+3-body (angle) and 4-body (dihedral) interactions, which are
+implemented by the python classes</p>
+<ul class="simple">
+<li>Particle</li>
+<li>Bond</li>
+<li>Angle</li>
+<li>Dihedral</li>
+</ul>
+<p>Each of these classes has an associated container. For example,
+multiple Particle objects are held in an instance of a
+ParticleContainer class. These containers are essentially modified
+dictionaries that map a unique integer ID to an object. Finally, a
+StructureContainer object is a container for the Particle, Bond,
+Angle and Dihedral containers</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/strucC.png"><img alt="_images/strucC.png" src="_images/strucC.png" style="width: 359.2px; height: 236.8px;" /></a>
 </div>
-<div class="section" id="simulation-objects">
-<h2>Simulation Objects<a class="headerlink" href="#simulation-objects" title="Permalink to this headline">¶</a></h2>
+<p>The contained ParticleContainer object has a special role... this object is a
+dictionary that tracks the globalIDs for all particles in this Structure.
+Global IDs for a structure are unique. All IDs referred to by the
+subcontainers are consistent.</p>
+</div>
+<div class="section" id="simulation-class">
+<h2>Simulation Class<a class="headerlink" href="#simulation-class" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="algorithms">
 <h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
@@ -126,7 +151,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="db_interface.html" title="&lt;no title&gt;"
+          <a href="db_interface.html" title="Interface to NREL database"
              >next</a> |</li>
         <li class="right" >
           <a href="tools_tests.html" title="Running tests"

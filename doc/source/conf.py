@@ -25,6 +25,11 @@ import os
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
+# If your extensions are in another directory, add it here. If the
+# directory is relative to the documentation root, use
+# os.path.abspath to make it absolute, like shown here.
+sys.path.append(os.path.abspath('sphinxext'))
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -36,7 +41,17 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.inheritance_diagram'
 ]
+
+#    'inheritance_diagram',
+#    'ipython_console_highlighting',
+#    'matplotlib.sphinxext.ipython_directive',
+#    'matplotlib.sphinxext.mathmpl',
+#    'matplotlib.sphinxext.only_directives',
+#    'matplotlib.sphinxext.plot_directive',
+#    'numpydoc'
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

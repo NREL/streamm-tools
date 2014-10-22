@@ -1,7 +1,7 @@
 .. highlight:: rst
 
 STREAMM (Simulation Toolkit for Renewable Energy and Advanced Materials Modeling)
-=======================
+================================================================================================
 
 Advanced materials are important for a number of cutting edge renewable energy applications.
 These applications include organic polymer photovoltaics, thermoelectrics and organic radical batteries
