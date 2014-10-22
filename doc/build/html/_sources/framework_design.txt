@@ -30,7 +30,7 @@ dictionaries that map a unique integer ID to an object. Finally, a
 StructureContainer object is a container for the Particle, Bond,
 Angle and Dihedral containers
 
-.. figure:: strucC.png
+.. figure:: figures/strucC.png
    :align: center
    :scale: 40%
 
