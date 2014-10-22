@@ -514,7 +514,7 @@ def replicate(p,options,oligo_array,sol_array):
                             if( sys_oligo_n > 1 ):
                                 res_numb_i = max_oligo_residue_number + ptclObj.tagsDict["residue"]
                                 
-                                print " residue number updat %d -> %d "%(ptclObj.tagsDict["residue"],res_numb_i)
+                                if(debug): print " residue number updat %d -> %d "%(ptclObj.tagsDict["residue"],res_numb_i)
                                 
                                 ptclObj.tagsDict["residue"] = res_numb_i
                                 initial_sol_residue_number = res_numb_i
@@ -758,12 +758,15 @@ def replicate(p,options,oligo_array,sol_array):
                                             ptclObj.tagsDict["chain"] = sys_sol_n
                                             if( sys_sol_n > 1 ):
                                                 res_numb_i = max_sol_residue_number + ptclObj.tagsDict["residue"]
-                                                print " max_sol_residue_number  ",max_sol_residue_number
-                                                print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],res_numb_i,sys_sol_n)
+                                                if(debug):
+                                                    print " max_sol_residue_number  ",max_sol_residue_number
+                                                    print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],res_numb_i,sys_sol_n)
 
                                                 ptclObj.tagsDict["residue"] = res_numb_i
                                             else:
-                                                print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],initial_sol_residue_number+1,sys_sol_n)
+                                                if(debug):
+                                                    print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],initial_sol_residue_number+1,sys_sol_n)
+                                                    
                                                 ptclObj.tagsDict["residue"] = initial_sol_residue_number + 1
                                         
                                         sol_rep += struc_i
