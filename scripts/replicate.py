@@ -35,6 +35,7 @@ def get_options():
     parser.add_option("-o","--output_id", dest="output_id", default="replicate",type="string",help=" prefix for output files  ")
     parser.add_option("-d","--dir_id", dest="dir_id", default=".",type="string",help=" path of output files   ")
     parser.add_option("--calc_overlap", dest="calc_overlap", default=1,type="int",help=" Turn on or off calculation of molecular overlap, handy to build a quick input file" )
+    parser.add_option("--calc_type", dest="calc_type", help="Type of calculations output: gromacs or lammps  ", default="gromacs")
 
     # SWS: adding option so random stream is fixed for testing
     parser.add_option("--fixed_rnd_seed", dest="fixed_rnd_seed", action="store_true", default=False, help=" Fixes random number stream in replicate method in structureContainer (set to True for regression testing")
@@ -78,7 +79,7 @@ def main():
     Returns: None
     
     """
-    import pbcs
+    import pbcs, gromacs, lammps , xmol
 
     options, args = get_options()
 
@@ -106,6 +107,12 @@ def main():
     if( len(options.gro) > 0 ):
         sol_array = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top)
 
+    #
+    # Check input
+    #
+    if( options.calc_type == "lammps" ):
+        error_line = " data file output not working yet "
+        sys.exit(error_line)
 
     f_rep = StructureContainer()
     paramC = ParameterContainer()
@@ -123,21 +130,25 @@ def main():
         n_part = f_new.getpartnumb()
         n_chains = f_new.getchainnumb()
         comment = " structure with %d particles and %d chains "%(n_part,n_chains)
-        append = False 
-        f_new.write_xmol(xmol_file,comment,append)
+        append = False
+        xmol.write(f_new.ptclC,xmol_file,comment,append)
+        #f_new.write_xmol(xmol_file,comment,append)
 
         # Write json file
-        
 	#file_io.write_json(f_new,paramC,options.dir_id,options.output_id )
+
+        # Write gro file 
+        if( options.calc_type == "gromacs" ):
+            path_gro_file = options.dir_id +"/" + options.output_id + ".gro"
+            if( options.verbose ): print  "     - Writing  ",path_gro_file
+            gromacs.print_gro(f_new,path_gro_file)
+            
         
         #  Write Lammps input file
-        #path_data_file = options.dir_id +"/" + options.output_id + ".data"
-        #print " Writint file ",path_data_file
-        #f_new.lmp_writedata(path_data_file,options.norm_dihparam,options.itp_file)
-
-        # Write gromacs input files python replicate.py   --gro SOL.gro --top SOL.top   --sol_gro SOL.gro   --sol_top SOL.top   --den_target 0.1  --atoms_target 100    --perc_sol 90
-        
-        #f_new.write_gro(options.dir_id,options.output_id )
+        if( options.calc_type == "lammps" ):
+            path_data_file = options.dir_id +"/" + options.output_id + ".data"
+            if( options.verbose ): print  "     - Writing  ",path_data_file
+            lammps.write_data(f_new,paramC,path_data_file)
 
 if __name__=="__main__":
     main()

@@ -382,6 +382,9 @@ def replicate(p,options,oligo_array,sol_array):
             if( ptclObj.tagsDict["residue"] > max_i ):
                 max_i  = ptclObj.tagsDict["residue"]
         max_oligo_residue_number_list.append(max_i)
+
+    max_sol_residue_number = 1
+    initial_sol_residue_number = 0 
         
     #
     # Start adding molecules to the system
@@ -401,6 +404,7 @@ def replicate(p,options,oligo_array,sol_array):
         # Record intial time for pereformance testing 
         if( rank == 0  ): 
             tadd_i = datetime.datetime.now()
+            
         for oligo_l in range( n_olgio_l ):
             # loop over the number of times each oligomer in the oligomer list needs to be replicated
             o_cnt = -1
@@ -509,7 +513,11 @@ def replicate(p,options,oligo_array,sol_array):
                             ptclObj.tagsDict["chain"] = struc_add_cnt
                             if( sys_oligo_n > 1 ):
                                 res_numb_i = max_oligo_residue_number + ptclObj.tagsDict["residue"]
+                                
+                                print " residue number updat %d -> %d "%(ptclObj.tagsDict["residue"],res_numb_i)
+                                
                                 ptclObj.tagsDict["residue"] = res_numb_i
+                                initial_sol_residue_number = res_numb_i
 
                             
 
@@ -743,6 +751,21 @@ def replicate(p,options,oligo_array,sol_array):
                                         struc_i.vec_shift(lat_pos)
 
                                         struc_i.setLatVec(sol_rep.getLatVec())
+
+
+                                        # Rest molecule numbers
+                                        for pid, ptclObj in struc_i.ptclC :
+                                            ptclObj.tagsDict["chain"] = sys_sol_n
+                                            if( sys_sol_n > 1 ):
+                                                res_numb_i = max_sol_residue_number + ptclObj.tagsDict["residue"]
+                                                print " max_sol_residue_number  ",max_sol_residue_number
+                                                print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],res_numb_i,sys_sol_n)
+
+                                                ptclObj.tagsDict["residue"] = res_numb_i
+                                            else:
+                                                print " solvent residue number updat %d -> %d chain %d "%(ptclObj.tagsDict["residue"],initial_sol_residue_number+1,sys_sol_n)
+                                                ptclObj.tagsDict["residue"] = initial_sol_residue_number + 1
+                                        
                                         sol_rep += struc_i
 
                                         if( options.verbose ):
