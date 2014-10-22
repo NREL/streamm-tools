@@ -784,7 +784,6 @@ def replicate(p,options,oligo_array,sol_array):
                                                     print "        - with placement time ",dt_min," min ",dt_sec," seconds "
                                     else:
                                         overlap_found = True
-
                                         print "  lattice point was found to overlap "
 
 
