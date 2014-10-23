@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview: module code &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    <title>test_replicate2 &mdash; STREAMM-Tools 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,7 +24,8 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="../index.html" /> 
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body role="document">
 
@@ -45,7 +46,8 @@
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
        <li><a href="../contents.html">documentation </a> &raquo;</li>
- 
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
 
@@ -72,51 +74,27 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="angles.html">angles</a></li>
-<li><a href="bonds.html">bonds</a></li>
-<li><a href="dihedrals.html">dihedrals</a></li>
-<li><a href="particles.html">particles</a></li>
-<li><a href="simulation.html">simulation</a></li>
-<li><a href="simulationGaussian1.html">simulationGaussian1</a></li>
-<li><a href="simulationLAMMPS1.html">simulationLAMMPS1</a></li>
-<li><a href="structureContainer.html">structureContainer</a></li>
-<li><a href="test_angleContainer.html">test_angleContainer</a></li>
-<li><a href="test_bondContainer.html">test_bondContainer</a></li>
-<li><a href="test_checkTypes.html">test_checkTypes</a></li>
-<li><a href="test_dihdist1.html">test_dihdist1</a></li>
-<li><a href="test_dihedralContainer.html">test_dihedralContainer</a></li>
-<li><a href="test_dumpLammps.html">test_dumpLammps</a></li>
-<li><a href="test_elements.html">test_elements</a></li>
-<li><a href="test_ffparameters.html">test_ffparameters</a></li>
-<li><a href="test_n2_mpiNREL.html">test_n2_mpiNREL</a></li>
-<li><a href="test_nX_mpiNREL_splitData.html">test_nX_mpiNREL_splitData</a></li>
-<li><a href="test_particleConstructors.html">test_particleConstructors</a></li>
-<li><a href="test_particleContainer.html">test_particleContainer</a></li>
-<li><a href="test_particleSetInfo.html">test_particleSetInfo</a></li>
-<li><a href="test_ptclContainerConstructor.html">test_ptclContainerConstructor</a></li>
-<li><a href="test_rdf.html">test_rdf</a></li>
-<li><a href="test_rdf2.html">test_rdf2</a></li>
-<li><a href="test_rdf_mda.html">test_rdf_mda</a></li>
-<li><a href="test_replicate2.html">test_replicate2</a></li>
-<li><a href="test_replicate_setSeed.html">test_replicate_setSeed</a></li>
-<li><a href="test_searchTags.html">test_searchTags</a></li>
-<li><a href="test_simulation.html">test_simulation</a></li>
-<li><a href="test_strucAdd.html">test_strucAdd</a></li>
-<li><a href="test_strucAdd2.html">test_strucAdd2</a></li>
-<li><a href="test_strucCompressID.html">test_strucCompressID</a></li>
-<li><a href="test_strucCompressIDWithAngles.html">test_strucCompressIDWithAngles</a></li>
-<li><a href="test_strucDumpSave.html">test_strucDumpSave</a></li>
-<li><a href="test_strucEmpty.html">test_strucEmpty</a></li>
-<li><a href="test_strucEmpty2.html">test_strucEmpty2</a></li>
-<li><a href="test_strucSetPtclPos.html">test_strucSetPtclPos</a></li>
-<li><a href="test_strucWithAngles.html">test_strucWithAngles</a></li>
-<li><a href="test_strucWithDihedrals.html">test_strucWithDihedrals</a></li>
-<li><a href="test_subStructure.html">test_subStructure</a></li>
-<li><a href="test_subStructureWithAngles.html">test_subStructureWithAngles</a></li>
-<li><a href="test_subStructureWithDihedrals.html">test_subStructureWithDihedrals</a></li>
-<li><a href="test_translate1.html">test_translate1</a></li>
-</ul>
+  <h1>Source code for test_replicate2</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../tools_tests.html#test_replicate2.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TRAVIS document</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">toolsPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;TOOLS_PATH&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">toolsPath</span> <span class="o">==</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;TOOLS_PATH is unset. tools repo must be checked out and set this enviroment variable to its location&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">run_py</span><span class="o">=</span><span class="s">&quot;python &quot;</span> <span class="o">+</span> <span class="n">toolsPath</span> <span class="o">+</span> <span class="s">&quot;/scripts/replicate.py --fixed_rnd_seed --gro SOL.gro --top SOL.top   --sol_gro SOL.gro   --sol_top SOL.top   --den_target 0.1  --atoms_target 200    --perc_sol 50 -v &quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">run_py</span><span class="p">)</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
 
           </div>
         </div>
@@ -135,7 +113,8 @@
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
        <li><a href="../contents.html">documentation </a> &raquo;</li>
- 
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

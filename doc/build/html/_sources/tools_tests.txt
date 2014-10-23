@@ -34,11 +34,111 @@ and to run all tests ::
 
 Test descriptions
 ========================
-.. automodule:: test_particleContainer
-   :members:
 
 .. automodule:: test_angleContainer
-   :members:
+   :members: main
 
+.. automodule:: test_bondContainer
+   :members: main
 
+.. automodule:: test_checkTypes
+   :members: main
 
+.. automodule:: test_dihdist1
+   :members: main
+
+.. automodule:: test_dihedralContainer
+   :members: main
+
+.. automodule:: test_dumpLammps
+   :members: main
+
+.. automodule:: test_elements
+   :members: main
+
+.. automodule:: test_ffparameters
+   :members: main
+
+.. automodule:: test_n2_mpiNREL
+   :members: main
+
+.. automodule:: test_nX_mpiNREL_splitData
+   :members: main
+
+.. automodule:: test_particleConstructors
+   :members: main
+
+.. automodule:: test_particleContainer
+   :members: main
+
+.. automodule:: test_particleSetInfo
+   :members: main
+
+.. automodule:: test_ptclContainerConstructor
+   :members: main
+
+.. automodule:: test_rdf
+   :members: main
+
+.. automodule:: test_rdf2
+   :members: main
+
+.. automodule:: test_rdf_mda
+   :members: main
+
+.. automodule:: test_replicate2
+   :members: main
+
+.. automodule:: test_replicate_setSeed
+   :members: main
+
+.. automodule:: test_searchTags
+   :members: main
+
+.. automodule:: test_simulation
+   :members: main
+
+.. automodule:: test_strucAdd
+   :members: main
+
+.. automodule:: test_strucAdd2
+   :members: main
+
+.. automodule:: test_strucAddBig
+   :members: main
+
+.. automodule:: test_strucCompressID
+   :members: main
+
+.. automodule:: test_strucCompressIDWithAngles
+   :members: main
+
+.. automodule:: test_strucDumpSave
+   :members: main
+
+.. automodule:: test_strucEmpty
+   :members: main
+
+.. automodule:: test_strucEmpty2
+   :members: main
+
+.. automodule:: test_strucSetPtclPos
+   :members: main
+
+.. automodule:: test_strucWithAngles
+   :members: main
+
+.. automodule:: test_strucWithDihedrals
+   :members: main
+
+.. automodule:: test_subStructure
+   :members: main
+
+.. automodule:: test_subStructureWithAngles
+   :members: main
+
+.. automodule:: test_subStructureWithDihedrals
+   :members: main
+
+.. automodule:: test_translate1
+   :members: main
