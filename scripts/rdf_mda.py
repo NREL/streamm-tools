@@ -16,10 +16,14 @@ Radial distribution  code
 from itertools import izip
 
 #MDanalysis
-from MDAnalysis import *
-from MDAnalysis.core.distances import * ##distance_array
-#import MDAnalysis.core.units            # for bulk water density
-
+try:
+    from MDAnalysis import *
+    from MDAnalysis.core.distances import * ##distance_array
+    #import MDAnalysis.core.units            # for bulk water density
+except:
+    import sys
+    print "MDAnalysis module not build/configured correctly"
+    sys.exit(0)
 
 # Scott's new classes
 import particles

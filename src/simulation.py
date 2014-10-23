@@ -1,7 +1,7 @@
 """
 Class data structures for simulation data
 """
-import copy, sys
+import copy, sys, os, shutil
 
 from structureContainer import StructureContainer
 
@@ -16,10 +16,11 @@ class Simulation:
     will in general be used as part of the input to a simulation generated
     by using the data from this object
 
+    A template directory can be set. This is a common location for derived classes
+    to access any template files needed to setup simulation
+
     NOTE:
-       1. This is not the simulation code itself and does no calculations.
-       2. Objects should be thought of as an instance of a simulation that
-          converts a StructureContainer at step1 to a StructureContainer at step2
+    1. This is not the simulation code itself and does no calculations.
     """
 
     def __init__(self, name, verbose=False):
@@ -38,16 +39,16 @@ class Simulation:
             print "1st arg should be string name for the simulation"
             raise TypeError
 
+        # Debug/status flag
         self.verbose = verbose
-        self.simulationExec = ""     # String name of simulation code executable (eg lmp)
-        self.inputFileNames = list() # List of file name strings (SWS: full paths?)
-        self.isStrucSet = False
 
-    def getSimName(self):
-        """
-        Return name used to create the simulation object
-        """
-        return self.simulationName
+        # Main attributes
+        self.simulationExec = ""          # String name of simulation code executable (eg lmp)
+        self.inputFileNames = list()      # List of file name strings (SWS: full paths?)
+        self.simDir         = str()       # Location of simulation (where input files scripts etc should be copied)
+        self.isStrucSet     = False       # Flag if object has structure container set
+        self.topDir         = os.getcwd() # Current location of calling module
+        self.templateDir    = "./"        # Location of directory containing any needed templates
 
 
     def __str__(self):
@@ -81,12 +82,31 @@ class Simulation:
             del self.strucC
 
 
+    def getSimName(self):
+        """
+        Return name used to create the simulation object
+        """
+        return self.simulationName
+
+
+    def setTemplateDir(self, tdir):
+        """
+        Set template directory location
+        """
+        if not os.path.exists(tdir):
+            print "Template directory does not exist... check full path \n"
+            sys.exit(0)
+
+        self.templateDir = tdir
+
+
     def setStructureContainer(self, strucC):
         """
         Setter for the structure container.
         """
         self.strucC = strucC
         self.isStrucSet = True
+
 
     def copyStructureContainerInto(self, strucC):
         """
@@ -109,15 +129,14 @@ class Simulation:
         The derived classes must implement the following:
         
         def readOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
             fileName (str) string of filename to input
         """
-
-        print "No StructureContainer:readOutput method defined for pure base class"
+        print "No Simulation:readOutput method defined for pure base class"
         sys.exit(0)
 
 
@@ -125,20 +144,48 @@ class Simulation:
         """
         This is the 'effective' base class interface for a method
         that writes an input file based on the internal attributes of an instance
-        of the StructureContainer
+        of the Simulation object
 
         This method should be redefined for each kind of file types
         (typically defined by simulation version eg LAMMPS, Gaussian etc)
         The derived classes must implement the following:
         
         def writeOutput(self, fileName):
-          ...
-          ...
+        ...
+        ...
         return None
 
         Args:
             fileName (str) string of filename to input
         """
-
-        print "No StructureContainer:writeInput method defined for pure base class"
+        print "No Simulation:writeInput method defined for pure base class"
         sys.exit(0)
+
+
+    def createSimulation(self):
+        """
+        Checks for existence of a top level simulation directory and writes out
+        all files needed for running a simulation.
+
+        Files copied/output are contained in the attribute 'inputFileNames'.
+
+        In principle many input files/scripts could be copied to this location.
+        If directory not found, then directory is created. Directory is creating
+        from top level of where this class is executed
+        """
+
+        # Check for run directory
+        if (not os.path.exists(self.simDir)):
+            print self.simDir, "does not exist... creating"
+            os.mkdir(self.simDir)
+
+
+        # For all simulation files, move into run directory
+        for inFile in self.inputFileNames:
+
+            fromInFile = os.path.join(self.topDir, inFile)
+            mvInFile   = os.path.join(self.topDir, self.simDir, inFile)
+            shutil.move(fromInFile, mvInFile)
+
+            if self.verbose:
+                print "Moved input file to ", mvInFile

@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="../index.html"><img src="../_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">home</a>|&nbsp;</li>
+        <li><a href="../search.html">search</a>|&nbsp;</li>
+       <li><a href="../contents.html">documentation </a> &raquo;</li>
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulation</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class data structures for simulation data</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span>
+
+<span class="kn">from</span> <span class="nn">structureContainer</span> <span class="kn">import</span> <span class="n">StructureContainer</span>
+
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data structure for describing how a simulation can be performed.</span>
+<span class="sd">    The attributes stored can be used by a caller to construct/gather the</span>
+<span class="sd">    appropriate components to run a simulation.</span>
+
+<span class="sd">    There will be a tight coupling between objects of this class and the</span>
+<span class="sd">    StructureContainer objects. Information from the StructureContainer objects</span>
+<span class="sd">    will in general be used as part of the input to a simulation generated</span>
+<span class="sd">    by using the data from this object</span>
+
+<span class="sd">    A template directory can be set. This is a common location for derived classes</span>
+<span class="sd">    to access any template files needed to setup simulation</span>
+
+<span class="sd">    NOTE:</span>
+<span class="sd">    1. This is not the simulation code itself and does no calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for a general simulation object.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): String identifier for object (eg GaussianJuly21)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Simulation base class constructor called&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">simulationName</span> <span class="o">=</span> <span class="n">name</span>   <span class="c"># String name of simulation code (eg GaussianJuly21)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;1st arg should be string name for the simulation&quot;</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+
+        <span class="c"># Debug/status flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="c"># Main attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulationExec</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>          <span class="c"># String name of simulation code executable (eg lmp)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputFileNames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>      <span class="c"># List of file name strings (SWS: full paths?)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simDir</span>         <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>       <span class="c"># Location of simulation (where input files scripts etc should be copied)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span>     <span class="o">=</span> <span class="bp">False</span>       <span class="c"># Flag if object has structure container set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topDir</span>         <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="c"># Current location of calling module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">templateDir</span>    <span class="o">=</span> <span class="s">&quot;./&quot;</span>        <span class="c"># Location of directory containing any needed templates</span>
+
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print out name of simulation object (for logging/status)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationName</span>
+
+
+<div class="viewcode-block" id="Simulation.printStruc"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.printStruc">[docs]</a>    <span class="k">def</span> <span class="nf">printStruc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dump contents of held structure container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;---------- Simulation object contains ------------&quot;</span>
+            <span class="k">print</span> <span class="bp">self</span><span class="o">.</span><span class="n">strucC</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;No structure container set&quot;</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructor, clears object memory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Cleaning simulation object&quot;</span>
+            
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputFileNames</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">strucC</span>
+
+
+<div class="viewcode-block" id="Simulation.getSimName"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.getSimName">[docs]</a>    <span class="k">def</span> <span class="nf">getSimName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return name used to create the simulation object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationName</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.setTemplateDir"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.setTemplateDir">[docs]</a>    <span class="k">def</span> <span class="nf">setTemplateDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tdir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set template directory location</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tdir</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;Template directory does not exist... check full path </span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">templateDir</span> <span class="o">=</span> <span class="n">tdir</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.setStructureContainer"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.setStructureContainer">[docs]</a>    <span class="k">def</span> <span class="nf">setStructureContainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setter for the structure container.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strucC</span> <span class="o">=</span> <span class="n">strucC</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span> <span class="o">=</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.copyStructureContainerInto"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.copyStructureContainerInto">[docs]</a>    <span class="k">def</span> <span class="nf">copyStructureContainerInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the structure container. Deep copy performed,</span>
+<span class="sd">        so that external changes to structure container are not</span>
+<span class="sd">        reflected here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strucC</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">strucC</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span> <span class="o">=</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.readOutput"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
+<span class="sd">        that reads in an external output file and populates an instance</span>
+<span class="sd">        of this class object</span>
+
+<span class="sd">        This method should be redefined for each kind of file types</span>
+<span class="sd">        (typically defined by simulation version eg LAMMPS, Gaussian etc)</span>
+<span class="sd">        The derived classes must implement the following:</span>
+<span class="sd">        </span>
+<span class="sd">        def readOutput(self, fileName):</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...</span>
+<span class="sd">        return None</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fileName (str) string of filename to input</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;No Simulation:readOutput method defined for pure base class&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.writeInput"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
+<span class="sd">        that writes an input file based on the internal attributes of an instance</span>
+<span class="sd">        of the Simulation object</span>
+
+<span class="sd">        This method should be redefined for each kind of file types</span>
+<span class="sd">        (typically defined by simulation version eg LAMMPS, Gaussian etc)</span>
+<span class="sd">        The derived classes must implement the following:</span>
+<span class="sd">        </span>
+<span class="sd">        def writeOutput(self, fileName):</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...</span>
+<span class="sd">        return None</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fileName (str) string of filename to input</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;No Simulation:writeInput method defined for pure base class&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Simulation.createSimulation"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.createSimulation">[docs]</a>    <span class="k">def</span> <span class="nf">createSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks for existence of a top level simulation directory and writes out</span>
+<span class="sd">        all files needed for running a simulation.</span>
+
+<span class="sd">        Files copied/output are contained in the attribute &#39;inputFileNames&#39;.</span>
+
+<span class="sd">        In principle many input files/scripts could be copied to this location.</span>
+<span class="sd">        If directory not found, then directory is created. Directory is creating</span>
+<span class="sd">        from top level of where this class is executed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Check for run directory</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simDir</span><span class="p">)):</span>
+            <span class="k">print</span> <span class="bp">self</span><span class="o">.</span><span class="n">simDir</span><span class="p">,</span> <span class="s">&quot;does not exist... creating&quot;</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simDir</span><span class="p">)</span>
+
+
+        <span class="c"># For all simulation files, move into run directory</span>
+        <span class="k">for</span> <span class="n">inFile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputFileNames</span><span class="p">:</span>
+
+            <span class="n">fromInFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topDir</span><span class="p">,</span> <span class="n">inFile</span><span class="p">)</span>
+            <span class="n">mvInFile</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topDir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simDir</span><span class="p">,</span> <span class="n">inFile</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">fromInFile</span><span class="p">,</span> <span class="n">mvInFile</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Moved input file to &quot;</span><span class="p">,</span> <span class="n">mvInFile</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">home</a>|&nbsp;</li>
+        <li><a href="../search.html">search</a>|&nbsp;</li>
+       <li><a href="../contents.html">documentation </a> &raquo;</li>
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Dr. Scott W. Sides, Dr. Travis Kemper.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.
+    </div>
+  </body>
+</html>
