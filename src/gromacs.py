@@ -128,10 +128,8 @@ def read_gro(strucC,in_gro):
     return strucC
 
 def read_top(strucC, top_infile):
-
     """
     Read in GROMACS topology file
-
     """
     
     # General python modules 
@@ -848,7 +846,7 @@ def print_gro(strucC,gro_file):
         if( atom_indx > 10000): atom_indx = 1
         r_i = ptclObj.position
         r_i_nm = [units.convert_angstroms_nm(r_i[0]) ,units.convert_angstroms_nm(r_i[1]) ,units.convert_angstroms_nm(r_i[2]) ]
-        F.write( "\n%5d%-5s%5s%5d%8.3f%8.3f%8.3f"  % ( ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],atom_indx,r_i_nm[0],r_i_nm[1],r_i_nm[2] ))
+        F.write( "\n%5d%-5s%5s%5d%8.3f%8.3f%8.3f"  % ( ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"][:5],ptclObj.tagsDict["gtype"][:5],atom_indx,r_i_nm[0],r_i_nm[1],r_i_nm[2] ))
 
     latvec = strucC.get_latvec()
     F.write( "\n %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f \n" % ( latvec[0][0]/10.0,latvec[1][1]/10.0,latvec[2][2]/10.0,latvec[0][1]/10.0,latvec[0][2]/10.0,latvec[1][0]/10.0,latvec[1][2]/10.0,latvec[2][0]/10.0,latvec[2][1]/10.0))
