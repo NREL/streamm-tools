@@ -45,7 +45,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -136,10 +135,22 @@
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span> <span class="o">=</span> <span class="mi">0</span>
+        
+
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Destructor, clears object memory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgid1</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgid2</span> 
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgid3</span> 
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pgid4</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta0</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span> 
 
     <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pgid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -157,7 +168,35 @@
             <span class="k">return</span> <span class="bp">False</span>
 
 
+<div class="viewcode-block" id="Dihedral.set_lmpindx"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set bond type index for lammps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span> <span class="o">=</span> <span class="n">lmpindx</span>
+        
+        </div>
+<div class="viewcode-block" id="Dihedral.get_lmpindx"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.get_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">get_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return bond type index for lammps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span>
+
 </div>
+<div class="viewcode-block" id="Dihedral.set_g_indx"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.set_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">set_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">g_indx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set bond type index for gromacs </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span> <span class="o">=</span> <span class="n">g_indx</span>
+        
+        </div>
+<div class="viewcode-block" id="Dihedral.get_g_indx"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.get_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">get_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return bond type index for gromacs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span>
+
+
+</div></div>
 <div class="viewcode-block" id="DihedralContainer"><a class="viewcode-back" href="../framework_design.html#dihedrals.DihedralContainer">[docs]</a><span class="k">class</span> <span class="nc">DihedralContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Dihedral objects. Map of global</span>
@@ -191,6 +230,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;Cleaning particle container&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dihedrals</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxgid</span>
 
 
 <div class="viewcode-block" id="DihedralContainer.clear"><a class="viewcode-back" href="../framework_design.html#dihedrals.DihedralContainer.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -440,7 +480,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>

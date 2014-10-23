@@ -45,7 +45,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -79,18 +78,19 @@
 <span class="sd">Class data structures for atomic data</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">from</span> <span class="nn">particles</span>     <span class="kn">import</span> <span class="n">Particle</span><span class="p">,</span> <span class="n">ParticleContainer</span>
 <span class="kn">from</span> <span class="nn">bonds</span>         <span class="kn">import</span> <span class="n">Bond</span><span class="p">,</span>     <span class="n">BondContainer</span>
 <span class="kn">from</span> <span class="nn">angles</span>        <span class="kn">import</span> <span class="n">Angle</span><span class="p">,</span>    <span class="n">AngleContainer</span>
 <span class="kn">from</span> <span class="nn">dihedrals</span>     <span class="kn">import</span> <span class="n">Dihedral</span><span class="p">,</span> <span class="n">DihedralContainer</span>
 <span class="kn">from</span> <span class="nn">periodictable</span> <span class="kn">import</span> <span class="n">periodictable</span>
 
-<span class="kn">import</span> <span class="nn">pbcs</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span> 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pbcs</span><span class="o">,</span> <span class="nn">units</span>
 
 <div class="viewcode-block" id="StructureContainer"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer">[docs]</a><span class="k">class</span> <span class="nc">StructureContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -165,6 +165,8 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">bondC</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">angleC</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dihC</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
 
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -577,7 +579,7 @@
 <span class="sd">        Calculate volume</span>
 
 <span class="sd">        Method:</span>
-<span class="sd">            Volume = ( v_i x v_j ) \dot v_k</span>
+<span class="sd">            Volume = ( v_i x v_j ) . v_k</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">br1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -602,12 +604,11 @@
 <span class="sd">        Calculate density of system </span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-	<span class="c"># const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na</span>
 
 	<span class="n">volume_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>    
 	<span class="n">total_mass_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>
 
-	<span class="n">density_i</span> <span class="o">=</span> <span class="n">total_mass_i</span><span class="o">/</span><span class="n">volume_i</span> <span class="c">#/const_avo*10.0</span>
+	<span class="n">density_i</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">convert_AMUA3_gcm3</span><span class="p">(</span><span class="n">total_mass_i</span><span class="o">/</span><span class="n">volume_i</span><span class="p">)</span> 
 	
 	<span class="k">return</span> <span class="n">density_i</span>
 </div>
@@ -777,8 +778,6 @@
             <span class="k">if</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n_chains</span><span class="p">):</span> <span class="n">n_chains</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">n_chains</span>
-
-
 </div>
 <div class="viewcode-block" id="StructureContainer.write_gro"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.write_gro">[docs]</a>    <span class="k">def</span> <span class="nf">write_gro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dir_id</span><span class="p">,</span><span class="n">output_id</span> <span class="p">):</span> <span class="c"># Move out of class</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1380,8 +1379,8 @@
                 <span class="k">else</span><span class="p">:</span>                    
                     <span class="k">for</span> <span class="n">eln_i</span> <span class="ow">in</span>  <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="n">col</span><span class="p">):</span>
                         <span class="n">eln_p_cnt</span> <span class="o">+=</span> <span class="mi">1</span>                        
-                        <span class="k">if</span><span class="p">(</span> <span class="n">eln_i</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">eln_p_cnt</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="p">):</span>
-                            <span class="k">print</span> <span class="s">&quot;  Particle &quot;</span><span class="p">,</span><span class="n">eln_p_cnt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">eln_p_cnt</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="s">&quot; != &quot;</span><span class="p">,</span><span class="n">eln_i</span>
+                        <span class="c">#if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
+                        <span class="c">#    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
 
             <span class="k">if</span><span class="p">(</span> <span class="n">read_esp</span> <span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span> <span class="n">esp_p_cnt</span> <span class="o">==</span> <span class="n">NA</span> <span class="p">):</span>
@@ -1404,7 +1403,7 @@
                     <span class="n">NA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
                     
                     <span class="k">if</span><span class="p">(</span> <span class="n">NA</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span> <span class="p">):</span>
-                        <span class="k">print</span> <span class="s">&quot; json file contains </span><span class="si">%d</span><span class="s"> atoms and fchk file contains </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">,</span><span class="n">NA</span><span class="p">)</span>
+                        <span class="k">print</span> <span class="s">&quot; json file contains </span><span class="si">%d</span><span class="s"> atoms and fchk file contains </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">),</span><span class="n">NA</span><span class="p">)</span>
                         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;inconsistent files &quot;</span><span class="p">)</span>
 
             <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span> <span class="p">):</span>
@@ -1490,7 +1489,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>

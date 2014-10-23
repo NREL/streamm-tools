@@ -52,7 +52,6 @@
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">home</a>|&nbsp;</li>
         <li><a href="search.html">search</a>|&nbsp;</li>
-       <li><a href="contents.html">documentation </a> &raquo;</li>
  
       </ul>
     </div>
@@ -291,6 +290,30 @@ newGID  (int) ptcl ID to replace findGID with</dd>
 <dt id="bonds.Bond">
 <em class="property">class </em><code class="descclassname">bonds.</code><code class="descname">Bond</code><span class="sig-paren">(</span><em>pgid1=0</em>, <em>pgid2=0</em>, <em>length=0.0</em>, <em>type='blank'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bonds.html#Bond"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bonds.Bond" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing any 2-point associatiaon of Particle-s</p>
+<dl class="method">
+<dt id="bonds.Bond.get_g_indx">
+<code class="descname">get_g_indx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bonds.html#Bond.get_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bonds.Bond.get_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonds.Bond.get_lmpindx">
+<code class="descname">get_lmpindx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bonds.html#Bond.get_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bonds.Bond.get_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for lammps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonds.Bond.set_g_indx">
+<code class="descname">set_g_indx</code><span class="sig-paren">(</span><em>g_indx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bonds.html#Bond.set_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bonds.Bond.set_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonds.Bond.set_lmpindx">
+<code class="descname">set_lmpindx</code><span class="sig-paren">(</span><em>lmpindx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bonds.html#Bond.set_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bonds.Bond.set_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for lammps</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -364,6 +387,30 @@ by incrementing the maxgid member</p>
 <dt id="angles.Angle">
 <em class="property">class </em><code class="descclassname">angles.</code><code class="descname">Angle</code><span class="sig-paren">(</span><em>pgid1=0</em>, <em>pgid2=0</em>, <em>pgid3=0</em>, <em>theta0=0.0</em>, <em>type='blank'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/angles.html#Angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#angles.Angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing any 3-point associatiaon of Particle-s</p>
+<dl class="method">
+<dt id="angles.Angle.get_g_indx">
+<code class="descname">get_g_indx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/angles.html#Angle.get_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#angles.Angle.get_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="angles.Angle.get_lmpindx">
+<code class="descname">get_lmpindx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/angles.html#Angle.get_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#angles.Angle.get_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for lammps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="angles.Angle.set_g_indx">
+<code class="descname">set_g_indx</code><span class="sig-paren">(</span><em>g_indx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/angles.html#Angle.set_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#angles.Angle.set_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="angles.Angle.set_lmpindx">
+<code class="descname">set_lmpindx</code><span class="sig-paren">(</span><em>lmpindx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/angles.html#Angle.set_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#angles.Angle.set_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for lammps</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -438,6 +485,30 @@ by incrementing the maxgid member</p>
 <dt id="dihedrals.Dihedral">
 <em class="property">class </em><code class="descclassname">dihedrals.</code><code class="descname">Dihedral</code><span class="sig-paren">(</span><em>pgid1=0</em>, <em>pgid2=0</em>, <em>pgid3=0</em>, <em>pgid4=0</em>, <em>theta0=0.0</em>, <em>type='blank'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing any 4-point associatiaon of Particle-s</p>
+<dl class="method">
+<dt id="dihedrals.Dihedral.get_g_indx">
+<code class="descname">get_g_indx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.get_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.get_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dihedrals.Dihedral.get_lmpindx">
+<code class="descname">get_lmpindx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.get_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.get_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type index for lammps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dihedrals.Dihedral.set_g_indx">
+<code class="descname">set_g_indx</code><span class="sig-paren">(</span><em>g_indx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.set_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.set_g_indx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for gromacs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dihedrals.Dihedral.set_lmpindx">
+<code class="descname">set_lmpindx</code><span class="sig-paren">(</span><em>lmpindx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.set_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.set_lmpindx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type index for lammps</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -510,7 +581,7 @@ by incrementing the maxgid member</p>
 <span class="target" id="module-structureContainer"></span><p>Class data structures for atomic data</p>
 <dl class="class">
 <dt id="structureContainer.StructureContainer">
-<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x105ee7830&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x105ee7878&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x105ee78c0&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x105ee7908&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x1057ed680&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x1057ed6c8&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x1057ed710&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x1057ed758&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing a collection of Particles that have associated
 Bond, Angle, Dihedral descriptions</p>
 <p>The contained ParticleContainer object has a special role... this object is a
@@ -628,7 +699,7 @@ particles of which it consists is in the ptclIDList</p>
 <dd><p>Calculate volume</p>
 <dl class="docutils">
 <dt>Method:</dt>
-<dd>Volume = ( v_i x v_j ) dot v_k</dd>
+<dd>Volume = ( v_i x v_j ) . v_k</dd>
 </dl>
 </dd></dl>
 
@@ -1098,7 +1169,6 @@ and input file name</p>
              >previous</a> |</li>
         <li><a href="index.html">home</a>|&nbsp;</li>
         <li><a href="search.html">search</a>|&nbsp;</li>
-       <li><a href="contents.html">documentation </a> &raquo;</li>
  
       </ul>
     </div>

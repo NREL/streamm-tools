@@ -45,7 +45,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -187,8 +186,11 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Destructor, clears object memory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span>
 
 
 <div class="viewcode-block" id="Particle.setTagsDict"><a class="viewcode-back" href="../framework_design.html#particles.Particle.setTagsDict">[docs]</a>    <span class="k">def</span> <span class="nf">setTagsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">td</span><span class="p">):</span>
@@ -273,6 +275,7 @@
             <span class="k">print</span> <span class="s">&quot;Cleaning particle container&quot;</span>
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxgid</span>
 
 
 <div class="viewcode-block" id="ParticleContainer.dump"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePrefix</span><span class="p">):</span>
@@ -621,7 +624,6 @@
              >modules</a> |</li>
         <li><a href="../index.html">home</a>|&nbsp;</li>
         <li><a href="../search.html">search</a>|&nbsp;</li>
-       <li><a href="../contents.html">documentation </a> &raquo;</li>
 
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
