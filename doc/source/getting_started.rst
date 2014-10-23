@@ -19,11 +19,13 @@ The tools repo contains the following directories and files
 
 - AtomicPy      -- legacy python files (converting to src)
 - README.md -- Repo notes
+- config.sh      -- Configuration script that sets PYTHONPATH and other needed environment variables
 - analysis        -- Code for analysis, visualization
 - doc               -- Sphinx documentation and scripts for creating Python API from docstrings
 - examples     -- Examples of using STREAMM tools for specific applications
 - simmod        -- ?
-- src               -- Main classes implementing the STREAMM tools functionality
+- src                -- Main classes implementing the STREAMM tools functionality
+
 
 
 ..  _configure-tools:
@@ -31,6 +33,16 @@ The tools repo contains the following directories and files
 Configure tools
 ============================
 
+The config.sh script is provided to set various environment variables
+and the PYTHONPATH required for the source code modules to run
+correctly. Before using STREAMM tools or running the tests execute ::
+
+    source config.sh
+
+This will set the correct environment for the current terminal
+session. To set permanently, note the output of the script and then
+set in your local environment. A number of packages are required for
+the complete functionality of the STREAMM tools.
 A current list of python module dependencies on the Peregrine cluster
 at NREL (our default test platform) is as follows
 

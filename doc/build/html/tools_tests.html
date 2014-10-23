@@ -106,7 +106,25 @@
 <span id="index-0"></span><h1>Unit tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="running-tests">
 <h2>Running tests<a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
-<p>Run the check.sh script.</p>
+<p>The tests for the STREAMM tools is in a separate Github repository <a class="reference external" href="https://github.nrel.gov/streamm/tools-tests">https://github.nrel.gov/streamm/tools-tests</a> hosted by the National
+Renewable Energy Lab (NREL). The tools repo can be downloaded using the linux command line</p>
+<div class="highlight-python"><div class="highlight"><pre>git clone https://github.nrel.gov:streamm/tools-tests.git
+</pre></div>
+</div>
+<p>If the tools repo has been configured correctly the check.sh script
+can be used to run the units tests. The help info for check.sh is
+output from</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">check</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>To run a particular test</p>
+<div class="highlight-python"><div class="highlight"><pre>check.sh &#39;test-name.py&#39;
+</pre></div>
+</div>
+<p>and to run all tests</p>
+<div class="highlight-python"><div class="highlight"><pre>check.sh all
+</pre></div>
+</div>
 </div>
 <div class="section" id="module-test_particleContainer">
 <span id="test-descriptions"></span><h2>Test descriptions<a class="headerlink" href="#module-test_particleContainer" title="Permalink to this headline">¶</a></h2>
