@@ -52,6 +52,12 @@ class Bond:
         """
         Destructor, clears object memory
         """
+        del self.pgid1
+        del self.pgid2
+        del self.length
+        del self.type
+        del self.lmpindx
+        del self.g_indx 
 
     def __contains__(self, pgid):
         """
@@ -126,6 +132,7 @@ class BondContainer:
         if self.verbose:
             print "Cleaning particle container"
         del self.bonds
+        del self.maxgid
 
 
     def clear(self):

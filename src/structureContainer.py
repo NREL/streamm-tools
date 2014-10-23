@@ -89,6 +89,8 @@ class StructureContainer:
         del self.bondC
         del self.angleC
         del self.dihC
+        del self.boxLengths
+        del self.latvec
 
 
     def __len__(self):

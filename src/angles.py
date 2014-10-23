@@ -58,7 +58,13 @@ class Angle:
         """
         Destructor, clears object memory
         """
-        
+        del self.pgid1
+        del self.pgid2
+        del self.pgid3
+        del self.theta0
+        del self.type
+        del self.lmpindx
+        del self.g_indx
 
     def __contains__(self, pgid):
         """
@@ -136,7 +142,7 @@ class AngleContainer:
         if self.verbose:
             print "Cleaning particle container"
         del self.angles
-
+        del self.maxgid
 
     def clear(self):
         """
@@ -144,6 +150,7 @@ class AngleContainer:
         """
         self.maxgid = 0
         self.angles=dict()                          # Creates empty dict struc
+        
 
     def __len__(self):
         """

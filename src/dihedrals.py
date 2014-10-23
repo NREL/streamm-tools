@@ -67,6 +67,14 @@ class Dihedral:
         """
         Destructor, clears object memory
         """
+        del self.pgid1
+        del self.pgid2 
+        del self.pgid3 
+        del self.pgid4
+        del self.theta0
+        del self.type
+        del self.lmpindx
+        del self.g_indx 
 
     def __contains__(self, pgid):
         """
@@ -146,6 +154,7 @@ class DihedralContainer:
         if self.verbose:
             print "Cleaning particle container"
         del self.dihedrals
+        del self.maxgid
 
 
     def clear(self):

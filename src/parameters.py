@@ -35,7 +35,13 @@ class ljtype:
         """
         Destructor, clears object memory
         """
-
+        del self.ptype1
+        del self.epsilon
+        del self.sigma
+        del self.mass 
+        del self.charge
+        del self.pid
+        del self.ptype 
         
     def __str__(self):
         """
@@ -203,7 +209,13 @@ class bondtype:
         """
         Destructor, clears object memory
         """
-
+        del self.ptype1 
+        del self.ptype2
+        del self.type 
+        del self.r0
+        del self.kb 
+        del self.lmpindx 
+        del self.g_indx 
         
     def __str__(self):
         """
@@ -352,6 +364,14 @@ class angletype:
         """
         Destructor, clears object memory
         """
+        del self.ptype1
+        del self.ptype2 
+        del self.ptype3
+        del self.type
+        del self.theta0
+        del self.kb 
+        del self.lmpindx
+        del self.g_indx 
 
         
     def __str__(self):
@@ -530,6 +550,27 @@ class dihtype:
         """
         Destructor, clears object memory
         """
+        del self.ptype1
+        del self.ptype2 
+        del self.ptype3
+        del self.ptype4
+        del self.type
+        del self.d
+        del self.mult
+        del self.kb
+        del self.theat_s
+        del self.k1
+        del self.k2
+        del self.k3
+        del self.k4
+        del self.C0
+        del self.C1
+        del self.C2
+        del self.C3
+        del self.C4
+        del self.C5
+        del self.lmpindx
+        del self.g_indx 
 
         
     def __str__(self):
@@ -857,6 +898,8 @@ class LJtypesContainer:
         """
         Destructor, clears object memory
         """
+        del self.ljtypes
+        del self.maxgid 
     
     def put(self, ljtyp ):
         """
@@ -911,6 +954,8 @@ class BondtypesContainer:
         """
         Destructor, clears object memory
         """
+        del self.bondtypes
+        del self.maxgid 
     
     def put(self, btyp ):
         """
@@ -966,6 +1011,8 @@ class AngletypesContainer:
         """
         Destructor, clears object memory
         """
+        del self.angletypes
+        del self.maxgid 
     
     def put(self, atyp ):
         """
@@ -1043,6 +1090,8 @@ class DihtypesContainer:
         """
         Destructor, clears object memory
         """
+        del self.dihtypes
+        del self.maxgid 
     
     def put(self, dtyp ):
         """
@@ -1148,5 +1197,10 @@ class ParameterContainer:
         """
         Destructor, clears object memory
         """
+        del self.ljtypC
+        del self.btypC
+        del self.atypC
+        del self.dtypC
+
 
 

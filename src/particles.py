@@ -110,8 +110,11 @@ class Particle:
         """
         Destructor, clears object memory
         """
-        del self.tagsDict
         del self.position
+        del self.type
+        del self.charge
+        del self.mass
+        del self.tagsDict
 
 
     def setTagsDict(self, td):
@@ -196,6 +199,7 @@ class ParticleContainer:
             print "Cleaning particle container"
 
         del self.particles
+        del self.maxgid
 
 
     def dump(self, filePrefix):
