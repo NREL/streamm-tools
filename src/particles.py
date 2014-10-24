@@ -111,6 +111,7 @@ class Particle:
         self.tagsDict["qgroup"] = 0
         self.tagsDict["linkid"] = "??"
         self.tagsDict["gtype"] = 0
+        self.tagsDict["lmptype"] = 0
         self.tagsDict["fftype"] = "??"
         self.tagsDict["symbol"] = "??"
         self.tagsDict["number"] = 0

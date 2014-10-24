@@ -169,8 +169,6 @@ class bondtype:
         self.r0 = 0.0
         self.kb = 0.0 
 
-
-
         # Lammps and gromacs index
         self.lmpindx = 0 
         self.g_indx = 0 

@@ -403,18 +403,29 @@ def read_lmpdata( strucC , parmC , data_file):
                 pt_i.position = r_i
                 pt_i.charge = q_i
                 pt_i.mass = m_i
+
+                # Set properties read in data file 
+                pt_i.tagsDict["chain"] = chain_i
+                pt_i.tagsDict["symbol"] = el.symbol
+                pt_i.tagsDict["number"] = el.number
+                pt_i.tagsDict["mass"] = el.mass
+                pt_i.tagsDict["cov_radii"] = el.cov_radii
+                pt_i.tagsDict["vdw_radii"] = el.vdw_radii
+                pt_i.tagsDict["lmptype"] = lmptype_i
+                
             else:
                 pt_i = Particle( r_i,type_i,q_i,m_i)
+                # Set properties read in data file 
+                pt_i.tagsDict["chain"] = chain_i
+                pt_i.tagsDict["symbol"] = el.symbol
+                pt_i.tagsDict["number"] = el.number
+                pt_i.tagsDict["mass"] = el.mass
+                pt_i.tagsDict["cov_radii"] = el.cov_radii
+                pt_i.tagsDict["vdw_radii"] = el.vdw_radii
+                pt_i.tagsDict["lmptype"] = lmptype_i
                 #pt_i.setTagsDict(tagsD)
                 strucC.ptclC.put(pt_i)
 
-            # Set properties read in data file 
-            pt_i.tagsDict["chain"] = chain_i
-            pt_i.tagsDict["symbol"] = el.symbol
-            pt_i.tagsDict["number"] = el.number
-            pt_i.tagsDict["mass"] = el.mass
-            pt_i.tagsDict["cov_radii"] = el.cov_radii
-            pt_i.tagsDict["vdw_radii"] = el.vdw_radii
         
             if( cnt_Atoms >=  n_atoms ):
                 read_Atoms = 0
@@ -496,7 +507,7 @@ def read_lmpdata( strucC , parmC , data_file):
                 dObj = Dihedral( k_o,i_o, j_o,l_o )
                 dObj.set_lmpindx(int(col[1] ))
                 strucC.dihC.put(dObj)
-            
+                
             if( read_Dihedrals >=  n_dihedrals ):
                 read_Dihedrals = 0
                 
@@ -648,9 +659,10 @@ def write_data(strucC,parmC,data_file):
             fftype_i = ptclObj_o.tagsDict["fftype"]
             chain_i = ptclObj_o.tagsDict["chain"]
             charge_i = ptclObj_o.charge
-            type_indx = int(ptclObj_o.type)
+            #type_indx = int(ptclObj_o.type)
+            lmptype_i = ptclObj_o.tagsDict["lmptype"]
             r_i = ptclObj_o.position 
-            F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,type_indx,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
+            F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
             TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
 
         F.write('\n')
@@ -662,9 +674,7 @@ def write_data(strucC,parmC,data_file):
             #
             AT_i =  strucC.ptclC[ bondObj_o.pgid1 ].tagsDict["fftype"]
             AT_j =  strucC.ptclC[ bondObj_o.pgid2 ].tagsDict["fftype"]
-            #
             b_ind = int(bondObj_o.get_lmpindx())
-            print "bondObj_o.get_lmpindx()", bondObj_o.get_lmpindx()
             #
             F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (b_o,b_ind,bondObj_o.pgid1,bondObj_o.pgid2, AT_i, AT_j ) )
         F.write('\n')

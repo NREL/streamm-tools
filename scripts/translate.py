@@ -140,9 +140,29 @@ def main():
         
         for pid,pt_i in ptclC_o:
             print " p1 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
-        sys.exit("p1")
-    
-    
+            
+        print " bonds o "
+        for b_o, bondObj_o  in struc_o.bondC:
+            print bondObj_o.get_lmpindx(),bondObj_o.pgid1,bondObj_o.pgid2
+            
+        print " angles o "
+        for a_o, angleObj_o in struc_o.angleC:
+            a_k = angleObj_o.pgid1
+            a_i = angleObj_o.pgid2
+            a_j = angleObj_o.pgid3
+            a_ind = int(angleObj_o.get_lmpindx())
+            print a_o,a_ind,a_k,a_i,a_j
+            
+        print " dih o "
+        for d_o,dihObj_o in struc_o.dihC:
+            d_k = dihObj_o.pgid1
+            d_i = dihObj_o.pgid2
+            d_j = dihObj_o.pgid3
+            d_l = dihObj_o.pgid4
+            d_ind = int(dihObj_o.get_lmpindx())
+            print d_o,d_ind,d_k,d_i,d_j,d_l 
+        
+            sys.exit("p1")
     #   
     # Filter particles
     #
@@ -156,9 +176,32 @@ def main():
 
     debug = False
     if( debug):
-        
+        print " particles i "
         for pid,pt_i in ptclC_i:
             print " p2 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
+            
+        print " bonds i ",len(struc_i.bondC)
+        for b_o, bondObj_o  in struc_i.bondC:
+            print bondObj_o.get_lmpindx(),bondObj_o.pgid1,bondObj_o.pgid2
+            
+        print " angles i ",len(struc_i.angleC)
+        for a_o, angleObj_o in struc_i.angleC:
+            a_k = angleObj_o.pgid1
+            a_i = angleObj_o.pgid2
+            a_j = angleObj_o.pgid3
+            a_ind = int(angleObj_o.get_lmpindx())
+            print a_o,a_ind,a_k,a_i,a_j
+            
+        print " dih i ",len(struc_i.dihC)
+        for d_o,dihObj_o in struc_i.dihC:
+            d_k = dihObj_o.pgid1
+            d_i = dihObj_o.pgid2
+            d_j = dihObj_o.pgid3
+            d_l = dihObj_o.pgid4
+            d_ind = int(dihObj_o.get_lmpindx())
+            print d_o,d_ind,d_k,d_i,d_j,d_l 
+        
+            
         sys.exit("p2")
     
     

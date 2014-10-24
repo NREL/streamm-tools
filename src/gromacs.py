@@ -96,10 +96,11 @@ def read_gro(strucC,in_gro):
                 pt_i.position = r_i 
             else:
                 pt_i = Particle( r_i ) 
-                tagsD = {"gtype":g,"resname":resname_i}
-                pt_i.setTagsDict(tagsD)
+                #tagsD = {"gtype":g,"resname":resname_i}
+                #pt_i.setTagsDict(tagsD)
+                pt_i.tagsDict["resname"] =  resname_i
+                pt_i.tagsDict["gtype"] =  g
                 strucC.ptclC.put(pt_i)
-
 
     #        
     # Get lattice vector from last line
@@ -175,9 +176,10 @@ def read_top(strucC, parmC, top_infile):
                     # Compile list of itp files
                     #
                     include_sufix = include_file[-3:]
-                    if( include_sufix == ".itp" ):
+                    if( include_sufix == "itp" ):
                         itp_list.append(include_file)
-                    
+
+                        
                     if( verbose ):
                         print "      Including ",include_file
 
@@ -201,7 +203,8 @@ def read_top(strucC, parmC, top_infile):
     MOLECULETYPE = []
     MOLECULECNT = []
     MOLECULECNT_ID = []
-    MOL_CNT = 0 
+    MOL_CNT = 0
+    ljmixrule = 0 
 
     for line in Lines:
         col = line.split()
@@ -267,8 +270,11 @@ def read_top(strucC, parmC, top_infile):
     AMASS_l = []
 
     BONDS_l = []
+    BONDTYPE_l = []
     ANGLES_l = []
+    ANGLETYPE_l = []
     DIH_l = []
+    DIHTYPE_l = []
 
 
     # atoms 
@@ -309,6 +315,7 @@ def read_top(strucC, parmC, top_infile):
                     read_BONDS = 0
                 elif ( len(col) >= 2 ):
                     BONDS_l.append( [ int(col[0])-1,int(col[1])-1 ] )
+                    BONDTYPE_l.append( int(col[2] ) )
                     BONDS_CNT = BONDS_CNT + 1 
 
 
@@ -318,6 +325,7 @@ def read_top(strucC, parmC, top_infile):
                     read_ANGLES = 0
                 elif ( len(col) >= 2 ):
                     ANGLES_l.append( [int(col[0])-1,int(col[1])-1,int(col[2])-1 ] )
+                    ANGLETYPE_l.append( int(col[3] ) )
                     ANGLES_CNT = ANGLES_CNT + 1 
 
             # Read in dihedrals section to local arrays 
@@ -326,6 +334,7 @@ def read_top(strucC, parmC, top_infile):
                     read_DIH = 0
                 elif ( len(col) >= 2 ):
                     DIH_l.append( [int(col[0])-1,int(col[1])-1,int(col[2])-1,int(col[3])-1 ] )
+                    DIHTYPE_l.append( int(col[4] ) )
                     DIH_CNT = DIH_CNT + 1
             #
             # switch on atoms read in and tack local arrays by molecule number 
@@ -483,6 +492,15 @@ def read_top(strucC, parmC, top_infile):
                 A_CNT += 1
                 m_i = AMASS_l[atom_indx]
                 q_i = CHARGES_l[atom_indx]
+
+                el = pt.getelementWithMass(m_i)
+                if( el.symbol == "VS" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+
+                # HACK !!
+                if(  ATYPE_l[atom_indx].strip() == "LP" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+                
                 if( pt_update ):
                     pt_i = strucC.ptclC[A_CNT+1]
                     if( debug ):
@@ -502,14 +520,6 @@ def read_top(strucC, parmC, top_infile):
                 pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                 pt_i.tagsDict["chain"] = MOL_CNT + 1
                 
-                el = pt.getelementWithMass(m_i)
-                if( el.symbol == "VS" ):
-                    el.symbol = ATYPE_l[atom_indx].strip()
-
-                # HACK !!
-                if(  ATYPE_l[atom_indx].strip() == "LP" ):
-                    el.symbol = ATYPE_l[atom_indx].strip()
-
                 pt_i.tagsDict["symbol"] = el.symbol
                 pt_i.tagsDict["number"] = el.number
                 pt_i.tagsDict["cov_radii"] = el.cov_radii
@@ -531,28 +541,38 @@ def read_top(strucC, parmC, top_infile):
             # Repeat bonds
             N_o = MOL_BONDS_INDEX[id_n] #- 1
             N_f = MOL_BONDS_INDEX[id_n+1] - 1
+
+            debug = False
+            
             if( debug ): print " adding bonds ",N_o,N_f
             if( N_f > N_o ):
                 for bond_indx in range(N_o,N_f+1):
                     BOND_CNT += 1
                     i_o = BONDS_l[bond_indx][0]
                     j_o = BONDS_l[bond_indx][1]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    g_indx = BONDTYPE_l[bond_indx]
 
                     if( bonds_overwrite ):
-                        bondObj = strucC.bondC[BOND_CNT + 1 ]
-                        bondObj.pgid1 = i_o
-                        bondObj.pgid2 = j_o
+                        b_i = strucC.bondC[BOND_CNT + 1 ]
+                        b_i.pgid1 = i_add
+                        b_i.pgid2 = j_o
+                        b_i.set_g_indx(g_indx)
                     else:
-                        b_i = Bond( i_o, j_o )            
+                        b_i = Bond( i_add, j_add )
+                        b_i.set_g_indx(g_indx)
                         strucC.bondC.put(b_i)
                     if( debug ):
-                        print i_o,j_o , " -> ",i_add,j_add
-
+                        print "bonds_overwrite",bonds_overwrite," : ",i_o,j_o , " -> ",i_add,j_add
+                if( debug ):
+                    print " len(strucC.bondC) ",len(strucC.bondC) 
+                    sys.exit(" debug bonds in read top 1" )
+                    
             # Repeat angles
             N_o = MOL_ANGLES_INDEX[id_n] #- 1
             N_f = MOL_ANGLES_INDEX[id_n+1] - 1
+            debug = False 
             if( debug ): print " adding angles ",N_o,N_f
             if( N_f > N_o ):
                 for angle_indx in range(N_o,N_f+1):
@@ -561,22 +581,33 @@ def read_top(strucC, parmC, top_infile):
                     k_o = ANGLES_l[angle_indx][0]
                     i_o = ANGLES_l[angle_indx][1]
                     j_o = ANGLES_l[angle_indx][2]
-                    k_add = REF_N[k_o]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
-
+                    k_add = REF_N[k_o] + 1
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    g_indx = ANGLETYPE_l[angle_indx]
+                    
                     if( angles_overwrite ):
-                        angleObj = strucC.angleC[ANGLE_CNT + 1 ]
-                        angleObj.pgid1 = k_o
-                        angleObj.pgid2 = i_o
-                        angleObj.pgid3 = j_o
+                        angle_i = strucC.angleC[ANGLE_CNT + 1 ]
+                        angle_i.pgid1 = k_add
+                        angle_i.pgid2 = i_add
+                        angle_i.pgid3 = j_add
+                        angle_i.set_g_indx(g_indx)
                     else:
-                        angle_i = Angle( k_o,i_o, j_o )            
+                        angle_i = Angle( k_add,i_add, j_add )            
+                        angle_i.set_g_indx(g_indx)
                         strucC.angleC.put(angle_i)
+                    if( debug ):
+                        print "angles_overwrite",angles_overwrite," : ",k_o,i_o,j_o , " -> ",k_add,i_add,j_add
+                if( debug ):
+                    print " len(strucC.angleC) ",len(strucC.angleC) 
+                    sys.exit(" debug angleC in read top 1" )
+
+                    
 
             # Repeat dihedral
             N_o = MOL_DIH_INDEX[id_n] #- 1
             N_f = MOL_DIH_INDEX[id_n+1] - 1
+            debug = False            
             if( debug ): print " adding dihedral ",N_o,N_f
             if( N_f > N_o ):
                 for dih_indx in range(N_o,N_f+1):
@@ -585,30 +616,40 @@ def read_top(strucC, parmC, top_infile):
                     i_o = DIH_l[dih_indx][1]
                     j_o = DIH_l[dih_indx][2]
                     l_o = DIH_l[dih_indx][3]
-                    k_add = REF_N[k_o]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
-                    l_add = REF_N[l_o]
-
+                    k_add = REF_N[k_o] + 1
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    l_add = REF_N[l_o] + 1
+                    g_indx = DIHTYPE_l[dih_indx]
                     if( dih_overwrite ):
-                        dObj = strucC.dihC[DIH_CNT + 1 ]
-                        dObj.pgid1 = k_o
-                        dObj.pgid2 = i_o
-                        dObj.pgid3 = j_o
-                        dObj.pgid4 = l_o
+                        dih_i = strucC.dihC[DIH_CNT + 1 ]
+                        dih_i.pgid1 = k_add
+                        dih_i.pgid2 = i_add
+                        dih_i.pgid3 = j_add
+                        dih_i.pgid4 = l_add
+                        dih_i.set_g_indx(g_indx)
                     else:
-                        dih_i = Dihedral( k_o,i_o, j_o,l_o )            
+                        dih_i = Dihedral( k_add,i_add, j_add,l_add )            
+                        dih_i.set_g_indx(g_indx)
                         strucC.dihC.put(dih_i)
+                    if( debug ):
+                        print "dih_overwrite",dih_overwrite," : ",k_o,i_o,j_o ,l_o, " -> ",k_add,i_add,j_add,l_add
+                if( debug ):
+                    print " len(strucC.dihC) ",len(strucC.dihC) 
+                    sys.exit(" debug dihC in read top 1" )
 
     if(debug): print " Total atoms ",A_CNT
     MOLPNT.append( A_CNT + 1)
-
-
     #
     # Read in parameters from itp files 
-    # 
+    #
+    debug = False 
     for itp_file in  itp_list:
-        parmC = read_itp( parmC, ff_file, ljmixrule)
+        if( debug ):
+            print " Reading in itp file ",itp_file
+        parmC = read_itp( parmC, itp_file, ljmixrule)
+    if(debug):
+        sys.exit(" debug itp file read in from read top ")
 
     return (strucC,parmC,ljmixrule)
 
@@ -635,6 +676,25 @@ def read_itp( parmC, ff_file, ljmixrule):
     F = open(ff_file , 'r' )
     Lines = F.readlines()
     F.close()
+    #
+    # Get DEFAULTS
+    # 
+    read_DEFAULTS = False
+    for line in Lines:
+        col = line.split()
+        if ( len(col) > 1 ):
+            if( read_DEFAULTS ):
+                if ( len(col) >= 2 ):
+                    if ( col[0][:1] != ';' and  col[0][:1] != '[' ):
+                        ljmixrule = int( col[1] )
+                        # Need to check with ljmixrule found in top
+                        #  if one is found...
+                if ( col[0][:1] == '[' ):
+                    read_DEFAULTS = False
+                    
+            if ( col[0][:1] == '[' and col[1] == 'defaults' ):
+                read_DEFAULTS = True
+
     #
     # Get atom types
     # 
