@@ -104,7 +104,19 @@ class Particle:
         # Tags dictionary. To be set by caller
         self.tagsDict=dict()
         self.tagsDict["type"] = type
-        
+        self.tagsDict["chain"] = 1
+        self.tagsDict["ring"] = 0
+        self.tagsDict["resname"] = "RES" 
+        self.tagsDict["residue"] = 1 
+        self.tagsDict["qgroup"] = 0
+        self.tagsDict["linkid"] = "??"
+        self.tagsDict["gtype"] = 0
+        self.tagsDict["fftype"] = "??"
+        self.tagsDict["symbol"] = "??"
+        self.tagsDict["number"] = 0
+        self.tagsDict["mass"] = self.mass  
+        self.tagsDict["cov_radii"] = 0.0
+        self.tagsDict["vdw_radii"] = 0.0
 
     def __del__(self):
         """

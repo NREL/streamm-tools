@@ -618,11 +618,11 @@ def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_ffty
             
     return search_i
     
-def getstrucC(struc_o, in_json, in_gro , in_top, in_data, in_xmol,xmol_format ):
+def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol,xmol_format ):
     """
     Read in Structure data from simulation output files
     """
-    verbose = False
+    verbose = True
     #
     # Read in json file
     #
@@ -641,13 +641,19 @@ def getstrucC(struc_o, in_json, in_gro , in_top, in_data, in_xmol,xmol_format ):
     #
     if( len(in_top) ):
         if( verbose ): print  "     GROMACS .top file ",in_top
-        struc_o,ljmixrule = gromacs.read_top(struc_o,in_top)
+        struc_o,param_o,ljmixrule = gromacs.read_top(struc_o,param_o,in_top)
+    #
+    # Read in itp file
+    #
+    if( len(in_itp) ):
+        if( verbose ): print  "     - Reading in ",in_itp
+        param_o = gromacs.read_itp(param_o, in_itp, ljmixrule)
     # 
     # Read lammps data file 
     #
     if( len(in_data) ):
         if( verbose ): print  "     LAMMPS data file ",in_data            
-        struc_o = lammps.read_lmpdata(struc_o,in_data)
+        struc_o,param_o = lammps.read_lmpdata(struc_o,param_o,in_data)
     # 
     # Read xmol file 
     #
@@ -665,7 +671,7 @@ def getstrucC(struc_o, in_json, in_gro , in_top, in_data, in_xmol,xmol_format ):
     #
     #a = hoomd_xml.hoomd_xml(sys.argv[1])
 
-    return struc_o
+    return struc_o,param_o
 
 def write_calcinfo(calc_type,loc_dir,job_dir,job_name,status):
     """

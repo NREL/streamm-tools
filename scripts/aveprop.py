@@ -12,6 +12,8 @@ import datetime, sys
 import numpy as np
 
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import mpiNREL,file_io
 import particles 
 
@@ -101,7 +103,10 @@ def aveprop():
         print " Reading in files"
     
     struc_o = StructureContainer()
-    struc_o = file_io.getstrucC(struc_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
+    param_o = ParameterContainer()
+    
+    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data,options.in_xmol,options.xmol_format )
+    #struc_o = file_io.getstrucC(struc_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
     #
     # Get paticle and bond structures
     #

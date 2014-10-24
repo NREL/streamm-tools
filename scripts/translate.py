@@ -41,6 +41,8 @@ def get_options():
     # Need to be added with mdanalysis dependence 
     #parser.add_option("--in_dcd", dest="in_dcd", type="string", default="", help="Input trajectory file in compressed dcd format ")
     #parser.add_option("--in_xtc", dest="in_xtc", type="string", default="", help="Input trajectory file in compressed xtc format ")
+    parser.add_option("--in_xmol", dest="in_xmol", type="string", default="", help="Input xmol file")
+    parser.add_option("--xmol_format", dest="xmol_format", type="string", default="atomic_symb", help="Format of xmol file: atomic_symb - first colum atomic symbols; lammps - first colum particle type atomic symbols will be set to carbon; ")
     parser.add_option("--in_lammpsxyz", dest="in_lammpsxyz", type="string", default="", help="Input lammps xyz file with atoms listed as atom type numbers")
     #
     # Output files 
@@ -124,39 +126,8 @@ def main():
     struc_o = StructureContainer()
     param_o = ParameterContainer()
     
-    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
-    #
-    # Read in json file
-    #
-    if( len(options.in_json) ):
-        if( rank == 0 and options.verbose ):
-            print  "     - Reading in ",options.in_json
-        json_data_i = struc_o.getsys_json(options.in_json)
-    #
-    # Read gro file 
-    #
-    if( len(options.in_gro) ):
-        if( options.verbose ): print  "     GROMACS .gro file ",options.in_gro
-        struc_o = gromacs.read_gro(struc_o,options.in_gro)
-    #
-    # Read in top file
-    #
-    if( len(options.in_top) ):
-        if( options.verbose ): print  "     GROMACS .top file ",options.in_top
-        struc_o,param_o,ljmixrule = gromacs.read_top(struc_o,param_o,lammoptions.in_top)
-    # 
-    # Read lammps data file 
-    #
-    if( len(options.in_data) ):
-        if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
-        struc_o,param_o = lammps.read_lmpdata(struc_o,param_o,options.in_data)
-    #
-    # Read in ff file
-    #
-    if( len(options.itp_file) ):
-        if( options.verbose ): print  "     - Reading in ",options.itp_file
-        param_o = gromacs.read_itp(param_o, options.itp_file, ljmixrule)
-        
+    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data,options.in_xmol,options.xmol_format )
+
     p.barrier()
     #
     # Get paticle and bond structures
@@ -372,8 +343,8 @@ def main():
             gromacs.print_top(struc_i,options.out_top)
 
         #  Write itp file         
-        if( len(options.print_itp) ):
-            if( options.verbose ): print  "     - Writing  ",options.print_itp
+        if( len(options.out_itp) ):
+            if( options.verbose ): print  "     - Writing  ",options.out_itp
             #  !!!! Hack !!! 
             ff_type = "oplsaa"
             gromacs.print_itp(param_o,options.out_itp,ff_type)

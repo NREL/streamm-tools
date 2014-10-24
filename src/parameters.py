@@ -932,6 +932,13 @@ class LJtypesContainer:
         """
         return len(self.ljtypes)
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.ljtypes[gid]
+
 class BondtypesContainer:
     """
     Container for bondtype
@@ -989,6 +996,13 @@ class BondtypesContainer:
         return len(self.bondtypes)
 
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.bondtypes[gid]
+
 class AngletypesContainer:
     """
     Container for angletype 
@@ -1044,6 +1058,12 @@ class AngletypesContainer:
         """
         return len(self.angletypes)
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.angletypes[gid]
 
     def findtype(self,fftype_k,fftype_i,fftype_j):
         """
@@ -1122,6 +1142,12 @@ class DihtypesContainer:
         """
         return len(self.dihtypes)
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.dihtypes[gid]
 
 
     def findtype(self,fftype_k,fftype_i,fftype_j,fftype_l):
