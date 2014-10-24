@@ -31,7 +31,7 @@ def get_options():
     parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file, which read in first then over writen by subsequent input files")
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
-    parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
+    parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="Input gromacs force field parameter file")
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
     parser.add_option("--in_xmol", dest="in_xmol", type="string", default="", help="Input xmol file")
     parser.add_option("--xmol_format", dest="xmol_format", type="string", default="atomic_symb", help="Format of xmol file: atomic_symb - first colum atomic symbols; lammps - first colum particle type atomic symbols will be set to carbon; ")

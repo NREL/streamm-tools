@@ -12,6 +12,8 @@ import datetime
 from string import replace
 
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import particles 
 import mpiNREL, lammps , gromacs , file_io , xmol 
 
@@ -29,14 +31,25 @@ def get_options():
     # json files to act on
     parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file, which read in first then over writen by subsequent input files")
     parser.add_option("-o","--output_id", dest="output_id", default="trans",type="string",help=" prefix for output files  ")
-
+    #
+    # Input files 
+    #
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
-    parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
+    parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="Input gromacs force field parameter file")
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
+    # Need to be added with mdanalysis dependence 
+    #parser.add_option("--in_dcd", dest="in_dcd", type="string", default="", help="Input trajectory file in compressed dcd format ")
+    #parser.add_option("--in_xtc", dest="in_xtc", type="string", default="", help="Input trajectory file in compressed xtc format ")
     parser.add_option("--in_lammpsxyz", dest="in_lammpsxyz", type="string", default="", help="Input lammps xyz file with atoms listed as atom type numbers")
-
+    #
+    # Output files 
+    #
     parser.add_option("--out_data", dest="out_data",type="string",default="",help=" Output Lammps data file ")
+    parser.add_option("--out_top", dest="out_top", type="string", default="", help=" Output gromacs topology file ")
+    parser.add_option("--out_gro", dest="out_gro", type="string", default="", help=" Output gromacs structure file ")
+    parser.add_option("--out_itp", dest="out_itp", type="string", default="", help=" Output gromacs parameter file ")
+    parser.add_option("--out_json", dest="out_json", type="string", default="", help=" Output json file ")
     #
     # xmol output 
     #
@@ -49,35 +62,19 @@ def get_options():
     #
     #
     #
-    parser.add_option("--out_top", dest="out_top", type="string", default="", help=" Output gromacs topology file ")
-    parser.add_option("--out_gro", dest="out_gro", type="string", default="", help=" Output gromacs structure file ")
-    parser.add_option("--out_itp", dest="out_itp", type="string", default="", help=" Output gromacs parameter file ")
-    #
-    # 
-    #
-    parser.add_option("--out_json", dest="out_json", type="string", default="", help=" Output json file ")
     #
     # Filters
     #
     parser.add_option("--id", dest="id", type="string", default="", help=" select atoms of group by number  ")    
     parser.add_option("--symbol", dest="symbol", type="string", default="", help=" select atoms of group by (atomic) symbol   ")    
     parser.add_option("--type", dest="type", type="string", default="", help=" select type  ")    
-    parser.add_option("--chains", dest="chains", type="string", default="", help="select atoms of group by chain number  ")    
+    parser.add_option("--chains", dest="chains", type="string", default="", help="select atoms of group by chain/molecule number  ")    
     parser.add_option("--ring", dest="ring", type="string", default="", help="select atoms of group by particlesn a ring   ")    
     parser.add_option("--resname", dest="resname", type="string", default="", help="select atoms of group by residue name  ")    
     parser.add_option("--residue", dest="residue", type="string", default="", help="select atoms of group by resudue number  ")    
     parser.add_option("--linkid", dest="linkid", type="string", default="", help="select atoms of group by  linkd ")    
     parser.add_option("--fftype", dest="fftype", type="string", default="", help="select atoms of group by force field type  ")
-    parser.add_option("--gtype", dest="gtype", type="string", default="", help="select atoms of group by force field type  ")
-    
-    #parser.add_option("--filter_eln", dest="filter_eln", type="string", default="", help=" filter atoms by atomic number ")
-    #parser.add_option("--filter_fftype", dest="filter_fftype", type="string", default="", help=" filter atoms by force field type ")
-    #parser.add_option("--filter_residue", dest="filter_residue", type="string", default="", help=" filter atoms by residue name ")
-    #parser.add_option("--filter_unit", dest="filter_unit", type="string", default="", help=" filter atoms by unit name ")
-    #parser.add_option("--filter_cord", dest="filter_cord", type="string", default="", help=" filter atoms by cordination ")
-    #parser.add_option("--filter_mol", dest="filter_mol", type="string", default="", help=" filter atoms by molecule number  ")
-    #parser.add_option("--filter_rings", dest="filter_rings", default=False,action="store_true", help="Only print atoms in rings ")
-    
+    parser.add_option("--gtype", dest="gtype", type="string", default="", help="select atoms of group by force field type  ")    
     parser.add_option("--filter_lmptype", dest="filter_lmptype", type="string", default="", help=" filter atoms by lammps type ")
  
     #
@@ -125,8 +122,9 @@ def main():
     #  Initialize blank system 
     # 
     struc_o = StructureContainer()
+    param_o = ParameterContainer()
     
-    #struc_o = file_io.get_strucC( options.in_json, options.in_gro , options.in_top, options.in_data )
+    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
     #
     # Read in json file
     #
@@ -145,21 +143,19 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose ): print  "     GROMACS .top file ",options.in_top
-        struc_o,ljmixrule = gromacs.read_top(struc_o,options.in_top)
+        struc_o,param_o,ljmixrule = gromacs.read_top(struc_o,param_o,lammoptions.in_top)
     # 
     # Read lammps data file 
     #
     if( len(options.in_data) ):
         if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
-        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
-        
+        struc_o,param_o = lammps.read_lmpdata(struc_o,param_o,options.in_data)
     #
     # Read in ff file
     #
     if( len(options.itp_file) ):
-        if( options.verbose ): print  "     - Reading in ",options.itp_file    
-        sys.exit(" option not yet supported ")
-        #FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(options.itp_file)
+        if( options.verbose ): print  "     - Reading in ",options.itp_file
+        param_o = gromacs.read_itp(param_o, options.itp_file, ljmixrule)
         
     p.barrier()
     #
@@ -361,15 +357,26 @@ def main():
         #
         # Output files 
         #
+        #  Write gro file         
         if( len(options.out_gro) ):
             if( options.verbose ): print  "     - Writing  ",options.out_gro
-            dir_id = "./"
-
             #for pid, ptclObj  in struc_i.ptclC:
-            #     ptclObj.tagsDict["gtype"] =  ptclObj.tagsDict["fftype"]  
-            struc_i.write_gro(dir_id,options.out_gro ) # Move out of class
+            #     ptclObj.tagsDict["gtype"] =  ptclObj.tagsDict["fftype"]
+            gromacs.print_gro(struc_i,options.out_gro)
+            #struc_i.write_gro(dir_id,options.out_gro ) # Move out of class
             #gromacs.print_gro(options.out_gro,GTYPE_sys,RESID_sys,RESN_sys,R_sys,LV)
 
+        #  Write top file         
+        if( len(options.out_top) ):
+            if( options.verbose ): print  "     - Writing  ",options.out_top
+            gromacs.print_top(struc_i,options.out_top)
+
+        #  Write itp file         
+        if( len(options.print_itp) ):
+            if( options.verbose ): print  "     - Writing  ",options.print_itp
+            #  !!!! Hack !!! 
+            ff_type = "oplsaa"
+            gromacs.print_itp(param_o,options.out_itp,ff_type)
 
         #  Write xmol file 
         if( len(options.out_xyz) ):
@@ -381,11 +388,9 @@ def main():
         #  Write Lammps data file
         if( len(options.out_data) ):
             if( options.verbose ): print  "     - Writing  ",options.out_data        
-            norm_dihparam = 1
-            struc_i.lmp_writedata(options.out_data,norm_dihparam)
+            lammps.write_data(struc_i,param_o,options.out_data)
 
         # Write json file
-        
         if( len(options.out_json) ):
             if( options.verbose ):
                 print  "     - Writing  ",options.out_json

@@ -12,9 +12,14 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from parameters import ljtype
+from parameters import bondtype
+from parameters import angletype
+from parameters import dihtype
+
 from periodictable import periodictable
 
-def read_lmpdata( strucC , data_file):
+def read_lmpdata( strucC , parmC , data_file):
     """
     Read Lammps data file
 
@@ -254,12 +259,26 @@ def read_lmpdata( strucC , data_file):
             #AT_j = int(col[1])
             b_ind = int( col[0]) - 1
             if( b_ind > n_btypes ):
-                print sys.exit(" Error in data file index of bond parameter exceeds number of bond parameters specified with bond types ")
+                error_line = " Error in data file index of bond parameter exceeds number of bond parameters specified with bond types "
+                sys.exit(error_line)
                 
             BTYPE_REF[b_ind][0] = "??"
             BTYPE_REF[b_ind][1] = "??"
             BONDTYPE_K[b_ind] = float(col[1])
             BONDTYPE_R0[b_ind] = float(col[2])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            lmpindx = int( col[0])
+            kb = float(col[1]) 
+            r0 = float(col[2]) 
+            btype = "harmonic"
+            g_type = 1 
+            btyp_i = bondtype(ptype1,ptype2,btype)
+            btyp_i.setharmonic(r0,kb)
+            btyp_i.set_g_indx(g_type)
+            btyp_i.set_lmpindx(lmpindx)
+            parmC.btypC.put(btyp_i)
             
             if( cnt_Bond_coeff >=  n_btypes ):
                 read_Bond_coeff = 0
@@ -278,6 +297,19 @@ def read_lmpdata( strucC , data_file):
             ANGTYPE_REF[a_ind][2] = "??"
             ANGLETYPE_K[a_ind] = float(col[1])
             ANGLETYPE_R0[a_ind] = float(col[2])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            lmpindx = int( col[0])
+            theta0 = float( col[2] )        # degrees 
+            kb =  float( col[1] ) 
+            atype = "harmonic"
+            atyp_i = angletype(ptype1,ptype2,ptype3,atype)
+            atyp_i.set_g_indx(gfunc_type)
+            atyp_i.set_lmpindx(lmpindx)
+            atyp_i.setharmonic(theta0,kb)
+            parmC.atypC.put(atyp_i)
             
             if( cnt_Angle_coeff >=  n_angtypes ):
                 read_Angle_coeff = 0
@@ -306,6 +338,25 @@ def read_lmpdata( strucC , data_file):
             DIHTYPE_C[d_ind][1] = float(col[2])
             DIHTYPE_C[d_ind][2] = float(col[3])
             DIHTYPE_C[d_ind][3] = float(col[4])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            ptype4 = "??"
+            # Set parameters according to type 
+            gfunc_type = 3 
+            dtype = "opls"
+
+            lmpindx = int( col[0] )
+            k1 =  float( col[1] )
+            k2 =  float( col[2] ) 
+            k3 =  float( col[3] ) 
+            k4 =  float( col[4] )
+            
+            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+            dtyp_i.set_g_indx(gfunc_type)
+            dtyp_i.set_lmpindx(lmpindx)
+            dtyp_i.setopls(k1,k2,k3,k4)
             
             if( cnt_Dihedral_coeff >=  n_dtypes ):
                 read_Dihedral_coeff = 0
@@ -457,7 +508,7 @@ def read_lmpdata( strucC , data_file):
         sys.exit("debug 1 ")
     #
     #      
-    return (strucC)
+    return (strucC,parmC)
 
 
 def write_data(strucC,parmC,data_file):

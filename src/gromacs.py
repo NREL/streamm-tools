@@ -127,7 +127,7 @@ def read_gro(strucC,in_gro):
         
     return strucC
 
-def read_top(strucC, top_infile):
+def read_top(strucC, parmC, top_infile):
     """
     Read in GROMACS topology file
     """
@@ -159,6 +159,7 @@ def read_top(strucC, top_infile):
     # Compile included files into single array
     #
     Lines = []
+    itp_list = []
     for line in top_lines:
         col = line.split()
         if ( len(col) > 1 ):
@@ -170,6 +171,13 @@ def read_top(strucC, top_infile):
                     include_lines = F_inc.readlines()
                     F_inc.close()
 
+                    #
+                    # Compile list of itp files
+                    #
+                    include_sufix = include_file[-3:]
+                    if( include_sufix == ".itp" ):
+                        itp_list.append(include_file)
+                    
                     if( verbose ):
                         print "      Including ",include_file
 
@@ -596,7 +604,13 @@ def read_top(strucC, top_infile):
     MOLPNT.append( A_CNT + 1)
 
 
-    return (strucC,ljmixrule)
+    #
+    # Read in parameters from itp files 
+    # 
+    for itp_file in  itp_list:
+        parmC = read_itp( parmC, ff_file, ljmixrule)
+
+    return (strucC,parmC,ljmixrule)
 
 
 def read_itp( parmC, ff_file, ljmixrule):
