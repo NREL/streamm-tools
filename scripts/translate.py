@@ -185,8 +185,8 @@ def main():
     list_f = ptclC_o.getParticlesWithTags(search_o)
     sum_f = len(list_f)
     struc_i = struc_o.getSubStructure(list_f)
+    # SWS: example of new call struc_i = struc_o.getSubStructure(list_f, particlesOnly=True)
     ptclC_i = struc_i.ptclC
-    # SWS: example of new call ptclC_i = struc_o.getSubParticleContainer(list_f)
 
     debug = False
     if( debug):
@@ -301,9 +301,6 @@ def main():
                                 #    pt_cnt += 1
                                 #    pt_i = struc_i.ptclC[pt_cnt]
                                 #    pt_i.postion =   ptcl_o.postion 
-                                    
-                                    
-                
                                 
                                 if( len(options.out_xmol) ):
                                     # Print xmol 

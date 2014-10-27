@@ -285,7 +285,7 @@ class StructureContainer:
 
 
 
-    def getSubStructure(self, ptclIDList):
+    def getSubStructure(self, ptclIDList, particlesOnly=False):
         """
         Return a new Structure object with partcleID's in input list
         Preserves IDs of particles (and any bonds, angles, dihedrals...)
@@ -293,8 +293,8 @@ class StructureContainer:
         particles of which it consists is in the ptclIDList
 
         Args:
-            ptclIDList (list) global particles ID's for which to return structure
-
+            ptclIDList    (list): global particles ID's for which to return structure
+            particlesOnly (bool): Flag for including ParticleContainer only (executes faster) Default includes any angles, bonds, dihedrals
         Return:
             New StructureContainer() object. IDs in new object are unique
         """
@@ -303,88 +303,63 @@ class StructureContainer:
             print "Error: getSubStructure using non-zero ptcl list on empty container"
             sys.exit(0)
 
-        subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
-
-        bondIDList = self.bondC.keys()           # Get keys of bond container
-        subBonds = BondContainer(bondIDList)     # Intitialize subbond container
-
-        angleIDList = self.angleC.keys()         # Get keys of angle container
-        subAngles = AngleContainer(angleIDList)  # Initialize subangle container
-
-        dihedralIDList = self.dihC.keys()                 # Get keys of dihedral container
-        subDihedrals = DihedralContainer(dihedralIDList)  # Initialize subdihedral container        
-
         # Grab particles from IDlist and put into sub-particle container
+        subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
         for pgid in ptclIDList:
             atom = self.ptclC[pgid]
             subAtoms[pgid] = atom
 
-        # For each bond object in container check that both
-        # particles in bond are in ptcl search list
-        for gid, bondObj in self.bondC:
-            if ( (bondObj.pgid1 in ptclIDList) and \
-                 (bondObj.pgid2 in ptclIDList) ):
-                subBonds[gid] = bondObj
-            else:
-                # Need to remove empty key generated above
-                del subBonds[gid]
+        
+        if (not particlesOnly):
 
-        # For each angle object in container check that both
-        # particles in angle are in ptcl search list
-        for gid, angleObj in self.angleC:
-            if ( (angleObj.pgid1 in ptclIDList) and \
-                 (angleObj.pgid2 in ptclIDList) and \
-                 (angleObj.pgid3 in ptclIDList) ):
-                subAngles[gid] = angleObj
-            else:
-                # Need to remove empty key generated above
-                del subAngles[gid]
+            # For each bond object in container check that both
+            # particles in bond are in ptcl search list
+            bondIDList = self.bondC.keys()             # Get keys of bond container
+            subBonds   = BondContainer(bondIDList)     # Intitialize subbond container
+            for gid, bondObj in self.bondC:
+                if ( (bondObj.pgid1 in ptclIDList) and \
+                     (bondObj.pgid2 in ptclIDList) ):
+                    subBonds[gid] = bondObj
+                else:
+                    # Need to remove empty key generated above
+                    del subBonds[gid]
 
-        # For each dihedral object in container check that both
-        # particles in dihedral are in ptcl search list
-        for gid, dObj in self.dihC:
-            if ( (dObj.pgid1 in ptclIDList) and \
-                 (dObj.pgid2 in ptclIDList) and \
-                 (dObj.pgid3 in ptclIDList) and \
-                 (dObj.pgid4 in ptclIDList) ):
-                subDihedrals[gid] = dObj
-            else:
-                # Need to remove empty key generated above
-                del subDihedrals[gid]
+            # For each angle object in container check that both
+            # particles in angle are in ptcl search list
+            angleIDList = self.angleC.keys()           # Get keys of angle container
+            subAngles   = AngleContainer(angleIDList)  # Initialize subangle container
+            for gid, angleObj in self.angleC:
+                if ( (angleObj.pgid1 in ptclIDList) and \
+                     (angleObj.pgid2 in ptclIDList) and \
+                     (angleObj.pgid3 in ptclIDList) ):
+                    subAngles[gid] = angleObj
+                else:
+                    # Need to remove empty key generated above
+                    del subAngles[gid]
 
-        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
+            # For each dihedral object in container check that both
+            # particles in dihedral are in ptcl search list
+            dihedralIDList = self.dihC.keys()                   # Get keys of dihedral container
+            subDihedrals   = DihedralContainer(dihedralIDList)  # Initialize subdihedral container        
+            for gid, dObj in self.dihC:
+                if ( (dObj.pgid1 in ptclIDList) and \
+                     (dObj.pgid2 in ptclIDList) and \
+                     (dObj.pgid3 in ptclIDList) and \
+                     (dObj.pgid4 in ptclIDList) ):
+                    subDihedrals[gid] = dObj
+                else:
+                    # Need to remove empty key generated above
+                    del subDihedrals[gid]
+
+        else:
+            if self.verbose:
+                print "getSubStructure including only ParticleContainer"
 
 
-
-
-    def getSubParticleContainer(self, ptclIDList):
-        """
-        Return a new ParticleContainer object with partcleID's in input list
-        Preserves IDs of particles.
-
-        Note: this call is considerably faster than getSubStrucutre and should be
-        used when Bond, Angle, Dihedral etc info is not needed
-
-        Args:
-            ptclIDList (list) global particles ID's for which to return structure
-
-        Return:
-            New ParticleContainer() object. IDs in new object are unique
-        """
-
-        if (len(self)==0 and len(ptclIDList)>0):
-            print "Error: getSubStructure using non-zero ptcl list on empty container"
-            sys.exit(0)
-
-        subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
-
-        # Grab particles from IDlist and put into sub-particle container
-        for pgid in ptclIDList:
-            atom = self.ptclC[pgid]
-            subAtoms[pgid] = atom
-
-        return subAtoms
-
+        if (not particlesOnly):
+            return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
+        else:
+            return StructureContainer(subAtoms)
 
 
     def setPtclPositions(self, ptclPosList):
@@ -1045,9 +1020,9 @@ class StructureContainer:
         Args:
           xmol_file    (str) xmol file name
           comment  (str) for comment line 
-          append  (boolean) to append or create a new file 
-        Reutrns
-          null
+          append  (boolean) to append or create a new file
+          
+        Returns: None
         """
         # Open xmol file 
         if(append):
