@@ -186,6 +186,7 @@ def main():
     sum_f = len(list_f)
     struc_i = struc_o.getSubStructure(list_f)
     ptclC_i = struc_i.ptclC
+    # SWS: example of new call ptclC_i = struc_o.getSubParticleContainer(list_f)
 
     debug = False
     if( debug):
@@ -377,6 +378,7 @@ def main():
             comment = " final structure "
             append = False 
             xmol.write(struc_i.ptclC,options.out_xyz,comment,append)
+            xmol.write(struc_i.ptclC,options.out_xyz,comment,append)            
 
         #  Write Lammps data file
         if( len(options.out_data) ):

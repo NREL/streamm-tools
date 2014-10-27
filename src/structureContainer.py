@@ -296,7 +296,7 @@ class StructureContainer:
             ptclIDList (list) global particles ID's for which to return structure
 
         Return:
-            New Structure() object. IDs in new object are unique
+            New StructureContainer() object. IDs in new object are unique
         """
 
         if (len(self)==0 and len(ptclIDList)>0):
@@ -353,6 +353,37 @@ class StructureContainer:
                 del subDihedrals[gid]
 
         return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
+
+
+
+
+    def getSubParticleContainer(self, ptclIDList):
+        """
+        Return a new ParticleContainer object with partcleID's in input list
+        Preserves IDs of particles.
+
+        Note: this call is considerably faster than getSubStrucutre and should be
+        used when Bond, Angle, Dihedral etc info is not needed
+
+        Args:
+            ptclIDList (list) global particles ID's for which to return structure
+
+        Return:
+            New ParticleContainer() object. IDs in new object are unique
+        """
+
+        if (len(self)==0 and len(ptclIDList)>0):
+            print "Error: getSubStructure using non-zero ptcl list on empty container"
+            sys.exit(0)
+
+        subAtoms = ParticleContainer(ptclIDList) # Initial ptcl container w/input IDs
+
+        # Grab particles from IDlist and put into sub-particle container
+        for pgid in ptclIDList:
+            atom = self.ptclC[pgid]
+            subAtoms[pgid] = atom
+
+        return subAtoms
 
 
 
