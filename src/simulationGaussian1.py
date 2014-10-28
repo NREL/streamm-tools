@@ -29,6 +29,8 @@ class SimulationGaussian1(sim.Simulation):
     --Link1-- 
     %chk=acc1_D1_eff_R3R300_A84___n1.chk 
     #P b3lyp td=nstates=12/6-31g(d) geom=check guess=check  pop=full density=current
+
+    NOTE: lc-wpbe removes 'density=current' from input lines
     """
 
     def __init__(self, name, verbose=False):
@@ -85,6 +87,14 @@ class SimulationGaussian1(sim.Simulation):
 
         # Name of PBS template file (assumed to be in location set by base class)
         self.pbsTemplateFile = "donoracceptor.pbs.template"
+
+        # This is a special accuracy setting needed for diffuse basis functions
+        # self.accuracyStr = ""
+        self.accuracyStr = " " + "Integral=(Acc2E=11)"
+        # self.accuracyStr = " " + "Integral=(Acc2E=12)"
+
+        # Default setting calculates excited state density
+        self.excitedCalc = " " + "density=current"
 
 
     def getBareTag(self):
@@ -173,6 +183,11 @@ class SimulationGaussian1(sim.Simulation):
                 sys.exit(3)
             else:
                 self.basisEXT = bsEXT
+
+        # Special settings for certain functionals
+        if fct == 'lc-wpbe':
+            self.excitedCalc = " "
+            print "Special setting for lc-wpbe... removing density=current"
 
 
     def __del__(self):
@@ -301,10 +316,9 @@ class SimulationGaussian1(sim.Simulation):
  
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
-        # paramRunStrRX += " geom=check guess=check  pop=full density=current"
-        paramRunStrRX += " pop=full density=current"
+        paramRunStrRX += " pop=full" + self.excitedCalc + self.accuracyStr
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
-        paramRunStrTD += " geom=check guess=check  pop=full density=current"
+        paramRunStrTD += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
 
         #
         # Open file, write header info
@@ -352,9 +366,9 @@ class SimulationGaussian1(sim.Simulation):
  
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
-        paramRunStrRX += " geom=check guess=check  pop=full density=current"
+        paramRunStrRX += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
-        paramRunStrTD += " geom=check guess=check  pop=full density=current"
+        paramRunStrTD += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
 
         #
         # Open file, write header info
@@ -392,7 +406,7 @@ class SimulationGaussian1(sim.Simulation):
 
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
-        paramRunStrTD += " geom=check guess=check  pop=full density=current"
+        paramRunStrTD += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
 
         #
         # Open file, write header info
