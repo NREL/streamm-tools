@@ -28,6 +28,7 @@ from parameters    import dihtype,  DihtypesContainer
 # Stream modules 
 import lammps , gromacs , xmol
 
+sperator_line = "---------------------------------------------------------------------\n"
 
 
 def file_exists(filename):
@@ -72,7 +73,7 @@ def struc_array_json(struc_array,param_array,json_list):
     return struc_array,param_array
 
 
-def struc_array_gromacs(struc_array,gro_list,top_list):
+def struc_array_gromacs(struc_array,gro_list,top_list,paramC):
 
     """
     Loop over list of gro and top files and place each structure container into a list
@@ -85,7 +86,9 @@ def struc_array_gromacs(struc_array,gro_list,top_list):
       struc_array (list) of structure objects
       
     """
-    import gromacs 
+    import gromacs
+
+    verbose = True
 
     # Read in structure containers from json files 
     if( len(gro_list) > 0  and len(top_list) > 0 ):
@@ -99,13 +102,23 @@ def struc_array_gromacs(struc_array,gro_list,top_list):
 		
                 print " Reading in gro file ",gro_files[g_cnt]," with top file ",top_files[g_cnt]
                 struc_i = StructureContainer()
+                param_i = ParameterContainer()
                 struc_i = gromacs.read_gro(struc_i,gro_files[g_cnt])
-                struc_i,ljmixrule = gromacs.read_top(struc_i,top_files[g_cnt])
-                #struc_i, json_data_i = struc_i.get_gromacs(struc_i, gro_files[g_cnt],top_files[g_cnt])
+                struc_i,param_i,ljmixrule = gromacs.read_top(struc_i,param_i,top_files[g_cnt])
+
+                if( verbose ):
+                    print sperator_line
+                    print sperator_line
+
+                    print " Gromacs read in gro file %s with top file %s "%(gro_files[g_cnt],top_files[g_cnt])
+                    print  struc_i
+                    print param_i
+
+                paramC += param_i
+
 		struc_array.append(struc_i)
 		
-    return struc_array
-
+    return struc_array,paramC
 
 def read_ref(ref_file):
     """
@@ -426,7 +439,6 @@ def getsys_json(strucC,paramC, json_file):
                 pt_i.setTagsDict(tagsD)
                 strucC.ptclC.put(pt_i)
 
-
         else:
             print " No particle structure data "        
 
@@ -519,7 +531,7 @@ def getsys_json(strucC,paramC, json_file):
     
 
 """
-No long used as new functions
+No longer used as new functions
 
 gromacs.read_top
 gromacs.read_gro
@@ -627,9 +639,9 @@ def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol
     # Read in json file
     #
     if( len(in_json) ):
-        if( rank == 0 and verbose ):
+        if(  verbose ):
             print  "     - Reading in ",in_json
-        json_data_i = struc_o.getsys_json(in_json)
+        json_data_i = getsys_json(struc_o,param_o, in_json)
     #
     # Read gro file 
     #

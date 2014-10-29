@@ -496,34 +496,53 @@ def read_top(strucC, parmC, top_infile):
                 el = pt.getelementWithMass(m_i)
                 if( el.symbol == "VS" ):
                     el.symbol = ATYPE_l[atom_indx].strip()
+                    m_i = 0.0 
 
                 # HACK !!
                 if(  ATYPE_l[atom_indx].strip() == "LP" ):
                     el.symbol = ATYPE_l[atom_indx].strip()
+                    m_i = 0.0 
                 
                 if( pt_update ):
                     pt_i = strucC.ptclC[A_CNT+1]
+
+                    pt_i.charge = q_i
+                    pt_i.mass = m_i
+                    pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
+                    pt_i.tagsDict["residue"] = RESN_l[atom_indx]
+                    pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
+                    pt_i.tagsDict["chain"] = MOL_CNT + 1
+
+                    pt_i.tagsDict["symbol"] = el.symbol
+                    pt_i.tagsDict["number"] = el.number
+                    pt_i.tagsDict["cov_radii"] = el.cov_radii
+                    pt_i.tagsDict["vdw_radi"] = el.vdw_radii
+                    
                     if( debug ):
                         print " updating ",A_CNT+1
                 else:
                     r_i = [0.0,0.0,0.0]
                     type_i = "??"
-                    pt_i = Particle( r_i,type_i,m_i,q_i ) 
+                    pt_i = Particle( r_i,type_i,m_i,q_i )
+
+                    pt_i.charge = q_i
+                    pt_i.mass = m_i
+                    pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
+                    pt_i.tagsDict["residue"] = RESN_l[atom_indx]
+                    pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
+                    pt_i.tagsDict["chain"] = MOL_CNT + 1
+
+                    pt_i.tagsDict["symbol"] = el.symbol
+                    pt_i.tagsDict["number"] = el.number
+                    pt_i.tagsDict["cov_radii"] = el.cov_radii
+                    pt_i.tagsDict["vdw_radi"] = el.vdw_radii
+
                     strucC.ptclC.put(pt_i) 
 
-                pt_i.charge = q_i
-                pt_i.mass = m_i
-                pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
-                pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
-                pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
-                pt_i.tagsDict["residue"] = RESN_l[atom_indx]
-                pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
-                pt_i.tagsDict["chain"] = MOL_CNT + 1
-                
-                pt_i.tagsDict["symbol"] = el.symbol
-                pt_i.tagsDict["number"] = el.number
-                pt_i.tagsDict["cov_radii"] = el.cov_radii
-                pt_i.tagsDict["vdw_radi"] = el.vdw_radii
                 #pt_i.tagsDict[""] = el.
 
                 if( debug ):

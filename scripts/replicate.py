@@ -12,13 +12,13 @@ Run Molecular Dynamics simulation at low temperature NVT to get a minimized stru
 from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
-import pbcs
+import pbcs,topology
 import mpiNREL, file_io
 
 import numpy as np 
 import sys , datetime, random, math 
 
-const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
+#const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
 def get_options():
     """
@@ -94,19 +94,21 @@ def main():
     # Read in oligomers
     #   from json files
     oligo_array = []
-    oligo_param_array = []
+    #oligo_param_array = []
+    paramC = ParameterContainer()
+
     #    from gromacs  files
     if( len(options.gro) > 0 ):
-        oligo_array = file_io.struc_array_gromacs(oligo_array,options.gro,options.top)
-
+        oligo_array,paramC = file_io.struc_array_gromacs(oligo_array,options.gro,options.top,paramC)
     # Read in solvents
     #   from json files 
     sol_array = []
     sol_param_array = []
     #   from gromacs  files
     if( len(options.gro) > 0 ):
-        sol_array = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top)
+        sol_array,paramC = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top,paramC)
 
+    
     #
     # Check input
     #
@@ -114,12 +116,15 @@ def main():
         error_line = " data file output not working yet "
         sys.exit(error_line)
 
-    f_rep = StructureContainer()
-    paramC = ParameterContainer()
-    
+    f_rep = StructureContainer()    
     f_new = pbcs.replicate(p,options,oligo_array,sol_array)
-    #f_rep.compressPtclIDs()
+    norm_dihparam = False 
+    paramC_f,f_new  = topology.set_param(f_new,paramC,norm_dihparam)
 
+    #print " Sorted parameters "
+    #print str(paramC_f)
+    #sys.exit("debug 1 ")
+    #f_rep.compressPtclIDs()
     #print " f_new prop "
     #print f_new.ptclC
     #print f_new.bondC
@@ -138,17 +143,17 @@ def main():
 	#file_io.write_json(f_new,paramC,options.dir_id,options.output_id )
 
         # Write gro file 
-        if( options.calc_type == "gromacs" ):
-            path_gro_file = options.dir_id +"/" + options.output_id + ".gro"
-            if( options.verbose ): print  "     - Writing  ",path_gro_file
-            gromacs.print_gro(f_new,path_gro_file)
+        #if( options.calc_type == "gromacs" ):
+        path_gro_file = options.dir_id +"/" + options.output_id + ".gro"
+        if( options.verbose ): print  "     - Writing  ",path_gro_file
+        gromacs.print_gro(f_new,path_gro_file)
             
         
         #  Write Lammps input file
-        if( options.calc_type == "lammps" ):
-            path_data_file = options.dir_id +"/" + options.output_id + ".data"
-            if( options.verbose ): print  "     - Writing  ",path_data_file
-            lammps.write_data(f_new,paramC,path_data_file)
+        #if( options.calc_type == "lammps" ):
+        path_data_file = options.dir_id +"/" + options.output_id + ".data"
+        if( options.verbose ): print  "     - Writing  ",path_data_file
+        lammps.write_data(f_new,paramC,path_data_file)
 
 if __name__=="__main__":
     main()

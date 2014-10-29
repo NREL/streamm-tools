@@ -16,6 +16,8 @@ from periodictable import periodictable
 
 import pbcs, units
 
+sperator_line = "---------------------------------------------------------------------\n"
+
 class StructureContainer:
     """
     Data structure for describing a collection of Particles that have associated
@@ -149,21 +151,26 @@ class StructureContainer:
         """
 
         strucStr =  "\n"
-        strucStr += "************************************* \n"
-        strucStr += " Global parameters: \n"
-        strucStr += "************************************* \n"
-        strucStr += "  Box lengths: \n"
-        strucStr += "      Lx = " + str(self.boxLengths[0]) + "\n"
-        strucStr += "      Ly = " + str(self.boxLengths[1]) + "\n"
-        strucStr += "      Lz = " + str(self.boxLengths[2]) + "\n"
+        strucStr += sperator_line
+        strucStr += "    Structure properties \n"
+        strucStr += sperator_line
+        strucStr += "      Box lengths: \n"
+        strucStr += "        Lx (A) = " + str(self.boxLengths[0]) + "\n"
+        strucStr += "        Ly (A) = " + str(self.boxLengths[1]) + "\n"
+        strucStr += "        Lz (A) = " + str(self.boxLengths[2]) + "\n"
+        strucStr += "      Volume %f  A^3 \n"%self.getVolume()
+        strucStr += "      Mass %f  AMU \n"%self.getTotMass()     
+        strucStr += "      Density %f g/cm^3 \n"%self.getDen()     
+        strucStr += "      Lattice vectors \n"
+        latvec_i = self.get_latvec()
+        strucStr += "        v_i (A)  ( %f , %f , %f ) \n"%(latvec_i[0][0],latvec_i[0][1],latvec_i[0][2])
+        strucStr += "        v_j (A)  ( %f , %f , %f ) \n"%(latvec_i[1][0],latvec_i[1][1],latvec_i[1][2])
+        strucStr += "        v_k (A)  ( %f , %f , %f ) \n"%(latvec_i[2][0],latvec_i[2][1],latvec_i[2][2])
         strucStr += "\n"                                        
-        strucStr += "************************************* \n"
-        strucStr += " Structure contains: \n"
-        strucStr += "************************************* \n"
-        strucStr += str(self.ptclC)
-        strucStr += str(self.bondC)
-        strucStr += str(self.angleC)
-        strucStr += str(self.dihC)
+        strucStr += "      Particles %d \n"%(len(self.ptclC))
+        strucStr += "      Bonds  %d \n"%(len(self.bondC))
+        strucStr += "      Angles %d \n"%(len(self.angleC))
+        strucStr += "      Dihedrals %d \n"%(len(self.dihC))
         return strucStr
 
 
@@ -525,7 +532,7 @@ class StructureContainer:
 
     def getDen(self):
         """
-        Calculate density of system 
+        Calculate density of system in AMU/A^3 and convert to g/cm^3
 
         """
 

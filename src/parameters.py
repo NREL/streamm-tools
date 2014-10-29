@@ -3,6 +3,8 @@ Class data structures force-field parameters
 """
 import copy, sys
 
+sperator_line = "---------------------------------------------------------------------\n"
+
 class ljtype:
     """
     Set of LJ particle parameters 
@@ -898,7 +900,8 @@ class LJtypesContainer:
         """
         del self.ljtypes
         del self.maxgid 
-    
+
+        
     def put(self, ljtyp ):
         """
         Append ljtype object to this container.
@@ -922,7 +925,22 @@ class LJtypesContainer:
         # return iter(self.particles)
         return self.ljtypes.iteritems()
     
+    def __iadd__(self, ljtypC_b ):
+        """
+        'Magic' method to implement the '+=' operator
 
+        Only add parameters for types not already in parameter container 
+        """
+
+        add_param = True
+        for indx_i, Obj_i in ljtypC_b:
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+
+        return self
 
     def __len__(self):
         """
@@ -960,8 +978,25 @@ class BondtypesContainer:
         Destructor, clears object memory
         """
         del self.bondtypes
-        del self.maxgid 
-    
+        del self.maxgid
+        
+    def __iadd__(self, btypC_b ):
+        """
+        'Magic' method to implement the '+=' operator         
+
+        Only add parameters for types not already in parameter container 
+        """
+
+        add_param = True
+        for indx_i, Obj_i in btypC_b:
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
+
     def put(self, btyp ):
         """
         Append bondtype object to this container.
@@ -1025,6 +1060,24 @@ class AngletypesContainer:
         """
         del self.angletypes
         del self.maxgid 
+
+    def __iadd__(self, atypC_b ):
+        """
+        'Magic' method to implement the '+=' operator
+        
+        Only add parameters for types not already in parameter container
+        
+        """
+
+        add_param = True
+        for indx_i, Obj_i in atypC_b:
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
     
     def put(self, atyp ):
         """
@@ -1110,6 +1163,23 @@ class DihtypesContainer:
         """
         del self.dihtypes
         del self.maxgid 
+
+    def __iadd__(self, dtypC_b ):
+        """
+        'Magic' method to implement the '+=' operator         
+        Only add parameters for types not already in parameter container
+        
+        """
+
+        add_param = True
+        for indx_i, Obj_i in dtypC_b:
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 and  Obj_i.ptype4 == Obj_j.ptype4 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
     
     def put(self, dtyp ):
         """
@@ -1225,6 +1295,49 @@ class ParameterContainer:
         del self.btypC
         del self.atypC
         del self.dtypC
+        
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+
+        strucStr =  "\n"
+        strucStr += sperator_line
+        strucStr += "    Parameters \n"
+        strucStr += sperator_line
+        strucStr += "      LJ parameters %d \n"%(len(self.ljtypC))
+        strucStr += "      Bond parameters %d \n"%(len( self.btypC))
+        strucStr += "      Angle parameters %d \n"%(len( self.atypC))
+        strucStr += "      Dihedral parameters %d \n"%(len( self.dtypC))
+        return strucStr
+
+    def __iadd__(self, paramC_b ):
+        """
+        'Magic' method to implement the '+=' operator 
+        
+        """
+        debug = False 
+
+        # Deep copy parameter container
+        #if( len(paramC_b.ljtypC) > 0  ):
+        if( debug):
+
+            print "len(self.ljtypC) 0 ",len(self.ljtypC)
+            print "len(paramC_b.ljtypC)",len(paramC_b.ljtypC)
+            print paramC_b.ljtypC
+
+            for indx_i, Obj_i in self.ljtypC:
+                print " a lj object ",indx_i, Obj_i
+            for indx_i, Obj_i in paramC_b.ljtypC :
+                print " b lj object ",indx_i, Obj_i
 
 
+            print "len(self.ljtypC) 1 ",len(self.ljtypC)
 
+
+        self.ljtypC += copy.deepcopy( paramC_b.ljtypC )
+        self.btypC += copy.deepcopy( paramC_b.btypC )
+        self.atypC += copy.deepcopy( paramC_b.atypC )
+        self.dtypC += copy.deepcopy( paramC_b.dtypC )
+
+        return self

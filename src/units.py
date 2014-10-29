@@ -39,6 +39,7 @@ eV_H = 0.03674931
 
 
 # http://physics.nist.gov/cgi-bin/cuu/Value?na
+# http://physics.nist.gov/cgi-bin/cuu/Value?na
 const_avo = 6.02214129 # x10^23 mol^-1 
 
 

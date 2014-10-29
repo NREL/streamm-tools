@@ -15,7 +15,7 @@ from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
 import particles 
-import mpiNREL, lammps , gromacs , file_io , xmol 
+import mpiNREL, lammps , gromacs , file_io , xmol , topology 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
@@ -124,7 +124,7 @@ def main():
     #  Initialize blank system 
     # 
     struc_o = StructureContainer()
-    param_o = ParameterContainer()
+    param_o = ParameterContainer() 
     
     struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data,options.in_xmol,options.xmol_format )
 
@@ -169,9 +169,16 @@ def main():
     search_o = particles.create_search(options.id,options.type,options.symbol,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype,options.gtype)
     if( rank == 0 ):
         if( options.verbose ): print " Filter input by ",search_o
-    list_f = ptclC_o.getParticlesWithTags(search_o)
-    sum_f = len(list_f)
-    struc_i = struc_o.getSubStructure(list_f)
+
+    if( len(search_o) > 0 ):
+        list_f = ptclC_o.getParticlesWithTags(search_o)
+        sum_f = len(list_f)
+        struc_i = struc_o.getSubStructure(list_f)
+        
+    else:
+        struc_i = struc_o
+        sum_f =  len(struc_i.ptclC)
+        
     ptclC_i = struc_i.ptclC
 
     debug = False
@@ -203,6 +210,7 @@ def main():
         
             
         sys.exit("p2")
+
     
     
     #
@@ -225,7 +233,7 @@ def main():
     #
     if( rank == 0 ):
          # Print initial structure properties
-        sys_prop = struc_o.printprop()
+        sys_prop = str( struc_o )
         print sys_prop
         log_out.write(str(sys_prop))
 
@@ -366,11 +374,21 @@ def main():
                             print log_line
 
                 
+
+    #
+    #  Find new parameter set for new structure
+    #
+    norm_dihparam = False 
+    param_i,struc_i  = topology.set_param(struc_i,param_o,norm_dihparam)
         
     if( rank == 0 ):
         #
         # Output files 
         #
+        prop_struc_i = str(struc_i)
+        prop_param_i = str(param_i)
+        print prop_struc_i
+        print prop_param_i
         #  Write gro file         
         if( len(options.out_gro) ):
             if( options.verbose ): print  "     - Writing  ",options.out_gro
@@ -390,7 +408,7 @@ def main():
             if( options.verbose ): print  "     - Writing  ",options.out_itp
             #  !!!! Hack !!! 
             ff_type = "oplsaa"
-            gromacs.print_itp(param_o,options.out_itp,ff_type)
+            gromacs.print_itp(param_i,options.out_itp,ff_type)
 
         #  Write xmol file 
         if( len(options.out_xyz) ):
@@ -402,7 +420,7 @@ def main():
         #  Write Lammps data file
         if( len(options.out_data) ):
             if( options.verbose ): print  "     - Writing  ",options.out_data        
-            lammps.write_data(struc_i,param_o,options.out_data)
+            lammps.write_data(struc_i,param_i,options.out_data)
 
         # Write json file
         if( len(options.out_json) ):

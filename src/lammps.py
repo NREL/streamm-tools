@@ -321,6 +321,7 @@ def read_lmpdata( strucC , parmC , data_file):
             theta0 = float( col[2] )        # degrees 
             kb =  float( col[1] ) 
             atype = "harmonic"
+            gfunc_type = 1
             atyp_i = angletype(ptype1,ptype2,ptype3,atype)
             atyp_i.set_g_indx(gfunc_type)
             atyp_i.set_lmpindx(lmpindx)
@@ -330,7 +331,6 @@ def read_lmpdata( strucC , parmC , data_file):
             if( cnt_Angle_coeff >=  n_angtypes ):
                 read_Angle_coeff = 0
                 
-        
         
         if( read_Dihedral_coeff and  len(col) >= 3 ):
             cnt_Dihedral_coeff += 1

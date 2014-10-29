@@ -117,7 +117,7 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     return strucC,cov_nblist, cov_nbindx
 
 
-def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
+def set_param(struc_o,param_all,norm_dihparam):
     """
     Set force-field parameters
     """
