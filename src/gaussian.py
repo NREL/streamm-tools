@@ -51,9 +51,10 @@ def read_fchk(strucC,fchk_file):
     read_r = False
     read_eln = False
     read_esp = False
+    line_cnt = 0 
     for line in Lines :
         col = line.split()
-
+        line_cnt += 1
         if( read_r ):
 
             if (  col[0] == "Force" and col[1] == "Field" ):
@@ -139,8 +140,12 @@ def read_fchk(strucC,fchk_file):
             if( col[0] == "ESP" and col[1] == "Charges"   ):
                 read_esp = True
                 esp_p_cnt = 0
+        if( line_cnt == 2 ):
+            calctype = col[0].strip()
+            method = col[1].strip()
+            basis = col[2].strip()
 
-    return strucC,TOTAL_ENERGY
+    return strucC,TOTAL_ENERGY,calctype,method,basis
 
     
 def get_dih_id( zmatrix ):
