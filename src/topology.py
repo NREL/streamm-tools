@@ -149,7 +149,12 @@ def set_param(struc_o,param_all,norm_dihparam):
     btypC_p =  paramC_p.btypC
     atypC_p =  paramC_p.atypC
     dtypC_p =  paramC_p.dtypC
-    
+    #
+    paramC_p.set_nbfunc( param_all.get_nbfunc() )
+    paramC_p.set_combmixrule( param_all.get_combmixrule() )
+    paramC_p.set_genpairs( param_all.get_genpairs() )
+    paramC_p.set_fudgeLJ( param_all.get_fudgeLJ() )
+    paramC_p.set_fudgeQQ( param_all.get_fudgeQQ() )
     #
     # Count atom types
     #
@@ -163,6 +168,7 @@ def set_param(struc_o,param_all,norm_dihparam):
             if( fftype_i == ljObj_p.ptype1 ):
                 new_type = False
                 ptclObj_o.type = str(lj_p)
+                ptclObj_o.tagsDict["lmptype"] = lj_p
                 if(debug): print ' maches previous ', lj_p,ljObj_p.ptype1
                 
         if( new_type ):
@@ -170,6 +176,7 @@ def set_param(struc_o,param_all,norm_dihparam):
             cnt_check = 0
             type_found = False 
             ptclObj_o.type = str(lj_p+1)
+            ptclObj_o.tagsDict["lmptype"] = lj_p+1
             for lj_all, ljObj_all  in ljtypC_all:
                 if( fftype_i == ljObj_all.ptype1):
                     cnt_check += 1
@@ -179,6 +186,7 @@ def set_param(struc_o,param_all,norm_dihparam):
                     #   This is need for some force-field input files (LAMMPS)
                     ljObj_all.setpid( ptclObj_o.tagsDict["number"] )
                     ljObj_all.setmass( mass_i )
+                    
                     ljtypC_p.put(ljObj_all)
                     type_found = False 
                     
@@ -189,8 +197,6 @@ def set_param(struc_o,param_all,norm_dihparam):
             elif( cnt_check > 1 ):
                 print " Multiple LJ parameters were found for atom type %s ",fftype_i
                 #raise TypeError
-                    
-
     #
     # Count bonds types
     #

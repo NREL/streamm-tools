@@ -229,7 +229,12 @@ def read_top(strucC, parmC, top_infile):
             if( read_DEFAULTS ):
                 if ( len(col) >= 2 ):
                     if ( col[0][:1] != ';' and  col[0][:1] != '[' ):
-                        ljmixrule = int( col[1] )
+                        parmC.set_nbfunc( int( col[0] ) )
+                        parmC.set_combmixrule( int( col[1] ) )
+                        parmC.set_genpairs( str( col[2] ) )
+                        parmC.set_fudgeLJ( float( col[3] ) )
+                        parmC.set_fudgeQQ( float( col[4] ) )
+                        
                 if ( col[0][:1] == '[' ):
                     read_DEFAULTS = 0
                     
@@ -666,14 +671,14 @@ def read_top(strucC, parmC, top_infile):
     for itp_file in  itp_list:
         if( debug ):
             print " Reading in itp file ",itp_file
-        parmC = read_itp( parmC, itp_file, ljmixrule)
+        parmC = read_itp( parmC, itp_file)
     if(debug):
         sys.exit(" debug itp file read in from read top ")
 
-    return (strucC,parmC,ljmixrule)
+    return (strucC,parmC)
 
 
-def read_itp( parmC, ff_file, ljmixrule):
+def read_itp(parmC,ff_file):
     """
     Read a gromacs paramter file
 
@@ -705,7 +710,11 @@ def read_itp( parmC, ff_file, ljmixrule):
             if( read_DEFAULTS ):
                 if ( len(col) >= 2 ):
                     if ( col[0][:1] != ';' and  col[0][:1] != '[' ):
-                        ljmixrule = int( col[1] )
+                        parmC.set_nbfunc( int( col[0] ) )
+                        parmC.set_combmixrule( int( col[1] ) )
+                        parmC.set_genpairs( str( col[2] ) )
+                        parmC.set_fudgeLJ( float( col[3] ) )
+                        parmC.set_fudgeQQ( float( col[4] ) )
                         # Need to check with ljmixrule found in top
                         #  if one is found...
                 if ( col[0][:1] == '[' ):
@@ -735,17 +744,17 @@ def read_itp( parmC, ff_file, ljmixrule):
                         mass_i = float( col[2] )
                         g_sig = float(col[5])
                         g_ep  = float(col[6])
-                        if( ljmixrule == 2 or ljmixrule == 3 ):
+                        if(  parmC.get_combmixrule() == 2 or parmC.get_combmixrule() == 3 ):
                             sigma = units.convert_nm_angstroms(g_sig)
                             epsilon = units.convert_kJmol_kcalmol(g_ep)
                         else:
-                            print "uknown mixing rule for LJ parameters "
-                            sys.exit(" error")
+                            print "uknown mixing rule for combmixrule "
+                            sys.exit(" error ")
 
                         ljtyp_i.setmass(mass_i)
                         ljtyp_i.setparam(epsilon,sigma)
                         parmC.ljtypC.put(ljtyp_i)
-                        #print btyp_i
+                        # print btyp_i
     if( debug):
         print " LJ paramters have been read in "
         for  ljid, ljtypObj in parmC.ljtypC:
@@ -848,11 +857,11 @@ def read_itp( parmC, ff_file, ljmixrule):
                         # Set parameters according to type 
                         gfunc_type = int( col[4] )                    # Gromacs id
 
-                        if( gfunc_type == 1 or gfunc_type == 4 ):
+                        if( gfunc_type == 1 or gfunc_type == 9 ):
                             theat_s = float( col[5] )
                             kb = units.convert_kJmol_kcalmol( float( col[6] ) )
                             mult = float( col[7] )
-                            dtype = "harmonic"
+                            dtype = "multiharmonic"
                             # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
 
 
@@ -881,12 +890,11 @@ def read_itp( parmC, ff_file, ljmixrule):
                             dtype = "opls"
                             # opls function
                             
-                        elif( gfunc_type == 9 ):
+                        elif( gfunc_type == 4 ):
                             theat_s = float( col[5] )
                             kb = units.convert_kJmol_kcalmol( float( col[6] ) )
                             mult = float( col[7] )
-                            dtype = "multiharmonic"
-
+                            dtype = "periodicimproper"
                         else:
                             print " unknow dihedral type ",gfunc_type
                             raise TypeError
@@ -895,8 +903,7 @@ def read_itp( parmC, ff_file, ljmixrule):
                         dtyp_i.set_g_indx(gfunc_type)
 
                         if( gfunc_type == 1 or  gfunc_type == 9  ):
-                            d = 1.0 
-                            dtyp_i.setharmonic(d, mult, kb,theat_s)
+                            dtyp_i.setharmonic( mult, kb,theat_s)
 
                         if( gfunc_type == 2 ):
                             dtyp_i.setimp(e0,ke) 
@@ -965,6 +972,7 @@ def print_top(strucC,top_file):
     F.write( ' MOL           3 \n')
     F.write('\n')
     F.write( '[ atoms ] \n' )
+    F.write( '; name      at.num  mass     charge ptype  sigma      epsilon \n')
     TOTAL_CHARGE = 0.0
 
     for pid, ptclObj  in strucC.ptclC:
@@ -978,6 +986,7 @@ def print_top(strucC,top_file):
     # write bonds
     #
     F.write( ' [ bonds ] \n' )
+    F.write( '; i    j  func       b0          kb \n')    
     print len(strucC.bondC) , ' number of bonds'
     for b_o, bondObj_o  in strucC.bondC:
         pid_i = bondObj_o.pgid1
@@ -989,6 +998,7 @@ def print_top(strucC,top_file):
     # write angles
     #
     F.write( ' [ angles ] \n' )
+    F.write( ';  i    j    k  func       th0       cth \n' )
     print len(strucC.angleC)-1 , ' number of angles'
     for a_o,angleObj_o in strucC.angleC:
         pid_k = angleObj_o.pgid1
@@ -1001,8 +1011,8 @@ def print_top(strucC,top_file):
     # write dihedrals
     #
     debug = 0
-    line = str( '[ dihedrals ]' )
-    F.write( line + '\n' )        
+    F.write(  ' [ dihedrals ] \n' )        
+    F.write(  ';i   j   k   l	   func	 \n' )
     print len(strucC.dihC), ' number of dihedrals '
     for d_o,dihObj_o in strucC.dihC:
         pid_k = dihObj_o.pgid1
@@ -1029,7 +1039,7 @@ def print_top(strucC,top_file):
     F.close()
 
 
-def print_itp(paramC,itp_file,ff_type):
+def print_itp(paramC,itp_file):
     """"
     Write gromacs parameter file
     """
@@ -1038,29 +1048,17 @@ def print_itp(paramC,itp_file,ff_type):
     F.write(';  new ff parameters \n')
     F.write(' \n ')
     
-    if( ff_type == "oplsaa" ):
-            
-        nbfunc = 1
-        ljmixrule = 3
-        genpairs = "yes"
-        fudgeLJ = 0.5
-        fudgeQQ = 0.5
-        
-    elif( ff_type == "amber" ):
-
-        nbfunc = 1
-        ljmixrule = 2
-        genpairs = "yes"
-        fudgeLJ = 0.5
-        fudgeQQ = 0.8333
-        
-    else:
-        print " force-field type unknown  "
-
     
     F.write(' \n [ defaults ] ')
     F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
-    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,ljmixrule,genpairs,fudgeLJ,fudgeQQ  ))
+    nbfunc = paramC.get_nbfunc()
+    combmixrule =  paramC.get_combmixrule()
+    genpairs =  paramC.get_genpairs()
+    fudgeLJ =  paramC.get_fudgeLJ()
+    fudgeQQ =  paramC.get_fudgeQQ()
+
+    
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combmixrule,genpairs,fudgeLJ,fudgeQQ  ))
     F.write(' \n ')
     F.write(' \n ')
 
@@ -1132,8 +1130,7 @@ def print_itp(paramC,itp_file,ff_type):
             Clist = []
             for Cindx in Clist_kcalmol:
                 Clist.append( units.convert_kcalmol_kJmol(Cindx))
-                
-            out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Cindx[0],Cindx[1],Cindx[2],Cindx[3],Cindx[4],Cindx[5])            
+            out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Clist[0],Clist[1],Clist[2],Clist[3],Clist[4],Clist[5])            
         else:
             print "  unknown gromacs angle type index  ",g_type
             sys.exit(" error in printing itp file ")

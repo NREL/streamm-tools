@@ -23,11 +23,12 @@ def read_lmpdata( strucC , parmC , data_file):
     """
     Read Lammps data file
 
+
     Arguments:
         strucC     (StructureContainer)
         parmC      (ParameterContainer)
         data_file  (str) data file
-
+    
     ReturnS:
         strucC     (StructureContainer)
         parmC      (ParameterContainer)
@@ -39,7 +40,6 @@ def read_lmpdata( strucC , parmC , data_file):
     
     debug = 0
     verbose = True
-
 
     # Load periodic table 
     pt = periodictable()
@@ -636,18 +636,38 @@ def write_data(strucC,parmC,data_file):
         F.write(' Dihedral Coeffs \n')
         F.write('\n')
         for dtyp_p, dtypObj_p  in parmC.dtypC:    
-            if( dtypObj_p.get_type() == "harmonic"):
-                F.write( "%10d %12.6f %12.6f  %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,dtypObj_p.get_d(),dtypObj_p.get_kb(),dtypObj_p.get_mult(), dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
-            if( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
+            if( dtypObj_p.get_type() == "multiharmonic"):
+                # K = K[1+d cons(n theta)]
+                d = dtypObj_p.get_theat_s()
+                K = dtypObj_p.get_kb()
+                n = dtypObj_p.get_mult()
+                w = 1.0 # Weight 
+                F.write( "%10d %12.6f %d  %d %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,K,n,d,w, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+            elif( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
                 # Get opls parameters
                 klist = dtypObj_p.get_oplsklist()
                 F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+            elif( dtypObj_p.get_type() == "improper"):
+                error_line = " Will print improper later "
+            else:
+                error_line = " Unknow dihedral type %s "%(dtypObj_p.get_type() )
+                sys.exit(error_line)
+
 
         F.write('\n')
     
+    
     F.write(' Improper Coeffs \n')
-    F.write('\n 1   0.0 0.0 ')
     F.write('\n')
+    if( len(parmC.dtypC) > 0 ):
+        for dtyp_p, dtypObj_p  in parmC.dtypC:    
+            if( dtypObj_p.get_type() == "improper"):
+                e0,ke = dtypObj_p.getimp()
+                F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,ke,e0, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+    #else:
+    F.write( "    1 0.0 0.0  \n")
+
+        
     F.write('\n')
     # Write Particles
     if( len(strucC.ptclC) > 0 ):

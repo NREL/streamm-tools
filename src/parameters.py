@@ -32,6 +32,7 @@ class ljtype:
         self.charge = 0.0 
         self.pid = 0
         self.ptype = "A"  # atomic
+        self.lmpindx = 0
 
     def __del__(self):
         """
@@ -132,7 +133,7 @@ class ljtype:
         Return sigma of LJ particle
         """
         return self.sigma
-        
+
 
 class bondtype:
     """
@@ -592,42 +593,37 @@ class dihtype:
         return strucStr
 
 
-    def setharmonic(self, d, mult, kb,theat_s):
+    def setharmonic(self, mult, kb,theat_s):
         """
-        set Harmonic parameters
+        set MultiHarmonic parameters
+        dihedral_style charmm
 
-        E = kb[ 1 - d cos( mult theta - theat_s ) ]
+        E = kb[ 1 - cos( mult theta - theat_s ) ]  gromacs
+        E = kb[ 1 - cos( n theta - d ) ]           lammps 
 
         Args:
-            d     (float) 
             mult     (float) 
             kb     (float) force constant    kcal/mol
             theat_s     (float) angle degrees 
         """
 
-        if isinstance(d, float):
-            self.d = d
-        else:
-            print "1st arg should be float"
-            raise TypeError
-
         if isinstance(kb, float):
             self.kb = kb
         else:
-            print "2nd arg should be float"
+            print "1nd arg kb should be float"
             raise TypeError
 
         if isinstance(mult, float):
             self.mult = mult
         else:
-            print "3rd arg should be float"
+            print "2rd arg mult should be float"
             raise TypeError
 
 
         if isinstance(theat_s, float):
             self.theat_s = theat_s
         else:
-            print "4th arg should be float"
+            print "3th arg theat_s should be float"
             raise TypeError
 
 
@@ -850,12 +846,6 @@ class dihtype:
         Return dih theat_s
         """
         return self.theat_s
-
-    def get_d(self):
-        """
-        Return dih d
-        """
-        return self.d
 
     def get_kb(self):
         """
@@ -1285,7 +1275,14 @@ class ParameterContainer:
         else:
             print "4th arg should be a DihtypesContainer object"
             raise TypeError
-
+        #
+        # Set defaults 
+        #
+        self.nbfunc = 1      # Use 1 (Lennard-Jones) or 2 (Buckingham)
+        self.combmixrule = 3   # 1 or 3  - geometric; 2 - arithmetic
+        self.genpairs = "yes"  # generates 1-4 parameters that are not present in the pair list 
+        self.fudgeLJ = 1.0   # the factor by which to multiply Lennard-Jones 1-4 interactions, default 1
+        self.fudgeQQ = 1.0   # the factor by which to multiply electrostatic 1-4 interactions, default 1
         
     def __del__(self):
         """
@@ -1341,3 +1338,87 @@ class ParameterContainer:
         self.dtypC += copy.deepcopy( paramC_b.dtypC )
 
         return self
+
+    def set_nbfunc(self,nbfunc):
+        '''
+        Set nbfunc
+        '''
+        if isinstance(nbfunc, int):
+            self.nbfunc = nbfunc
+        else:
+            print "1st arg should be int"
+            raise TypeError
+                
+    def get_nbfunc(self):
+        '''
+        Get nbfunc
+        '''
+        return self.nbfunc 
+
+
+    def set_combmixrule(self,combmixrule):
+        '''
+        Set combmixrule
+        '''
+        if isinstance(combmixrule, int):
+            self.combmixrule = combmixrule
+        else:
+            print "1st arg should be int"
+            raise TypeError
+                
+    def get_combmixrule(self):
+        '''
+        Get combmixrule
+        '''
+        return self.combmixrule 
+
+
+    def set_genpairs(self,genpairs):
+        '''
+        Set genpairs
+        '''
+        if isinstance(genpairs, str):
+            self.genpairs = genpairs
+        else:
+            print "1st arg should be str"
+            raise TypeError
+                
+    def get_genpairs(self):
+        '''
+        Get genpairs
+        '''
+        return self.genpairs 
+
+
+    def set_fudgeLJ(self,fudgeLJ):
+        '''
+        Set fudgeLJ
+        '''
+        if isinstance(fudgeLJ, float):
+            self.fudgeLJ = fudgeLJ
+        else:
+            print "1st arg should be float"
+            raise TypeError
+                
+    def get_fudgeLJ(self):
+        '''
+        Get fudgeLJ
+        '''
+        return self.fudgeLJ 
+
+
+    def set_fudgeQQ(self,fudgeQQ):
+        '''
+        Set fudgeQQ
+        '''
+        if isinstance(fudgeQQ, float):
+            self.fudgeQQ = fudgeQQ
+        else:
+            print "1st arg should be float"
+            raise TypeError
+                
+    def get_fudgeQQ(self):
+        '''
+        Get fudgeQQ
+        '''
+        return self.fudgeQQ 

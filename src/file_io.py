@@ -104,7 +104,7 @@ def struc_array_gromacs(struc_array,gro_list,top_list,paramC):
                 struc_i = StructureContainer()
                 param_i = ParameterContainer()
                 struc_i = gromacs.read_gro(struc_i,gro_files[g_cnt])
-                struc_i,param_i,ljmixrule = gromacs.read_top(struc_i,param_i,top_files[g_cnt])
+                struc_i,param_i = gromacs.read_top(struc_i,param_i,top_files[g_cnt])
 
                 if( verbose ):
                     print sperator_line
@@ -653,7 +653,7 @@ def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol
     #
     if( len(in_top) ):
         if( verbose ): print  "     GROMACS .top file ",in_top
-        struc_o,param_o,ljmixrule = gromacs.read_top(struc_o,param_o,in_top)
+        struc_o,param_o = gromacs.read_top(struc_o,param_o,in_top)
     #
     # Read in itp file
     #

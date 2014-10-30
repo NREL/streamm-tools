@@ -187,9 +187,9 @@ def convert_kb_g_bond(g_kb):
 def convert_g_angle_kb(g_ka):
     """
     convert gromacs harmonic angle parameter in
-       2.0 kJ/mol
+       1/2.0 K kJ/mol/radina^2
     to general angle parameter defined by lammps
-       kcal/mol 
+       kcal/mol /radina^2
     """
     return g_ka*kJmol_kcalmol/2.0
 
@@ -197,9 +197,9 @@ def convert_g_angle_kb(g_ka):
 def convert_kb_g_angle(g_ka):
     """
     convert to gromacs harmonic angle parameter in
-       2.0 kJ/mol
+        1/2.0 K kJ/mol/radina^2
     from general angle parameter defined by lammps
-       kcal/mol 
+        kcal/mol /radina^2
     """
     return g_ka/kJmol_kcalmol*2.0
 
