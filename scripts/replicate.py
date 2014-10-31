@@ -121,11 +121,19 @@ def main():
         error_line = " data file output not working yet "
         sys.exit(error_line)
 
+    # Check to make sure all the interactions have parameters  
     norm_dihparam = False 
     paramC_f,strC_i  = topology.set_param(strC_i,paramC,norm_dihparam)
 
     f_rep = StructureContainer()    
     f_new = pbcs.replicate(p,options,oligo_array,sol_array)
+
+    # Label all the interactions according to their interaction type
+    #   for lammps input
+    #   this should be done pre replication then passed to each copy
+    norm_dihparam = False 
+    paramC_f,f_new  = topology.set_param(f_new,paramC,norm_dihparam)
+
 
     #print " Sorted parameters "
     #print str(paramC_f)
