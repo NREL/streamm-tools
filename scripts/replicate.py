@@ -97,9 +97,12 @@ def main():
     #oligo_param_array = []
     paramC = ParameterContainer()
 
+    strC_i = StructureContainer()  
     #    from gromacs  files
     if( len(options.gro) > 0 ):
         oligo_array,paramC = file_io.struc_array_gromacs(oligo_array,options.gro,options.top,paramC)
+        for strC_j in oligo_array:
+            strC_i += strC_j
     # Read in solvents
     #   from json files 
     sol_array = []
@@ -107,6 +110,8 @@ def main():
     #   from gromacs  files
     if( len(options.gro) > 0 ):
         sol_array,paramC = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top,paramC)
+        for strC_j in sol_array:
+            strC_i += strC_j
 
     
     #
@@ -116,10 +121,11 @@ def main():
         error_line = " data file output not working yet "
         sys.exit(error_line)
 
+    norm_dihparam = False 
+    paramC_f,strC_i  = topology.set_param(strC_i,paramC,norm_dihparam)
+
     f_rep = StructureContainer()    
     f_new = pbcs.replicate(p,options,oligo_array,sol_array)
-    norm_dihparam = False 
-    paramC_f,f_new  = topology.set_param(f_new,paramC,norm_dihparam)
 
     #print " Sorted parameters "
     #print str(paramC_f)

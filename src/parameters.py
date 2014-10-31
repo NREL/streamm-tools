@@ -922,14 +922,15 @@ class LJtypesContainer:
         Only add parameters for types not already in parameter container 
         """
 
-        add_param = True
         for indx_i, Obj_i in ljtypC_b:
+            add_param = True
             for indx_j, Obj_j in self:
                 if( Obj_i.ptype1 == Obj_j.ptype1 ):
                     add_param = False
             if( add_param ):
                 self.put(Obj_i)
-
+                
+                
         return self
 
     def __len__(self):
@@ -977,8 +978,8 @@ class BondtypesContainer:
         Only add parameters for types not already in parameter container 
         """
 
-        add_param = True
         for indx_i, Obj_i in btypC_b:
+            add_param = True
             for indx_j, Obj_j in self:
                 if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 ):
                     add_param = False
@@ -1059,8 +1060,8 @@ class AngletypesContainer:
         
         """
 
-        add_param = True
         for indx_i, Obj_i in atypC_b:
+            add_param = True
             for indx_j, Obj_j in self:
                 if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 ):
                     add_param = False
@@ -1161,8 +1162,8 @@ class DihtypesContainer:
         
         """
 
-        add_param = True
         for indx_i, Obj_i in dtypC_b:
+            add_param = True
             for indx_j, Obj_j in self:
                 if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 and  Obj_i.ptype4 == Obj_j.ptype4 ):
                     add_param = False
