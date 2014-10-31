@@ -658,6 +658,7 @@ def write_data(strucC,parmC,data_file):
     if( len(parmC.dtypC) > 0 ):
         F.write(' Dihedral Coeffs \n')
         F.write('\n')
+        imp_cnt = 0 
         for dtyp_p, dtypObj_p  in parmC.dtypC:    
             if( dtypObj_p.get_type() == "multiharmonic"):
                 # K = K[1+d cons(n theta)]
@@ -665,13 +666,14 @@ def write_data(strucC,parmC,data_file):
                 K = dtypObj_p.get_kb()
                 n = dtypObj_p.get_mult()
                 w = 0.0 # Weight 
-                F.write( "%10d %12.6f %d  %d %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,K,n,d,w, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+                F.write( "%10d %12.6f %d  %d %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p-imp_cnt,K,n,d,w, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
             elif( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
                 # Get opls parameters
                 klist = dtypObj_p.get_oplsklist()
                 F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
             elif( dtypObj_p.get_type() == "improper"):
                 error_line = " Will print improper later "
+                imp_cnt += 1 
             else:
                 error_line = " Unknow dihedral type %s "%(dtypObj_p.get_type() )
                 sys.exit(error_line)

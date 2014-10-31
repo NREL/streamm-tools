@@ -381,7 +381,7 @@ def set_param(struc_o,param_all,norm_dihparam):
             p_l = dtypObj_p.ptype4
             if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
                 new_type = False
-                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_lmpindx(dtyp_p-imp_cnt)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
                 if( dihObj_o.get_type() == "improper" ):
                     dihObj_o.set_lmpindx(imp_cnt)
@@ -395,7 +395,7 @@ def set_param(struc_o,param_all,norm_dihparam):
                 break
             if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
                 new_type = False
-                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_lmpindx(dtyp_p-imp_cnt)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
                 if( dihObj_o.get_type() == "improper" ):
                     dihObj_o.set_lmpindx(imp_cnt)
@@ -534,13 +534,18 @@ def set_param(struc_o,param_all,norm_dihparam):
                     dtypObj_temp.normforceconstants(dihen_norm)
 
 
-                dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
-                dtypC_p.put(dtypObj_temp)
-
                 # Put impropers in there own container
                 if( dtypObj_temp.get_type() == "improper" ):
+                    imp_cnt += 1
 
-                    imp_cnt += 1 
+
+                    #print "dtyp_p-imp_cnt",dtyp_p-imp_cnt,dtyp_p,imp_cnt
+                
+                dihObj_o.set_lmpindx(dtyp_p-imp_cnt+1)
+                dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
+                dtypC_p.put(dtypObj_temp)
+                    
+                if( dtypObj_temp.get_type() == "improper" ):
                     dihObj_o.set_lmpindx(imp_cnt)
                     imptypeObj = imptype(dtypObj_temp.get_ptype1(),dtypObj_temp.get_ptype2(),dtypObj_temp.get_ptype3(),dtypObj_temp.get_ptype4(),dtypObj_temp.get_type())
                     e0,ke = dtypObj_temp.getimp()
@@ -550,7 +555,7 @@ def set_param(struc_o,param_all,norm_dihparam):
                     
                     if( debug):
                         print " setting as improper 3 ",imp_cnt
-
+                    
                 
                 if( debug ):
                     print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
