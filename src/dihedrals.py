@@ -92,6 +92,20 @@ class Dihedral:
             return False
 
 
+    def set_type(self,type):
+        """
+        Set bond type 
+        """
+        self.type = type
+        
+        
+    def get_type(self):
+        """
+        Return bond type
+        """
+        return self.type
+
+
     def set_lmpindx(self,lmpindx):
         """
         Set bond type index for lammps

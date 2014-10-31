@@ -372,15 +372,28 @@ def main():
                             log_line = "\n       Frame  %d  read in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
                             log_out.write(log_line)
                             print log_line
-
-                
-
     #
     #  Find new parameter set for new structure
     #
     norm_dihparam = False 
     param_i,struc_i  = topology.set_param(struc_i,param_o,norm_dihparam)
-        
+
+    debug = False
+    if( debug ):
+
+        for pid_o, ptclObj_o  in struc_i.ptclC:  
+            print  ptclObj_o.tagsDict["fftype"],ptclObj_o.tagsDict["lmptype"]
+
+        sys.exit(" lmptype debug 1 ")
+
+    debug = False
+    if( debug ):
+
+        for pid_o, ptclObj_o  in param_i.ljtypC:  
+            print "  lj object add type mass ",ptclObj_o.get_ptype1(),ptclObj_o.get_mass()
+        sys.exit(" lmptype mass 1 ")
+
+
     if( rank == 0 ):
         #
         # Output files 
@@ -406,9 +419,7 @@ def main():
         #  Write itp file         
         if( len(options.out_itp) ):
             if( options.verbose ): print  "     - Writing  ",options.out_itp
-            #  !!!! Hack !!! 
-            ff_type = "oplsaa"
-            gromacs.print_itp(param_i,options.out_itp,ff_type)
+            gromacs.print_itp(param_i,options.out_itp)
 
         #  Write xmol file 
         if( len(options.out_xyz) ):

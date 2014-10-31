@@ -132,7 +132,7 @@ def main():
     #   for lammps input
     #   this should be done pre replication then passed to each copy
     norm_dihparam = False 
-    paramC_f,f_new  = topology.set_param(f_new,paramC,norm_dihparam)
+    paramC_f,f_new  = topology.set_param(f_new,paramC_f,norm_dihparam)
 
 
     #print " Sorted parameters "
@@ -167,7 +167,7 @@ def main():
         #if( options.calc_type == "lammps" ):
         path_data_file = options.dir_id +"/" + options.output_id + ".data"
         if( options.verbose ): print  "     - Writing  ",path_data_file
-        lammps.write_data(f_new,paramC,path_data_file)
+        lammps.write_data(f_new,paramC_f,path_data_file)
 
 if __name__=="__main__":
     main()

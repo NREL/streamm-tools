@@ -26,6 +26,7 @@ from parameters import ljtype
 from parameters import bondtype
 from parameters import angletype
 from parameters import dihtype
+from parameters import imptype
 
 def read_gro(strucC,in_gro):
     """
@@ -519,7 +520,7 @@ def read_top(strucC, parmC, top_infile):
                     pt_i.tagsDict["residue"] = RESN_l[atom_indx]
                     pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                     pt_i.tagsDict["chain"] = MOL_CNT + 1
-
+                    pt_i.tagsDict["ffmass"] =  AMASS_l[atom_indx]
                     pt_i.tagsDict["symbol"] = el.symbol
                     pt_i.tagsDict["number"] = el.number
                     pt_i.tagsDict["cov_radii"] = el.cov_radii
@@ -540,7 +541,7 @@ def read_top(strucC, parmC, top_infile):
                     pt_i.tagsDict["residue"] = RESN_l[atom_indx]
                     pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
                     pt_i.tagsDict["chain"] = MOL_CNT + 1
-
+                    pt_i.tagsDict["ffmass"] =  AMASS_l[atom_indx]
                     pt_i.tagsDict["symbol"] = el.symbol
                     pt_i.tagsDict["number"] = el.number
                     pt_i.tagsDict["cov_radii"] = el.cov_radii
@@ -626,7 +627,6 @@ def read_top(strucC, parmC, top_infile):
                     print " len(strucC.angleC) ",len(strucC.angleC) 
                     sys.exit(" debug angleC in read top 1" )
 
-                    
 
             # Repeat dihedral
             N_o = MOL_DIH_INDEX[id_n] #- 1
@@ -645,15 +645,38 @@ def read_top(strucC, parmC, top_infile):
                     j_add = REF_N[j_o] + 1
                     l_add = REF_N[l_o] + 1
                     g_indx = DIHTYPE_l[dih_indx]
+                    # Determine type
+
+                    if( g_indx == 1 or g_indx == 9 ):
+                        dtype = "multiharmonic"
+                        # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
+                    elif( g_indx == 2 ):
+                        dtype = "improper"
+                        # V = 1/2 ke( e-e0)^2
+                    elif( g_indx == 3 ):
+                        dtype = "rb"
+                        # Ryckaert-Bellemans function
+                        # Vrb(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
+
+                    elif( g_indx == 5 ):
+                        dtype = "opls"
+                        # opls function
+                    elif( g_indx == 4 ):
+                        dtype = "periodicimproper"
+                    else:
+                        print " unknow dihedral type ",g_indx
+                        raise TypeError
+                        
                     if( dih_overwrite ):
                         dih_i = strucC.dihC[DIH_CNT + 1 ]
                         dih_i.pgid1 = k_add
                         dih_i.pgid2 = i_add
                         dih_i.pgid3 = j_add
                         dih_i.pgid4 = l_add
+                        dih_i.set_type(dtype)
                         dih_i.set_g_indx(g_indx)
                     else:
-                        dih_i = Dihedral( k_add,i_add, j_add,l_add )            
+                        dih_i = Dihedral( k_add,i_add, j_add,l_add,0.0,dtype )            
                         dih_i.set_g_indx(g_indx)
                         strucC.dihC.put(dih_i)
                     if( debug ):
@@ -977,7 +1000,7 @@ def print_top(strucC,top_file):
 
     for pid, ptclObj  in strucC.ptclC:
         # print i,ATYPE[i] ,RESN[i] ,RESID[i] ,GTYPE[i],CHARN[i],CHARGES[i] ,AMASS[i]
-        F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.mass) )
+        F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.tagsDict["ffmass"]) )
         TOTAL_CHARGE = TOTAL_CHARGE + float(ptclObj.charge)
 
     print ' Total charge = ',TOTAL_CHARGE
@@ -1074,7 +1097,7 @@ def print_itp(paramC,itp_file):
     for lj_p, ljObj_p  in ljtypC_p:
         sigma = units.convert_angstroms_nm( ljObj_p.sigma )
         epsilon = units.convert_kcalmol_kJmol( ljObj_p.epsilon )
-        out_line = "\n %s   %d  %f %f %s %f %f  "%(ljObj_p.ptype1,ljObj_p.pid,ljObj_p.mass,ljObj_p.charge,ljObj_p.ptype,sigma,epsilon)
+        out_line = "\n %s   %d  %f %f %s %f %f  "%(ljObj_p.ptype1,ljObj_p.pid,ljObj_p.get_mass(),ljObj_p.charge,ljObj_p.ptype,sigma,epsilon)
         F.write(out_line)
 
     F.write(' \n ')

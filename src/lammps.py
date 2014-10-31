@@ -16,6 +16,7 @@ from parameters import ljtype
 from parameters import bondtype
 from parameters import angletype
 from parameters import dihtype
+from parameters import imptype
 
 from periodictable import periodictable
 
@@ -563,17 +564,39 @@ def write_data(strucC,parmC,data_file):
     # ' print lammps data file '
     #
 
+    # count Impropers
+    if( len(strucC.dihC) > 0 ):
+        imp_cnt = 0 
+        for d_o,dihObj_o in strucC.dihC:
+            if( dihObj_o.get_type() == "improper" ):
+                imp_cnt += 1
+
+
+    debug = False 
+    if( debug ):
+        print "int(len(strucC.dihC)) ",int(len(strucC.dihC))
+        print "imp_cnt",imp_cnt
+        print "int(len(strucC.dihC))",int(len(strucC.dihC))
+        print "int(len( parmC.dtypC))",int(len( parmC.dtypC))
+        print "int( len(parmC.imptypC))",int( len(parmC.imptypC))
+        sys.exit(" dih cnt debug ")
+                
     # Calculate totals
     n_atoms = len( strucC.ptclC  )
     n_bonds = int(len(strucC.bondC))
     n_angles = int(len(strucC.angleC))
-    n_dihedrals = int(len(strucC.dihC))
-    n_impropers = 0
+    n_dihedrals = int(len(strucC.dihC)) - imp_cnt
+    if(imp_cnt > 0 ):
+        n_impropers = imp_cnt
+    else:
+        n_impropers = 1 
+    
+    
     n_atypes = int(len( parmC.ljtypC )) #+ 1
     n_btypes = int(len( parmC.btypC )) #+ 1
     n_angtypes = int(len( parmC.atypC )) #+ 1
-    n_dtypes = int(len( parmC.dtypC)) #+ 1
-    n_imptypes = 1
+    n_dtypes = int(len( parmC.dtypC)) - int( len(parmC.imptypC)) #+ 1
+    n_imptypes = int( len(parmC.imptypC))
     # Calculate box size
     latvec = strucC.get_latvec()
     
@@ -641,7 +664,7 @@ def write_data(strucC,parmC,data_file):
                 d = dtypObj_p.get_theat_s()
                 K = dtypObj_p.get_kb()
                 n = dtypObj_p.get_mult()
-                w = 1.0 # Weight 
+                w = 0.0 # Weight 
                 F.write( "%10d %12.6f %d  %d %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,K,n,d,w, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
             elif( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
                 # Get opls parameters
@@ -659,13 +682,13 @@ def write_data(strucC,parmC,data_file):
     
     F.write(' Improper Coeffs \n')
     F.write('\n')
-    if( len(parmC.dtypC) > 0 ):
-        for dtyp_p, dtypObj_p  in parmC.dtypC:    
-            if( dtypObj_p.get_type() == "improper"):
-                e0,ke = dtypObj_p.getimp()
-                F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,ke,e0, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
-    #else:
-    F.write( "    1 0.0 0.0  \n")
+    if( len(parmC.imptypC) > 0 ):
+        for imptyp_p, imptypObj_p  in parmC.imptypC:    
+            if( imptypObj_p.get_type() == "improper"):
+                e0,ke = imptypObj_p.getimp()
+                F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (imptyp_p,ke,e0, imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4()  ) )
+    else:
+        F.write( "    1 0.0 0.0  \n")
 
         
     F.write('\n')
@@ -717,14 +740,33 @@ def write_data(strucC,parmC,data_file):
 
         F.write(' Dihedrals \n')
         F.write('\n')
+        dih_cnt = 0 
         for d_o,dihObj_o in strucC.dihC:
-            d_k = dihObj_o.pgid1
-            d_i = dihObj_o.pgid2
-            d_j = dihObj_o.pgid3
-            d_l = dihObj_o.pgid4
-            d_ind = int(dihObj_o.get_lmpindx())
-            F.write(  '%9d %8d %9d %9d %9d %9d \n' % (d_o,d_ind,d_k,d_i,d_j,d_l) )
-            #F.write( '\n' )
-            #F.write(' Impropers \n')
+            if( dihObj_o.get_type() != "improper" ):
+                dih_cnt += 1 
+                d_k = dihObj_o.pgid1
+                d_i = dihObj_o.pgid2
+                d_j = dihObj_o.pgid3
+                d_l = dihObj_o.pgid4
+                d_ind = int(dihObj_o.get_lmpindx())
+                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l) )
+            
+        F.write( '\n' )
+
+    # Write Impropers
+    if( len(strucC.dihC) > 0 ):
+        F.write(' Impropers \n')
+        F.write('\n')
+        dih_cnt = 0 
+        for d_o,dihObj_o in strucC.dihC:
+            if( dihObj_o.get_type() == "improper" ):
+                dih_cnt += 1 
+                d_k = dihObj_o.pgid1
+                d_i = dihObj_o.pgid2
+                d_j = dihObj_o.pgid3
+                d_l = dihObj_o.pgid4
+                d_ind = int(dihObj_o.get_lmpindx())
+                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l) )
+        F.write( '\n' )            
 
     F.close()

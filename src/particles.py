@@ -116,6 +116,7 @@ class Particle:
         self.tagsDict["symbol"] = "??"
         self.tagsDict["number"] = 0
         self.tagsDict["mass"] = self.mass  
+        self.tagsDict["ffmass"] = self.mass  
         self.tagsDict["cov_radii"] = 0.0
         self.tagsDict["vdw_radii"] = 0.0
 

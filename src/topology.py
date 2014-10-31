@@ -25,6 +25,7 @@ from dihedrals     import Dihedral, DihedralContainer
 from parameters import ParameterContainer
 #from particles import ParticleContainer
 from structureContainer import StructureContainer
+from parameters import imptype
 
 #from periodictable import periodictabled
 
@@ -163,7 +164,7 @@ def set_param(struc_o,param_all,norm_dihparam):
         new_type = True
         lj_p = 0
         fftype_i = ptclObj_o.tagsDict["fftype"]
-        mass_i = ptclObj_o.mass
+        #mass_i = ptclObj_o.mass
         for lj_p, ljObj_p  in ljtypC_p:    
             if( fftype_i == ljObj_p.ptype1 ):
                 new_type = False
@@ -184,8 +185,10 @@ def set_param(struc_o,param_all,norm_dihparam):
                 if( type_found ):
                     # Set mass of particle type
                     #   This is need for some force-field input files (LAMMPS)
+                    #mass_i = 
                     ljObj_all.setpid( ptclObj_o.tagsDict["number"] )
-                    ljObj_all.setmass( mass_i )
+                    #ljObj_all.setmass( mass_i )
+                    
                     
                     ljtypC_p.put(ljObj_all)
                     type_found = False 
@@ -347,7 +350,17 @@ def set_param(struc_o,param_all,norm_dihparam):
     #
     # Count dihedrals types
     #
-    debug = False 
+    debug = False
+    if( debug):
+        for d_all, dtypObj_all  in dtypC_all:
+            all_k = dtypObj_all.ptype1 
+            all_i = dtypObj_all.ptype2 
+            all_j = dtypObj_all.ptype3
+            all_l = dtypObj_all.ptype4
+            print " all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.get_type()
+            #sys.exit("  type check debug ")
+            
+    imp_cnt = 0 
     for d_o,dihObj_o in dihC_o:
         new_type = True
         dtyp_p = 0
@@ -370,6 +383,10 @@ def set_param(struc_o,param_all,norm_dihparam):
                 new_type = False
                 dihObj_o.set_lmpindx(dtyp_p)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+                if( dihObj_o.get_type() == "improper" ):
+                    dihObj_o.set_lmpindx(imp_cnt)
+                    if( debug):
+                        print " setting as improper 1 ",imp_cnt
 
                 if( debug):
                     print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
@@ -380,6 +397,10 @@ def set_param(struc_o,param_all,norm_dihparam):
                 new_type = False
                 dihObj_o.set_lmpindx(dtyp_p)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+                if( dihObj_o.get_type() == "improper" ):
+                    dihObj_o.set_lmpindx(imp_cnt)
+                    if( debug):
+                        print " setting as improper 2 ",imp_cnt
 
                 if( debug):
                     print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
@@ -476,10 +497,10 @@ def set_param(struc_o,param_all,norm_dihparam):
                             print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
 
             if( cnt_check < 1 ):
-                print " No Dih parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                print " No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
             elif( cnt_check > 1 ):
-                print " %d Dih parameters were found for bond type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                 print dtypObj_temp
                 #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
@@ -515,10 +536,24 @@ def set_param(struc_o,param_all,norm_dihparam):
 
                 dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
                 dtypC_p.put(dtypObj_temp)
-                
 
+                # Put impropers in there own container
+                if( dtypObj_temp.get_type() == "improper" ):
+
+                    imp_cnt += 1 
+                    dihObj_o.set_lmpindx(imp_cnt)
+                    imptypeObj = imptype(dtypObj_temp.get_ptype1(),dtypObj_temp.get_ptype2(),dtypObj_temp.get_ptype3(),dtypObj_temp.get_ptype4(),dtypObj_temp.get_type())
+                    e0,ke = dtypObj_temp.getimp()
+                    imptypeObj.setimp(e0,ke)
+                    imptypeObj.set_lmpindx(imp_cnt)
+                    paramC_p.imptypC.put(imptypeObj)
+                    
+                    if( debug):
+                        print " setting as improper 3 ",imp_cnt
+
+                
                 if( debug ):
-                    print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                     print " len(dtypC_p) ",len(dtypC_p) 
                     print " dtypObj_temp.get_lmpindx()  ",dtypObj_temp.get_lmpindx() 
                     print " dtypObj_temp.get_g_indx()  ",dtypObj_temp.get_g_indx() 
@@ -537,6 +572,9 @@ def set_param(struc_o,param_all,norm_dihparam):
             print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3,atypObj_p.get_lmpindx(),atypObj_p.get_g_indx()
         print " Dih types found %d "%(len(dtypC_p))
         for dtyp_p, dtypObj_p  in dtypC_p:
+            print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
+        print " imp Dih types found %d "%(len(paramC_p.imptypC))
+        for dtyp_p, dtypObj_p  in paramC_p.imptypC:
             print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
         sys.exit('find_types')
 
