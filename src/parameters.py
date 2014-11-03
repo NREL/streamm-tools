@@ -701,7 +701,16 @@ class dihtype:
         """
         Set bond type index for lammps
         """
-        self.lmpindx = lmpindx
+
+        if isinstance(lmpindx, int ):
+            self.lmpindx = lmpindx
+        else:
+            print "1st arg should be int"
+            raise TypeError
+
+        if( lmpindx <= 0 ):
+            print " lmpindx less than 0 "
+            raise TypeError
         
         
     def get_lmpindx(self):

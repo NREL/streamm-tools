@@ -10,15 +10,15 @@ class Improper:
 
     def __init__(self, pgid1=0, pgid2=0, pgid3=0, pgid4=0, theta0=0.0, type="blank"):
         """
-        Constructor for a general dihedral. Checks for types in arguments
+        Constructor for a general improper. Checks for types in arguments
         and throws a TypeError when appropriate
 
         Args:
-            pgid1   (int)   GlobalID of Particle object in dihedral
-            pgid2   (int)   GlobalID of Particle object in dihedral
-            pgid3   (int)   GlobalID of Particle object in dihedral
-            pgid4   (int)   GlobalID of Particle object in dihedral
-            theta0  (float) Equilibrium dihedral (in radians)
+            pgid1   (int)   GlobalID of Particle object in improper
+            pgid2   (int)   GlobalID of Particle object in improper
+            pgid3   (int)   GlobalID of Particle object in improper
+            pgid4   (int)   GlobalID of Particle object in improper
+            theta0  (float) Equilibrium improper (in radians)
             type   (str)   Charge value in units of [e]
         """
 
@@ -137,22 +137,22 @@ class Improper:
 
 class ImproperContainer:
     """
-    Main data structure for holding Improper Dihedral objects. Map of global
-    dihedral ID (integer) to Dihedral object instances
+    Main data structure for holding Improper Improper objects. Map of global
+    improper ID (integer) to Improper object instances
     """
 
     def __init__(self, idList=[], verbose=False):
         """
-        Constructor: sets up a dictionary for indexing 'Dihedral' objects
+        Constructor: sets up a dictionary for indexing 'Improper' objects
 
         Args:
-            idList (list): of dihedral IDs. If empty then ID starts at 1.
-                If not empty then ID's (keys) are inititalized with Dihedral objects
+            idList (list): of improper IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with Improper objects
             verbose (bool): flag for printing status/debug info        
         """
         self.verbose=verbose
-        self.dihedrals=dict()                              # Creates empty dict struc
-        self.dihedrals={key: Dihedral() for key in idList} # Creates empty Dihedral objs
+        self.impropers=dict()                              # Creates empty dict struc
+        self.impropers={key: Improper() for key in idList} # Creates empty Improper objs
                                                            #  if idList not empty
 
         if len(idList) == 0:         # If list not set in constructor arg
@@ -167,52 +167,52 @@ class ImproperContainer:
         """
         if self.verbose:
             print "Cleaning particle container"
-        del self.dihedrals
+        del self.impropers
         del self.maxgid
 
 
     def clear(self):
         """
-        Clears dihedrals out of DihedralContainer
+        Clears impropers out of ImproperContainer
         """
         self.maxgid = 0
-        self.dihedrals=dict()                          # Creates empty dict struc
+        self.impropers=dict()                          # Creates empty dict struc
 
 
     def __len__(self):
         """
         'Magic' method for returning size of container
         """
-        return len(self.dihedrals)
+        return len(self.impropers)
 
     def __str__(self):
         """
         'Magic' method for printng contents
         """
 
-        dihedralStr="\n Contains dihedral objects: \n"
-        for gid in self.dihedrals:
-            dihedralStr = dihedralStr + str(gid) + " " + str(self.dihedrals[gid].__dict__) + "\n"
-        return dihedralStr
+        improperstr="\n Contains improper objects: \n"
+        for gid in self.impropers:
+            improperstr = improperstr + str(gid) + " " + str(self.impropers[gid].__dict__) + "\n"
+        return improperstr
 
 
     def keys(self):
         """
         Return list of all ptcl IDs (keys) currently in container
         """
-        keyList = self.dihedrals.keys()
+        keyList = self.impropers.keys()
         return keyList
 
 
-    def __setitem__(self, gid, dihedral):
+    def __setitem__(self, gid, improper):
         """
         'Magic' method implementing obj[]=value operator
         Performs deep copy of value so container is managing memory
         """
-        if gid in self.dihedrals.keys():
-            self.dihedrals[gid]=copy.deepcopy(dihedral)
+        if gid in self.impropers.keys():
+            self.impropers[gid]=copy.deepcopy(improper)
         else:
-            print "Cannot add dihedral object to non-existent ID"
+            print "Cannot add improper object to non-existent ID"
             sys.exit(3) 
 
 
@@ -221,26 +221,26 @@ class ImproperContainer:
         'Magic' method implementing obj[] operator
         Operations on returned elements change container
         """
-        return self.dihedrals[gid]
+        return self.impropers[gid]
 
 
     def __delitem__(self, gid):
         """
         'Magic' method implementing del obj[] operator
         """
-        del self.dihedrals[gid]
+        del self.impropers[gid]
 
 
     def __iter__(self):
         """
         'Magic' method implementing (for x in 'this')....
         """
-        return self.dihedrals.iteritems()
+        return self.impropers.iteritems()
 
 
     def __call__(self, idSubList=None):
         """
-        Callable magic method. Returns iterator to subset dihedrals dictionary
+        Callable magic method. Returns iterator to subset impropers dictionary
 
         Args:
              idSubList (list) list of pid-s of particle objects to be returned
@@ -251,13 +251,13 @@ class ImproperContainer:
         subGroupDct = dict()
         
         if idSubList != None:
-            for gid, dihedralObj in self.dihedrals.iteritems():
+            for gid, improperObj in self.impropers.iteritems():
                 if gid in idSubList:
-                    subGroupDct[gid] = dihedralObj
+                    subGroupDct[gid] = improperObj
             return subGroupDct.iteritems()
 
         else:
-            print "Callable DihedralContainer requires a list of subgroup dihedral IDs"
+            print "Callable ImproperContainer requires a list of subgroup improper IDs"
             sys.exit(3)
 
 
@@ -265,25 +265,25 @@ class ImproperContainer:
         """
         'Magic' method implementing in keyword (key in obj')....
         """
-        return gid in self.dihedrals
+        return gid in self.impropers
 
 
-    def hasDihedral(self, dihedralList):
+    def hasImproper(self, improperList):
         """
-        Check the ptcl IDs in dihedralList for any dihedral in container that is similar
-        eg dihedral 1-2-3-4 is same as dihedral 4-3-2-1
+        Check the ptcl IDs in improperList for any improper in container that is similar
+        eg improper 1-2-3-4 is same as improper 4-3-2-1
 
-        Args: (list) ptcl IDs defining dihedral to search for
+        Args: (list) ptcl IDs defining improper to search for
         
-        Returns: (bool) is dihedral in container
+        Returns: (bool) is improper in container
         """
 
-        for gid, dObj in self.dihedrals.iteritems():
-            dihedral = [dObj.pgid1, dObj.pgid2, dObj.pgid3, dObj.pgid4] # Dihedral ID list#
-            dihedralRev = copy.deepcopy(dihedral)                       # Make reverse dihedral
-            dihedralRev.reverse()                                       #  ID list
+        for gid, dObj in self.impropers.iteritems():
+            improper = [dObj.pgid1, dObj.pgid2, dObj.pgid3, dObj.pgid4] # Improper ID list#
+            improperRev = copy.deepcopy(improper)                       # Make reverse improper
+            improperRev.reverse()                                       #  ID list
 
-            if ( (dihedral == dihedralList) or (dihedralRev == dihedralList) ):
+            if ( (improper == improperList) or (improperRev == improperList) ):
                 return True
             
         return False
@@ -293,43 +293,43 @@ class ImproperContainer:
         """
         'Magic' method to implement the '+=' operator
         
-        Compare global IDs of dihedrals and reassign globalIDs for dihedral
+        Compare global IDs of impropers and reassign globalIDs for improper
         container using the max ID between the two lists
 
         Note: for now this reassigns ID always
         """
 
-        keys1 = self.dihedrals.keys()     # global IDs in this object
-        keys2 = other.dihedrals.keys()    # global IDs in object being added
+        keys1 = self.impropers.keys()     # global IDs in this object
+        keys2 = other.impropers.keys()    # global IDs in object being added
         bothkeys = keys1 + keys2          # List of all keys
 
         if len(bothkeys) > 0:                 # If keys not empty... proceed
             self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
 
-        for ptclkey2 in other.dihedrals:
-            self.put(other.dihedrals[ptclkey2])
+        for ptclkey2 in other.impropers:
+            self.put(other.impropers[ptclkey2])
 
         return self
 
 
-    def put(self, dihedral):
+    def put(self, improper):
         """
-        Append 'Dihedral' object to this container. Updates globalID for container
+        Append 'Improper' object to this container. Updates globalID for container
         by incrementing the maxgid member
 
         Args:
             ptcl (Particle) correctly initialized Particle object
 
         NOTE:
-            (1) One can imagine extra conditions on dihedrals inserted
+            (1) One can imagine extra conditions on impropers inserted
             (2) This could check for uniqueness of all globalID's and throw error for copies
         """
         
-        if isinstance(dihedral, Dihedral):
+        if isinstance(improper, Improper):
             self.maxgid += 1
-            self.dihedrals[self.maxgid] = copy.deepcopy(dihedral)
+            self.impropers[self.maxgid] = copy.deepcopy(improper)
         else:
-            print "Attempting to add non-Dihedral type to container"
+            print "Attempting to add non-improper Improper type to container"
             raise TypeError
 
 
@@ -343,29 +343,29 @@ class ImproperContainer:
 
         fromIDs = idFromTo.keys()
                 
-        for gid in self.dihedrals:
+        for gid in self.impropers:
             
-            dihedral = self.dihedrals[gid]  # Dihedral object
-            pgid1 = dihedral.pgid1          # ptcl1 in dihedral
-            pgid2 = dihedral.pgid2          # ptcl2 in dihedral
-            pgid3 = dihedral.pgid3          # ptcl3 in dihedral
-            pgid4 = dihedral.pgid4          # ptcl4 in dihedral
+            improper = self.impropers[gid]  # Improper object
+            pgid1 = improper.pgid1          # ptcl1 in improper
+            pgid2 = improper.pgid2          # ptcl2 in improper
+            pgid3 = improper.pgid3          # ptcl3 in improper
+            pgid4 = improper.pgid4          # ptcl4 in improper
             
             if pgid1 in fromIDs:
                 toID = idFromTo[pgid1]
-                dihedral.pgid1 = toID
+                improper.pgid1 = toID
 
             if pgid2 in fromIDs:
                 toID = idFromTo[pgid2]
-                dihedral.pgid2 = toID
+                improper.pgid2 = toID
 
             if pgid3 in fromIDs:
                 toID = idFromTo[pgid3]
-                dihedral.pgid3 = toID
+                improper.pgid3 = toID
 
             if pgid4 in fromIDs:
                 toID = idFromTo[pgid4]
-                dihedral.pgid4 = toID
+                improper.pgid4 = toID
 
 
 
@@ -382,9 +382,9 @@ class ImproperContainer:
 
         # Look for types and get unique list
         typeList = list()
-        for gid, dihedralObj in self.dihedrals.iteritems():
-            dihedralType = dihedralObj.type
-            typeList.append(dihedralType)
+        for gid, improperObj in self.impropers.iteritems():
+            improperType = improperObj.type
+            typeList.append(improperType)
         typeList = list(set(typeList))
         
         # Generate list of unique type for keys to initialize dictionary

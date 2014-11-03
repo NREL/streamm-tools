@@ -17,6 +17,7 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from impropers  import Improper, ImproperContainer
 
 from parameters import ParameterContainer
 from parameters import BondtypesContainer
@@ -407,6 +408,7 @@ def read_top(strucC, parmC, top_infile):
     BOND_CNT = -1
     ANGLE_CNT = -1
     DIH_CNT = -1
+    IMP_CNT = -1 
 
     MOL_CNT = -1 
 
@@ -635,7 +637,6 @@ def read_top(strucC, parmC, top_infile):
             if( debug ): print " adding dihedral ",N_o,N_f
             if( N_f > N_o ):
                 for dih_indx in range(N_o,N_f+1):
-                    DIH_CNT += 1
                     k_o = DIH_l[dih_indx][0]
                     i_o = DIH_l[dih_indx][1]
                     j_o = DIH_l[dih_indx][2]
@@ -652,6 +653,7 @@ def read_top(strucC, parmC, top_infile):
                         # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
                     elif( g_indx == 2 ):
                         dtype = "improper"
+                        
                         # V = 1/2 ke( e-e0)^2
                     elif( g_indx == 3 ):
                         dtype = "rb"
@@ -668,17 +670,35 @@ def read_top(strucC, parmC, top_infile):
                         raise TypeError
                         
                     if( dih_overwrite ):
-                        dih_i = strucC.dihC[DIH_CNT + 1 ]
-                        dih_i.pgid1 = k_add
-                        dih_i.pgid2 = i_add
-                        dih_i.pgid3 = j_add
-                        dih_i.pgid4 = l_add
-                        dih_i.set_type(dtype)
-                        dih_i.set_g_indx(g_indx)
+                        if( g_indx == 2 ):
+                            IMP_CNT += 1
+                            imp_i = strucC.impC[IMP_CNT + 1 ]
+                            imp_i.pgid1 = k_add
+                            imp_i.pgid2 = i_add
+                            imp_i.pgid3 = j_add
+                            imp_i.pgid4 = l_add
+                            imp_i.set_type(dtype)
+                            imp_i.set_g_indx(g_indx)
+                        else:
+                            DIH_CNT += 1
+                            dih_i = strucC.dihC[DIH_CNT + 1 ]
+                            dih_i.pgid1 = k_add
+                            dih_i.pgid2 = i_add
+                            dih_i.pgid3 = j_add
+                            dih_i.pgid4 = l_add
+                            dih_i.set_type(dtype)
+                            dih_i.set_g_indx(g_indx)
+                            
                     else:
-                        dih_i = Dihedral( k_add,i_add, j_add,l_add,0.0,dtype )            
-                        dih_i.set_g_indx(g_indx)
-                        strucC.dihC.put(dih_i)
+                        if( g_indx == 2 ):
+                            imp_i = Improper( k_add,i_add, j_add,l_add,0.0,dtype )            
+                            imp_i.set_g_indx(g_indx)
+                            strucC.impC.put(imp_i)
+                        else:
+                            dih_i = Dihedral( k_add,i_add, j_add,l_add,0.0,dtype )            
+                            dih_i.set_g_indx(g_indx)
+                            strucC.dihC.put(dih_i)
+                            
                     if( debug ):
                         print "dih_overwrite",dih_overwrite," : ",k_o,i_o,j_o ,l_o, " -> ",k_add,i_add,j_add,l_add
                 if( debug ):
@@ -890,7 +910,7 @@ def read_itp(parmC,ff_file):
 
                         elif( gfunc_type == 2 ):
                             e0 = float( col[5] )
-                            ke = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            ke = units.convert_g_angle_kb( float( col[6] ) )
                             dtype = "improper"
                             # V = 1/2 ke( e-e0)^2
 
@@ -922,22 +942,29 @@ def read_itp(parmC,ff_file):
                             print " unknow dihedral type ",gfunc_type
                             raise TypeError
 
-                        dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
-                        dtyp_i.set_g_indx(gfunc_type)
-
-                        if( gfunc_type == 1 or  gfunc_type == 9  ):
-                            dtyp_i.setharmonic( mult, kb,theat_s)
-
                         if( gfunc_type == 2 ):
-                            dtyp_i.setimp(e0,ke) 
-
-                            
-                        if( gfunc_type == 3 ):
+                            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            imptyp_i.set_g_indx(gfunc_type)
+                            imptyp_i.setimp(e0,ke)
+                            parmC.imptypC.put(imptyp_i)
+                        elif( gfunc_type == 1 or  gfunc_type == 9  ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
+                            dtyp_i.setharmonic( mult, kb,theat_s)
+                            parmC.dtypC.put(dtyp_i)
+                        elif( gfunc_type == 3 ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
                             dtyp_i.setrb(C0,C1,C2,C3,C4,C5)  # Sets oplsa as well since they are equivalent 
-                        if(  gfunc_type == 5  ):
+                            parmC.dtypC.put(dtyp_i)
+                        elif(  gfunc_type == 5  ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
                             dtyp_i.setopls(k1,k2,k3,k4)   # Sets rb as well since they are equivalent 
-
-                        parmC.dtypC.put(dtyp_i)
+                            parmC.dtypC.put(dtyp_i)
+                        else:
+                            print " unknow dihedral type ",gfunc_type
+                            raise TypeError
 
                         #print btyp_i
     debug = False
@@ -1045,6 +1072,16 @@ def print_top(strucC,top_file):
         #if(debug): print ' dihedral index ',ind, pid_k,pid_i,pid_j,pid_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1]
         gfunc_type = dihObj_o.get_g_indx()
         F.write(  '%10d %10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,pid_l,gfunc_type) )
+
+    print len(strucC.impC), ' number of improper dihedrals '
+    for d_o,impObj_o in strucC.impC:
+        pid_k = impObj_o.pgid1
+        pid_i = impObj_o.pgid2
+        pid_j = impObj_o.pgid3
+        pid_l = impObj_o.pgid4
+        #if(debug): print ' impedral index ',ind, pid_k,pid_i,pid_j,pid_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1]
+        gfunc_type = impObj_o.get_g_indx()
+        F.write(  '%10d %10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,pid_l,gfunc_type) )
         
     F.write( '\n' )
     # Print tail
@@ -1089,6 +1126,7 @@ def print_itp(paramC,itp_file):
     btypC_p =  paramC.btypC
     atypC_p =  paramC.atypC
     dtypC_p =  paramC.dtypC
+    imptypC_p =  paramC.imptypC
 
     #
     # Write particle types   
@@ -1147,7 +1185,9 @@ def print_itp(paramC,itp_file):
         elif( g_type == 2  ):
             e0, ke_kcalmol  = dtypObj_p.getimp()
             ke = units.convert_kcalmol_kJmol( ke_kcalmol )
-            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,e0, ke)            
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,e0, ke)
+            error_line = "No impropers should be in dihedral type container "
+            sys.exit(error_line)
         elif( g_type == 3  ):
             Clist_kcalmol  = dtypObj_p.get_rbClist()
             Clist = []
@@ -1155,9 +1195,21 @@ def print_itp(paramC,itp_file):
                 Clist.append( units.convert_kcalmol_kJmol(Cindx))
             out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Clist[0],Clist[1],Clist[2],Clist[3],Clist[4],Clist[5])            
         else:
-            print "  unknown gromacs angle type index  ",g_type
+            print "  unknown gromacs dihedral type index  ",g_type
             sys.exit(" error in printing itp file ")
         F.write(out_line)
+
+    for d_p,imptypObj_p in imptypC_p:
+        g_type = imptypObj_p.get_g_indx()
+        if( g_type == 2  ):
+            e0, ke_kcalmol  = imptypObj_p.getimp()
+            ke = units.convert_kb_g_angle( ke_kcalmol )
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4(),g_type,e0, ke)            
+        else:
+            print "  unknown gromacs improper dihedral type index  ",g_type
+            sys.exit(" error in printing itp file ")
+        F.write(out_line)
+
 
     F.write(' \n ')
 

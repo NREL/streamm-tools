@@ -70,6 +70,11 @@ class StructureContainer:
             print "4rd arg should be an DihedralContainer object"
             raise TypeError
 
+        if isinstance(impC, ImproperContainer):
+            self.impC = copy.deepcopy(impC)
+        else:
+            print "5rd arg should be an ImproperContainer object"
+            raise TypeError
 
         # Debug print flag
         self.verbose = verbose
@@ -140,6 +145,7 @@ class StructureContainer:
         self.bondC  = copy.deepcopy(struc.bondC)
         self.angleC = copy.deepcopy(struc.angleC)
         self.dihC   = copy.deepcopy(struc.dihC)
+        self.impC   = copy.deepcopy(struc.impC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
         self.latvec     = copy.deepcopy(struc.latvec)
@@ -172,6 +178,7 @@ class StructureContainer:
         strucStr += "      Bonds  %d \n"%(len(self.bondC))
         strucStr += "      Angles %d \n"%(len(self.angleC))
         strucStr += "      Dihedrals %d \n"%(len(self.dihC))
+        strucStr += "      Impropers %d \n"%(len(self.impC))
         return strucStr
 
 
@@ -291,6 +298,10 @@ class StructureContainer:
             dihedralObj = self.dihC[fromDihedralID]              # Get dihedral object
             localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
 
+        del self.dihC.dihedrals                    # Ensure memory is free
+        self.dihC.dihedrals = localDict            # Assign reordered local copy to bond container
+        del localDict
+
         # ------------ Redo improper dihedrals-----------
         self.impC.replacePtclIDs(idFromToDict)  # Use tracked list of ID changes angles
 
@@ -298,11 +309,11 @@ class StructureContainer:
         for toDihedralID, dihedralTuple in enumerate(self.impC): # Enumerate returns (ID, obj) tuple for ptclTuple
             toDihedralID +=1                                     # Sets reordering index correctly
             fromDihedralID = dihedralTuple[0]                    # Picks out ID from ptclTuple
-            dihedralObj = self.dihC[fromDihedralID]              # Get dihedral object
+            dihedralObj = self.impC[fromDihedralID]              # Get dihedral object
             localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
 
-        del self.impC.dihedrals                    # Ensure memory is free
-        self.impC.dihedrals = localDict            # Assign reordered local copy to bond container
+        del self.impC.impropers                    # Ensure memory is free
+        self.impC.impropers = localDict            # Assign reordered local copy to bond container
         del localDict
 
 
@@ -390,7 +401,7 @@ class StructureContainer:
                 # Need to remove empty key generated above
                 del subimpDihedrals[gid]
 
-        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals,subimpDihedrals)
+        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals, subimpDihedrals)
 
 
 

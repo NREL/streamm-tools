@@ -103,11 +103,13 @@ def read_lmpdata( strucC , parmC , data_file):
         print " n_bonds ",n_bonds
         print " n_angles ",n_angles
         print " n_dihedrals ",n_dihedrals
+        print " n_impropers ",n_impropers
         print ""
         print "n_atom_types",n_atypes
         print "n_bond_types",n_btypes
         print "n_angle_types",n_angtypes
         print "n_dihedral_types",n_dtypes
+        print "n_imp_dihedral_types",n_imptypes
 
     # Check to see if a previous read has occured
     pt_overwrite = False
@@ -129,6 +131,9 @@ def read_lmpdata( strucC , parmC , data_file):
     dih_overwrite = False
     if( len(strucC.dihC) > 0 ):
         dih_overwrite = True
+    imp_overwrite = False
+    if( len(strucC.impC) > 0 ):
+        imp_overwrite = True
             
     #
     # Intialize
@@ -378,6 +383,52 @@ def read_lmpdata( strucC , parmC , data_file):
             if( cnt_Dihedral_coeff >=  n_dtypes ):
                 read_Dihedral_coeff = 0
                 
+        
+        if( read_Improper_coeff and  len(col) >= 3 ):
+            cnt_Improper_coeff += 1
+            #AT_i = int(col[0])
+            #AT_j = int(col[1])
+            imp_ind = int( col[0]) - 1
+            
+            if( debug): print " reading imp dih type ",imp_ind," cnt ",cnt_Improper_coeff," of ",n_imptypes
+            
+            if( imp_ind > n_imptypes ):
+                print sys.exit(" Error in data file index of dihedral parameter exceeds number of dihedral parameters specified with dihedral types ")
+                
+            DTYPE_REF[imp_ind][0] = "??"
+            DTYPE_REF[imp_ind][1] = "??"
+            DTYPE_REF[imp_ind][2] = "??"
+            DTYPE_REF[imp_ind][3] = "??"
+            
+            # Assume OPLS dihedral type
+            DIHTYPE_F[imp_ind] = 3
+            DIHTYPE_C[imp_ind][0] = float(col[1])
+            DIHTYPE_C[imp_ind][1] = float(col[2])
+            DIHTYPE_C[imp_ind][2] = float(col[3])
+            DIHTYPE_C[imp_ind][3] = float(col[4])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            ptype4 = "??"
+            # Set parameters according to type 
+            gfunc_type = 3 
+            dtype = "opls"
+
+            lmpindx = int( col[0] )
+            k1 =  float( col[1] )
+            k2 =  float( col[2] ) 
+            k3 =  float( col[3] ) 
+            k4 =  float( col[4] )
+            
+            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+            dtyp_i.set_g_indx(gfunc_type)
+            dtyp_i.set_lmpindx(lmpindx)
+            dtyp_i.setopls(k1,k2,k3,k4)
+            
+            if( cnt_Dihedral_coeff >=  n_dtypes ):
+                read_Dihedral_coeff = 0
+                
         if(read_Atoms and len(col) >= 7 ):
             cnt_Atoms += 1
             ind = int( col[0]) - 1
@@ -564,14 +615,6 @@ def write_data(strucC,parmC,data_file):
     # ' print lammps data file '
     #
 
-    # count Impropers
-    if( len(strucC.dihC) > 0 ):
-        imp_cnt = 0 
-        for d_o,dihObj_o in strucC.dihC:
-            if( dihObj_o.get_type() == "improper" ):
-                imp_cnt += 1
-
-
     debug = False 
     if( debug ):
         print "int(len(strucC.dihC)) ",int(len(strucC.dihC))
@@ -585,17 +628,17 @@ def write_data(strucC,parmC,data_file):
     n_atoms = len( strucC.ptclC  )
     n_bonds = int(len(strucC.bondC))
     n_angles = int(len(strucC.angleC))
-    n_dihedrals = int(len(strucC.dihC)) - imp_cnt
+    n_dihedrals = int(len(strucC.dihC))
+    imp_cnt =  int(len(strucC.impC))
     if(imp_cnt > 0 ):
         n_impropers = imp_cnt
     else:
-        n_impropers = 1 
-    
+        n_impropers = 1
     
     n_atypes = int(len( parmC.ljtypC )) #+ 1
     n_btypes = int(len( parmC.btypC )) #+ 1
     n_angtypes = int(len( parmC.atypC )) #+ 1
-    n_dtypes = int(len( parmC.dtypC)) - int( len(parmC.imptypC)) #+ 1
+    n_dtypes = int(len( parmC.dtypC)) 
     n_imptypes = int( len(parmC.imptypC))
     # Calculate box size
     latvec = strucC.get_latvec()
@@ -744,31 +787,45 @@ def write_data(strucC,parmC,data_file):
         F.write('\n')
         dih_cnt = 0 
         for d_o,dihObj_o in strucC.dihC:
-            if( dihObj_o.get_type() != "improper" ):
-                dih_cnt += 1 
-                d_k = dihObj_o.pgid1
-                d_i = dihObj_o.pgid2
-                d_j = dihObj_o.pgid3
-                d_l = dihObj_o.pgid4
-                d_ind = int(dihObj_o.get_lmpindx())
-                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l) )
+            dih_cnt += 1
+
+            d_k = dihObj_o.pgid1
+            d_i = dihObj_o.pgid2
+            d_j = dihObj_o.pgid3
+            d_l = dihObj_o.pgid4
+            d_ind = int(dihObj_o.get_lmpindx())
+
+            AT_k = strucC.ptclC[ d_k ].tagsDict["fftype"]
+            AT_i = strucC.ptclC[ d_i ].tagsDict["fftype"]
+            AT_i = strucC.ptclC[ d_j ].tagsDict["fftype"]
+            AT_l = strucC.ptclC[ d_l ].tagsDict["fftype"]
+
+            #error_line = " dih index is not in bounds "
+            #error_line += " for atoms %d  %d  %d  %d  "%(d_k,d_i,d_j,d_l)
+            #error_line += " for type atoms %s %s %s %s "%(AT_k,AT_i,AT_j,AT_l)
+            #sys.exit(error_line)
+            F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
             
         F.write( '\n' )
 
     # Write Impropers
-    if( len(strucC.dihC) > 0 ):
+    if( len(strucC.impC) > 0 ):
         F.write(' Impropers \n')
         F.write('\n')
-        dih_cnt = 0 
-        for d_o,dihObj_o in strucC.dihC:
-            if( dihObj_o.get_type() == "improper" ):
-                dih_cnt += 1 
-                d_k = dihObj_o.pgid1
-                d_i = dihObj_o.pgid2
-                d_j = dihObj_o.pgid3
-                d_l = dihObj_o.pgid4
-                d_ind = int(dihObj_o.get_lmpindx())
-                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l) )
+        imp_cnt = 0 
+        for d_o,impObj_o in strucC.impC:
+            if( impObj_o.get_type() == "improper" ):
+                imp_cnt += 1 
+                d_k = impObj_o.pgid1
+                d_i = impObj_o.pgid2
+                d_j = impObj_o.pgid3
+                d_l = impObj_o.pgid4
+                imp_ind = int(impObj_o.get_lmpindx())
+                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (imp_cnt,imp_ind,d_k,d_i,d_j,d_l) )
+            else:
+                error_line = " non imporper type in improper container "
+                sys.exit(error_line)
+            
         F.write( '\n' )            
 
     F.close()
