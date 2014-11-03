@@ -12,6 +12,7 @@ from particles     import Particle, ParticleContainer
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
 from dihedrals     import Dihedral, DihedralContainer
+from impropers     import Improper, ImproperContainer
 from periodictable import periodictable
 
 import pbcs, units
@@ -33,7 +34,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), verbose=True):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), impC=ImproperContainer(), verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -199,7 +200,8 @@ class StructureContainer:
         bondC  = copy.deepcopy(other.bondC)   #  inside can be changed (for adding below)
         angleC = copy.deepcopy(other.angleC)  #  inside can be changed (for adding below)
         dihC   = copy.deepcopy(other.dihC)    #  inside can be changed (for adding below)
-
+        impC   = copy.deepcopy(other.impC)    #  inside can be changed (for adding below)
+        
         keys1 = self.ptclC.particles.keys()    # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()   # global IDs in object being added
         self.ptclC.maxgid= max(keys1 + keys2)  # find max globalID in keys, set this object maxID
@@ -219,6 +221,9 @@ class StructureContainer:
 
         dihC.replacePtclIDs(idFromToDict)   # Use tracked list of ID changes
         self.dihC += dihC                   # Now add dihC with 'corrected' IDs
+
+        impC.replacePtclIDs(idFromToDict)   # Use tracked list of ID changes
+        self.impC += impC                   # Now add impC with 'corrected' IDs
 
         return self
 
@@ -286,8 +291,18 @@ class StructureContainer:
             dihedralObj = self.dihC[fromDihedralID]              # Get dihedral object
             localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
 
-        del self.dihC.dihedrals                    # Ensure memory is free
-        self.dihC.dihedrals = localDict            # Assign reordered local copy to bond container
+        # ------------ Redo improper dihedrals-----------
+        self.impC.replacePtclIDs(idFromToDict)  # Use tracked list of ID changes angles
+
+        localDict = dict()
+        for toDihedralID, dihedralTuple in enumerate(self.impC): # Enumerate returns (ID, obj) tuple for ptclTuple
+            toDihedralID +=1                                     # Sets reordering index correctly
+            fromDihedralID = dihedralTuple[0]                    # Picks out ID from ptclTuple
+            dihedralObj = self.dihC[fromDihedralID]              # Get dihedral object
+            localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
+
+        del self.impC.dihedrals                    # Ensure memory is free
+        self.impC.dihedrals = localDict            # Assign reordered local copy to bond container
         del localDict
 
 
@@ -320,6 +335,9 @@ class StructureContainer:
 
         dihedralIDList = self.dihC.keys()                 # Get keys of dihedral container
         subDihedrals = DihedralContainer(dihedralIDList)  # Initialize subdihedral container        
+
+        impdihedralIDList = self.impC.keys()                 # Get keys of dihedral container
+        subimpDihedrals = ImproperContainer(impdihedralIDList)  # Initialize subdihedral container        
 
         # Grab particles from IDlist and put into sub-particle container
         for pgid in ptclIDList:
@@ -359,7 +377,20 @@ class StructureContainer:
                 # Need to remove empty key generated above
                 del subDihedrals[gid]
 
-        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
+
+        # For each dihedral object in container check that both
+        # particles in dihedral are in ptcl search list
+        for gid, dObj in self.impC:
+            if ( (dObj.pgid1 in ptclIDList) and \
+                 (dObj.pgid2 in ptclIDList) and \
+                 (dObj.pgid3 in ptclIDList) and \
+                 (dObj.pgid4 in ptclIDList) ):
+                subimpDihedrals[gid] = dObj
+            else:
+                # Need to remove empty key generated above
+                del subimpDihedrals[gid]
+
+        return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals,subimpDihedrals)
 
 
 
@@ -601,7 +632,6 @@ class StructureContainer:
         r_mass = r_mass/total_mass_i
 
         return r_mass
-
             
     def shift_center_mass(self,r_shift):
         """
