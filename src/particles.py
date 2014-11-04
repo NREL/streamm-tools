@@ -110,6 +110,7 @@ class Particle:
         self.tagsDict["residue"] = 1 
         self.tagsDict["qgroup"] = 0
         self.tagsDict["linkid"] = "??"
+        self.tagsDict["cplytag"] = ""
         self.tagsDict["gtype"] = 0
         self.tagsDict["lmptype"] = 0
         self.tagsDict["fftype"] = "??"

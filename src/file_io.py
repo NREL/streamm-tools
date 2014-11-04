@@ -708,3 +708,20 @@ def read_calcinfo(calc_info_list):
 
     return calc_type,loc_dir,job_dir,job_name,status
     
+
+def write_cply(ptclC,cply_file):
+    """
+    Write cply file
+    """
+
+
+    F = open(bb_file,'w')
+    #F.write('D()')
+    for pid, ptclObj  in ptclC:
+        r_i = ptclObj.position
+        atomic_symb = ptclObj.tagsDict['symbol']
+        F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ),str( cply_tag[atom_i]) )   
+    F.close()
+
+
+

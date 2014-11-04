@@ -1613,7 +1613,157 @@ def find_conections(strucC,cov_nblist, cov_nbindx, ring_nblist, ring_nbindex ):
                                 RING_CONNECT.append( [pid_i,pid_j])
 
     return RING_CONNECT
+
+
+def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
+    #
+    #  Set tags for new cply file 
+    #     Use ctype tag and bonding enviroment
+    #
+    
+    debug = True
+    
+    if( verbose): print "    setting cply tags "
+    for pid_i, ptclObj_i  in strucC.ptclC:
+
+        if( debug ):
+            print "CHECKING CTYPE ",pid_i,ptclObj_i.tagsDict["linkid"]
 	
+	# Set terminal attached carbons 
+	if( ptclObj_i.tagsDict["linkid"] == "T" and ptclObj_i.tagsDict["number"] == 6 ):
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    #
+	    # Find terminal hydrogen
+	    #		    
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                if( ptclObj_j.tagsDict["linkid"] == "X" and ptclObj_j.tagsDict["number"] == 1 ):
+		    # Check to see if it has been bonded to another unit 
+		    if( ptclObj_j.tagsDict["residue"] ==  ptclObj_j.tagsDict["residue"] ):
+			term_con_cnt += 1
+			ptclObj_j.tagsDict["cplytag"] = "termcap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
+		      
+	    if( term_con_cnt == 1 ):
+		ptclObj_i.tagsDict["cplytag"] = "term_C(" + str(i_n) + ")"
+	    if( term_con_cnt > 1 ):
+		print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
+		sys.exit(" Error in terminal connections ")
+	    
+	# Set functional attached carbons 
+	if( ptclObj_i.tagsDict["linkid"] == "F" and ptclObj_i.tagsDict["number"] == 6 ):
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    # 
+	    # Find function hydrogen
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                if( ptclObj_j.tagsDict["linkid"] == "R" and ptclObj_j.tagsDict["number"] == 1 ):
+		    if( ptclObj_j.tagsDict["residue"] ==  ptclObj_j.tagsDict["residue"] ):
+			term_con_cnt += 1
+			ptclObj_j.tagsDict["cplytag"] = "funccap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
+
+	    if( term_con_cnt == 1 ):
+		cply_tag[pid_i] = "func_C(" + str(pid_i) + ")"
+	    if( term_con_cnt == 1 ):
+		ptclObj_i.tagsDict["cplytag"] = "func_C(" + str(pid_i) + ")"
+		
+	    if( term_con_cnt > 1 ):
+		print " Number of functional atoms attached to atom ",pid_i," not equal to 1 "
+		sys.exit(" Error in functional connections ")
+		
+    return strucC	
+
+def zero_unitq(strucC,cov_nblist, cov_nbindx,verbose,zero_term,zero_func):
+    import numpy
+    import sys 
+    
+    #
+    # Sum exsessive charges into carbon atoms 
+    #
+    for pid_i in range( len(ELN) ):
+    for pid_i, ptclObj_i  in strucC.ptclC:                
+	# Find each terminal hydrogen
+	if(  ptclObj_i.tagsDict["linkid"]  == "X"  and zero_term  ):
+	    term = pid_i 
+	    # Check to be sure hydrogen
+	    if( ptclObj_i.tagsDict["number"]  != 1 ):
+		print " Non hydrogen used as terminal group atom ",pid_i  
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) terminal group ")
+	    if( verbose ):
+		print " Terminal atom found ",pid_i," ",ptclObj_i.tagsDict["fftype"]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):                
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                
+		term_con_cnt = 0 # Terminal connections count
+		if( ptclObj_j.tagsDict["linkid"].strip() == "T" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " Terminal connection found ",pid_j," ",ptclObj_j.tagsDict["fftype"]
+		    term_con = pid_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt < 1 ):
+		print " No terminal connections found "
+		sys.exit(" Error in terminal connections ")
+	    if( term_con_cnt > 1 ):
+		print " Multiple terminal connections found "
+		sys.exit(" Error in terminal connections ")
+		
+	    # Sum charges into base monomer unit
+            strucC.ptclC[term_con].charge = strucC.ptclC[term_con].charge  + strucC.ptclC[term].charge 
+	    strucC.ptclC[term].charge   = 0.0
+	    
+	# Find each functional hydrogen
+	if( ptclObj_i.tagsDict["linkid"] == "R"  and zero_func ):
+	    term = pid_i 
+	    # Check to be sure hydrogen
+	    if(  ptclObj_i.tagsDict["number"] != 1 ):
+		print " Non hydrogen used as functional group "
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) functional group ")
+	    if( verbose ):
+		print " Functional atom found ",pid_i," ",ptclObj_i.tagsDict["fftype"]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+		term_con_cnt = 0 # Terminal connections count
+		if( ptclObj_j.tagsDict["linkid"].strip() == "F" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " functional connection found ",pid_j," ",ptclObj_j.tagsDict["fftype"]
+		    term_con = pid_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt  < 1 ):
+		print " No functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt > 1 ):
+		print " Multiple functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Sum charges into base monomer unit
+            strucC.ptclC[term_con].charge = strucC.ptclC[term_con].charge  + strucC.ptclC[term].charge 
+	    strucC.ptclC[term].charge   = 0.0
+	    
+    return strucC
+
+
 
 '''
 
