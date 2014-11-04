@@ -715,12 +715,16 @@ def write_cply(ptclC,cply_file):
     """
 
 
-    F = open(bb_file,'w')
+    F = open(cply_file,'w')
     #F.write('D()')
     for pid, ptclObj  in ptclC:
         r_i = ptclObj.position
         atomic_symb = ptclObj.tagsDict['symbol']
-        F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ),str( cply_tag[atom_i]) )   
+        cplytag = ptclObj.tagsDict["cplytag"]
+        charge = ptclObj.charge
+        residue = ptclObj.tagsDict["residue"]
+        resname = ptclObj.tagsDict["resname"]
+        F.write( " %5s %16.8f %16.8f %16.8f %f %d %s %s \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]),charge,residue,resname,  cplytag ))
     F.close()
 
 

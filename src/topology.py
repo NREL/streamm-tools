@@ -1626,8 +1626,11 @@ def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
     if( verbose): print "    setting cply tags "
     for pid_i, ptclObj_i  in strucC.ptclC:
 
+        ptclObj_i.tagsDict["cplytag"] = ""
+    for pid_i, ptclObj_i  in strucC.ptclC:
+
         if( debug ):
-            print "CHECKING CTYPE ",pid_i,ptclObj_i.tagsDict["linkid"]
+            print "CHECKING CTYPE ",pid_i,ptclObj_i.tagsDict["linkid"],ptclObj_i.tagsDict["cplytag"]
 	
 	# Set terminal attached carbons 
 	if( ptclObj_i.tagsDict["linkid"] == "T" and ptclObj_i.tagsDict["number"] == 6 ):
@@ -1648,9 +1651,9 @@ def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
 			ptclObj_j.tagsDict["cplytag"] = "termcap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
 		      
 	    if( term_con_cnt == 1 ):
-		ptclObj_i.tagsDict["cplytag"] = "term_C(" + str(i_n) + ")"
+		ptclObj_i.tagsDict["cplytag"] = "term_C(" + str(pid_i) + ")"
 	    if( term_con_cnt > 1 ):
-		print " Number of terminal atoms attached to atom ",i_n," greater than 1 "
+		print " Number of terminal atoms attached to atom ",pid_i," greater than 1 "
 		sys.exit(" Error in terminal connections ")
 	    
 	# Set functional attached carbons 
@@ -1671,8 +1674,6 @@ def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
 			ptclObj_j.tagsDict["cplytag"] = "funccap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
 
 	    if( term_con_cnt == 1 ):
-		cply_tag[pid_i] = "func_C(" + str(pid_i) + ")"
-	    if( term_con_cnt == 1 ):
 		ptclObj_i.tagsDict["cplytag"] = "func_C(" + str(pid_i) + ")"
 		
 	    if( term_con_cnt > 1 ):
@@ -1681,14 +1682,13 @@ def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
 		
     return strucC	
 
-def zero_unitq(strucC,cov_nblist, cov_nbindx,verbose,zero_term,zero_func):
+def zero_unitq(verbose,strucC,cov_nblist, cov_nbindx,zero_term,zero_func):
     import numpy
     import sys 
     
     #
     # Sum exsessive charges into carbon atoms 
     #
-    for pid_i in range( len(ELN) ):
     for pid_i, ptclObj_i  in strucC.ptclC:                
 	# Find each terminal hydrogen
 	if(  ptclObj_i.tagsDict["linkid"]  == "X"  and zero_term  ):
@@ -1760,7 +1760,7 @@ def zero_unitq(strucC,cov_nblist, cov_nbindx,verbose,zero_term,zero_func):
 	    # Sum charges into base monomer unit
             strucC.ptclC[term_con].charge = strucC.ptclC[term_con].charge  + strucC.ptclC[term].charge 
 	    strucC.ptclC[term].charge   = 0.0
-	    
+
     return strucC
 
 

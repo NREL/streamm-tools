@@ -12,6 +12,8 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from impropers  import Improper, ImproperContainer
+
 from parameters import ljtype
 from parameters import bondtype
 from parameters import angletype
@@ -172,7 +174,12 @@ def read_lmpdata( strucC , parmC , data_file):
     DIHTYPE_K = numpy.zeros(n_dtypes)
     DIHTYPE_PN = numpy.zeros(n_dtypes)
     DIHTYPE_PHASE = numpy.zeros(n_dtypes)
-    
+
+    IMPTYPE_REF = n_dtypes*[4*[""]]
+    IMPTYPE_F = numpy.zeros(n_dtypes)
+    IMPTYPE_E0 = numpy.zeros(n_imptypes)
+    IMPTYPE_K = numpy.zeros(n_imptypes)
+
     MOLNUMB = n_atoms*[0]
     ATYPE_IND  = n_atoms*[0]
     CHARGES  = numpy.zeros(n_atoms)
@@ -347,7 +354,9 @@ def read_lmpdata( strucC , parmC , data_file):
             if( debug): print " reading dih type ",d_ind," cnt ",cnt_Dihedral_coeff," of ",n_dtypes
             
             if( d_ind > n_dtypes ):
-                print sys.exit(" Error in data file index of dihedral parameter exceeds number of dihedral parameters specified with dihedral types ")
+                error_line =  " Error in data file index of dihedral parameter %d exceeds number of dihedral parameters %d "%(d_ind , n_dtypes)
+                error_line += " specified with dihedral types "
+                print sys.exit(error_line)
                 
             DTYPE_REF[d_ind][0] = "??"
             DTYPE_REF[d_ind][1] = "??"
@@ -379,6 +388,7 @@ def read_lmpdata( strucC , parmC , data_file):
             dtyp_i.set_g_indx(gfunc_type)
             dtyp_i.set_lmpindx(lmpindx)
             dtyp_i.setopls(k1,k2,k3,k4)
+            parmC.dtypC.put(dtyp_i)
             
             if( cnt_Dihedral_coeff >=  n_dtypes ):
                 read_Dihedral_coeff = 0
@@ -393,41 +403,41 @@ def read_lmpdata( strucC , parmC , data_file):
             if( debug): print " reading imp dih type ",imp_ind," cnt ",cnt_Improper_coeff," of ",n_imptypes
             
             if( imp_ind > n_imptypes ):
-                print sys.exit(" Error in data file index of dihedral parameter exceeds number of dihedral parameters specified with dihedral types ")
+                error_line =  " Error in data file index of improper parameter %d exceeds number of improper parameters %d "%(imp_ind , n_imptypes)
+                error_line += " specified with dihedral types "
+                print sys.exit(error_line)
                 
-            DTYPE_REF[imp_ind][0] = "??"
-            DTYPE_REF[imp_ind][1] = "??"
-            DTYPE_REF[imp_ind][2] = "??"
-            DTYPE_REF[imp_ind][3] = "??"
+            IMPTYPE_REF[imp_ind][0] = "??"
+            IMPTYPE_REF[imp_ind][1] = "??"
+            IMPTYPE_REF[imp_ind][2] = "??"
+            IMPTYPE_REF[imp_ind][3] = "??"
             
             # Assume OPLS dihedral type
-            DIHTYPE_F[imp_ind] = 3
-            DIHTYPE_C[imp_ind][0] = float(col[1])
-            DIHTYPE_C[imp_ind][1] = float(col[2])
-            DIHTYPE_C[imp_ind][2] = float(col[3])
-            DIHTYPE_C[imp_ind][3] = float(col[4])
+            IMPTYPE_F[imp_ind] = 2
+            KE = float(col[1])
+            Eo = float(col[2])
+            IMPTYPE_E0[imp_ind] = Eo
+            IMPTYPE_K[imp_ind] = KE
 
             ptype1 = "??"
             ptype2 = "??"
             ptype3 = "??"
             ptype4 = "??"
             # Set parameters according to type 
-            gfunc_type = 3 
-            dtype = "opls"
+            g_indx = 2
+            dtype = "improper"
 
             lmpindx = int( col[0] )
-            k1 =  float( col[1] )
-            k2 =  float( col[2] ) 
-            k3 =  float( col[3] ) 
-            k4 =  float( col[4] )
+
+            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+            imptyp_i.set_g_indx(g_indx)
+            imptyp_i.setimp(Eo,KE)
+            imptyp_i.set_lmpindx(lmpindx)
+            parmC.imptypC.put(imptyp_i)
             
-            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
-            dtyp_i.set_g_indx(gfunc_type)
-            dtyp_i.set_lmpindx(lmpindx)
-            dtyp_i.setopls(k1,k2,k3,k4)
-            
-            if( cnt_Dihedral_coeff >=  n_dtypes ):
-                read_Dihedral_coeff = 0
+            if( cnt_Improper_coeff >=  n_imptypes ):
+                read_Improper_coeff = 0
+
                 
         if(read_Atoms and len(col) >= 7 ):
             cnt_Atoms += 1
@@ -560,11 +570,35 @@ def read_lmpdata( strucC , parmC , data_file):
                 dObj.set_lmpindx(int(col[1] ))
                 strucC.dihC.put(dObj)
                 
-            if( read_Dihedrals >=  n_dihedrals ):
+            if( cnt_Dihedrals >=  n_dihedrals ):
                 read_Dihedrals = 0
                 
-        #    
-        #if(read_Impropers and len(col) >= 2 ):
+            
+        if(read_Impropers and len(col) >= 2 ):
+            cnt_Impropers += 1
+            ind = int( col[0]) - 1
+            
+            k_o = int(col[2])
+            i_o = int(col[3])
+            j_o = int(col[4])
+            l_o = int(col[5])
+            
+            if( imp_overwrite ):
+                impObj = strucC.impC[cnt_Impropers]
+                impObj.pgid1 = k_o
+                impObj.pgid2 = i_o
+                impObj.pgid3 = j_o
+                impObj.pgid4 = l_o
+                impObj.set_lmpindx(int(col[1] ))
+            else:
+                impObj = Improper( k_o,i_o, j_o,l_o )
+                impObj.set_lmpindx(int(col[1] ))
+                strucC.impC.put(impObj)
+                
+
+            if( cnt_Impropers >=  n_impropers ):
+                read_Impropers = 0
+            
         #    cnt_Bonds += 1
         #    ind = int( col[0]) - 1
         #    BTYPE_IND[ind] = int(col[1] ) - 1
