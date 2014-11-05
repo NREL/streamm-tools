@@ -40,8 +40,8 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
 
     # New options that need to be passed
     rerun_bonded = False  
-    set_biaryl = False
-    set_ptma = True
+    set_biaryl = True 
+    set_ptma = False
 
     limdih = 0
     limitdih_n = 1
@@ -86,21 +86,19 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     # Find rings
     strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
 
+    debug = True 
+    if( debug):
+        for pid_o, ptclObj_o  in strucC.ptclC:
+            print "create_top particles ",pid_o,ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["resname"],ptclObj_o.tagsDict["ring"]
+        sys.exit("create_top 2 print particles in strucC.ptclC")
+
+
     # Asign atom types
     strucC = atomtypes.oplsaa( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     
     if(set_biaryl):
         strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
         strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-
-
-    debug = False
-    if( debug):
-        for pid_o, ptclObj_o  in strucC.ptclC:
-            print "create_top particles ",ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["gtype"],ptclObj_o.tagsDict["resname"]
-        sys.exit("create_top 2 print particles in strucC.ptclC")
-
-
 
     if(set_ptma):
         strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
@@ -118,15 +116,13 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     return strucC,cov_nblist, cov_nbindx
 
 
-def set_param(struc_o,param_all,norm_dihparam):
+def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     """
     Set force-field parameters
     """
 
     log_file = "param.log"
     param_out = open(log_file,"w")
-
-    
 
     ptclC_o =  struc_o.ptclC
     bondC_o  = struc_o.bondC
@@ -1341,6 +1337,8 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
     #for pid_i, ptclObj_i  in strucC.ptclC:
     #        CG_SET.append(True) 
 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        ptclObj_i.tagsDict["qgroup"] = 0
         
     # set rings as charge groups
     for pid_i, ptclObj_i  in strucC.ptclC:
@@ -1349,8 +1347,7 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
         if( ptclObj_i.tagsDict["qgroup"] == 0  ):
             if( ptclObj_i.tagsDict["ring"] > 0 ):
                 ptclObj_i.tagsDict["qgroup"] = ptclObj_i.tagsDict["ring"]
-                #CG_SET[i] = 0
-                #if(debug): print i,ASYMB[i],   RING_NUMB[i]
+                print " setting qgroup  ring ",pid_i,ptclObj_o.tagsDict["symbol"],ptclObj_i.tagsDict["qgroup"],ptclObj_i.tagsDict["ring"]
                 if(  ptclObj_i.tagsDict["ring"] >  n_groups ):
                     n_groups = n_groups + 1
                 
@@ -1505,7 +1502,7 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
             N_o = cov_nbindx[pid_i]
             N_f = cov_nbindx[pid_i+1] - 1
             
-            print i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["fftype"],NNAB,ELCNT[6],ELCNT[1],' not set '
+            print pid_i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["fftype"],NNAB,ELCNT[6],ELCNT[1],' not set '
 	    sys.exit('charge group error')
             #else :
             # print ASYMB[i],ATYPE[i],NNAB,ELCNT[6],ELCNT[1],GTYPE[i],' set '

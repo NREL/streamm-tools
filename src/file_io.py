@@ -709,15 +709,16 @@ def read_calcinfo(calc_info_list):
     return calc_type,loc_dir,job_dir,job_name,status
     
 
-def write_cply(ptclC,cply_file):
+def write_cply(strucC,cply_file):
     """
     Write cply file
     """
 
+    write_bonds = True 
 
     F = open(cply_file,'w')
     #F.write('D()')
-    for pid, ptclObj  in ptclC:
+    for pid, ptclObj  in strucC.ptclC:
         r_i = ptclObj.position
         atomic_symb = ptclObj.tagsDict['symbol']
         cplytag = ptclObj.tagsDict["cplytag"]
@@ -725,6 +726,13 @@ def write_cply(ptclC,cply_file):
         residue = ptclObj.tagsDict["residue"]
         resname = ptclObj.tagsDict["resname"]
         F.write( " %5s %16.8f %16.8f %16.8f %f %d %s %s \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]),charge,residue,resname,  cplytag ))
+    if( write_bonds ):
+
+        for b_o, bondObj_o  in strucC.bondC:
+            pid_i = bondObj_o.pgid1
+            pid_j = bondObj_o.pgid2
+            F.write(" bond %d %d \n "%(pid_i,pid_j))
+            
     F.close()
 
 
