@@ -708,9 +708,9 @@ class dihtype:
             print "1st arg should be int"
             raise TypeError
 
-        if( lmpindx <= 0 ):
-            print " lmpindx less than 0 "
-            raise TypeError
+        #if( lmpindx <= 0 ):
+        #    print " lmpindx less than 0 "
+        #    raise TypeError
         
         
     def get_lmpindx(self):

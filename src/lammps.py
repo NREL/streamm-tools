@@ -663,17 +663,18 @@ def write_data(strucC,parmC,data_file):
     n_bonds = int(len(strucC.bondC))
     n_angles = int(len(strucC.angleC))
     n_dihedrals = int(len(strucC.dihC))
-    imp_cnt =  int(len(strucC.impC))
-    if(imp_cnt > 0 ):
-        n_impropers = imp_cnt
-    else:
-        n_impropers = 1
+    n_impropers =  int(len(strucC.impC))
     
     n_atypes = int(len( parmC.ljtypC )) #+ 1
     n_btypes = int(len( parmC.btypC )) #+ 1
     n_angtypes = int(len( parmC.atypC )) #+ 1
     n_dtypes = int(len( parmC.dtypC)) 
-    n_imptypes = int( len(parmC.imptypC))
+    imp_cnt = int( len(parmC.imptypC))
+    if(imp_cnt > 0 ):
+        n_imptypes = imp_cnt
+    else:
+        n_imptypes = 1
+        
     # Calculate box size
     latvec = strucC.get_latvec()
     
