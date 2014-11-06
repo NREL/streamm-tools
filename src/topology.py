@@ -19,7 +19,6 @@ import copy
 
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
-
 from dihedrals     import Dihedral, DihedralContainer
 
 from parameters import ParameterContainer
@@ -29,7 +28,7 @@ from parameters import imptype
 
 #from periodictable import periodictabled
 
-import atomtypes, pbcs
+import atomtypes, pbcs, xmol 
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
@@ -48,6 +47,8 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     
     verbose = True
     debug = True
+
+
 
     if( debug):
         print " Read in %d Bonds "%len(strucC.bondC)
@@ -86,10 +87,17 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     # Find rings
     strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
 
-    debug = True 
+    debug = False 
     if( debug):
         for pid_o, ptclObj_o  in strucC.ptclC:
             print "create_top particles ",pid_o,ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["resname"],ptclObj_o.tagsDict["ring"]
+            # Write xyz file
+            ptclObj_o.tagsDict['symbol'] = ptclObj_o.tagsDict["ring"]
+            comment = "ring check"
+            append = False
+            xmol_file = "rings.xyz"
+            xmol.write(strucC.ptclC, xmol_file,comment,append)
+
         sys.exit("create_top 2 print particles in strucC.ptclC")
 
 
@@ -1101,13 +1109,15 @@ def calc_elcnt(i,strucC,NBLIST,NBINDEX):
     return ELCNT 
 
 
-def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+def id_ring3(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
     import sys
     """
     Find atoms in conjugated rings 
     """
     
-    debug = False 
+    max_paths = 1000
+    
+    debug = False
     
     R_SET = []
     RING_ATOMS = []
@@ -1130,7 +1140,7 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
     r_term = 1
     cnt = 0
     p_cnt = 0
-    if(debug): print ' initializing ring ',pid_o,ptclObj_o.tagsDict["number"]
+    if(debug): print ' initializing ring ',pid_o," w NN ", calc_nnab(pid_o,cov_nbindx)
 
     last_i = pid_o
     NNAB_last = calc_nnab(pid_i,cov_nbindx)
@@ -1138,20 +1148,24 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
         N_o = cov_nbindx[last_i]
         N_f = cov_nbindx[last_i+1] - 1
 
+        if( debug): print " checking neighbors ",N_o,N_f
+
         for n_indx in range( N_o,N_f+1):
             j = cov_nblist[n_indx]
             cnt = cnt + 1
+            # If non of the neighboring atoms of atom j are conjugated
+            #    make the path as bad 
             if( cnt > NNAB_last+1 ):
-                p_cnt = p_cnt + 1
-                if(debug): print ' bad path found resetting '
+                p_cnt += 1
+                if(debug): print ' bad path found resetting at atom ',j,strucC.ptclC[j].tagsDict["number"]
                 for ring_a in range(len(RING_ATOMS)):
                     j = RING_ATOMS[ring_a]
                     
-                    
                 BAD_PATH.append(j)
+                # Reset lists and counts
                 RING_ATOMS = []
                 for pid_k in range(n_ptcl):
-                    R_SET[pid_k] = one
+                    R_SET[pid_k] = 1
                 atoms_in_ring = 0
                 R_SET[pid_o] = 0 
                 cnt = 0
@@ -1164,7 +1178,8 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
                     R_SET[j] = 0
                     if(debug): print '  bad path atoms ',strucC.ptclC[j].tagsDict["number"]
                 break
-                    
+
+            # If path traces back to original atom ring has been found 
             if( atoms_in_ring  > 1 and j == pid_o ):
                 r_term = 0
                 if(debug): print ' ring found with ',atoms_in_ring 
@@ -1173,17 +1188,123 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
             number_j = strucC.ptclC[j].tagsDict["number"]
             NNAB_j = calc_nnab(j,cov_nbindx)
             ELCNT_j = calc_elcnt(j,strucC,cov_nblist,cov_nbindx)
-            ring_type = 0
+            ring_type = False 
 	    
-	    debug = 0
             if(debug):
 		print '           with ', number_j
 		print '           with ', NNAB_j,
 		print '           with ', R_SET[j]
-		
-            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
-            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = 1 # ATYPE[j] == 'CA' ):
-            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
+
+            # Test if atom j is conjugated 
+            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ):                      ring_type = True
+            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = True
+            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ):                      ring_type = True
+            if( ring_type ):
+                atoms_in_ring = atoms_in_ring + 1
+                RING_ATOMS.append(j)
+                R_SET[j] = 0
+                last_i = j
+                cnt = 0
+                NNAB_last = NNAB_j 
+                if(debug): print '   atom ',j,number_j,' added '
+                break
+            
+        if (p_cnt > max_paths ):
+            if(debug): print '     max paths considered ',max_paths
+            r_term = 0
+            
+    return RING_ATOMS
+
+
+def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    import sys
+    """
+    Find atoms in conjugated rings 
+    """
+    
+    debug = True
+    if( pid_o ==7 ): debug = True
+    
+    R_SET = []
+    RING_ATOMS = []
+    BAD_PATH = []
+
+    #a_i = pid_o -1 
+    one = 1
+    zero = 0
+    atoms_in_ring = 0
+    # relabel based on neighbors
+    n_ptcl = len(strucC.ptclC)
+
+    if(debug):
+        print " for a system of %d partiles checking particle %d "%(n_ptcl,pid_o)
+        
+    for pid_i in range(n_ptcl+1): 
+        R_SET.append(one)
+        
+    R_SET[pid_o] = 0 
+    r_term = 1
+    cnt = 0
+    p_cnt = 0
+    if(debug): print ' initializing ring ',pid_o," w NN ", calc_nnab(pid_o,cov_nbindx)
+
+    last_i = pid_o
+    NNAB_last = calc_nnab(pid_i,cov_nbindx)
+    while ( r_term ):
+        N_o = cov_nbindx[last_i]
+        N_f = cov_nbindx[last_i+1] - 1
+
+        if( debug): print " checking neighbors ",N_o,N_f
+
+        for n_indx in range( N_o,N_f+1):
+            j = cov_nblist[n_indx]
+            cnt = cnt + 1
+            # If non of the neighboring atoms of atom j are conjugated
+            #    make the path as bad 
+            if( cnt > NNAB_last+1 ):
+                p_cnt = p_cnt + 1
+                if(debug): print ' bad path found resetting at atom ',j,strucC.ptclC[j].tagsDict["number"]
+                for ring_a in range(len(RING_ATOMS)):
+                    j = RING_ATOMS[ring_a]
+                    
+                BAD_PATH.append(j)
+                # Reset lists and counts
+                RING_ATOMS = []
+                for pid_k in range(n_ptcl):
+                    R_SET[pid_k] = 1
+                atoms_in_ring = 0
+                R_SET[pid_o] = 0 
+                cnt = 0
+                last_i = pid_o
+                
+                if(debug): print '  resetting last_i to ',pid_o,ptclObj_o.tagsDict["number"]
+                    
+                for bad_i in range( len(BAD_PATH)):
+                    j = BAD_PATH[bad_i]
+                    R_SET[j] = 0
+                    if(debug): print '  bad path atoms ',strucC.ptclC[j].tagsDict["number"]
+                break
+
+            # If path traces back to original atom ring has been found 
+            if( atoms_in_ring  > 1 and j == pid_o ):
+                r_term = 0
+                if(debug): print ' ring found with ',atoms_in_ring 
+                break
+
+            number_j = strucC.ptclC[j].tagsDict["number"]
+            NNAB_j = calc_nnab(j,cov_nbindx)
+            ELCNT_j = calc_elcnt(j,strucC,cov_nblist,cov_nbindx)
+            ring_type = False 
+	    
+            if(debug):
+		print '           with ', number_j
+		print '           with ', NNAB_j,
+		print '           with ', R_SET[j]
+
+            # Test if atom j is conjugated 
+            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ):                      ring_type = True
+            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = True
+            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ):                      ring_type = True
             if( ring_type ):
                 atoms_in_ring = atoms_in_ring + 1
                 RING_ATOMS.append(j)
@@ -1200,17 +1321,174 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
             
     return RING_ATOMS
 
+def ring_type(pid_i,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    """
+    Criteria for a conjugated particle 
+    """
+    debug = False
+    
+    ring_type = False 
+    number_j = strucC.ptclC[pid_i].tagsDict["number"]
+    NNAB_j = calc_nnab(pid_i,cov_nbindx)
+    ELCNT_j = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+
+    if(debug):
+        print '            atomic # %d  NN  %d '%(number_j, NNAB_j)
+
+    # Test if atom j is conjugated 
+    if ( number_j == 6 and NNAB_j == 3 ):                      ring_type = True
+    if ( number_j == 16 and NNAB_j == 2 and ELCNT_j[6] == 2 ): ring_type = True
+    if ( number_j == 7 and NNAB_j >= 2  ):                      ring_type = True
+
+    return ring_type
+
+
+def id_ring2(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    import sys
+    """
+    Find atoms in conjugated rings 
+    """
+
+    max_ring_particles = 30
+    max_paths = 100
+    
+    debug = True
+    #if( pid_o ==7 ): debug = True
+    
+    RING_ATOMS = []
+    BAD_PATH = []
+
+    #a_i = pid_o -1 
+    one = 1
+    zero = 0
+    atoms_in_ring = 0
+    # relabel based on neighbors
+    n_ptcl = len(strucC.ptclC)
+
+    if(debug):
+        print " for a system of %d partiles checking particle %d "%(n_ptcl,pid_o)
+        
+    for pid_i in range(n_ptcl+1): 
+        BAD_PATH.append([])
+        
+    
+    r_term = 1
+    cnt = 0
+    path_cnt = 0
+    if(debug): print ' initializing ring with particle ',pid_o 
+
+    pid_i = pid_o
+    last_j = 0 
+    NNAB_last = calc_nnab(pid_i,cov_nbindx)
+    while ( r_term ):
+        N_o = cov_nbindx[pid_i]
+        N_f = cov_nbindx[pid_i+1] - 1
+
+        if( debug): print " checking pid_i %d w %d neighbors "%(pid_i,calc_nnab(pid_i,cov_nbindx))
+        #           j
+        #        /
+        #  pid_i - j
+        #        \
+        #           j
+        #
+        path_found = False 
+        for n_indx in range( N_o,N_f+1):
+            j = cov_nblist[n_indx]
+            if(debug):
+                print " checking NN %d "%(j)
+
+            # If path traces back to original atom ring has been found 
+            if( atoms_in_ring  > 1 and j == pid_o ):
+                r_term = 0
+                path_found = True
+                if(debug): print ' ring found with ',atoms_in_ring 
+                break
+            j_good = True
+            if( debug ): print " check if j is part of a bad path ",BAD_PATH[pid_i] 
+            if( j in BAD_PATH[pid_i] ):
+                if(debug): print " j marked as a bad path "
+                j_good = False
+            # Prevent looping back
+            if( j in RING_ATOMS or j == pid_o ):
+                if(debug): print " j already in path "
+                j_good = False
+            if(  j_good ):
+                if( ring_type(j,ptclObj_o,strucC,cov_nblist, cov_nbindx) ):
+                    atoms_in_ring += 1
+                    RING_ATOMS.append(j)
+                    last_j = pid_i  
+                    pid_i = j           # set j to 
+                    if(debug):
+                        print "   atom %d added atom # %d "%(j,strucC.ptclC[j].tagsDict["number"])
+                        print "      last_j ",last_j
+                        print "      pid_i ",pid_i
+
+                    path_found = True 
+                    break
+            else:
+                if(debug): print " skipping previously found to prevent looping back ",last_j
+
+        if( not path_found ):
+            if(debug):
+                print " path not found pid_i %d last_j %d "%(pid_i,last_j)
+                
+                
+            if( j == pid_o ):
+                if(debug): print ' path has been reduced back to original atom %d '%(j)
+                RING_ATOMS = []
+                r_term = 0
+                
+            BAD_PATH[last_j].append( pid_i )
+            if( debug): print "setting bad path %d for last_j %d "%(pid_i,last_j)
+            
+            if( len(RING_ATOMS) > 1 ):
+                if(debug): print " pre pop RING_ATOMS ",RING_ATOMS
+                RING_ATOMS.pop( len(RING_ATOMS) -1 )
+                if(debug): print " post pop RING_ATOMS ",RING_ATOMS
+
+                pid_i = last_j
+                last_j = RING_ATOMS[-1]
+            else:
+                pid_i = pid_o
+                
+            
+            if( debug):
+                print " Bad path found no conjugated atoms " # attached to  %d stepping back to %d "%(BAD_PATH[-1],pid_i)
+                print "RING_ATOMS ",RING_ATOMS
+                print "BAD_PATH ",BAD_PATH
+            
+        
+        if ( len(RING_ATOMS) > max_ring_particles ):
+            if(debug):
+                print '   maximum possible particles in ring %d exceeded '%max_ring_particles
+                print "   pid_i %d last_j %d "%(pid_i,last_j)
+            # Set last atom as a bad path
+            #BAD_PATH[pid_i]
+            
+            # Reset lists and counts
+            RING_ATOMS = []
+            atoms_in_ring = 0
+            last_j = 0
+            pid_i = pid_o
+
+            path_cnt += 1
+            if( path_cnt > max_paths ):
+                r_term = 0
+            
+    return RING_ATOMS
+
+
 def find_rings(strucC,cov_nblist, cov_nbindx):
     """
     Find conjugate rings
     """
     import sys
-        
+
+    debug = False
+    
     RINGLIST = []
     RINGINDEX = []
     RING_NUMB = []
-
-    debug = 0
     
     IN_RING = []
 
@@ -1229,11 +1507,16 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
     RING_NUMB.append(zero)
     RINGLIST.append(zero)
     RINGINDEX.append(zero)
-        
+
         
     # relabel based on neighbors
     for pid_i, ptclObj_i  in strucC.ptclC:
-        RING_ATOMS = id_ring(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx)
+        RING_ATOMS = []
+        # If particle i is conjugated 
+        if( ring_type(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx) ):
+            RING_ATOMS = id_ring3(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx)
+        if( debug ):
+            print pid_i,RING_ATOMS
             
         if ( len(RING_ATOMS) > 1 ):
             # If member of ring alread part of another ring add new ring to existing ring
@@ -1285,11 +1568,11 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
     # update particles 
     for pid_i, ptclObj_i  in strucC.ptclC:
         ptclObj_i.tagsDict["ring"] =  RING_NUMB[pid_i]
-        #print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],
+        print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],ptclObj_i.tagsDict["ring"]
 	    		
 	    
 
-    debug = 0
+        #debug = True
     if(debug):
         print ring_cnt , " rings found "
         for r_numb in range(1,ring_cnt+1):
@@ -1347,7 +1630,7 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
         if( ptclObj_i.tagsDict["qgroup"] == 0  ):
             if( ptclObj_i.tagsDict["ring"] > 0 ):
                 ptclObj_i.tagsDict["qgroup"] = ptclObj_i.tagsDict["ring"]
-                print " setting qgroup  ring ",pid_i,ptclObj_o.tagsDict["symbol"],ptclObj_i.tagsDict["qgroup"],ptclObj_i.tagsDict["ring"]
+                print " setting qgroup  ring ",pid_i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["qgroup"],ptclObj_i.tagsDict["ring"]
                 if(  ptclObj_i.tagsDict["ring"] >  n_groups ):
                     n_groups = n_groups + 1
                 
