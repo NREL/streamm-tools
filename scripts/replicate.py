@@ -53,7 +53,7 @@ def get_options():
     parser.add_option("--sol_buf", dest="sol_buf",  type=float, default=3.0, help=" intra solvent buffer " )
     # Cut-off
     #   should be replaced by Van der Waals radi  
-    parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
+    parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=7.5, help="Minimum distance between atoms of molecules ")
 
     # Replication 
     parser.add_option("--den_target", dest="den_target", type=float, default=0.01, help="Target density g/cm^3 ")
@@ -122,8 +122,11 @@ def main():
         sys.exit(error_line)
 
     # Check to make sure all the interactions have parameters  
-    norm_dihparam = False 
-    paramC_f,strC_i  = topology.set_param(strC_i,paramC,norm_dihparam)
+    norm_dihparam = False
+    # Don't need since not using norm_dihparam
+    cov_nblist = []
+    cov_nbindx = []
+    paramC_f,strC_i  = topology.set_param(strC_i,paramC,norm_dihparam,cov_nblist, cov_nbindx)
 
     f_rep = StructureContainer()    
     f_new = pbcs.replicate(p,options,oligo_array,sol_array)
