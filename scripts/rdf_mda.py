@@ -463,11 +463,10 @@ def main():
                             
                             
                             
-                            "
-                            else:
-                                # Set unincluded pairs to have a seperation beyond the cut off
-                                    dist[p_i,p_j] = options.r_cut + 1.0
-                                    """
+                            #else:
+                            #    # Set unincluded pairs to have a seperation beyond the cut off
+                            #        dist[p_i,p_j] = options.r_cut + 1.0
+                            #        """
 
                     #new_rdf, edges = numpy.histogram(dist, bins=n_bins, range=(dmin, dmax))
                     #rdf += new_rdf
