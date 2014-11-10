@@ -2,6 +2,9 @@
 
 """
 Subroutines for reading and writing gaussian related files
+
+(needs to be incorporated into simulation object )
+
 """
 
 # Dr. Travis Kemper
@@ -14,6 +17,7 @@ import numpy as np
 
 from periodictable import periodictable
 from particles  import Particle
+import units 
 
 
 def read_fchk(strucC,fchk_file):
@@ -21,9 +25,15 @@ def read_fchk(strucC,fchk_file):
     Read in structure information from gaussian fchk file
 
     Args:
-        strucC (str) 
+        strucC (StructureContainer) 
         fchk_file (str) gaussian fchk file
-
+    Return:
+        strucC (StructureContainer) 
+        TOTAL_ENERGY (float) 
+        calctype  (str) 
+        method (str) 
+        basis (str) 
+        
     """
 
 
@@ -34,11 +44,6 @@ def read_fchk(strucC,fchk_file):
         pt_update = True
 
         
-    # Energy conversion
-    # http://physics.nist.gov/cgi-bin/cuu/Value?threv
-    HtoeV = 27.211385
-
-    bohr2angstrom = 0.5291772086
 
     F = open(fchk_file,'r')
     Lines = F.readlines()
@@ -68,7 +73,7 @@ def read_fchk(strucC,fchk_file):
                         
             else:
                 for r_i in  map(float,col) :
-                    R_all.append( r_i*bohr2angstrom )
+                    R_all.append( units.convert_bohr_ang(r_i) )
 
         if( read_eln ):
             if ( eln_p_cnt == NA ):
@@ -110,7 +115,7 @@ def read_fchk(strucC,fchk_file):
 
         if( len(col) > 2 ):
             if( col[0] == "Total" and col[1] == "Energy" ):
-                TOTAL_ENERGY = float( col[3] )*HtoeV
+                TOTAL_ENERGY = units.convert_H_eV(float( col[3] ) )
 
         if( len(col) == 5 ):
             if( col[0] == "Number" and col[1] == "of"  and col[2] == "atoms" ):
@@ -151,6 +156,14 @@ def read_fchk(strucC,fchk_file):
 def get_dih_id( zmatrix ):
     """
     Find dihedral id's atoms and values from zmatrix
+
+    Args:
+        zmatrix (str) gaussian zmatrix
+    Return:
+        DIH_ID (list) of dihedral id's
+        DIH_VAL (list) of dihedral angle values 
+        DIH_ATOMS (list) of atom #'s in dihedral 
+
     """
     
     import sys
@@ -197,6 +210,12 @@ def get_dih_id( zmatrix ):
 def com_zmatrix(com_name):
     """
     Get zmatrix from gaussian input file
+
+    Args:
+        com_name (str) gaussian input file name
+    Return:
+        zmatrix (str) gaussian zmatrix
+        
     """
 
     # get lines 
@@ -269,7 +288,9 @@ def tag_dih(strucC, RING_CONNECT, DIH_ID, DIH_VAL, DIH_ATOMS ):
 
 
 def read_dihlist(dlist_name):
-    
+    """
+    Read list of dihedrals from formated file for torsional PES evaluation 
+    """
     
     DIH_ID = []
     DIH_VAL = []
@@ -299,7 +320,7 @@ def read_dihlist(dlist_name):
     
 def write_dihlist(dlist_name,strucC, DIH_ID, DIH_VAL, DIH_TAG, DIH_ATOMS ):
     """
-    Write dihidral list
+    Write dihidral list formated file 
     """
     verbose = True
     

@@ -461,6 +461,9 @@ def getsys_json(strucC,paramC, json_file):
         json_data (json structure data )
 
     """
+    debug = False
+    
+    error_line = ""
 
     # Load periodic table 
     pt = periodictable()
@@ -481,7 +484,8 @@ def getsys_json(strucC,paramC, json_file):
             strucC.latvec.append(  np.array( [float(lv_array[6]),float(lv_array[7]),float(lv_array[8])] ) )
         else:
             print " No latvector data "
-            
+        # Set tags to read in 
+        tagid_list = ["chain","ring","resname","residue","linkid","fftype","qgroup","lmptype","gtype"]
         if( 'particle' in struc_data):
             particle_data = struc_data["particle"]
 
@@ -502,31 +506,18 @@ def getsys_json(strucC,paramC, json_file):
                 # Create particle
                 pt_i = Particle( r_i,type_i,q_i,m_i )
                 # Find needed tags
-                chain_i = int( particle_data["chain"][p_i] )
-                ring_i = particle_data["ring"][p_i]
-                resname_i = particle_data["resname"][p_i]
-                residue_i = particle_data["residue"][p_i]
-                linkid_i = particle_data["linkid"][p_i]
-                fftype_i = particle_data["fftype"][p_i]
-                qgroup_i = particle_data["qgroup"][p_i]
-                lmptype_i = particle_data["lmptype"][p_i]
-                # _i = particle_data[""][p_i]
-                # Add particle to structure
+                pt_i.tagsDict["symbol"] = atomic_symb
+
+                # Set tags 
+                for tagid in tagid_list:                    
+                    if( tagid in particle_data):
+                        if( debug): print " reading %s for particle %d with value %s "%(tagid,p_i,pt_i.tagsDict[tagid])
+                        pt_i.tagsDict[tagid] = particle_data[tagid][p_i]
+                    else:
+                        error_line += " tag %s not found for particle %d   \n"%(tagid,p_i)
+                
                 # Get element information
                 el = pt.getelementWithSymbol(atomic_symb)
-
-                pt_i.tagsDict["symbol"] = atomic_symb
-                pt_i.tagsDict["chain"] = chain_i
-                pt_i.tagsDict["ring"] = ring_i
-                pt_i.tagsDict["resname"] = resname_i
-                pt_i.tagsDict["gtype"] = atomic_symb
-
-                pt_i.tagsDict["qgroup"] = qgroup_i
-                pt_i.tagsDict["lmptype"] = lmptype_i
-
-                pt_i.tagsDict["residue"] = residue_i
-                pt_i.tagsDict["linkid"] = linkid_i
-                pt_i.tagsDict["fftype"] = fftype_i
                 pt_i.tagsDict["number"] = el.number
                 pt_i.tagsDict["mass"] = el.mass
                 pt_i.tagsDict["cov_radii"] = el.cov_radii
@@ -536,8 +527,6 @@ def getsys_json(strucC,paramC, json_file):
                 pt_i.tagsDict["cov_radii"] = el.cov_radii
                 pt_i.tagsDict["vdw_radi"] = el.vdw_radii
 
-                #tagsD={"symbol":atomic_symb,"chain":chain_i,"ring":ring_i,"resname":resname_i,"residue":residue_i,"linkid":linkid_i,"fftype":fftype_i,"symbol":atomic_symb,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
-                #pt_i.setTagsDict(tagsD)
                 strucC.ptclC.put(pt_i)
 
         else:
@@ -547,65 +536,93 @@ def getsys_json(strucC,paramC, json_file):
             bonded_data =  struc_data["bonded"]
 
             # Read in bonds
-            for b_indx in range( len(bonded_data["bonds"] )):
-                type_i = str(bonded_data["bonds"][b_indx][0] )
-                a_i = int(bonded_data["bonds"][b_indx][1] )
-                a_j = int(bonded_data["bonds"][b_indx][2] )
-                r_i = 0.0
-                b_i = Bond( a_i, a_j,r_i,type_i )
-                lmpindx = int(bonded_data["bonds"][b_indx][3] )
-                g_indx = int(bonded_data["bonds"][b_indx][4] )
-                b_i.set_lmpindx(lmpindx)
-                b_i.set_g_indx(g_indx)
-                strucC.bondC.put(b_i)
+            if( "bonds"  in bonded_data ):
+
+                for b_indx in range( len(bonded_data["bonds"] )):
+                    type_i = str(bonded_data["bonds"][b_indx][0] )
+                    a_i = int(bonded_data["bonds"][b_indx][1] )
+                    a_j = int(bonded_data["bonds"][b_indx][2] )
+                    r_i = 0.0
+                    b_i = Bond( a_i, a_j,r_i,type_i )
+                    # Read in lammps and gromacs reference numbers 
+                    if( len( bonded_data["bonds"][b_indx] ) >= 5 ):
+                        lmpindx = int(bonded_data["bonds"][b_indx][3] )
+                        g_indx = int(bonded_data["bonds"][b_indx][4] )
+                        b_i.set_lmpindx(lmpindx)
+                        b_i.set_g_indx(g_indx)
+                    else:
+                        error_line += " lmpindx and g_indx not found for bond %d  \n"%(b_indx)
+                    
+                    strucC.bondC.put(b_i)
 
             # Read in angles
-            for a_indx in range( len(bonded_data["angles"] )):
-                type_i = str(bonded_data["angles"][a_indx][0] )
-                a_k = int(bonded_data["angles"][a_indx][1] )
-                a_i = int(bonded_data["angles"][a_indx][2] )
-                a_j = int(bonded_data["angles"][a_indx][3] )
-                theta_i = 0.0
-                a_i = Angle( a_k,a_i, a_j,theta_i,type_i )            
-                lmpindx = int(bonded_data["angles"][a_indx][4] )
-                g_indx = int(bonded_data["angles"][a_indx][5] )
-                a_i.set_lmpindx(lmpindx)
-                a_i.set_g_indx(g_indx)
-                strucC.angleC.put(a_i)
+            if( "angles"  in bonded_data ):
+
+                for a_indx in range( len(bonded_data["angles"] )):
+                    type_i = str(bonded_data["angles"][a_indx][0] )
+                    a_k = int(bonded_data["angles"][a_indx][1] )
+                    a_i = int(bonded_data["angles"][a_indx][2] )
+                    a_j = int(bonded_data["angles"][a_indx][3] )
+                    theta_i = 0.0
+                    a_i = Angle( a_k,a_i, a_j,theta_i,type_i )
+                    # Read in lammps and gromacs reference numbers 
+                    if( len( bonded_data["angles"][a_indx] ) >= 6 ):
+                        lmpindx = int(bonded_data["angles"][a_indx][4] )
+                        g_indx = int(bonded_data["angles"][a_indx][5] )
+                        a_i.set_lmpindx(lmpindx)
+                        a_i.set_g_indx(g_indx)
+                    else:
+                        error_line += " lmpindx and g_indx not found for angle %d \n"%(a_indx)
+                    
+                    strucC.angleC.put(a_i)
 
             # Read in dihedrals
-            for d_indx in range( len(bonded_data["dihedrals"] )):
-                type_i = str(bonded_data["dihedrals"][d_indx][0] )
-                a_k = int(bonded_data["dihedrals"][d_indx][1] )
-                a_i = int(bonded_data["dihedrals"][d_indx][2] )
-                a_j = int(bonded_data["dihedrals"][d_indx][3] )
-                a_l = int(bonded_data["dihedrals"][d_indx][4] )
-                theta_i = 0.0
-                d_i = Dihedral( a_k,a_i, a_j,a_l,theta_i,type_i )  
-                lmpindx = int(bonded_data["dihedrals"][d_indx][5] )
-                g_indx = int(bonded_data["dihedrals"][d_indx][6] )
-                d_i.set_lmpindx(lmpindx)
-                d_i.set_g_indx(g_indx)
-                strucC.dihC.put(d_i)
+            if( "dihedrals"  in bonded_data ):
+
+                for d_indx in range( len(bonded_data["dihedrals"] )):
+                    type_i = str(bonded_data["dihedrals"][d_indx][0] )
+                    a_k = int(bonded_data["dihedrals"][d_indx][1] )
+                    a_i = int(bonded_data["dihedrals"][d_indx][2] )
+                    a_j = int(bonded_data["dihedrals"][d_indx][3] )
+                    a_l = int(bonded_data["dihedrals"][d_indx][4] )
+                    theta_i = 0.0
+                    d_i = Dihedral( a_k,a_i, a_j,a_l,theta_i,type_i )
+                    # Read in lammps and gromacs reference numbers 
+                    if( len( bonded_data["dihedrals"][d_indx] ) >= 7 ):
+                        lmpindx = int(bonded_data["dihedrals"][d_indx][5] )
+                        g_indx = int(bonded_data["dihedrals"][d_indx][6] )
+                        d_i.set_lmpindx(lmpindx)
+                        d_i.set_g_indx(g_indx)
+                    else:
+                        error_line += " lmpindx and g_indx not found for dihedrals %d  \n"%(d_indx)
+                    strucC.dihC.put(d_i)
 
 
             # Read in dihedrals
-            for imp_indx in range( len(bonded_data["impropers"] )):
-                type_i = str(bonded_data["impropers"][imp_indx][0] )
-                a_k = int(bonded_data["impropers"][imp_indx][1] )
-                a_i = int(bonded_data["impropers"][imp_indx][2] )
-                a_j = int(bonded_data["impropers"][imp_indx][3] )
-                a_l = int(bonded_data["impropers"][imp_indx][4] )
-                theta_i = 0.0
-                imp_i = Improper( a_k,a_i, a_j,a_l,theta_i,type_i )  
-                lmpindx = int(bonded_data["impropers"][imp_indx][5] )
-                g_indx = int(bonded_data["impropers"][imp_indx][6] )
-                d_i.set_lmpindx(lmpindx)
-                d_i.set_g_indx(g_indx)
-                strucC.impC.put(d_i)
+            if( "impropers"  in bonded_data ):
+
+                for imp_indx in range( len(bonded_data["impropers"] )):
+                    type_i = str(bonded_data["impropers"][imp_indx][0] )
+                    a_k = int(bonded_data["impropers"][imp_indx][1] )
+                    a_i = int(bonded_data["impropers"][imp_indx][2] )
+                    a_j = int(bonded_data["impropers"][imp_indx][3] )
+                    a_l = int(bonded_data["impropers"][imp_indx][4] )
+                    theta_i = 0.0
+                    imp_i = Improper( a_k,a_i, a_j,a_l,theta_i,type_i )
+                    # Read in lammps and gromacs reference numbers 
+                    if( len( bonded_data["impropers"][imp_indx] ) >= 7 ):
+                        lmpindx = int(bonded_data["impropers"][imp_indx][5] )
+                        g_indx = int(bonded_data["impropers"][imp_indx][6] )
+                        d_i.set_lmpindx(lmpindx)
+                        d_i.set_g_indx(g_indx)
+                    else:
+                        error_line += " lmpindx and g_indx not found for impropers %d  \n"%(imp_indx)
+                        
+                    strucC.impC.put(d_i)
                 
         else:
-            print " No bonded structure data "        
+            print " No bonded structure data "
+
 
         if( 'ffparameter' in struc_data):
             ffparameter_data =  struc_data["ffparameter"]
@@ -615,87 +632,108 @@ def getsys_json(strucC,paramC, json_file):
             atypC_p = paramC.atypC
             dtypC_p = paramC.dtypC
 
+            # Read defaults
+            keyword = "defaults"
+            if( keyword in ffparameter_data ):
 
-            paramC.set_nbfunc( int( ffparameter_data["defaults"][0] ) )
-            paramC.set_combmixrule( int( ffparameter_data["defaults"][1] ) )
-            paramC.set_genpairs( str( ffparameter_data["defaults"][2] ) )
-            paramC.set_fudgeLJ( float( ffparameter_data["defaults"][3] ) )
-            paramC.set_fudgeQQ( float( ffparameter_data["defaults"][4] ) )
+                paramC.set_nbfunc( int( ffparameter_data["defaults"][0] ) )
+                paramC.set_combmixrule( int( ffparameter_data["defaults"][1] ) )
+                paramC.set_genpairs( str( ffparameter_data["defaults"][2] ) )
+                paramC.set_fudgeLJ( float( ffparameter_data["defaults"][3] ) )
+                paramC.set_fudgeQQ( float( ffparameter_data["defaults"][4] ) )
 
-            for lj_list in ffparameter_data["ljtypes"] :
-                ljObj_p = ljtype( str(lj_list[0]) )
-                ljObj_p.setmass(float(lj_list[1]) )
-                ljObj_p.setparam( float(lj_list[2]),float(lj_list[3]) )
-                ljtypC_p.put(ljObj_p)
+            keyword = "ljtypes"
+            if( keyword in ffparameter_data ):
 
-            for btyp_list  in ffparameter_data["bondtypes"]:
-                btype = str(btyp_list[0])
-                btypObj_p = bondtype( str(btyp_list[1]) , str(btyp_list[2]), btype )
-                lmpindx = int(btyp_list[3] )
-                g_indx = int(btyp_list[4] )
-                btypObj_p.set_lmpindx(lmpindx)
-                btypObj_p.set_g_indx(g_indx)
-                
-                if( btype == "harmonic" ):
-                    btypObj_p.setharmonic(float(btyp_list[5]),float(btyp_list[6]) )
-                else:
-                    error_line = " Unknow type %s  in bondtypes "%(btype)
-                    error_line += str(btyp_list)
-                    sys.exit(error_line)
+                for lj_list in ffparameter_data["ljtypes"] :
+                    ljObj_p = ljtype( str(lj_list[0]) )
+                    ljObj_p.setmass(float(lj_list[1]) )
+                    ljObj_p.setparam( float(lj_list[2]),float(lj_list[3]) )
+                    ljtypC_p.put(ljObj_p)
+
+            keyword = "bondtypes"
+            if( keyword in ffparameter_data ):
+
+
+                for btyp_list  in ffparameter_data["bondtypes"]:
+                    btype = str(btyp_list[0])
+                    btypObj_p = bondtype( str(btyp_list[1]) , str(btyp_list[2]), btype )
+                    lmpindx = int(btyp_list[3] )
+                    g_indx = int(btyp_list[4] )
+                    btypObj_p.set_lmpindx(lmpindx)
+                    btypObj_p.set_g_indx(g_indx)
+
+                    if( btype == "harmonic" ):
+                        btypObj_p.setharmonic(float(btyp_list[5]),float(btyp_list[6]) )
+                    else:
+                        error_line += " Unknow type %s  in bondtypes "%(btype)
+                        error_line += str(btyp_list)
+                        sys.exit(error_line)
+
+                    btypC_p.put(btypObj_p)
+
                     
-                btypC_p.put(btypObj_p)
+            keyword = "angletypes"
+            if( keyword in ffparameter_data ):
 
-            for atyp_list  in ffparameter_data["angletypes"]:
-                atype = str(atyp_list[0])
-                atypObj_p = angletype( str(atyp_list[1]) , str(atyp_list[2]) , str(atyp_list[3]) , atype )
-                lmpindx = int(atyp_list[4] )
-                g_indx = int(atyp_list[5] )
-                atypObj_p.set_lmpindx(lmpindx)
-                atypObj_p.set_g_indx(g_indx)
-                if( atype == "harmonic" ):
-                    atypObj_p.setharmonic(float(atyp_list[6]),float(atyp_list[7]) )
-                else:
-                    error_line = " Unknow type %s  in angletypes "%(atype)
-                    error_line += str(atyp_list)
-                    sys.exit(error_line)
-                atypC_p.put(atypObj_p)
 
-            for dtyp_list in ffparameter_data["dihtypes"]:
-                dtype = str(dtyp_list[0])
-                dtypObj_p = dihtype( str(dtyp_list[1]) , str(dtyp_list[2]) , str(dtyp_list[3]) , str(dtyp_list[4]) , dtype )
-                lmpindx = int(dtyp_list[5] )
-                g_indx = int(dtyp_list[6] )
-                dtypObj_p.set_lmpindx(lmpindx)
-                dtypObj_p.set_g_indx(g_indx)
-                if( dtype== "harmonic" ):
-                    dtypObj_p.setharmonic(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9])  )
-                if( dtype== "opls" ):
-                    dtypObj_p.setopls(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]) )
-                if( dtype== "rb" ):
-                    dtypObj_p.setrb(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]),float(dtyp_list[11]),float(dtyp_list[12]) )
+                for atyp_list  in ffparameter_data["angletypes"]:
+                    atype = str(atyp_list[0])
+                    atypObj_p = angletype( str(atyp_list[1]) , str(atyp_list[2]) , str(atyp_list[3]) , atype )
+                    lmpindx = int(atyp_list[4] )
+                    g_indx = int(atyp_list[5] )
+                    atypObj_p.set_lmpindx(lmpindx)
+                    atypObj_p.set_g_indx(g_indx)
+                    if( atype == "harmonic" ):
+                        atypObj_p.setharmonic(float(atyp_list[6]),float(atyp_list[7]) )
+                    else:
+                        error_line += " Unknow type %s  in angletypes "%(atype)
+                        error_line += str(atyp_list)
+                        sys.exit(error_line)
+                    atypC_p.put(atypObj_p)
 
-                else:
-                    error_line = " Unknow type %s  in dihtypes "%(dtype)
-                    error_line += str(dtyp_list)
-                    sys.exit(error_line)
 
-                dtypC_p.put(dtypObj_p)
-        
-            for imptyp_list in ffparameter_data["imptypes"]:
-                imptype = str(imptyp_list[0])
-                imptypObj_p = imptype( str(imptyp_list[1]) , str(imptyp_list[2]) , str(imptyp_list[3]) , str(imptyp_list[4]) , imptype )
-                lmpindx = int(imptyp_list[5] )
-                g_indx = int(imptyp_list[6] )
-                imptypObj_p.set_lmpindx(lmpindx)
-                imptypObj_p.set_g_indx(g_indx)
-                if( imptype == "improper" ):
-                    imptypObj_p.setimp(float(imptyp_list[7]),float(imptyp_list[8]) ) 
-                else:
-                    error_line = " Unknow type %s  in imptypes "%(imptype)
-                    error_line += str(imptyp_list)
-                    sys.exit(error_line)
+            keyword = "dihtypes"
+            if( keyword in ffparameter_data ):
+                for dtyp_list in ffparameter_data["dihtypes"]:
+                    dtype = str(dtyp_list[0])
+                    dtypObj_p = dihtype( str(dtyp_list[1]) , str(dtyp_list[2]) , str(dtyp_list[3]) , str(dtyp_list[4]) , dtype )
+                    lmpindx = int(dtyp_list[5] )
+                    g_indx = int(dtyp_list[6] )
+                    dtypObj_p.set_lmpindx(lmpindx)
+                    dtypObj_p.set_g_indx(g_indx)
+                    if( dtype== "harmonic" ):
+                        dtypObj_p.setharmonic(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9])  )
+                    if( dtype== "opls" ):
+                        dtypObj_p.setopls(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]) )
+                    if( dtype== "rb" ):
+                        dtypObj_p.setrb(float(dtyp_list[7]),float(dtyp_list[8]),float(dtyp_list[9]),float(dtyp_list[10]),float(dtyp_list[11]),float(dtyp_list[12]) )
 
-                imptypC_p.put(imptypObj_p)
+                    else:
+                        error_line += " Unknow type %s  in dihtypes "%(dtype)
+                        error_line += str(dtyp_list)
+                        sys.exit(error_line)
+
+                    dtypC_p.put(dtypObj_p)
+
+            keyword = "imptypes"
+            if( keyword in ffparameter_data ):
+
+                for imptyp_list in ffparameter_data["imptypes"]:
+                    imptype = str(imptyp_list[0])
+                    imptypObj_p = imptype( str(imptyp_list[1]) , str(imptyp_list[2]) , str(imptyp_list[3]) , str(imptyp_list[4]) , imptype )
+                    lmpindx = int(imptyp_list[5] )
+                    g_indx = int(imptyp_list[6] )
+                    imptypObj_p.set_lmpindx(lmpindx)
+                    imptypObj_p.set_g_indx(g_indx)
+                    if( imptype == "improper" ):
+                        imptypObj_p.setimp(float(imptyp_list[7]),float(imptyp_list[8]) ) 
+                    else:
+                        error_line += " Unknow type %s  in imptypes "%(imptype)
+                        error_line += str(imptyp_list)
+                        sys.exit(error_line)
+
+                    imptypC_p.put(imptypObj_p)
         
         else:
             print " No ffparameter structure data "        
@@ -703,6 +741,11 @@ def getsys_json(strucC,paramC, json_file):
         
     else:
         print " No structure data "        
+
+    error_file = "error.txt"
+    F = open(error_file , 'w' )
+    F.write(error_line)
+    F.close()
 
         
     return strucC,paramC,json_data

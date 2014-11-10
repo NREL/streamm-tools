@@ -12,9 +12,18 @@ Vector opperations for particles in a box
 import numpy as np
 
 def delta_r_c(r_i,r_j,latticevec):
+    """
+    Find magnitude of dr_ij using cubic (_c) periodic boundry conditions 
 
-    # Find magnitude of dr_ij
+    Args:
+         r_i (vector numpy[3] ) position of particle i 
+         r_j (vector numpy[3] ) position of particle j
+         latticevec (numpy[3][3] ) 3 lattice vectors 
+    Returns:
+         dr_pbc (numpy[3]) vector from r_i to r_j 
+    """
     r_ij  = r_j - r_i
+    
     
     r_x = r_ij[0] - latticevec[0][0] * round( r_ij[0]/  latticevec[0][0] )
     r_y = r_ij[1] - latticevec[1][1] * round( r_ij[1]/  latticevec[1][1] )
@@ -26,7 +35,15 @@ def delta_r_c(r_i,r_j,latticevec):
 
 def sq_drij_c(r_i,r_j,latticevec):
     """
-    Reutrn square magnitude of distance between to vectors  using cubic periodic boundry conditions 
+    Reutrn square magnitude of distance between two vectors
+    using cubic periodic boundry conditions 
+    Args:
+         r_i (vector numpy[3] ) position of particle i 
+         r_j (vector numpy[3] ) position of particle j
+         latticevec (numpy[3][3] ) 3 lattice vectors 
+    Returns:
+         sq_dr (float) square of vector from r_i to r_j 
+
     """
 
     dr_pbc = delta_r_c(r_i,r_j,latticevec)
@@ -39,7 +56,16 @@ def sq_drij_c(r_i,r_j,latticevec):
 
 def norm_r_ij(r_i,r_j,latticevec):
     """
-    Normailze difference between two vectors 
+    Normailze difference between two vectors
+    using cubic periodic boundry conditions 
+    
+    Args:
+         r_i (vector numpy[3] ) position of particle i 
+         r_j (vector numpy[3] ) position of particle j
+         latticevec (numpy[3][3] ) 3 lattice vectors 
+    Returns:
+         sq_dr (float) square of vector from r_i to r_j
+         
     """
 
     debug = False
@@ -59,6 +85,13 @@ def getAngle(r_i,r_j):
       r_i = r_ik
       r_j = r_ij
       cos( \theta ) = ( a dot b ) / ( |a| |b| )
+      
+    Args:
+         r_i (numpy[3] ) vector from particle i to particle k
+         r_j (numpy[3] ) vector from particle i to particle j 
+    Returns:
+         ang_deg (float) angle_{kij}
+      
     """
     #
 
@@ -74,14 +107,14 @@ def getAngle(r_i,r_j):
         cos_ang = np.arccos(dot_ij )
         ang_deg = np.rad2deg( cos_ang )
     
-    
     return ang_deg
 
 
 def replicate(p,options,oligo_array,sol_array): 
-
     """
     Replicate structures
+
+    (should be placed in structure container??)
 
     Arguments
         p (object) mpirNREL 
@@ -111,8 +144,8 @@ def replicate(p,options,oligo_array,sol_array):
             itp_file
             norm_dihparam
 
-        oligo_array  (StructureContainer) of oligomer  molecules
-        sol_array    (StructureContainer) of solvent molecules  
+        oligo_array  (array of StructureContainer) of oligomer  molecules
+        sol_array    (array StructureContainer) of solvent molecules  
         
     Returns: None
 
