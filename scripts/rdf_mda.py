@@ -31,6 +31,8 @@ from particles import Particle
 from particles import ParticleContainer
 from bonds     import BondContainer
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import mpiNREL
 import pbcs
 import json, math , sys 
@@ -159,6 +161,7 @@ def main():
     #  Initialize blank system 
     # 
     struc_o = StructureContainer()
+    param_o = ParameterContainer() 
 
     if( rank == 0 ):
 
@@ -188,13 +191,13 @@ def main():
     #
     if( len(options.in_top) ):
         if( options.verbose ): print  "     GROMACS .top file ",options.in_top
-        struc_o,ljmixrule = gromacs.read_top(struc_o,options.in_top)
+        struc_o,ljmixrule = gromacs.read_top(struc_o,param_o,options.in_top)
     # 
     # Read lammps data file 
     #
     if( len(options.in_data) ):
         if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
-        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+        struc_o = lammps.read_lmpdata(struc_o,param_o,options.in_data)
 
 
     # 
@@ -442,6 +445,8 @@ def main():
                     distance_array(coor_i,coor_j, box, result=dist)  # use pre-allocated array, box not fully correct!!
 
                     for p_i in range(n_i):
+
+                        p_i_hasnieghbor = False 
                         for p_j in range(n_j):
 
                             #if( debug):
@@ -451,9 +456,14 @@ def main():
                                 if( dist[p_i,p_j] <= options.r_cut ):
                                     bin_index = int( round( dist[p_i,p_j] / options.bin_size) )
                                     rdf_cnt_ij[bin_index] += 2
+                                    p_i_hasnieghbor = True 
 
-                                    
-                                    """
+                        if( p_i_hasnieghbor ):
+                            p_i_nb_cnt += 1
+                            
+                            
+                            
+                            "
                             else:
                                 # Set unincluded pairs to have a seperation beyond the cut off
                                     dist[p_i,p_j] = options.r_cut + 1.0
@@ -547,7 +557,9 @@ def main():
         dat_out.write(dat_lines)
         #
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
-	cnt_sum = 0.0 
+	cnt_sum_i = 0.0 
+	cnt_sum_j = 0.0 
+	cnt_sum_ij = 0.0 
 	for bin_index in range( 1,n_bins):
 	    
 	    r_val = options.bin_size*float(bin_index)
@@ -556,7 +568,9 @@ def main():
     
 	    dr_cnt = float( rdf_cnt[bin_index] )
 	    dr_cnt_norm =     dr_cnt    /float(rdf_frames)
-            cnt_sum += dr_cnt_norm/float(sum_i)
+            cnt_sum_i += dr_cnt_norm/float(sum_i)/2.0
+            cnt_sum_j += dr_cnt_norm/float(sum_j)/2.0
+            cnt_sum_ij += dr_cnt_norm/float(sum_j+sum_i)
 	    dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
 	    dr_vol_apx = 4.0*math.pi*(  r_val**2 )
 	    
@@ -564,7 +578,7 @@ def main():
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
 	    
-	    dat_out.write("\n  %d %f %f %f %f %f %f %f " % (bin_index,r_val,dr_cnt_norm,cnt_sum,dr_vol,dr_vol_apx,sphere_g,box_g) )
+	    dat_out.write("\n  %f %f %f %f %f %f %f %f " % (r_val,box_g,sphere_g,cnt_sum_i,cnt_sum_j,cnt_sum_ij,dr_vol,dr_vol_apx) )
         
         t_f = datetime.datetime.now()
         dt_sec  = t_f.second - t_i.second
