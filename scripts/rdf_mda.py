@@ -356,6 +356,7 @@ def main():
     dmax = options.r_cut
     sq_r_cut = options.r_cut**2
     rdf_cnt_ij = np.zeros(n_bins+1)    
+    rdf_cnt_pij = np.zeros([sum_i,n_bins+1])    
     volume_i = []
     volume_sum_i = 0.0 
     rdf_frames = 0
@@ -426,7 +427,7 @@ def main():
 
     volume_sum_i = 0.0
     rdf_frames = 0 
-
+    p_i_nb_cnt = 0 
     # setting the skip for the traj
     # does not seem to work 
     #universe.trajectory.skip = options.frame_step
@@ -456,6 +457,8 @@ def main():
                                 if( dist[p_i,p_j] <= options.r_cut ):
                                     bin_index = int( round( dist[p_i,p_j] / options.bin_size) )
                                     rdf_cnt_ij[bin_index] += 2
+                                    rdf_cnt_pij[p_i][bin_index] += 1
+                                    rdf_cnt_pij[p_j][bin_index] += 1
                                     p_i_hasnieghbor = True 
 
                         if( p_i_hasnieghbor ):
@@ -511,7 +514,12 @@ def main():
 	rdf_cnt[bin_index] = p.allReduceSum(rdf_cnt_ij[bin_index])
 
         # print " Proc %d rdf_cnt_ij %f sum %f "% (rank,rdf_cnt_ij[bin_index],rdf_cnt[bin_index] )
+
+
     
+
+    
+
     p.barrier() # Barrier for MPI_COMM_WORLD
 
     
@@ -548,7 +556,8 @@ def main():
 	dat_lines +="\n#      Sphere volume  %f A^3 " % (vol_cut )
 	dat_lines +="\n#      Average Sphere density j  %f N A^3 " % (sphere_den_j )
 	dat_lines +="\n#    "
-	dat_lines +="\n# bin index ; r     ; count_ave/frame  ; count_sum/frame/n_i ; dr vol ;  dr vol(aprox) ; g_sphere ; g_boxs  "
+	dat_lines +="\n# r (A) ; g_boxs ; g_sphere ; count(r)/frame  ; count_sum/frame/n_i ;  count_sum/frame/n_j ; count_sum/frame/(n_i+n_j) ;  dr vol ;  dr vol(aprox) ; prob_i(<r) ;prob_j (<r)  ; ave_nn_i (<r)  ; ave_nn_i (<r)"
+	dat_lines +="\n#   1        2         3             4                5                      6                      7                        8            9            10           11             12               13  "
         if( options.verbose ):
             print dat_lines
         dat_file = options.output_id + ".dat"
@@ -558,7 +567,11 @@ def main():
 	#                bin_index , r_val , dr_cnt_norm      , dr_vol,  dr_vol_apx,     sphere_g, box_g
 	cnt_sum_i = 0.0 
 	cnt_sum_j = 0.0 
-	cnt_sum_ij = 0.0 
+	cnt_sum_ij = 0.0
+
+        p_hasnn_i = np.zeros(sum_i)    # Has at least 1 NN under distance r
+        p_hasnn_j = np.zeros(sum_j)    
+        
 	for bin_index in range( 1,n_bins):
 	    
 	    r_val = options.bin_size*float(bin_index)
@@ -576,8 +589,29 @@ def main():
 	    dr_rho = dr_cnt_norm/dr_vol
 	    sphere_g = dr_rho/sphere_den_j/float( sum_i )
 	    box_g = dr_rho/box_den_j/float( sum_i )
-	    
-	    dat_out.write("\n  %f %f %f %f %f %f %f %f " % (r_val,box_g,sphere_g,cnt_sum_i,cnt_sum_j,cnt_sum_ij,dr_vol,dr_vol_apx) )
+
+            # Find probality of a particle have nearest neighbor under a given length
+            
+            nn_cnt_i = 0
+            nn_cnt_j = 0 
+            for p_i in range(n_i):
+                p_hasnn_i[p_i] += rdf_cnt_pij[p_i][bin_index]
+                if( p_hasnn_i[p_i] > 0 ):
+                    nn_cnt_i  += 1
+                    
+            prob_i = float(nn_cnt_i)/float(rdf_frames)/float(sum_i)                 
+            nn_i = float(np.sum(p_hasnn_i))/float(rdf_frames)/float(sum_i)                 
+            for p_j in range(n_j):
+                p_hasnn_j[p_j] += rdf_cnt_pij[p_j][bin_index]
+                if( p_hasnn_j[p_j] > 0 ):
+                    nn_cnt_j  += 1
+            prob_j = nn_cnt_j/float(rdf_frames)/float(sum_j)                 
+            nn_j = float(np.sum(p_hasnn_j))/float(rdf_frames)/float(sum_j)                 
+
+
+     
+	    dat_out.write("\n  %f %f %f %f %f %f %f %f %f  %f %f  %f %f " % (r_val,box_g,sphere_g,dr_cnt_norm,cnt_sum_i,cnt_sum_j,cnt_sum_ij,dr_vol,dr_vol_apx,prob_i,prob_j,nn_i,nn_j) )
+	    #dat_out.write("\n  %f %f %f %f %f %f %f %f %f  %f %f  %f %f " % (r_val,box_g,sphere_g,dr_cnt_norm,cnt_sum_i,cnt_sum_j,cnt_sum_ij,dr_vol,dr_vol_apx,prob_i,prob_j,np.sum(p_hasnn_i[p_i]),np.sum(p_hasnn_i[p_i])) )
         
         t_f = datetime.datetime.now()
         dt_sec  = t_f.second - t_i.second
@@ -598,227 +632,3 @@ def main():
 if __name__=="__main__":
     main()
    
-
-
-"""
-    if( len(options.in_lammpsxyz) ):
-        
-        if( rank == 0 ):
-            if( options.verbose ): print "  Reading ",options.in_lammpsxyz
-            rdft_i = datetime.datetime.now()
-            
-        # Initialize line count
-        NP = len( ptclC_o )
-        line_cnt = 0
-        frame_cnt = 0
-        
-        pt_cnt = 0 
-        # Read in file line by line 
-        with open(options.in_lammpsxyz) as f:
-            for line in f:
-                line_cnt += 1
-                col = line.split()
-
-                if( line_cnt == 1  ):
-                    # Read first line to record number of particles NP
-                    NP = int(col[0])
-                    frame_cnt += 1
-                    pt_cnt = 0 
-                elif( line_cnt > 2 and len(col) >= 4 ):
-                    # Read lines and update particle postions 
-                    pt_cnt += 1
-                    struc_o.ptclC[pt_cnt].position = np.array(  [ float(col[1]),float(col[2]),float(col[3]) ] )
-                    atomic_symb = col[0]
-                    
-                    #if( pt_cnt == 1 ):
-                        #    print struc_o.ptclC[pt_cnt].postion
-                        # print "  POS ",pt_cnt, struc_o.ptclC[pt_cnt].postion[0], col[1]
-                
-                    #
-                    #r_i = [ col[1],col[2],col[3] ]
-                    #part_i = Particle( r_i,atomic_symb,q_i,m_i )
-                    #struc_i.put(part_i)
-
-                if( line_cnt > 1  and line_cnt > frame_cnt*(NP + 2) ):
-                    pt_cnt = 0
-
-                    if( options.frame_o <= frame_cnt ):
-                        if( frame_cnt <= options.frame_f  or  options.readall_f  ):
-                            if( frame_cnt%options.frame_step == 0 ):
-
-                                rdf_frames += 1
-                                proc_frame += 1
-                                
-                                debug = 0
-                                if( proc_frame > (size) ):
-                                    proc_frame = 1
-                                    if( debug ): print rank," proc frame > size ",size +1," reset to ",proc_frame
-
-                                if( split_list ): #proc_frame == (rank+1) ):
-
-                                    if( debug ): print rank," calcuating rdf frame ",rdf_frames,"  proc frame ",proc_frame
-
-                                    struc_o.maxminLatVec()
-                                    vol_i = struc_o.getVolume()
-                                    volume_i.append( vol_i )
-                                    volume_sum_i +=  vol_i
-
-                                    debug = 1
-                                    if( debug ):
-                                        print "proc",rank+1," analysis of frame %d on processor %d "%(frame_cnt,rank+1)," box from min max %f "%struc_o.latvec[0][0]
-
-                                    #rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
-                                    #
-                                    # Loop over list i
-                                    #
-                                    # for p_i, ptcl_i in struc_o.ptclC(list_i):
-
-                                    print  "       Startin loop "
-                                        
-                                    for p_i in myChunk_i:
-                                        ptcl_i = struc_o.ptclC[p_i]
-                                        r_i = np.array( [float(ptcl_i.position[0]),float(ptcl_i.position[1]),float(ptcl_i.position[2] )] )
-
-                                        
-                                        if( prtCl_time ):
-                                            pt_i = datetime.datetime.now()
-                                            
-                                        #
-                                        # Loop over list j
-                                        #
-                                        for p_j, ptcl_j in struc_o.ptclC(list_j):
-                                            add_ij = True 
-                                            if( p_j <= p_i):
-                                                add_ij = False 
-                                            #
-                                            # Check for intra vs. inter molecular
-                                            #
-                                            if( options.mol_inter ):
-                                                if( ptcl_i.tagsDict["chain"]  == ptcl_j.tagsDict["chain"] ): add_ij = False
-                                            if( options.mol_intra ):
-                                                if( ptcl_i.tagsDict["chain"]  != ptcl_j.tagsDict["chain"] ): add_ij = False
-                                            if( add_ij ):
-                                                r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-                                                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latvec)
-                                                if( r_ij_sq <= sq_r_cut ):
-                                                    m_ij = np.sqrt(r_ij_sq)
-                                                    bin_index = int( round( m_ij/options.bin_size) )
-                                                    rdf_cnt_ij[bin_index] += 2
-
-                                        if( prtCl_time ):
-                                            pt_f = datetime.datetime.now()
-
-                                            dt_sec  = pt_f.second - pt_i.second
-                                            dt_min  = pt_f.minute - pt_i.minute
-                                            if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                            if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                            print  "       Particle  %d  rdf calculated in %d min  %f sec "%(p_i,dt_min,dt_sec)                        
-                        
-                                # Print output
-                                if( rank == 0 and options.verbose ):
-                                    rdft_f = datetime.datetime.now()
-                                    dt_sec  = rdft_f.second - rdft_i.second
-                                    dt_min  = rdft_f.minute - rdft_i.minute
-                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                    if ( dt_min < 0 ): dt_min = 60.0 - dt_min
-                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                    log_line = "\n       Frame  %d  rdf calculated in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
-                                    log_line  += "\n       with volume %f Angstroms^3 estimated from max/min"%(vol_i)
-                                    log_out.write(log_line)
-                                    print log_line
-                                    # Rest intial time for next rdf calcution
-                                    rdft_i = datetime.datetime.now()
-
-                    frame_cnt += 1
-                
-            # Calculate rdf for last frame
-            if( options.frame_o <= frame_cnt ):
-
-                if( frame_cnt <= options.frame_f  or  options.readall_f  ):
-                    if( frame_cnt%options.frame_step == 0 ):
-                        # Index counts 
-                        rdf_frames += 1
-                        proc_frame += 1
-
-                        debug = 1
-                        if( debug ): print " calcuating rdf frame ",rdf_frames
-                        if( debug ): print "  proc frame ",proc_frame
-                        if( proc_frame > (size  ) ):
-                            proc_frame = 1
-                            if( debug ): print " proc frame > size ",size +1," reset to ",proc_frame
-
-                        if( split_list ): #proc_frame == (rank+1) ):
-
-                            print " analysis of frame %d on processor %d "%(frame_cnt,rank+1)
-
-                            struc_o.maxminLatVec()                            
-                            vol_i = struc_o.getVolume()
-                            volume_i.append( vol_i )
-                            volume_sum_i +=  vol_i
-
-                            print " box from min max %f "%struc_o.latvec[0][0]
-
-                            #rdf_cnt_ij = struc_o.calc_rdf(rdf_cnt_ij,options.bin_size,list_i,list_j,sq_r_cut)
-                            #
-                            # Loop over list i
-                            #
-                            # for p_i, ptcl_i in struc_o.ptclC(list_i):
-                            for p_i in myChunk_i:
-                                ptcl_i = struc_o.ptclC[p_i]
-                                #r_i = np.array( [float(ptcl_i.position[0]),float(ptcl_i.position[1]),float(ptcl_i.position[2] )] )
-                                r_i = ptcl_i.position # np.array( [float(ptcl_i.position[0]),float(ptcl_i.position[1]),float(ptcl_i.position[2] )] )
-
-                                
-                                if( prtCl_time ):
-                                    pt_i = datetime.datetime.now()                                            
-                                #
-                                # Loop over list j
-                                #
-                                for p_j, ptcl_j in struc_o.ptclC(list_j):
-                                    add_ij = True
-                                    if( p_j <= p_i):
-                                        add_ij = False 
-                                    #
-                                    # Check for intra vs. inter molecular
-                                    #
-                                    if( options.mol_inter ):
-                                        if( ptcl_i.tagsDict["chain"]  == ptcl_j.tagsDict["chain"] ): add_ij = False
-                                    if( options.mol_intra ):
-                                        if( ptcl_i.tagsDict["chain"]  != ptcl_j.tagsDict["chain"] ): add_ij = False
-                                    if( add_ij ):
-                                        #r_j =  np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-                                        r_j =  ptcl_j.position #np.array( [float(ptcl_j.position[0]),float(ptcl_j.position[1]),float(ptcl_j.position[2])] )
-                                        
-                                        r_ij_sq = pbcs.sq_drij_c(r_i,r_j,struc_o.latvec)
-                                        if( r_ij_sq <= sq_r_cut ):
-                                            m_ij = np.sqrt(r_ij_sq)
-                                            bin_index = int( round( m_ij/options.bin_size) )
-                                            rdf_cnt_ij[bin_index] += 2
-
-
-                                if( prtCl_time ):
-                                    pt_f = datetime.datetime.now()
-                                    
-                                    dt_sec  = pt_f.second - pt_i.second
-                                    dt_min  = pt_f.minute - pt_i.minute
-                                    if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                    if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                    print  "       Particle  %d  rdf calculated in %d min  %f sec "%(p_i,dt_min,dt_sec)                        
-                                                                    
-                        
-                            # Print output
-                            if( rank == 0 and options.verbose ):
-                                rdft_f = datetime.datetime.now()
-                                dt_sec  = rdft_f.second - rdft_i.second
-                                dt_min  = rdft_f.minute - rdft_i.minute
-                                if ( dt_sec < 0 ): dt_sec = 60.0 - dt_sec
-                                if ( dt_min < 0 ): dt_min = 60.0 - dt_min
-                                if ( dt_sec > 60.0 ): dt_sec = dt_sec - 60.0
-                                log_line = "\n       Frame  %d  rdf calculated in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
-                                log_line  += "\n       with volume %f Angstroms^3 estimated from max/min"%(vol_i)
-                                log_out.write(log_line)
-                                print log_line
-                                # Rest intial time for next rdf calcution
-                                rdft_i = datetime.datetime.now()
-
-"""
