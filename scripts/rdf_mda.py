@@ -599,13 +599,13 @@ def main():
                 if( p_hasnn_i[p_i] > 0 ):
                     nn_cnt_i  += 1
                     
-            prob_i = float(nn_cnt_i)/float(rdf_frames)/float(sum_i)                 
+            prob_i = float(nn_cnt_i)/float(sum_i)                 
             nn_i = float(np.sum(p_hasnn_i))/float(rdf_frames)/float(sum_i)                 
             for p_j in range(n_j):
                 p_hasnn_j[p_j] += rdf_cnt_pij[p_j][bin_index]
                 if( p_hasnn_j[p_j] > 0 ):
                     nn_cnt_j  += 1
-            prob_j = nn_cnt_j/float(rdf_frames)/float(sum_j)                 
+            prob_j = nn_cnt_j/float(sum_j)                 
             nn_j = float(np.sum(p_hasnn_j))/float(rdf_frames)/float(sum_j)                 
 
 
