@@ -39,7 +39,7 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
 
     # New options that need to be passed
     rerun_bonded = False  
-    set_biaryl = True 
+    set_biaryl = False 
     set_ptma = False
 
     limdih = 0

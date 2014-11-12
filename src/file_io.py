@@ -27,7 +27,7 @@ from parameters    import angletype,AngletypesContainer
 from parameters    import dihtype,  DihtypesContainer
 
 # Stream modules 
-import lammps , gromacs , xmol
+import lammps , gromacs , xmol, gaussian 
 
 sperator_line = "---------------------------------------------------------------------\n"
 
@@ -851,7 +851,7 @@ def create_search(f_id,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_ffty
             
     return search_i
     
-def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol,xmol_format ):
+def getstrucC(struc_o,param_o, in_json, in_gro , in_top, in_itp, in_data, in_fchk, in_xmol ,xmol_format ):
     """
     Read in Structure data from simulation output files
     """
@@ -880,7 +880,7 @@ def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol
     #
     if( len(in_itp) ):
         if( verbose ): print  "     - Reading in ",in_itp
-        param_o = gromacs.read_itp(param_o, in_itp, ljmixrule)
+        param_o = gromacs.read_itp(param_o, in_itp)
     # 
     # Read lammps data file 
     #
@@ -899,6 +899,15 @@ def getstrucC(struc_o,param_o, in_json, in_gro , in_top,in_itp, in_data, in_xmol
         for pid,pt_i in  struc_o.ptclC:
             print pid,pt_i.type, pt_i.postion
         sys.exit("debug xmol read in 1")
+    #
+    # Read in fchk file
+    #
+    if( len(in_fchk) ):
+        if(  verbose ):
+            print  "     - Reading in ",in_fchk
+        struc_o,TOTAL_ENERGY,calctype,method,basis = gaussian.read_fchk(struc_o,in_fchk)
+        if(  verbose ):
+            print  "       -   ",calctype,method,basis
     #
     # HOOMD input file 
     #

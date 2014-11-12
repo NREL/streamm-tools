@@ -934,9 +934,9 @@ def read_itp(parmC,ff_file):
                             # opls function
                             
                         elif( gfunc_type == 4 ):
-                            theat_s = float( col[5] )
-                            kb = units.convert_kJmol_kcalmol( float( col[6] ) )
-                            mult = float( col[7] )
+                            e0 = float( col[5] )
+                            ke = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            pn = int( col[7] )
                             dtype = "periodicimproper"
                         else:
                             print " unknow dihedral type ",gfunc_type
@@ -946,6 +946,12 @@ def read_itp(parmC,ff_file):
                             imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
                             imptyp_i.set_g_indx(gfunc_type)
                             imptyp_i.setimp(e0,ke)
+                            parmC.imptypC.put(imptyp_i)
+                        elif( gfunc_type == 4 ):
+                            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            imptyp_i.set_g_indx(gfunc_type)
+                            imptyp_i.setimp(e0,ke)
+                            imptyp_i.set_pn(pn)
                             parmC.imptypC.put(imptyp_i)
                         elif( gfunc_type == 1 or  gfunc_type == 9  ):
                             dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
@@ -963,7 +969,7 @@ def read_itp(parmC,ff_file):
                             dtyp_i.setopls(k1,k2,k3,k4)   # Sets rb as well since they are equivalent 
                             parmC.dtypC.put(dtyp_i)
                         else:
-                            print " unknow dihedral type ",gfunc_type
+                            print " tyring to set unknow dihedral type ",gfunc_type
                             raise TypeError
 
                         #print btyp_i
@@ -1002,7 +1008,7 @@ def print_gro(strucC,gro_file):
     F.write( "\n %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f \n" % ( latvec[0][0]/10.0,latvec[1][1]/10.0,latvec[2][2]/10.0,latvec[0][1]/10.0,latvec[0][2]/10.0,latvec[1][0]/10.0,latvec[1][2]/10.0,latvec[2][0]/10.0,latvec[2][1]/10.0))
     F.close()
 
-def print_top(strucC,top_file):
+def print_top(strucC,top_file,itp_file):
     """
     Write gromacs topology file
     """
@@ -1016,13 +1022,13 @@ def print_top(strucC,top_file):
     F.write('; top file for gromacs \n ')
     F.write('\n')
     F.write('; force field file \n')
-    F.write('#include "ff-new.itp"  \n')
+    F.write('#include "%s"  \n'%(itp_file))
     F.write('\n')
     F.write( '[ moleculetype ] \n')
     F.write( ' MOL           3 \n')
     F.write('\n')
     F.write( '[ atoms ] \n' )
-    F.write( '; name      at.num  mass     charge ptype  sigma      epsilon \n')
+    F.write( '; nr  :  fftype : residue #  : residue name  : atom name  :  charge group #:  charge : mass  \n')
     TOTAL_CHARGE = 0.0
 
     for pid, ptclObj  in strucC.ptclC:
@@ -1205,6 +1211,11 @@ def print_itp(paramC,itp_file):
             e0, ke_kcalmol  = imptypObj_p.getimp()
             ke = units.convert_kb_g_angle( ke_kcalmol )
             out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4(),g_type,e0, ke)            
+        elif( g_type == 3  ):
+            e0, ke_kcalmol  = imptypObj_p.getimp()
+            pn  = imptypObj_p.get_pn()
+            ke = units.convert_kb_g_angle( ke_kcalmol )
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  %d "%(imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4(),g_type,e0, ke, np)            
         else:
             print "  unknown gromacs improper dihedral type index  ",g_type
             sys.exit(" error in printing itp file ")

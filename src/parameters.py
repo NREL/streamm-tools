@@ -497,6 +497,7 @@ class imptype:
         # Set default values for parameters
         self.e0 = 0.0
         self.ke = 1.0
+        self.pn = 0.0    # For periodicimproper
 
         # Lammps and gromacs index
         self.lmpindx = 0 
@@ -590,7 +591,31 @@ class imptype:
             kb     (float) force constant    kcal/mol
         """
         return self.e0, self.ke
-    
+
+    def set_pn(self, pn):
+        """
+        set Periodic Harmonic parameter pn 
+
+        Args:
+            pn     (int) 
+        """
+
+        if isinstance(pn, int):
+            self.pn = pn
+        else:
+            print "1st arg should be int"
+            raise TypeError
+
+
+    def get_pn(self):
+        """
+        get Periodic Harmonic parameter pn 
+
+        Return:
+            pn     (int) 
+        """
+        return self.np
+                    
     def get_type(self):
         """
         Return dih type

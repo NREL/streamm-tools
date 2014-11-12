@@ -34,10 +34,11 @@ def get_options():
     #
     # Input files 
     #
-    parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
-    parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
-    parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="Input gromacs force field parameter file")
     parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input lammps structure file (.data) ")
+    parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
+    parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
+    parser.add_option("--in_itp", dest="in_itp",  type="string", default="",help="Input gromacs force field parameter file")
+    parser.add_option("--in_fchk", dest="in_fchk", type="string", default="", help="Input gromacs .fchk file ")
     # Need to be added with mdanalysis dependence 
     #parser.add_option("--in_dcd", dest="in_dcd", type="string", default="", help="Input trajectory file in compressed dcd format ")
     #parser.add_option("--in_xtc", dest="in_xtc", type="string", default="", help="Input trajectory file in compressed xtc format ")
@@ -48,8 +49,8 @@ def get_options():
     # Output files 
     #
     parser.add_option("--out_data", dest="out_data",type="string",default="",help=" Output Lammps data file ")
-    parser.add_option("--out_top", dest="out_top", type="string", default="", help=" Output gromacs topology file ")
     parser.add_option("--out_gro", dest="out_gro", type="string", default="", help=" Output gromacs structure file ")
+    parser.add_option("--out_top", dest="out_top", type="string", default="", help=" Output gromacs topology file ")
     parser.add_option("--out_itp", dest="out_itp", type="string", default="", help=" Output gromacs parameter file ")
     parser.add_option("--out_json", dest="out_json", type="string", default="", help=" Output json file ")
     #
@@ -126,7 +127,7 @@ def main():
     struc_o = StructureContainer()
     param_o = ParameterContainer() 
     
-    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data,options.in_xmol,options.xmol_format )
+    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data, options.in_fchk ,options.in_xmol,options.xmol_format )
 
     p.barrier()
     #
@@ -135,34 +136,6 @@ def main():
     ptclC_o = struc_o.ptclC
     bondC_o  = struc_o.bondC
 
-    debug = False
-    if( debug):
-        
-        for pid,pt_i in ptclC_o:
-            print " p1 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
-            
-        print " bonds o "
-        for b_o, bondObj_o  in struc_o.bondC:
-            print bondObj_o.get_lmpindx(),bondObj_o.pgid1,bondObj_o.pgid2
-            
-        print " angles o "
-        for a_o, angleObj_o in struc_o.angleC:
-            a_k = angleObj_o.pgid1
-            a_i = angleObj_o.pgid2
-            a_j = angleObj_o.pgid3
-            a_ind = int(angleObj_o.get_lmpindx())
-            print a_o,a_ind,a_k,a_i,a_j
-            
-        print " dih o "
-        for d_o,dihObj_o in struc_o.dihC:
-            d_k = dihObj_o.pgid1
-            d_i = dihObj_o.pgid2
-            d_j = dihObj_o.pgid3
-            d_l = dihObj_o.pgid4
-            d_ind = int(dihObj_o.get_lmpindx())
-            print d_o,d_ind,d_k,d_i,d_j,d_l 
-        
-            sys.exit("p1")
     #   
     # Filter particles
     #
@@ -174,45 +147,10 @@ def main():
         list_f = ptclC_o.getParticlesWithTags(search_o)
         sum_f = len(list_f)
         struc_i = struc_o.getSubStructure(list_f)
-        
     else:
         struc_i = struc_o
         sum_f =  len(struc_i.ptclC)
-        
     ptclC_i = struc_i.ptclC
-
-    debug = False
-    if( debug):
-        print " particles i "
-        for pid,pt_i in ptclC_i:
-            print " p2 particle ",pid,pt_i.tagsDict["symbol"],pt_i.tagsDict["resname"],pt_i.tagsDict["fftype"], pt_i.tagsDict["chain"]
-            
-        print " bonds i ",len(struc_i.bondC)
-        for b_o, bondObj_o  in struc_i.bondC:
-            print bondObj_o.get_lmpindx(),bondObj_o.pgid1,bondObj_o.pgid2
-            
-        print " angles i ",len(struc_i.angleC)
-        for a_o, angleObj_o in struc_i.angleC:
-            a_k = angleObj_o.pgid1
-            a_i = angleObj_o.pgid2
-            a_j = angleObj_o.pgid3
-            a_ind = int(angleObj_o.get_lmpindx())
-            print a_o,a_ind,a_k,a_i,a_j
-            
-        print " dih i ",len(struc_i.dihC)
-        for d_o,dihObj_o in struc_i.dihC:
-            d_k = dihObj_o.pgid1
-            d_i = dihObj_o.pgid2
-            d_j = dihObj_o.pgid3
-            d_l = dihObj_o.pgid4
-            d_ind = int(dihObj_o.get_lmpindx())
-            print d_o,d_ind,d_k,d_i,d_j,d_l 
-        
-            
-        sys.exit("p2")
-
-    
-    
     #
     # Open output files 
     #
@@ -234,21 +172,21 @@ def main():
     if( rank == 0 ):
          # Print initial structure properties
         sys_prop = str( struc_o )
-        print sys_prop
         log_out.write(str(sys_prop))
 
-        if( options.verbose ):
-            # log_line += "\n  %d "%()
-            log_line  = "\n  Date %s "%(str(t_i))
-            log_line += "\n  Number of processors  %d "%(size)
-            log_line += "\n  Particles in filtered structure : %d "%(sum_f)
-            log_line += sperator_line
-            log_line += "\n Frames "
-            log_line += "\n     Initial frame  %d "%(options.frame_o)
-            log_line += "\n     Step frame  %d  "%(options.frame_step)
-            log_line += "\n     Final frame  %d  "%(options.frame_f)
+        log_line  = "\n  Date %s "%(str(t_i))
+        log_line += "\n  Number of processors  %d "%(size)
+        log_line += "\n  Particles in filtered structure : %d "%(sum_f)
+        log_line += sperator_line
+        log_line += "\n Frames "
+        log_line += "\n     Initial frame  %d "%(options.frame_o)
+        log_line += "\n     Step frame  %d  "%(options.frame_step)
+        log_line += "\n     Final frame  %d  "%(options.frame_f)
 
-            log_out.write(log_line)
+        log_out.write(log_line)
+            
+        if( options.verbose ):
+            print sys_prop
             print log_line
             
     #
@@ -372,12 +310,19 @@ def main():
                             log_line = "\n       Frame  %d  read in %d min  %f sec "%(frame_cnt,dt_min,dt_sec)
                             log_out.write(log_line)
                             print log_line
+                            
     #
     #  Find new parameter set for new structure
     #
-    norm_dihparam = False 
-    param_i,struc_i  = topology.set_param(struc_i,param_o,norm_dihparam)
-
+    if( len(options.out_top) or  len(options.out_itp)  or  len(options.out_data) ):
+        ff_charges = False 
+        struc_i,cov_nblist, cov_nbindx = topology.create_top(struc_i,ff_charges)
+        #.build_covnablist(struc_i)
+        norm_dihparam = False
+        param_i,struc_i  = topology.set_param(struc_i,param_o,norm_dihparam,cov_nblist, cov_nbindx)
+    else:
+        param_i = param_o
+        
     debug = False
     if( debug ):
 
@@ -413,8 +358,13 @@ def main():
 
         #  Write top file         
         if( len(options.out_top) ):
-            if( options.verbose ): print  "     - Writing  ",options.out_top
-            gromacs.print_top(struc_i,options.out_top)
+            if( len(options.out_itp) > 0 ):
+                itp_file = options.out_itp
+            else:
+                itp_file = "ff-new.itp"
+                
+            if( options.verbose ): print  "     - Writing %s with itp file %s  "%(options.out_top,itp_file)
+            gromacs.print_top(struc_i,options.out_top,itp_file)
 
         #  Write itp file         
         if( len(options.out_itp) ):

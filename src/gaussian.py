@@ -92,14 +92,17 @@ def read_fchk(strucC,fchk_file):
                         
                         strucC.ptclC[eln_p_cnt].tagsDict["gtype"] = el.symbol
                         strucC.ptclC[eln_p_cnt].tagsDict["fftype"] = "??" 
-                        strucC.ptclC[eln_p_cnt].tagsDict["resname"] = "??"
-                        strucC.ptclC[eln_p_cnt].tagsDict["residue"] = 0
-                        strucC.ptclC[eln_p_cnt].tagsDict["qgroup"] = 0
-                        strucC.ptclC[eln_p_cnt].tagsDict["chain"] = 0
+                        strucC.ptclC[eln_p_cnt].tagsDict["resname"] = "MOL"
+                        strucC.ptclC[eln_p_cnt].tagsDict["residue"] = 1
+                        strucC.ptclC[eln_p_cnt].tagsDict["qgroup"] = 1
+                        strucC.ptclC[eln_p_cnt].tagsDict["chain"] = 1
                         strucC.ptclC[eln_p_cnt].tagsDict["symbol"] = el.symbol
                         strucC.ptclC[eln_p_cnt].tagsDict["number"] = el.number
                         strucC.ptclC[eln_p_cnt].tagsDict["cov_radii"] = el.cov_radii
                         strucC.ptclC[eln_p_cnt].tagsDict["vdw_radi"] = el.vdw_radii
+
+                        strucC.ptclC[eln_p_cnt].tagsDict["mass"] = el.mass
+                        strucC.ptclC[eln_p_cnt].tagsDict["ffmass"] = el.mass
                         
                         
         if( read_esp ):
