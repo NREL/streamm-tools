@@ -211,9 +211,9 @@ class BuildingBlockEnumerator(BuildingBlocks):
 
         print "Before self.allspacername = ", self.allspacername
 
-        good_don = self.try_set(self.alldon, self.alldonname, "donor", options, write_inputs=save_decorated_bb, fluorinate = False)
-        good_acc = self.try_set(self.allacc, self.allaccname, "acceptor", options, write_inputs=save_decorated_bb, fluorinate = False)
-        good_term = self.try_set(self.allterm, self.alltermname, "terminal", options, write_inputs=save_decorated_bb, fluorinate = False)
+        good_don    = self.try_set(self.alldon, self.alldonname, "donor", options, write_inputs=save_decorated_bb, fluorinate = False)
+        good_acc    = self.try_set(self.allacc, self.allaccname, "acceptor", options, write_inputs=save_decorated_bb, fluorinate = False)
+        good_term   = self.try_set(self.allterm, self.alltermname, "terminal", options, write_inputs=save_decorated_bb, fluorinate = False)
         good_spacer = self.try_set(self.allspacer, self.allspacername, "spacer", options, write_inputs=save_decorated_bb, fluorinate = False)
 
         ## fluorinated building blocks
@@ -337,17 +337,26 @@ class BuildingBlockEnumerator(BuildingBlocks):
                             self.try_str(str, options, True)
                                     
 
-        if "TADAT" in classes:            
+        if "TADAT" in classes:
+            #print "----------------------------------- Enumerating TADAT ------------------------------------------------"
+            #print "Number of good_term     = ", len(good_term)
+            #print "Number of good_acc      = ", len(good_acc)
+            #print "Number of good_don      = ", len(good_don)
+            #print "Number of allthespacers = ", len(allthespacers)
+
             for iterm1 in range(0,len(good_term)):
                 for iacc1 in range(0,len(good_acc)):
                     for idon in range(0,len(good_don)):                                    
                         for ispc in range(0,len(allthespacers)):
                             sp = "%s" % allthespacers[ispc]  ## one of the spacer names can be "", for no spacer
                             str = "%s %s %s %s %s %s %s" % (good_term[iterm1], good_acc[iacc1], sp, good_don[idon], sp, good_acc[iacc1], good_term[iterm1])
-                            print "TRYING %s" % str
+                            print "TADAT -- TRYING %s" % str
                             self.try_str(str, options, True)
 
-        print "NOTE: ------------ Spacers are between T, Af and D -----------------"
+            #print "----------------------------------- Enumerating TADAT ------------------------------------------------"
+
+#        print "NOTE: ------------ Spacers are between T, Af and D -----------------"
+
         if "TSpADASpT" in classes:            
             for iterm1 in range(0,len(good_term)):
                 for iacc1 in range(0,len(good_acc)):
