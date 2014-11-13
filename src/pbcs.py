@@ -916,3 +916,26 @@ def replicate(p,options,oligo_array,sol_array):
         sys.exit("debug 2")
 
     return strucC
+
+def d_2p(val_1,val_3,h):
+    """
+    Numerical derivative of 2 points 
+    """
+    
+    d_val = (val_3 - val_1)/float(h)/2.0 
+    if( d_val > 0 ): d_en_p = 1
+    if( d_val < 0 ): d_en_p =  -1
+	
+    return d_val #,d_en_p
+
+def d2_3p(val_1,val_2,val_3,h):
+    """
+    Numerical derivative of 3 points 
+    """
+    # en_1  eV
+    # en_2  eV 
+    # en_3  eV 
+    
+    d2_val = ( val_3 - 2.0*val_2  + val_1 )/ float(h)**2
+    
+    return d2_val
