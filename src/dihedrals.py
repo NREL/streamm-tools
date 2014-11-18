@@ -192,8 +192,7 @@ class DihedralContainer:
 
         dihedralStr="\n Contains dihedral objects: \n"
         for gid in self.dihedrals:
-            dihedralStr = dihedralStr + str(gid) + " " + str(self.dihedrals[gid].__dict__) + "\n"
-            bondStr += "%d %s %s %s \n"%(gid,self.dihedrals[gid].pgid1,self.dihedrals[gid].pgid2,self.dihedrals[gid].pgid3,self.dihedrals[gid].pgid4,self.dihedrals[gid].type )
+            dihedralStr += "%d %s %s %s %s %s  \n"%(gid,self.dihedrals[gid].pgid1,self.dihedrals[gid].pgid2,self.dihedrals[gid].pgid3,self.dihedrals[gid].pgid4,self.dihedrals[gid].type )
             
         return dihedralStr
 
