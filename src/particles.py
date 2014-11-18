@@ -180,6 +180,12 @@ class Particle:
 
 
 
+    def __str__(self):
+        """
+        'Magic' method for printng contents of container
+        """
+        return " %s %f %f %f %f %f  "%(  self.type,self.position[0],self.position[1],self.position[2],self.charge,self.mass )
+
 class ParticleContainer:
     """
     Main data structure for holding Particle objects. Map of global
@@ -245,7 +251,7 @@ class ParticleContainer:
 
         ptclStr="\n Contains particle objects: \n"
         for gid  in self.particles:
-            ptclStr  +=  "%d %s %f %f %f %f %f   \n"%(  gid,self.particles[gid].type,self.particles[gid].position[0],self.particles[gid].position[1],self.particles[gid].position[2],self.particles[gid].charge,self.particles[gid].mass )
+            ptclStr  +=  " %d : %s  \n"%(  gid,self.particles[gid])
         return ptclStr
 
 
