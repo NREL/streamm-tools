@@ -65,7 +65,7 @@ class Particle:
                    RESN = [], CHARN = [], UNITNUMB = [], UNITTYPE = []
     """
 
-    def __init__(self, pos=[], type="blank", charge=0.0, mass=1.0):
+    def __init__(self, pos=[0.0,0.0,0.0], type="blank", charge=0.0, mass=1.0):
         """
         Constructor for a general particle. Checks for types in arguments
         and throws a TypeError when appropriate
@@ -244,7 +244,7 @@ class ParticleContainer:
         """
 
         ptclStr="\n Contains particle objects: \n"
-        for gid in self.particles:
+        for gid  in self.particles:
             ptclStr  +=  "%d %s %f %f %f %f %f   \n"%(  gid,self.particles[gid].type,self.particles[gid].position[0],self.particles[gid].position[1],self.particles[gid].position[2],self.particles[gid].charge,self.particles[gid].mass )
         return ptclStr
 
