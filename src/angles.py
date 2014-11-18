@@ -165,7 +165,8 @@ class AngleContainer:
 
         angleStr="\n Contains angle objects: \n"
         for gid in self.angles:
-            angleStr = angleStr + str(gid) + " " + str(self.angles[gid].__dict__) + "\n"
+            bondStr += "%d %s %s %s \n"%(gid,self.angles[gid].pgid1,self.angles[gid].pgid2,self.angles[gid].pgid3,self.angles[gid].type )
+            
         return angleStr
 
 

@@ -111,7 +111,7 @@ class Particle:
         self.tagsDict["qgroup"] = 0
         self.tagsDict["linkid"] = "??"
         self.tagsDict["cplytag"] = ""
-        self.tagsDict["gtype"] = 0
+        self.tagsDict["gtype"] = type
         self.tagsDict["lmptype"] = 0
         self.tagsDict["fftype"] = "??"
         self.tagsDict["symbol"] = "??"
@@ -245,7 +245,7 @@ class ParticleContainer:
 
         ptclStr="\n Contains particle objects: \n"
         for gid in self.particles:
-            ptclStr = ptclStr + str(gid) + " " + str(self.particles[gid].__dict__) + "\n"
+            ptclStr  +=  "%d %s %f %f %f %f %f   \n"%(  gid,self.particles[gid].type,self.particles[gid].position[0],self.particles[gid].position[1],self.particles[gid].position[2],self.particles[gid].charge,self.particles[gid].mass )
         return ptclStr
 
 

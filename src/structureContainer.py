@@ -34,7 +34,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), impC=ImproperContainer(), verbose=True):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), impC=ImproperContainer(), verbose=False):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -179,6 +179,14 @@ class StructureContainer:
         strucStr += "      Angles %d \n"%(len(self.angleC))
         strucStr += "      Dihedrals %d \n"%(len(self.dihC))
         strucStr += "      Impropers %d \n"%(len(self.impC))
+
+        if( self.verbose ):
+            # Print
+            strucStr += str(self.ptclC)
+            strucStr += str(self.bondC)
+            strucStr += str(self.angleC)
+            strucStr += str(self.dihC)
+        
         return strucStr
 
 

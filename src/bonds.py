@@ -156,7 +156,8 @@ class BondContainer:
 
         bondStr="\n Contains bond objects: \n"
         for gid in self.bonds:
-            bondStr = bondStr + str(gid) + " " + str(self.bonds[gid].__dict__) + "\n"
+            bondStr += "%d %s %s %s \n"%(gid,self.bonds[gid].pgid1,self.bonds[gid].pgid2,self.bonds[gid].type )
+
         return bondStr
 
 
