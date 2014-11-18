@@ -78,6 +78,8 @@ class PES():
         self.min_energy_list = self.calc_min_energy_list()     # shifted to min
         self.first_energy_list = self.calc_first_energy_list()      # shifted to zero coord
 
+        
+        
         # List of minimums, maximums and transitions 
         self.min_indx = []
         self.max_indx = []
