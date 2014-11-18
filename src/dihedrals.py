@@ -134,6 +134,12 @@ class Dihedral:
         return self.g_indx
 
 
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+        return " %s - %s - %s - %s    %s "%(self.pgid1,self.pgid2,self.pgid3,self.pgid4,self.type )
+
 
 class DihedralContainer:
     """
@@ -192,7 +198,7 @@ class DihedralContainer:
 
         dihedralStr="\n Contains dihedral objects: \n"
         for gid in self.dihedrals:
-            dihedralStr += "%d :  %s - %s- %s - %s  : type %s  \n"%(gid,self.dihedrals[gid].pgid1,self.dihedrals[gid].pgid2,self.dihedrals[gid].pgid3,self.dihedrals[gid].pgid4,self.dihedrals[gid].type )
+            dihedralStr += " %d :  %s  \n"%(gid,self.dihedrals[gid])
             
         return dihedralStr
 

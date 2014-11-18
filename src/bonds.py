@@ -98,6 +98,11 @@ class Bond:
         """
         return self.g_indx
 
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+        return " %s - %s    %s "%(self.pgid1,self.pgid2,self.type )
 
 class BondContainer:
     """
@@ -156,7 +161,7 @@ class BondContainer:
 
         bondStr="\n Contains bond objects: \n"
         for gid in self.bonds:
-            bondStr += "%d : %s - %s : type %s \n"%(gid,self.bonds[gid].pgid1,self.bonds[gid].pgid2,self.bonds[gid].type )
+            bondStr += " %d : %s \n"%(gid,self.bonds[gid] )
 
         return bondStr
 

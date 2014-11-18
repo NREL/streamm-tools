@@ -109,6 +109,12 @@ class Angle:
         return self.g_indx
 
 
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+        return " %s - %s - %s   %s "%(self.pgid1,self.pgid2,self.pgid3,self.type )
+
 class AngleContainer:
     """
     Main data structure for holding Angle objects. Map of global
@@ -165,7 +171,7 @@ class AngleContainer:
 
         angleStr="\n Contains angle objects: \n"
         for gid in self.angles:
-            angleStr += "%d : %s - %s - %s : type %s \n"%(gid,self.angles[gid].pgid1,self.angles[gid].pgid2,self.angles[gid].pgid3,self.angles[gid].type )
+            angleStr += " %d : %s \n"%(gid,self.angles[gid]) 
             
         return angleStr
 
