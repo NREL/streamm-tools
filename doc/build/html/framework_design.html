@@ -581,7 +581,7 @@ by incrementing the maxgid member</p>
 <span class="target" id="module-structureContainer"></span><p>Class data structures for atomic data</p>
 <dl class="class">
 <dt id="structureContainer.StructureContainer">
-<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x1057ed680&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x1057ed6c8&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x1057ed710&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x1057ed758&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x1067fd5f0&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x1067fd638&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x1067fd680&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x1067fd6c8&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing a collection of Particles that have associated
 Bond, Angle, Dihedral descriptions</p>
 <p>The contained ParticleContainer object has a special role... this object is a
@@ -674,16 +674,17 @@ for all other (bond, angle, dihedral) containers that reference particleIDs</p>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getSubStructure">
-<code class="descname">getSubStructure</code><span class="sig-paren">(</span><em>ptclIDList</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getSubStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getSubStructure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getSubStructure</code><span class="sig-paren">(</span><em>ptclIDList</em>, <em>particlesOnly=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getSubStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getSubStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new Structure object with partcleID&#8217;s in input list
 Preserves IDs of particles (and any bonds, angles, dihedrals...)
 Bonds, angles, dihedrals... etc are included if and ONLY if all the
 particles of which it consists is in the ptclIDList</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>ptclIDList (list) global particles ID&#8217;s for which to return structure</dd>
+<dd>ptclIDList    (list): global particles ID&#8217;s for which to return structure
+particlesOnly (bool): Flag for including ParticleContainer only (executes faster) Default includes any angles, bonds, dihedrals</dd>
 <dt>Return:</dt>
-<dd>New Structure() object. IDs in new object are unique</dd>
+<dd>New StructureContainer() object. IDs in new object are unique</dd>
 </dl>
 </dd></dl>
 
@@ -913,9 +914,8 @@ return None</p>
 <dd>xmol_file    (str) xmol file name
 comment  (str) for comment line 
 append  (boolean) to append or create a new file</dd>
-<dt>Reutrns</dt>
-<dd>null</dd>
 </dl>
+<p>Returns: None</p>
 </dd></dl>
 
 </dd></dl>
@@ -1066,6 +1066,7 @@ e.g.</p>
 <p>&#8211;Link1&#8211; 
 %chk=acc1_D1_eff_R3R300_A84___n1.chk 
 #P b3lyp td=nstates=12/6-31g(d) geom=check guess=check  pop=full density=current</p>
+<p>NOTE: lc-wpbe removes &#8216;density=current&#8217; from input lines</p>
 <dl class="method">
 <dt id="simulationGaussian1.SimulationGaussian1.getBareTag">
 <code class="descname">getBareTag</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulationGaussian1.html#SimulationGaussian1.getBareTag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulationGaussian1.SimulationGaussian1.getBareTag" title="Permalink to this definition">¶</a></dt>
