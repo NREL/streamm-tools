@@ -3,23 +3,25 @@ Class data structures for 2, 3, 4 point groupings of Particle objects
 """
 import copy, sys
 
-class Bond:
+class Improper:
     """
-    Data structure for describing any 2-point associatiaon of Particle-s
+    Data structure for describing any 4-point associatiaon of Particle-s
     """
 
-    def __init__(self, pgid1=0, pgid2=0, length=0.0, type="blank"):
+    def __init__(self, pgid1=0, pgid2=0, pgid3=0, pgid4=0, theta0=0.0, type="blank"):
         """
-        Constructor for a general bond. Checks for types in arguments
+        Constructor for a general improper. Checks for types in arguments
         and throws a TypeError when appropriate
 
         Args:
-            pgid1   (int)   GlobalID of Particle object in bond
-            pgid2   (int)   GlobalID of Particle object in bond
-            length (float) Cartesian length of bond
+            pgid1   (int)   GlobalID of Particle object in improper
+            pgid2   (int)   GlobalID of Particle object in improper
+            pgid3   (int)   GlobalID of Particle object in improper
+            pgid4   (int)   GlobalID of Particle object in improper
+            theta0  (float) Equilibrium improper (in radians)
             type   (str)   Charge value in units of [e]
         """
-        
+
         if isinstance(pgid1, int):
             self.pgid1 = pgid1
         else:
@@ -32,29 +34,44 @@ class Bond:
             print "2nd arg should be int type"
             raise TypeError
 
-        if isinstance(length, float):
-            self.length = length
+        if isinstance(pgid3, int):
+            self.pgid3 = pgid3
         else:
-            print "3rd arg should be float value"
+            print "3rd arg should be int type"
+            raise TypeError
+
+        if isinstance(pgid4, int):
+            self.pgid4 = pgid4
+        else:
+            print "4rd arg should be int type"
+            raise TypeError
+
+        if isinstance(theta0, float):
+            self.theta0 = theta0
+        else:
+            print "5th arg should be float value"
             raise TypeError
 
         if isinstance(type, str):
             self.type = type
         else:
-            print "4th arg should be string value"
+            print "6th arg should be string value"
             raise TypeError
 
-        self.lmpindx = 0 
-        self.g_indx = 0 
 
+        self.lmpindx = 0
+        self.g_indx = 0
+        
 
     def __del__(self):
         """
         Destructor, clears object memory
         """
         del self.pgid1
-        del self.pgid2
-        del self.length
+        del self.pgid2 
+        del self.pgid3 
+        del self.pgid4
+        del self.theta0
         del self.type
         del self.lmpindx
         del self.g_indx 
@@ -66,10 +83,28 @@ class Bond:
         Args:
             pgid (int) Particle GID to check against 'held' IDs
         """
-        if ( (pgid == self.pgid1) or (pgid == self.pgid2) ):
+        if ( (pgid == self.pgid1) or \
+             (pgid == self.pgid2) or \
+             (pgid == self.pgid3) or \
+             (pgid == self.pgid4) ):
             return True
         else:
             return False
+
+
+    def set_type(self,type):
+        """
+        Set bond type 
+        """
+        self.type = type
+        
+        
+    def get_type(self):
+        """
+        Return bond type
+        """
+        return self.type
+
 
     def set_lmpindx(self,lmpindx):
         """
@@ -98,31 +133,27 @@ class Bond:
         """
         return self.g_indx
 
-    def __str__(self):
-        """
-        'Magic' method for printng contents
-        """
-        return " %s - %s    %s "%(self.pgid1,self.pgid2,self.type )
 
-class BondContainer:
+
+class ImproperContainer:
     """
-    Main data structure for holding Bond objects. Map of global
-    bond ID (integer) to Bond object instances
+    Main data structure for holding Improper Improper objects. Map of global
+    improper ID (integer) to Improper object instances
     """
 
     def __init__(self, idList=[], verbose=False):
         """
-        Constructor: sets up a dictionary for indexing 'Bond' objects
+        Constructor: sets up a dictionary for indexing 'Improper' objects
 
         Args:
-            idList (list): of bond IDs. If empty then ID starts at 1.
-                If not empty then ID's (keys) are inititalized with Bond objects
+            idList (list): of improper IDs. If empty then ID starts at 1.
+                If not empty then ID's (keys) are inititalized with Improper objects
             verbose (bool): flag for printing status/debug info        
         """
         self.verbose=verbose
-        self.bonds=dict()                          # Creates empty dict struc
-        self.bonds={key: Bond() for key in idList} # Creates empty Bond objs
-                                                   #   if idList not empty
+        self.impropers=dict()                              # Creates empty dict struc
+        self.impropers={key: Improper() for key in idList} # Creates empty Improper objs
+                                                           #  if idList not empty
 
         if len(idList) == 0:         # If list not set in constructor arg
             self.maxgid=0            # default=0 if idList empty
@@ -136,53 +167,52 @@ class BondContainer:
         """
         if self.verbose:
             print "Cleaning particle container"
-        del self.bonds
+        del self.impropers
         del self.maxgid
 
 
     def clear(self):
         """
-        Clears bonds out of BondContainer
+        Clears impropers out of ImproperContainer
         """
         self.maxgid = 0
-        self.bonds=dict()                          # Creates empty dict struc
+        self.impropers=dict()                          # Creates empty dict struc
 
 
     def __len__(self):
         """
         'Magic' method for returning size of container
         """
-        return len(self.bonds)
+        return len(self.impropers)
 
     def __str__(self):
         """
         'Magic' method for printng contents
         """
 
-        bondStr="\n Contains bond objects: \n"
-        for gid in self.bonds:
-            bondStr += " %d : %s \n"%(gid,self.bonds[gid] )
-
-        return bondStr
+        improperstr="\n Contains improper objects: \n"
+        for gid in self.impropers:
+            improperstr = improperstr + str(gid) + " " + str(self.impropers[gid].__dict__) + "\n"
+        return improperstr
 
 
     def keys(self):
         """
         Return list of all ptcl IDs (keys) currently in container
         """
-        keyList = self.bonds.keys()
+        keyList = self.impropers.keys()
         return keyList
 
 
-    def __setitem__(self, gid, bond):
+    def __setitem__(self, gid, improper):
         """
         'Magic' method implementing obj[]=value operator
         Performs deep copy of value so container is managing memory
         """
-        if gid in self.bonds.keys():
-            self.bonds[gid]=copy.deepcopy(bond)
+        if gid in self.impropers.keys():
+            self.impropers[gid]=copy.deepcopy(improper)
         else:
-            print "Cannot add bond object to non-existent ID"
+            print "Cannot add improper object to non-existent ID"
             sys.exit(3) 
 
 
@@ -191,27 +221,26 @@ class BondContainer:
         'Magic' method implementing obj[] operator
         Operations on returned elements change container
         """
-        return self.bonds[gid]
+        return self.impropers[gid]
 
 
     def __delitem__(self, gid):
         """
         'Magic' method implementing del obj[] operator
         """
-        del self.bonds[gid]
+        del self.impropers[gid]
 
 
     def __iter__(self):
         """
         'Magic' method implementing (for x in 'this')....
         """
-        # return iter(self.bonds)
-        return self.bonds.iteritems()
+        return self.impropers.iteritems()
 
 
     def __call__(self, idSubList=None):
         """
-        Callable magic method. Returns iterator to subset bonds dictionary
+        Callable magic method. Returns iterator to subset impropers dictionary
 
         Args:
              idSubList (list) list of pid-s of particle objects to be returned
@@ -222,13 +251,13 @@ class BondContainer:
         subGroupDct = dict()
         
         if idSubList != None:
-            for gid, bondObj in self.bonds.iteritems():
+            for gid, improperObj in self.impropers.iteritems():
                 if gid in idSubList:
-                    subGroupDct[gid] = bondObj
+                    subGroupDct[gid] = improperObj
             return subGroupDct.iteritems()
 
         else:
-            print "Callable BondContainer requires a list of subgroup bond IDs"
+            print "Callable ImproperContainer requires a list of subgroup improper IDs"
             sys.exit(3)
 
 
@@ -236,23 +265,25 @@ class BondContainer:
         """
         'Magic' method implementing in keyword (key in obj')....
         """
-        return gid in self.bonds
+        return gid in self.impropers
 
 
-    def hasBond(self, bondList):
+    def hasImproper(self, improperList):
         """
-        Check the ptcl IDs in bondList for any bond in container that is similar
-        eg bond 1-2 is same as bond 2-1
+        Check the ptcl IDs in improperList for any improper in container that is similar
+        eg improper 1-2-3-4 is same as improper 4-3-2-1
 
-        Args: (list) ptcl IDs defining bond to search for
+        Args: (list) ptcl IDs defining improper to search for
         
-        Returns: (bool) is bond in container
+        Returns: (bool) is improper in container
         """
 
-        for gid, bondObj in self.bonds.iteritems():
-            p1 = bondObj.pgid1
-            p2 = bondObj.pgid2
-            if ((p1 in bondList) and (p2 in bondList)):
+        for gid, dObj in self.impropers.iteritems():
+            improper = [dObj.pgid1, dObj.pgid2, dObj.pgid3, dObj.pgid4] # Improper ID list#
+            improperRev = copy.deepcopy(improper)                       # Make reverse improper
+            improperRev.reverse()                                       #  ID list
+
+            if ( (improper == improperList) or (improperRev == improperList) ):
                 return True
             
         return False
@@ -262,43 +293,43 @@ class BondContainer:
         """
         'Magic' method to implement the '+=' operator
         
-        Compare global IDs of bonds and reassign globalIDs for bond
+        Compare global IDs of impropers and reassign globalIDs for improper
         container using the max ID between the two lists
 
         Note: for now this reassigns ID always
         """
 
-        keys1 = self.bonds.keys()         # global IDs in this object
-        keys2 = other.bonds.keys()        # global IDs in object being added
+        keys1 = self.impropers.keys()     # global IDs in this object
+        keys2 = other.impropers.keys()    # global IDs in object being added
         bothkeys = keys1 + keys2          # List of all keys
 
         if len(bothkeys) > 0:                 # If keys not empty... proceed
             self.maxgid = max(keys1 + keys2)  # find max globalID in keys, set this object maxID
 
-        for ptclkey2 in other.bonds:
-            self.put(other.bonds[ptclkey2])
+        for ptclkey2 in other.impropers:
+            self.put(other.impropers[ptclkey2])
 
         return self
 
 
-    def put(self, bond):
+    def put(self, improper):
         """
-        Append 'Bond' object to this container. Updates globalID for container
+        Append 'Improper' object to this container. Updates globalID for container
         by incrementing the maxgid member
 
         Args:
             ptcl (Particle) correctly initialized Particle object
 
         NOTE:
-            (1) One can imagine extra conditions on bonds inserted
+            (1) One can imagine extra conditions on impropers inserted
             (2) This could check for uniqueness of all globalID's and throw error for copies
         """
         
-        if isinstance(bond, Bond):
+        if isinstance(improper, Improper):
             self.maxgid += 1
-            self.bonds[self.maxgid] = copy.deepcopy(bond)
+            self.impropers[self.maxgid] = copy.deepcopy(improper)
         else:
-            print "Attempting to add non-Bond type to container"
+            print "Attempting to add non-improper Improper type to container"
             raise TypeError
 
 
@@ -312,20 +343,29 @@ class BondContainer:
 
         fromIDs = idFromTo.keys()
                 
-        for gid in self.bonds:
+        for gid in self.impropers:
             
-            bond = self.bonds[gid]   # Bond object
-            pgid1 = bond.pgid1       # ptcl1 in bond
-            pgid2 = bond.pgid2       # ptcl2 in bond
-
+            improper = self.impropers[gid]  # Improper object
+            pgid1 = improper.pgid1          # ptcl1 in improper
+            pgid2 = improper.pgid2          # ptcl2 in improper
+            pgid3 = improper.pgid3          # ptcl3 in improper
+            pgid4 = improper.pgid4          # ptcl4 in improper
+            
             if pgid1 in fromIDs:
                 toID = idFromTo[pgid1]
-                bond.pgid1 = toID
+                improper.pgid1 = toID
 
             if pgid2 in fromIDs:
                 toID = idFromTo[pgid2]
-                bond.pgid2 = toID
+                improper.pgid2 = toID
 
+            if pgid3 in fromIDs:
+                toID = idFromTo[pgid3]
+                improper.pgid3 = toID
+
+            if pgid4 in fromIDs:
+                toID = idFromTo[pgid4]
+                improper.pgid4 = toID
 
 
 
@@ -334,15 +374,17 @@ class BondContainer:
         Return a map of type to (typeIndex, ??????)
         Method assigns a type index and checkes for consistency
 
+        NOTE: not tested
+
         Returns:
             dictionary of {type:[typeIndex, ????], ....}
         """
 
         # Look for types and get unique list
         typeList = list()
-        for gid, bondObj in self.bonds.iteritems():
-            bondType = bondObj.type
-            typeList.append(bondType)
+        for gid, improperObj in self.impropers.iteritems():
+            improperType = improperObj.type
+            typeList.append(improperType)
         typeList = list(set(typeList))
         
         # Generate list of unique type for keys to initialize dictionary

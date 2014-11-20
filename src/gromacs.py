@@ -17,6 +17,7 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from impropers  import Improper, ImproperContainer
 
 from parameters import ParameterContainer
 from parameters import BondtypesContainer
@@ -26,6 +27,7 @@ from parameters import ljtype
 from parameters import bondtype
 from parameters import angletype
 from parameters import dihtype
+from parameters import imptype
 
 def read_gro(strucC,in_gro):
     """
@@ -96,10 +98,11 @@ def read_gro(strucC,in_gro):
                 pt_i.position = r_i 
             else:
                 pt_i = Particle( r_i ) 
-                tagsD = {"gtype":g,"resname":resname_i}
-                pt_i.setTagsDict(tagsD)
+                #tagsD = {"gtype":g,"resname":resname_i}
+                #pt_i.setTagsDict(tagsD)
+                pt_i.tagsDict["resname"] =  resname_i
+                pt_i.tagsDict["gtype"] =  g
                 strucC.ptclC.put(pt_i)
-
 
     #        
     # Get lattice vector from last line
@@ -127,7 +130,7 @@ def read_gro(strucC,in_gro):
         
     return strucC
 
-def read_top(strucC, top_infile):
+def read_top(strucC, parmC, top_infile):
     """
     Read in GROMACS topology file
     """
@@ -159,6 +162,7 @@ def read_top(strucC, top_infile):
     # Compile included files into single array
     #
     Lines = []
+    itp_list = []
     for line in top_lines:
         col = line.split()
         if ( len(col) > 1 ):
@@ -170,6 +174,14 @@ def read_top(strucC, top_infile):
                     include_lines = F_inc.readlines()
                     F_inc.close()
 
+                    #
+                    # Compile list of itp files
+                    #
+                    include_sufix = include_file[-3:]
+                    if( include_sufix == "itp" ):
+                        itp_list.append(include_file)
+
+                        
                     if( verbose ):
                         print "      Including ",include_file
 
@@ -193,7 +205,8 @@ def read_top(strucC, top_infile):
     MOLECULETYPE = []
     MOLECULECNT = []
     MOLECULECNT_ID = []
-    MOL_CNT = 0 
+    MOL_CNT = 0
+    ljmixrule = 0 
 
     for line in Lines:
         col = line.split()
@@ -218,7 +231,12 @@ def read_top(strucC, top_infile):
             if( read_DEFAULTS ):
                 if ( len(col) >= 2 ):
                     if ( col[0][:1] != ';' and  col[0][:1] != '[' ):
-                        ljmixrule = int( col[1] )
+                        parmC.set_nbfunc( int( col[0] ) )
+                        parmC.set_combmixrule( int( col[1] ) )
+                        parmC.set_genpairs( str( col[2] ) )
+                        parmC.set_fudgeLJ( float( col[3] ) )
+                        parmC.set_fudgeQQ( float( col[4] ) )
+                        
                 if ( col[0][:1] == '[' ):
                     read_DEFAULTS = 0
                     
@@ -259,8 +277,11 @@ def read_top(strucC, top_infile):
     AMASS_l = []
 
     BONDS_l = []
+    BONDTYPE_l = []
     ANGLES_l = []
+    ANGLETYPE_l = []
     DIH_l = []
+    DIHTYPE_l = []
 
 
     # atoms 
@@ -301,6 +322,7 @@ def read_top(strucC, top_infile):
                     read_BONDS = 0
                 elif ( len(col) >= 2 ):
                     BONDS_l.append( [ int(col[0])-1,int(col[1])-1 ] )
+                    BONDTYPE_l.append( int(col[2] ) )
                     BONDS_CNT = BONDS_CNT + 1 
 
 
@@ -310,6 +332,7 @@ def read_top(strucC, top_infile):
                     read_ANGLES = 0
                 elif ( len(col) >= 2 ):
                     ANGLES_l.append( [int(col[0])-1,int(col[1])-1,int(col[2])-1 ] )
+                    ANGLETYPE_l.append( int(col[3] ) )
                     ANGLES_CNT = ANGLES_CNT + 1 
 
             # Read in dihedrals section to local arrays 
@@ -318,6 +341,7 @@ def read_top(strucC, top_infile):
                     read_DIH = 0
                 elif ( len(col) >= 2 ):
                     DIH_l.append( [int(col[0])-1,int(col[1])-1,int(col[2])-1,int(col[3])-1 ] )
+                    DIHTYPE_l.append( int(col[4] ) )
                     DIH_CNT = DIH_CNT + 1
             #
             # switch on atoms read in and tack local arrays by molecule number 
@@ -384,6 +408,7 @@ def read_top(strucC, top_infile):
     BOND_CNT = -1
     ANGLE_CNT = -1
     DIH_CNT = -1
+    IMP_CNT = -1 
 
     MOL_CNT = -1 
 
@@ -475,37 +500,57 @@ def read_top(strucC, top_infile):
                 A_CNT += 1
                 m_i = AMASS_l[atom_indx]
                 q_i = CHARGES_l[atom_indx]
+
+                el = pt.getelementWithMass(m_i)
+                if( el.symbol == "VS" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+                    m_i = 0.0 
+
+                # HACK !!
+                if(  ATYPE_l[atom_indx].strip() == "LP" ):
+                    el.symbol = ATYPE_l[atom_indx].strip()
+                    m_i = 0.0 
+                
                 if( pt_update ):
                     pt_i = strucC.ptclC[A_CNT+1]
+
+                    pt_i.charge = q_i
+                    pt_i.mass = m_i
+                    pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
+                    pt_i.tagsDict["residue"] = RESN_l[atom_indx]
+                    pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
+                    pt_i.tagsDict["chain"] = MOL_CNT + 1
+                    pt_i.tagsDict["ffmass"] =  AMASS_l[atom_indx]
+                    pt_i.tagsDict["symbol"] = el.symbol
+                    pt_i.tagsDict["number"] = el.number
+                    pt_i.tagsDict["cov_radii"] = el.cov_radii
+                    pt_i.tagsDict["vdw_radi"] = el.vdw_radii
+                    
                     if( debug ):
                         print " updating ",A_CNT+1
                 else:
                     r_i = [0.0,0.0,0.0]
                     type_i = "??"
-                    pt_i = Particle( r_i,type_i,m_i,q_i ) 
+                    pt_i = Particle( r_i,type_i,m_i,q_i )
+
+                    pt_i.charge = q_i
+                    pt_i.mass = m_i
+                    pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
+                    pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
+                    pt_i.tagsDict["residue"] = RESN_l[atom_indx]
+                    pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
+                    pt_i.tagsDict["chain"] = MOL_CNT + 1
+                    pt_i.tagsDict["ffmass"] =  AMASS_l[atom_indx]
+                    pt_i.tagsDict["symbol"] = el.symbol
+                    pt_i.tagsDict["number"] = el.number
+                    pt_i.tagsDict["cov_radii"] = el.cov_radii
+                    pt_i.tagsDict["vdw_radi"] = el.vdw_radii
+
                     strucC.ptclC.put(pt_i) 
 
-                pt_i.charge = q_i
-                pt_i.mass = m_i
-                pt_i.tagsDict["gtype"] = GTYPE_l[atom_indx].strip()
-                pt_i.tagsDict["fftype"] = ATYPE_l[atom_indx].strip()
-                pt_i.tagsDict["resname"] = RESID_l[atom_indx].strip()
-                pt_i.tagsDict["residue"] = RESN_l[atom_indx]
-                pt_i.tagsDict["qgroup"] = CHARN_l[atom_indx]
-                pt_i.tagsDict["chain"] = MOL_CNT + 1
-                
-                el = pt.getelementWithMass(m_i)
-                if( el.symbol == "VS" ):
-                    el.symbol = ATYPE_l[atom_indx].strip()
-
-                # HACK !!
-                if(  ATYPE_l[atom_indx].strip() == "LP" ):
-                    el.symbol = ATYPE_l[atom_indx].strip()
-
-                pt_i.tagsDict["symbol"] = el.symbol
-                pt_i.tagsDict["number"] = el.number
-                pt_i.tagsDict["cov_radii"] = el.cov_radii
-                pt_i.tagsDict["vdw_radi"] = el.vdw_radii
                 #pt_i.tagsDict[""] = el.
 
                 if( debug ):
@@ -523,28 +568,38 @@ def read_top(strucC, top_infile):
             # Repeat bonds
             N_o = MOL_BONDS_INDEX[id_n] #- 1
             N_f = MOL_BONDS_INDEX[id_n+1] - 1
+
+            debug = False
+            
             if( debug ): print " adding bonds ",N_o,N_f
             if( N_f > N_o ):
                 for bond_indx in range(N_o,N_f+1):
                     BOND_CNT += 1
                     i_o = BONDS_l[bond_indx][0]
                     j_o = BONDS_l[bond_indx][1]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    g_indx = BONDTYPE_l[bond_indx]
 
                     if( bonds_overwrite ):
-                        bondObj = strucC.bondC[BOND_CNT + 1 ]
-                        bondObj.pgid1 = i_o
-                        bondObj.pgid2 = j_o
+                        b_i = strucC.bondC[BOND_CNT + 1 ]
+                        b_i.pgid1 = i_add
+                        b_i.pgid2 = j_o
+                        b_i.set_g_indx(g_indx)
                     else:
-                        b_i = Bond( i_o, j_o )            
+                        b_i = Bond( i_add, j_add )
+                        b_i.set_g_indx(g_indx)
                         strucC.bondC.put(b_i)
                     if( debug ):
-                        print i_o,j_o , " -> ",i_add,j_add
-
+                        print "bonds_overwrite",bonds_overwrite," : ",i_o,j_o , " -> ",i_add,j_add
+                if( debug ):
+                    print " len(strucC.bondC) ",len(strucC.bondC) 
+                    sys.exit(" debug bonds in read top 1" )
+                    
             # Repeat angles
             N_o = MOL_ANGLES_INDEX[id_n] #- 1
             N_f = MOL_ANGLES_INDEX[id_n+1] - 1
+            debug = False 
             if( debug ): print " adding angles ",N_o,N_f
             if( N_f > N_o ):
                 for angle_indx in range(N_o,N_f+1):
@@ -553,53 +608,120 @@ def read_top(strucC, top_infile):
                     k_o = ANGLES_l[angle_indx][0]
                     i_o = ANGLES_l[angle_indx][1]
                     j_o = ANGLES_l[angle_indx][2]
-                    k_add = REF_N[k_o]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
-
+                    k_add = REF_N[k_o] + 1
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    g_indx = ANGLETYPE_l[angle_indx]
+                    
                     if( angles_overwrite ):
-                        angleObj = strucC.angleC[ANGLE_CNT + 1 ]
-                        angleObj.pgid1 = k_o
-                        angleObj.pgid2 = i_o
-                        angleObj.pgid3 = j_o
+                        angle_i = strucC.angleC[ANGLE_CNT + 1 ]
+                        angle_i.pgid1 = k_add
+                        angle_i.pgid2 = i_add
+                        angle_i.pgid3 = j_add
+                        angle_i.set_g_indx(g_indx)
                     else:
-                        angle_i = Angle( k_o,i_o, j_o )            
+                        angle_i = Angle( k_add,i_add, j_add )            
+                        angle_i.set_g_indx(g_indx)
                         strucC.angleC.put(angle_i)
+                    if( debug ):
+                        print "angles_overwrite",angles_overwrite," : ",k_o,i_o,j_o , " -> ",k_add,i_add,j_add
+                if( debug ):
+                    print " len(strucC.angleC) ",len(strucC.angleC) 
+                    sys.exit(" debug angleC in read top 1" )
+
 
             # Repeat dihedral
             N_o = MOL_DIH_INDEX[id_n] #- 1
             N_f = MOL_DIH_INDEX[id_n+1] - 1
+            debug = False            
             if( debug ): print " adding dihedral ",N_o,N_f
             if( N_f > N_o ):
                 for dih_indx in range(N_o,N_f+1):
-                    DIH_CNT += 1
                     k_o = DIH_l[dih_indx][0]
                     i_o = DIH_l[dih_indx][1]
                     j_o = DIH_l[dih_indx][2]
                     l_o = DIH_l[dih_indx][3]
-                    k_add = REF_N[k_o]
-                    i_add = REF_N[i_o]
-                    j_add = REF_N[j_o]
-                    l_add = REF_N[l_o]
+                    k_add = REF_N[k_o] + 1
+                    i_add = REF_N[i_o] + 1
+                    j_add = REF_N[j_o] + 1
+                    l_add = REF_N[l_o] + 1
+                    g_indx = DIHTYPE_l[dih_indx]
+                    # Determine type
 
-                    if( dih_overwrite ):
-                        dObj = strucC.dihC[DIH_CNT + 1 ]
-                        dObj.pgid1 = k_o
-                        dObj.pgid2 = i_o
-                        dObj.pgid3 = j_o
-                        dObj.pgid4 = l_o
+                    if( g_indx == 1 or g_indx == 9 ):
+                        dtype = "multiharmonic"
+                        # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
+                    elif( g_indx == 2 ):
+                        dtype = "improper"
+                        
+                        # V = 1/2 ke( e-e0)^2
+                    elif( g_indx == 3 ):
+                        dtype = "rb"
+                        # Ryckaert-Bellemans function
+                        # Vrb(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
+
+                    elif( g_indx == 5 ):
+                        dtype = "opls"
+                        # opls function
+                    elif( g_indx == 4 ):
+                        dtype = "periodicimproper"
                     else:
-                        dih_i = Dihedral( k_o,i_o, j_o,l_o )            
-                        strucC.dihC.put(dih_i)
+                        print " unknow dihedral type ",g_indx
+                        raise TypeError
+                        
+                    if( dih_overwrite ):
+                        if( g_indx == 2 ):
+                            IMP_CNT += 1
+                            imp_i = strucC.impC[IMP_CNT + 1 ]
+                            imp_i.pgid1 = k_add
+                            imp_i.pgid2 = i_add
+                            imp_i.pgid3 = j_add
+                            imp_i.pgid4 = l_add
+                            imp_i.set_type(dtype)
+                            imp_i.set_g_indx(g_indx)
+                        else:
+                            DIH_CNT += 1
+                            dih_i = strucC.dihC[DIH_CNT + 1 ]
+                            dih_i.pgid1 = k_add
+                            dih_i.pgid2 = i_add
+                            dih_i.pgid3 = j_add
+                            dih_i.pgid4 = l_add
+                            dih_i.set_type(dtype)
+                            dih_i.set_g_indx(g_indx)
+                            
+                    else:
+                        if( g_indx == 2 ):
+                            imp_i = Improper( k_add,i_add, j_add,l_add,0.0,dtype )            
+                            imp_i.set_g_indx(g_indx)
+                            strucC.impC.put(imp_i)
+                        else:
+                            dih_i = Dihedral( k_add,i_add, j_add,l_add,0.0,dtype )            
+                            dih_i.set_g_indx(g_indx)
+                            strucC.dihC.put(dih_i)
+                            
+                    if( debug ):
+                        print "dih_overwrite",dih_overwrite," : ",k_o,i_o,j_o ,l_o, " -> ",k_add,i_add,j_add,l_add
+                if( debug ):
+                    print " len(strucC.dihC) ",len(strucC.dihC) 
+                    sys.exit(" debug dihC in read top 1" )
 
     if(debug): print " Total atoms ",A_CNT
     MOLPNT.append( A_CNT + 1)
+    #
+    # Read in parameters from itp files 
+    #
+    debug = False 
+    for itp_file in  itp_list:
+        if( debug ):
+            print " Reading in itp file ",itp_file
+        parmC = read_itp( parmC, itp_file)
+    if(debug):
+        sys.exit(" debug itp file read in from read top ")
+
+    return (strucC,parmC)
 
 
-    return (strucC,ljmixrule)
-
-
-def read_itp( parmC, ff_file, ljmixrule):
+def read_itp(parmC,ff_file):
     """
     Read a gromacs paramter file
 
@@ -622,6 +744,29 @@ def read_itp( parmC, ff_file, ljmixrule):
     Lines = F.readlines()
     F.close()
     #
+    # Get DEFAULTS
+    # 
+    read_DEFAULTS = False
+    for line in Lines:
+        col = line.split()
+        if ( len(col) > 1 ):
+            if( read_DEFAULTS ):
+                if ( len(col) >= 2 ):
+                    if ( col[0][:1] != ';' and  col[0][:1] != '[' ):
+                        parmC.set_nbfunc( int( col[0] ) )
+                        parmC.set_combmixrule( int( col[1] ) )
+                        parmC.set_genpairs( str( col[2] ) )
+                        parmC.set_fudgeLJ( float( col[3] ) )
+                        parmC.set_fudgeQQ( float( col[4] ) )
+                        # Need to check with ljmixrule found in top
+                        #  if one is found...
+                if ( col[0][:1] == '[' ):
+                    read_DEFAULTS = False
+                    
+            if ( col[0][:1] == '[' and col[1] == 'defaults' ):
+                read_DEFAULTS = True
+
+    #
     # Get atom types
     # 
     read_line = 0
@@ -642,17 +787,17 @@ def read_itp( parmC, ff_file, ljmixrule):
                         mass_i = float( col[2] )
                         g_sig = float(col[5])
                         g_ep  = float(col[6])
-                        if( ljmixrule == 2 or ljmixrule == 3 ):
+                        if(  parmC.get_combmixrule() == 2 or parmC.get_combmixrule() == 3 ):
                             sigma = units.convert_nm_angstroms(g_sig)
                             epsilon = units.convert_kJmol_kcalmol(g_ep)
                         else:
-                            print "uknown mixing rule for LJ parameters "
-                            sys.exit(" error")
+                            print "uknown mixing rule for combmixrule "
+                            sys.exit(" error ")
 
                         ljtyp_i.setmass(mass_i)
                         ljtyp_i.setparam(epsilon,sigma)
                         parmC.ljtypC.put(ljtyp_i)
-                        #print btyp_i
+                        # print btyp_i
     if( debug):
         print " LJ paramters have been read in "
         for  ljid, ljtypObj in parmC.ljtypC:
@@ -755,17 +900,17 @@ def read_itp( parmC, ff_file, ljmixrule):
                         # Set parameters according to type 
                         gfunc_type = int( col[4] )                    # Gromacs id
 
-                        if( gfunc_type == 1 or gfunc_type == 4 ):
+                        if( gfunc_type == 1 or gfunc_type == 9 ):
                             theat_s = float( col[5] )
                             kb = units.convert_kJmol_kcalmol( float( col[6] ) )
                             mult = float( col[7] )
-                            dtype = "harmonic"
+                            dtype = "multiharmonic"
                             # Vd(theta) = kb[1 + cos(mult theta - theat_s)]
 
 
                         elif( gfunc_type == 2 ):
                             e0 = float( col[5] )
-                            ke = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            ke = units.convert_g_angle_kb( float( col[6] ) )
                             dtype = "improper"
                             # V = 1/2 ke( e-e0)^2
 
@@ -788,33 +933,44 @@ def read_itp( parmC, ff_file, ljmixrule):
                             dtype = "opls"
                             # opls function
                             
-                        elif( gfunc_type == 9 ):
-                            theat_s = float( col[5] )
-                            kb = units.convert_kJmol_kcalmol( float( col[6] ) )
-                            mult = float( col[7] )
-                            dtype = "multiharmonic"
-
+                        elif( gfunc_type == 4 ):
+                            e0 = float( col[5] )
+                            ke = units.convert_kJmol_kcalmol( float( col[6] ) )
+                            pn = int( col[7] )
+                            dtype = "periodicimproper"
                         else:
                             print " unknow dihedral type ",gfunc_type
                             raise TypeError
 
-                        dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
-                        dtyp_i.set_g_indx(gfunc_type)
-
-                        if( gfunc_type == 1 or  gfunc_type == 9  ):
-                            d = 1.0 
-                            dtyp_i.setharmonic(d, mult, kb,theat_s)
-
                         if( gfunc_type == 2 ):
-                            dtyp_i.setimp(e0,ke) 
-
-                            
-                        if( gfunc_type == 3 ):
+                            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            imptyp_i.set_g_indx(gfunc_type)
+                            imptyp_i.setimp(e0,ke)
+                            parmC.imptypC.put(imptyp_i)
+                        elif( gfunc_type == 4 ):
+                            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            imptyp_i.set_g_indx(gfunc_type)
+                            imptyp_i.setimp(e0,ke)
+                            imptyp_i.set_pn(pn)
+                            parmC.imptypC.put(imptyp_i)
+                        elif( gfunc_type == 1 or  gfunc_type == 9  ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
+                            dtyp_i.setharmonic( mult, kb,theat_s)
+                            parmC.dtypC.put(dtyp_i)
+                        elif( gfunc_type == 3 ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
                             dtyp_i.setrb(C0,C1,C2,C3,C4,C5)  # Sets oplsa as well since they are equivalent 
-                        if(  gfunc_type == 5  ):
+                            parmC.dtypC.put(dtyp_i)
+                        elif(  gfunc_type == 5  ):
+                            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+                            dtyp_i.set_g_indx(gfunc_type)
                             dtyp_i.setopls(k1,k2,k3,k4)   # Sets rb as well since they are equivalent 
-
-                        parmC.dtypC.put(dtyp_i)
+                            parmC.dtypC.put(dtyp_i)
+                        else:
+                            print " tyring to set unknow dihedral type ",gfunc_type
+                            raise TypeError
 
                         #print btyp_i
     debug = False
@@ -852,7 +1008,7 @@ def print_gro(strucC,gro_file):
     F.write( "\n %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %8.3f \n" % ( latvec[0][0]/10.0,latvec[1][1]/10.0,latvec[2][2]/10.0,latvec[0][1]/10.0,latvec[0][2]/10.0,latvec[1][0]/10.0,latvec[1][2]/10.0,latvec[2][0]/10.0,latvec[2][1]/10.0))
     F.close()
 
-def print_top(strucC,top_file):
+def print_top(strucC,top_file,itp_file):
     """
     Write gromacs topology file
     """
@@ -866,17 +1022,18 @@ def print_top(strucC,top_file):
     F.write('; top file for gromacs \n ')
     F.write('\n')
     F.write('; force field file \n')
-    F.write('#include "ff-new.itp"  \n')
+    F.write('#include "%s"  \n'%(itp_file))
     F.write('\n')
     F.write( '[ moleculetype ] \n')
     F.write( ' MOL           3 \n')
     F.write('\n')
     F.write( '[ atoms ] \n' )
+    F.write( '; nr  :  fftype : residue #  : residue name  : atom name  :  charge group #:  charge : mass  \n')
     TOTAL_CHARGE = 0.0
 
     for pid, ptclObj  in strucC.ptclC:
         # print i,ATYPE[i] ,RESN[i] ,RESID[i] ,GTYPE[i],CHARN[i],CHARGES[i] ,AMASS[i]
-        F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.mass) )
+        F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.tagsDict["ffmass"]) )
         TOTAL_CHARGE = TOTAL_CHARGE + float(ptclObj.charge)
 
     print ' Total charge = ',TOTAL_CHARGE
@@ -885,6 +1042,7 @@ def print_top(strucC,top_file):
     # write bonds
     #
     F.write( ' [ bonds ] \n' )
+    F.write( '; i    j  func       b0          kb \n')    
     print len(strucC.bondC) , ' number of bonds'
     for b_o, bondObj_o  in strucC.bondC:
         pid_i = bondObj_o.pgid1
@@ -896,6 +1054,7 @@ def print_top(strucC,top_file):
     # write angles
     #
     F.write( ' [ angles ] \n' )
+    F.write( ';  i    j    k  func       th0       cth \n' )
     print len(strucC.angleC)-1 , ' number of angles'
     for a_o,angleObj_o in strucC.angleC:
         pid_k = angleObj_o.pgid1
@@ -908,8 +1067,8 @@ def print_top(strucC,top_file):
     # write dihedrals
     #
     debug = 0
-    line = str( '[ dihedrals ]' )
-    F.write( line + '\n' )        
+    F.write(  ' [ dihedrals ] \n' )        
+    F.write(  ';i   j   k   l	   func	 \n' )
     print len(strucC.dihC), ' number of dihedrals '
     for d_o,dihObj_o in strucC.dihC:
         pid_k = dihObj_o.pgid1
@@ -918,6 +1077,16 @@ def print_top(strucC,top_file):
         pid_l = dihObj_o.pgid4
         #if(debug): print ' dihedral index ',ind, pid_k,pid_i,pid_j,pid_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1]
         gfunc_type = dihObj_o.get_g_indx()
+        F.write(  '%10d %10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,pid_l,gfunc_type) )
+
+    print len(strucC.impC), ' number of improper dihedrals '
+    for d_o,impObj_o in strucC.impC:
+        pid_k = impObj_o.pgid1
+        pid_i = impObj_o.pgid2
+        pid_j = impObj_o.pgid3
+        pid_l = impObj_o.pgid4
+        #if(debug): print ' impedral index ',ind, pid_k,pid_i,pid_j,pid_l,ATYPE[a_i-1],ATYPE[a_j-1],ATYPE[a_k-1],ATYPE[a_l-1]
+        gfunc_type = impObj_o.get_g_indx()
         F.write(  '%10d %10d %10d %10d %5d \n' % (pid_k,pid_i,pid_j,pid_l,gfunc_type) )
         
     F.write( '\n' )
@@ -936,7 +1105,7 @@ def print_top(strucC,top_file):
     F.close()
 
 
-def print_itp(paramC,itp_file,ff_type):
+def print_itp(paramC,itp_file):
     """"
     Write gromacs parameter file
     """
@@ -945,29 +1114,17 @@ def print_itp(paramC,itp_file,ff_type):
     F.write(';  new ff parameters \n')
     F.write(' \n ')
     
-    if( ff_type == "oplsaa" ):
-            
-        nbfunc = 1
-        ljmixrule = 3
-        genpairs = "yes"
-        fudgeLJ = 0.5
-        fudgeQQ = 0.5
-        
-    elif( ff_type == "amber" ):
-
-        nbfunc = 1
-        ljmixrule = 2
-        genpairs = "yes"
-        fudgeLJ = 0.5
-        fudgeQQ = 0.8333
-        
-    else:
-        print " force-field type unknown  "
-
     
     F.write(' \n [ defaults ] ')
     F.write(' \n ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ ')
-    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,ljmixrule,genpairs,fudgeLJ,fudgeQQ  ))
+    nbfunc = paramC.get_nbfunc()
+    combmixrule =  paramC.get_combmixrule()
+    genpairs =  paramC.get_genpairs()
+    fudgeLJ =  paramC.get_fudgeLJ()
+    fudgeQQ =  paramC.get_fudgeQQ()
+
+    
+    F.write(' \n  %d %d %s  %f %f ' % ( nbfunc,combmixrule,genpairs,fudgeLJ,fudgeQQ  ))
     F.write(' \n ')
     F.write(' \n ')
 
@@ -975,6 +1132,7 @@ def print_itp(paramC,itp_file,ff_type):
     btypC_p =  paramC.btypC
     atypC_p =  paramC.atypC
     dtypC_p =  paramC.dtypC
+    imptypC_p =  paramC.imptypC
 
     #
     # Write particle types   
@@ -983,7 +1141,7 @@ def print_itp(paramC,itp_file,ff_type):
     for lj_p, ljObj_p  in ljtypC_p:
         sigma = units.convert_angstroms_nm( ljObj_p.sigma )
         epsilon = units.convert_kcalmol_kJmol( ljObj_p.epsilon )
-        out_line = "\n %s   %d  %f %f %s %f %f  "%(ljObj_p.ptype1,ljObj_p.pid,ljObj_p.mass,ljObj_p.charge,ljObj_p.ptype,sigma,epsilon)
+        out_line = "\n %s   %d  %f %f %s %f %f  "%(ljObj_p.ptype1,ljObj_p.pid,ljObj_p.get_mass(),ljObj_p.charge,ljObj_p.ptype,sigma,epsilon)
         F.write(out_line)
 
     F.write(' \n ')
@@ -1033,18 +1191,36 @@ def print_itp(paramC,itp_file,ff_type):
         elif( g_type == 2  ):
             e0, ke_kcalmol  = dtypObj_p.getimp()
             ke = units.convert_kcalmol_kJmol( ke_kcalmol )
-            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,e0, ke)            
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,e0, ke)
+            error_line = "No impropers should be in dihedral type container "
+            sys.exit(error_line)
         elif( g_type == 3  ):
             Clist_kcalmol  = dtypObj_p.get_rbClist()
             Clist = []
             for Cindx in Clist_kcalmol:
                 Clist.append( units.convert_kcalmol_kJmol(Cindx))
-                
-            out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Cindx[0],Cindx[1],Cindx[2],Cindx[3],Cindx[4],Cindx[5])            
+            out_line = "\n %s   %s   %s   %s  %d  %f  %f  %f  %f  %f %f "%(dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4(),g_type,Clist[0],Clist[1],Clist[2],Clist[3],Clist[4],Clist[5])            
         else:
-            print "  unknown gromacs angle type index  ",g_type
+            print "  unknown gromacs dihedral type index  ",g_type
             sys.exit(" error in printing itp file ")
         F.write(out_line)
+
+    for d_p,imptypObj_p in imptypC_p:
+        g_type = imptypObj_p.get_g_indx()
+        if( g_type == 2  ):
+            e0, ke_kcalmol  = imptypObj_p.getimp()
+            ke = units.convert_kb_g_angle( ke_kcalmol )
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  "%(imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4(),g_type,e0, ke)            
+        elif( g_type == 3  ):
+            e0, ke_kcalmol  = imptypObj_p.getimp()
+            pn  = imptypObj_p.get_pn()
+            ke = units.convert_kb_g_angle( ke_kcalmol )
+            out_line = "\n %s   %s   %s   %s  %d   %f  %f  %d "%(imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4(),g_type,e0, ke, np)            
+        else:
+            print "  unknown gromacs improper dihedral type index  ",g_type
+            sys.exit(" error in printing itp file ")
+        F.write(out_line)
+
 
     F.write(' \n ')
 

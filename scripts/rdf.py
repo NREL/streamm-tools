@@ -143,7 +143,7 @@ def main():
     #
     if( len(options.in_data) ):
         if( options.verbose ): print  "     LAMMPS data file ",options.in_data            
-        struc_o = lammps.read_lmpdata(struc_o,options.in_data)
+        struc_o,param_i = lammps.read_lmpdata(struc_o,param_i,options.in_data)
     
     # Get paticle and bond structures
     ptclC_o = struc_o.ptclC

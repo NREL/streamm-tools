@@ -92,6 +92,20 @@ class Dihedral:
             return False
 
 
+    def set_type(self,type):
+        """
+        Set bond type 
+        """
+        self.type = type
+        
+        
+    def get_type(self):
+        """
+        Return bond type
+        """
+        return self.type
+
+
     def set_lmpindx(self,lmpindx):
         """
         Set bond type index for lammps
@@ -119,6 +133,12 @@ class Dihedral:
         """
         return self.g_indx
 
+
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+        return " %s - %s - %s - %s    %s "%(self.pgid1,self.pgid2,self.pgid3,self.pgid4,self.type )
 
 
 class DihedralContainer:
@@ -178,7 +198,8 @@ class DihedralContainer:
 
         dihedralStr="\n Contains dihedral objects: \n"
         for gid in self.dihedrals:
-            dihedralStr = dihedralStr + str(gid) + " " + str(self.dihedrals[gid].__dict__) + "\n"
+            dihedralStr += " %d :  %s  \n"%(gid,self.dihedrals[gid])
+            
         return dihedralStr
 
 
