@@ -12,13 +12,13 @@ Run Molecular Dynamics simulation at low temperature NVT to get a minimized stru
 from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
-import pbcs
+import pbcs,topology
 import mpiNREL, file_io
 
 import numpy as np 
 import sys , datetime, random, math 
 
-const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
+#const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
 def get_options():
     """
@@ -53,7 +53,7 @@ def get_options():
     parser.add_option("--sol_buf", dest="sol_buf",  type=float, default=3.0, help=" intra solvent buffer " )
     # Cut-off
     #   should be replaced by Van der Waals radi  
-    parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=2.5, help="Minimum distance between atoms of molecules ")
+    parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=7.5, help="Minimum distance between atoms of molecules ")
 
     # Replication 
     parser.add_option("--den_target", dest="den_target", type=float, default=0.01, help="Target density g/cm^3 ")
@@ -94,19 +94,26 @@ def main():
     # Read in oligomers
     #   from json files
     oligo_array = []
-    oligo_param_array = []
+    #oligo_param_array = []
+    paramC = ParameterContainer()
+
+    strC_i = StructureContainer()  
     #    from gromacs  files
     if( len(options.gro) > 0 ):
-        oligo_array = file_io.struc_array_gromacs(oligo_array,options.gro,options.top)
-
+        oligo_array,paramC = file_io.struc_array_gromacs(oligo_array,options.gro,options.top,paramC)
+        for strC_j in oligo_array:
+            strC_i += strC_j
     # Read in solvents
     #   from json files 
     sol_array = []
     sol_param_array = []
     #   from gromacs  files
     if( len(options.gro) > 0 ):
-        sol_array = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top)
+        sol_array,paramC = file_io.struc_array_gromacs(sol_array,options.sol_gro,options.sol_top,paramC)
+        for strC_j in sol_array:
+            strC_i += strC_j
 
+    
     #
     # Check input
     #
@@ -114,12 +121,27 @@ def main():
         error_line = " data file output not working yet "
         sys.exit(error_line)
 
-    f_rep = StructureContainer()
-    paramC = ParameterContainer()
-    
-    f_new = pbcs.replicate(p,options,oligo_array,sol_array)
-    #f_rep.compressPtclIDs()
+    # Check to make sure all the interactions have parameters  
+    norm_dihparam = False
+    # Don't need since not using norm_dihparam
+    cov_nblist = []
+    cov_nbindx = []
+    paramC_f,strC_i  = topology.set_param(strC_i,paramC,norm_dihparam,cov_nblist, cov_nbindx)
 
+    f_rep = StructureContainer()    
+    f_new = pbcs.replicate(p,options,oligo_array,sol_array)
+
+    # Label all the interactions according to their interaction type
+    #   for lammps input
+    #   this should be done pre replication then passed to each copy
+    norm_dihparam = False 
+    paramC_f,f_new  = topology.set_param(f_new,paramC_f,norm_dihparam,cov_nblist, cov_nbindx)
+
+
+    #print " Sorted parameters "
+    #print str(paramC_f)
+    #sys.exit("debug 1 ")
+    #f_rep.compressPtclIDs()
     #print " f_new prop "
     #print f_new.ptclC
     #print f_new.bondC
@@ -138,17 +160,17 @@ def main():
 	#file_io.write_json(f_new,paramC,options.dir_id,options.output_id )
 
         # Write gro file 
-        if( options.calc_type == "gromacs" ):
-            path_gro_file = options.dir_id +"/" + options.output_id + ".gro"
-            if( options.verbose ): print  "     - Writing  ",path_gro_file
-            gromacs.print_gro(f_new,path_gro_file)
+        #if( options.calc_type == "gromacs" ):
+        path_gro_file = options.dir_id +"/" + options.output_id + ".gro"
+        if( options.verbose ): print  "     - Writing  ",path_gro_file
+        gromacs.print_gro(f_new,path_gro_file)
             
         
         #  Write Lammps input file
-        if( options.calc_type == "lammps" ):
-            path_data_file = options.dir_id +"/" + options.output_id + ".data"
-            if( options.verbose ): print  "     - Writing  ",path_data_file
-            lammps.write_data(f_new,paramC,path_data_file)
+        #if( options.calc_type == "lammps" ):
+        path_data_file = options.dir_id +"/" + options.output_id + ".data"
+        if( options.verbose ): print  "     - Writing  ",path_data_file
+        lammps.write_data(f_new,paramC_f,path_data_file)
 
 if __name__=="__main__":
     main()

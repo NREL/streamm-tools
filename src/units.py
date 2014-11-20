@@ -23,26 +23,42 @@ see CRC_HCP_energy.pdf in doc directory
 
 """
 
-
+# Distance 
 nm_angstroms = 10.0
+bohr_angstrom = 0.5291772086
 
+# Energy 
 kJmol_kcalmol = 0.239006
 kJmol_eV = 0.01036427
 kJmol_H = 0.0003808798
-#kJmol_incm = 83.5935
-
 kcalmol_eV = 0.04336411 
 kcalmol_H = 0.001593601 
-
-#eV_kcalmol = 96.4853
 eV_H = 0.03674931 
+#kJmol_incm = 83.5935
+#eV_kcalmol = 96.4853
 
 
+# Constants 
 # http://physics.nist.gov/cgi-bin/cuu/Value?na
 const_avo = 6.02214129 # x10^23 mol^-1 
 
 
 # grosig_kcalmol = 5.61230943
+
+
+def convert_bohr_ang(dist_bohr):
+    """
+    Convert bohr to angstroms
+    """
+    return dist_bohr*bohr_angstrom
+
+
+def convert_ang_bohr(dist_ang):
+    """
+    Convert  angstroms to bohr 
+    """
+    return dist_ang/bohr_angstrom
+        
 
 def convert_gcm3_AMUA3(den_gmc3):
     """
@@ -186,9 +202,9 @@ def convert_kb_g_bond(g_kb):
 def convert_g_angle_kb(g_ka):
     """
     convert gromacs harmonic angle parameter in
-       2.0 kJ/mol
+       1/2.0 K kJ/mol/radina^2
     to general angle parameter defined by lammps
-       kcal/mol 
+       kcal/mol /radina^2
     """
     return g_ka*kJmol_kcalmol/2.0
 
@@ -196,9 +212,9 @@ def convert_g_angle_kb(g_ka):
 def convert_kb_g_angle(g_ka):
     """
     convert to gromacs harmonic angle parameter in
-       2.0 kJ/mol
+        1/2.0 K kJ/mol/radina^2
     from general angle parameter defined by lammps
-       kcal/mol 
+        kcal/mol /radina^2
     """
     return g_ka/kJmol_kcalmol*2.0
 

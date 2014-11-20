@@ -3,6 +3,8 @@ Class data structures force-field parameters
 """
 import copy, sys
 
+sperator_line = "---------------------------------------------------------------------\n"
+
 class ljtype:
     """
     Set of LJ particle parameters 
@@ -30,6 +32,7 @@ class ljtype:
         self.charge = 0.0 
         self.pid = 0
         self.ptype = "A"  # atomic
+        self.lmpindx = 0
 
     def __del__(self):
         """
@@ -130,7 +133,7 @@ class ljtype:
         Return sigma of LJ particle
         """
         return self.sigma
-        
+
 
 class bondtype:
     """
@@ -168,8 +171,6 @@ class bondtype:
         # Set default values for parameters
         self.r0 = 0.0
         self.kb = 0.0 
-
-
 
         # Lammps and gromacs index
         self.lmpindx = 0 
@@ -446,6 +447,204 @@ class angletype:
         """
         return self.kb
 
+class imptype:
+    """
+    Set of improper dihedral angle parameters
+    """
+
+    def __init__(self, ptype1="blank", ptype2="blank", ptype3="blank", ptype4="blank" , type="harmonic" ):
+        """
+        Constructor for a angle parameter.
+        
+        Args:
+             ptype1  (str)   Atom type 
+             ptype2  (str)   Atom type 
+             ptype3  (str)   Atom type 
+             ptype4  (str)   Atom type 
+             type    (str)   Bond type 
+        """
+
+        if isinstance(ptype1, str):
+            self.ptype1 = ptype1
+        else:
+            print "1st arg should be str"
+            raise TypeError
+
+        if isinstance(ptype2, str):
+            self.ptype2 = ptype2
+        else:
+            print "2nd arg should be str"
+            raise TypeError
+
+        if isinstance(ptype3, str):
+            self.ptype3 = ptype3
+        else:
+            print "3rd arg should be str"
+            raise TypeError
+
+        if isinstance(ptype4, str):
+            self.ptype4 = ptype4
+        else:
+            print "4th arg should be str"
+            raise TypeError
+
+        if isinstance(type, str):
+            self.type = type
+        else:
+            print "5th arg should be str"
+            raise TypeError
+
+        # Set default values for parameters
+        self.e0 = 0.0
+        self.ke = 1.0
+        self.pn = 0.0    # For periodicimproper
+
+        # Lammps and gromacs index
+        self.lmpindx = 0 
+        self.g_indx = 0 
+
+
+    def set_lmpindx(self,lmpindx):
+        """
+        Set bond type index for lammps
+        """
+        self.lmpindx = lmpindx
+        
+        
+    def get_lmpindx(self):
+        """
+        Return bond type index for lammps
+        """
+        return self.lmpindx
+
+
+    def set_g_indx(self,g_indx):
+        """
+        Set bond type index for gromacs 
+        """
+        self.g_indx = g_indx
+        
+        
+    def get_g_indx(self):
+        """
+        Return bond type index for gromacs
+        """
+        return self.g_indx
+
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+        del self.ptype1
+        del self.ptype2 
+        del self.ptype3
+        del self.ptype4
+        del self.ke
+        del self.e0
+        del self.lmpindx
+        del self.g_indx 
+
+        
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        Delegates to __str__ method for contained objects
+        """
+        strucStr =  " dihedral  %s - %s - %s - %s type %s "%(self.ptype1,self.ptype2,self.ptype3,self.ptype4,self.type)
+        
+        if( self.type ==  "harmonic" ):
+            strucStr += "\n  imp e0 = %f ke = %f lammps index %d  gromcas index %d " %(self.e0,self.ke,self.lmpindx ,self.g_indx )
+
+        return strucStr
+
+
+
+    def setimp(self, e0, ke):
+        """
+        set Harmonic parameters
+
+        E = ?
+
+        Args:
+            e0     (float) 
+            kb     (float) force constant    kcal/mol
+        """
+
+        if isinstance(e0, float):
+            self.e0 = e0
+        else:
+            print "1st arg should be float"
+            raise TypeError
+
+        if isinstance(ke, float):
+            self.ke = ke
+        else:
+            print "2nd arg should be float"
+            raise TypeError
+
+    def getimp(self):
+        """
+        Get Improper parameters
+
+        Return:
+            e0     (float) 
+            kb     (float) force constant    kcal/mol
+        """
+        return self.e0, self.ke
+
+    def set_pn(self, pn):
+        """
+        set Periodic Harmonic parameter pn 
+
+        Args:
+            pn     (int) 
+        """
+
+        if isinstance(pn, int):
+            self.pn = pn
+        else:
+            print "1st arg should be int"
+            raise TypeError
+
+
+    def get_pn(self):
+        """
+        get Periodic Harmonic parameter pn 
+
+        Return:
+            pn     (int) 
+        """
+        return self.np
+                    
+    def get_type(self):
+        """
+        Return dih type
+        """
+        return self.type
+
+    def get_ptype1(self):
+        """
+        Return dih ptype1
+        """
+        return self.ptype1
+
+    def get_ptype2(self):
+        """
+        Return dih ptype2
+        """
+        return self.ptype2
+
+    def get_ptype3(self):
+        """
+        Return dih ptype3
+        """
+        return self.ptype3
+
+    def get_ptype4(self):
+        """
+        Return dih ptype4
+        """
+        return self.ptype4
 
 class dihtype:
     """
@@ -512,7 +711,11 @@ class dihtype:
         self.C2 = 0.0 
         self.C3 = 0.0 
         self.C4 = 0.0 
-        self.C5 = 0.0 
+        self.C5 = 0.0
+
+
+        self.e0 = 0.0
+        self.ke = 1.0 
 
         # Lammps and gromacs index
         self.lmpindx = 0 
@@ -523,7 +726,16 @@ class dihtype:
         """
         Set bond type index for lammps
         """
-        self.lmpindx = lmpindx
+
+        if isinstance(lmpindx, int ):
+            self.lmpindx = lmpindx
+        else:
+            print "1st arg should be int"
+            raise TypeError
+
+        #if( lmpindx <= 0 ):
+        #    print " lmpindx less than 0 "
+        #    raise TypeError
         
         
     def get_lmpindx(self):
@@ -569,6 +781,8 @@ class dihtype:
         del self.C3
         del self.C4
         del self.C5
+        del self.e0
+        del self.ke
         del self.lmpindx
         del self.g_indx 
 
@@ -592,42 +806,37 @@ class dihtype:
         return strucStr
 
 
-    def setharmonic(self, d, mult, kb,theat_s):
+    def setharmonic(self, mult, kb,theat_s):
         """
-        set Harmonic parameters
+        set MultiHarmonic parameters
+        dihedral_style charmm
 
-        E = kb[ 1 - d cos( mult theta - theat_s ) ]
+        E = kb[ 1 - cos( mult theta - theat_s ) ]  gromacs
+        E = kb[ 1 - cos( n theta - d ) ]           lammps 
 
         Args:
-            d     (float) 
             mult     (float) 
             kb     (float) force constant    kcal/mol
             theat_s     (float) angle degrees 
         """
 
-        if isinstance(d, float):
-            self.d = d
-        else:
-            print "1st arg should be float"
-            raise TypeError
-
         if isinstance(kb, float):
             self.kb = kb
         else:
-            print "2nd arg should be float"
+            print "1nd arg kb should be float"
             raise TypeError
 
         if isinstance(mult, float):
             self.mult = mult
         else:
-            print "3rd arg should be float"
+            print "2rd arg mult should be float"
             raise TypeError
 
 
         if isinstance(theat_s, float):
             self.theat_s = theat_s
         else:
-            print "4th arg should be float"
+            print "3th arg theat_s should be float"
             raise TypeError
 
 
@@ -851,12 +1060,6 @@ class dihtype:
         """
         return self.theat_s
 
-    def get_d(self):
-        """
-        Return dih d
-        """
-        return self.d
-
     def get_kb(self):
         """
         Return dih kb
@@ -900,7 +1103,8 @@ class LJtypesContainer:
         """
         del self.ljtypes
         del self.maxgid 
-    
+
+        
     def put(self, ljtyp ):
         """
         Append ljtype object to this container.
@@ -924,13 +1128,36 @@ class LJtypesContainer:
         # return iter(self.particles)
         return self.ljtypes.iteritems()
     
+    def __iadd__(self, ljtypC_b ):
+        """
+        'Magic' method to implement the '+=' operator
 
+        Only add parameters for types not already in parameter container 
+        """
+
+        for indx_i, Obj_i in ljtypC_b:
+            add_param = True
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+                
+        return self
 
     def __len__(self):
         """
         'Magic' method for returning size of container
         """
         return len(self.ljtypes)
+
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.ljtypes[gid]
 
 class BondtypesContainer:
     """
@@ -955,8 +1182,25 @@ class BondtypesContainer:
         Destructor, clears object memory
         """
         del self.bondtypes
-        del self.maxgid 
-    
+        del self.maxgid
+        
+    def __iadd__(self, btypC_b ):
+        """
+        'Magic' method to implement the '+=' operator         
+
+        Only add parameters for types not already in parameter container 
+        """
+
+        for indx_i, Obj_i in btypC_b:
+            add_param = True
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
+
     def put(self, btyp ):
         """
         Append bondtype object to this container.
@@ -989,6 +1233,13 @@ class BondtypesContainer:
         return len(self.bondtypes)
 
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.bondtypes[gid]
+
 class AngletypesContainer:
     """
     Container for angletype 
@@ -1013,6 +1264,24 @@ class AngletypesContainer:
         """
         del self.angletypes
         del self.maxgid 
+
+    def __iadd__(self, atypC_b ):
+        """
+        'Magic' method to implement the '+=' operator
+        
+        Only add parameters for types not already in parameter container
+        
+        """
+
+        for indx_i, Obj_i in atypC_b:
+            add_param = True
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
     
     def put(self, atyp ):
         """
@@ -1044,6 +1313,12 @@ class AngletypesContainer:
         """
         return len(self.angletypes)
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.angletypes[gid]
 
     def findtype(self,fftype_k,fftype_i,fftype_j):
         """
@@ -1092,6 +1367,23 @@ class DihtypesContainer:
         """
         del self.dihtypes
         del self.maxgid 
+
+    def __iadd__(self, dtypC_b ):
+        """
+        'Magic' method to implement the '+=' operator         
+        Only add parameters for types not already in parameter container
+        
+        """
+
+        for indx_i, Obj_i in dtypC_b:
+            add_param = True
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 and  Obj_i.ptype4 == Obj_j.ptype4 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
     
     def put(self, dtyp ):
         """
@@ -1122,6 +1414,12 @@ class DihtypesContainer:
         """
         return len(self.dihtypes)
 
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.dihtypes[gid]
 
 
     def findtype(self,fftype_k,fftype_i,fftype_j,fftype_l):
@@ -1152,12 +1450,117 @@ class DihtypesContainer:
 
 
 
+class ImptypesContainer:
+    """
+    Container for imptype 
+    """
+
+    def __init__(self ):
+        """
+        Constructor for ImptypesContainer.
+        """
+        self.imptypes=dict()                              # Creates empty dict struc
+
+        self.maxgid = 0            # default=0 if idList empty
+        
+        #if len(idList) == 0:         # If list not set in constructor arg
+        #    self.maxgid=0            # default=0 if idList empty
+        #else:                        #
+        #    self.maxgid=max(idList)  # take max in list for maxgid
+
+    def __del__(self):
+        """
+        Destructor, clears object memory
+        """
+        del self.imptypes
+        del self.maxgid 
+
+    def __iadd__(self, ImptypC_b ):
+        """
+        'Magic' method to implement the '+=' operator         
+        Only add parameters for types not already in parameter container
+        
+        """
+
+        for indx_i, Obj_i in ImptypC_b:
+            add_param = True
+            for indx_j, Obj_j in self:
+                if( Obj_i.ptype1 == Obj_j.ptype1 and  Obj_i.ptype2 == Obj_j.ptype2 and  Obj_i.ptype3 == Obj_j.ptype3 and  Obj_i.ptype4 == Obj_j.ptype4 ):
+                    add_param = False
+            if( add_param ):
+                self.put(Obj_i)
+                
+        return self
+    
+    def put(self, Imptyp ):
+        """
+        Append Imptyp object to this container.
+
+        Args:
+            Imptyp (imptype) correctly initialized imptype object
+
+        """
+        if isinstance(Imptyp, imptype):
+            self.maxgid += 1
+            self.imptypes[self.maxgid] = copy.deepcopy(Imptyp)
+        else:
+            print "Attempting to add non-dihtype type to container"
+            raise TypeError
+
+    
+    def __iter__(self):
+        """
+        'Magic' method implementing (for x in 'this')....
+        """
+        return self.imptypes.iteritems()
+    
+
+    def __len__(self):
+        """
+        'Magic' method for returning size of container
+        """
+        return len(self.imptypes)
+
+    def __getitem__(self, gid):
+        """
+        'Magic' method implementing obj[] operator.
+        Operations on returned elements change container
+        """
+        return self.imptypes[gid]
+
+
+    def findtype(self,fftype_k,fftype_i,fftype_j,fftype_l):
+        """
+        Find angletypes with a given set of particle types k-i-j
+        """
+
+        type_found = False
+        cnt_check = 0
+
+        for Imp_all, Imptyp_all  in self:
+            all_k = Imptyp_all.ptype1 
+            all_i = Imptyp_all.ptype2 
+            all_j = Imptyp_all.ptype3
+            all_l = Imptyp_all.ptype4
+
+            if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                type_found = True    
+            if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                type_found = True
+
+            
+        
+            if( type_found ):
+                cnt_check += 1
+                print " dih cnt_check ",cnt_check
+                print Imptyp_all
+
 class ParameterContainer:
     """
     Container for force-field parameters
     """
 
-    def __init__(self, ljtypC = LJtypesContainer(), btypC = BondtypesContainer(),atypC=AngletypesContainer(),dtypC=DihtypesContainer() ):
+    def __init__(self, ljtypC = LJtypesContainer(), btypC = BondtypesContainer(),atypC=AngletypesContainer(),dtypC=DihtypesContainer(),imptypC=ImptypesContainer() ):
         """
         Constructor for ParameterContainer.
 
@@ -1166,6 +1569,7 @@ class ParameterContainer:
              btypC  (BondtypesContainer)
              atypC  (AngletypesContainer)
              dtypC  (DihtypesContainer)
+             imptypC  (DihtypesContainer)
         """
         
         if isinstance(ljtypC, LJtypesContainer):
@@ -1191,7 +1595,19 @@ class ParameterContainer:
         else:
             print "4th arg should be a DihtypesContainer object"
             raise TypeError
-
+        if isinstance(imptypC, ImptypesContainer):
+            self.imptypC = copy.deepcopy(imptypC)
+        else:
+            print "5th arg should be a ImptypesContainer object"
+            raise TypeError
+        #
+        # Set defaults 
+        #
+        self.nbfunc = 1      # Use 1 (Lennard-Jones) or 2 (Buckingham)
+        self.combmixrule = 3   # 1 or 3  - geometric; 2 - arithmetic
+        self.genpairs = "yes"  # generates 1-4 parameters that are not present in the pair list 
+        self.fudgeLJ = 1.0   # the factor by which to multiply Lennard-Jones 1-4 interactions, default 1
+        self.fudgeQQ = 1.0   # the factor by which to multiply electrostatic 1-4 interactions, default 1
         
     def __del__(self):
         """
@@ -1201,6 +1617,136 @@ class ParameterContainer:
         del self.btypC
         del self.atypC
         del self.dtypC
+        del self.imptypC
+        
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+
+        strucStr =  "\n"
+        strucStr += sperator_line
+        strucStr += "    Parameters \n"
+        strucStr += sperator_line
+        strucStr += "      LJ parameters %d \n"%(len(self.ljtypC))
+        strucStr += "      Bond parameters %d \n"%(len( self.btypC))
+        strucStr += "      Angle parameters %d \n"%(len( self.atypC))
+        strucStr += "      Dihedral parameters %d \n"%(len( self.dtypC))
+        strucStr += "      Imporper Dihedral parameters %d \n"%(len( self.imptypC))
+        return strucStr
+
+    def __iadd__(self, paramC_b ):
+        """
+        'Magic' method to implement the '+=' operator 
+        
+        """
+        debug = False 
+
+        # Deep copy parameter container
+        #if( len(paramC_b.ljtypC) > 0  ):
+        if( debug):
+
+            print "len(self.ljtypC) 0 ",len(self.ljtypC)
+            print "len(paramC_b.ljtypC)",len(paramC_b.ljtypC)
+            print paramC_b.ljtypC
+
+            for indx_i, Obj_i in self.ljtypC:
+                print " a lj object ",indx_i, Obj_i
+            for indx_i, Obj_i in paramC_b.ljtypC :
+                print " b lj object ",indx_i, Obj_i
 
 
+            print "len(self.ljtypC) 1 ",len(self.ljtypC)
 
+
+        self.ljtypC += copy.deepcopy( paramC_b.ljtypC )
+        self.btypC += copy.deepcopy( paramC_b.btypC )
+        self.atypC += copy.deepcopy( paramC_b.atypC )
+        self.dtypC += copy.deepcopy( paramC_b.dtypC )
+        self.imptypC += copy.deepcopy( paramC_b.imptypC )
+
+        return self
+
+    def set_nbfunc(self,nbfunc):
+        '''
+        Set nbfunc
+        '''
+        if isinstance(nbfunc, int):
+            self.nbfunc = nbfunc
+        else:
+            print "1st arg should be int"
+            raise TypeError
+                
+    def get_nbfunc(self):
+        '''
+        Get nbfunc
+        '''
+        return self.nbfunc 
+
+
+    def set_combmixrule(self,combmixrule):
+        '''
+        Set combmixrule
+        '''
+        if isinstance(combmixrule, int):
+            self.combmixrule = combmixrule
+        else:
+            print "1st arg should be int"
+            raise TypeError
+                
+    def get_combmixrule(self):
+        '''
+        Get combmixrule
+        '''
+        return self.combmixrule 
+
+
+    def set_genpairs(self,genpairs):
+        '''
+        Set genpairs
+        '''
+        if isinstance(genpairs, str):
+            self.genpairs = genpairs
+        else:
+            print "1st arg should be str"
+            raise TypeError
+                
+    def get_genpairs(self):
+        '''
+        Get genpairs
+        '''
+        return self.genpairs 
+
+
+    def set_fudgeLJ(self,fudgeLJ):
+        '''
+        Set fudgeLJ
+        '''
+        if isinstance(fudgeLJ, float):
+            self.fudgeLJ = fudgeLJ
+        else:
+            print "1st arg should be float"
+            raise TypeError
+                
+    def get_fudgeLJ(self):
+        '''
+        Get fudgeLJ
+        '''
+        return self.fudgeLJ 
+
+
+    def set_fudgeQQ(self,fudgeQQ):
+        '''
+        Set fudgeQQ
+        '''
+        if isinstance(fudgeQQ, float):
+            self.fudgeQQ = fudgeQQ
+        else:
+            print "1st arg should be float"
+            raise TypeError
+                
+    def get_fudgeQQ(self):
+        '''
+        Get fudgeQQ
+        '''
+        return self.fudgeQQ 

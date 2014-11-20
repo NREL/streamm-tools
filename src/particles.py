@@ -65,7 +65,7 @@ class Particle:
                    RESN = [], CHARN = [], UNITNUMB = [], UNITTYPE = []
     """
 
-    def __init__(self, pos=[], type="blank", charge=0.0, mass=1.0):
+    def __init__(self, pos=[0.0,0.0,0.0], type="blank", charge=0.0, mass=1.0):
         """
         Constructor for a general particle. Checks for types in arguments
         and throws a TypeError when appropriate
@@ -104,7 +104,22 @@ class Particle:
         # Tags dictionary. To be set by caller
         self.tagsDict=dict()
         self.tagsDict["type"] = type
-        
+        self.tagsDict["chain"] = 1
+        self.tagsDict["ring"] = 0
+        self.tagsDict["resname"] = "RES" 
+        self.tagsDict["residue"] = 1 
+        self.tagsDict["qgroup"] = 0
+        self.tagsDict["linkid"] = "??"
+        self.tagsDict["cplytag"] = ""
+        self.tagsDict["gtype"] = type
+        self.tagsDict["lmptype"] = 0
+        self.tagsDict["fftype"] = "??"
+        self.tagsDict["symbol"] = "??"
+        self.tagsDict["number"] = 0
+        self.tagsDict["mass"] = self.mass  
+        self.tagsDict["ffmass"] = self.mass  
+        self.tagsDict["cov_radii"] = 0.0
+        self.tagsDict["vdw_radii"] = 0.0
 
     def __del__(self):
         """
@@ -164,6 +179,12 @@ class Particle:
         return False
 
 
+
+    def __str__(self):
+        """
+        'Magic' method for printng contents of container
+        """
+        return " %s %f %f %f %f %f  "%(  self.type,self.position[0],self.position[1],self.position[2],self.charge,self.mass )
 
 class ParticleContainer:
     """
@@ -229,8 +250,8 @@ class ParticleContainer:
         """
 
         ptclStr="\n Contains particle objects: \n"
-        for gid in self.particles:
-            ptclStr = ptclStr + str(gid) + " " + str(self.particles[gid].__dict__) + "\n"
+        for gid  in self.particles:
+            ptclStr  +=  " %d : %s  \n"%(  gid,self.particles[gid])
         return ptclStr
 
 

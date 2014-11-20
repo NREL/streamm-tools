@@ -12,17 +12,26 @@ from particles  import Particle
 from bonds      import Bond,     BondContainer
 from angles     import Angle,    AngleContainer
 from dihedrals  import Dihedral, DihedralContainer
+from impropers  import Improper, ImproperContainer
+
+from parameters import ljtype
+from parameters import bondtype
+from parameters import angletype
+from parameters import dihtype
+from parameters import imptype
+
 from periodictable import periodictable
 
-def read_lmpdata( strucC , data_file):
+def read_lmpdata( strucC , parmC , data_file):
     """
     Read Lammps data file
 
-    Arguments:
-        # strucC     (StructureContainer)
-        # parmC      (ParameterContainer)
-        data_file  (str) data file
 
+    Arguments:
+        strucC     (StructureContainer)
+        parmC      (ParameterContainer)
+        data_file  (str) data file
+    
     ReturnS:
         strucC     (StructureContainer)
         parmC      (ParameterContainer)
@@ -34,7 +43,6 @@ def read_lmpdata( strucC , data_file):
     
     debug = 0
     verbose = True
-
 
     # Load periodic table 
     pt = periodictable()
@@ -97,11 +105,13 @@ def read_lmpdata( strucC , data_file):
         print " n_bonds ",n_bonds
         print " n_angles ",n_angles
         print " n_dihedrals ",n_dihedrals
+        print " n_impropers ",n_impropers
         print ""
         print "n_atom_types",n_atypes
         print "n_bond_types",n_btypes
         print "n_angle_types",n_angtypes
         print "n_dihedral_types",n_dtypes
+        print "n_imp_dihedral_types",n_imptypes
 
     # Check to see if a previous read has occured
     pt_overwrite = False
@@ -123,6 +133,9 @@ def read_lmpdata( strucC , data_file):
     dih_overwrite = False
     if( len(strucC.dihC) > 0 ):
         dih_overwrite = True
+    imp_overwrite = False
+    if( len(strucC.impC) > 0 ):
+        imp_overwrite = True
             
     #
     # Intialize
@@ -161,7 +174,12 @@ def read_lmpdata( strucC , data_file):
     DIHTYPE_K = numpy.zeros(n_dtypes)
     DIHTYPE_PN = numpy.zeros(n_dtypes)
     DIHTYPE_PHASE = numpy.zeros(n_dtypes)
-    
+
+    IMPTYPE_REF = n_dtypes*[4*[""]]
+    IMPTYPE_F = numpy.zeros(n_dtypes)
+    IMPTYPE_E0 = numpy.zeros(n_imptypes)
+    IMPTYPE_K = numpy.zeros(n_imptypes)
+
     MOLNUMB = n_atoms*[0]
     ATYPE_IND  = n_atoms*[0]
     CHARGES  = numpy.zeros(n_atoms)
@@ -231,22 +249,38 @@ def read_lmpdata( strucC , data_file):
             cnt_Masses += 1
             ind = int(col[0]) - 1
             ATYPE_MASS[ind] = float(col[1])
-            if(cnt_Masses ==  n_atypes ):
-                read_Masses = 0
+                
             if( len(col) >= 4 ):
                 ATYPE_REF[ind] = col[3]
+                ptype1 = col[3]
             else:
                 ATYPE_REF[ind] = "??"
+                ptype1 = "??"
+
+            mass_i = float(col[1])
+            ljtyp_i = ljtype(ptype1)
+            ljtyp_i.setmass(mass_i)
+            parmC.ljtypC.put(ljtyp_i)
+            
+            # Turn of mass read
+            if(cnt_Masses ==  n_atypes ):
+                read_Masses = 0
 
         if( read_Pair and  len(col) >= 3 ):
             cnt_Pair += 1
             ind = int(col[0]) - 1
             ATYPE_EP[ind] = float(col[1])
-            ATYPE_SIG[ind] = float(col[2])            
+            ATYPE_SIG[ind] = float(col[2])
+
+            epsilon = float(col[1])
+            sigma = float(col[2])
+            ljtyp_ind = int(col[0])
+            ljtyp_i = parmC.ljtypC[ljtyp_ind]
+            ljtyp_i.setparam(epsilon,sigma)
+            # Turn pair parameter read off 
             if(cnt_Pair >=  n_atypes ):
                 read_Pair = 0
 
-            
         
         if( read_Bond_coeff and  len(col) >= 3 ):
             cnt_Bond_coeff += 1
@@ -254,12 +288,26 @@ def read_lmpdata( strucC , data_file):
             #AT_j = int(col[1])
             b_ind = int( col[0]) - 1
             if( b_ind > n_btypes ):
-                print sys.exit(" Error in data file index of bond parameter exceeds number of bond parameters specified with bond types ")
+                error_line = " Error in data file index of bond parameter exceeds number of bond parameters specified with bond types "
+                sys.exit(error_line)
                 
             BTYPE_REF[b_ind][0] = "??"
             BTYPE_REF[b_ind][1] = "??"
             BONDTYPE_K[b_ind] = float(col[1])
             BONDTYPE_R0[b_ind] = float(col[2])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            lmpindx = int( col[0])
+            kb = float(col[1]) 
+            r0 = float(col[2]) 
+            btype = "harmonic"
+            g_type = 1 
+            btyp_i = bondtype(ptype1,ptype2,btype)
+            btyp_i.setharmonic(r0,kb)
+            btyp_i.set_g_indx(g_type)
+            btyp_i.set_lmpindx(lmpindx)
+            parmC.btypC.put(btyp_i)
             
             if( cnt_Bond_coeff >=  n_btypes ):
                 read_Bond_coeff = 0
@@ -278,11 +326,24 @@ def read_lmpdata( strucC , data_file):
             ANGTYPE_REF[a_ind][2] = "??"
             ANGLETYPE_K[a_ind] = float(col[1])
             ANGLETYPE_R0[a_ind] = float(col[2])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            lmpindx = int( col[0])
+            theta0 = float( col[2] )        # degrees 
+            kb =  float( col[1] ) 
+            atype = "harmonic"
+            gfunc_type = 1
+            atyp_i = angletype(ptype1,ptype2,ptype3,atype)
+            atyp_i.set_g_indx(gfunc_type)
+            atyp_i.set_lmpindx(lmpindx)
+            atyp_i.setharmonic(theta0,kb)
+            parmC.atypC.put(atyp_i)
             
             if( cnt_Angle_coeff >=  n_angtypes ):
                 read_Angle_coeff = 0
                 
-        
         
         if( read_Dihedral_coeff and  len(col) >= 3 ):
             cnt_Dihedral_coeff += 1
@@ -293,7 +354,9 @@ def read_lmpdata( strucC , data_file):
             if( debug): print " reading dih type ",d_ind," cnt ",cnt_Dihedral_coeff," of ",n_dtypes
             
             if( d_ind > n_dtypes ):
-                print sys.exit(" Error in data file index of dihedral parameter exceeds number of dihedral parameters specified with dihedral types ")
+                error_line =  " Error in data file index of dihedral parameter %d exceeds number of dihedral parameters %d "%(d_ind , n_dtypes)
+                error_line += " specified with dihedral types "
+                print sys.exit(error_line)
                 
             DTYPE_REF[d_ind][0] = "??"
             DTYPE_REF[d_ind][1] = "??"
@@ -306,9 +369,75 @@ def read_lmpdata( strucC , data_file):
             DIHTYPE_C[d_ind][1] = float(col[2])
             DIHTYPE_C[d_ind][2] = float(col[3])
             DIHTYPE_C[d_ind][3] = float(col[4])
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            ptype4 = "??"
+            # Set parameters according to type 
+            gfunc_type = 3 
+            dtype = "opls"
+
+            lmpindx = int( col[0] )
+            k1 =  float( col[1] )
+            k2 =  float( col[2] ) 
+            k3 =  float( col[3] ) 
+            k4 =  float( col[4] )
+            
+            dtyp_i = dihtype(ptype1,ptype2,ptype3,ptype4,dtype)
+            dtyp_i.set_g_indx(gfunc_type)
+            dtyp_i.set_lmpindx(lmpindx)
+            dtyp_i.setopls(k1,k2,k3,k4)
+            parmC.dtypC.put(dtyp_i)
             
             if( cnt_Dihedral_coeff >=  n_dtypes ):
                 read_Dihedral_coeff = 0
+                
+        
+        if( read_Improper_coeff and  len(col) >= 3 ):
+            cnt_Improper_coeff += 1
+            #AT_i = int(col[0])
+            #AT_j = int(col[1])
+            imp_ind = int( col[0]) - 1
+            
+            if( debug): print " reading imp dih type ",imp_ind," cnt ",cnt_Improper_coeff," of ",n_imptypes
+            
+            if( imp_ind > n_imptypes ):
+                error_line =  " Error in data file index of improper parameter %d exceeds number of improper parameters %d "%(imp_ind , n_imptypes)
+                error_line += " specified with dihedral types "
+                print sys.exit(error_line)
+                
+            IMPTYPE_REF[imp_ind][0] = "??"
+            IMPTYPE_REF[imp_ind][1] = "??"
+            IMPTYPE_REF[imp_ind][2] = "??"
+            IMPTYPE_REF[imp_ind][3] = "??"
+            
+            # Assume OPLS dihedral type
+            IMPTYPE_F[imp_ind] = 2
+            KE = float(col[1])
+            Eo = float(col[2])
+            IMPTYPE_E0[imp_ind] = Eo
+            IMPTYPE_K[imp_ind] = KE
+
+            ptype1 = "??"
+            ptype2 = "??"
+            ptype3 = "??"
+            ptype4 = "??"
+            # Set parameters according to type 
+            g_indx = 2
+            dtype = "improper"
+
+            lmpindx = int( col[0] )
+
+            imptyp_i = imptype(ptype1,ptype2,ptype3,ptype4,dtype)
+            imptyp_i.set_g_indx(g_indx)
+            imptyp_i.setimp(Eo,KE)
+            imptyp_i.set_lmpindx(lmpindx)
+            parmC.imptypC.put(imptyp_i)
+            
+            if( cnt_Improper_coeff >=  n_imptypes ):
+                read_Improper_coeff = 0
+
                 
         if(read_Atoms and len(col) >= 7 ):
             cnt_Atoms += 1
@@ -317,14 +446,15 @@ def read_lmpdata( strucC , data_file):
                 print sys.exit(" Error in data file index of atoms exceeds number of atoms specified with atoms ")
                 
             chain_i = int(col[1]) 
-            lmptype_i = int(col[2]) - 1
+            lmptype_i = int(col[2]) #- 1
+            indx = int(col[2]) - 1
             q_i = float(col[3])
-            m_i = ATYPE_MASS[lmptype_i]
+            m_i = ATYPE_MASS[indx]
             el = pt.getelementWithMass(m_i)
             r_i =  [ float(col[4]),float(col[5]),float(col[6])] 
             type_i = str(lmptype_i)
 
-            tagsD = {"chain":chain_i,"symbol":el.symbol,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
+            #tagsD = {"chain":chain_i,"symbol":el.symbol,"number":el.number,"mass":el.mass,"cov_radii":el.cov_radii,"vdw_radii":el.vdw_radii}
             if( pt_overwrite ):
                 pt_i = strucC.ptclC[ind+1]
                 #pt_i.setTagsDict(tagsD)
@@ -335,11 +465,30 @@ def read_lmpdata( strucC , data_file):
                 pt_i.position = r_i
                 pt_i.charge = q_i
                 pt_i.mass = m_i
+
+                # Set properties read in data file 
+                pt_i.tagsDict["chain"] = chain_i
+                pt_i.tagsDict["symbol"] = el.symbol
+                pt_i.tagsDict["number"] = el.number
+                pt_i.tagsDict["mass"] = el.mass
+                pt_i.tagsDict["cov_radii"] = el.cov_radii
+                pt_i.tagsDict["vdw_radii"] = el.vdw_radii
+                pt_i.tagsDict["lmptype"] = lmptype_i
+                
             else:
                 pt_i = Particle( r_i,type_i,q_i,m_i)
-                pt_i.setTagsDict(tagsD)
+                # Set properties read in data file 
+                pt_i.tagsDict["chain"] = chain_i
+                pt_i.tagsDict["symbol"] = el.symbol
+                pt_i.tagsDict["number"] = el.number
+                pt_i.tagsDict["mass"] = el.mass
+                pt_i.tagsDict["cov_radii"] = el.cov_radii
+                pt_i.tagsDict["vdw_radii"] = el.vdw_radii
+                pt_i.tagsDict["lmptype"] = lmptype_i
+                #pt_i.setTagsDict(tagsD)
                 strucC.ptclC.put(pt_i)
 
+        
             if( cnt_Atoms >=  n_atoms ):
                 read_Atoms = 0
 
@@ -359,11 +508,12 @@ def read_lmpdata( strucC , data_file):
                 bondObj = strucC.bondC[cnt_Bonds]
                 bondObj.pgid1 = i_o
                 bondObj.pgid2 = j_o
+                bondObj.set_lmpindx(int(col[1] ))
             else:
-                b_i = Bond( i_o, j_o )            
-                strucC.bondC.put(b_i)
+                bondObj = Bond( i_o, j_o )
+                bondObj.set_lmpindx(int(col[1] ))
+                strucC.bondC.put(bondObj)
                 
-            
             if( cnt_Bonds >=  n_bonds ):
                 read_Bonds = 0
 
@@ -388,9 +538,12 @@ def read_lmpdata( strucC , data_file):
                 angleObj.pgid1 = k_o
                 angleObj.pgid2 = i_o
                 angleObj.pgid3 = j_o
+                angleObj.set_lmpindx(int(col[1] ))
             else:
-                angle_i = Angle( k_o,i_o, j_o )            
-                strucC.angleC.put(angle_i)
+                angleObj = Angle( k_o,i_o, j_o )
+                angleObj.set_lmpindx(int(col[1] ))
+                strucC.angleC.put(angleObj)
+            
                 
             
         if(read_Dihedrals and len(col) >= 6 ):
@@ -411,16 +564,41 @@ def read_lmpdata( strucC , data_file):
                 dObj.pgid2 = i_o
                 dObj.pgid3 = j_o
                 dObj.pgid4 = l_o
+                dObj.set_lmpindx(int(col[1] ))
             else:
-                dih_i = Dihedral( k_o,i_o, j_o,l_o )            
-                strucC.dihC.put(dih_i)
-
-
-            if( read_Dihedrals >=  n_dihedrals ):
+                dObj = Dihedral( k_o,i_o, j_o,l_o )
+                dObj.set_lmpindx(int(col[1] ))
+                strucC.dihC.put(dObj)
+                
+            if( cnt_Dihedrals >=  n_dihedrals ):
                 read_Dihedrals = 0
                 
-        #    
-        #if(read_Impropers and len(col) >= 2 ):
+            
+        if(read_Impropers and len(col) >= 2 ):
+            cnt_Impropers += 1
+            ind = int( col[0]) - 1
+            
+            k_o = int(col[2])
+            i_o = int(col[3])
+            j_o = int(col[4])
+            l_o = int(col[5])
+            
+            if( imp_overwrite ):
+                impObj = strucC.impC[cnt_Impropers]
+                impObj.pgid1 = k_o
+                impObj.pgid2 = i_o
+                impObj.pgid3 = j_o
+                impObj.pgid4 = l_o
+                impObj.set_lmpindx(int(col[1] ))
+            else:
+                impObj = Improper( k_o,i_o, j_o,l_o )
+                impObj.set_lmpindx(int(col[1] ))
+                strucC.impC.put(impObj)
+                
+
+            if( cnt_Impropers >=  n_impropers ):
+                read_Impropers = 0
+            
         #    cnt_Bonds += 1
         #    ind = int( col[0]) - 1
         #    BTYPE_IND[ind] = int(col[1] ) - 1
@@ -457,7 +635,7 @@ def read_lmpdata( strucC , data_file):
         sys.exit("debug 1 ")
     #
     #      
-    return (strucC)
+    return (strucC,parmC)
 
 
 def write_data(strucC,parmC,data_file):
@@ -471,17 +649,32 @@ def write_data(strucC,parmC,data_file):
     # ' print lammps data file '
     #
 
+    debug = False 
+    if( debug ):
+        print "int(len(strucC.dihC)) ",int(len(strucC.dihC))
+        print "imp_cnt",imp_cnt
+        print "int(len(strucC.dihC))",int(len(strucC.dihC))
+        print "int(len( parmC.dtypC))",int(len( parmC.dtypC))
+        print "int( len(parmC.imptypC))",int( len(parmC.imptypC))
+        sys.exit(" dih cnt debug ")
+                
     # Calculate totals
     n_atoms = len( strucC.ptclC  )
     n_bonds = int(len(strucC.bondC))
     n_angles = int(len(strucC.angleC))
     n_dihedrals = int(len(strucC.dihC))
-    n_impropers = 0
+    n_impropers =  int(len(strucC.impC))
+    
     n_atypes = int(len( parmC.ljtypC )) #+ 1
     n_btypes = int(len( parmC.btypC )) #+ 1
     n_angtypes = int(len( parmC.atypC )) #+ 1
-    n_dtypes = int(len( parmC.dtypC)) #+ 1
-    n_imptypes = 1
+    n_dtypes = int(len( parmC.dtypC)) 
+    imp_cnt = int( len(parmC.imptypC))
+    if(imp_cnt > 0 ):
+        n_imptypes = imp_cnt
+    else:
+        n_imptypes = 1
+        
     # Calculate box size
     latvec = strucC.get_latvec()
     
@@ -521,76 +714,153 @@ def write_data(strucC,parmC,data_file):
     for lj_p, ljObj_p  in parmC.ljtypC:
         F.write( "%10d %12.6f %12.6f  \n" % (lj_p, ljObj_p.get_epsilon(),  ljObj_p.get_sigma()  ) )
     F.write('\n')
-    F.write(' Bond Coeffs \n')
-    F.write('\n')
-    for btyp_p, btypObj_p  in parmC.btypC:    
-        if( btypObj_p.get_type() == "harmonic"):
-            F.write( "%10d %12.6f %12.6f # %5s %5s  \n" % (btyp_p,btypObj_p.get_kb(),btypObj_p.get_r0(), btypObj_p.get_ptype1(), btypObj_p.get_ptype2() ) )
-    F.write('\n')
-    F.write(' Angle Coeffs \n')
-    F.write('\n')
-    for atyp_p, atypObj_p  in parmC.atypC:    
-        if( atypObj_p.get_type() == "harmonic"):
-            F.write( "%10d %12.6f %12.6f # %5s %5s  %5s   \n" % (atyp_p,atypObj_p.get_kb(),atypObj_p.get_theta0(), atypObj_p.get_ptype1(),atypObj_p.get_ptype2(),atypObj_p.get_ptype3() ) )
-    F.write('\n')
-    F.write(' Dihedral Coeffs \n')
-    F.write('\n')
-    for dtyp_p, dtypObj_p  in parmC.dtypC:    
-        if( dtypObj_p.get_type() == "harmonic"):
-            F.write( "%10d %12.6f %12.6f  %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p,dtypObj_p.get_d(),dtypObj_p.get_kb(),dtypObj_p.get_mult(), dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
-        if( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
-            # Get opls parameters
-            klist = dtypObj_p.get_oplsklist()
-            F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+    # Write Bond Coeffs
+    if( len(parmC.btypC) > 0 ):
+        F.write(' Bond Coeffs \n')
+        F.write('\n')
+        for btyp_p, btypObj_p  in parmC.btypC:    
+            if( btypObj_p.get_type() == "harmonic"):
+                F.write( "%10d %12.6f %12.6f # %5s %5s  \n" % (btyp_p,btypObj_p.get_kb(),btypObj_p.get_r0(), btypObj_p.get_ptype1(), btypObj_p.get_ptype2() ) )
+        F.write('\n')
 
-    F.write('\n')
+    # Write Angle Coeffs
+    if( len(parmC.atypC) > 0 ):
+        F.write(' Angle Coeffs \n')
+        F.write('\n')
+        for atyp_p, atypObj_p  in parmC.atypC:    
+            if( atypObj_p.get_type() == "harmonic"):
+                F.write( "%10d %12.6f %12.6f # %5s %5s  %5s   \n" % (atyp_p,atypObj_p.get_kb(),atypObj_p.get_theta0(), atypObj_p.get_ptype1(),atypObj_p.get_ptype2(),atypObj_p.get_ptype3() ) )
+        F.write('\n')
+
+    # Write Dihedral Coeffs
+    if( len(parmC.dtypC) > 0 ):
+        F.write(' Dihedral Coeffs \n')
+        F.write('\n')
+        imp_cnt = 0 
+        for dtyp_p, dtypObj_p  in parmC.dtypC:    
+            if( dtypObj_p.get_type() == "multiharmonic"):
+                # K = K[1+d cons(n theta)]
+                d = dtypObj_p.get_theat_s()
+                K = dtypObj_p.get_kb()
+                n = dtypObj_p.get_mult()
+                w = 0.0 # Weight 
+                F.write( "%10d %12.6f %d  %d %12.6f # %5s %5s  %5s  %5s   \n" % (dtyp_p-imp_cnt,K,n,d,w, dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+            elif( dtypObj_p.get_type() == "rb" or  dtypObj_p.get_type() == "oplsa"  ):
+                # Get opls parameters
+                klist = dtypObj_p.get_oplsklist()
+                F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dtyp_p,klist[0],klist[1],klist[2],klist[3], dtypObj_p.get_ptype1(),dtypObj_p.get_ptype2(),dtypObj_p.get_ptype3(),dtypObj_p.get_ptype4()  ) )
+            elif( dtypObj_p.get_type() == "improper"):
+                error_line = " Will print improper later "
+                imp_cnt += 1 
+            else:
+                error_line = " Unknow dihedral type %s "%(dtypObj_p.get_type() )
+                sys.exit(error_line)
+
+
+        F.write('\n')
+    
+    
     F.write(' Improper Coeffs \n')
-    F.write('\n 1   0.0 0.0 ')
     F.write('\n')
-    F.write('\n')
-    F.write(' Atoms \n')
-    F.write('\n')
-    TOTAL_CHARGE = 0.0
-    for pid_o, ptclObj_o  in strucC.ptclC:
-        fftype_i = ptclObj_o.tagsDict["fftype"]
-        chain_i = ptclObj_o.tagsDict["chain"]
-        charge_i = ptclObj_o.charge
-        type_indx = int(ptclObj_o.type)
-        r_i = ptclObj_o.position 
-        F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,type_indx,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
-        TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
+    if( len(parmC.imptypC) > 0 ):
+        for imptyp_p, imptypObj_p  in parmC.imptypC:    
+            if( imptypObj_p.get_type() == "improper"):
+                e0,ke = imptypObj_p.getimp()
+                F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (imptyp_p,ke,e0, imptypObj_p.get_ptype1(),imptypObj_p.get_ptype2(),imptypObj_p.get_ptype3(),imptypObj_p.get_ptype4()  ) )
+    else:
+        F.write( "    1 0.0 0.0  \n")
+
         
     F.write('\n')
-    F.write(' Bonds \n')
-    F.write('\n')
-    for b_o, bondObj_o  in strucC.bondC:
-        #
-        AT_i =  strucC.ptclC[ bondObj_o.pgid1 ].tagsDict["fftype"]
-        AT_j =  strucC.ptclC[ bondObj_o.pgid2 ].tagsDict["fftype"]
-        #
-        b_ind = int(bondObj_o.type)
-        #
-        F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (b_o,b_ind,bondObj_o.pgid1,bondObj_o.pgid2, AT_i, AT_j ) )
-    F.write('\n')
-    F.write(' Angles \n')
-    F.write('\n')
-    for a_o, angleObj_o in strucC.angleC:
-        a_k = angleObj_o.pgid1
-        a_i = angleObj_o.pgid2
-        a_j = angleObj_o.pgid3
-        a_ind = int(angleObj_o.type)
-        F.write(  '%9d %8d %9d %9d %9d \n' % (a_o,a_ind,a_k,a_i,a_j) )
-    F.write(  '\n' )
-    F.write(' Dihedrals \n')
-    F.write('\n')
-    for d_o,dihObj_o in strucC.dihC:
-        d_k = dihObj_o.pgid1
-        d_i = dihObj_o.pgid2
-        d_j = dihObj_o.pgid3
-        d_l = dihObj_o.pgid4
-        d_ind = int(dihObj_o.type)
-        F.write(  '%9d %8d %9d %9d %9d %9d \n' % (d_o,d_ind,d_k,d_i,d_j,d_l) )
-        #F.write( '\n' )
-        #F.write(' Impropers \n')
+    # Write Particles
+    if( len(strucC.ptclC) > 0 ):
+
+        F.write(' Atoms \n')
+        F.write('\n')
+        TOTAL_CHARGE = 0.0
+        for pid_o, ptclObj_o  in strucC.ptclC:
+            fftype_i = ptclObj_o.tagsDict["fftype"]
+            chain_i = ptclObj_o.tagsDict["chain"]
+            charge_i = ptclObj_o.charge
+            #type_indx = int(ptclObj_o.type)
+            lmptype_i = ptclObj_o.tagsDict["lmptype"]
+            r_i = ptclObj_o.position 
+            F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
+            TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
+
+        F.write('\n')
+    # Write Bonds
+    if( len(strucC.bondC) > 0 ):
+        F.write(' Bonds \n')
+        F.write('\n')
+        for b_o, bondObj_o  in strucC.bondC:
+            #
+            AT_i =  strucC.ptclC[ bondObj_o.pgid1 ].tagsDict["fftype"]
+            AT_j =  strucC.ptclC[ bondObj_o.pgid2 ].tagsDict["fftype"]
+            b_ind = int(bondObj_o.get_lmpindx())
+            #
+            F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (b_o,b_ind,bondObj_o.pgid1,bondObj_o.pgid2, AT_i, AT_j ) )
+        F.write('\n')
+    
+    # Write Angles
+    if( len(strucC.angleC) > 0 ):
+
+        F.write(' Angles \n')
+        F.write('\n')
+        for a_o, angleObj_o in strucC.angleC:
+            a_k = angleObj_o.pgid1
+            a_i = angleObj_o.pgid2
+            a_j = angleObj_o.pgid3
+            a_ind = int(angleObj_o.get_lmpindx())
+            F.write(  '%9d %8d %9d %9d %9d \n' % (a_o,a_ind,a_k,a_i,a_j) )
+        F.write(  '\n' )
+    
+    # Write Dihedrals
+    if( len(strucC.dihC) > 0 ):
+
+        F.write(' Dihedrals \n')
+        F.write('\n')
+        dih_cnt = 0 
+        for d_o,dihObj_o in strucC.dihC:
+            dih_cnt += 1
+
+            d_k = dihObj_o.pgid1
+            d_i = dihObj_o.pgid2
+            d_j = dihObj_o.pgid3
+            d_l = dihObj_o.pgid4
+            d_ind = int(dihObj_o.get_lmpindx())
+
+            AT_k = strucC.ptclC[ d_k ].tagsDict["fftype"]
+            AT_i = strucC.ptclC[ d_i ].tagsDict["fftype"]
+            AT_i = strucC.ptclC[ d_j ].tagsDict["fftype"]
+            AT_l = strucC.ptclC[ d_l ].tagsDict["fftype"]
+
+            #error_line = " dih index is not in bounds "
+            #error_line += " for atoms %d  %d  %d  %d  "%(d_k,d_i,d_j,d_l)
+            #error_line += " for type atoms %s %s %s %s "%(AT_k,AT_i,AT_j,AT_l)
+            #sys.exit(error_line)
+            F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dih_cnt,d_ind,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
+            
+        F.write( '\n' )
+
+    # Write Impropers
+    if( len(strucC.impC) > 0 ):
+        F.write(' Impropers \n')
+        F.write('\n')
+        imp_cnt = 0 
+        for d_o,impObj_o in strucC.impC:
+            if( impObj_o.get_type() == "improper" ):
+                imp_cnt += 1 
+                d_k = impObj_o.pgid1
+                d_i = impObj_o.pgid2
+                d_j = impObj_o.pgid3
+                d_l = impObj_o.pgid4
+                imp_ind = int(impObj_o.get_lmpindx())
+                F.write(  '%9d %8d %9d %9d %9d %9d \n' % (imp_cnt,imp_ind,d_k,d_i,d_j,d_l) )
+            else:
+                error_line = " non imporper type in improper container "
+                sys.exit(error_line)
+            
+        F.write( '\n' )            
 
     F.close()

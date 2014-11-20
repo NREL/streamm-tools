@@ -9,6 +9,8 @@ from modeler_hoomd.builder import hoomd_xml
 import numpy
 
 from structureContainer import StructureContainer
+from parameters import ParameterContainer
+
 import particles 
 import mpiNREL,  file_io 
 
@@ -23,9 +25,9 @@ def get_options():
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
 
     # json files to act on
-    parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file, which read in first then over writen by subsequent input files")
     parser.add_option("-o","--output_id", dest="output_id", default="trans",type="string",help=" prefix for output files  ")
 
+    parser.add_option("-j","--in_json", dest="in_json", type="string", default="", help="Input json file, which read in first then over writen by subsequent input files")
     parser.add_option("--in_top", dest="in_top", type="string", default="", help="Input gromacs topology file (.top) ")
     parser.add_option("--in_gro", dest="in_gro", type="string", default="", help="Input gromacs structure file (.gro) ")
     parser.add_option("--itp", dest="itp_file",  type="string", default="",help="gromacs force field parameter file")
@@ -91,9 +93,10 @@ def main():
         print " Reading in files"
     
     struc_o = StructureContainer()
-    struc_o = file_io.getstrucC(struc_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
-
+    param_o = ParameterContainer()
     
+    struc_o,param_o = file_io.getstrucC(struc_o,param_o, options.in_json, options.in_gro , options.in_top, options.in_itp, options.in_data,options.in_xmol,options.xmol_format )
+    #struc_o = file_io.getstrucC(struc_o, options.in_json, options.in_gro , options.in_top, options.in_data,options.in_xmol,options.xmol_format )
     #
     # Get paticle and bond structures
     #

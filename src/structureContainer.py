@@ -12,9 +12,12 @@ from particles     import Particle, ParticleContainer
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
 from dihedrals     import Dihedral, DihedralContainer
+from impropers     import Improper, ImproperContainer
 from periodictable import periodictable
 
 import pbcs, units
+
+sperator_line = "---------------------------------------------------------------------\n"
 
 class StructureContainer:
     """
@@ -31,7 +34,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), verbose=True):
+    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), impC=ImproperContainer(), verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -67,6 +70,11 @@ class StructureContainer:
             print "4rd arg should be an DihedralContainer object"
             raise TypeError
 
+        if isinstance(impC, ImproperContainer):
+            self.impC = copy.deepcopy(impC)
+        else:
+            print "5rd arg should be an ImproperContainer object"
+            raise TypeError
 
         # Debug print flag
         self.verbose = verbose
@@ -137,6 +145,7 @@ class StructureContainer:
         self.bondC  = copy.deepcopy(struc.bondC)
         self.angleC = copy.deepcopy(struc.angleC)
         self.dihC   = copy.deepcopy(struc.dihC)
+        self.impC   = copy.deepcopy(struc.impC)
 
         self.boxLengths = copy.deepcopy(struc.boxLengths)
         self.latvec     = copy.deepcopy(struc.latvec)
@@ -149,21 +158,35 @@ class StructureContainer:
         """
 
         strucStr =  "\n"
-        strucStr += "************************************* \n"
-        strucStr += " Global parameters: \n"
-        strucStr += "************************************* \n"
-        strucStr += "  Box lengths: \n"
-        strucStr += "      Lx = " + str(self.boxLengths[0]) + "\n"
-        strucStr += "      Ly = " + str(self.boxLengths[1]) + "\n"
-        strucStr += "      Lz = " + str(self.boxLengths[2]) + "\n"
+        strucStr += sperator_line
+        strucStr += "    Structure properties \n"
+        strucStr += sperator_line
+        strucStr += "      Box lengths: \n"
+        strucStr += "        Lx (A) = " + str(self.boxLengths[0]) + "\n"
+        strucStr += "        Ly (A) = " + str(self.boxLengths[1]) + "\n"
+        strucStr += "        Lz (A) = " + str(self.boxLengths[2]) + "\n"
+        strucStr += "      Volume %f  A^3 \n"%self.getVolume()
+        strucStr += "      Mass %f  AMU \n"%self.getTotMass()     
+        strucStr += "      Density %f g/cm^3 \n"%self.getDen()     
+        strucStr += "      Lattice vectors \n"
+        latvec_i = self.get_latvec()
+        strucStr += "        v_i (A)  ( %f , %f , %f ) \n"%(latvec_i[0][0],latvec_i[0][1],latvec_i[0][2])
+        strucStr += "        v_j (A)  ( %f , %f , %f ) \n"%(latvec_i[1][0],latvec_i[1][1],latvec_i[1][2])
+        strucStr += "        v_k (A)  ( %f , %f , %f ) \n"%(latvec_i[2][0],latvec_i[2][1],latvec_i[2][2])
         strucStr += "\n"                                        
-        strucStr += "************************************* \n"
-        strucStr += " Structure contains: \n"
-        strucStr += "************************************* \n"
-        strucStr += str(self.ptclC)
-        strucStr += str(self.bondC)
-        strucStr += str(self.angleC)
-        strucStr += str(self.dihC)
+        strucStr += "      Particles %d \n"%(len(self.ptclC))
+        strucStr += "      Bonds  %d \n"%(len(self.bondC))
+        strucStr += "      Angles %d \n"%(len(self.angleC))
+        strucStr += "      Dihedrals %d \n"%(len(self.dihC))
+        strucStr += "      Impropers %d \n"%(len(self.impC))
+
+        if( self.verbose ):
+            # Print
+            strucStr += str(self.ptclC)
+            strucStr += str(self.bondC)
+            strucStr += str(self.angleC)
+            strucStr += str(self.dihC)
+        
         return strucStr
 
 
@@ -192,7 +215,8 @@ class StructureContainer:
         bondC  = copy.deepcopy(other.bondC)   #  inside can be changed (for adding below)
         angleC = copy.deepcopy(other.angleC)  #  inside can be changed (for adding below)
         dihC   = copy.deepcopy(other.dihC)    #  inside can be changed (for adding below)
-
+        impC   = copy.deepcopy(other.impC)    #  inside can be changed (for adding below)
+        
         keys1 = self.ptclC.particles.keys()    # global IDs of particles in this object
         keys2 = other.ptclC.particles.keys()   # global IDs in object being added
         self.ptclC.maxgid= max(keys1 + keys2)  # find max globalID in keys, set this object maxID
@@ -212,6 +236,9 @@ class StructureContainer:
 
         dihC.replacePtclIDs(idFromToDict)   # Use tracked list of ID changes
         self.dihC += dihC                   # Now add dihC with 'corrected' IDs
+
+        impC.replacePtclIDs(idFromToDict)   # Use tracked list of ID changes
+        self.impC += impC                   # Now add impC with 'corrected' IDs
 
         return self
 
@@ -283,6 +310,20 @@ class StructureContainer:
         self.dihC.dihedrals = localDict            # Assign reordered local copy to bond container
         del localDict
 
+        # ------------ Redo improper dihedrals-----------
+        self.impC.replacePtclIDs(idFromToDict)  # Use tracked list of ID changes angles
+
+        localDict = dict()
+        for toDihedralID, dihedralTuple in enumerate(self.impC): # Enumerate returns (ID, obj) tuple for ptclTuple
+            toDihedralID +=1                                     # Sets reordering index correctly
+            fromDihedralID = dihedralTuple[0]                    # Picks out ID from ptclTuple
+            dihedralObj = self.impC[fromDihedralID]              # Get dihedral object
+            localDict[toDihedralID] = dihedralObj                # Set local dict with reordered index
+
+        del self.impC.impropers                    # Ensure memory is free
+        self.impC.impropers = localDict            # Assign reordered local copy to bond container
+        del localDict
+
 
 
     def getSubStructure(self, ptclIDList, particlesOnly=False):
@@ -309,7 +350,8 @@ class StructureContainer:
             atom = self.ptclC[pgid]
             subAtoms[pgid] = atom
 
-        
+
+
         if (not particlesOnly):
 
             # For each bond object in container check that both
@@ -351,13 +393,29 @@ class StructureContainer:
                     # Need to remove empty key generated above
                     del subDihedrals[gid]
 
+
+            # For each imp dihedral object in container check that both
+            # particles in imp dihedral are in ptcl search list
+            impdihedralIDList = self.impC.keys()                 # Get keys of imp dihedral container
+            subimpDihedrals = ImproperContainer(impdihedralIDList)  # Initialize subdihedral container        
+            for gid, dObj in self.impC:
+            	if ( (dObj.pgid1 in ptclIDList) and \
+                 (dObj.pgid2 in ptclIDList) and \
+                 (dObj.pgid3 in ptclIDList) and \
+                 (dObj.pgid4 in ptclIDList) ):
+                     subimpDihedrals[gid] = dObj
+                else:
+                     # Need to remove empty key generated above
+                     del subimpDihedrals[gid]
+
+
         else:
             if self.verbose:
                 print "getSubStructure including only ParticleContainer"
 
 
         if (not particlesOnly):
-            return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals)
+            return StructureContainer(subAtoms, subBonds, subAngles, subDihedrals, subimpDihedrals)
         else:
             return StructureContainer(subAtoms)
 
@@ -531,7 +589,7 @@ class StructureContainer:
 
     def getDen(self):
         """
-        Calculate density of system 
+        Calculate density of system in AMU/A^3 and convert to g/cm^3
 
         """
 
@@ -600,7 +658,6 @@ class StructureContainer:
         r_mass = r_mass/total_mass_i
 
         return r_mass
-
             
     def shift_center_mass(self,r_shift):
         """

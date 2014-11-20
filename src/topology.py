@@ -19,16 +19,16 @@ import copy
 
 from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
-
 from dihedrals     import Dihedral, DihedralContainer
 
 from parameters import ParameterContainer
 #from particles import ParticleContainer
 from structureContainer import StructureContainer
+from parameters import imptype
 
 #from periodictable import periodictabled
 
-import atomtypes, pbcs
+import atomtypes, pbcs, xmol 
 
 def create_top(strucC,ff_charges): # Move out of class (or derived class)
     """
@@ -39,14 +39,16 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
 
     # New options that need to be passed
     rerun_bonded = False  
-    set_biaryl = False
-    set_ptma = True
+    set_biaryl = False 
+    set_ptma = False
 
     limdih = 0
     limitdih_n = 1
     
     verbose = True
     debug = True
+
+
 
     if( debug):
         print " Read in %d Bonds "%len(strucC.bondC)
@@ -85,21 +87,26 @@ def create_top(strucC,ff_charges): # Move out of class (or derived class)
     # Find rings
     strucC , ring_nblist, ring_nbindex = find_rings(strucC,cov_nblist, cov_nbindx)
 
+    debug = False 
+    if( debug):
+        for pid_o, ptclObj_o  in strucC.ptclC:
+            print "create_top particles ",pid_o,ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["resname"],ptclObj_o.tagsDict["ring"]
+            # Write xyz file
+            ptclObj_o.tagsDict['symbol'] = ptclObj_o.tagsDict["ring"]
+            comment = "ring check"
+            append = False
+            xmol_file = "rings.xyz"
+            xmol.write(strucC.ptclC, xmol_file,comment,append)
+
+        sys.exit("create_top 2 print particles in strucC.ptclC")
+
+
     # Asign atom types
     strucC = atomtypes.oplsaa( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
     
     if(set_biaryl):
         strucC = atomtypes.biaryl_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
         strucC = atomtypes.interring_types( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
-
-
-    debug = False
-    if( debug):
-        for pid_o, ptclObj_o  in strucC.ptclC:
-            print "create_top particles ",ptclObj_o.tagsDict["symbol"],ptclObj_o.tagsDict["gtype"],ptclObj_o.tagsDict["resname"]
-        sys.exit("create_top 2 print particles in strucC.ptclC")
-
-
 
     if(set_ptma):
         strucC = atomtypes.set_pmmatypes( ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, cov_nbindx )
@@ -125,17 +132,17 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     log_file = "param.log"
     param_out = open(log_file,"w")
 
-    
-
     ptclC_o =  struc_o.ptclC
     bondC_o  = struc_o.bondC
     angleC_o  = struc_o.angleC
     dihC_o  = struc_o.dihC
+    impC_o  = struc_o.impC
     
     ljtypC_all =  param_all.ljtypC
     btypC_all =  param_all.btypC
     atypC_all =  param_all.atypC
     dtypC_all =  param_all.dtypC
+    imptypC_all =  param_all.imptypC
     
     #
     # Create new parameter container to hold each unique type
@@ -149,7 +156,13 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
     btypC_p =  paramC_p.btypC
     atypC_p =  paramC_p.atypC
     dtypC_p =  paramC_p.dtypC
-    
+    imptypC_p =  paramC_p.imptypC
+    #
+    paramC_p.set_nbfunc( param_all.get_nbfunc() )
+    paramC_p.set_combmixrule( param_all.get_combmixrule() )
+    paramC_p.set_genpairs( param_all.get_genpairs() )
+    paramC_p.set_fudgeLJ( param_all.get_fudgeLJ() )
+    paramC_p.set_fudgeQQ( param_all.get_fudgeQQ() )
     #
     # Count atom types
     #
@@ -158,11 +171,12 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         new_type = True
         lj_p = 0
         fftype_i = ptclObj_o.tagsDict["fftype"]
-        mass_i = ptclObj_o.mass
+        #mass_i = ptclObj_o.mass
         for lj_p, ljObj_p  in ljtypC_p:    
             if( fftype_i == ljObj_p.ptype1 ):
                 new_type = False
                 ptclObj_o.type = str(lj_p)
+                ptclObj_o.tagsDict["lmptype"] = lj_p
                 if(debug): print ' maches previous ', lj_p,ljObj_p.ptype1
                 
         if( new_type ):
@@ -170,6 +184,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             cnt_check = 0
             type_found = False 
             ptclObj_o.type = str(lj_p+1)
+            ptclObj_o.tagsDict["lmptype"] = lj_p+1
             for lj_all, ljObj_all  in ljtypC_all:
                 if( fftype_i == ljObj_all.ptype1):
                     cnt_check += 1
@@ -177,8 +192,11 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 if( type_found ):
                     # Set mass of particle type
                     #   This is need for some force-field input files (LAMMPS)
+                    #mass_i = 
                     ljObj_all.setpid( ptclObj_o.tagsDict["number"] )
-                    ljObj_all.setmass( mass_i )
+                    #ljObj_all.setmass( mass_i )
+                    
+                    
                     ljtypC_p.put(ljObj_all)
                     type_found = False 
                     
@@ -189,8 +207,6 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
             elif( cnt_check > 1 ):
                 print " Multiple LJ parameters were found for atom type %s ",fftype_i
                 #raise TypeError
-                    
-
     #
     # Count bonds types
     #
@@ -337,11 +353,22 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 atypC_p.findtype(fftype_k,fftype_i,fftype_j)
 
                 raise TypeError
-                    
+               
+ 
     #
     # Count dihedrals types
     #
-    debug = False 
+    debug = False
+    if( debug):
+        for d_all, dtypObj_all  in dtypC_all:
+            all_k = dtypObj_all.ptype1 
+            all_i = dtypObj_all.ptype2 
+            all_j = dtypObj_all.ptype3
+            all_l = dtypObj_all.ptype4
+            print " all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.get_type()
+            #sys.exit("  type check debug ")
+            
+    imp_cnt = 0 
     for d_o,dihObj_o in dihC_o:
         new_type = True
         dtyp_p = 0
@@ -374,7 +401,6 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 new_type = False
                 dihObj_o.set_lmpindx(dtyp_p)
                 dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
-
                 if( debug):
                     print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
                     print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
@@ -470,10 +496,10 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                             print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
 
             if( cnt_check < 1 ):
-                print " No Dih parameters were found for bond type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                print " No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
             elif( cnt_check > 1 ):
-                print " %d Dih parameters were found for bond type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                 print dtypObj_temp
                 #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                 raise TypeError
@@ -488,7 +514,6 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                 dtypObj_temp.ptype2 = fftype_i
                 dtypObj_temp.ptype3 = fftype_j
                 dtypObj_temp.ptype4 = fftype_l
-
 
                 if( norm_dihparam ):
                     # normalize by number of nieghbors
@@ -507,17 +532,203 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
                     dtypObj_temp.normforceconstants(dihen_norm)
 
 
+                dihObj_o.set_lmpindx(dtyp_p+1)
                 dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
-                dtypC_p.put(dtypObj_temp)
-                
-
+                dtypC_p.put(dtypObj_temp)                
                 if( debug ):
-                    print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                     print " len(dtypC_p) ",len(dtypC_p) 
                     print " dtypObj_temp.get_lmpindx()  ",dtypObj_temp.get_lmpindx() 
                     print " dtypObj_temp.get_g_indx()  ",dtypObj_temp.get_g_indx() 
+    #
+    # Count improper dihedrals types
+    #
+    debug = False
+    if( debug):
+        for d_all, imptypObj_all  in imptypC_all:
+            all_k = imptypObj_all.ptype1 
+            all_i = imptypObj_all.ptype2 
+            all_j = imptypObj_all.ptype3
+            all_l = imptypObj_all.ptype4
+            print " all types in parameters ",all_k,all_i,all_j,all_l,imptypObj_all.get_type()
+            #sys.exit("  type check debug ")
+            
+    imp_cnt = 0 
+    for imp_o,impObj_o in impC_o:
+        new_type = True
+        imptyp_p = 0
+        pid_k = impObj_o.pgid1
+        pid_i = impObj_o.pgid2 
+        pid_j = impObj_o.pgid3
+        pid_l = impObj_o.pgid4 
+        fftype_k =  ptclC_o[ impObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[pid_j ].tagsDict["fftype"]
+        fftype_l =  ptclC_o[ impObj_o.pgid4 ].tagsDict["fftype"]
+
+        if( debug):
+            print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+        # Check to see if impedral type is already in parameter set for the structure container
+        for imptyp_p, imptypObj_p  in imptypC_p:
+            p_k = imptypObj_p.ptype1 
+            p_i = imptypObj_p.ptype2 
+            p_j = imptypObj_p.ptype3
+            p_l = imptypObj_p.ptype4
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
+                new_type = False
+                impObj_o.set_lmpindx(imptyp_p)
+                impObj_o.set_g_indx(imptypObj_p.get_g_indx())
+
+                if( debug):
+                    print " impObj_o.get_lmpindx()  ",impObj_o.get_lmpindx() 
+                    print " impObj_o.get_g_indx()  ",impObj_o.get_g_indx() 
+                    print "  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.get_g_indx()
+                break
+            if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
+                new_type = False
+                impObj_o.set_lmpindx(imptyp_p)
+                impObj_o.set_g_indx(imptypObj_p.get_g_indx())
+                if( debug):
+                    print " impObj_o.get_lmpindx()  ",impObj_o.get_lmpindx() 
+                    print " impObj_o.get_g_indx()  ",impObj_o.get_g_indx() 
+                    print "  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.get_g_indx()
+                break
+
+        # If it is not in the parameter set for the struture container
+        #  find it in the parameters from the reference parameter file 
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            type_found = False 
+            # Set type to new type = last type+1
+            impObj_o.set_lmpindx(imptyp_p+1)
+
+            if( debug):
+                print "  new type checking against %d read in parameters "%len(imptypC_all)
+
+            copy_type = False 
+            for d_all, imptypObj_all  in imptypC_all:
+                all_k = imptypObj_all.ptype1 
+                all_i = imptypObj_all.ptype2 
+                all_j = imptypObj_all.ptype3
+                all_l = imptypObj_all.ptype4
+
+                if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                    copy_type = True    
+                if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                    copy_type = True
+
+                if( copy_type ):
+                    cnt_check += 1
+                    imptypObj_temp = copy.deepcopy(imptypObj_all)
+                    #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                    type_found = True
+                    copy_type = False 
+                    if( debug ):
+                        print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                        print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                    
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - FF "
+                copy_type = False 
+                for d_all, imptypObj_all  in imptypC_all:
+                    all_k = imptypObj_all.ptype1 
+                    all_i = imptypObj_all.ptype2 
+                    all_j = imptypObj_all.ptype3
+                    all_l = imptypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                        copy_type = True
+                    if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l  ):
+                        copy_type = True
+                    if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
                         
-                  
+                    if( copy_type ):
+                        cnt_check += 1
+                        imptypObj_temp = copy.deepcopy(imptypObj_all)
+                        #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                            
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - X "
+                copy_type = False 
+                for d_all, imptypObj_all  in imptypC_all:
+                    all_k = imptypObj_all.ptype1 
+                    all_i = imptypObj_all.ptype2 
+                    all_j = imptypObj_all.ptype3
+                    all_l = imptypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+
+                    if( copy_type ):
+                        cnt_check += 1
+                        imptypObj_temp = copy.deepcopy(imptypObj_all)
+                        #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+
+            if( cnt_check < 1 ):
+                print " No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
+            elif( cnt_check > 1 ):
+                print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print imptypObj_temp
+                #imptypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
+
+            if( type_found ):
+                if( debug ):
+
+                    print " adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.ptype1,imptypObj_temp.ptype2,imptypObj_temp.ptype3,imptypObj_temp.ptype4
+                
+                # Set FF types to read in bond to remove X's 
+                imptypObj_temp.ptype1 = fftype_k
+                imptypObj_temp.ptype2 = fftype_i
+                imptypObj_temp.ptype3 = fftype_j
+                imptypObj_temp.ptype4 = fftype_l
+
+                norm_impdihparam = False 
+                if( norm_impdihparam ):
+                    # normalize by number of nieghbors
+                    dihen_norm = 1.0
+                    if( debug):
+                        print " Normalizing dihedral potential "
+                        print " finding types for ",pid_i,pid_j
+                    NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
+                    NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
+                    
+                    dihen_norm = float( NNAB_i + NNAB_j)/2.0
+
+                    if(debug): print " dihen_norm ",dihen_norm
+                    print " dihen_norm ",dihen_norm
+
+                    imptypObj_temp.normforceconstants(dihen_norm)
+
+                impObj_o.set_lmpindx(imptyp_p+1)
+                impObj_o.set_g_indx(imptypObj_temp.get_g_indx())
+                imptypC_p.put(imptypObj_temp)
+
+                if( debug ):
+                    print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " len(imptypC_p) ",len(imptypC_p) 
+                    print " imptypObj_temp.get_lmpindx()  ",imptypObj_temp.get_lmpindx() 
+                    print " imptypObj_temp.get_g_indx()  ",imptypObj_temp.get_g_indx() 
+
     debug = False 
     if(debug):
         print " LJ atom types found %d "%(len(ljtypC_p))
@@ -532,6 +743,9 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         print " Dih types found %d "%(len(dtypC_p))
         for dtyp_p, dtypObj_p  in dtypC_p:
             print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
+        print " imp Dih types found %d "%(len(paramC_p.imptypC))
+        for imptyp_p, dtypObj_p  in imptypC_p:
+            print imptyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
         sys.exit('find_types')
 
     debug = False 
@@ -895,13 +1109,15 @@ def calc_elcnt(i,strucC,NBLIST,NBINDEX):
     return ELCNT 
 
 
-def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+def id_ring3(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
     import sys
     """
     Find atoms in conjugated rings 
     """
     
-    debug = False 
+    max_paths = 1000
+    
+    debug = False
     
     R_SET = []
     RING_ATOMS = []
@@ -924,7 +1140,7 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
     r_term = 1
     cnt = 0
     p_cnt = 0
-    if(debug): print ' initializing ring ',pid_o,ptclObj_o.tagsDict["number"]
+    if(debug): print ' initializing ring ',pid_o," w NN ", calc_nnab(pid_o,cov_nbindx)
 
     last_i = pid_o
     NNAB_last = calc_nnab(pid_i,cov_nbindx)
@@ -932,20 +1148,24 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
         N_o = cov_nbindx[last_i]
         N_f = cov_nbindx[last_i+1] - 1
 
+        if( debug): print " checking neighbors ",N_o,N_f
+
         for n_indx in range( N_o,N_f+1):
             j = cov_nblist[n_indx]
             cnt = cnt + 1
+            # If non of the neighboring atoms of atom j are conjugated
+            #    make the path as bad 
             if( cnt > NNAB_last+1 ):
-                p_cnt = p_cnt + 1
-                if(debug): print ' bad path found resetting '
+                p_cnt += 1
+                if(debug): print ' bad path found resetting at atom ',j,strucC.ptclC[j].tagsDict["number"]
                 for ring_a in range(len(RING_ATOMS)):
                     j = RING_ATOMS[ring_a]
                     
-                    
                 BAD_PATH.append(j)
+                # Reset lists and counts
                 RING_ATOMS = []
                 for pid_k in range(n_ptcl):
-                    R_SET[pid_k] = one
+                    R_SET[pid_k] = 1
                 atoms_in_ring = 0
                 R_SET[pid_o] = 0 
                 cnt = 0
@@ -958,7 +1178,8 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
                     R_SET[j] = 0
                     if(debug): print '  bad path atoms ',strucC.ptclC[j].tagsDict["number"]
                 break
-                    
+
+            # If path traces back to original atom ring has been found 
             if( atoms_in_ring  > 1 and j == pid_o ):
                 r_term = 0
                 if(debug): print ' ring found with ',atoms_in_ring 
@@ -967,17 +1188,123 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
             number_j = strucC.ptclC[j].tagsDict["number"]
             NNAB_j = calc_nnab(j,cov_nbindx)
             ELCNT_j = calc_elcnt(j,strucC,cov_nblist,cov_nbindx)
-            ring_type = 0
+            ring_type = False 
 	    
-	    debug = 0
             if(debug):
 		print '           with ', number_j
 		print '           with ', NNAB_j,
 		print '           with ', R_SET[j]
-		
-            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
-            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = 1 # ATYPE[j] == 'CA' ):
-            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ): ring_type = 1 # ATYPE[j] == 'CA' ):
+
+            # Test if atom j is conjugated 
+            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ):                      ring_type = True
+            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = True
+            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ):                      ring_type = True
+            if( ring_type ):
+                atoms_in_ring = atoms_in_ring + 1
+                RING_ATOMS.append(j)
+                R_SET[j] = 0
+                last_i = j
+                cnt = 0
+                NNAB_last = NNAB_j 
+                if(debug): print '   atom ',j,number_j,' added '
+                break
+            
+        if (p_cnt > max_paths ):
+            if(debug): print '     max paths considered ',max_paths
+            r_term = 0
+            
+    return RING_ATOMS
+
+
+def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    import sys
+    """
+    Find atoms in conjugated rings 
+    """
+    
+    debug = True
+    if( pid_o ==7 ): debug = True
+    
+    R_SET = []
+    RING_ATOMS = []
+    BAD_PATH = []
+
+    #a_i = pid_o -1 
+    one = 1
+    zero = 0
+    atoms_in_ring = 0
+    # relabel based on neighbors
+    n_ptcl = len(strucC.ptclC)
+
+    if(debug):
+        print " for a system of %d partiles checking particle %d "%(n_ptcl,pid_o)
+        
+    for pid_i in range(n_ptcl+1): 
+        R_SET.append(one)
+        
+    R_SET[pid_o] = 0 
+    r_term = 1
+    cnt = 0
+    p_cnt = 0
+    if(debug): print ' initializing ring ',pid_o," w NN ", calc_nnab(pid_o,cov_nbindx)
+
+    last_i = pid_o
+    NNAB_last = calc_nnab(pid_i,cov_nbindx)
+    while ( r_term ):
+        N_o = cov_nbindx[last_i]
+        N_f = cov_nbindx[last_i+1] - 1
+
+        if( debug): print " checking neighbors ",N_o,N_f
+
+        for n_indx in range( N_o,N_f+1):
+            j = cov_nblist[n_indx]
+            cnt = cnt + 1
+            # If non of the neighboring atoms of atom j are conjugated
+            #    make the path as bad 
+            if( cnt > NNAB_last+1 ):
+                p_cnt = p_cnt + 1
+                if(debug): print ' bad path found resetting at atom ',j,strucC.ptclC[j].tagsDict["number"]
+                for ring_a in range(len(RING_ATOMS)):
+                    j = RING_ATOMS[ring_a]
+                    
+                BAD_PATH.append(j)
+                # Reset lists and counts
+                RING_ATOMS = []
+                for pid_k in range(n_ptcl):
+                    R_SET[pid_k] = 1
+                atoms_in_ring = 0
+                R_SET[pid_o] = 0 
+                cnt = 0
+                last_i = pid_o
+                
+                if(debug): print '  resetting last_i to ',pid_o,ptclObj_o.tagsDict["number"]
+                    
+                for bad_i in range( len(BAD_PATH)):
+                    j = BAD_PATH[bad_i]
+                    R_SET[j] = 0
+                    if(debug): print '  bad path atoms ',strucC.ptclC[j].tagsDict["number"]
+                break
+
+            # If path traces back to original atom ring has been found 
+            if( atoms_in_ring  > 1 and j == pid_o ):
+                r_term = 0
+                if(debug): print ' ring found with ',atoms_in_ring 
+                break
+
+            number_j = strucC.ptclC[j].tagsDict["number"]
+            NNAB_j = calc_nnab(j,cov_nbindx)
+            ELCNT_j = calc_elcnt(j,strucC,cov_nblist,cov_nbindx)
+            ring_type = False 
+	    
+            if(debug):
+		print '           with ', number_j
+		print '           with ', NNAB_j,
+		print '           with ', R_SET[j]
+
+            # Test if atom j is conjugated 
+            if ( number_j == 6 and NNAB_j == 3 and R_SET[j] == 1 ):                      ring_type = True
+            if ( number_j == 16 and NNAB_j == 2 and R_SET[j] == 1 and ELCNT_j[6] == 2 ): ring_type = True
+            if ( number_j == 7 and NNAB_j >= 2 and R_SET[j] == 1 ):                      ring_type = True
             if( ring_type ):
                 atoms_in_ring = atoms_in_ring + 1
                 RING_ATOMS.append(j)
@@ -994,17 +1321,174 @@ def id_ring(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
             
     return RING_ATOMS
 
+def ring_type(pid_i,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    """
+    Criteria for a conjugated particle 
+    """
+    debug = False
+    
+    ring_type = False 
+    number_j = strucC.ptclC[pid_i].tagsDict["number"]
+    NNAB_j = calc_nnab(pid_i,cov_nbindx)
+    ELCNT_j = calc_elcnt(pid_i,strucC,cov_nblist,cov_nbindx)
+
+    if(debug):
+        print '            atomic # %d  NN  %d '%(number_j, NNAB_j)
+
+    # Test if atom j is conjugated 
+    if ( number_j == 6 and NNAB_j == 3 ):                      ring_type = True
+    if ( number_j == 16 and NNAB_j == 2 and ELCNT_j[6] == 2 ): ring_type = True
+    if ( number_j == 7 and NNAB_j >= 2  ):                      ring_type = True
+
+    return ring_type
+
+
+def id_ring2(pid_o,ptclObj_o,strucC,cov_nblist, cov_nbindx):
+    import sys
+    """
+    Find atoms in conjugated rings 
+    """
+
+    max_ring_particles = 30
+    max_paths = 100
+    
+    debug = True
+    #if( pid_o ==7 ): debug = True
+    
+    RING_ATOMS = []
+    BAD_PATH = []
+
+    #a_i = pid_o -1 
+    one = 1
+    zero = 0
+    atoms_in_ring = 0
+    # relabel based on neighbors
+    n_ptcl = len(strucC.ptclC)
+
+    if(debug):
+        print " for a system of %d partiles checking particle %d "%(n_ptcl,pid_o)
+        
+    for pid_i in range(n_ptcl+1): 
+        BAD_PATH.append([])
+        
+    
+    r_term = 1
+    cnt = 0
+    path_cnt = 0
+    if(debug): print ' initializing ring with particle ',pid_o 
+
+    pid_i = pid_o
+    last_j = 0 
+    NNAB_last = calc_nnab(pid_i,cov_nbindx)
+    while ( r_term ):
+        N_o = cov_nbindx[pid_i]
+        N_f = cov_nbindx[pid_i+1] - 1
+
+        if( debug): print " checking pid_i %d w %d neighbors "%(pid_i,calc_nnab(pid_i,cov_nbindx))
+        #           j
+        #        /
+        #  pid_i - j
+        #        \
+        #           j
+        #
+        path_found = False 
+        for n_indx in range( N_o,N_f+1):
+            j = cov_nblist[n_indx]
+            if(debug):
+                print " checking NN %d "%(j)
+
+            # If path traces back to original atom ring has been found 
+            if( atoms_in_ring  > 1 and j == pid_o ):
+                r_term = 0
+                path_found = True
+                if(debug): print ' ring found with ',atoms_in_ring 
+                break
+            j_good = True
+            if( debug ): print " check if j is part of a bad path ",BAD_PATH[pid_i] 
+            if( j in BAD_PATH[pid_i] ):
+                if(debug): print " j marked as a bad path "
+                j_good = False
+            # Prevent looping back
+            if( j in RING_ATOMS or j == pid_o ):
+                if(debug): print " j already in path "
+                j_good = False
+            if(  j_good ):
+                if( ring_type(j,ptclObj_o,strucC,cov_nblist, cov_nbindx) ):
+                    atoms_in_ring += 1
+                    RING_ATOMS.append(j)
+                    last_j = pid_i  
+                    pid_i = j           # set j to 
+                    if(debug):
+                        print "   atom %d added atom # %d "%(j,strucC.ptclC[j].tagsDict["number"])
+                        print "      last_j ",last_j
+                        print "      pid_i ",pid_i
+
+                    path_found = True 
+                    break
+            else:
+                if(debug): print " skipping previously found to prevent looping back ",last_j
+
+        if( not path_found ):
+            if(debug):
+                print " path not found pid_i %d last_j %d "%(pid_i,last_j)
+                
+                
+            if( j == pid_o ):
+                if(debug): print ' path has been reduced back to original atom %d '%(j)
+                RING_ATOMS = []
+                r_term = 0
+                
+            BAD_PATH[last_j].append( pid_i )
+            if( debug): print "setting bad path %d for last_j %d "%(pid_i,last_j)
+            
+            if( len(RING_ATOMS) > 1 ):
+                if(debug): print " pre pop RING_ATOMS ",RING_ATOMS
+                RING_ATOMS.pop( len(RING_ATOMS) -1 )
+                if(debug): print " post pop RING_ATOMS ",RING_ATOMS
+
+                pid_i = last_j
+                last_j = RING_ATOMS[-1]
+            else:
+                pid_i = pid_o
+                
+            
+            if( debug):
+                print " Bad path found no conjugated atoms " # attached to  %d stepping back to %d "%(BAD_PATH[-1],pid_i)
+                print "RING_ATOMS ",RING_ATOMS
+                print "BAD_PATH ",BAD_PATH
+            
+        
+        if ( len(RING_ATOMS) > max_ring_particles ):
+            if(debug):
+                print '   maximum possible particles in ring %d exceeded '%max_ring_particles
+                print "   pid_i %d last_j %d "%(pid_i,last_j)
+            # Set last atom as a bad path
+            #BAD_PATH[pid_i]
+            
+            # Reset lists and counts
+            RING_ATOMS = []
+            atoms_in_ring = 0
+            last_j = 0
+            pid_i = pid_o
+
+            path_cnt += 1
+            if( path_cnt > max_paths ):
+                r_term = 0
+            
+    return RING_ATOMS
+
+
 def find_rings(strucC,cov_nblist, cov_nbindx):
     """
     Find conjugate rings
     """
     import sys
-        
+
+    debug = False
+    
     RINGLIST = []
     RINGINDEX = []
     RING_NUMB = []
-
-    debug = 0
     
     IN_RING = []
 
@@ -1023,11 +1507,16 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
     RING_NUMB.append(zero)
     RINGLIST.append(zero)
     RINGINDEX.append(zero)
-        
+
         
     # relabel based on neighbors
     for pid_i, ptclObj_i  in strucC.ptclC:
-        RING_ATOMS = id_ring(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx)
+        RING_ATOMS = []
+        # If particle i is conjugated 
+        if( ring_type(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx) ):
+            RING_ATOMS = id_ring3(pid_i,ptclObj_i,strucC,cov_nblist, cov_nbindx)
+        if( debug ):
+            print pid_i,RING_ATOMS
             
         if ( len(RING_ATOMS) > 1 ):
             # If member of ring alread part of another ring add new ring to existing ring
@@ -1079,11 +1568,11 @@ def find_rings(strucC,cov_nblist, cov_nbindx):
     # update particles 
     for pid_i, ptclObj_i  in strucC.ptclC:
         ptclObj_i.tagsDict["ring"] =  RING_NUMB[pid_i]
-        #print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],
+        print ' atom  ',pid_i,ptclObj_i.tagsDict["number"],ptclObj_i.tagsDict["ring"]
 	    		
 	    
 
-    debug = 0
+        #debug = True
     if(debug):
         print ring_cnt , " rings found "
         for r_numb in range(1,ring_cnt+1):
@@ -1131,6 +1620,8 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
     #for pid_i, ptclObj_i  in strucC.ptclC:
     #        CG_SET.append(True) 
 
+    for pid_i, ptclObj_i  in strucC.ptclC:
+        ptclObj_i.tagsDict["qgroup"] = 0
         
     # set rings as charge groups
     for pid_i, ptclObj_i  in strucC.ptclC:
@@ -1139,8 +1630,7 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
         if( ptclObj_i.tagsDict["qgroup"] == 0  ):
             if( ptclObj_i.tagsDict["ring"] > 0 ):
                 ptclObj_i.tagsDict["qgroup"] = ptclObj_i.tagsDict["ring"]
-                #CG_SET[i] = 0
-                #if(debug): print i,ASYMB[i],   RING_NUMB[i]
+                print " setting qgroup  ring ",pid_i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["qgroup"],ptclObj_i.tagsDict["ring"]
                 if(  ptclObj_i.tagsDict["ring"] >  n_groups ):
                     n_groups = n_groups + 1
                 
@@ -1295,7 +1785,7 @@ def set_chargegroups(ff_charges,strucC , ring_nblist, ring_nbindex,cov_nblist, c
             N_o = cov_nbindx[pid_i]
             N_f = cov_nbindx[pid_i+1] - 1
             
-            print i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["fftype"],NNAB,ELCNT[6],ELCNT[1],' not set '
+            print pid_i,ptclObj_i.tagsDict["symbol"],ptclObj_i.tagsDict["fftype"],NNAB,ELCNT[6],ELCNT[1],' not set '
 	    sys.exit('charge group error')
             #else :
             # print ASYMB[i],ATYPE[i],NNAB,ELCNT[6],ELCNT[1],GTYPE[i],' set '
@@ -1403,7 +1893,157 @@ def find_conections(strucC,cov_nblist, cov_nbindx, ring_nblist, ring_nbindex ):
                                 RING_CONNECT.append( [pid_i,pid_j])
 
     return RING_CONNECT
+
+
+def set_cply_tags(verbose, strucC,cov_nblist, cov_nbindx):
+    #
+    #  Set tags for new cply file 
+    #     Use ctype tag and bonding enviroment
+    #
+    
+    debug = True
+    
+    if( verbose): print "    setting cply tags "
+    for pid_i, ptclObj_i  in strucC.ptclC:
+
+        ptclObj_i.tagsDict["cplytag"] = ""
+    for pid_i, ptclObj_i  in strucC.ptclC:
+
+        if( debug ):
+            print "CHECKING CTYPE ",pid_i,ptclObj_i.tagsDict["linkid"],ptclObj_i.tagsDict["cplytag"]
 	
+	# Set terminal attached carbons 
+	if( ptclObj_i.tagsDict["linkid"] == "T" and ptclObj_i.tagsDict["number"] == 6 ):
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    #
+	    # Find terminal hydrogen
+	    #		    
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                if( ptclObj_j.tagsDict["linkid"] == "X" and ptclObj_j.tagsDict["number"] == 1 ):
+		    # Check to see if it has been bonded to another unit 
+		    if( ptclObj_j.tagsDict["residue"] ==  ptclObj_j.tagsDict["residue"] ):
+			term_con_cnt += 1
+			ptclObj_j.tagsDict["cplytag"] = "termcap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
+		      
+	    if( term_con_cnt == 1 ):
+		ptclObj_i.tagsDict["cplytag"] = "term_C(" + str(pid_i) + ")"
+	    if( term_con_cnt > 1 ):
+		print " Number of terminal atoms attached to atom ",pid_i," greater than 1 "
+		sys.exit(" Error in terminal connections ")
+	    
+	# Set functional attached carbons 
+	if( ptclObj_i.tagsDict["linkid"] == "F" and ptclObj_i.tagsDict["number"] == 6 ):
+	    #
+	    term_con_cnt = 0 # Terminal connections count
+	    # 
+	    # Find function hydrogen
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                if( ptclObj_j.tagsDict["linkid"] == "R" and ptclObj_j.tagsDict["number"] == 1 ):
+		    if( ptclObj_j.tagsDict["residue"] ==  ptclObj_j.tagsDict["residue"] ):
+			term_con_cnt += 1
+			ptclObj_j.tagsDict["cplytag"] = "funccap_H(" + str(pid_j) + ")_on_C("+str(pid_i)+")"
+
+	    if( term_con_cnt == 1 ):
+		ptclObj_i.tagsDict["cplytag"] = "func_C(" + str(pid_i) + ")"
+		
+	    if( term_con_cnt > 1 ):
+		print " Number of functional atoms attached to atom ",pid_i," not equal to 1 "
+		sys.exit(" Error in functional connections ")
+		
+    return strucC	
+
+def zero_unitq(verbose,strucC,cov_nblist, cov_nbindx,zero_term,zero_func):
+    import numpy
+    import sys 
+    
+    #
+    # Sum exsessive charges into carbon atoms 
+    #
+    for pid_i, ptclObj_i  in strucC.ptclC:                
+	# Find each terminal hydrogen
+	if(  ptclObj_i.tagsDict["linkid"]  == "X"  and zero_term  ):
+	    term = pid_i 
+	    # Check to be sure hydrogen
+	    if( ptclObj_i.tagsDict["number"]  != 1 ):
+		print " Non hydrogen used as terminal group atom ",pid_i  
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) terminal group ")
+	    if( verbose ):
+		print " Terminal atom found ",pid_i," ",ptclObj_i.tagsDict["fftype"]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):                
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+                
+		term_con_cnt = 0 # Terminal connections count
+		if( ptclObj_j.tagsDict["linkid"].strip() == "T" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " Terminal connection found ",pid_j," ",ptclObj_j.tagsDict["fftype"]
+		    term_con = pid_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt < 1 ):
+		print " No terminal connections found "
+		sys.exit(" Error in terminal connections ")
+	    if( term_con_cnt > 1 ):
+		print " Multiple terminal connections found "
+		sys.exit(" Error in terminal connections ")
+		
+	    # Sum charges into base monomer unit
+            strucC.ptclC[term_con].charge = strucC.ptclC[term_con].charge  + strucC.ptclC[term].charge 
+	    strucC.ptclC[term].charge   = 0.0
+	    
+	# Find each functional hydrogen
+	if( ptclObj_i.tagsDict["linkid"] == "R"  and zero_func ):
+	    term = pid_i 
+	    # Check to be sure hydrogen
+	    if(  ptclObj_i.tagsDict["number"] != 1 ):
+		print " Non hydrogen used as functional group "
+		sys.exit(" Code unable to process multi atom (nonhyrdogen) functional group ")
+	    if( verbose ):
+		print " Functional atom found ",pid_i," ",ptclObj_i.tagsDict["fftype"]
+	    #
+	    # Loop over nieghbors to find attached atom
+	    #
+            N_o = cov_nbindx[pid_i]
+            N_f = cov_nbindx[pid_i+1] - 1
+	    for j_indx in range( N_o,N_f+1):
+                pid_j = cov_nblist[j_indx]
+                ptclObj_j = strucC.ptclC[pid_j]
+		term_con_cnt = 0 # Terminal connections count
+		if( ptclObj_j.tagsDict["linkid"].strip() == "F" ):
+		    term_con_cnt += 1
+		    if( verbose ):
+			print " functional connection found ",pid_j," ",ptclObj_j.tagsDict["fftype"]
+		    term_con = pid_j
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt  < 1 ):
+		print " No functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Check to be sure multiple atoms not found
+	    if( term_con_cnt > 1 ):
+		print " Multiple functional connections found "
+		sys.exit(" Error in functional connections ")
+	    # Sum charges into base monomer unit
+            strucC.ptclC[term_con].charge = strucC.ptclC[term_con].charge  + strucC.ptclC[term].charge 
+	    strucC.ptclC[term].charge   = 0.0
+
+    return strucC
+
+
 
 '''
 
