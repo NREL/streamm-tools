@@ -152,7 +152,7 @@ Angle and Dihedral containers. This class is in the module
 <p>Class data structures for atomic data</p>
 <dl class="class">
 <dt id="particles.Particle">
-<em class="property">class </em><code class="descclassname">particles.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>pos=[]</em>, <em>type='blank'</em>, <em>charge=0.0</em>, <em>mass=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.Particle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">particles.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>pos=[0.0, 0.0, 0.0], type='blank', charge=0.0, mass=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.Particle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing any localized object in QM/MD simulations
 A &#8216;Particle&#8217; has a position and type specifiers</p>
 <dl class="docutils">
@@ -498,6 +498,12 @@ by incrementing the maxgid member</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dihedrals.Dihedral.get_type">
+<code class="descname">get_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.get_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bond type</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dihedrals.Dihedral.set_g_indx">
 <code class="descname">set_g_indx</code><span class="sig-paren">(</span><em>g_indx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.set_g_indx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.set_g_indx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set bond type index for gromacs</p>
@@ -507,6 +513,12 @@ by incrementing the maxgid member</p>
 <dt id="dihedrals.Dihedral.set_lmpindx">
 <code class="descname">set_lmpindx</code><span class="sig-paren">(</span><em>lmpindx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.set_lmpindx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.set_lmpindx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set bond type index for lammps</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dihedrals.Dihedral.set_type">
+<code class="descname">set_type</code><span class="sig-paren">(</span><em>type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dihedrals.html#Dihedral.set_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dihedrals.Dihedral.set_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set bond type</p>
 </dd></dl>
 
 </dd></dl>
@@ -581,7 +593,7 @@ by incrementing the maxgid member</p>
 <span class="target" id="module-structureContainer"></span><p>Class data structures for atomic data</p>
 <dl class="class">
 <dt id="structureContainer.StructureContainer">
-<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x1067fd5f0&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x1067fd638&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x1067fd680&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x1067fd6c8&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=&lt;particles.ParticleContainer instance at 0x106712368&gt;</em>, <em>bondC=&lt;bonds.BondContainer instance at 0x106712cb0&gt;</em>, <em>angleC=&lt;angles.AngleContainer instance at 0x106712cf8&gt;</em>, <em>dihC=&lt;dihedrals.DihedralContainer instance at 0x106712d40&gt;</em>, <em>impC=&lt;impropers.ImproperContainer instance at 0x106712d88&gt;</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data structure for describing a collection of Particles that have associated
 Bond, Angle, Dihedral descriptions</p>
 <p>The contained ParticleContainer object has a special role... this object is a
@@ -593,13 +605,15 @@ BondContainer, AngleContainer etc should be consistent.</p>
 <dl class="method">
 <dt id="structureContainer.StructureContainer.calc_rdf">
 <code class="descname">calc_rdf</code><span class="sig-paren">(</span><em>rdf_cnt_ij</em>, <em>bin_size</em>, <em>list_i</em>, <em>list_j</em>, <em>sq_r_cut</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.calc_rdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.calc_rdf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate RDF for a group of particles</p>
+<dd><p>Calculate RDF for a group of particles
+NOTE: might be able to remove</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.center_mass">
 <code class="descname">center_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.center_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.center_mass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find center of mass of a structure</p>
+<dd><p>Find center of mass of a structure
+NOTE: needs to consider units</p>
 <dl class="docutils">
 <dt>Return</dt>
 <dd>r_mass (numpy array) position of the center of mass</dd>
@@ -626,20 +640,15 @@ for all other (bond, angle, dihedral) containers that reference particleIDs</p>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.expandLatVec">
-<code class="descname">expandLatVec</code><span class="sig-paren">(</span><em>precent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.expandLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.expandLatVec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Expand lattice vector by a certain percent</p>
+<code class="descname">expandLatVec</code><span class="sig-paren">(</span><em>percent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.expandLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.expandLatVec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand lattice vector by a certain percent
+NOTE: needs to consider units</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getBoxLengths">
 <code class="descname">getBoxLengths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getBoxLengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getBoxLengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return: list of cartesian box lengths [units ?]</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.getDen">
-<code class="descname">getDen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getDen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getDen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate density of system</p>
 </dd></dl>
 
 <dl class="method">
@@ -654,12 +663,20 @@ for all other (bond, angle, dihedral) containers that reference particleIDs</p>
 </dl>
 </dd>
 </dl>
+<p>TRAVIS document</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getLatVec">
 <code class="descname">getLatVec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getLatVec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get lattice vector</p>
+<dd><p>Get lattice vector
+NOTE: needs to consider units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getPtclNum">
+<code class="descname">getPtclNum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getPtclNum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getPtclNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of particles in a structure</p>
 </dd></dl>
 
 <dl class="method">
@@ -691,13 +708,15 @@ particlesOnly (bool): Flag for including ParticleContainer only (executes faster
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getTotMass">
 <code class="descname">getTotMass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getTotMass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getTotMass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate total mass of system</p>
+<dd><p>Calculate total mass of system 
+NOTE: needs to consider units</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getVolume">
 <code class="descname">getVolume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getVolume" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate volume</p>
+<dd><p>Calculate volume
+NOTE: needs to consider units</p>
 <dl class="docutils">
 <dt>Method:</dt>
 <dd>Volume = ( v_i x v_j ) . v_k</dd>
@@ -721,31 +740,18 @@ list_l (list) of atom indexes in of the fourth bonded atom in the dihedral</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="structureContainer.StructureContainer.get_gaussian">
-<code class="descname">get_gaussian</code><span class="sig-paren">(</span><em>fchk_file</em>, <em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.get_gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.get_gaussian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in structure information from gaussian fchk file</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>fchk_file (str) grochkfile</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.get_latvec">
-<code class="descname">get_latvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.get_latvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.get_latvec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get lattice vector</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="structureContainer.StructureContainer.getchainnumb">
 <code class="descname">getchainnumb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getchainnumb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getchainnumb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return number of chains in a structure</p>
+<dd><p>Return number of chains in a structure
+NOTE: only in replicate</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.getlength">
 <code class="descname">getlength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getlength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getlength" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate length from maximum seperation between particles</p>
+<dd><p>Calculate length from maximum seperation between particles
+NOTE: pbcs also calls methods from StructureContainer and this should be moved.
+NOTE: pbcs functionality should be moved here since lattice vectors are here</p>
 <dl class="docutils">
 <dt>Return</dt>
 <dd>struc_len (float)</dd>
@@ -753,21 +759,9 @@ list_l (list) of atom indexes in of the fourth bonded atom in the dihedral</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="structureContainer.StructureContainer.getpartnumb">
-<code class="descname">getpartnumb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getpartnumb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getpartnumb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return number of particles in a structure</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.lmp_writedata">
-<code class="descname">lmp_writedata</code><span class="sig-paren">(</span><em>data_file</em>, <em>norm_dihparam</em>, <em>itp_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.lmp_writedata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.lmp_writedata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write out lammps data file</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="structureContainer.StructureContainer.maxminLatVec">
 <code class="descname">maxminLatVec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.maxminLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.maxminLatVec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set lattice vector based on the max min postion of the particles</p>
+<dd><p>Set lattice vector based on the max/min position of the particles</p>
 </dd></dl>
 
 <dl class="method">
@@ -809,7 +803,8 @@ in an instance of this class</p>
 <dl class="method">
 <dt id="structureContainer.StructureContainer.rotate">
 <code class="descname">rotate</code><span class="sig-paren">(</span><em>rot_angle_i</em>, <em>rot_angle_j</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.rotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate particles in particle container</p>
+<dd><p>Rotate particles in particle container. Rotation angle i around y axis
+and rotation angle j around z-axis</p>
 <dl class="docutils">
 <dt>Arguments</dt>
 <dd>rot_angle_i (float)  0 - pi 
@@ -829,8 +824,12 @@ rot_angle_j (float)  0 - pi</dd>
 
 <dl class="method">
 <dt id="structureContainer.StructureContainer.setLatVec">
-<code class="descname">setLatVec</code><span class="sig-paren">(</span><em>latvec_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.setLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.setLatVec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set length of lattice vector</p>
+<code class="descname">setLatVec</code><span class="sig-paren">(</span><em>latvec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.setLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.setLatVec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set lattice vector</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>latvec (list): 3-element lattice vector</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -848,16 +847,10 @@ rot_angle_j (float)  0 - pi</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="structureContainer.StructureContainer.set_cply_tags">
-<code class="descname">set_cply_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.set_cply_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.set_cply_tags" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set tags for new cply file 
-Use ctype tag and bonding enviroment</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="structureContainer.StructureContainer.shift_center_mass">
 <code class="descname">shift_center_mass</code><span class="sig-paren">(</span><em>r_shift</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.shift_center_mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.shift_center_mass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Translate center of mass of a structure to a location</p>
+<dd><p>Translate center of mass of a structure to a location 
+NOTE: keep here (maybe re-name method) only in pbcs.py</p>
 <dl class="docutils">
 <dt>Return</dt>
 <dd>r_shift (numpy array) position of the center of mass</dd>
@@ -867,7 +860,8 @@ Use ctype tag and bonding enviroment</p>
 <dl class="method">
 <dt id="structureContainer.StructureContainer.vec_shift">
 <code class="descname">vec_shift</code><span class="sig-paren">(</span><em>r_shift</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.vec_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.vec_shift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shift structure by vector</p>
+<dd><p>Shift structure by vector
+NOTE: only called in pbcs.py</p>
 <dl class="docutils">
 <dt>Arguments</dt>
 <dd>r_shift (numpy vector) to shift all the cordinates by</dd>
@@ -891,31 +885,6 @@ return None</p>
 <dt>Args:</dt>
 <dd>fileName (str) string of filename to input</dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.write_gro">
-<code class="descname">write_gro</code><span class="sig-paren">(</span><em>dir_id</em>, <em>output_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.write_gro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.write_gro" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write out gromacs gro file</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.write_top">
-<code class="descname">write_top</code><span class="sig-paren">(</span><em>dir_id</em>, <em>output_id</em>, <em>norm_dihparam</em>, <em>itp_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.write_top"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.write_top" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write out gromacs gro file</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="structureContainer.StructureContainer.write_xmol">
-<code class="descname">write_xmol</code><span class="sig-paren">(</span><em>xmol_file</em>, <em>comment</em>, <em>append</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.write_xmol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.write_xmol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a structure  to an xmol file</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>xmol_file    (str) xmol file name
-comment  (str) for comment line 
-append  (boolean) to append or create a new file</dd>
-</dl>
-<p>Returns: None</p>
 </dd></dl>
 
 </dd></dl>

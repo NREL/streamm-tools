@@ -125,7 +125,8 @@
     <span class="n">bonds2</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">b1other</span><span class="p">)</span>
 
     <span class="n">polymer2</span> <span class="o">=</span> <span class="n">StructureContainer</span><span class="p">(</span><span class="n">atoms2</span><span class="p">,</span> <span class="n">bonds2</span><span class="p">)</span>  <span class="c"># Complete structure 1 completely</span>
-
+    <span class="k">print</span> <span class="s">&quot;Number of particles in polymer2 = &quot;</span><span class="p">,</span> <span class="n">polymer2</span><span class="o">.</span><span class="n">getPtclNum</span><span class="p">()</span>
+        
     <span class="k">del</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p1other</span><span class="p">,</span> <span class="n">p2other</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b1other</span><span class="p">,</span> <span class="n">atoms1</span><span class="p">,</span> <span class="n">atoms2</span><span class="p">,</span> <span class="n">bonds1</span><span class="p">,</span> <span class="n">bonds2</span>
     <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s"> Cleaning memory for initial objects </span><span class="se">\n</span><span class="s">&quot;</span> 
 
@@ -137,6 +138,7 @@
     <span class="k">print</span> <span class="s">&quot;-------------------- After adding --------------------&quot;</span>
     <span class="n">polymer1</span> <span class="o">+=</span> <span class="n">polymer2</span>
     <span class="k">print</span> <span class="s">&quot;polymer1 = &quot;</span><span class="p">,</span> <span class="n">polymer1</span>
+    <span class="k">print</span> <span class="s">&quot;Number of particles in polymer1 after add = &quot;</span><span class="p">,</span> <span class="n">polymer1</span><span class="o">.</span><span class="n">getPtclNum</span><span class="p">()</span>
 
     <span class="k">print</span> <span class="s">&quot;-------------------- Results (check above) --------------------&quot;</span>
     <span class="k">print</span> <span class="s">&quot; 1---b1---2---b2---3 + 1---b1----2   should go to&quot;</span>

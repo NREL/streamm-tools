@@ -168,6 +168,20 @@
             <span class="k">return</span> <span class="bp">False</span>
 
 
+<div class="viewcode-block" id="Dihedral.set_type"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.set_type">[docs]</a>    <span class="k">def</span> <span class="nf">set_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set bond type </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        
+        </div>
+<div class="viewcode-block" id="Dihedral.get_type"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.get_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return bond type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+
+</div>
 <div class="viewcode-block" id="Dihedral.set_lmpindx"><a class="viewcode-back" href="../framework_design.html#dihedrals.Dihedral.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bond type index for lammps</span>
@@ -195,8 +209,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span>
 
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &#39;Magic&#39; method for printng contents</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">    </span><span class="si">%s</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid4</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="p">)</span>
 
-</div></div>
+</div>
 <div class="viewcode-block" id="DihedralContainer"><a class="viewcode-back" href="../framework_design.html#dihedrals.DihedralContainer">[docs]</a><span class="k">class</span> <span class="nc">DihedralContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Dihedral objects. Map of global</span>
@@ -254,7 +274,8 @@
 
         <span class="n">dihedralStr</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Contains dihedral objects: </span><span class="se">\n</span><span class="s">&quot;</span>
         <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dihedrals</span><span class="p">:</span>
-            <span class="n">dihedralStr</span> <span class="o">=</span> <span class="n">dihedralStr</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihedrals</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="n">dihedralStr</span> <span class="o">+=</span> <span class="s">&quot; </span><span class="si">%d</span><span class="s"> :  </span><span class="si">%s</span><span class="s">  </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">gid</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dihedrals</span><span class="p">[</span><span class="n">gid</span><span class="p">])</span>
+            
         <span class="k">return</span> <span class="n">dihedralStr</span>
 
 

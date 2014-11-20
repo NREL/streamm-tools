@@ -166,11 +166,11 @@
 
         <span class="c"># This is a special accuracy setting needed for diffuse basis functions</span>
         <span class="c"># self.accuracyStr = &quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;Integral=(Acc2E=11)&quot;</span>
-        <span class="c"># self.accuracyStr = &quot; &quot; + &quot;Integral=(Acc2E=12)&quot;</span>
+        <span class="c"># self.accuracyStr = &quot; &quot; + &quot;Integral=(Acc2E=11)&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;Integral=(Acc2E=12)&quot;</span>
 
-        <span class="c"># Default setting calculates excited state density</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;density=current&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groundCalc</span>  <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;density=current&quot;</span>   <span class="c"># Default setting calculates ground  state density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;density=current&quot;</span>   <span class="c"># Default setting calculates excited state density</span>
 
 
 <div class="viewcode-block" id="SimulationGaussian1.getBareTag"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.getBareTag">[docs]</a>    <span class="k">def</span> <span class="nf">getBareTag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -263,7 +263,7 @@
         <span class="c"># Special settings for certain functionals</span>
         <span class="k">if</span> <span class="n">fct</span> <span class="o">==</span> <span class="s">&#39;lc-wpbe&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">=</span> <span class="s">&quot; &quot;</span>
-            <span class="k">print</span> <span class="s">&quot;Special setting for lc-wpbe... removing density=current&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;Special setting for lc-wpbe... removing density=current for excited state calc&quot;</span>
 
 </div>
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -392,7 +392,7 @@
  
         <span class="c"># Hardwired run/link strings (associated with this derived class)</span>
         <span class="n">paramRunStrRX</span> <span class="o">=</span> <span class="s">&quot;#P opt &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basisOPT</span>
-        <span class="n">paramRunStrRX</span> <span class="o">+=</span> <span class="s">&quot; pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
+        <span class="n">paramRunStrRX</span> <span class="o">+=</span> <span class="s">&quot; pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">groundCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
         <span class="n">paramRunStrTD</span> <span class="o">=</span> <span class="s">&quot;#P &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">+</span> <span class="s">&quot; td=nstates=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basisEXT</span>
         <span class="n">paramRunStrTD</span> <span class="o">+=</span> <span class="s">&quot; geom=check guess=check pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
 
@@ -442,7 +442,7 @@
  
         <span class="c"># Hardwired run/link strings (associated with this derived class)</span>
         <span class="n">paramRunStrRX</span> <span class="o">=</span> <span class="s">&quot;#P opt &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basisOPT</span>
-        <span class="n">paramRunStrRX</span> <span class="o">+=</span> <span class="s">&quot; geom=check guess=check pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
+        <span class="n">paramRunStrRX</span> <span class="o">+=</span> <span class="s">&quot; geom=check guess=check pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">groundCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
         <span class="n">paramRunStrTD</span> <span class="o">=</span> <span class="s">&quot;#P &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">+</span> <span class="s">&quot; td=nstates=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basisEXT</span>
         <span class="n">paramRunStrTD</span> <span class="o">+=</span> <span class="s">&quot; geom=check guess=check pop=full&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracyStr</span>
 

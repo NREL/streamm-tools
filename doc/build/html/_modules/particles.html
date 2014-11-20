@@ -85,7 +85,8 @@
 <span class="sd">    Create a dictionary to pass to particle search</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="n">search_i</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c"># search_i = {}</span>
+    <span class="n">search_i</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">f_type</span> <span class="p">)</span> <span class="p">):</span>
         <span class="n">search_i</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -141,7 +142,7 @@
 <span class="sd">                   RESN = [], CHARN = [], UNITNUMB = [], UNITTYPE = []</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="p">[],</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;blank&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;blank&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for a general particle. Checks for types in arguments</span>
 <span class="sd">        and throws a TypeError when appropriate</span>
@@ -180,7 +181,22 @@
         <span class="c"># Tags dictionary. To be set by caller</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;ring&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;RES&quot;</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;qgroup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;linkid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;??&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;cplytag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;gtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;lmptype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;fftype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;??&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;symbol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;??&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;mass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;ffmass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;cov_radii&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;vdw_radii&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -240,7 +256,13 @@
         <span class="k">return</span> <span class="bp">False</span>
 
 
-</div></div>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &#39;Magic&#39; method for printng contents of container</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s">  &quot;</span><span class="o">%</span><span class="p">(</span>  <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="p">)</span>
+</div>
 <div class="viewcode-block" id="ParticleContainer"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer">[docs]</a><span class="k">class</span> <span class="nc">ParticleContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Particle objects. Map of global</span>
@@ -285,7 +307,6 @@
 <span class="sd">        Args:</span>
 <span class="sd">            filePrefix (str): name of pickle file. will dump filePrefix.pkl</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
         <span class="kn">import</span> <span class="nn">pickle</span> 
         <span class="n">fileObj</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePrefix</span> <span class="o">+</span> <span class="s">&#39;.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileObj</span><span class="p">)</span>
@@ -305,8 +326,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">ptclStr</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Contains particle objects: </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">:</span>
-            <span class="n">ptclStr</span> <span class="o">=</span> <span class="n">ptclStr</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gid</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="k">for</span> <span class="n">gid</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">:</span>
+            <span class="n">ptclStr</span>  <span class="o">+=</span>  <span class="s">&quot; </span><span class="si">%d</span><span class="s"> : </span><span class="si">%s</span><span class="s">  </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span>  <span class="n">gid</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">gid</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">ptclStr</span>
 
 

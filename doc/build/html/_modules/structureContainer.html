@@ -88,9 +88,12 @@
 <span class="kn">from</span> <span class="nn">bonds</span>         <span class="kn">import</span> <span class="n">Bond</span><span class="p">,</span>     <span class="n">BondContainer</span>
 <span class="kn">from</span> <span class="nn">angles</span>        <span class="kn">import</span> <span class="n">Angle</span><span class="p">,</span>    <span class="n">AngleContainer</span>
 <span class="kn">from</span> <span class="nn">dihedrals</span>     <span class="kn">import</span> <span class="n">Dihedral</span><span class="p">,</span> <span class="n">DihedralContainer</span>
+<span class="kn">from</span> <span class="nn">impropers</span>     <span class="kn">import</span> <span class="n">Improper</span><span class="p">,</span> <span class="n">ImproperContainer</span>
 <span class="kn">from</span> <span class="nn">periodictable</span> <span class="kn">import</span> <span class="n">periodictable</span>
 
 <span class="kn">import</span> <span class="nn">pbcs</span><span class="o">,</span> <span class="nn">units</span>
+
+<span class="n">sperator_line</span> <span class="o">=</span> <span class="s">&quot;---------------------------------------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span>
 
 <div class="viewcode-block" id="StructureContainer"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer">[docs]</a><span class="k">class</span> <span class="nc">StructureContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -107,7 +110,7 @@
 <span class="sd">    (eg box length, pressure, temperature.....)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclC</span><span class="o">=</span><span class="n">ParticleContainer</span><span class="p">(),</span> <span class="n">bondC</span><span class="o">=</span><span class="n">BondContainer</span><span class="p">(),</span> <span class="n">angleC</span><span class="o">=</span><span class="n">AngleContainer</span><span class="p">(),</span> <span class="n">dihC</span><span class="o">=</span><span class="n">DihedralContainer</span><span class="p">(),</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclC</span><span class="o">=</span><span class="n">ParticleContainer</span><span class="p">(),</span> <span class="n">bondC</span><span class="o">=</span><span class="n">BondContainer</span><span class="p">(),</span> <span class="n">angleC</span><span class="o">=</span><span class="n">AngleContainer</span><span class="p">(),</span> <span class="n">dihC</span><span class="o">=</span><span class="n">DihedralContainer</span><span class="p">(),</span> <span class="n">impC</span><span class="o">=</span><span class="n">ImproperContainer</span><span class="p">(),</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for a composite structure. Deepcopy of containers is used</span>
 <span class="sd">        so this is the main container that manages memory for all sim objects</span>
@@ -143,6 +146,11 @@
             <span class="k">print</span> <span class="s">&quot;4rd arg should be an DihedralContainer object&quot;</span>
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">impC</span><span class="p">,</span> <span class="n">ImproperContainer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">impC</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">impC</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;5rd arg should be an ImproperContainer object&quot;</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
 
         <span class="c"># Debug print flag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
@@ -213,6 +221,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bondC</span>  <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">bondC</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">angleC</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">angleC</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dihC</span>   <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">dihC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impC</span>   <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">impC</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>     <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
@@ -225,21 +234,35 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">strucStr</span> <span class="o">=</span>  <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;************************************* </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot; Global parameters: </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;************************************* </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;  Box lengths: </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Lx = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Ly = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Lz = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="n">sperator_line</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;    Structure properties </span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="n">sperator_line</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Box lengths: </span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        Lx (A) = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        Ly (A) = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        Lz (A) = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Volume </span><span class="si">%f</span><span class="s">  A^3 </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Mass </span><span class="si">%f</span><span class="s">  AMU </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>     
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Density </span><span class="si">%f</span><span class="s"> g/cm^3 </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">_getDensity</span><span class="p">()</span>     
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Lattice vectors </span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">latvec_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLatVec</span><span class="p">()</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        v_i (A)  ( </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> ) </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        v_j (A)  ( </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> ) </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;        v_k (A)  ( </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> , </span><span class="si">%f</span><span class="s"> ) </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">latvec_i</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>                                        
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;************************************* </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot; Structure contains: </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;************************************* </span><span class="se">\n</span><span class="s">&quot;</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">)</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleC</span><span class="p">)</span>
-        <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihC</span><span class="p">)</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Particles </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">))</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Bonds  </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">))</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Angles </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleC</span><span class="p">))</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Dihedrals </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihC</span><span class="p">))</span>
+        <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;      Impropers </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="p">))</span>
+
+        <span class="k">if</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="p">):</span>
+            <span class="c"># Print</span>
+            <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span>
+            <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">)</span>
+            <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angleC</span><span class="p">)</span>
+            <span class="n">strucStr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dihC</span><span class="p">)</span>
+        
         <span class="k">return</span> <span class="n">strucStr</span>
 
 
@@ -268,7 +291,8 @@
         <span class="n">bondC</span>  <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">bondC</span><span class="p">)</span>   <span class="c">#  inside can be changed (for adding below)</span>
         <span class="n">angleC</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">angleC</span><span class="p">)</span>  <span class="c">#  inside can be changed (for adding below)</span>
         <span class="n">dihC</span>   <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dihC</span><span class="p">)</span>    <span class="c">#  inside can be changed (for adding below)</span>
-
+        <span class="n">impC</span>   <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">impC</span><span class="p">)</span>    <span class="c">#  inside can be changed (for adding below)</span>
+        
         <span class="n">keys1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>    <span class="c"># global IDs of particles in this object</span>
         <span class="n">keys2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">ptclC</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>   <span class="c"># global IDs in object being added</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="o">.</span><span class="n">maxgid</span><span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">keys1</span> <span class="o">+</span> <span class="n">keys2</span><span class="p">)</span>  <span class="c"># find max globalID in keys, set this object maxID</span>
@@ -288,6 +312,9 @@
 
         <span class="n">dihC</span><span class="o">.</span><span class="n">replacePtclIDs</span><span class="p">(</span><span class="n">idFromToDict</span><span class="p">)</span>   <span class="c"># Use tracked list of ID changes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dihC</span> <span class="o">+=</span> <span class="n">dihC</span>                   <span class="c"># Now add dihC with &#39;corrected&#39; IDs</span>
+
+        <span class="n">impC</span><span class="o">.</span><span class="n">replacePtclIDs</span><span class="p">(</span><span class="n">idFromToDict</span><span class="p">)</span>   <span class="c"># Use tracked list of ID changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impC</span> <span class="o">+=</span> <span class="n">impC</span>                   <span class="c"># Now add impC with &#39;corrected&#39; IDs</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -359,6 +386,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dihC</span><span class="o">.</span><span class="n">dihedrals</span> <span class="o">=</span> <span class="n">localDict</span>            <span class="c"># Assign reordered local copy to bond container</span>
         <span class="k">del</span> <span class="n">localDict</span>
 
+        <span class="c"># ------------ Redo improper dihedrals-----------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="o">.</span><span class="n">replacePtclIDs</span><span class="p">(</span><span class="n">idFromToDict</span><span class="p">)</span>  <span class="c"># Use tracked list of ID changes angles</span>
+
+        <span class="n">localDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">toDihedralID</span><span class="p">,</span> <span class="n">dihedralTuple</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="p">):</span> <span class="c"># Enumerate returns (ID, obj) tuple for ptclTuple</span>
+            <span class="n">toDihedralID</span> <span class="o">+=</span><span class="mi">1</span>                                     <span class="c"># Sets reordering index correctly</span>
+            <span class="n">fromDihedralID</span> <span class="o">=</span> <span class="n">dihedralTuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                    <span class="c"># Picks out ID from ptclTuple</span>
+            <span class="n">dihedralObj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="p">[</span><span class="n">fromDihedralID</span><span class="p">]</span>              <span class="c"># Get dihedral object</span>
+            <span class="n">localDict</span><span class="p">[</span><span class="n">toDihedralID</span><span class="p">]</span> <span class="o">=</span> <span class="n">dihedralObj</span>                <span class="c"># Set local dict with reordered index</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="o">.</span><span class="n">impropers</span>                    <span class="c"># Ensure memory is free</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="o">.</span><span class="n">impropers</span> <span class="o">=</span> <span class="n">localDict</span>            <span class="c"># Assign reordered local copy to bond container</span>
+        <span class="k">del</span> <span class="n">localDict</span>
+
 
 </div>
 <div class="viewcode-block" id="StructureContainer.getSubStructure"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getSubStructure">[docs]</a>    <span class="k">def</span> <span class="nf">getSubStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclIDList</span><span class="p">,</span> <span class="n">particlesOnly</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -385,7 +426,8 @@
             <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">pgid</span><span class="p">]</span>
             <span class="n">subAtoms</span><span class="p">[</span><span class="n">pgid</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom</span>
 
-        
+
+
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">particlesOnly</span><span class="p">):</span>
 
             <span class="c"># For each bond object in container check that both</span>
@@ -427,13 +469,29 @@
                     <span class="c"># Need to remove empty key generated above</span>
                     <span class="k">del</span> <span class="n">subDihedrals</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span>
 
+
+            <span class="c"># For each imp dihedral object in container check that both</span>
+            <span class="c"># particles in imp dihedral are in ptcl search list</span>
+            <span class="n">impdihedralIDList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>                 <span class="c"># Get keys of imp dihedral container</span>
+            <span class="n">subimpDihedrals</span> <span class="o">=</span> <span class="n">ImproperContainer</span><span class="p">(</span><span class="n">impdihedralIDList</span><span class="p">)</span>  <span class="c"># Initialize subdihedral container        </span>
+            <span class="k">for</span> <span class="n">gid</span><span class="p">,</span> <span class="n">dObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">impC</span><span class="p">:</span>
+            	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">dObj</span><span class="o">.</span><span class="n">pgid1</span> <span class="ow">in</span> <span class="n">ptclIDList</span><span class="p">)</span> <span class="ow">and</span> \
+                 <span class="p">(</span><span class="n">dObj</span><span class="o">.</span><span class="n">pgid2</span> <span class="ow">in</span> <span class="n">ptclIDList</span><span class="p">)</span> <span class="ow">and</span> \
+                 <span class="p">(</span><span class="n">dObj</span><span class="o">.</span><span class="n">pgid3</span> <span class="ow">in</span> <span class="n">ptclIDList</span><span class="p">)</span> <span class="ow">and</span> \
+                 <span class="p">(</span><span class="n">dObj</span><span class="o">.</span><span class="n">pgid4</span> <span class="ow">in</span> <span class="n">ptclIDList</span><span class="p">)</span> <span class="p">):</span>
+                     <span class="n">subimpDihedrals</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span> <span class="o">=</span> <span class="n">dObj</span>
+                <span class="k">else</span><span class="p">:</span>
+                     <span class="c"># Need to remove empty key generated above</span>
+                     <span class="k">del</span> <span class="n">subimpDihedrals</span><span class="p">[</span><span class="n">gid</span><span class="p">]</span>
+
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;getSubStructure including only ParticleContainer&quot;</span>
 
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">particlesOnly</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">StructureContainer</span><span class="p">(</span><span class="n">subAtoms</span><span class="p">,</span> <span class="n">subBonds</span><span class="p">,</span> <span class="n">subAngles</span><span class="p">,</span> <span class="n">subDihedrals</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">StructureContainer</span><span class="p">(</span><span class="n">subAtoms</span><span class="p">,</span> <span class="n">subBonds</span><span class="p">,</span> <span class="n">subAngles</span><span class="p">,</span> <span class="n">subDihedrals</span><span class="p">,</span> <span class="n">subimpDihedrals</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">StructureContainer</span><span class="p">(</span><span class="n">subAtoms</span><span class="p">)</span>
 
@@ -480,7 +538,6 @@
 <span class="sd">        Args:</span>
 <span class="sd">            bLs (list) box lengths (x,y,z) values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bLs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span> <span class="o">=</span> <span class="n">bLs</span>
         <span class="k">else</span><span class="p">:</span>
@@ -493,20 +550,28 @@
 <span class="sd">        Return: list of cartesian box lengths [units ?]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span>
+
 </div>
-<div class="viewcode-block" id="StructureContainer.setLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.setLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">setLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latvec_list</span> <span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.setLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.setLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">setLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latvec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set length of lattice vector </span>
+<span class="sd">        Set lattice vector</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            latvec (list): 3-element lattice vector</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span> <span class="o">=</span> <span class="n">latvec_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span> <span class="o">=</span> <span class="n">latvec</span>
+
 </div>
-<div class="viewcode-block" id="StructureContainer.get_latvec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.get_latvec">[docs]</a>    <span class="k">def</span> <span class="nf">get_latvec</span><span class="p">(</span><span class="bp">self</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">getLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get lattice vector </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">               (list) 3-element lattice vector list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
 
-</div>
+
 <div class="viewcode-block" id="StructureContainer.readOutput"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
@@ -551,38 +616,35 @@
         <span class="k">print</span> <span class="s">&quot;No StructureContainer:writeInput method defined for pure base class&quot;</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-
-    <span class="c">#########################################################</span>
 </div>
-<div class="viewcode-block" id="StructureContainer.getpartnumb"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getpartnumb">[docs]</a>    <span class="k">def</span> <span class="nf">getpartnumb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getPtclNum"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getPtclNum">[docs]</a>    <span class="k">def</span> <span class="nf">getPtclNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return number of particles in a structure </span>
+<span class="sd">        Return number of particles in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">NP</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">:</span>
-            <span class="n">NP</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">return</span> <span class="n">NP</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.expandLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.expandLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">expandLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precent</span> <span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.expandLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.expandLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">expandLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Expand lattice vector by a certain percent </span>
+<span class="sd">        Expand lattice vector by a certain percent</span>
+<span class="sd">        NOTE: needs to consider units</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">precent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">precent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">precent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">percent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">percent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">percent</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="StructureContainer.getLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">getLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get lattice vector </span>
+<span class="sd">        Get lattice vector</span>
+<span class="sd">        NOTE: needs to consider units</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
+
 </div>
 <div class="viewcode-block" id="StructureContainer.getVolume"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getVolume">[docs]</a>    <span class="k">def</span> <span class="nf">getVolume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate volume</span>
+<span class="sd">        NOTE: needs to consider units</span>
 
 <span class="sd">        Method:</span>
 <span class="sd">            Volume = ( v_i x v_j ) . v_k</span>
@@ -596,7 +658,7 @@
 <div class="viewcode-block" id="StructureContainer.getTotMass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getTotMass">[docs]</a>    <span class="k">def</span> <span class="nf">getTotMass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate total mass of system </span>
-
+<span class="sd">        NOTE: needs to consider units</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Sum mass, charges</span>
         <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -604,27 +666,35 @@
             <span class="n">total_mass</span> <span class="o">+=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span>
 
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_mass</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="StructureContainer.getDen"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getDen">[docs]</a>    <span class="k">def</span> <span class="nf">getDen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate density of system </span>
 
+
+    <span class="c">#</span>
+    <span class="c"># Private class methods</span>
+    <span class="c">#</span>
+</div>
+    <span class="k">def</span> <span class="nf">_getDensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate density of system in AMU/A^3 and convert to g/cm^3</span>
+<span class="sd">        NOTE: mass units contained in PtclConatiner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 	<span class="n">volume_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>    
 	<span class="n">total_mass_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>
-
 	<span class="n">density_i</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">convert_AMUA3_gcm3</span><span class="p">(</span><span class="n">total_mass_i</span><span class="o">/</span><span class="n">volume_i</span><span class="p">)</span> 
 	
 	<span class="k">return</span> <span class="n">density_i</span>
-</div>
+    <span class="c">#########################################################</span>
+
+
+
 <div class="viewcode-block" id="StructureContainer.getlength"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getlength">[docs]</a>    <span class="k">def</span> <span class="nf">getlength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate length from maximum seperation between particles</span>
+<span class="sd">        NOTE: pbcs also calls methods from StructureContainer and this should be moved.</span>
+<span class="sd">        NOTE: pbcs functionality should be moved here since lattice vectors are here</span>
 
 <span class="sd">        Return</span>
 <span class="sd">          struc_len (float) </span>
-<span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="n">sq_maxdr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1000000.0</span> 
@@ -640,10 +710,12 @@
         <span class="n">struc_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sq_maxdr</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">struc_len</span>
+
 </div>
 <div class="viewcode-block" id="StructureContainer.vec_shift"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.vec_shift">[docs]</a>    <span class="k">def</span> <span class="nf">vec_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shift structure by vector</span>
+<span class="sd">        NOTE: only called in pbcs.py</span>
 
 <span class="sd">        Arguments</span>
 <span class="sd">          r_shift (numpy vector) to shift all the cordinates by</span>
@@ -658,18 +730,16 @@
 <div class="viewcode-block" id="StructureContainer.center_mass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find center of mass of a structure</span>
+<span class="sd">        NOTE: needs to consider units</span>
 
 <span class="sd">        Return</span>
 <span class="sd">          r_mass (numpy array) position of the center of mass</span>
-<span class="sd">          </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
         <span class="n">total_mass_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>
-
         <span class="n">r_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]</span> <span class="p">)</span>
     
-        
         <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">:</span>
              <span class="n">r_mass</span> <span class="o">+=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span> <span class="p">)</span>
 
@@ -681,19 +751,21 @@
 <div class="viewcode-block" id="StructureContainer.shift_center_mass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.shift_center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">shift_center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate center of mass of a structure to a location </span>
+<span class="sd">        NOTE: keep here (maybe re-name method) only in pbcs.py</span>
 
 <span class="sd">        Return</span>
 <span class="sd">          r_shift (numpy array) position of the center of mass</span>
-<span class="sd">          </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        
         <span class="n">r_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_mass</span><span class="p">()</span>
         <span class="n">r_m_s</span> <span class="o">=</span> <span class="n">r_shift</span> <span class="o">-</span> <span class="n">r_mass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vec_shift</span><span class="p">(</span><span class="n">r_m_s</span><span class="p">)</span>
+
         </div>
-<div class="viewcode-block" id="StructureContainer.rotate"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rot_angle_i</span><span class="p">,</span><span class="n">rot_angle_j</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.rotate"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rot_angle_i</span><span class="p">,</span> <span class="n">rot_angle_j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Rotate particles in particle container</span>
+<span class="sd">        Rotate particles in particle container. Rotation angle i around y axis</span>
+<span class="sd">        and rotation angle j around z-axis</span>
 
 <span class="sd">        Arguments</span>
 <span class="sd">          rot_angle_i (float)  0 - pi </span>
@@ -710,6 +782,7 @@
         <span class="c">#   for rotation j around z axis </span>
         <span class="n">cz</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rot_angle_j</span><span class="p">)</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rot_angle_j</span><span class="p">)</span>
+
         <span class="c"># loop over each particle </span>
         <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">:</span>
             <span class="n">xd</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -722,7 +795,8 @@
 
             <span class="c"># ptclObj.position = numpy.array( [r_x,r_y,r_z] )</span>
             <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_x</span><span class="p">,</span><span class="n">r_y</span><span class="p">,</span><span class="n">r_z</span><span class="p">]</span>
-        </div>
+        
+</div>
 <div class="viewcode-block" id="StructureContainer.printprop"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.printprop">[docs]</a>    <span class="k">def</span> <span class="nf">printprop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print properties of a structure </span>
@@ -730,7 +804,7 @@
         <span class="k">print</span> <span class="s">&quot;  Particles </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">))</span>
         <span class="k">print</span> <span class="s">&quot;    Volume </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>
         <span class="k">print</span> <span class="s">&quot;    Mass </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>
-        <span class="k">print</span> <span class="s">&quot;    Density </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getDen</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&quot;    Density </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">_getDensity</span><span class="p">()</span>
         <span class="k">print</span> <span class="s">&quot;  Lattice vectors &quot;</span>
         <span class="k">print</span> <span class="s">&quot;    v_i &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">print</span> <span class="s">&quot;    v_j &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -740,7 +814,7 @@
 </div>
 <div class="viewcode-block" id="StructureContainer.maxminLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.maxminLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">maxminLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set lattice vector based on the max min postion of the particles </span>
+<span class="sd">        Set lattice vector based on the max/min position of the particles</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_max</span> <span class="o">=</span> <span class="o">-</span><span class="mf">100000.0</span>
         <span class="n">y_max</span> <span class="o">=</span> <span class="o">-</span><span class="mf">100000.0</span>
@@ -777,320 +851,327 @@
 </div>
 <div class="viewcode-block" id="StructureContainer.getchainnumb"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getchainnumb">[docs]</a>    <span class="k">def</span> <span class="nf">getchainnumb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   <span class="c"># Move out of class</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return number of chains in a structure </span>
+<span class="sd">        Return number of chains in a structure</span>
+<span class="sd">        NOTE: only in replicate</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_chains</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">:</span>
             <span class="k">if</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n_chains</span><span class="p">):</span> <span class="n">n_chains</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">n_chains</span>
-</div>
-<div class="viewcode-block" id="StructureContainer.write_gro"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.write_gro">[docs]</a>    <span class="k">def</span> <span class="nf">write_gro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dir_id</span><span class="p">,</span><span class="n">output_id</span> <span class="p">):</span> <span class="c"># Move out of class</span>
+
+
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def write_gro(self,dir_id,output_id ): # Move out of class</span>
+
 <span class="sd">        Write out gromacs gro file</span>
+
+<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
+<span class="sd">        import gromacs </span>
+
+<span class="sd">        # New options that need to be passed </span>
+<span class="sd">        limdih =  0</span>
+<span class="sd">        limitdih_n = 1</span>
+<span class="sd">        </span>
+<span class="sd">        # Create list to pass to Atomicpy</span>
+<span class="sd">        ASYMB = []</span>
+<span class="sd">        R = []</span>
+<span class="sd">        AMASS = []</span>
+<span class="sd">        CHARGES = []</span>
+<span class="sd">        MOLNUMB = []</span>
+<span class="sd">        RESID = []</span>
+<span class="sd">        RESN = []</span>
+<span class="sd">        ATYPE = []</span>
+<span class="sd">        RING_NUMB = []</span>
+<span class="sd">        GTYPE = []</span>
+<span class="sd">        </span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ASYMB.append( ptclObj.type  )</span>
+<span class="sd">            R.append( np.array( ptclObj.position)  )</span>
+<span class="sd">            AMASS.append( float(ptclObj.mass)  )</span>
+<span class="sd">            CHARGES.append( float(ptclObj.charge)  )</span>
+<span class="sd">            MOLNUMB.append( int(ptclObj.tagsDict[&quot;chain&quot;])  )</span>
+<span class="sd">            RESID.append( ptclObj.tagsDict[&quot;resname&quot;][0:5]  )</span>
+<span class="sd">            RESN.append( int(ptclObj.tagsDict[&quot;residue&quot;])  )</span>
+<span class="sd">            ATYPE.append( ptclObj.tagsDict[&quot;fftype&quot;]  )</span>
+<span class="sd">            RING_NUMB.append( int(ptclObj.tagsDict[&quot;ring&quot;])  )</span>
+<span class="sd">            GTYPE.append( ptclObj.tagsDict[&quot;gtype&quot;]  )</span>
+
+
+<span class="sd">            print &quot; GTYPE &quot;, ptclObj.tagsDict[&quot;gtype&quot;] </span>
+<span class="sd">            print &quot; RESID &quot;, ptclObj.tagsDict[&quot;resname&quot;] </span>
+<span class="sd">            print &quot; RESN &quot;, ptclObj.tagsDict[&quot;residue&quot;] </span>
+<span class="sd">       </span>
+<span class="sd">        # Set cubic lattice constant to 5 nm arbitrary </span>
+<span class="sd">        LV = np.zeros( (3,3) )</span>
+<span class="sd">            </span>
+<span class="sd">        LV[0][0] = self.latvec[0][0]</span>
+<span class="sd">        LV[1][1] = self.latvec[1][1]</span>
+<span class="sd">        LV[2][2] = self.latvec[2][2]</span>
+<span class="sd">        </span>
+<span class="sd">        out_gro = dir_id+&quot;/&quot;+output_id + &quot;.gro&quot;</span>
+<span class="sd">        gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Version 1 will be dependent on Atomicpy</span>
-        <span class="kn">import</span> <span class="nn">gromacs</span> 
 
-        <span class="c"># New options that need to be passed </span>
-        <span class="n">limdih</span> <span class="o">=</span>  <span class="mi">0</span>
-        <span class="n">limitdih_n</span> <span class="o">=</span> <span class="mi">1</span>
-        
-        <span class="c"># Create list to pass to Atomicpy</span>
-        <span class="n">ASYMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">AMASS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CHARGES</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">MOLNUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESID</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESN</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ATYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RING_NUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">GTYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">ASYMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">type</span>  <span class="p">)</span>
-            <span class="n">R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">AMASS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">CHARGES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">MOLNUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">RESID</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RESN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">ATYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;fftype&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RING_NUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;ring&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">GTYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;gtype&quot;</span><span class="p">]</span>  <span class="p">)</span>
-
-
-            <span class="k">print</span> <span class="s">&quot; GTYPE &quot;</span><span class="p">,</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;gtype&quot;</span><span class="p">]</span> 
-            <span class="k">print</span> <span class="s">&quot; RESID &quot;</span><span class="p">,</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">]</span> 
-            <span class="k">print</span> <span class="s">&quot; RESN &quot;</span><span class="p">,</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">]</span> 
-       
-        <span class="c"># Set cubic lattice constant to 5 nm arbitrary </span>
-        <span class="n">LV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
-            
-        <span class="n">LV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-        
-        <span class="n">out_gro</span> <span class="o">=</span> <span class="n">dir_id</span><span class="o">+</span><span class="s">&quot;/&quot;</span><span class="o">+</span><span class="n">output_id</span> <span class="o">+</span> <span class="s">&quot;.gro&quot;</span>
-        <span class="n">gromacs</span><span class="o">.</span><span class="n">print_gro</span><span class="p">(</span><span class="n">out_gro</span><span class="p">,</span><span class="n">GTYPE</span><span class="p">,</span><span class="n">RESID</span><span class="p">,</span><span class="n">RESN</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">LV</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="StructureContainer.write_top"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.write_top">[docs]</a>    <span class="k">def</span> <span class="nf">write_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dir_id</span><span class="p">,</span><span class="n">output_id</span><span class="p">,</span><span class="n">norm_dihparam</span><span class="p">,</span><span class="n">itp_file</span> <span class="p">):</span> <span class="c"># Move out of class</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class</span>
 <span class="sd">        Write out gromacs gro file</span>
+
+<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
+<span class="sd">        import gromacs , elements, top , lammps, groups , atom_types</span>
+
+<span class="sd">        # New options that need to be passed </span>
+<span class="sd">        limdih =  0</span>
+<span class="sd">        limitdih_n = 1</span>
+<span class="sd">        </span>
+<span class="sd">        # Create list to pass to Atomicpy</span>
+<span class="sd">        ASYMB = []</span>
+<span class="sd">        R = []</span>
+<span class="sd">        AMASS = []</span>
+<span class="sd">        CHARGES = []</span>
+<span class="sd">        MOLNUMB = []</span>
+<span class="sd">        RESID = []</span>
+<span class="sd">        RESN = []</span>
+<span class="sd">        ATYPE = []</span>
+<span class="sd">        RING_NUMB = []</span>
+<span class="sd">        GTYPE = []</span>
+<span class="sd">        </span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ASYMB.append( ptclObj.type  )</span>
+<span class="sd">            R.append( np.array( ptclObj.position)  )</span>
+<span class="sd">            AMASS.append( float(ptclObj.mass)  )</span>
+<span class="sd">            CHARGES.append( float(ptclObj.charge)  )</span>
+<span class="sd">            MOLNUMB.append( int(ptclObj.tagsDict[&quot;chain&quot;])  )</span>
+<span class="sd">            RESID.append( ptclObj.tagsDict[&quot;resname&quot;][0:5]  )</span>
+<span class="sd">            RESN.append( int(ptclObj.tagsDict[&quot;residue&quot;])  )</span>
+<span class="sd">            ATYPE.append( ptclObj.tagsDict[&quot;fftype&quot;]  )</span>
+<span class="sd">            RING_NUMB.append( int(ptclObj.tagsDict[&quot;ring&quot;])  )</span>
+<span class="sd">            GTYPE.append( ptclObj.tagsDict[&quot;gtype&quot;]  )</span>
+<span class="sd">       </span>
+<span class="sd">        BONDS = []</span>
+<span class="sd">        for b_i,bondObj in  self.bondC:</span>
+<span class="sd">            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])</span>
+
+<span class="sd">            print &quot; make_top bonds &quot;,bondObj.pgid1 , bondObj.pgid2</span>
+
+<span class="sd">        # Set cubic lattice constant to 5 nm arbitrary </span>
+<span class="sd">        LV = np.zeros( (3,3) )</span>
+<span class="sd">            </span>
+<span class="sd">        LV[0][0] = self.latvec[0][0]</span>
+<span class="sd">        LV[1][1] = self.latvec[1][1]</span>
+<span class="sd">        LV[2][2] = self.latvec[2][2]</span>
+<span class="sd">        </span>
+<span class="sd">        # Find atomic number based on atomic symbol </span>
+<span class="sd">        ELN = elements.asymb_eln(ASYMB)</span>
+<span class="sd">        NA = len(ELN)</span>
+<span class="sd">        </span>
+<span class="sd">        # Create neighbor list form bonds</span>
+<span class="sd">        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)</span>
+<span class="sd">        #NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)</span>
+
+<span class="sd">        print_nb = True</span>
+<span class="sd">        # Make compatable with 0-(N-1) index of atoms </span>
+<span class="sd">        #for n_indx in range(len(NBLIST)):</span>
+<span class="sd">        #    if( print_nb):</span>
+<span class="sd">        #        print &quot; changing NBLIST &quot;,NBLIST[n_indx] ,&quot; to &quot;,NBLIST[n_indx] -1 </span>
+<span class="sd">        #    NBLIST[n_indx] =NBLIST[n_indx] -1</span>
+<span class="sd">        #for n_indx in range(len(NBINDEX)-1):</span>
+<span class="sd">        #    if( print_nb):</span>
+<span class="sd">        #        print &quot; changing NBINDEX &quot;,NBINDEX[n_indx] ,&quot; to &quot;,NBINDEX[n_indx+1]</span>
+<span class="sd">        #    NBINDEX[n_indx] =NBINDEX[n_indx+1]</span>
+<span class="sd">        #</span>
+<span class="sd">        if( print_nb):</span>
+
+<span class="sd">            for p_i in range(len(self.ptclC)):</span>
+<span class="sd">                N_i_o = NBINDEX[p_i]</span>
+<span class="sd">                N_i_f = NBINDEX[p_i+1]</span>
+<span class="sd">                print &quot; atom &quot;,p_i+1, ELN[p_i],&quot; has &quot;,N_i_f - N_i_o</span>
+<span class="sd">                for indx_j in range( N_i_o,N_i_f):</span>
+<span class="sd">                    atom_j = NBLIST[indx_j]</span>
+<span class="sd">                    print &quot;      nb &quot;,atom_j+1,&quot; atomic # &quot;, ELN[atom_j]</span>
+<span class="sd">                    </span>
+<span class="sd">        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)</span>
+
+<span class="sd">        for a_indx in range(len(ANGLES)):</span>
+<span class="sd">            print &quot; angles &quot;,ANGLES[a_indx][0]+1,ANGLES[a_indx][1]+1,ANGLES[a_indx][2]+1</span>
+<span class="sd">        </span>
+<span class="sd">        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)</span>
+<span class="sd">        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)</span>
+<span class="sd">        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)</span>
+
+
+<span class="sd">        #</span>
+<span class="sd">        # Set charge groups</span>
+<span class="sd">        #</span>
+<span class="sd">        verbose = False </span>
+<span class="sd">        CG_SET = []</span>
+<span class="sd">        CHARN = []</span>
+<span class="sd">        one = 1</span>
+<span class="sd">        for i in range( len(ELN) ):</span>
+<span class="sd">            CG_SET.append(one)</span>
+<span class="sd">            CHARN.append(one)</span>
+<span class="sd">        CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)</span>
+
+<span class="sd">        # Read in parameter files </span>
+<span class="sd">        </span>
+<span class="sd">        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)</span>
+
+<span class="sd">        # Identify total number of atom types for lammps output </span>
+<span class="sd">        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)</span>
+
+<span class="sd">        # Check atom types to be sure each atom of the same type has the same number of neighbors </span>
+<span class="sd">        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)</span>
+<span class="sd">    </span>
+<span class="sd">        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)</span>
+<span class="sd">        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)</span>
+<span class="sd">        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)</span>
+<span class="sd">        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )</span>
+
+<span class="sd">        IMPTYPE_F  = top.imp_parameters(itp_file)</span>
+
+<span class="sd">        IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)</span>
+
+
+<span class="sd">        top_file = dir_id+&quot;/&quot;+output_id + &quot;.top&quot;</span>
+<span class="sd">        DIH_CONST = []</span>
+<span class="sd">        DIH_CONST_ANGLE = []</span>
+<span class="sd">        gromacs.print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS</span>
+<span class="sd">               ,DIH_CONST,DIH_CONST_ANGLE</span>
+<span class="sd">               ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F</span>
+<span class="sd">               ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Version 1 will be dependent on Atomicpy</span>
-        <span class="kn">import</span> <span class="nn">gromacs</span> <span class="o">,</span> <span class="nn">elements</span><span class="o">,</span> <span class="nn">top</span> <span class="o">,</span> <span class="nn">lammps</span><span class="o">,</span> <span class="nn">groups</span> <span class="o">,</span> <span class="nn">atom_types</span>
-
-        <span class="c"># New options that need to be passed </span>
-        <span class="n">limdih</span> <span class="o">=</span>  <span class="mi">0</span>
-        <span class="n">limitdih_n</span> <span class="o">=</span> <span class="mi">1</span>
         
-        <span class="c"># Create list to pass to Atomicpy</span>
-        <span class="n">ASYMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">AMASS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CHARGES</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">MOLNUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESID</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESN</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ATYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RING_NUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">GTYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">ASYMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">type</span>  <span class="p">)</span>
-            <span class="n">R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">AMASS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">CHARGES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">MOLNUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">RESID</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RESN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">ATYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;fftype&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RING_NUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;ring&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">GTYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;gtype&quot;</span><span class="p">]</span>  <span class="p">)</span>
-       
-        <span class="n">BONDS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">b_i</span><span class="p">,</span><span class="n">bondObj</span> <span class="ow">in</span>  <span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">:</span>
-            <span class="n">BONDS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">bondObj</span><span class="o">.</span><span class="n">pgid1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bondObj</span><span class="o">.</span><span class="n">pgid2</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-            <span class="k">print</span> <span class="s">&quot; make_top bonds &quot;</span><span class="p">,</span><span class="n">bondObj</span><span class="o">.</span><span class="n">pgid1</span> <span class="p">,</span> <span class="n">bondObj</span><span class="o">.</span><span class="n">pgid2</span>
-
-        <span class="c"># Set cubic lattice constant to 5 nm arbitrary </span>
-        <span class="n">LV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
-            
-        <span class="n">LV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-        
-        <span class="c"># Find atomic number based on atomic symbol </span>
-        <span class="n">ELN</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">asymb_eln</span><span class="p">(</span><span class="n">ASYMB</span><span class="p">)</span>
-        <span class="n">NA</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ELN</span><span class="p">)</span>
-        
-        <span class="c"># Create neighbor list form bonds</span>
-        <span class="n">NBLIST</span><span class="p">,</span><span class="n">NBINDEX</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">build_nablist_bonds</span><span class="p">(</span><span class="n">ELN</span><span class="p">,</span><span class="n">BONDS</span><span class="p">)</span>
-        <span class="c">#NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)</span>
-
-        <span class="n">print_nb</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="c"># Make compatable with 0-(N-1) index of atoms </span>
-        <span class="c">#for n_indx in range(len(NBLIST)):</span>
-        <span class="c">#    if( print_nb):</span>
-        <span class="c">#        print &quot; changing NBLIST &quot;,NBLIST[n_indx] ,&quot; to &quot;,NBLIST[n_indx] -1 </span>
-        <span class="c">#    NBLIST[n_indx] =NBLIST[n_indx] -1</span>
-        <span class="c">#for n_indx in range(len(NBINDEX)-1):</span>
-        <span class="c">#    if( print_nb):</span>
-        <span class="c">#        print &quot; changing NBINDEX &quot;,NBINDEX[n_indx] ,&quot; to &quot;,NBINDEX[n_indx+1]</span>
-        <span class="c">#    NBINDEX[n_indx] =NBINDEX[n_indx+1]</span>
-        <span class="c">#</span>
-        <span class="k">if</span><span class="p">(</span> <span class="n">print_nb</span><span class="p">):</span>
-
-            <span class="k">for</span> <span class="n">p_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)):</span>
-                <span class="n">N_i_o</span> <span class="o">=</span> <span class="n">NBINDEX</span><span class="p">[</span><span class="n">p_i</span><span class="p">]</span>
-                <span class="n">N_i_f</span> <span class="o">=</span> <span class="n">NBINDEX</span><span class="p">[</span><span class="n">p_i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">print</span> <span class="s">&quot; atom &quot;</span><span class="p">,</span><span class="n">p_i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ELN</span><span class="p">[</span><span class="n">p_i</span><span class="p">],</span><span class="s">&quot; has &quot;</span><span class="p">,</span><span class="n">N_i_f</span> <span class="o">-</span> <span class="n">N_i_o</span>
-                <span class="k">for</span> <span class="n">indx_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_i_o</span><span class="p">,</span><span class="n">N_i_f</span><span class="p">):</span>
-                    <span class="n">atom_j</span> <span class="o">=</span> <span class="n">NBLIST</span><span class="p">[</span><span class="n">indx_j</span><span class="p">]</span>
-                    <span class="k">print</span> <span class="s">&quot;      nb &quot;</span><span class="p">,</span><span class="n">atom_j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s">&quot; atomic # &quot;</span><span class="p">,</span> <span class="n">ELN</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span>
-                    
-        <span class="n">ANGLES</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_angles</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">a_indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ANGLES</span><span class="p">)):</span>
-            <span class="k">print</span> <span class="s">&quot; angles &quot;</span><span class="p">,</span><span class="n">ANGLES</span><span class="p">[</span><span class="n">a_indx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">ANGLES</span><span class="p">[</span><span class="n">a_indx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">ANGLES</span><span class="p">[</span><span class="n">a_indx</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
-        
-        <span class="c">#DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)</span>
-        <span class="n">DIH</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_dih</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">,</span><span class="n">limdih</span><span class="p">,</span><span class="n">limitdih_n</span><span class="p">)</span>
-        <span class="n">IMPS</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_imp</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">,</span><span class="n">ELN</span><span class="p">)</span>
-
-
-        <span class="c">#</span>
-        <span class="c"># Set charge groups</span>
-        <span class="c">#</span>
-        <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span> 
-        <span class="n">CG_SET</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CHARN</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">one</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">ELN</span><span class="p">)</span> <span class="p">):</span>
-            <span class="n">CG_SET</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
-            <span class="n">CHARN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one</span><span class="p">)</span>
-        <span class="n">CHARN</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">set_chargegroups</span><span class="p">(</span><span class="n">verbose</span><span class="p">,</span><span class="n">CG_SET</span><span class="p">,</span><span class="n">CHARN</span><span class="p">,</span><span class="n">ATYPE</span><span class="p">,</span><span class="n">ASYMB</span><span class="p">,</span><span class="n">ELN</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span><span class="n">NBINDEX</span><span class="p">,</span> <span class="n">RING_NUMB</span><span class="p">,</span><span class="n">LV</span><span class="p">)</span>
-
-        <span class="c"># Read in parameter files </span>
-        
-        <span class="n">FF_ATOMTYPES</span> <span class="p">,</span> <span class="n">FF_BONDTYPES</span> <span class="p">,</span> <span class="n">FF_ANGLETYPES</span> <span class="p">,</span>  <span class="n">FF_DIHTYPES</span> <span class="o">=</span> <span class="n">gromacs</span><span class="o">.</span><span class="n">read_itp</span><span class="p">(</span><span class="n">itp_file</span><span class="p">)</span>
-
-        <span class="c"># Identify total number of atom types for lammps output </span>
-        <span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span>  <span class="n">ATYPE_MASS</span> <span class="p">,</span><span class="n">BTYPE_IND</span> <span class="p">,</span> <span class="n">BTYPE_REF</span><span class="p">,</span> <span class="n">ANGTYPE_IND</span> <span class="p">,</span> <span class="n">ANGTYPE_REF</span><span class="p">,</span> <span class="n">DTYPE_IND</span> <span class="p">,</span> <span class="n">DTYPE_REF</span> <span class="o">=</span> <span class="n">lammps</span><span class="o">.</span><span class="n">lmp_types</span><span class="p">(</span><span class="n">ELN</span><span class="p">,</span><span class="n">ATYPE</span><span class="p">,</span><span class="n">AMASS</span><span class="p">,</span><span class="n">BONDS</span><span class="p">,</span><span class="n">ANGLES</span><span class="p">,</span><span class="n">DIH</span><span class="p">)</span>
-
-        <span class="c"># Check atom types to be sure each atom of the same type has the same number of neighbors </span>
-        <span class="n">ATYPE_NNAB</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">check_types</span><span class="p">(</span><span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span><span class="n">GTYPE</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span><span class="n">NBINDEX</span><span class="p">)</span>
-    
-        <span class="n">ATYPE_EP</span><span class="p">,</span> <span class="n">ATYPE_SIG</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">atom_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span>  <span class="n">ATYPE_MASS</span><span class="p">,</span><span class="n">FF_ATOMTYPES</span><span class="p">)</span>
-        <span class="n">BONDTYPE_F</span> <span class="p">,</span> <span class="n">BONDTYPE_R0</span> <span class="p">,</span><span class="n">BONDTYPE_K</span>  <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">bond_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">BTYPE_IND</span> <span class="p">,</span> <span class="n">BTYPE_REF</span><span class="p">,</span><span class="n">FF_BONDTYPES</span><span class="p">)</span>
-        <span class="n">ANGLETYPE_F</span> <span class="p">,</span> <span class="n">ANGLETYPE_R0</span> <span class="p">,</span> <span class="n">ANGLETYPE_K</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">angle_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">ANGTYPE_IND</span> <span class="p">,</span> <span class="n">ANGTYPE_REF</span><span class="p">,</span><span class="n">FF_ANGLETYPES</span><span class="p">)</span>
-        <span class="n">DIHTYPE_F</span> <span class="p">,</span><span class="n">DIHTYPE_PHASE</span> <span class="p">,</span><span class="n">DIHTYPE_K</span><span class="p">,</span> <span class="n">DIHTYPE_PN</span><span class="p">,</span>  <span class="n">DIHTYPE_C</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">dih_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span> <span class="n">norm_dihparam</span><span class="p">,</span> <span class="n">DTYPE_IND</span> <span class="p">,</span> <span class="n">DTYPE_REF</span> <span class="p">,</span>  <span class="n">FF_DIHTYPES</span><span class="p">,</span><span class="n">ATYPE_REF</span><span class="p">,</span><span class="n">ATYPE_NNAB</span>  <span class="p">)</span>
-
-        <span class="n">IMPTYPE_F</span>  <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">imp_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">)</span>
-
-        <span class="n">IMPS</span><span class="p">,</span><span class="n">IMPTYPE_F</span> <span class="o">=</span> <span class="n">atom_types</span><span class="o">.</span><span class="n">set_ptma_imps</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">,</span><span class="n">ELN</span><span class="p">,</span><span class="n">ASYMB</span><span class="p">,</span><span class="n">IMPS</span><span class="p">,</span><span class="n">IMPTYPE_F</span><span class="p">)</span>
-
-
-        <span class="n">top_file</span> <span class="o">=</span> <span class="n">dir_id</span><span class="o">+</span><span class="s">&quot;/&quot;</span><span class="o">+</span><span class="n">output_id</span> <span class="o">+</span> <span class="s">&quot;.top&quot;</span>
-        <span class="n">DIH_CONST</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">DIH_CONST_ANGLE</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">gromacs</span><span class="o">.</span><span class="n">print_top</span><span class="p">(</span> <span class="n">top_file</span><span class="p">,</span><span class="n">ASYMB</span> <span class="p">,</span> <span class="n">ELN</span><span class="p">,</span><span class="n">ATYPE</span><span class="p">,</span> <span class="n">GTYPE</span><span class="p">,</span> <span class="n">CHARN</span> <span class="p">,</span> <span class="n">CHARGES</span><span class="p">,</span> <span class="n">AMASS</span><span class="p">,</span><span class="n">RESN</span><span class="p">,</span> <span class="n">RESID</span> <span class="p">,</span><span class="n">BONDS</span> <span class="p">,</span> <span class="n">ANGLES</span> <span class="p">,</span> <span class="n">DIH</span> <span class="p">,</span> <span class="n">IMPS</span>
-               <span class="p">,</span><span class="n">DIH_CONST</span><span class="p">,</span><span class="n">DIH_CONST_ANGLE</span>
-               <span class="p">,</span><span class="n">BTYPE_IND</span><span class="p">,</span> <span class="n">BONDTYPE_F</span><span class="p">,</span> <span class="n">ANGTYPE_IND</span><span class="p">,</span> <span class="n">ANGLETYPE_F</span>
-               <span class="p">,</span><span class="n">DTYPE_IND</span><span class="p">,</span> <span class="n">DIHTYPE_F</span><span class="p">,</span> <span class="n">IMPTYPE_F</span><span class="p">,</span><span class="n">LV</span><span class="p">)</span>
-        </div>
-<div class="viewcode-block" id="StructureContainer.lmp_writedata"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.lmp_writedata">[docs]</a>    <span class="k">def</span> <span class="nf">lmp_writedata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data_file</span><span class="p">,</span><span class="n">norm_dihparam</span><span class="p">,</span><span class="n">itp_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def lmp_writedata(self,data_file,norm_dihparam,itp_file):</span>
+
 <span class="sd">        Write out lammps data file</span>
+
+
+<span class="sd">        check_bonds = True </span>
+
+<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
+<span class="sd">        import elements , lammps ,gromacs , atom_types, top , groups</span>
+
+<span class="sd">        # New options that need to be passed </span>
+<span class="sd">        limdih =  0</span>
+<span class="sd">        limitdih_n = 1</span>
+<span class="sd">        </span>
+<span class="sd">        # Create list to pass to Atomicpy</span>
+<span class="sd">        ASYMB = []</span>
+<span class="sd">        R = []</span>
+<span class="sd">        AMASS = []</span>
+<span class="sd">        CHARGES = []</span>
+<span class="sd">        MOLNUMB = []</span>
+<span class="sd">        RESID = []</span>
+<span class="sd">        RESN = []</span>
+<span class="sd">        ATYPE = []</span>
+<span class="sd">        RING_NUMB = []</span>
+<span class="sd">        </span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ASYMB.append( ptclObj.type  )</span>
+<span class="sd">            R.append( np.array( ptclObj.position)  )</span>
+<span class="sd">            AMASS.append( float(ptclObj.mass)  )</span>
+<span class="sd">            CHARGES.append( float(ptclObj.charge)  )</span>
+<span class="sd">            MOLNUMB.append( int(ptclObj.tagsDict[&quot;chain&quot;])  )</span>
+<span class="sd">            RESID.append( ptclObj.tagsDict[&quot;resname&quot;]  )</span>
+<span class="sd">            RESN.append( int(ptclObj.tagsDict[&quot;residue&quot;])  )</span>
+<span class="sd">            ATYPE.append( ptclObj.tagsDict[&quot;fftype&quot;]  )</span>
+<span class="sd">            RING_NUMB.append( int(ptclObj.tagsDict[&quot;ring&quot;])  )</span>
+
+<span class="sd">        BONDS = []</span>
+<span class="sd">        for b_i,bondObj in  self.bondC:</span>
+<span class="sd">            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])</span>
+
+<span class="sd">                    </span>
+<span class="sd">        # Set cubic lattice constant to 5 nm arbitrary </span>
+<span class="sd">        LV = np.zeros( (3,3) )</span>
+<span class="sd">            </span>
+<span class="sd">        LV[0][0] = self.latvec[0][0]</span>
+<span class="sd">        LV[1][1] = self.latvec[1][1]</span>
+<span class="sd">        LV[2][2] = self.latvec[2][2]</span>
+<span class="sd">        </span>
+<span class="sd">        # Find atomic number based on atomic symbol </span>
+<span class="sd">        ELN = elements.asymb_eln(ASYMB)</span>
+<span class="sd">        GTYPE = top.initialize_gtype( ELN )</span>
+<span class="sd">        NA = len(ELN)</span>
+<span class="sd">        </span>
+<span class="sd">        # Create neighbor list form bonds</span>
+<span class="sd">        # NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)</span>
+<span class="sd">        NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)</span>
+
+<span class="sd">        print_nb = False</span>
+<span class="sd">        # Make compatable with 0-(N-1) index of atoms </span>
+<span class="sd">        for n_indx in range(len(NBLIST)):</span>
+<span class="sd">            if( print_nb):</span>
+<span class="sd">                print &quot; changing NBLIST &quot;,NBLIST[n_indx] ,&quot; to &quot;,NBLIST[n_indx] -1 </span>
+<span class="sd">            NBLIST[n_indx] =NBLIST[n_indx] -1</span>
+<span class="sd">        for n_indx in range(len(NBINDEX)-1):</span>
+<span class="sd">            if( print_nb):</span>
+<span class="sd">                print &quot; changing NBINDEX &quot;,NBINDEX[n_indx] ,&quot; to &quot;,NBINDEX[n_indx+1]</span>
+<span class="sd">            NBINDEX[n_indx] =NBINDEX[n_indx+1]</span>
+
+<span class="sd">        if( print_nb):</span>
+
+<span class="sd">            for p_i in range(len(self.ptclC)):</span>
+<span class="sd">                N_i_o = NBINDEX[p_i]</span>
+<span class="sd">                N_i_f = NBINDEX[p_i+1]</span>
+<span class="sd">                print &quot; atom &quot;,p_i, ELN[p_i],&quot; has &quot;,N_i_f - N_i_o</span>
+<span class="sd">                for indx_j in range( N_i_o,N_i_f):</span>
+<span class="sd">                    atom_j = NBLIST[indx_j]</span>
+<span class="sd">                    print &quot;      nb &quot;,atom_j,&quot; atomic # &quot;, ELN[atom_j]</span>
+<span class="sd">        #</span>
+<span class="sd">        # Check that the altered neighbor list was done correctly </span>
+<span class="sd">        #  </span>
+<span class="sd">        BONDS_check = top.nblist_bonds(NA,NBLIST, NBINDEX)</span>
+<span class="sd">        if( len(BONDS_check) != len(BONDS)):</span>
+<span class="sd">            sys.exit(&quot;error in bonds &quot;)</span>
+<span class="sd">        else:</span>
+<span class="sd">            for b_i in range(len(BONDS)):                </span>
+<span class="sd">                if( BONDS[b_i][0] !=  BONDS_check[b_i][0] ):</span>
+<span class="sd">                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]</span>
+<span class="sd">                    sys.exit(&quot;error in bonds &quot;)</span>
+<span class="sd">                if( BONDS[b_i][1] !=  BONDS_check[b_i][1] ):</span>
+<span class="sd">                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]</span>
+<span class="sd">                    sys.exit(&quot;error in bonds &quot;)</span>
+<span class="sd">                    </span>
+<span class="sd">            #sys.exit(&quot; checking bonds &quot;)</span>
+
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)</span>
+<span class="sd">        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)</span>
+<span class="sd">        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)</span>
+<span class="sd">        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)</span>
+
+<span class="sd">        # Read in parameter files </span>
+<span class="sd">        </span>
+<span class="sd">        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)</span>
+
+<span class="sd">        # Identify total number of atom types for lammps output </span>
+<span class="sd">        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)</span>
+
+<span class="sd">        # Check atom types to be sure each atom of the same type has the same number of neighbors </span>
+<span class="sd">        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)</span>
+<span class="sd">    </span>
+<span class="sd">        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)</span>
+<span class="sd">        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)</span>
+<span class="sd">        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)</span>
+<span class="sd">        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )</span>
+<span class="sd">    </span>
+<span class="sd">        IMPTYPE_F  = top.imp_parameters(itp_file)</span>
+
+<span class="sd">	</span>
+<span class="sd">	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,</span>
+<span class="sd">	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,</span>
+<span class="sd">	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,</span>
+<span class="sd">	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,</span>
+<span class="sd">	      RESN,ATYPE_IND,CHARGES,R , ATYPE,</span>
+<span class="sd">	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">check_bonds</span> <span class="o">=</span> <span class="bp">True</span> 
-
-        <span class="c"># Version 1 will be dependent on Atomicpy</span>
-        <span class="kn">import</span> <span class="nn">elements</span> <span class="o">,</span> <span class="nn">lammps</span> <span class="o">,</span><span class="nn">gromacs</span> <span class="o">,</span> <span class="nn">atom_types</span><span class="o">,</span> <span class="nn">top</span> <span class="o">,</span> <span class="nn">groups</span>
-
-        <span class="c"># New options that need to be passed </span>
-        <span class="n">limdih</span> <span class="o">=</span>  <span class="mi">0</span>
-        <span class="n">limitdih_n</span> <span class="o">=</span> <span class="mi">1</span>
-        
-        <span class="c"># Create list to pass to Atomicpy</span>
-        <span class="n">ASYMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">AMASS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CHARGES</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">MOLNUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESID</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESN</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ATYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RING_NUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">ASYMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">type</span>  <span class="p">)</span>
-            <span class="n">R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">AMASS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">CHARGES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">MOLNUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">RESID</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RESN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">])</span>  <span class="p">)</span>
-            <span class="n">ATYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;fftype&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">RING_NUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span><span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;ring&quot;</span><span class="p">])</span>  <span class="p">)</span>
-
-        <span class="n">BONDS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">b_i</span><span class="p">,</span><span class="n">bondObj</span> <span class="ow">in</span>  <span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">:</span>
-            <span class="n">BONDS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">bondObj</span><span class="o">.</span><span class="n">pgid1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bondObj</span><span class="o">.</span><span class="n">pgid2</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-                    
-        <span class="c"># Set cubic lattice constant to 5 nm arbitrary </span>
-        <span class="n">LV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
-            
-        <span class="n">LV</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">LV</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
-        
-        <span class="c"># Find atomic number based on atomic symbol </span>
-        <span class="n">ELN</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">asymb_eln</span><span class="p">(</span><span class="n">ASYMB</span><span class="p">)</span>
-        <span class="n">GTYPE</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">initialize_gtype</span><span class="p">(</span> <span class="n">ELN</span> <span class="p">)</span>
-        <span class="n">NA</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ELN</span><span class="p">)</span>
-        
-        <span class="c"># Create neighbor list form bonds</span>
-        <span class="c"># NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)</span>
-        <span class="n">NBLIST</span><span class="p">,</span><span class="n">NBINDEX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonded_nblist</span><span class="p">()</span> <span class="c">#groups.build_nablist_bonds(ELN,BONDS)</span>
-
-        <span class="n">print_nb</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="c"># Make compatable with 0-(N-1) index of atoms </span>
-        <span class="k">for</span> <span class="n">n_indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">NBLIST</span><span class="p">)):</span>
-            <span class="k">if</span><span class="p">(</span> <span class="n">print_nb</span><span class="p">):</span>
-                <span class="k">print</span> <span class="s">&quot; changing NBLIST &quot;</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="p">,</span><span class="s">&quot; to &quot;</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="o">-</span><span class="mi">1</span> 
-            <span class="n">NBLIST</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="o">=</span><span class="n">NBLIST</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">for</span> <span class="n">n_indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">NBINDEX</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span><span class="p">(</span> <span class="n">print_nb</span><span class="p">):</span>
-                <span class="k">print</span> <span class="s">&quot; changing NBINDEX &quot;</span><span class="p">,</span><span class="n">NBINDEX</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="p">,</span><span class="s">&quot; to &quot;</span><span class="p">,</span><span class="n">NBINDEX</span><span class="p">[</span><span class="n">n_indx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">NBINDEX</span><span class="p">[</span><span class="n">n_indx</span><span class="p">]</span> <span class="o">=</span><span class="n">NBINDEX</span><span class="p">[</span><span class="n">n_indx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="k">if</span><span class="p">(</span> <span class="n">print_nb</span><span class="p">):</span>
-
-            <span class="k">for</span> <span class="n">p_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)):</span>
-                <span class="n">N_i_o</span> <span class="o">=</span> <span class="n">NBINDEX</span><span class="p">[</span><span class="n">p_i</span><span class="p">]</span>
-                <span class="n">N_i_f</span> <span class="o">=</span> <span class="n">NBINDEX</span><span class="p">[</span><span class="n">p_i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">print</span> <span class="s">&quot; atom &quot;</span><span class="p">,</span><span class="n">p_i</span><span class="p">,</span> <span class="n">ELN</span><span class="p">[</span><span class="n">p_i</span><span class="p">],</span><span class="s">&quot; has &quot;</span><span class="p">,</span><span class="n">N_i_f</span> <span class="o">-</span> <span class="n">N_i_o</span>
-                <span class="k">for</span> <span class="n">indx_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_i_o</span><span class="p">,</span><span class="n">N_i_f</span><span class="p">):</span>
-                    <span class="n">atom_j</span> <span class="o">=</span> <span class="n">NBLIST</span><span class="p">[</span><span class="n">indx_j</span><span class="p">]</span>
-                    <span class="k">print</span> <span class="s">&quot;      nb &quot;</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="s">&quot; atomic # &quot;</span><span class="p">,</span> <span class="n">ELN</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span>
-        <span class="c">#</span>
-        <span class="c"># Check that the altered neighbor list was done correctly </span>
-        <span class="c">#  </span>
-        <span class="n">BONDS_check</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_bonds</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">)</span>
-        <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">BONDS_check</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">BONDS</span><span class="p">)):</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;error in bonds &quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">b_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">BONDS</span><span class="p">)):</span>                
-                <span class="k">if</span><span class="p">(</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span>  <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">):</span>
-                    <span class="k">print</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;error in bonds &quot;</span><span class="p">)</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span>  <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="p">):</span>
-                    <span class="k">print</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">BONDS</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">BONDS_check</span><span class="p">[</span><span class="n">b_i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;error in bonds &quot;</span><span class="p">)</span>
-                    
-            <span class="c">#sys.exit(&quot; checking bonds &quot;)</span>
-
-        
-        
-        <span class="n">ANGLES</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_angles</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">)</span>
-        <span class="c">#DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)</span>
-        <span class="n">DIH</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_dih</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">,</span><span class="n">limdih</span><span class="p">,</span><span class="n">limitdih_n</span><span class="p">)</span>
-        <span class="n">IMPS</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">nblist_imp</span><span class="p">(</span><span class="n">NA</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span><span class="p">,</span><span class="n">ELN</span><span class="p">)</span>
-
-        <span class="c"># Read in parameter files </span>
-        
-        <span class="n">FF_ATOMTYPES</span> <span class="p">,</span> <span class="n">FF_BONDTYPES</span> <span class="p">,</span> <span class="n">FF_ANGLETYPES</span> <span class="p">,</span>  <span class="n">FF_DIHTYPES</span> <span class="o">=</span> <span class="n">gromacs</span><span class="o">.</span><span class="n">read_itp</span><span class="p">(</span><span class="n">itp_file</span><span class="p">)</span>
-
-        <span class="c"># Identify total number of atom types for lammps output </span>
-        <span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span>  <span class="n">ATYPE_MASS</span> <span class="p">,</span><span class="n">BTYPE_IND</span> <span class="p">,</span> <span class="n">BTYPE_REF</span><span class="p">,</span> <span class="n">ANGTYPE_IND</span> <span class="p">,</span> <span class="n">ANGTYPE_REF</span><span class="p">,</span> <span class="n">DTYPE_IND</span> <span class="p">,</span> <span class="n">DTYPE_REF</span> <span class="o">=</span> <span class="n">lammps</span><span class="o">.</span><span class="n">lmp_types</span><span class="p">(</span><span class="n">ELN</span><span class="p">,</span><span class="n">ATYPE</span><span class="p">,</span><span class="n">AMASS</span><span class="p">,</span><span class="n">BONDS</span><span class="p">,</span><span class="n">ANGLES</span><span class="p">,</span><span class="n">DIH</span><span class="p">)</span>
-
-        <span class="c"># Check atom types to be sure each atom of the same type has the same number of neighbors </span>
-        <span class="n">ATYPE_NNAB</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">check_types</span><span class="p">(</span><span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span><span class="n">GTYPE</span><span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span><span class="n">NBINDEX</span><span class="p">)</span>
-    
-        <span class="n">ATYPE_EP</span><span class="p">,</span> <span class="n">ATYPE_SIG</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">atom_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">ATYPE_IND</span> <span class="p">,</span> <span class="n">ATYPE_REF</span><span class="p">,</span>  <span class="n">ATYPE_MASS</span><span class="p">,</span><span class="n">FF_ATOMTYPES</span><span class="p">)</span>
-        <span class="n">BONDTYPE_F</span> <span class="p">,</span> <span class="n">BONDTYPE_R0</span> <span class="p">,</span><span class="n">BONDTYPE_K</span>  <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">bond_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">BTYPE_IND</span> <span class="p">,</span> <span class="n">BTYPE_REF</span><span class="p">,</span><span class="n">FF_BONDTYPES</span><span class="p">)</span>
-        <span class="n">ANGLETYPE_F</span> <span class="p">,</span> <span class="n">ANGLETYPE_R0</span> <span class="p">,</span> <span class="n">ANGLETYPE_K</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">angle_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span><span class="n">ANGTYPE_IND</span> <span class="p">,</span> <span class="n">ANGTYPE_REF</span><span class="p">,</span><span class="n">FF_ANGLETYPES</span><span class="p">)</span>
-        <span class="n">DIHTYPE_F</span> <span class="p">,</span><span class="n">DIHTYPE_PHASE</span> <span class="p">,</span><span class="n">DIHTYPE_K</span><span class="p">,</span> <span class="n">DIHTYPE_PN</span><span class="p">,</span>  <span class="n">DIHTYPE_C</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">dih_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">,</span> <span class="n">norm_dihparam</span><span class="p">,</span> <span class="n">DTYPE_IND</span> <span class="p">,</span> <span class="n">DTYPE_REF</span> <span class="p">,</span>  <span class="n">FF_DIHTYPES</span><span class="p">,</span><span class="n">ATYPE_REF</span><span class="p">,</span><span class="n">ATYPE_NNAB</span>  <span class="p">)</span>
-    
-        <span class="n">IMPTYPE_F</span>  <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">imp_parameters</span><span class="p">(</span><span class="n">itp_file</span><span class="p">)</span>
-
-	
-	<span class="n">lammps</span><span class="o">.</span><span class="n">print_lmp</span><span class="p">(</span><span class="n">data_file</span><span class="p">,</span><span class="n">ATYPE_REF</span><span class="p">,</span><span class="n">ATYPE_MASS</span><span class="p">,</span><span class="n">ATYPE_EP</span><span class="p">,</span><span class="n">ATYPE_SIG</span><span class="p">,</span>
-	      <span class="n">BTYPE_REF</span><span class="p">,</span><span class="n">BONDTYPE_R0</span><span class="p">,</span><span class="n">BONDTYPE_K</span><span class="p">,</span>
-	      <span class="n">ANGTYPE_REF</span><span class="p">,</span><span class="n">ANGLETYPE_R0</span><span class="p">,</span><span class="n">ANGLETYPE_K</span><span class="p">,</span>
-	      <span class="n">DIH</span><span class="p">,</span><span class="n">DTYPE_IND</span><span class="p">,</span><span class="n">DTYPE_REF</span><span class="p">,</span><span class="n">DIHTYPE_F</span><span class="p">,</span><span class="n">DIHTYPE_K</span><span class="p">,</span><span class="n">DIHTYPE_PN</span><span class="p">,</span><span class="n">DIHTYPE_PHASE</span><span class="p">,</span><span class="n">DIHTYPE_C</span><span class="p">,</span>
-	      <span class="n">RESN</span><span class="p">,</span><span class="n">ATYPE_IND</span><span class="p">,</span><span class="n">CHARGES</span><span class="p">,</span><span class="n">R</span> <span class="p">,</span> <span class="n">ATYPE</span><span class="p">,</span>
-	      <span class="n">BONDS</span> <span class="p">,</span><span class="n">BTYPE_IND</span><span class="p">,</span> <span class="n">ANGLES</span> <span class="p">,</span><span class="n">ANGTYPE_IND</span><span class="p">,</span> <span class="n">LV</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="StructureContainer.write_xmol"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.write_xmol">[docs]</a>    <span class="k">def</span> <span class="nf">write_xmol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xmol_file</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="n">append</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def write_xmol(self, xmol_file,comment,append):</span>
+
 <span class="sd">        Write a structure  to an xmol file</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
@@ -1099,27 +1180,28 @@
 <span class="sd">          append  (boolean) to append or create a new file</span>
 <span class="sd">          </span>
 <span class="sd">        Returns: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Open xmol file </span>
-        <span class="k">if</span><span class="p">(</span><span class="n">append</span><span class="p">):</span>
-            <span class="n">F</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmol_file</span><span class="p">,</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">F</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmol_file</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
-            
-        <span class="c"># Loop over structures</span>
-        <span class="n">NP</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">)</span>
-        <span class="n">F</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; </span><span class="si">%d</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">NP</span> <span class="p">)</span>
-        <span class="n">F</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; </span><span class="si">%s</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span><span class="o">%</span><span class="n">comment</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">r_i</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span>
-            <span class="n">atomic_symb</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">type</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">write</span><span class="p">(</span> <span class="s">&quot; </span><span class="si">%5s</span><span class="s"> </span><span class="si">%16.8f</span><span class="s"> </span><span class="si">%16.8f</span><span class="s"> </span><span class="si">%16.8f</span><span class="s"> </span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">atomic_symb</span> <span class="p">,</span><span class="nb">float</span><span class="p">(</span><span class="n">r_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">r_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">r_i</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="p">)</span> <span class="p">)</span>   
-        <span class="n">F</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+<span class="sd">        # Open xmol file </span>
+<span class="sd">        if(append):</span>
+<span class="sd">            F = open(xmol_file,&quot;a&quot;)</span>
+<span class="sd">        else:</span>
+<span class="sd">            F = open(xmol_file,&quot;w&quot;)</span>
+<span class="sd">            </span>
+<span class="sd">        # Loop over structures</span>
+<span class="sd">        NP = len( self.ptclC )</span>
+<span class="sd">        F.write(&quot; %d \n&quot; % NP )</span>
+<span class="sd">        F.write(&quot; %s \n&quot;%comment)</span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            r_i = ptclObj.position</span>
+<span class="sd">            atomic_symb = ptclObj.type</span>
+<span class="sd">            F.write( &quot; %5s %16.8f %16.8f %16.8f \n&quot;  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   </span>
+<span class="sd">        F.close()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         </div>
 <div class="viewcode-block" id="StructureContainer.calc_rdf"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.calc_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdf_cnt_ij</span><span class="p">,</span><span class="n">bin_size</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">sq_r_cut</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate RDF for a group of particles</span>
+<span class="sd">        NOTE: might be able to remove</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">print_vmd</span> <span class="o">=</span> <span class="bp">True</span> 
         <span class="c">#</span>
@@ -1144,6 +1226,7 @@
                             <span class="k">print</span> <span class="s">&quot; index </span><span class="si">%d</span><span class="s"> or </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">p_i</span><span class="p">,</span><span class="n">p_j</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">rdf_cnt_ij</span>
+
 </div>
 <div class="viewcode-block" id="StructureContainer.get_dihatoms"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.get_dihatoms">[docs]</a>    <span class="k">def</span> <span class="nf">get_dihatoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">list_k</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">list_l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1276,6 +1359,7 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;get_dihatoms debug&#39;</span><span class="p">)</span>
             
 	<span class="k">return</span> <span class="n">angle_list</span>
+
 </div>
 <div class="viewcode-block" id="StructureContainer.getDihedral"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getDihedral">[docs]</a>    <span class="k">def</span> <span class="nf">getDihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a_k</span><span class="p">,</span><span class="n">a_i</span><span class="p">,</span><span class="n">a_j</span><span class="p">,</span><span class="n">a_l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1288,7 +1372,7 @@
 <span class="sd">                       l</span>
 
 <span class="sd">                       </span>
-<span class="sd">        </span>
+<span class="sd">        TRAVIS document                       </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
         
@@ -1335,148 +1419,248 @@
 
         <span class="k">return</span> <span class="n">angle_i</span>
 
-</div>
-<div class="viewcode-block" id="StructureContainer.get_gaussian"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.get_gaussian">[docs]</a>    <span class="k">def</span> <span class="nf">get_gaussian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fchk_file</span><span class="p">,</span><span class="n">json_data</span><span class="p">):</span>
+
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
+
 <span class="sd">        Read in structure information from gaussian fchk file</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          fchk_file (str) grochkfile</span>
 <span class="sd">        </span>
+
+<span class="sd">        import numpy as np</span>
+<span class="sd">        # Energy conversion</span>
+<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
+<span class="sd">        HtoeV = 27.211385</span>
+
+<span class="sd">        bohr2angstrom = 0.5291772086</span>
+
+<span class="sd">        </span>
+<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
+<span class="sd">        </span>
+<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
+<span class="sd">        Lines = F.readlines()</span>
+<span class="sd">        F.close()</span>
+
+<span class="sd">        read_r = False</span>
+<span class="sd">        read_eln = False</span>
+<span class="sd">        read_esp = False</span>
+<span class="sd">        for line in Lines :</span>
+<span class="sd">            col = line.split()</span>
+
+<span class="sd">            if( read_r ):</span>
+
+<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
+<span class="sd">                    read_r = False</span>
+<span class="sd">                    p_i = 0 </span>
+<span class="sd">                    for p_indx in range(NA):</span>
+<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
+<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
+<span class="sd">                        p_i += 1                         </span>
+<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
+<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
+<span class="sd">                else:</span>
+<span class="sd">                    for r_i in  map(float,col) :</span>
+<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
+
+<span class="sd">            if( read_eln ):</span>
+<span class="sd">                if ( eln_p_cnt == NA ):</span>
+<span class="sd">                    read_eln = False</span>
+<span class="sd">                else:                    </span>
+<span class="sd">                    for eln_i in  map(int,col):</span>
+<span class="sd">                        eln_p_cnt += 1                        </span>
+<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
+<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
+
+<span class="sd">            if( read_esp ):</span>
+<span class="sd">                if ( esp_p_cnt == NA ):</span>
+<span class="sd">                    read_esp = False</span>
+<span class="sd">                else:</span>
+<span class="sd">                    </span>
+<span class="sd">                    for q_i in  map(float,col):</span>
+<span class="sd">                        esp_p_cnt += 1</span>
+<span class="sd">                        p_indx = esp_p_cnt -1 </span>
+<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
+<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
+<span class="sd">                                                </span>
+
+<span class="sd">            if( len(col) &gt; 2 ):</span>
+<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
+<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
+
+<span class="sd">            if( len(col) == 5 ):</span>
+<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
+<span class="sd">                    NA = int(col[4])</span>
+<span class="sd">                    </span>
+<span class="sd">                    if( NA != len(self.ptclC) ):</span>
+<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
+<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
+
+<span class="sd">            if( len(col) == 6 ):</span>
+<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
+<span class="sd">                    read_r = True</span>
+<span class="sd">                    R_all = []</span>
+
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
+<span class="sd">                    read_eln = True</span>
+<span class="sd">                    eln_p_cnt = 0</span>
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
+<span class="sd">                    read_esp = True</span>
+<span class="sd">                    esp_p_cnt = 0</span>
+
+<span class="sd">        return json_data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-        <span class="c"># Energy conversion</span>
-        <span class="c"># http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
-        <span class="n">HtoeV</span> <span class="o">=</span> <span class="mf">27.211385</span>
 
-        <span class="n">bohr2angstrom</span> <span class="o">=</span> <span class="mf">0.5291772086</span>
-
-        
-        <span class="n">particle_data</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">][</span><span class="s">&quot;particle&quot;</span><span class="p">]</span>
-        
-        <span class="n">F</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fchk_file</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">Lines</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">F</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="n">read_r</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="n">read_eln</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="n">read_esp</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">Lines</span> <span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="n">read_r</span> <span class="p">):</span>
-
-                <span class="k">if</span> <span class="p">(</span>  <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Force&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Field&quot;</span> <span class="p">):</span>
-                    <span class="n">read_r</span> <span class="o">=</span> <span class="bp">False</span>
-                    <span class="n">p_i</span> <span class="o">=</span> <span class="mi">0</span> 
-                    <span class="k">for</span> <span class="n">p_indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NA</span><span class="p">):</span>
-                        <span class="c">#print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
-                        <span class="n">vec_r_i</span> <span class="o">=</span>  <span class="n">R_all</span><span class="p">[</span><span class="n">p_indx</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">p_indx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
-                        <span class="n">p_i</span> <span class="o">+=</span> <span class="mi">1</span>                         
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">p_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">vec_r_i</span>
-                        <span class="n">particle_data</span><span class="p">[</span><span class="s">&quot;position&quot;</span><span class="p">][</span><span class="n">p_indx</span><span class="p">]</span> <span class="o">=</span> <span class="n">vec_r_i</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">r_i</span> <span class="ow">in</span>  <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span><span class="n">col</span><span class="p">)</span> <span class="p">:</span>
-                        <span class="n">R_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">r_i</span><span class="o">*</span><span class="n">bohr2angstrom</span> <span class="p">)</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="n">read_eln</span> <span class="p">):</span>
-                <span class="k">if</span> <span class="p">(</span> <span class="n">eln_p_cnt</span> <span class="o">==</span> <span class="n">NA</span> <span class="p">):</span>
-                    <span class="n">read_eln</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="k">else</span><span class="p">:</span>                    
-                    <span class="k">for</span> <span class="n">eln_i</span> <span class="ow">in</span>  <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="n">col</span><span class="p">):</span>
-                        <span class="n">eln_p_cnt</span> <span class="o">+=</span> <span class="mi">1</span>                        
-                        <span class="c">#if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
-                        <span class="c">#    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="n">read_esp</span> <span class="p">):</span>
-                <span class="k">if</span> <span class="p">(</span> <span class="n">esp_p_cnt</span> <span class="o">==</span> <span class="n">NA</span> <span class="p">):</span>
-                    <span class="n">read_esp</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="k">else</span><span class="p">:</span>
-                    
-                    <span class="k">for</span> <span class="n">q_i</span> <span class="ow">in</span>  <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span><span class="n">col</span><span class="p">):</span>
-                        <span class="n">esp_p_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-                        <span class="n">p_indx</span> <span class="o">=</span> <span class="n">esp_p_cnt</span> <span class="o">-</span><span class="mi">1</span> 
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">esp_p_cnt</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">q_i</span>
-                        <span class="n">particle_data</span><span class="p">[</span><span class="s">&quot;charge&quot;</span><span class="p">][</span><span class="n">p_indx</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_i</span>
-                                                
-
-            <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Total&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Energy&quot;</span> <span class="p">):</span>
-                    <span class="n">TOTAL_ENERGY</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">)</span><span class="o">*</span><span class="n">HtoeV</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span> <span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Number&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;of&quot;</span>  <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;atoms&quot;</span> <span class="p">):</span>
-                    <span class="n">NA</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-                    
-                    <span class="k">if</span><span class="p">(</span> <span class="n">NA</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span> <span class="p">):</span>
-                        <span class="k">print</span> <span class="s">&quot; json file contains </span><span class="si">%d</span><span class="s"> atoms and fchk file contains </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">),</span><span class="n">NA</span><span class="p">)</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;inconsistent files &quot;</span><span class="p">)</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span> <span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Current&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cartesian&quot;</span>  <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;coordinates&quot;</span> <span class="p">):</span>
-                    <span class="n">read_r</span> <span class="o">=</span> <span class="bp">True</span>
-                    <span class="n">R_all</span> <span class="o">=</span> <span class="p">[]</span>
-
-
-            <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span>  <span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Atomic&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;numbers&quot;</span>   <span class="p">):</span>
-                    <span class="n">read_eln</span> <span class="o">=</span> <span class="bp">True</span>
-                    <span class="n">eln_p_cnt</span> <span class="o">=</span> <span class="mi">0</span>
-
-            <span class="k">if</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span>  <span class="p">):</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;ESP&quot;</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Charges&quot;</span>   <span class="p">):</span>
-                    <span class="n">read_esp</span> <span class="o">=</span> <span class="bp">True</span>
-                    <span class="n">esp_p_cnt</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="n">json_data</span>
-
-</div>
-<div class="viewcode-block" id="StructureContainer.set_cply_tags"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.set_cply_tags">[docs]</a>    <span class="k">def</span> <span class="nf">set_cply_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># Move outside of class</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
+
+<span class="sd">        Read in structure information from gaussian fchk file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          fchk_file (str) grochkfile</span>
+<span class="sd">        </span>
+
+<span class="sd">        import numpy as np</span>
+<span class="sd">        # Energy conversion</span>
+<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
+<span class="sd">        HtoeV = 27.211385</span>
+
+<span class="sd">        bohr2angstrom = 0.5291772086</span>
+
+<span class="sd">        </span>
+<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
+<span class="sd">        </span>
+<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
+<span class="sd">        Lines = F.readlines()</span>
+<span class="sd">        F.close()</span>
+
+<span class="sd">        read_r = False</span>
+<span class="sd">        read_eln = False</span>
+<span class="sd">        read_esp = False</span>
+<span class="sd">        for line in Lines :</span>
+<span class="sd">            col = line.split()</span>
+
+<span class="sd">            if( read_r ):</span>
+
+<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
+<span class="sd">                    read_r = False</span>
+<span class="sd">                    p_i = 0 </span>
+<span class="sd">                    for p_indx in range(NA):</span>
+<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
+<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
+<span class="sd">                        p_i += 1                         </span>
+<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
+<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
+<span class="sd">                else:</span>
+<span class="sd">                    for r_i in  map(float,col) :</span>
+<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
+
+<span class="sd">            if( read_eln ):</span>
+<span class="sd">                if ( eln_p_cnt == NA ):</span>
+<span class="sd">                    read_eln = False</span>
+<span class="sd">                else:                    </span>
+<span class="sd">                    for eln_i in  map(int,col):</span>
+<span class="sd">                        eln_p_cnt += 1                        </span>
+<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
+<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
+
+<span class="sd">            if( read_esp ):</span>
+<span class="sd">                if ( esp_p_cnt == NA ):</span>
+<span class="sd">                    read_esp = False</span>
+<span class="sd">                else:</span>
+<span class="sd">                    </span>
+<span class="sd">                    for q_i in  map(float,col):</span>
+<span class="sd">                        esp_p_cnt += 1</span>
+<span class="sd">                        p_indx = esp_p_cnt -1 </span>
+<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
+<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
+<span class="sd">                                                </span>
+
+<span class="sd">            if( len(col) &gt; 2 ):</span>
+<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
+<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
+
+<span class="sd">            if( len(col) == 5 ):</span>
+<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
+<span class="sd">                    NA = int(col[4])</span>
+<span class="sd">                    </span>
+<span class="sd">                    if( NA != len(self.ptclC) ):</span>
+<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
+<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
+
+<span class="sd">            if( len(col) == 6 ):</span>
+<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
+<span class="sd">                    read_r = True</span>
+<span class="sd">                    R_all = []</span>
+
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
+<span class="sd">                    read_eln = True</span>
+<span class="sd">                    eln_p_cnt = 0</span>
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
+<span class="sd">                    read_esp = True</span>
+<span class="sd">                    esp_p_cnt = 0</span>
+
+<span class="sd">        return json_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def set_cply_tags(self):  # Move outside of class</span>
+
+
 <span class="sd">        Set tags for new cply file </span>
 <span class="sd">        Use ctype tag and bonding enviroment</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># Version 1 will be dependent on Atomicpy</span>
-        <span class="kn">import</span> <span class="nn">elements</span> <span class="o">,</span> <span class="nn">top</span> 
 
-        <span class="c"># Create list to pass to Atomicpy</span>
-        <span class="n">ASYMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">AMASS</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CHARGES</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">MOLNUMB</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESID</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">RESN</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">CTYPE</span> <span class="o">=</span> <span class="p">[]</span>
-        
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">ASYMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">type</span>  <span class="p">)</span>
-            <span class="n">R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)]</span>  <span class="p">)</span>  <span class="p">)</span>
-            <span class="n">AMASS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>  <span class="p">)</span>
-            <span class="n">CHARGES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">float</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">charge</span> <span class="p">)</span> <span class="p">)</span>
-            <span class="n">MOLNUMB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
-            <span class="n">RESID</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="nb">int</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;residue&quot;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
-            <span class="n">RESN</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>  <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            <span class="n">CTYPE</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;linkid&quot;</span><span class="p">]</span>  <span class="p">)</span>
-            
-        <span class="c"># Find atomic number based on atomic symbol </span>
-        <span class="n">ELN</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">asymb_eln</span><span class="p">(</span><span class="n">ASYMB</span><span class="p">)</span>
-        <span class="n">AMASS</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">eln_amass</span><span class="p">(</span><span class="n">ELN</span><span class="p">)</span>
+<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
+<span class="sd">        import elements , top </span>
 
-        <span class="c">#   Build covalent nieghbor list for bonded information </span>
-        <span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">build_covnablist</span><span class="p">(</span><span class="n">ELN</span><span class="p">,</span><span class="n">R</span><span class="p">)</span>
+<span class="sd">        # Create list to pass to Atomicpy</span>
+<span class="sd">        ASYMB = []</span>
+<span class="sd">        R = []</span>
+<span class="sd">        AMASS = []</span>
+<span class="sd">        CHARGES = []</span>
+<span class="sd">        MOLNUMB = []</span>
+<span class="sd">        RESID = []</span>
+<span class="sd">        RESN = []</span>
+<span class="sd">        CTYPE = []</span>
+<span class="sd">        </span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ASYMB.append( ptclObj.type  )</span>
+<span class="sd">            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )</span>
+<span class="sd">            AMASS.append( float( ptclObj.mass)  )</span>
+<span class="sd">            CHARGES.append( float( ptclObj.charge ) )</span>
+<span class="sd">            MOLNUMB.append( int( ptclObj.tagsDict[&quot;chain&quot;] ) )</span>
+<span class="sd">            RESID.append( int( ptclObj.tagsDict[&quot;residue&quot;] ) )</span>
+<span class="sd">            RESN.append(  ptclObj.tagsDict[&quot;resname&quot;]  )</span>
+<span class="sd">            CTYPE.append( ptclObj.tagsDict[&quot;linkid&quot;]  )</span>
+<span class="sd">            </span>
+<span class="sd">        # Find atomic number based on atomic symbol </span>
+<span class="sd">        ELN = elements.asymb_eln(ASYMB)</span>
+<span class="sd">        AMASS = elements.eln_amass(ELN)</span>
 
-        <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span> 
-        <span class="n">cply_tag</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">set_cply_tags</span><span class="p">(</span>  <span class="n">verbose</span><span class="p">,</span> <span class="n">ELN</span><span class="p">,</span> <span class="n">CTYPE</span><span class="p">,</span><span class="n">RESN</span> <span class="p">,</span><span class="n">NBLIST</span><span class="p">,</span> <span class="n">NBINDEX</span> <span class="p">)</span>
-        
-        <span class="n">atom_i</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span>  <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
-            <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;cply_tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cply_tag</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span>
+<span class="sd">        #   Build covalent nieghbor list for bonded information </span>
+<span class="sd">        NBLIST, NBINDEX = top.build_covnablist(ELN,R)</span>
 
-            <span class="k">print</span> <span class="s">&quot; setting cply tag &quot;</span><span class="p">,</span><span class="n">cply_tag</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span>
-            
-            <span class="n">atom_i</span> <span class="o">+=</span><span class="mi">1</span> </div></div>
+<span class="sd">        verbose = True </span>
+<span class="sd">        cply_tag = top.set_cply_tags(  verbose, ELN, CTYPE,RESN ,NBLIST, NBINDEX )</span>
+<span class="sd">        </span>
+<span class="sd">        atom_i = 0</span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ptclObj.tagsDict[&quot;cply_tag&quot;] = cply_tag[atom_i]</span>
+
+<span class="sd">            print &quot; setting cply tag &quot;,cply_tag[atom_i]</span>
+<span class="sd">            </span>
+<span class="sd">            atom_i +=1 </span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
 </pre></div>
 
           </div>
