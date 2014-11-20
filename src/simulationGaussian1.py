@@ -90,11 +90,11 @@ class SimulationGaussian1(sim.Simulation):
 
         # This is a special accuracy setting needed for diffuse basis functions
         # self.accuracyStr = ""
-        self.accuracyStr = " " + "Integral=(Acc2E=11)"
-        # self.accuracyStr = " " + "Integral=(Acc2E=12)"
+        # self.accuracyStr = " " + "Integral=(Acc2E=11)"
+        self.accuracyStr = " " + "Integral=(Acc2E=12)"
 
-        # Default setting calculates excited state density
-        self.excitedCalc = " " + "density=current"
+        self.groundCalc  = " " + "density=current"   # Default setting calculates ground  state density
+        self.excitedCalc = " " + "density=current"   # Default setting calculates excited state density
 
 
     def getBareTag(self):
@@ -187,7 +187,7 @@ class SimulationGaussian1(sim.Simulation):
         # Special settings for certain functionals
         if fct == 'lc-wpbe':
             self.excitedCalc = " "
-            print "Special setting for lc-wpbe... removing density=current"
+            print "Special setting for lc-wpbe... removing density=current for excited state calc"
 
 
     def __del__(self):
@@ -316,7 +316,7 @@ class SimulationGaussian1(sim.Simulation):
  
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
-        paramRunStrRX += " pop=full" + self.excitedCalc + self.accuracyStr
+        paramRunStrRX += " pop=full" + self.groundCalc + self.accuracyStr
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
         paramRunStrTD += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
 
@@ -366,7 +366,7 @@ class SimulationGaussian1(sim.Simulation):
  
         # Hardwired run/link strings (associated with this derived class)
         paramRunStrRX = "#P opt " + self.functional + "/" + self.basisOPT
-        paramRunStrRX += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
+        paramRunStrRX += " geom=check guess=check pop=full" + self.groundCalc + self.accuracyStr
         paramRunStrTD = "#P " + self.functional + " td=nstates=" + str(self.nstates) + "/" + self.basisEXT
         paramRunStrTD += " geom=check guess=check pop=full" + self.excitedCalc + self.accuracyStr
 

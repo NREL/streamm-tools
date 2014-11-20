@@ -13,14 +13,14 @@ except:
     print "   export PYTHONPATH"
     sys.exit(3)
 
-try:
-    import numpy
-except:
-    print "Error: numpy module not found, check PYTHONPATH for numpy install or module version"
-    print "Try adding the following to your .bashrc file"
-    print "   PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
-    print "   export PYTHONPATH"
-    sys.exit(3)
+#try:
+    #import numpy
+#except:
+#    print "Error: numpy module not found, check PYTHONPATH for numpy install or module version"
+#    print "Try adding the following to your .bashrc file"
+#    print "   PYTHONPATH='path-to-runjobs.py':$PYTHONPATH'"
+#    print "   export PYTHONPATH"
+#    sys.exit(3)
 
 # Get useful methods
 u=Misc()

@@ -197,6 +197,7 @@ for line in ftddft.readlines():
 
     if 'td=nstates=' in line.lower(): # Find the number of excited states
         timedep = True
+        # print "------------- Time dependent section starting -----------"
         llow = line.lower()
         ns = ns_get(llow)
         #print 'System has %d excited states ' % ns
@@ -215,9 +216,11 @@ for line in ftddft.readlines():
     #        cfile = check_get(line.lower())
     #        #print cfile,"\n"
 
-    if 'Optimized Parameters' in line or timedep==True: converged=True
+    if 'Optimized Parameters' in line or timedep==True:
+        converged=True
 
-    if timedep==True: converged=True
+    if timedep==True:
+        converged=True
 
     if ('Tot=' in line and 'X=' in line and converged==True and timedep==False): # Get the dipole vector for the ground state and length (in Debye)
         dip_list = line.split()
@@ -229,7 +232,7 @@ for line in ftddft.readlines():
         dy = center(dip_list[3],10)
         dz = center(dip_list[5],10)
         dtot = center(dip_list[7],10)
-        print dx, dy, dz, dtot
+        print "Ground state dipole info ", dx, dy, dz, dtot
 
     if ('Tot=' in line and 'X=' in line and timedep==True): # Get the dipole vector for the first excited state and length (in Debye)
         dip_list = line.split()
@@ -241,7 +244,7 @@ for line in ftddft.readlines():
         d2y = center(dip_list[3],10)
         d2z = center(dip_list[5],10)
         d2tot = center(dip_list[7],10)
-        #print d2x, d2y, d2z, d2tot
+        print "Excited state dipole info ", d2x, d2y, d2z, d2tot
         
 # Get the occupied and unoccupied levels
 # (after convergence has been assured)
@@ -261,6 +264,16 @@ for line in ftddft.readlines():
 
 # Get the total energy, after convergence has been assured
     if 'B3LYP)' in line:
+#        print >> eout , line
+        esplit = line.split()
+        etot = float(esplit[4])
+
+    if 'B1LYP)' in line:
+#        print >> eout , line
+        esplit = line.split()
+        etot = float(esplit[4])
+
+    if 'M11)' in line:
 #        print >> eout , line
         esplit = line.split()
         etot = float(esplit[4])
@@ -292,11 +305,14 @@ else:
 # Define the HOMO, LUMO, Gap, Optical LUMO
 thomo = a_occvals[-1]
 tlumo = a_virtvals[0]
+
+#print "a_occvals[-1]  = ", a_occvals[-1]
+#print "a_virtvals[-1] = ", a_virtvals[-1]
+
 (tgap, tlam, tosc) = stinfo[0]
 opt_lumo = thomo + tgap
 
 #sticks = {'sticklabels':['Energy gap','Wavelength','Oscillator Strength'],'sticklist':stinfo}
-
 
 sticks = {'Energy gap (eV)':gaplist,'Wavelength (nm)':lamlist,'Oscillator strength':fosclist}
 
