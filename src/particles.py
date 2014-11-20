@@ -231,7 +231,6 @@ class ParticleContainer:
         Args:
             filePrefix (str): name of pickle file. will dump filePrefix.pkl
         """
-        
         import pickle 
         fileObj = open(filePrefix + '.pkl', 'w')
         pickle.dump(self, fileObj)

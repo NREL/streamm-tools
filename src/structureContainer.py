@@ -534,20 +534,19 @@ class StructureContainer:
         sys.exit(0)
 
 
-
-
-    def getpartnumb(self):
+    def getPtclNum(self):
         """
         Return number of particles in a structure
 
         Used only one place in src or scripts
         SWS: move into main section rewrite
         """
-        NP = 0
-        for pid, ptclObj in self.ptclC :
-            NP += 1
 
-        return NP
+        #NP = 0
+        #for pid, ptclObj in self.ptclC :
+        #    NP += 1
+        #return NP
+        return len(self.ptclC)
 
 
     def expandLatVec(self, percent ):

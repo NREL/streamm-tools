@@ -149,7 +149,7 @@ def main():
     if( rank == 0 ):    
         #  Write xmol file 
         xmol_file = options.dir_id +"/" + options.output_id + ".xmol"
-        n_part = f_new.getpartnumb()
+        n_part = f_new.getPtclNum()
         n_chains = f_new.getchainnumb()
         comment = " structure with %d particles and %d chains "%(n_part,n_chains)
         append = False
