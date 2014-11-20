@@ -7,12 +7,15 @@ import  sys
 import collections
 from scipy import optimize
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import pbcs
 
 
 def FourierSeries(p,theta):
+    """
+    Evaluate Fourier Series 
+    """
     # theta dihedral angle
     
     debug = 0
@@ -25,6 +28,138 @@ def FourierSeries(p,theta):
             print n,p[n],theta_rad, math.cos( float(n)*theta_rad ), p[n]*( math.cos( float(n)*theta_rad  ) )
     
     return fourier_sum
+
+
+def d_FourierSeries(p,theta):
+    """
+    Evaluate first and second derivatives of Fourier Series 
+    """
+    # theta dihedral angle
+    
+    debug = 0
+    theta_rad = math.radians( theta )
+    d_fourier_sum = 0.0
+    dd_fourier_sum = 0.0
+
+    for n in range(1,len(p)):
+        d_fourier_sum +=  -1*p[n]*( math.sin( float(n)*theta_rad  ) )
+        dd_fourier_sum +=  -1*p[n]*( math.cos( float(n)*theta_rad  ) )
+        
+    
+    return round(d_fourier_sum,8),round(dd_fourier_sum,8)
+
+def mmt_FourierSeries(p,range_coord):
+    """
+    Find maximum minimum and transistions for Fourier sieries for a given range
+    """
+    
+    debug = False   
+    
+    fourier_sum = 0.0
+
+    Fourier_max = []
+    Fourier_min = []
+    Fourier_trans = []
+
+    # Test first point
+    calc_minmaxtrans = 0 
+    calc_maxmintrans = 0
+    
+    #print " ragne ", range_coord[0], range_coord[2], range_coord[1]
+    range_coord[1] = 1.0
+    step = 0.01
+    r_mult = int(1/step)
+    
+    check_min = 1
+    check_max = 1
+
+    for coord_x in range( 0*r_mult,181*r_mult ):
+        coord_i = float(coord_x)*step
+        coord_m = coord_i - step
+        coord_m_m = coord_m - step
+        coord_p = coord_i + step
+        coord_p_p = coord_p + step
+
+        
+
+        d_i,dd_i =  d_FourierSeries(p, coord_i )
+        d_m,dd_m = d_FourierSeries(p, coord_m )
+        d_m_m,dd_m_m = d_FourierSeries(p, coord_m_m )
+        d_p,dd_p = d_FourierSeries(p, coord_p )
+        d_p_p,dd_p_p = d_FourierSeries(p, coord_p_p )
+
+        val_i = FourierSeries(p,coord_i)
+        val_m = FourierSeries(p,coord_m)
+        val_m_m = FourierSeries(p,coord_m_m)
+        val_p = FourierSeries(p,coord_p)
+        val_p_p = FourierSeries(p,coord_p_p)
+
+        d_m = pbcs.d_2p( val_m,val_i,step) 
+        d_m_m = pbcs.d_2p( val_m_m,val_m,step) 
+        d_p = pbcs.d_2p( val_i,val_p,step) 
+        d_p_p = pbcs.d_2p( val_p,val_p_p,step) 
+
+
+        if( debug):
+            print "coord_i",coord_i
+            print "val_i",val_i
+            print "coord_m",coord_m
+            print "coord_m_m",coord_m_m
+            print "coord_p",coord_p
+            print "coord_p_p",coord_p_p
+            print "d_m",d_m
+            print "d_m_m",d_m_m
+            print "d_p",d_p
+            print "d_p_p",d_p_p
+
+        check_min += 1 
+        check_max += 1 
+        
+        if( d_m_m < 0 and d_m < 0  and d_p > 0  and d_p_p > 0 and check_min > 1  ):
+            
+            Fourier_min.append( coord_i  )
+            min_en_i = val_i
+            calc_minmaxtrans = 1
+
+            if( calc_maxmintrans ):
+                trans_ev = max_en_i - min_en_i
+                Fourier_trans.append(  trans_ev )
+
+                calc_maxmintrans = 0 
+
+                if( debug):
+                    print " calc_maxmintrans found ",trans_ev
+
+            success = 1
+            check_min = 0
+
+            if( debug):
+                print " min found ",coord_i
+
+
+        if( d_m_m > 0 and d_m > 0  and d_p < 0  and d_p_p < 0 and check_max > 1  ):
+            Fourier_max.append( coord_i  )
+            max_en_i = val_i
+            calc_maxmintrans = 1
+
+            if( debug):
+                print " max found ",coord_i
+
+            if( calc_minmaxtrans ):
+                trans_ev = max_en_i - min_en_i
+                Fourier_trans.append(  trans_ev )
+                calc_minmaxtrans = 0 
+
+                if( debug):
+                    print " calc_minmaxtrans found ",trans_ev
+
+            success = 1
+            check_max = 0
+
+        
+
+                                   
+    return Fourier_max,Fourier_min,Fourier_trans
 
 
 def residuals_FS(Fourier_coef, coord_list, targets, wt_list,wt_coef ):
@@ -91,6 +226,26 @@ class PES():
         self.weights = []
         # Error
         self.error_list = []
+        # Coordinate information 
+        self.step_coord = self.coord_list[1] - self.coord_list[0]
+        self.max_coord = max(self.coord_list)
+        self.min_coord = min(self.coord_list)
+        # Extra information 
+        self.tag = []
+
+
+    def set_tag(self,tag):
+        """
+        Set a tag for the PES 
+        """
+        self.tag = tag
+        
+    def get_tag(self):
+        """
+        Get a tag for the PES 
+        """
+        return self.tag 
+        
 
     def calc_min_energy_list(self):
         """
@@ -126,7 +281,14 @@ class PES():
         del self.wt_coef 
         del self.weights 
         # Error
-        del self.error_list 
+        del self.error_list
+
+        del self.step_coord 
+        del self.max_coord 
+        del self.min_coord 
+        # Extra information 
+        del self.tag
+        
 
         
     def __len__(self):
@@ -218,6 +380,8 @@ class PES():
         # Find inversion points in energy
         self.min_indx = []
         self.max_indx = []
+        self.min_val = []
+        self.max_val = []
         self.trans_list = []
         self.trans_indxs = []
         self.k_list = []
@@ -256,6 +420,7 @@ class PES():
             if( d_en_m_m < 0 and d_en_m < 0  and d_en_p > 0  and d_en_p_p > 0 ):
                 self.min_indx.append( indx_i )
                 min_en_i = self.energy_list[indx_i]
+                self.min_val.append( self.coord_list[indx_i] )
                 calc_minmaxtrans = 1
                 min_transindx = indx_i
 
@@ -282,6 +447,7 @@ class PES():
             #if( d_en_m > 0  and d_en_p < 0   ):
                 self.max_indx.append( indx_i )
                 max_en_i = self.energy_list[indx_i]
+                self.max_val.append( self.coord_list[indx_i] )
                 calc_maxmintrans = 1
                 max_transindx = indx_i
 
@@ -299,14 +465,15 @@ class PES():
                 success = 1
 
 
-
+        verbose = True 
         for inv_indx in range( len(self.min_indx) ):
             indx = self.min_indx[inv_indx]
-            if(debug): print "  Min ",inv_indx," found at ",indx*h," w energy ",self.energy_list[indx]
+            if(verbose): print "  Min ",inv_indx," found at ",indx*h," w energy ",self.energy_list[indx]
+
 
         for inv_indx in range( len(self.max_indx) ):
             indx = self.max_indx[inv_indx]
-            if(debug): print "  Max ",inv_indx," found at ",indx*h," w energy ",self.energy_list[indx]
+            if(verbose): print "  Max ",inv_indx," found at ",indx*h," w energy ",self.energy_list[indx]
 
         for inv_indx in range( len(self.trans_list) ):
             bar = self.trans_list[inv_indx]
@@ -323,7 +490,7 @@ class PES():
                 if( cent_indx > 0 ):
                     print " Minimum target_en_s meV ",energy_list[cent_indx-1]*1000 , energy_list[cent_indx]*1000 ,  energy_list[cent_indx+1]*1000
 
-        return success
+        return self.max_val,self.min_val,self.trans_list,success
 
         ## return (success,  numeric_func,min_indx,max_indx,trans_list,trans_indxs,k_list )
 
@@ -437,7 +604,7 @@ class PES():
             sq_delta =  delta_en*delta_en
 
             resid.append(sq_delta)
-            
+
 
         rmsa = sum( resid)/float( len(self.energy_list) )
         rmse = math.sqrt( rmsa )
