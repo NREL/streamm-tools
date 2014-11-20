@@ -167,9 +167,9 @@ class StructureContainer:
         strucStr += "        Lz (A) = " + str(self.boxLengths[2]) + "\n"
         strucStr += "      Volume %f  A^3 \n"%self.getVolume()
         strucStr += "      Mass %f  AMU \n"%self.getTotMass()     
-        strucStr += "      Density %f g/cm^3 \n"%self.getDen()     
+        strucStr += "      Density %f g/cm^3 \n"%self._getDensity()     
         strucStr += "      Lattice vectors \n"
-        latvec_i = self.get_latvec()
+        latvec_i = self.getLatVec()
         strucStr += "        v_i (A)  ( %f , %f , %f ) \n"%(latvec_i[0][0],latvec_i[0][1],latvec_i[0][2])
         strucStr += "        v_j (A)  ( %f , %f , %f ) \n"%(latvec_i[1][0],latvec_i[1][1],latvec_i[1][2])
         strucStr += "        v_k (A)  ( %f , %f , %f ) \n"%(latvec_i[2][0],latvec_i[2][1],latvec_i[2][2])
@@ -462,7 +462,6 @@ class StructureContainer:
         Args:
             bLs (list) box lengths (x,y,z) values
         """
-
         if isinstance(bLs, list):
             self.boxLengths = bLs
         else:
@@ -476,15 +475,23 @@ class StructureContainer:
         """
         return self.boxLengths
 
-    def setLatVec(self, latvec_list ):
-        """
-        Set length of lattice vector 
-        """
-        self.latvec = latvec_list
 
-    def get_latvec(self ):
+    def setLatVec(self, latvec):
+        """
+        Set lattice vector
+
+        Args:
+            latvec (list): 3-element lattice vector
+        """
+        self.latvec = latvec
+
+
+    def getLatVec(self):
         """
         Get lattice vector 
+
+        Returns:
+               (list) 3-element lattice vector list
         """
         return self.latvec
 
@@ -537,15 +544,7 @@ class StructureContainer:
     def getPtclNum(self):
         """
         Return number of particles in a structure
-
-        Used only one place in src or scripts
-        SWS: move into main section rewrite
         """
-
-        #NP = 0
-        #for pid, ptclObj in self.ptclC :
-        #    NP += 1
-        #return NP
         return len(self.ptclC)
 
 
@@ -592,7 +591,12 @@ class StructureContainer:
 
         return float(total_mass)
 
-    def getDen(self):
+
+    #
+    # Private class methods
+    #
+
+    def _getDensity(self):
         """
         Calculate density of system in AMU/A^3 and convert to g/cm^3
         NOTE: mass units contained in PtclConatiner
@@ -603,7 +607,6 @@ class StructureContainer:
 	density_i = units.convert_AMUA3_gcm3(total_mass_i/volume_i) 
 	
 	return density_i
-
     #########################################################
 
 
@@ -616,7 +619,6 @@ class StructureContainer:
 
         Return
           struc_len (float) 
-        
         """
         
         sq_maxdr = -1000000.0 
@@ -637,6 +639,7 @@ class StructureContainer:
     def vec_shift(self,r_shift):
         """
         Shift structure by vector
+        NOTE: only called in pbcs.py
 
         Arguments
           r_shift (numpy vector) to shift all the cordinates by
@@ -672,13 +675,12 @@ class StructureContainer:
     def shift_center_mass(self,r_shift):
         """
         Translate center of mass of a structure to a location 
-        NOTE: keep here (maybe re-name method)
+        NOTE: keep here (maybe re-name method) only in pbcs.py
 
         Return
           r_shift (numpy array) position of the center of mass
-          
+
         """
-        
         r_mass = self.center_mass()
         r_m_s = r_shift - r_mass
         self.vec_shift(r_m_s)
@@ -704,6 +706,7 @@ class StructureContainer:
         #   for rotation j around z axis 
         cz = math.cos(rot_angle_j)
         sz = math.sin(rot_angle_j)
+
         # loop over each particle 
         for pid, ptclObj in self.ptclC :
             xd = ptclObj.position[0]
@@ -725,7 +728,7 @@ class StructureContainer:
         print "  Particles %d "%(len(self.ptclC))
         print "    Volume %f "%self.getVolume()
         print "    Mass %f "%self.getTotMass()
-        print "    Density %f "%self.getDen()
+        print "    Density %f "%self._getDensity()
         print "  Lattice vectors "
         print "    v_i ",self.latvec[0]
         print "    v_j ",self.latvec[1]
@@ -1293,7 +1296,7 @@ class StructureContainer:
                        l
 
                        
-        
+        TRAVIS document                       
         """
         debug = False
         

@@ -220,7 +220,7 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         fftype_j =  ptclC_o[ pid_j ].tagsDict["fftype"]
         r_i = np.array( ptclC_o[ bondObj_o.pgid1 ].position  )
         r_j = np.array( ptclC_o[ bondObj_o.pgid2 ].position  )
-        bond_len = np.linalg.norm(pbcs.delta_r_c(r_i,r_j,struc_o.get_latvec() ))
+        bond_len = np.linalg.norm(pbcs.delta_r_c(r_i,r_j,struc_o.getLatVec() ))
         
         for btyp_p, btypObj_p  in btypC_p:
             p_i = btypObj_p.ptype1 
@@ -291,8 +291,8 @@ def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
         r_k = np.array( ptclC_o[ pid_k ].position  )
         r_i = np.array( ptclC_o[ pid_i ].position  )
         r_j = np.array( ptclC_o[ pid_j ].position  )
-        r_ik = pbcs.delta_r_c(r_i,r_k,struc_o.get_latvec() )
-        r_ij = pbcs.delta_r_c(r_i,r_j,struc_o.get_latvec() )
+        r_ik = pbcs.delta_r_c(r_i,r_k,struc_o.getLatVec() )
+        r_ij = pbcs.delta_r_c(r_i,r_j,struc_o.getLatVec() )
         angle_kij = pbcs.getAngle(r_ik,r_ij)
         for atyp_p, atypObj_p  in atypC_p:
             p_k = atypObj_p.ptype1 

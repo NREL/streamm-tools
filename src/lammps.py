@@ -676,7 +676,7 @@ def write_data(strucC,parmC,data_file):
         n_imptypes = 1
         
     # Calculate box size
-    latvec = strucC.get_latvec()
+    latvec = strucC.getLatVec()
     
     bmn_x = latvec[0][0]/-2.0
     bmx_x = latvec[0][0]/2.0

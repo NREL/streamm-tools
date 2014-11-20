@@ -141,7 +141,7 @@ def main():
         
     D = diffractometer.diffractometer()
     D.set(zoom=2, n_angles=10, length_scale=1.0)
-    latvec = struc_o.get_latvec()
+    latvec = struc_o.getLatVec()
     box = [ latvec[0][0], latvec[1][1], latvec[2][2] ]
     D.load(coor_i,box)
     D.prep_matrices()
