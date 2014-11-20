@@ -142,7 +142,6 @@ def main():
     search_o = particles.create_search(options.id,options.type,options.symbol,options.chains,options.ring,options.resname,options.residue,options.linkid,options.fftype,options.gtype)
     if( rank == 0 ):
         if( options.verbose ): print " Filter input by ",search_o
-    ptclC_i = struc_i.ptclC
 
     if( len(search_o) > 0 ):
         list_f = ptclC_o.getParticlesWithTags(search_o)
