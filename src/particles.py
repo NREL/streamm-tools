@@ -9,7 +9,8 @@ def create_search(f_id,f_type,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid
     Create a dictionary to pass to particle search
     """
     
-    search_i = {}
+    # search_i = {}
+    search_i = dict()
 
     if( len( f_type ) ):
         search_i["type"] = []

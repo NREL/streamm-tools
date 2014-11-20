@@ -534,11 +534,14 @@ class StructureContainer:
         sys.exit(0)
 
 
-    #########################################################
+
 
     def getpartnumb(self):
         """
-        Return number of particles in a structure 
+        Return number of particles in a structure
+
+        Used only one place in src or scripts
+        SWS: move into main section rewrite
         """
         NP = 0
         for pid, ptclObj in self.ptclC :
@@ -547,24 +550,27 @@ class StructureContainer:
         return NP
 
 
-    def expandLatVec(self, precent ):
+    def expandLatVec(self, percent ):
         """
-        Expand lattice vector by a certain percent 
+        Expand lattice vector by a certain percent
+        NOTE: needs to consider units
         """
-        self.latvec[0] = self.latvec[0]*(1.0+precent)
-        self.latvec[1] = self.latvec[1]*(1.0+precent)
-        self.latvec[2] = self.latvec[2]*(1.0+precent)
+        self.latvec[0] = self.latvec[0]*(1.0+percent)
+        self.latvec[1] = self.latvec[1]*(1.0+percent)
+        self.latvec[2] = self.latvec[2]*(1.0+percent)
 
     def getLatVec(self):
         """
-        Get lattice vector 
+        Get lattice vector
+        NOTE: needs to consider units
         """
-        
         return self.latvec
+
 
     def getVolume(self):
         """
         Calculate volume
+        NOTE: needs to consider units
 
         Method:
             Volume = ( v_i x v_j ) . v_k
@@ -578,7 +584,7 @@ class StructureContainer:
     def getTotMass(self):
         """
         Calculate total mass of system 
-
+        NOTE: needs to consider units
         """
         # Sum mass, charges
         total_mass = 0.0
@@ -590,19 +596,24 @@ class StructureContainer:
     def getDen(self):
         """
         Calculate density of system in AMU/A^3 and convert to g/cm^3
-
+        NOTE: mass units contained in PtclConatiner
         """
 
 	volume_i = self.getVolume()    
 	total_mass_i = self.getTotMass()
-
 	density_i = units.convert_AMUA3_gcm3(total_mass_i/volume_i) 
 	
 	return density_i
 
+    #########################################################
+
+
+
     def getlength(self):
         """
         Calculate length from maximum seperation between particles
+        NOTE: pbcs also calls methods from StructureContainer and this should be moved.
+        NOTE: pbcs functionality should be moved here since lattice vectors are here
 
         Return
           struc_len (float) 
@@ -623,6 +634,7 @@ class StructureContainer:
 
         return struc_len
 
+
     def vec_shift(self,r_shift):
         """
         Shift structure by vector
@@ -640,28 +652,28 @@ class StructureContainer:
     def center_mass(self):
         """
         Find center of mass of a structure
+        NOTE: needs to consider units
 
         Return
           r_mass (numpy array) position of the center of mass
-          
         """
         import numpy as np
 
         total_mass_i = self.getTotMass()
-
         r_mass = np.array( [0.0,0.0,0.0] )
     
-        
         for pid, ptclObj in self.ptclC :
              r_mass += ptclObj.mass*np.array( ptclObj.position )
 
         r_mass = r_mass/total_mass_i
 
         return r_mass
+
             
     def shift_center_mass(self,r_shift):
         """
         Translate center of mass of a structure to a location 
+        NOTE: keep here (maybe re-name method)
 
         Return
           r_shift (numpy array) position of the center of mass
@@ -671,10 +683,12 @@ class StructureContainer:
         r_mass = self.center_mass()
         r_m_s = r_shift - r_mass
         self.vec_shift(r_m_s)
+
         
-    def rotate(self,rot_angle_i,rot_angle_j):
+    def rotate(self, rot_angle_i, rot_angle_j):
         """
-        Rotate particles in particle container
+        Rotate particles in particle container. Rotation angle i around y axis
+        and rotation angle j around z-axis
 
         Arguments
           rot_angle_i (float)  0 - pi 
@@ -704,6 +718,7 @@ class StructureContainer:
             # ptclObj.position = numpy.array( [r_x,r_y,r_z] )
             ptclObj.position = [r_x,r_y,r_z]
         
+
     def printprop(self):
         """
         Print properties of a structure 
@@ -721,7 +736,7 @@ class StructureContainer:
 
     def maxminLatVec(self):
         """
-        Set lattice vector based on the max min postion of the particles 
+        Set lattice vector based on the max/min position of the particles
         """
         x_max = -100000.0
         y_max = -100000.0
@@ -758,7 +773,8 @@ class StructureContainer:
 
     def getchainnumb(self):   # Move out of class
         """
-        Return number of chains in a structure 
+        Return number of chains in a structure
+        NOTE: only in replicate
         """
         n_chains = 0
         for pid, ptclObj in self.ptclC :
@@ -766,10 +782,12 @@ class StructureContainer:
 
         return n_chains
 
+
+        """
     def write_gro(self,dir_id,output_id ): # Move out of class
-        """
+
         Write out gromacs gro file
-        """
+
         # Version 1 will be dependent on Atomicpy
         import gromacs 
 
@@ -815,11 +833,12 @@ class StructureContainer:
         
         out_gro = dir_id+"/"+output_id + ".gro"
         gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
+        """
 
+        """
     def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class
-        """
         Write out gromacs gro file
-        """
+
         # Version 1 will be dependent on Atomicpy
         import gromacs , elements, top , lammps, groups , atom_types
 
@@ -942,11 +961,13 @@ class StructureContainer:
                ,DIH_CONST,DIH_CONST_ANGLE
                ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
                ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+        """
         
+        """
     def lmp_writedata(self,data_file,norm_dihparam,itp_file):
-        """
+
         Write out lammps data file
-        """
+
 
         check_bonds = True 
 
@@ -1068,10 +1089,11 @@ class StructureContainer:
 	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
 	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
 	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
-
-
-    def write_xmol(self, xmol_file,comment,append):
         """
+
+        """
+    def write_xmol(self, xmol_file,comment,append):
+
         Write a structure  to an xmol file
         
         Args:
@@ -1080,7 +1102,7 @@ class StructureContainer:
           append  (boolean) to append or create a new file
           
         Returns: None
-        """
+
         # Open xmol file 
         if(append):
             F = open(xmol_file,"a")
@@ -1096,11 +1118,12 @@ class StructureContainer:
             atomic_symb = ptclObj.type
             F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
         F.close()
-
+        """
         
     def calc_rdf(self, rdf_cnt_ij,bin_size,list_i,list_j,sq_r_cut):
         """
         Calculate RDF for a group of particles
+        NOTE: might be able to remove
         """
         print_vmd = True 
         #
@@ -1125,6 +1148,7 @@ class StructureContainer:
                             print " index %d or %d "%(p_i,p_j)
 
         return rdf_cnt_ij
+
 
     def get_dihatoms(self,list_k,list_i,list_j,list_l):
         """
@@ -1258,6 +1282,7 @@ class StructureContainer:
             
 	return angle_list
 
+
     def getDihedral(self,a_k,a_i,a_j,a_l):
         """
         Calculate dihedral angle of set of particles
@@ -1317,14 +1342,15 @@ class StructureContainer:
         return angle_i
 
 
-    def get_gaussian(self,fchk_file,json_data):
         """
+    def get_gaussian(self,fchk_file,json_data):
+
         Read in structure information from gaussian fchk file
 
         Args:
           fchk_file (str) grochkfile
         
-        """
+
         import numpy as np
         # Energy conversion
         # http://physics.nist.gov/cgi-bin/cuu/Value?threv
@@ -1410,13 +1436,111 @@ class StructureContainer:
                     esp_p_cnt = 0
 
         return json_data
-
-
-    def set_cply_tags(self):  # Move outside of class
         """
+
+        """
+    def get_gaussian(self,fchk_file,json_data):
+
+        Read in structure information from gaussian fchk file
+
+        Args:
+          fchk_file (str) grochkfile
+        
+
+        import numpy as np
+        # Energy conversion
+        # http://physics.nist.gov/cgi-bin/cuu/Value?threv
+        HtoeV = 27.211385
+
+        bohr2angstrom = 0.5291772086
+
+        
+        particle_data = json_data["structure"]["particle"]
+        
+        F = open(fchk_file,'r')
+        Lines = F.readlines()
+        F.close()
+
+        read_r = False
+        read_eln = False
+        read_esp = False
+        for line in Lines :
+            col = line.split()
+
+            if( read_r ):
+
+                if (  col[0] == "Force" and col[1] == "Field" ):
+                    read_r = False
+                    p_i = 0 
+                    for p_indx in range(NA):
+                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]
+                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]
+                        p_i += 1                         
+                        self.ptclC[p_i].position = vec_r_i
+                        particle_data["position"][p_indx] = vec_r_i
+                else:
+                    for r_i in  map(float,col) :
+                        R_all.append( r_i*bohr2angstrom )
+
+            if( read_eln ):
+                if ( eln_p_cnt == NA ):
+                    read_eln = False
+                else:                    
+                    for eln_i in  map(int,col):
+                        eln_p_cnt += 1                        
+                        #if( eln_i != self.ptclC[eln_p_cnt].type ):
+                        #    print "  Particle ",eln_p_cnt, self.ptclC[eln_p_cnt].type," != ",eln_i
+
+            if( read_esp ):
+                if ( esp_p_cnt == NA ):
+                    read_esp = False
+                else:
+                    
+                    for q_i in  map(float,col):
+                        esp_p_cnt += 1
+                        p_indx = esp_p_cnt -1 
+                        self.ptclC[esp_p_cnt].charge = q_i
+                        particle_data["charge"][p_indx] = q_i
+                                                
+
+            if( len(col) > 2 ):
+                if( col[0] == "Total" and col[1] == "Energy" ):
+                    TOTAL_ENERGY = float( col[3] )*HtoeV
+
+            if( len(col) == 5 ):
+                if( col[0] == "Number" and col[1] == "of"  and col[2] == "atoms" ):
+                    NA = int(col[4])
+                    
+                    if( NA != len(self.ptclC) ):
+                        print " json file contains %d atoms and fchk file contains %d "%(len(self.ptclC),NA)
+                        sys.exit("inconsistent files ")
+
+            if( len(col) == 6 ):
+                if( col[0] == "Current" and col[1] == "cartesian"  and col[2] == "coordinates" ):
+                    read_r = True
+                    R_all = []
+
+
+            if( len(col) > 2  ):
+                if( col[0] == "Atomic" and col[1] == "numbers"   ):
+                    read_eln = True
+                    eln_p_cnt = 0
+
+            if( len(col) > 2  ):
+                if( col[0] == "ESP" and col[1] == "Charges"   ):
+                    read_esp = True
+                    esp_p_cnt = 0
+
+        return json_data
+        """
+
+        """
+    def set_cply_tags(self):  # Move outside of class
+
+
         Set tags for new cply file 
         Use ctype tag and bonding enviroment
-        """
+
 
         # Version 1 will be dependent on Atomicpy
         import elements , top 
@@ -1458,3 +1582,4 @@ class StructureContainer:
             print " setting cply tag ",cply_tag[atom_i]
             
             atom_i +=1 
+        """
