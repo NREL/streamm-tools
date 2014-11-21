@@ -79,7 +79,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">sys</span>
 
-<div class="viewcode-block" id="Angle"><a class="viewcode-back" href="../framework_design.html#angles.Angle">[docs]</a><span class="k">class</span> <span class="nc">Angle</span><span class="p">:</span>
+<div class="viewcode-block" id="Angle"><a class="viewcode-back" href="../docstr_angles.html#angles.Angle">[docs]</a><span class="k">class</span> <span class="nc">Angle</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data structure for describing any 3-point associatiaon of Particle-s</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -158,27 +158,27 @@
 
 
 
-<div class="viewcode-block" id="Angle.set_lmpindx"><a class="viewcode-back" href="../framework_design.html#angles.Angle.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
+<div class="viewcode-block" id="Angle.set_lmpindx"><a class="viewcode-back" href="../docstr_angles.html#angles.Angle.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bond type index for lammps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span> <span class="o">=</span> <span class="n">lmpindx</span>
         
         </div>
-<div class="viewcode-block" id="Angle.get_lmpindx"><a class="viewcode-back" href="../framework_design.html#angles.Angle.get_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">get_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Angle.get_lmpindx"><a class="viewcode-back" href="../docstr_angles.html#angles.Angle.get_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">get_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return bond type index for lammps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span>
 </div>
-<div class="viewcode-block" id="Angle.set_g_indx"><a class="viewcode-back" href="../framework_design.html#angles.Angle.set_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">set_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">g_indx</span><span class="p">):</span>
+<div class="viewcode-block" id="Angle.set_g_indx"><a class="viewcode-back" href="../docstr_angles.html#angles.Angle.set_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">set_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">g_indx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bond type index for gromacs </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span> <span class="o">=</span> <span class="n">g_indx</span>
         
         </div>
-<div class="viewcode-block" id="Angle.get_g_indx"><a class="viewcode-back" href="../framework_design.html#angles.Angle.get_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">get_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Angle.get_g_indx"><a class="viewcode-back" href="../docstr_angles.html#angles.Angle.get_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">get_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return bond type index for gromacs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -191,7 +191,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">   </span><span class="si">%s</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="AngleContainer"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer">[docs]</a><span class="k">class</span> <span class="nc">AngleContainer</span><span class="p">:</span>
+<div class="viewcode-block" id="AngleContainer"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer">[docs]</a><span class="k">class</span> <span class="nc">AngleContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Angle objects. Map of global</span>
 <span class="sd">    angle ID (integer) to Angle object instances</span>
@@ -226,7 +226,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxgid</span>
 
-<div class="viewcode-block" id="AngleContainer.clear"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.clear"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clears angles out of AngleContainer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -252,7 +252,7 @@
         <span class="k">return</span> <span class="n">angleStr</span>
 
 
-<div class="viewcode-block" id="AngleContainer.keys"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.keys"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return list of all ptcl IDs (keys) currently in container</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -324,7 +324,7 @@
         <span class="k">return</span> <span class="n">gid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span>
 
 
-<div class="viewcode-block" id="AngleContainer.hasAngle"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.hasAngle">[docs]</a>    <span class="k">def</span> <span class="nf">hasAngle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angleList</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.hasAngle"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.hasAngle">[docs]</a>    <span class="k">def</span> <span class="nf">hasAngle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angleList</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check the ptcl IDs in angleList for any angle in container that is similar</span>
 <span class="sd">        eg angle 1-2-3 is same as angle 3-2-1</span>
@@ -368,7 +368,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
 
-<div class="viewcode-block" id="AngleContainer.put"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.put"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append &#39;Angle&#39; object to this container. Updates globalID for container</span>
 <span class="sd">        by incrementing the maxgid member</span>
@@ -389,7 +389,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
 </div>
-<div class="viewcode-block" id="AngleContainer.replacePtclIDs"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.replacePtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">replacePtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idFromTo</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.replacePtclIDs"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.replacePtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">replacePtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idFromTo</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace ptclIDs given a dictionary of ID changes # eg {1:3, 3:5, 2:20...}</span>
 <span class="sd">                </span>
@@ -420,7 +420,7 @@
 
 
 </div>
-<div class="viewcode-block" id="AngleContainer.getTypeInfoDict"><a class="viewcode-back" href="../framework_design.html#angles.AngleContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AngleContainer.getTypeInfoDict"><a class="viewcode-back" href="../docstr_angles.html#angles.AngleContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a map of type to (typeIndex, ??????)</span>
 <span class="sd">        Method assigns a type index and checkes for consistency</span>

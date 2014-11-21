@@ -79,7 +79,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">sys</span>
 
-<div class="viewcode-block" id="Bond"><a class="viewcode-back" href="../framework_design.html#bonds.Bond">[docs]</a><span class="k">class</span> <span class="nc">Bond</span><span class="p">:</span>
+<div class="viewcode-block" id="Bond"><a class="viewcode-back" href="../docstr_bonds.html#bonds.Bond">[docs]</a><span class="k">class</span> <span class="nc">Bond</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data structure for describing any 2-point associatiaon of Particle-s</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -147,28 +147,28 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
 
-<div class="viewcode-block" id="Bond.set_lmpindx"><a class="viewcode-back" href="../framework_design.html#bonds.Bond.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
+<div class="viewcode-block" id="Bond.set_lmpindx"><a class="viewcode-back" href="../docstr_bonds.html#bonds.Bond.set_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">set_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lmpindx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bond type index for lammps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span> <span class="o">=</span> <span class="n">lmpindx</span>
         
         </div>
-<div class="viewcode-block" id="Bond.get_lmpindx"><a class="viewcode-back" href="../framework_design.html#bonds.Bond.get_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">get_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Bond.get_lmpindx"><a class="viewcode-back" href="../docstr_bonds.html#bonds.Bond.get_lmpindx">[docs]</a>    <span class="k">def</span> <span class="nf">get_lmpindx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return bond type index for lammps</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmpindx</span>
 
 </div>
-<div class="viewcode-block" id="Bond.set_g_indx"><a class="viewcode-back" href="../framework_design.html#bonds.Bond.set_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">set_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">g_indx</span><span class="p">):</span>
+<div class="viewcode-block" id="Bond.set_g_indx"><a class="viewcode-back" href="../docstr_bonds.html#bonds.Bond.set_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">set_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">g_indx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set bond type index for gromacs </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g_indx</span> <span class="o">=</span> <span class="n">g_indx</span>
         
         </div>
-<div class="viewcode-block" id="Bond.get_g_indx"><a class="viewcode-back" href="../framework_design.html#bonds.Bond.get_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">get_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Bond.get_g_indx"><a class="viewcode-back" href="../docstr_bonds.html#bonds.Bond.get_g_indx">[docs]</a>    <span class="k">def</span> <span class="nf">get_g_indx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return bond type index for gromacs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -180,7 +180,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">    </span><span class="si">%s</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">pgid2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="BondContainer"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer">[docs]</a><span class="k">class</span> <span class="nc">BondContainer</span><span class="p">:</span>
+<div class="viewcode-block" id="BondContainer"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer">[docs]</a><span class="k">class</span> <span class="nc">BondContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Bond objects. Map of global</span>
 <span class="sd">    bond ID (integer) to Bond object instances</span>
@@ -216,7 +216,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxgid</span>
 
 
-<div class="viewcode-block" id="BondContainer.clear"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.clear"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clears bonds out of BondContainer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -242,7 +242,7 @@
         <span class="k">return</span> <span class="n">bondStr</span>
 
 
-<div class="viewcode-block" id="BondContainer.keys"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.keys"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return list of all ptcl IDs (keys) currently in container</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -315,7 +315,7 @@
         <span class="k">return</span> <span class="n">gid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span>
 
 
-<div class="viewcode-block" id="BondContainer.hasBond"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.hasBond">[docs]</a>    <span class="k">def</span> <span class="nf">hasBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bondList</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.hasBond"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.hasBond">[docs]</a>    <span class="k">def</span> <span class="nf">hasBond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bondList</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check the ptcl IDs in bondList for any bond in container that is similar</span>
 <span class="sd">        eg bond 1-2 is same as bond 2-1</span>
@@ -357,7 +357,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
 
-<div class="viewcode-block" id="BondContainer.put"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.put"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bond</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append &#39;Bond&#39; object to this container. Updates globalID for container</span>
 <span class="sd">        by incrementing the maxgid member</span>
@@ -378,7 +378,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
 </div>
-<div class="viewcode-block" id="BondContainer.replacePtclIDs"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.replacePtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">replacePtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idFromTo</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.replacePtclIDs"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.replacePtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">replacePtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idFromTo</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace ptclIDs given a dictionary of ID changes # eg {1:3, 3:5, 2:20...}</span>
 <span class="sd">                </span>
@@ -405,7 +405,7 @@
 
 
 </div>
-<div class="viewcode-block" id="BondContainer.getTypeInfoDict"><a class="viewcode-back" href="../framework_design.html#bonds.BondContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BondContainer.getTypeInfoDict"><a class="viewcode-back" href="../docstr_bonds.html#bonds.BondContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a map of type to (typeIndex, ??????)</span>
 <span class="sd">        Method assigns a type index and checkes for consistency</span>

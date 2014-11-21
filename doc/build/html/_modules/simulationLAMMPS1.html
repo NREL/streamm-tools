@@ -86,7 +86,7 @@
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SimulationLAMMPS1"><a class="viewcode-back" href="../framework_design.html#simulationLAMMPS1.SimulationLAMMPS1">[docs]</a><span class="k">class</span> <span class="nc">SimulationLAMMPS1</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">Simulation</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationLAMMPS1"><a class="viewcode-back" href="../docstr_simulationLAMMPS1.html#simulationLAMMPS1.SimulationLAMMPS1">[docs]</a><span class="k">class</span> <span class="nc">SimulationLAMMPS1</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">Simulation</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dervied class implementing input/output methods specific to an application</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -107,7 +107,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pairCoeffDct</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bondCoeffDct</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-<div class="viewcode-block" id="SimulationLAMMPS1.setCoeffs"><a class="viewcode-back" href="../framework_design.html#simulationLAMMPS1.SimulationLAMMPS1.setCoeffs">[docs]</a>    <span class="k">def</span> <span class="nf">setCoeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairCoeffDct</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">bondCoeffDct</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+<div class="viewcode-block" id="SimulationLAMMPS1.setCoeffs"><a class="viewcode-back" href="../docstr_simulationLAMMPS1.html#simulationLAMMPS1.SimulationLAMMPS1.setCoeffs">[docs]</a>    <span class="k">def</span> <span class="nf">setCoeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairCoeffDct</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">bondCoeffDct</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set coefficients for input file write. Specific to this derived class</span>
 <span class="sd">        </span>
@@ -151,7 +151,7 @@
 <span class="sd">    def writeInputDataFile(self, inputName):        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SimulationLAMMPS1.writeInput"><a class="viewcode-back" href="../framework_design.html#simulationLAMMPS1.SimulationLAMMPS1.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputName</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationLAMMPS1.writeInput"><a class="viewcode-back" href="../docstr_simulationLAMMPS1.html#simulationLAMMPS1.SimulationLAMMPS1.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write out a LAMMPS input data file from all available held</span>
 <span class="sd">        data (particles, bonds, angles, dihedrals)</span>

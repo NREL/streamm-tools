@@ -151,11 +151,12 @@ def aveprop():
      
     # Print system properties
     if( rank == 0 ):
-        sys_prop = struc_o.printprop()
-
+        # sys_prop = struc_o.printprop()
+        struc_o.verbose=False
+        sys_prop = str(struc_o)
         print sys_prop
         log_out.write(str(sys_prop))
-        
+        struc_o.verbose=True
         
     #   
     # Filter particles

@@ -95,7 +95,7 @@
 
 <span class="n">sperator_line</span> <span class="o">=</span> <span class="s">&quot;---------------------------------------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span>
 
-<div class="viewcode-block" id="StructureContainer"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer">[docs]</a><span class="k">class</span> <span class="nc">StructureContainer</span><span class="p">:</span>
+<div class="viewcode-block" id="StructureContainer"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer">[docs]</a><span class="k">class</span> <span class="nc">StructureContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data structure for describing a collection of Particles that have associated</span>
 <span class="sd">    Bond, Angle, Dihedral descriptions</span>
@@ -185,7 +185,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="StructureContainer.dump"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePrefix</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.dump"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePrefix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dump a pickled version of this object</span>
 
@@ -202,7 +202,7 @@
         <span class="n">fileObj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.restore"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.restore">[docs]</a>    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pickleName</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.restore"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.restore">[docs]</a>    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pickleName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Restore state of object from a pickled file. Sets information</span>
 <span class="sd">        in an instance of this class</span>
@@ -232,7 +232,6 @@
 <span class="sd">        &#39;Magic&#39; method for printng contents</span>
 <span class="sd">        Delegates to __str__ method for contained objects</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">strucStr</span> <span class="o">=</span>  <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
         <span class="n">strucStr</span> <span class="o">+=</span> <span class="n">sperator_line</span>
         <span class="n">strucStr</span> <span class="o">+=</span> <span class="s">&quot;    Structure properties </span><span class="se">\n</span><span class="s">&quot;</span>
@@ -319,8 +318,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
 
-
-<div class="viewcode-block" id="StructureContainer.compressPtclIDs"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.compressPtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">compressPtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.compressPtclIDs"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.compressPtclIDs">[docs]</a>    <span class="k">def</span> <span class="nf">compressPtclIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace all particle IDs such that if there are N particles in structure</span>
 <span class="sd">        the particle ID&#39;s run from 1...N. Tracks these changes</span>
@@ -402,7 +400,7 @@
 
 
 </div>
-<div class="viewcode-block" id="StructureContainer.getSubStructure"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getSubStructure">[docs]</a>    <span class="k">def</span> <span class="nf">getSubStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclIDList</span><span class="p">,</span> <span class="n">particlesOnly</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getSubStructure"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getSubStructure">[docs]</a>    <span class="k">def</span> <span class="nf">getSubStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclIDList</span><span class="p">,</span> <span class="n">particlesOnly</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new Structure object with partcleID&#39;s in input list</span>
 <span class="sd">        Preserves IDs of particles (and any bonds, angles, dihedrals...)</span>
@@ -425,7 +423,6 @@
         <span class="k">for</span> <span class="n">pgid</span> <span class="ow">in</span> <span class="n">ptclIDList</span><span class="p">:</span>
             <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">pgid</span><span class="p">]</span>
             <span class="n">subAtoms</span><span class="p">[</span><span class="n">pgid</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom</span>
-
 
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">particlesOnly</span><span class="p">):</span>
@@ -496,7 +493,7 @@
             <span class="k">return</span> <span class="n">StructureContainer</span><span class="p">(</span><span class="n">subAtoms</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.setPtclPositions"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.setPtclPositions">[docs]</a>    <span class="k">def</span> <span class="nf">setPtclPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclPosList</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.setPtclPositions"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.setPtclPositions">[docs]</a>    <span class="k">def</span> <span class="nf">setPtclPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptclPosList</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset all particle positions from an indexed list</span>
 
@@ -504,7 +501,6 @@
 <span class="sd">            ptclPosList (list) [ [1, 0.5, 0.1, 12.0],</span>
 <span class="sd">                                 [2, 0.4, 33.3, -0.1] .....]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">for</span> <span class="n">ptclPos</span> <span class="ow">in</span> <span class="n">ptclPosList</span><span class="p">:</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">ptclPos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">pos</span> <span class="o">=</span> <span class="n">ptclPos</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
@@ -512,14 +508,13 @@
             <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">pos</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.getPtclPositions"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getPtclPositions">[docs]</a>    <span class="k">def</span> <span class="nf">getPtclPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getPtclPositions"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getPtclPositions">[docs]</a>    <span class="k">def</span> <span class="nf">getPtclPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return list of indexed particle positions</span>
 <span class="sd">        </span>
 <span class="sd">        Return: (list) [ [1, 0.5, 0.1, 12.0],</span>
 <span class="sd">                         [2, 0.4, 33.3, -0.1] .....]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">idxPosList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         
         <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">:</span>
@@ -531,7 +526,7 @@
         <span class="k">return</span> <span class="n">idxPosList</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.setBoxLengths"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.setBoxLengths">[docs]</a>    <span class="k">def</span> <span class="nf">setBoxLengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bLs</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.setBoxLengths"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.setBoxLengths">[docs]</a>    <span class="k">def</span> <span class="nf">setBoxLengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bLs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set length of cartesian box size... [ [xmin, xmax], [ymin, ymax]...]</span>
 
@@ -545,14 +540,14 @@
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.getBoxLengths"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getBoxLengths">[docs]</a>    <span class="k">def</span> <span class="nf">getBoxLengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getBoxLengths"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getBoxLengths">[docs]</a>    <span class="k">def</span> <span class="nf">getBoxLengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return: list of cartesian box lengths [units ?]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">boxLengths</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.setLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.setLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">setLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latvec</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.setLatVec"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.setLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">setLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latvec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set lattice vector</span>
 
@@ -572,7 +567,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
 
 
-<div class="viewcode-block" id="StructureContainer.readOutput"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.readOutput"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
 <span class="sd">        that reads in an external output file and populates an instance</span>
@@ -595,7 +590,7 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.writeInput"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.writeInput"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
 <span class="sd">        that writes an input file based on the internal attributes of an instance</span>
@@ -617,14 +612,14 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.getPtclNum"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getPtclNum">[docs]</a>    <span class="k">def</span> <span class="nf">getPtclNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getPtclNum"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getPtclNum">[docs]</a>    <span class="k">def</span> <span class="nf">getPtclNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return number of particles in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.expandLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.expandLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">expandLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span> <span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.expandLatVec"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.expandLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">expandLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Expand lattice vector by a certain percent</span>
 <span class="sd">        NOTE: needs to consider units</span>
@@ -633,7 +628,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">percent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">+</span><span class="n">percent</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="StructureContainer.getLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">getLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getLatVec"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">getLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get lattice vector</span>
 <span class="sd">        NOTE: needs to consider units</span>
@@ -641,7 +636,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.getVolume"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getVolume">[docs]</a>    <span class="k">def</span> <span class="nf">getVolume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getVolume"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getVolume">[docs]</a>    <span class="k">def</span> <span class="nf">getVolume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate volume</span>
 <span class="sd">        NOTE: needs to consider units</span>
@@ -649,13 +644,12 @@
 <span class="sd">        Method:</span>
 <span class="sd">            Volume = ( v_i x v_j ) . v_k</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">br1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">br1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
         <span class="k">return</span> <span class="n">vol</span>
+
 </div>
-<div class="viewcode-block" id="StructureContainer.getTotMass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getTotMass">[docs]</a>    <span class="k">def</span> <span class="nf">getTotMass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getTotMass"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getTotMass">[docs]</a>    <span class="k">def</span> <span class="nf">getTotMass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate total mass of system </span>
 <span class="sd">        NOTE: needs to consider units</span>
@@ -687,7 +681,7 @@
 
 
 
-<div class="viewcode-block" id="StructureContainer.getlength"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getlength">[docs]</a>    <span class="k">def</span> <span class="nf">getlength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.getlength"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getlength">[docs]</a>    <span class="k">def</span> <span class="nf">getlength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate length from maximum seperation between particles</span>
 <span class="sd">        NOTE: pbcs also calls methods from StructureContainer and this should be moved.</span>
@@ -706,20 +700,18 @@
                 <span class="k">if</span><span class="p">(</span> <span class="n">r_ij_sq</span> <span class="o">&gt;</span> <span class="n">sq_maxdr</span><span class="p">):</span>
                     <span class="n">sq_maxdr</span> <span class="o">=</span> <span class="n">r_ij_sq</span>
 
-
         <span class="n">struc_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sq_maxdr</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">struc_len</span>
 
 </div>
-<div class="viewcode-block" id="StructureContainer.vec_shift"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.vec_shift">[docs]</a>    <span class="k">def</span> <span class="nf">vec_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.vec_shift"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.vec_shift">[docs]</a>    <span class="k">def</span> <span class="nf">vec_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shift structure by vector</span>
 <span class="sd">        NOTE: only called in pbcs.py</span>
 
-<span class="sd">        Arguments</span>
+<span class="sd">        Args:</span>
 <span class="sd">          r_shift (numpy vector) to shift all the cordinates by</span>
-<span class="sd">          </span>
 <span class="sd">        &quot;&quot;&quot;</span>
     
         <span class="k">for</span> <span class="n">pid</span><span class="p">,</span> <span class="n">ptclObj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span> <span class="p">:</span>
@@ -727,7 +719,7 @@
              <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">r_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">r_i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
 
             </div>
-<div class="viewcode-block" id="StructureContainer.center_mass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.center_mass"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find center of mass of a structure</span>
 <span class="sd">        NOTE: needs to consider units</span>
@@ -748,7 +740,7 @@
         <span class="k">return</span> <span class="n">r_mass</span>
 
             </div>
-<div class="viewcode-block" id="StructureContainer.shift_center_mass"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.shift_center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">shift_center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.shift_center_mass"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.shift_center_mass">[docs]</a>    <span class="k">def</span> <span class="nf">shift_center_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r_shift</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate center of mass of a structure to a location </span>
 <span class="sd">        NOTE: keep here (maybe re-name method) only in pbcs.py</span>
@@ -762,7 +754,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vec_shift</span><span class="p">(</span><span class="n">r_m_s</span><span class="p">)</span>
 
         </div>
-<div class="viewcode-block" id="StructureContainer.rotate"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rot_angle_i</span><span class="p">,</span> <span class="n">rot_angle_j</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.rotate"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rot_angle_i</span><span class="p">,</span> <span class="n">rot_angle_j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rotate particles in particle container. Rotation angle i around y axis</span>
 <span class="sd">        and rotation angle j around z-axis</span>
@@ -796,23 +788,25 @@
             <span class="c"># ptclObj.position = numpy.array( [r_x,r_y,r_z] )</span>
             <span class="n">ptclObj</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_x</span><span class="p">,</span><span class="n">r_y</span><span class="p">,</span><span class="n">r_z</span><span class="p">]</span>
         
-</div>
-<div class="viewcode-block" id="StructureContainer.printprop"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.printprop">[docs]</a>    <span class="k">def</span> <span class="nf">printprop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Print properties of a structure </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;  Particles </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">))</span>
-        <span class="k">print</span> <span class="s">&quot;    Volume </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getVolume</span><span class="p">()</span>
-        <span class="k">print</span> <span class="s">&quot;    Mass </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">getTotMass</span><span class="p">()</span>
-        <span class="k">print</span> <span class="s">&quot;    Density </span><span class="si">%f</span><span class="s"> &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">_getDensity</span><span class="p">()</span>
-        <span class="k">print</span> <span class="s">&quot;  Lattice vectors &quot;</span>
-        <span class="k">print</span> <span class="s">&quot;    v_i &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">print</span> <span class="s">&quot;    v_j &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">print</span> <span class="s">&quot;    v_k &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="k">print</span> <span class="s">&quot;  Bonds </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bondC</span><span class="p">))</span>
 
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def printprop(self):</span>
+
+<span class="sd">        Print properties of a structure </span>
+
+<span class="sd">        print &quot;  Particles %d &quot;%(len(self.ptclC))</span>
+<span class="sd">        print &quot;    Volume %f &quot;%self.getVolume()</span>
+<span class="sd">        print &quot;    Mass %f &quot;%self.getTotMass()</span>
+<span class="sd">        print &quot;    Density %f &quot;%self._getDensity()</span>
+<span class="sd">        print &quot;  Lattice vectors &quot;</span>
+<span class="sd">        print &quot;    v_i &quot;,self.latvec[0]</span>
+<span class="sd">        print &quot;    v_j &quot;,self.latvec[1]</span>
+<span class="sd">        print &quot;    v_k &quot;,self.latvec[2]</span>
+<span class="sd">        print &quot;  Bonds %d &quot;%(len(self.bondC))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+            
 </div>
-<div class="viewcode-block" id="StructureContainer.maxminLatVec"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.maxminLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">maxminLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureContainer.maxminLatVec"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.maxminLatVec">[docs]</a>    <span class="k">def</span> <span class="nf">maxminLatVec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set lattice vector based on the max/min position of the particles</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -849,7 +843,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_max</span>
         
 </div>
-<div class="viewcode-block" id="StructureContainer.getchainnumb"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getchainnumb">[docs]</a>    <span class="k">def</span> <span class="nf">getchainnumb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   <span class="c"># Move out of class</span>
+<div class="viewcode-block" id="StructureContainer.getchainnumb"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getchainnumb">[docs]</a>    <span class="k">def</span> <span class="nf">getchainnumb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>   <span class="c"># Move out of class</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return number of chains in a structure</span>
 <span class="sd">        NOTE: only in replicate</span>
@@ -859,6 +853,471 @@
             <span class="k">if</span><span class="p">(</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n_chains</span><span class="p">):</span> <span class="n">n_chains</span> <span class="o">=</span> <span class="n">ptclObj</span><span class="o">.</span><span class="n">tagsDict</span><span class="p">[</span><span class="s">&quot;chain&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">n_chains</span>
+
+        </div>
+<div class="viewcode-block" id="StructureContainer.calc_rdf"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.calc_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdf_cnt_ij</span><span class="p">,</span><span class="n">bin_size</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">sq_r_cut</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate RDF for a group of particles</span>
+<span class="sd">        NOTE: might be able to remove</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">print_vmd</span> <span class="o">=</span> <span class="bp">True</span> 
+        <span class="c">#</span>
+        <span class="c"># Loop over list i</span>
+        <span class="c">#</span>
+        <span class="k">for</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">ptcl_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">(</span><span class="n">list_i</span><span class="p">):</span>
+            <span class="n">r_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)]</span> <span class="p">)</span>
+            <span class="c">#</span>
+            <span class="c"># Loop over list j</span>
+            <span class="c">#</span>
+            <span class="k">for</span> <span class="n">p_j</span><span class="p">,</span> <span class="n">ptcl_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">(</span><span class="n">list_j</span><span class="p">):</span>
+                
+                <span class="k">if</span><span class="p">(</span> <span class="n">p_j</span> <span class="o">&gt;</span> <span class="n">p_i</span><span class="p">):</span>
+                    <span class="n">r_j</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="p">)</span>
+                    <span class="n">r_ij_sq</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">sq_drij_c</span><span class="p">(</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
+                    <span class="k">if</span><span class="p">(</span> <span class="n">r_ij_sq</span> <span class="o">&lt;=</span> <span class="n">sq_r_cut</span> <span class="p">):</span>
+                        <span class="n">m_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r_ij_sq</span><span class="p">)</span>
+                        <span class="n">bin_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span> <span class="n">m_ij</span><span class="o">/</span><span class="n">bin_size</span><span class="p">)</span> <span class="p">)</span>
+                        <span class="n">rdf_cnt_ij</span><span class="p">[</span><span class="n">bin_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span>
+
+                        <span class="k">if</span><span class="p">(</span> <span class="n">print_vmd</span> <span class="p">):</span>
+                            <span class="k">print</span> <span class="s">&quot; index </span><span class="si">%d</span><span class="s"> or </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">p_i</span><span class="p">,</span><span class="n">p_j</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rdf_cnt_ij</span>
+
+</div>
+<div class="viewcode-block" id="StructureContainer.get_dihatoms"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.get_dihatoms">[docs]</a>    <span class="k">def</span> <span class="nf">get_dihatoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">list_k</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">list_l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find sets of dihedrals in system</span>
+
+<span class="sd">        k-i-j-l</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">          list_k (list) of atom indexes in of the first bonded atom in the dihedral </span>
+<span class="sd">          list_i (list) of atom indexes in of the second bonded atom in the dihedral </span>
+<span class="sd">          list_j (list) of atom indexes in of the third bonded atom in the dihedral </span>
+<span class="sd">          list_l (list) of atom indexes in of the fourth bonded atom in the dihedral</span>
+<span class="sd">        Return</span>
+<span class="sd">          angle_list (list) of four aotms in each dihedral </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">datetime</span>
+        <span class="kn">import</span> <span class="nn">topology</span>
+
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot; list_k &quot;</span><span class="p">,</span><span class="n">list_k</span>
+            <span class="k">print</span> <span class="s">&quot; list_i &quot;</span><span class="p">,</span><span class="n">list_i</span>
+            <span class="k">print</span> <span class="s">&quot; list_j &quot;</span><span class="p">,</span><span class="n">list_j</span>
+            <span class="k">print</span> <span class="s">&quot; list_l &quot;</span><span class="p">,</span><span class="n">list_l</span>
+
+        
+        <span class="c"># Create neighbor list form bonds</span>
+        <span class="n">cov_nblist</span><span class="p">,</span> <span class="n">cov_nbindx</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">build_covnablist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c">#NBLIST,NBINDEX = self.bonded_nblist()</span>
+
+        
+        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot; found     NBLIST,NBINDEX &quot;</span>
+           
+        <span class="c">#</span>
+        <span class="c"># Find  atom groups k-i-j</span>
+        <span class="c">#</span>
+        <span class="n">angle_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c">#</span>
+        <span class="n">sum_angles</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c">#</span>
+        <span class="c"># Find atom indices  of group i and j</span>
+        <span class="c">#</span>
+        <span class="c">#for p_k, ptcl_k  in self.ptclC(list_k):</span>
+        <span class="k">for</span> <span class="n">atom_k</span>  <span class="ow">in</span> <span class="n">list_k</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
+               <span class="n">t_i</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+	    <span class="n">N_k_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_k</span><span class="p">]</span>
+	    <span class="n">N_k_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span> <span class="k">print</span>  <span class="s">&quot;checking k &quot;</span><span class="p">,</span><span class="n">atom_k</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_k</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="s">&quot; with &quot;</span><span class="p">,</span><span class="n">N_k_f</span> <span class="o">-</span> <span class="n">N_k_o</span><span class="p">,</span><span class="s">&quot; nbs&quot;</span>
+	    
+	    <span class="k">for</span> <span class="n">indx_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_k_o</span><span class="p">,</span><span class="n">N_k_f</span><span class="p">):</span>
+                <span class="n">atom_i</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_i</span><span class="p">]</span>
+                <span class="n">add_i</span> <span class="o">=</span> <span class="bp">False</span>
+
+                <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span> <span class="k">print</span> <span class="s">&quot; checking i &quot;</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+                
+                <span class="k">for</span>  <span class="n">p_i</span> <span class="ow">in</span> <span class="n">list_i</span><span class="p">:</span>
+                    <span class="k">if</span><span class="p">(</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">p_i</span> <span class="p">):</span> <span class="c">#and atom_i &gt; atom_k ):</span>
+                        <span class="n">add_i</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span><span class="p">(</span> <span class="n">add_i</span> <span class="p">):</span> <span class="c">#atom_i in list_i ):</span>
+
+                    
+		    <span class="n">N_i_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span>
+		    <span class="n">N_i_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> 
+					
+		    <span class="k">for</span> <span class="n">indx_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_i_o</span><span class="p">,</span><span class="n">N_i_f</span><span class="p">):</span>
+			<span class="n">atom_j</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_j</span><span class="p">]</span>
+			<span class="n">add_j</span> <span class="o">=</span> <span class="bp">False</span>
+
+                        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span> <span class="k">print</span> <span class="s">&quot; checking j &quot;</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
+                            
+                        <span class="k">for</span>  <span class="n">p_j</span>  <span class="ow">in</span> <span class="n">list_j</span><span class="p">:</span>
+                            <span class="k">if</span><span class="p">(</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">p_j</span> <span class="p">):</span> <span class="c">#and atom_j &gt; atom_i ):</span>
+                                <span class="n">add_j</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="k">if</span><span class="p">(</span> <span class="n">add_j</span> <span class="p">):</span> <span class="c"># atom_j  in list_j  ):</span>
+
+                            <span class="n">N_j_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span>
+                            <span class="n">N_j_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> 
+
+                            <span class="k">for</span> <span class="n">indx_l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_j_o</span><span class="p">,</span><span class="n">N_j_f</span><span class="p">):</span>
+                                <span class="n">atom_l</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_l</span><span class="p">]</span>
+                                <span class="n">add_l</span> <span class="o">=</span> <span class="bp">False</span>
+
+                                <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+                                    <span class="k">print</span> <span class="s">&quot; checking l &quot;</span><span class="p">,</span><span class="n">atom_l</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_l</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>                                    
+                                <span class="k">for</span>  <span class="n">p_l</span>  <span class="ow">in</span> <span class="n">list_l</span><span class="p">:</span>
+                                    <span class="k">if</span><span class="p">(</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">p_l</span> <span class="p">):</span> <span class="c">#and atom_l &gt; atom_j ):</span>
+                                        <span class="n">add_l</span> <span class="o">=</span> <span class="bp">True</span>
+                                <span class="k">if</span><span class="p">(</span> <span class="n">add_l</span> <span class="p">):</span> <span class="c">#atom_l  in list_l ):</span>
+                                    <span class="c"># Check to make sure not in list already</span>
+                                    <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">True</span>
+                                    <span class="k">for</span> <span class="n">indx_kij</span> <span class="ow">in</span> <span class="n">angle_list</span><span class="p">:</span>
+                                        <span class="n">a_k</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                
+                                        <span class="n">a_i</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                        <span class="n">a_j</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                                        <span class="n">a_l</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                                        <span class="k">if</span><span class="p">(</span> <span class="n">atom_k</span> <span class="o">==</span> <span class="n">a_k</span> <span class="ow">and</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">a_i</span> <span class="ow">and</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">a_j</span> <span class="ow">and</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">a_l</span> <span class="p">):</span>
+                                            <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">False</span> 
+                                        <span class="k">if</span><span class="p">(</span> <span class="n">atom_k</span> <span class="o">==</span> <span class="n">a_l</span> <span class="ow">and</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">a_j</span> <span class="ow">and</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">a_i</span> <span class="ow">and</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">a_k</span> <span class="p">):</span>
+                                            <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">False</span> 
+                                    <span class="k">if</span><span class="p">(</span><span class="n">add_dih</span> <span class="p">):</span>
+                                        <span class="n">angle_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">atom_k</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="n">atom_l</span><span class="p">]</span> <span class="p">)</span>
+
+                                        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
+
+                                            <span class="n">t_f</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                                            <span class="n">dt_sec</span>  <span class="o">=</span> <span class="n">t_f</span><span class="o">.</span><span class="n">second</span> <span class="o">-</span> <span class="n">t_i</span><span class="o">.</span><span class="n">second</span>
+                                            <span class="n">dt_min</span>  <span class="o">=</span> <span class="n">t_f</span><span class="o">.</span><span class="n">minute</span> <span class="o">-</span> <span class="n">t_i</span><span class="o">.</span><span class="n">minute</span>
+                                            <span class="k">if</span> <span class="p">(</span> <span class="n">dt_sec</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">):</span> <span class="n">dt_sec</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">-</span> <span class="n">dt_sec</span>
+                                            <span class="k">if</span> <span class="p">(</span> <span class="n">dt_sec</span> <span class="o">&gt;</span> <span class="mf">60.0</span> <span class="p">):</span> <span class="n">dt_sec</span> <span class="o">=</span> <span class="n">dt_sec</span> <span class="o">-</span> <span class="mf">60.0</span>         
+                                            <span class="k">print</span> <span class="s">&quot; found angle &quot;</span><span class="p">,</span><span class="n">atom_k</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="n">atom_l</span>
+                                            <span class="k">print</span> <span class="s">&quot;  Computation time &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dt_min</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; min &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dt_sec</span><span class="p">)</span><span class="o">+</span><span class="s">&quot; seconds &quot;</span>
+                                        
+
+        <span class="k">if</span> <span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+            <span class="n">dih_cnt</span> <span class="o">=</span> <span class="mi">0</span> 
+            <span class="k">for</span> <span class="n">indx_kij</span> <span class="ow">in</span> <span class="n">angle_list</span><span class="p">:</span>
+                <span class="n">dih_cnt</span> <span class="o">+=</span> <span class="mi">1</span> 
+                <span class="n">a_k</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                
+                <span class="n">a_i</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">a_j</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">a_l</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="k">print</span> <span class="n">dih_cnt</span><span class="p">,</span><span class="s">&quot; found angle &quot;</span><span class="p">,</span><span class="n">a_k</span><span class="p">,</span><span class="n">a_i</span><span class="p">,</span><span class="n">a_j</span><span class="p">,</span><span class="n">a_l</span>
+                                    
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;get_dihatoms debug&#39;</span><span class="p">)</span>
+            
+	<span class="k">return</span> <span class="n">angle_list</span>
+
+</div>
+<div class="viewcode-block" id="StructureContainer.getDihedral"><a class="viewcode-back" href="../docstr_structureContainer.html#structureContainer.StructureContainer.getDihedral">[docs]</a>    <span class="k">def</span> <span class="nf">getDihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a_k</span><span class="p">,</span><span class="n">a_i</span><span class="p">,</span><span class="n">a_j</span><span class="p">,</span><span class="n">a_l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate dihedral angle of set of particles</span>
+
+<span class="sd">        k</span>
+<span class="sd">           \</span>
+<span class="sd">             i  - j</span>
+<span class="sd">                    \</span>
+<span class="sd">                       l</span>
+
+<span class="sd">                       </span>
+<span class="sd">        TRAVIS document                       </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+        
+        <span class="n">r_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">r_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">r_j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">r_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot; lat vec &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
+            <span class="k">print</span> <span class="s">&quot;r_k &quot;</span><span class="p">,</span><span class="n">r_k</span>
+            <span class="k">print</span> <span class="s">&quot;r_i &quot;</span><span class="p">,</span><span class="n">r_i</span>
+            <span class="k">print</span> <span class="s">&quot;r_j &quot;</span><span class="p">,</span><span class="n">r_j</span>
+            <span class="k">print</span> <span class="s">&quot;r_l &quot;</span><span class="p">,</span><span class="n">r_l</span>
+
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_k</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
+        <span class="n">v3</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_j</span><span class="p">,</span> <span class="n">r_l</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
+
+        <span class="n">v1v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">)</span>
+        <span class="n">v2v3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">)</span>
+
+
+        <span class="n">angle_i</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">getAngle</span><span class="p">(</span><span class="n">v1v2</span><span class="p">,</span><span class="n">v2v3</span><span class="p">)</span>
+
+        
+        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;v1 &quot;</span><span class="p">,</span><span class="n">v1</span>
+            <span class="k">print</span> <span class="s">&quot;v2 &quot;</span><span class="p">,</span><span class="n">v2</span>
+            <span class="k">print</span> <span class="s">&quot;v3 &quot;</span><span class="p">,</span><span class="n">v3</span>
+            <span class="k">print</span> <span class="s">&quot;v1v2 &quot;</span><span class="p">,</span><span class="n">v1v2</span>
+            <span class="k">print</span> <span class="s">&quot;v2v3 &quot;</span><span class="p">,</span><span class="n">v2v3</span>
+            <span class="k">print</span> <span class="s">&quot;angle_i &quot;</span><span class="p">,</span><span class="n">angle_i</span>
+
+
+        <span class="c">#</span>
+        <span class="c"># Find sign of angle </span>
+        <span class="c">#</span>
+        <span class="n">v1v3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v3</span><span class="p">)</span>
+        <span class="n">sign_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="n">v1v3</span><span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span> <span class="n">sign_v</span> <span class="o">&gt;</span> <span class="mf">0.0</span>  <span class="p">):</span>
+            <span class="n">angle_i</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">angle_i</span>
+
+        <span class="k">return</span> <span class="n">angle_i</span>
+
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
+
+<span class="sd">        Read in structure information from gaussian fchk file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          fchk_file (str) grochkfile</span>
+<span class="sd">        </span>
+
+<span class="sd">        import numpy as np</span>
+<span class="sd">        # Energy conversion</span>
+<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
+<span class="sd">        HtoeV = 27.211385</span>
+
+<span class="sd">        bohr2angstrom = 0.5291772086</span>
+
+<span class="sd">        </span>
+<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
+<span class="sd">        </span>
+<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
+<span class="sd">        Lines = F.readlines()</span>
+<span class="sd">        F.close()</span>
+
+<span class="sd">        read_r = False</span>
+<span class="sd">        read_eln = False</span>
+<span class="sd">        read_esp = False</span>
+<span class="sd">        for line in Lines :</span>
+<span class="sd">            col = line.split()</span>
+
+<span class="sd">            if( read_r ):</span>
+
+<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
+<span class="sd">                    read_r = False</span>
+<span class="sd">                    p_i = 0 </span>
+<span class="sd">                    for p_indx in range(NA):</span>
+<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
+<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
+<span class="sd">                        p_i += 1                         </span>
+<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
+<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
+<span class="sd">                else:</span>
+<span class="sd">                    for r_i in  map(float,col) :</span>
+<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
+
+<span class="sd">            if( read_eln ):</span>
+<span class="sd">                if ( eln_p_cnt == NA ):</span>
+<span class="sd">                    read_eln = False</span>
+<span class="sd">                else:                    </span>
+<span class="sd">                    for eln_i in  map(int,col):</span>
+<span class="sd">                        eln_p_cnt += 1                        </span>
+<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
+<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
+
+<span class="sd">            if( read_esp ):</span>
+<span class="sd">                if ( esp_p_cnt == NA ):</span>
+<span class="sd">                    read_esp = False</span>
+<span class="sd">                else:</span>
+<span class="sd">                    </span>
+<span class="sd">                    for q_i in  map(float,col):</span>
+<span class="sd">                        esp_p_cnt += 1</span>
+<span class="sd">                        p_indx = esp_p_cnt -1 </span>
+<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
+<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
+<span class="sd">                                                </span>
+
+<span class="sd">            if( len(col) &gt; 2 ):</span>
+<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
+<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
+
+<span class="sd">            if( len(col) == 5 ):</span>
+<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
+<span class="sd">                    NA = int(col[4])</span>
+<span class="sd">                    </span>
+<span class="sd">                    if( NA != len(self.ptclC) ):</span>
+<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
+<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
+
+<span class="sd">            if( len(col) == 6 ):</span>
+<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
+<span class="sd">                    read_r = True</span>
+<span class="sd">                    R_all = []</span>
+
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
+<span class="sd">                    read_eln = True</span>
+<span class="sd">                    eln_p_cnt = 0</span>
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
+<span class="sd">                    read_esp = True</span>
+<span class="sd">                    esp_p_cnt = 0</span>
+
+<span class="sd">        return json_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
+
+<span class="sd">        Read in structure information from gaussian fchk file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          fchk_file (str) grochkfile</span>
+<span class="sd">        </span>
+
+<span class="sd">        import numpy as np</span>
+<span class="sd">        # Energy conversion</span>
+<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
+<span class="sd">        HtoeV = 27.211385</span>
+
+<span class="sd">        bohr2angstrom = 0.5291772086</span>
+
+<span class="sd">        </span>
+<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
+<span class="sd">        </span>
+<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
+<span class="sd">        Lines = F.readlines()</span>
+<span class="sd">        F.close()</span>
+
+<span class="sd">        read_r = False</span>
+<span class="sd">        read_eln = False</span>
+<span class="sd">        read_esp = False</span>
+<span class="sd">        for line in Lines :</span>
+<span class="sd">            col = line.split()</span>
+
+<span class="sd">            if( read_r ):</span>
+
+<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
+<span class="sd">                    read_r = False</span>
+<span class="sd">                    p_i = 0 </span>
+<span class="sd">                    for p_indx in range(NA):</span>
+<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
+<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
+<span class="sd">                        p_i += 1                         </span>
+<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
+<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
+<span class="sd">                else:</span>
+<span class="sd">                    for r_i in  map(float,col) :</span>
+<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
+
+<span class="sd">            if( read_eln ):</span>
+<span class="sd">                if ( eln_p_cnt == NA ):</span>
+<span class="sd">                    read_eln = False</span>
+<span class="sd">                else:                    </span>
+<span class="sd">                    for eln_i in  map(int,col):</span>
+<span class="sd">                        eln_p_cnt += 1                        </span>
+<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
+<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
+
+<span class="sd">            if( read_esp ):</span>
+<span class="sd">                if ( esp_p_cnt == NA ):</span>
+<span class="sd">                    read_esp = False</span>
+<span class="sd">                else:</span>
+<span class="sd">                    </span>
+<span class="sd">                    for q_i in  map(float,col):</span>
+<span class="sd">                        esp_p_cnt += 1</span>
+<span class="sd">                        p_indx = esp_p_cnt -1 </span>
+<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
+<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
+<span class="sd">                                                </span>
+
+<span class="sd">            if( len(col) &gt; 2 ):</span>
+<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
+<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
+
+<span class="sd">            if( len(col) == 5 ):</span>
+<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
+<span class="sd">                    NA = int(col[4])</span>
+<span class="sd">                    </span>
+<span class="sd">                    if( NA != len(self.ptclC) ):</span>
+<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
+<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
+
+<span class="sd">            if( len(col) == 6 ):</span>
+<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
+<span class="sd">                    read_r = True</span>
+<span class="sd">                    R_all = []</span>
+
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
+<span class="sd">                    read_eln = True</span>
+<span class="sd">                    eln_p_cnt = 0</span>
+
+<span class="sd">            if( len(col) &gt; 2  ):</span>
+<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
+<span class="sd">                    read_esp = True</span>
+<span class="sd">                    esp_p_cnt = 0</span>
+
+<span class="sd">        return json_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    def set_cply_tags(self):  # Move outside of class</span>
+
+
+<span class="sd">        Set tags for new cply file </span>
+<span class="sd">        Use ctype tag and bonding enviroment</span>
+
+
+<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
+<span class="sd">        import elements , top </span>
+
+<span class="sd">        # Create list to pass to Atomicpy</span>
+<span class="sd">        ASYMB = []</span>
+<span class="sd">        R = []</span>
+<span class="sd">        AMASS = []</span>
+<span class="sd">        CHARGES = []</span>
+<span class="sd">        MOLNUMB = []</span>
+<span class="sd">        RESID = []</span>
+<span class="sd">        RESN = []</span>
+<span class="sd">        CTYPE = []</span>
+<span class="sd">        </span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ASYMB.append( ptclObj.type  )</span>
+<span class="sd">            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )</span>
+<span class="sd">            AMASS.append( float( ptclObj.mass)  )</span>
+<span class="sd">            CHARGES.append( float( ptclObj.charge ) )</span>
+<span class="sd">            MOLNUMB.append( int( ptclObj.tagsDict[&quot;chain&quot;] ) )</span>
+<span class="sd">            RESID.append( int( ptclObj.tagsDict[&quot;residue&quot;] ) )</span>
+<span class="sd">            RESN.append(  ptclObj.tagsDict[&quot;resname&quot;]  )</span>
+<span class="sd">            CTYPE.append( ptclObj.tagsDict[&quot;linkid&quot;]  )</span>
+<span class="sd">            </span>
+<span class="sd">        # Find atomic number based on atomic symbol </span>
+<span class="sd">        ELN = elements.asymb_eln(ASYMB)</span>
+<span class="sd">        AMASS = elements.eln_amass(ELN)</span>
+
+<span class="sd">        #   Build covalent nieghbor list for bonded information </span>
+<span class="sd">        NBLIST, NBINDEX = top.build_covnablist(ELN,R)</span>
+
+<span class="sd">        verbose = True </span>
+<span class="sd">        cply_tag = top.set_cply_tags(  verbose, ELN, CTYPE,RESN ,NBLIST, NBINDEX )</span>
+<span class="sd">        </span>
+<span class="sd">        atom_i = 0</span>
+<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
+<span class="sd">            ptclObj.tagsDict[&quot;cply_tag&quot;] = cply_tag[atom_i]</span>
+
+<span class="sd">            print &quot; setting cply tag &quot;,cply_tag[atom_i]</span>
+<span class="sd">            </span>
+<span class="sd">            atom_i +=1 </span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1197,471 +1656,7 @@
 <span class="sd">            F.write( &quot; %5s %16.8f %16.8f %16.8f \n&quot;  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   </span>
 <span class="sd">        F.close()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        </div>
-<div class="viewcode-block" id="StructureContainer.calc_rdf"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.calc_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdf_cnt_ij</span><span class="p">,</span><span class="n">bin_size</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">sq_r_cut</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate RDF for a group of particles</span>
-<span class="sd">        NOTE: might be able to remove</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">print_vmd</span> <span class="o">=</span> <span class="bp">True</span> 
-        <span class="c">#</span>
-        <span class="c"># Loop over list i</span>
-        <span class="c">#</span>
-        <span class="k">for</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">ptcl_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">(</span><span class="n">list_i</span><span class="p">):</span>
-            <span class="n">r_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_i</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)]</span> <span class="p">)</span>
-            <span class="c">#</span>
-            <span class="c"># Loop over list j</span>
-            <span class="c">#</span>
-            <span class="k">for</span> <span class="n">p_j</span><span class="p">,</span> <span class="n">ptcl_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">(</span><span class="n">list_j</span><span class="p">):</span>
-                
-                <span class="k">if</span><span class="p">(</span> <span class="n">p_j</span> <span class="o">&gt;</span> <span class="n">p_i</span><span class="p">):</span>
-                    <span class="n">r_j</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">ptcl_j</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span> <span class="p">)</span>
-                    <span class="n">r_ij_sq</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">sq_drij_c</span><span class="p">(</span><span class="n">r_i</span><span class="p">,</span><span class="n">r_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
-                    <span class="k">if</span><span class="p">(</span> <span class="n">r_ij_sq</span> <span class="o">&lt;=</span> <span class="n">sq_r_cut</span> <span class="p">):</span>
-                        <span class="n">m_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r_ij_sq</span><span class="p">)</span>
-                        <span class="n">bin_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="nb">round</span><span class="p">(</span> <span class="n">m_ij</span><span class="o">/</span><span class="n">bin_size</span><span class="p">)</span> <span class="p">)</span>
-                        <span class="n">rdf_cnt_ij</span><span class="p">[</span><span class="n">bin_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span>
-
-                        <span class="k">if</span><span class="p">(</span> <span class="n">print_vmd</span> <span class="p">):</span>
-                            <span class="k">print</span> <span class="s">&quot; index </span><span class="si">%d</span><span class="s"> or </span><span class="si">%d</span><span class="s"> &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">p_i</span><span class="p">,</span><span class="n">p_j</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">rdf_cnt_ij</span>
-
-</div>
-<div class="viewcode-block" id="StructureContainer.get_dihatoms"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.get_dihatoms">[docs]</a>    <span class="k">def</span> <span class="nf">get_dihatoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">list_k</span><span class="p">,</span><span class="n">list_i</span><span class="p">,</span><span class="n">list_j</span><span class="p">,</span><span class="n">list_l</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find sets of dihedrals in system</span>
-
-<span class="sd">        k-i-j-l</span>
-
-<span class="sd">        Arguments</span>
-<span class="sd">          list_k (list) of atom indexes in of the first bonded atom in the dihedral </span>
-<span class="sd">          list_i (list) of atom indexes in of the second bonded atom in the dihedral </span>
-<span class="sd">          list_j (list) of atom indexes in of the third bonded atom in the dihedral </span>
-<span class="sd">          list_l (list) of atom indexes in of the fourth bonded atom in the dihedral</span>
-<span class="sd">        Return</span>
-<span class="sd">          angle_list (list) of four aotms in each dihedral </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="kn">import</span> <span class="nn">datetime</span>
-        <span class="kn">import</span> <span class="nn">topology</span>
-
-        <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
-
-        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
-            <span class="k">print</span> <span class="s">&quot; list_k &quot;</span><span class="p">,</span><span class="n">list_k</span>
-            <span class="k">print</span> <span class="s">&quot; list_i &quot;</span><span class="p">,</span><span class="n">list_i</span>
-            <span class="k">print</span> <span class="s">&quot; list_j &quot;</span><span class="p">,</span><span class="n">list_j</span>
-            <span class="k">print</span> <span class="s">&quot; list_l &quot;</span><span class="p">,</span><span class="n">list_l</span>
-
-        
-        <span class="c"># Create neighbor list form bonds</span>
-        <span class="n">cov_nblist</span><span class="p">,</span> <span class="n">cov_nbindx</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">build_covnablist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="c">#NBLIST,NBINDEX = self.bonded_nblist()</span>
-
-        
-        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
-            <span class="k">print</span> <span class="s">&quot; found     NBLIST,NBINDEX &quot;</span>
-           
-        <span class="c">#</span>
-        <span class="c"># Find  atom groups k-i-j</span>
-        <span class="c">#</span>
-        <span class="n">angle_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c">#</span>
-        <span class="n">sum_angles</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="c">#</span>
-        <span class="c"># Find atom indices  of group i and j</span>
-        <span class="c">#</span>
-        <span class="c">#for p_k, ptcl_k  in self.ptclC(list_k):</span>
-        <span class="k">for</span> <span class="n">atom_k</span>  <span class="ow">in</span> <span class="n">list_k</span><span class="p">:</span>
-            <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
-               <span class="n">t_i</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-
-	    <span class="n">N_k_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_k</span><span class="p">]</span>
-	    <span class="n">N_k_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-
-            <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span> <span class="k">print</span>  <span class="s">&quot;checking k &quot;</span><span class="p">,</span><span class="n">atom_k</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_k</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="s">&quot; with &quot;</span><span class="p">,</span><span class="n">N_k_f</span> <span class="o">-</span> <span class="n">N_k_o</span><span class="p">,</span><span class="s">&quot; nbs&quot;</span>
-	    
-	    <span class="k">for</span> <span class="n">indx_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_k_o</span><span class="p">,</span><span class="n">N_k_f</span><span class="p">):</span>
-                <span class="n">atom_i</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_i</span><span class="p">]</span>
-                <span class="n">add_i</span> <span class="o">=</span> <span class="bp">False</span>
-
-                <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span> <span class="k">print</span> <span class="s">&quot; checking i &quot;</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
-                
-                <span class="k">for</span>  <span class="n">p_i</span> <span class="ow">in</span> <span class="n">list_i</span><span class="p">:</span>
-                    <span class="k">if</span><span class="p">(</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">p_i</span> <span class="p">):</span> <span class="c">#and atom_i &gt; atom_k ):</span>
-                        <span class="n">add_i</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="k">if</span><span class="p">(</span> <span class="n">add_i</span> <span class="p">):</span> <span class="c">#atom_i in list_i ):</span>
-
-                    
-		    <span class="n">N_i_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_i</span><span class="p">]</span>
-		    <span class="n">N_i_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> 
-					
-		    <span class="k">for</span> <span class="n">indx_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_i_o</span><span class="p">,</span><span class="n">N_i_f</span><span class="p">):</span>
-			<span class="n">atom_j</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_j</span><span class="p">]</span>
-			<span class="n">add_j</span> <span class="o">=</span> <span class="bp">False</span>
-
-                        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span> <span class="k">print</span> <span class="s">&quot; checking j &quot;</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>
-                            
-                        <span class="k">for</span>  <span class="n">p_j</span>  <span class="ow">in</span> <span class="n">list_j</span><span class="p">:</span>
-                            <span class="k">if</span><span class="p">(</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">p_j</span> <span class="p">):</span> <span class="c">#and atom_j &gt; atom_i ):</span>
-                                <span class="n">add_j</span> <span class="o">=</span> <span class="bp">True</span>
-                        <span class="k">if</span><span class="p">(</span> <span class="n">add_j</span> <span class="p">):</span> <span class="c"># atom_j  in list_j  ):</span>
-
-                            <span class="n">N_j_o</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_j</span><span class="p">]</span>
-                            <span class="n">N_j_f</span> <span class="o">=</span> <span class="n">cov_nbindx</span><span class="p">[</span><span class="n">atom_j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> 
-
-                            <span class="k">for</span> <span class="n">indx_l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">N_j_o</span><span class="p">,</span><span class="n">N_j_f</span><span class="p">):</span>
-                                <span class="n">atom_l</span> <span class="o">=</span> <span class="n">cov_nblist</span><span class="p">[</span><span class="n">indx_l</span><span class="p">]</span>
-                                <span class="n">add_l</span> <span class="o">=</span> <span class="bp">False</span>
-
-                                <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
-                                    <span class="k">print</span> <span class="s">&quot; checking l &quot;</span><span class="p">,</span><span class="n">atom_l</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">atom_l</span><span class="p">]</span><span class="o">.</span><span class="n">type</span>                                    
-                                <span class="k">for</span>  <span class="n">p_l</span>  <span class="ow">in</span> <span class="n">list_l</span><span class="p">:</span>
-                                    <span class="k">if</span><span class="p">(</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">p_l</span> <span class="p">):</span> <span class="c">#and atom_l &gt; atom_j ):</span>
-                                        <span class="n">add_l</span> <span class="o">=</span> <span class="bp">True</span>
-                                <span class="k">if</span><span class="p">(</span> <span class="n">add_l</span> <span class="p">):</span> <span class="c">#atom_l  in list_l ):</span>
-                                    <span class="c"># Check to make sure not in list already</span>
-                                    <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">True</span>
-                                    <span class="k">for</span> <span class="n">indx_kij</span> <span class="ow">in</span> <span class="n">angle_list</span><span class="p">:</span>
-                                        <span class="n">a_k</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                
-                                        <span class="n">a_i</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                                        <span class="n">a_j</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                                        <span class="n">a_l</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-                                        <span class="k">if</span><span class="p">(</span> <span class="n">atom_k</span> <span class="o">==</span> <span class="n">a_k</span> <span class="ow">and</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">a_i</span> <span class="ow">and</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">a_j</span> <span class="ow">and</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">a_l</span> <span class="p">):</span>
-                                            <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">False</span> 
-                                        <span class="k">if</span><span class="p">(</span> <span class="n">atom_k</span> <span class="o">==</span> <span class="n">a_l</span> <span class="ow">and</span> <span class="n">atom_i</span> <span class="o">==</span> <span class="n">a_j</span> <span class="ow">and</span> <span class="n">atom_j</span> <span class="o">==</span> <span class="n">a_i</span> <span class="ow">and</span> <span class="n">atom_l</span> <span class="o">==</span> <span class="n">a_k</span> <span class="p">):</span>
-                                            <span class="n">add_dih</span> <span class="o">=</span> <span class="bp">False</span> 
-                                    <span class="k">if</span><span class="p">(</span><span class="n">add_dih</span> <span class="p">):</span>
-                                        <span class="n">angle_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">atom_k</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="n">atom_l</span><span class="p">]</span> <span class="p">)</span>
-
-                                        <span class="k">if</span><span class="p">(</span><span class="n">debug</span><span class="p">):</span>
-
-                                            <span class="n">t_f</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-                                            <span class="n">dt_sec</span>  <span class="o">=</span> <span class="n">t_f</span><span class="o">.</span><span class="n">second</span> <span class="o">-</span> <span class="n">t_i</span><span class="o">.</span><span class="n">second</span>
-                                            <span class="n">dt_min</span>  <span class="o">=</span> <span class="n">t_f</span><span class="o">.</span><span class="n">minute</span> <span class="o">-</span> <span class="n">t_i</span><span class="o">.</span><span class="n">minute</span>
-                                            <span class="k">if</span> <span class="p">(</span> <span class="n">dt_sec</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">):</span> <span class="n">dt_sec</span> <span class="o">=</span> <span class="mf">60.0</span> <span class="o">-</span> <span class="n">dt_sec</span>
-                                            <span class="k">if</span> <span class="p">(</span> <span class="n">dt_sec</span> <span class="o">&gt;</span> <span class="mf">60.0</span> <span class="p">):</span> <span class="n">dt_sec</span> <span class="o">=</span> <span class="n">dt_sec</span> <span class="o">-</span> <span class="mf">60.0</span>         
-                                            <span class="k">print</span> <span class="s">&quot; found angle &quot;</span><span class="p">,</span><span class="n">atom_k</span><span class="p">,</span><span class="n">atom_i</span><span class="p">,</span><span class="n">atom_j</span><span class="p">,</span><span class="n">atom_l</span>
-                                            <span class="k">print</span> <span class="s">&quot;  Computation time &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dt_min</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; min &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dt_sec</span><span class="p">)</span><span class="o">+</span><span class="s">&quot; seconds &quot;</span>
-                                        
-
-        <span class="k">if</span> <span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
-            <span class="n">dih_cnt</span> <span class="o">=</span> <span class="mi">0</span> 
-            <span class="k">for</span> <span class="n">indx_kij</span> <span class="ow">in</span> <span class="n">angle_list</span><span class="p">:</span>
-                <span class="n">dih_cnt</span> <span class="o">+=</span> <span class="mi">1</span> 
-                <span class="n">a_k</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                
-                <span class="n">a_i</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">a_j</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                <span class="n">a_l</span> <span class="o">=</span> <span class="n">indx_kij</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-                <span class="k">print</span> <span class="n">dih_cnt</span><span class="p">,</span><span class="s">&quot; found angle &quot;</span><span class="p">,</span><span class="n">a_k</span><span class="p">,</span><span class="n">a_i</span><span class="p">,</span><span class="n">a_j</span><span class="p">,</span><span class="n">a_l</span>
-                                    
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;get_dihatoms debug&#39;</span><span class="p">)</span>
-            
-	<span class="k">return</span> <span class="n">angle_list</span>
-
-</div>
-<div class="viewcode-block" id="StructureContainer.getDihedral"><a class="viewcode-back" href="../framework_design.html#structureContainer.StructureContainer.getDihedral">[docs]</a>    <span class="k">def</span> <span class="nf">getDihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a_k</span><span class="p">,</span><span class="n">a_i</span><span class="p">,</span><span class="n">a_j</span><span class="p">,</span><span class="n">a_l</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate dihedral angle of set of particles</span>
-
-<span class="sd">        k</span>
-<span class="sd">           \</span>
-<span class="sd">             i  - j</span>
-<span class="sd">                    \</span>
-<span class="sd">                       l</span>
-
-<span class="sd">                       </span>
-<span class="sd">        TRAVIS document                       </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
-        
-        <span class="n">r_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_k</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
-        <span class="n">r_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
-        <span class="n">r_j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_j</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
-        <span class="n">r_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">),</span><span class="nb">float</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptclC</span><span class="p">[</span><span class="n">a_l</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
-
-        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
-            <span class="k">print</span> <span class="s">&quot; lat vec &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span>
-            <span class="k">print</span> <span class="s">&quot;r_k &quot;</span><span class="p">,</span><span class="n">r_k</span>
-            <span class="k">print</span> <span class="s">&quot;r_i &quot;</span><span class="p">,</span><span class="n">r_i</span>
-            <span class="k">print</span> <span class="s">&quot;r_j &quot;</span><span class="p">,</span><span class="n">r_j</span>
-            <span class="k">print</span> <span class="s">&quot;r_l &quot;</span><span class="p">,</span><span class="n">r_l</span>
-
-        <span class="n">v1</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_k</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
-        <span class="n">v2</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
-        <span class="n">v3</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">norm_r_ij</span><span class="p">(</span><span class="n">r_j</span><span class="p">,</span> <span class="n">r_l</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">latvec</span><span class="p">)</span>
-
-        <span class="n">v1v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">)</span>
-        <span class="n">v2v3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">)</span>
-
-
-        <span class="n">angle_i</span> <span class="o">=</span> <span class="n">pbcs</span><span class="o">.</span><span class="n">getAngle</span><span class="p">(</span><span class="n">v1v2</span><span class="p">,</span><span class="n">v2v3</span><span class="p">)</span>
-
-        
-        <span class="k">if</span><span class="p">(</span> <span class="n">debug</span><span class="p">):</span>
-            <span class="k">print</span> <span class="s">&quot;v1 &quot;</span><span class="p">,</span><span class="n">v1</span>
-            <span class="k">print</span> <span class="s">&quot;v2 &quot;</span><span class="p">,</span><span class="n">v2</span>
-            <span class="k">print</span> <span class="s">&quot;v3 &quot;</span><span class="p">,</span><span class="n">v3</span>
-            <span class="k">print</span> <span class="s">&quot;v1v2 &quot;</span><span class="p">,</span><span class="n">v1v2</span>
-            <span class="k">print</span> <span class="s">&quot;v2v3 &quot;</span><span class="p">,</span><span class="n">v2v3</span>
-            <span class="k">print</span> <span class="s">&quot;angle_i &quot;</span><span class="p">,</span><span class="n">angle_i</span>
-
-
-        <span class="c">#</span>
-        <span class="c"># Find sign of angle </span>
-        <span class="c">#</span>
-        <span class="n">v1v3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v3</span><span class="p">)</span>
-        <span class="n">sign_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="n">v1v3</span><span class="p">)</span>
-
-        <span class="k">if</span><span class="p">(</span> <span class="n">sign_v</span> <span class="o">&gt;</span> <span class="mf">0.0</span>  <span class="p">):</span>
-            <span class="n">angle_i</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">angle_i</span>
-
-        <span class="k">return</span> <span class="n">angle_i</span>
-
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
-
-<span class="sd">        Read in structure information from gaussian fchk file</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          fchk_file (str) grochkfile</span>
-<span class="sd">        </span>
-
-<span class="sd">        import numpy as np</span>
-<span class="sd">        # Energy conversion</span>
-<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
-<span class="sd">        HtoeV = 27.211385</span>
-
-<span class="sd">        bohr2angstrom = 0.5291772086</span>
-
-<span class="sd">        </span>
-<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
-<span class="sd">        </span>
-<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
-<span class="sd">        Lines = F.readlines()</span>
-<span class="sd">        F.close()</span>
-
-<span class="sd">        read_r = False</span>
-<span class="sd">        read_eln = False</span>
-<span class="sd">        read_esp = False</span>
-<span class="sd">        for line in Lines :</span>
-<span class="sd">            col = line.split()</span>
-
-<span class="sd">            if( read_r ):</span>
-
-<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
-<span class="sd">                    read_r = False</span>
-<span class="sd">                    p_i = 0 </span>
-<span class="sd">                    for p_indx in range(NA):</span>
-<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
-<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
-<span class="sd">                        p_i += 1                         </span>
-<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
-<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
-<span class="sd">                else:</span>
-<span class="sd">                    for r_i in  map(float,col) :</span>
-<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
-
-<span class="sd">            if( read_eln ):</span>
-<span class="sd">                if ( eln_p_cnt == NA ):</span>
-<span class="sd">                    read_eln = False</span>
-<span class="sd">                else:                    </span>
-<span class="sd">                    for eln_i in  map(int,col):</span>
-<span class="sd">                        eln_p_cnt += 1                        </span>
-<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
-<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
-
-<span class="sd">            if( read_esp ):</span>
-<span class="sd">                if ( esp_p_cnt == NA ):</span>
-<span class="sd">                    read_esp = False</span>
-<span class="sd">                else:</span>
-<span class="sd">                    </span>
-<span class="sd">                    for q_i in  map(float,col):</span>
-<span class="sd">                        esp_p_cnt += 1</span>
-<span class="sd">                        p_indx = esp_p_cnt -1 </span>
-<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
-<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
-<span class="sd">                                                </span>
-
-<span class="sd">            if( len(col) &gt; 2 ):</span>
-<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
-<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
-
-<span class="sd">            if( len(col) == 5 ):</span>
-<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
-<span class="sd">                    NA = int(col[4])</span>
-<span class="sd">                    </span>
-<span class="sd">                    if( NA != len(self.ptclC) ):</span>
-<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
-<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
-
-<span class="sd">            if( len(col) == 6 ):</span>
-<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
-<span class="sd">                    read_r = True</span>
-<span class="sd">                    R_all = []</span>
-
-
-<span class="sd">            if( len(col) &gt; 2  ):</span>
-<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
-<span class="sd">                    read_eln = True</span>
-<span class="sd">                    eln_p_cnt = 0</span>
-
-<span class="sd">            if( len(col) &gt; 2  ):</span>
-<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
-<span class="sd">                    read_esp = True</span>
-<span class="sd">                    esp_p_cnt = 0</span>
-
-<span class="sd">        return json_data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    def get_gaussian(self,fchk_file,json_data):</span>
-
-<span class="sd">        Read in structure information from gaussian fchk file</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          fchk_file (str) grochkfile</span>
-<span class="sd">        </span>
-
-<span class="sd">        import numpy as np</span>
-<span class="sd">        # Energy conversion</span>
-<span class="sd">        # http://physics.nist.gov/cgi-bin/cuu/Value?threv</span>
-<span class="sd">        HtoeV = 27.211385</span>
-
-<span class="sd">        bohr2angstrom = 0.5291772086</span>
-
-<span class="sd">        </span>
-<span class="sd">        particle_data = json_data[&quot;structure&quot;][&quot;particle&quot;]</span>
-<span class="sd">        </span>
-<span class="sd">        F = open(fchk_file,&#39;r&#39;)</span>
-<span class="sd">        Lines = F.readlines()</span>
-<span class="sd">        F.close()</span>
-
-<span class="sd">        read_r = False</span>
-<span class="sd">        read_eln = False</span>
-<span class="sd">        read_esp = False</span>
-<span class="sd">        for line in Lines :</span>
-<span class="sd">            col = line.split()</span>
-
-<span class="sd">            if( read_r ):</span>
-
-<span class="sd">                if (  col[0] == &quot;Force&quot; and col[1] == &quot;Field&quot; ):</span>
-<span class="sd">                    read_r = False</span>
-<span class="sd">                    p_i = 0 </span>
-<span class="sd">                    for p_indx in range(NA):</span>
-<span class="sd">                        #print atom_i ,atom_i*3,atom_i*3+2,R_all[atom_i*3:atom_i*3+3]</span>
-<span class="sd">                        vec_r_i =  R_all[p_indx*3:p_indx*3+3]</span>
-<span class="sd">                        p_i += 1                         </span>
-<span class="sd">                        self.ptclC[p_i].position = vec_r_i</span>
-<span class="sd">                        particle_data[&quot;position&quot;][p_indx] = vec_r_i</span>
-<span class="sd">                else:</span>
-<span class="sd">                    for r_i in  map(float,col) :</span>
-<span class="sd">                        R_all.append( r_i*bohr2angstrom )</span>
-
-<span class="sd">            if( read_eln ):</span>
-<span class="sd">                if ( eln_p_cnt == NA ):</span>
-<span class="sd">                    read_eln = False</span>
-<span class="sd">                else:                    </span>
-<span class="sd">                    for eln_i in  map(int,col):</span>
-<span class="sd">                        eln_p_cnt += 1                        </span>
-<span class="sd">                        #if( eln_i != self.ptclC[eln_p_cnt].type ):</span>
-<span class="sd">                        #    print &quot;  Particle &quot;,eln_p_cnt, self.ptclC[eln_p_cnt].type,&quot; != &quot;,eln_i</span>
-
-<span class="sd">            if( read_esp ):</span>
-<span class="sd">                if ( esp_p_cnt == NA ):</span>
-<span class="sd">                    read_esp = False</span>
-<span class="sd">                else:</span>
-<span class="sd">                    </span>
-<span class="sd">                    for q_i in  map(float,col):</span>
-<span class="sd">                        esp_p_cnt += 1</span>
-<span class="sd">                        p_indx = esp_p_cnt -1 </span>
-<span class="sd">                        self.ptclC[esp_p_cnt].charge = q_i</span>
-<span class="sd">                        particle_data[&quot;charge&quot;][p_indx] = q_i</span>
-<span class="sd">                                                </span>
-
-<span class="sd">            if( len(col) &gt; 2 ):</span>
-<span class="sd">                if( col[0] == &quot;Total&quot; and col[1] == &quot;Energy&quot; ):</span>
-<span class="sd">                    TOTAL_ENERGY = float( col[3] )*HtoeV</span>
-
-<span class="sd">            if( len(col) == 5 ):</span>
-<span class="sd">                if( col[0] == &quot;Number&quot; and col[1] == &quot;of&quot;  and col[2] == &quot;atoms&quot; ):</span>
-<span class="sd">                    NA = int(col[4])</span>
-<span class="sd">                    </span>
-<span class="sd">                    if( NA != len(self.ptclC) ):</span>
-<span class="sd">                        print &quot; json file contains %d atoms and fchk file contains %d &quot;%(len(self.ptclC),NA)</span>
-<span class="sd">                        sys.exit(&quot;inconsistent files &quot;)</span>
-
-<span class="sd">            if( len(col) == 6 ):</span>
-<span class="sd">                if( col[0] == &quot;Current&quot; and col[1] == &quot;cartesian&quot;  and col[2] == &quot;coordinates&quot; ):</span>
-<span class="sd">                    read_r = True</span>
-<span class="sd">                    R_all = []</span>
-
-
-<span class="sd">            if( len(col) &gt; 2  ):</span>
-<span class="sd">                if( col[0] == &quot;Atomic&quot; and col[1] == &quot;numbers&quot;   ):</span>
-<span class="sd">                    read_eln = True</span>
-<span class="sd">                    eln_p_cnt = 0</span>
-
-<span class="sd">            if( len(col) &gt; 2  ):</span>
-<span class="sd">                if( col[0] == &quot;ESP&quot; and col[1] == &quot;Charges&quot;   ):</span>
-<span class="sd">                    read_esp = True</span>
-<span class="sd">                    esp_p_cnt = 0</span>
-
-<span class="sd">        return json_data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    def set_cply_tags(self):  # Move outside of class</span>
-
-
-<span class="sd">        Set tags for new cply file </span>
-<span class="sd">        Use ctype tag and bonding enviroment</span>
-
-
-<span class="sd">        # Version 1 will be dependent on Atomicpy</span>
-<span class="sd">        import elements , top </span>
-
-<span class="sd">        # Create list to pass to Atomicpy</span>
-<span class="sd">        ASYMB = []</span>
-<span class="sd">        R = []</span>
-<span class="sd">        AMASS = []</span>
-<span class="sd">        CHARGES = []</span>
-<span class="sd">        MOLNUMB = []</span>
-<span class="sd">        RESID = []</span>
-<span class="sd">        RESN = []</span>
-<span class="sd">        CTYPE = []</span>
-<span class="sd">        </span>
-<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
-<span class="sd">            ASYMB.append( ptclObj.type  )</span>
-<span class="sd">            R.append( np.array( [ float( ptclObj.position[0] ),float( ptclObj.position[1] ),float( ptclObj.position[2] )]  )  )</span>
-<span class="sd">            AMASS.append( float( ptclObj.mass)  )</span>
-<span class="sd">            CHARGES.append( float( ptclObj.charge ) )</span>
-<span class="sd">            MOLNUMB.append( int( ptclObj.tagsDict[&quot;chain&quot;] ) )</span>
-<span class="sd">            RESID.append( int( ptclObj.tagsDict[&quot;residue&quot;] ) )</span>
-<span class="sd">            RESN.append(  ptclObj.tagsDict[&quot;resname&quot;]  )</span>
-<span class="sd">            CTYPE.append( ptclObj.tagsDict[&quot;linkid&quot;]  )</span>
-<span class="sd">            </span>
-<span class="sd">        # Find atomic number based on atomic symbol </span>
-<span class="sd">        ELN = elements.asymb_eln(ASYMB)</span>
-<span class="sd">        AMASS = elements.eln_amass(ELN)</span>
-
-<span class="sd">        #   Build covalent nieghbor list for bonded information </span>
-<span class="sd">        NBLIST, NBINDEX = top.build_covnablist(ELN,R)</span>
-
-<span class="sd">        verbose = True </span>
-<span class="sd">        cply_tag = top.set_cply_tags(  verbose, ELN, CTYPE,RESN ,NBLIST, NBINDEX )</span>
-<span class="sd">        </span>
-<span class="sd">        atom_i = 0</span>
-<span class="sd">        for pid, ptclObj  in self.ptclC:</span>
-<span class="sd">            ptclObj.tagsDict[&quot;cply_tag&quot;] = cply_tag[atom_i]</span>
-
-<span class="sd">            print &quot; setting cply tag &quot;,cply_tag[atom_i]</span>
-<span class="sd">            </span>
-<span class="sd">            atom_i +=1 </span>
-<span class="sd">        &quot;&quot;&quot;</span></div></div>
-</pre></div>
+</pre></div></div></div>
 
           </div>
         </div>

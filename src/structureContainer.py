@@ -156,7 +156,6 @@ class StructureContainer:
         'Magic' method for printng contents
         Delegates to __str__ method for contained objects
         """
-
         strucStr =  "\n"
         strucStr += sperator_line
         strucStr += "    Structure properties \n"
@@ -241,7 +240,6 @@ class StructureContainer:
         self.impC += impC                   # Now add impC with 'corrected' IDs
 
         return self
-
 
 
     def compressPtclIDs(self):
@@ -351,7 +349,6 @@ class StructureContainer:
             subAtoms[pgid] = atom
 
 
-
         if (not particlesOnly):
 
             # For each bond object in container check that both
@@ -428,7 +425,6 @@ class StructureContainer:
             ptclPosList (list) [ [1, 0.5, 0.1, 12.0],
                                  [2, 0.4, 33.3, -0.1] .....]
         """
-
         for ptclPos in ptclPosList:
             index = ptclPos[0]
             pos = ptclPos[1:]
@@ -443,7 +439,6 @@ class StructureContainer:
         Return: (list) [ [1, 0.5, 0.1, 12.0],
                          [2, 0.4, 33.3, -0.1] .....]
         """
-
         idxPosList = list()
         
         for pid, ptclObj in self.ptclC:
@@ -573,11 +568,10 @@ class StructureContainer:
         Method:
             Volume = ( v_i x v_j ) . v_k
         """
-
         br1 = np.cross(self.latvec[0],self.latvec[1])
         vol = np.dot(br1,self.latvec[2])
-
         return vol
+
 
     def getTotMass(self):
         """
@@ -630,7 +624,6 @@ class StructureContainer:
                 if( r_ij_sq > sq_maxdr):
                     sq_maxdr = r_ij_sq
 
-
         struc_len = np.sqrt(sq_maxdr)
 
         return struc_len
@@ -641,9 +634,8 @@ class StructureContainer:
         Shift structure by vector
         NOTE: only called in pbcs.py
 
-        Arguments
+        Args:
           r_shift (numpy vector) to shift all the cordinates by
-          
         """
     
         for pid, ptclObj in self.ptclC :
@@ -721,10 +713,11 @@ class StructureContainer:
             ptclObj.position = [r_x,r_y,r_z]
         
 
+        """
     def printprop(self):
-        """
+
         Print properties of a structure 
-        """
+
         print "  Particles %d "%(len(self.ptclC))
         print "    Volume %f "%self.getVolume()
         print "    Mass %f "%self.getTotMass()
@@ -734,7 +727,8 @@ class StructureContainer:
         print "    v_j ",self.latvec[1]
         print "    v_k ",self.latvec[2]
         print "  Bonds %d "%(len(self.bondC))
-
+        """
+            
 
     def maxminLatVec(self):
         """
@@ -784,343 +778,6 @@ class StructureContainer:
 
         return n_chains
 
-
-        """
-    def write_gro(self,dir_id,output_id ): # Move out of class
-
-        Write out gromacs gro file
-
-        # Version 1 will be dependent on Atomicpy
-        import gromacs 
-
-        # New options that need to be passed 
-        limdih =  0
-        limitdih_n = 1
-        
-        # Create list to pass to Atomicpy
-        ASYMB = []
-        R = []
-        AMASS = []
-        CHARGES = []
-        MOLNUMB = []
-        RESID = []
-        RESN = []
-        ATYPE = []
-        RING_NUMB = []
-        GTYPE = []
-        
-        for pid, ptclObj  in self.ptclC:
-            ASYMB.append( ptclObj.type  )
-            R.append( np.array( ptclObj.position)  )
-            AMASS.append( float(ptclObj.mass)  )
-            CHARGES.append( float(ptclObj.charge)  )
-            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
-            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
-            RESN.append( int(ptclObj.tagsDict["residue"])  )
-            ATYPE.append( ptclObj.tagsDict["fftype"]  )
-            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
-            GTYPE.append( ptclObj.tagsDict["gtype"]  )
-
-
-            print " GTYPE ", ptclObj.tagsDict["gtype"] 
-            print " RESID ", ptclObj.tagsDict["resname"] 
-            print " RESN ", ptclObj.tagsDict["residue"] 
-       
-        # Set cubic lattice constant to 5 nm arbitrary 
-        LV = np.zeros( (3,3) )
-            
-        LV[0][0] = self.latvec[0][0]
-        LV[1][1] = self.latvec[1][1]
-        LV[2][2] = self.latvec[2][2]
-        
-        out_gro = dir_id+"/"+output_id + ".gro"
-        gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
-        """
-
-        """
-    def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class
-        Write out gromacs gro file
-
-        # Version 1 will be dependent on Atomicpy
-        import gromacs , elements, top , lammps, groups , atom_types
-
-        # New options that need to be passed 
-        limdih =  0
-        limitdih_n = 1
-        
-        # Create list to pass to Atomicpy
-        ASYMB = []
-        R = []
-        AMASS = []
-        CHARGES = []
-        MOLNUMB = []
-        RESID = []
-        RESN = []
-        ATYPE = []
-        RING_NUMB = []
-        GTYPE = []
-        
-        for pid, ptclObj  in self.ptclC:
-            ASYMB.append( ptclObj.type  )
-            R.append( np.array( ptclObj.position)  )
-            AMASS.append( float(ptclObj.mass)  )
-            CHARGES.append( float(ptclObj.charge)  )
-            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
-            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
-            RESN.append( int(ptclObj.tagsDict["residue"])  )
-            ATYPE.append( ptclObj.tagsDict["fftype"]  )
-            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
-            GTYPE.append( ptclObj.tagsDict["gtype"]  )
-       
-        BONDS = []
-        for b_i,bondObj in  self.bondC:
-            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
-
-            print " make_top bonds ",bondObj.pgid1 , bondObj.pgid2
-
-        # Set cubic lattice constant to 5 nm arbitrary 
-        LV = np.zeros( (3,3) )
-            
-        LV[0][0] = self.latvec[0][0]
-        LV[1][1] = self.latvec[1][1]
-        LV[2][2] = self.latvec[2][2]
-        
-        # Find atomic number based on atomic symbol 
-        ELN = elements.asymb_eln(ASYMB)
-        NA = len(ELN)
-        
-        # Create neighbor list form bonds
-        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
-        #NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
-
-        print_nb = True
-        # Make compatable with 0-(N-1) index of atoms 
-        #for n_indx in range(len(NBLIST)):
-        #    if( print_nb):
-        #        print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
-        #    NBLIST[n_indx] =NBLIST[n_indx] -1
-        #for n_indx in range(len(NBINDEX)-1):
-        #    if( print_nb):
-        #        print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
-        #    NBINDEX[n_indx] =NBINDEX[n_indx+1]
-        #
-        if( print_nb):
-
-            for p_i in range(len(self.ptclC)):
-                N_i_o = NBINDEX[p_i]
-                N_i_f = NBINDEX[p_i+1]
-                print " atom ",p_i+1, ELN[p_i]," has ",N_i_f - N_i_o
-                for indx_j in range( N_i_o,N_i_f):
-                    atom_j = NBLIST[indx_j]
-                    print "      nb ",atom_j+1," atomic # ", ELN[atom_j]
-                    
-        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-
-        for a_indx in range(len(ANGLES)):
-            print " angles ",ANGLES[a_indx][0]+1,ANGLES[a_indx][1]+1,ANGLES[a_indx][2]+1
-        
-        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
-        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
-        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
-
-
-        #
-        # Set charge groups
-        #
-        verbose = False 
-        CG_SET = []
-        CHARN = []
-        one = 1
-        for i in range( len(ELN) ):
-            CG_SET.append(one)
-            CHARN.append(one)
-        CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
-
-        # Read in parameter files 
-        
-        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
-
-        # Identify total number of atom types for lammps output 
-        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
-
-        # Check atom types to be sure each atom of the same type has the same number of neighbors 
-        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
-    
-        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
-
-        IMPTYPE_F  = top.imp_parameters(itp_file)
-
-        IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
-
-
-        top_file = dir_id+"/"+output_id + ".top"
-        DIH_CONST = []
-        DIH_CONST_ANGLE = []
-        gromacs.print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
-               ,DIH_CONST,DIH_CONST_ANGLE
-               ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
-               ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
-        """
-        
-        """
-    def lmp_writedata(self,data_file,norm_dihparam,itp_file):
-
-        Write out lammps data file
-
-
-        check_bonds = True 
-
-        # Version 1 will be dependent on Atomicpy
-        import elements , lammps ,gromacs , atom_types, top , groups
-
-        # New options that need to be passed 
-        limdih =  0
-        limitdih_n = 1
-        
-        # Create list to pass to Atomicpy
-        ASYMB = []
-        R = []
-        AMASS = []
-        CHARGES = []
-        MOLNUMB = []
-        RESID = []
-        RESN = []
-        ATYPE = []
-        RING_NUMB = []
-        
-        for pid, ptclObj  in self.ptclC:
-            ASYMB.append( ptclObj.type  )
-            R.append( np.array( ptclObj.position)  )
-            AMASS.append( float(ptclObj.mass)  )
-            CHARGES.append( float(ptclObj.charge)  )
-            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
-            RESID.append( ptclObj.tagsDict["resname"]  )
-            RESN.append( int(ptclObj.tagsDict["residue"])  )
-            ATYPE.append( ptclObj.tagsDict["fftype"]  )
-            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
-
-        BONDS = []
-        for b_i,bondObj in  self.bondC:
-            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
-
-                    
-        # Set cubic lattice constant to 5 nm arbitrary 
-        LV = np.zeros( (3,3) )
-            
-        LV[0][0] = self.latvec[0][0]
-        LV[1][1] = self.latvec[1][1]
-        LV[2][2] = self.latvec[2][2]
-        
-        # Find atomic number based on atomic symbol 
-        ELN = elements.asymb_eln(ASYMB)
-        GTYPE = top.initialize_gtype( ELN )
-        NA = len(ELN)
-        
-        # Create neighbor list form bonds
-        # NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
-        NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
-
-        print_nb = False
-        # Make compatable with 0-(N-1) index of atoms 
-        for n_indx in range(len(NBLIST)):
-            if( print_nb):
-                print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
-            NBLIST[n_indx] =NBLIST[n_indx] -1
-        for n_indx in range(len(NBINDEX)-1):
-            if( print_nb):
-                print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
-            NBINDEX[n_indx] =NBINDEX[n_indx+1]
-
-        if( print_nb):
-
-            for p_i in range(len(self.ptclC)):
-                N_i_o = NBINDEX[p_i]
-                N_i_f = NBINDEX[p_i+1]
-                print " atom ",p_i, ELN[p_i]," has ",N_i_f - N_i_o
-                for indx_j in range( N_i_o,N_i_f):
-                    atom_j = NBLIST[indx_j]
-                    print "      nb ",atom_j," atomic # ", ELN[atom_j]
-        #
-        # Check that the altered neighbor list was done correctly 
-        #  
-        BONDS_check = top.nblist_bonds(NA,NBLIST, NBINDEX)
-        if( len(BONDS_check) != len(BONDS)):
-            sys.exit("error in bonds ")
-        else:
-            for b_i in range(len(BONDS)):                
-                if( BONDS[b_i][0] !=  BONDS_check[b_i][0] ):
-                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
-                    sys.exit("error in bonds ")
-                if( BONDS[b_i][1] !=  BONDS_check[b_i][1] ):
-                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
-                    sys.exit("error in bonds ")
-                    
-            #sys.exit(" checking bonds ")
-
-        
-        
-        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
-        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
-        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
-        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
-
-        # Read in parameter files 
-        
-        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
-
-        # Identify total number of atom types for lammps output 
-        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
-
-        # Check atom types to be sure each atom of the same type has the same number of neighbors 
-        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
-    
-        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
-        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
-        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
-        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
-    
-        IMPTYPE_F  = top.imp_parameters(itp_file)
-
-	
-	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
-	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
-	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
-	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
-	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
-	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
-        """
-
-        """
-    def write_xmol(self, xmol_file,comment,append):
-
-        Write a structure  to an xmol file
-        
-        Args:
-          xmol_file    (str) xmol file name
-          comment  (str) for comment line 
-          append  (boolean) to append or create a new file
-          
-        Returns: None
-
-        # Open xmol file 
-        if(append):
-            F = open(xmol_file,"a")
-        else:
-            F = open(xmol_file,"w")
-            
-        # Loop over structures
-        NP = len( self.ptclC )
-        F.write(" %d \n" % NP )
-        F.write(" %s \n"%comment)
-        for pid, ptclObj  in self.ptclC:
-            r_i = ptclObj.position
-            atomic_symb = ptclObj.type
-            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
-        F.close()
-        """
         
     def calc_rdf(self, rdf_cnt_ij,bin_size,list_i,list_j,sq_r_cut):
         """
@@ -1585,3 +1242,342 @@ class StructureContainer:
             
             atom_i +=1 
         """
+
+
+        """
+    def write_gro(self,dir_id,output_id ): # Move out of class
+
+        Write out gromacs gro file
+
+        # Version 1 will be dependent on Atomicpy
+        import gromacs 
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+
+
+            print " GTYPE ", ptclObj.tagsDict["gtype"] 
+            print " RESID ", ptclObj.tagsDict["resname"] 
+            print " RESN ", ptclObj.tagsDict["residue"] 
+       
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        out_gro = dir_id+"/"+output_id + ".gro"
+        gromacs.print_gro(out_gro,GTYPE,RESID,RESN,R,LV)
+        """
+
+        """
+    def write_top(self,dir_id,output_id,norm_dihparam,itp_file ): # Move out of class
+        Write out gromacs gro file
+
+        # Version 1 will be dependent on Atomicpy
+        import gromacs , elements, top , lammps, groups , atom_types
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        GTYPE = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"][0:5]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+            GTYPE.append( ptclObj.tagsDict["gtype"]  )
+       
+        BONDS = []
+        for b_i,bondObj in  self.bondC:
+            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+
+            print " make_top bonds ",bondObj.pgid1 , bondObj.pgid2
+
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        NA = len(ELN)
+        
+        # Create neighbor list form bonds
+        NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        #NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
+
+        print_nb = True
+        # Make compatable with 0-(N-1) index of atoms 
+        #for n_indx in range(len(NBLIST)):
+        #    if( print_nb):
+        #        print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
+        #    NBLIST[n_indx] =NBLIST[n_indx] -1
+        #for n_indx in range(len(NBINDEX)-1):
+        #    if( print_nb):
+        #        print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
+        #    NBINDEX[n_indx] =NBINDEX[n_indx+1]
+        #
+        if( print_nb):
+
+            for p_i in range(len(self.ptclC)):
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i+1, ELN[p_i]," has ",N_i_f - N_i_o
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j+1," atomic # ", ELN[atom_j]
+                    
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+
+        for a_indx in range(len(ANGLES)):
+            print " angles ",ANGLES[a_indx][0]+1,ANGLES[a_indx][1]+1,ANGLES[a_indx][2]+1
+        
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+
+        #
+        # Set charge groups
+        #
+        verbose = False 
+        CG_SET = []
+        CHARN = []
+        one = 1
+        for i in range( len(ELN) ):
+            CG_SET.append(one)
+            CHARN.append(one)
+        CHARN = top.set_chargegroups(verbose,CG_SET,CHARN,ATYPE,ASYMB,ELN,R,NBLIST,NBINDEX, RING_NUMB,LV)
+
+        # Read in parameter files 
+        
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+
+        # Identify total number of atom types for lammps output 
+        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+        # Check atom types to be sure each atom of the same type has the same number of neighbors 
+        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+
+        IMPTYPE_F  = top.imp_parameters(itp_file)
+
+        IMPS,IMPTYPE_F = atom_types.set_ptma_imps(NA,NBLIST, NBINDEX,ELN,ASYMB,IMPS,IMPTYPE_F)
+
+
+        top_file = dir_id+"/"+output_id + ".top"
+        DIH_CONST = []
+        DIH_CONST_ANGLE = []
+        gromacs.print_top( top_file,ASYMB , ELN,ATYPE, GTYPE, CHARN , CHARGES, AMASS,RESN, RESID ,BONDS , ANGLES , DIH , IMPS
+               ,DIH_CONST,DIH_CONST_ANGLE
+               ,BTYPE_IND, BONDTYPE_F, ANGTYPE_IND, ANGLETYPE_F
+               ,DTYPE_IND, DIHTYPE_F, IMPTYPE_F,LV)
+        """
+        
+        """
+    def lmp_writedata(self,data_file,norm_dihparam,itp_file):
+
+        Write out lammps data file
+
+
+        check_bonds = True 
+
+        # Version 1 will be dependent on Atomicpy
+        import elements , lammps ,gromacs , atom_types, top , groups
+
+        # New options that need to be passed 
+        limdih =  0
+        limitdih_n = 1
+        
+        # Create list to pass to Atomicpy
+        ASYMB = []
+        R = []
+        AMASS = []
+        CHARGES = []
+        MOLNUMB = []
+        RESID = []
+        RESN = []
+        ATYPE = []
+        RING_NUMB = []
+        
+        for pid, ptclObj  in self.ptclC:
+            ASYMB.append( ptclObj.type  )
+            R.append( np.array( ptclObj.position)  )
+            AMASS.append( float(ptclObj.mass)  )
+            CHARGES.append( float(ptclObj.charge)  )
+            MOLNUMB.append( int(ptclObj.tagsDict["chain"])  )
+            RESID.append( ptclObj.tagsDict["resname"]  )
+            RESN.append( int(ptclObj.tagsDict["residue"])  )
+            ATYPE.append( ptclObj.tagsDict["fftype"]  )
+            RING_NUMB.append( int(ptclObj.tagsDict["ring"])  )
+
+        BONDS = []
+        for b_i,bondObj in  self.bondC:
+            BONDS.append( [bondObj.pgid1 - 1, bondObj.pgid2 -1])
+
+                    
+        # Set cubic lattice constant to 5 nm arbitrary 
+        LV = np.zeros( (3,3) )
+            
+        LV[0][0] = self.latvec[0][0]
+        LV[1][1] = self.latvec[1][1]
+        LV[2][2] = self.latvec[2][2]
+        
+        # Find atomic number based on atomic symbol 
+        ELN = elements.asymb_eln(ASYMB)
+        GTYPE = top.initialize_gtype( ELN )
+        NA = len(ELN)
+        
+        # Create neighbor list form bonds
+        # NBLIST,NBINDEX = groups.build_nablist_bonds(ELN,BONDS)
+        NBLIST,NBINDEX = self.bonded_nblist() #groups.build_nablist_bonds(ELN,BONDS)
+
+        print_nb = False
+        # Make compatable with 0-(N-1) index of atoms 
+        for n_indx in range(len(NBLIST)):
+            if( print_nb):
+                print " changing NBLIST ",NBLIST[n_indx] ," to ",NBLIST[n_indx] -1 
+            NBLIST[n_indx] =NBLIST[n_indx] -1
+        for n_indx in range(len(NBINDEX)-1):
+            if( print_nb):
+                print " changing NBINDEX ",NBINDEX[n_indx] ," to ",NBINDEX[n_indx+1]
+            NBINDEX[n_indx] =NBINDEX[n_indx+1]
+
+        if( print_nb):
+
+            for p_i in range(len(self.ptclC)):
+                N_i_o = NBINDEX[p_i]
+                N_i_f = NBINDEX[p_i+1]
+                print " atom ",p_i, ELN[p_i]," has ",N_i_f - N_i_o
+                for indx_j in range( N_i_o,N_i_f):
+                    atom_j = NBLIST[indx_j]
+                    print "      nb ",atom_j," atomic # ", ELN[atom_j]
+        #
+        # Check that the altered neighbor list was done correctly 
+        #  
+        BONDS_check = top.nblist_bonds(NA,NBLIST, NBINDEX)
+        if( len(BONDS_check) != len(BONDS)):
+            sys.exit("error in bonds ")
+        else:
+            for b_i in range(len(BONDS)):                
+                if( BONDS[b_i][0] !=  BONDS_check[b_i][0] ):
+                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
+                    sys.exit("error in bonds ")
+                if( BONDS[b_i][1] !=  BONDS_check[b_i][1] ):
+                    print BONDS[b_i][0], BONDS[b_i][1], BONDS_check[b_i][0], BONDS_check[b_i][1]
+                    sys.exit("error in bonds ")
+                    
+            #sys.exit(" checking bonds ")
+
+        
+        
+        ANGLES = top.nblist_angles(NA,NBLIST, NBINDEX)
+        #DIH = top.nblist_dih(NA,NBLIST, NBINDEX,options.limdih,options.limitdih_n)
+        DIH = top.nblist_dih(NA,NBLIST, NBINDEX,limdih,limitdih_n)
+        IMPS = top.nblist_imp(NA,NBLIST, NBINDEX,ELN)
+
+        # Read in parameter files 
+        
+        FF_ATOMTYPES , FF_BONDTYPES , FF_ANGLETYPES ,  FF_DIHTYPES = gromacs.read_itp(itp_file)
+
+        # Identify total number of atom types for lammps output 
+        ATYPE_IND , ATYPE_REF,  ATYPE_MASS ,BTYPE_IND , BTYPE_REF, ANGTYPE_IND , ANGTYPE_REF, DTYPE_IND , DTYPE_REF = lammps.lmp_types(ELN,ATYPE,AMASS,BONDS,ANGLES,DIH)
+
+        # Check atom types to be sure each atom of the same type has the same number of neighbors 
+        ATYPE_NNAB = top.check_types(ATYPE_IND , ATYPE_REF,GTYPE,NBLIST,NBINDEX)
+    
+        ATYPE_EP, ATYPE_SIG = top.atom_parameters(itp_file,ATYPE_IND , ATYPE_REF,  ATYPE_MASS,FF_ATOMTYPES)
+        BONDTYPE_F , BONDTYPE_R0 ,BONDTYPE_K  = top.bond_parameters(itp_file,BTYPE_IND , BTYPE_REF,FF_BONDTYPES)
+        ANGLETYPE_F , ANGLETYPE_R0 , ANGLETYPE_K = top.angle_parameters(itp_file,ANGTYPE_IND , ANGTYPE_REF,FF_ANGLETYPES)
+        DIHTYPE_F ,DIHTYPE_PHASE ,DIHTYPE_K, DIHTYPE_PN,  DIHTYPE_C = top.dih_parameters(itp_file, norm_dihparam, DTYPE_IND , DTYPE_REF ,  FF_DIHTYPES,ATYPE_REF,ATYPE_NNAB  )
+    
+        IMPTYPE_F  = top.imp_parameters(itp_file)
+
+	
+	lammps.print_lmp(data_file,ATYPE_REF,ATYPE_MASS,ATYPE_EP,ATYPE_SIG,
+	      BTYPE_REF,BONDTYPE_R0,BONDTYPE_K,
+	      ANGTYPE_REF,ANGLETYPE_R0,ANGLETYPE_K,
+	      DIH,DTYPE_IND,DTYPE_REF,DIHTYPE_F,DIHTYPE_K,DIHTYPE_PN,DIHTYPE_PHASE,DIHTYPE_C,
+	      RESN,ATYPE_IND,CHARGES,R , ATYPE,
+	      BONDS ,BTYPE_IND, ANGLES ,ANGTYPE_IND, LV)
+        """
+
+        """
+    def write_xmol(self, xmol_file,comment,append):
+
+        Write a structure  to an xmol file
+        
+        Args:
+          xmol_file    (str) xmol file name
+          comment  (str) for comment line 
+          append  (boolean) to append or create a new file
+          
+        Returns: None
+
+        # Open xmol file 
+        if(append):
+            F = open(xmol_file,"a")
+        else:
+            F = open(xmol_file,"w")
+            
+        # Loop over structures
+        NP = len( self.ptclC )
+        F.write(" %d \n" % NP )
+        F.write(" %s \n"%comment)
+        for pid, ptclObj  in self.ptclC:
+            r_i = ptclObj.position
+            atomic_symb = ptclObj.type
+            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (atomic_symb ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
+        F.close()
+        """
+

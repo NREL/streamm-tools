@@ -88,7 +88,7 @@
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SimulationGaussian1"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1">[docs]</a><span class="k">class</span> <span class="nc">SimulationGaussian1</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">Simulation</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1">[docs]</a><span class="k">class</span> <span class="nc">SimulationGaussian1</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">Simulation</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dervied class implementing input/output methods specific to an application</span>
 <span class="sd">    The Gaussian input file has two links 1.) one ground-state 2). TD DFT for excited state calc</span>
@@ -173,7 +173,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">excitedCalc</span> <span class="o">=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="s">&quot;density=current&quot;</span>   <span class="c"># Default setting calculates excited state density</span>
 
 
-<div class="viewcode-block" id="SimulationGaussian1.getBareTag"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.getBareTag">[docs]</a>    <span class="k">def</span> <span class="nf">getBareTag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.getBareTag"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.getBareTag">[docs]</a>    <span class="k">def</span> <span class="nf">getBareTag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return &#39;bare tag&#39; without accuracy label</span>
 <span class="sd">        eg D1_R2R200_Sp2_00_A48__Sp2_00__n2</span>
@@ -182,14 +182,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bareTag</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.getDBBasisStr"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.getDBBasisStr">[docs]</a>    <span class="k">def</span> <span class="nf">getDBBasisStr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.getDBBasisStr"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.getDBBasisStr">[docs]</a>    <span class="k">def</span> <span class="nf">getDBBasisStr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return dbBasisStr</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbBasisStr</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.setRepoLocation"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.setRepoLocation">[docs]</a>    <span class="k">def</span> <span class="nf">setRepoLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rL</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.setRepoLocation"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.setRepoLocation">[docs]</a>    <span class="k">def</span> <span class="nf">setRepoLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rL</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set repo location path so PBS file can be</span>
 <span class="sd">        constructed from a template</span>
@@ -204,7 +204,7 @@
             <span class="k">print</span> <span class="s">&quot;Default results repo location set --&gt; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repoLocation</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.setDBBasisStr"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.setDBBasisStr">[docs]</a>    <span class="k">def</span> <span class="nf">setDBBasisStr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.setDBBasisStr"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.setDBBasisStr">[docs]</a>    <span class="k">def</span> <span class="nf">setDBBasisStr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set dbBasisStr</span>
 <span class="sd">        </span>
@@ -214,7 +214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dbBasisStr</span><span class="o">=</span><span class="n">s</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.getOligomerNum"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.getOligomerNum">[docs]</a>    <span class="k">def</span> <span class="nf">getOligomerNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.getOligomerNum"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.getOligomerNum">[docs]</a>    <span class="k">def</span> <span class="nf">getOligomerNum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return oligomer number string from run name. Assuming run name for</span>
 <span class="sd">        contains n1,n2....</span>
@@ -222,14 +222,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oligomerNum</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.setMetaData"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.setMetaData">[docs]</a>    <span class="k">def</span> <span class="nf">setMetaData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdDict</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.setMetaData"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.setMetaData">[docs]</a>    <span class="k">def</span> <span class="nf">setMetaData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdDict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set dictionary containing metadata (from json file info)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metaDataDict</span> <span class="o">=</span> <span class="n">mdDict</span>
 
 </div>
-<div class="viewcode-block" id="SimulationGaussian1.setCoeffs"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.setCoeffs">[docs]</a>    <span class="k">def</span> <span class="nf">setCoeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fct</span><span class="p">,</span> <span class="n">bsOPT</span><span class="p">,</span> <span class="n">bsEXT</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.setCoeffs"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.setCoeffs">[docs]</a>    <span class="k">def</span> <span class="nf">setCoeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fct</span><span class="p">,</span> <span class="n">bsOPT</span><span class="p">,</span> <span class="n">bsEXT</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the main model parameters of functional and basis</span>
 <span class="sd">        </span>
@@ -278,7 +278,7 @@
             <span class="k">print</span> <span class="s">&quot;Cleaning derived simulation object Gaussian1&quot;</span>
 
 
-<div class="viewcode-block" id="SimulationGaussian1.writeInput"><a class="viewcode-back" href="../framework_design.html#simulationGaussian1.SimulationGaussian1.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SimulationGaussian1.writeInput"><a class="viewcode-back" href="../docstr_simulationGaussian1.html#simulationGaussian1.SimulationGaussian1.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write out a Gaussian input data file from all available held data (particles, bonds-zmatrix)</span>
 <span class="sd">        Assumptions about one &#39;link&#39; step made and naming convention of referenced &#39;chk&#39; files</span>

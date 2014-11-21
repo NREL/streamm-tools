@@ -81,7 +81,7 @@
 
 <span class="kn">from</span> <span class="nn">structureContainer</span> <span class="kn">import</span> <span class="n">StructureContainer</span>
 
-<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data structure for describing how a simulation can be performed.</span>
 <span class="sd">    The attributes stored can be used by a caller to construct/gather the</span>
@@ -134,7 +134,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationName</span>
 
 
-<div class="viewcode-block" id="Simulation.printStruc"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.printStruc">[docs]</a>    <span class="k">def</span> <span class="nf">printStruc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.printStruc"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.printStruc">[docs]</a>    <span class="k">def</span> <span class="nf">printStruc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dump contents of held structure container</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -158,14 +158,14 @@
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">strucC</span>
 
 
-<div class="viewcode-block" id="Simulation.getSimName"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.getSimName">[docs]</a>    <span class="k">def</span> <span class="nf">getSimName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.getSimName"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.getSimName">[docs]</a>    <span class="k">def</span> <span class="nf">getSimName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return name used to create the simulation object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulationName</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.setTemplateDir"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.setTemplateDir">[docs]</a>    <span class="k">def</span> <span class="nf">setTemplateDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tdir</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.setTemplateDir"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.setTemplateDir">[docs]</a>    <span class="k">def</span> <span class="nf">setTemplateDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tdir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set template directory location</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -176,7 +176,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">templateDir</span> <span class="o">=</span> <span class="n">tdir</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.setStructureContainer"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.setStructureContainer">[docs]</a>    <span class="k">def</span> <span class="nf">setStructureContainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.setStructureContainer"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.setStructureContainer">[docs]</a>    <span class="k">def</span> <span class="nf">setStructureContainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setter for the structure container.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -184,7 +184,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span> <span class="o">=</span> <span class="bp">True</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.copyStructureContainerInto"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.copyStructureContainerInto">[docs]</a>    <span class="k">def</span> <span class="nf">copyStructureContainerInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.copyStructureContainerInto"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.copyStructureContainerInto">[docs]</a>    <span class="k">def</span> <span class="nf">copyStructureContainerInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strucC</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the structure container. Deep copy performed,</span>
 <span class="sd">        so that external changes to structure container are not</span>
@@ -194,7 +194,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">isStrucSet</span> <span class="o">=</span> <span class="bp">True</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.readOutput"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.readOutput"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.readOutput">[docs]</a>    <span class="k">def</span> <span class="nf">readOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
 <span class="sd">        that reads in an external output file and populates an instance</span>
@@ -216,7 +216,7 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.writeInput"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.writeInput"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.writeInput">[docs]</a>    <span class="k">def</span> <span class="nf">writeInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the &#39;effective&#39; base class interface for a method</span>
 <span class="sd">        that writes an input file based on the internal attributes of an instance</span>
@@ -238,7 +238,7 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Simulation.createSimulation"><a class="viewcode-back" href="../framework_design.html#simulation.Simulation.createSimulation">[docs]</a>    <span class="k">def</span> <span class="nf">createSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.createSimulation"><a class="viewcode-back" href="../docstr_simulation.html#simulation.Simulation.createSimulation">[docs]</a>    <span class="k">def</span> <span class="nf">createSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks for existence of a top level simulation directory and writes out</span>
 <span class="sd">        all files needed for running a simulation.</span>

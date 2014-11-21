@@ -57,42 +57,16 @@ The embedded docstrings for the simulation modules are:
 
 Algorithms
 ============================
+This may or may not be part of STREAMM design
 
+.. toctree::
+   :hidden:
 
-
-Python Module Docstrings
-============================
-
-.. automodule:: particles
-   :members:
-   :show-inheritance:
-
-.. automodule:: bonds
-   :members:
-   :show-inheritance:
-
-.. automodule:: angles
-   :members:
-   :show-inheritance:
-
-.. automodule:: dihedrals
-   :members:
-   :show-inheritance:
-
-.. automodule:: structureContainer
-   :members:
-   :show-inheritance:
-
-.. automodule:: simulation
-   :members:
-   :show-inheritance:
-
-.. automodule:: simulationLAMMPS1
-   :members:
-   :show-inheritance:
-
-.. automodule:: simulationGaussian1
-   :members:
-   :show-inheritance:
-
-
+   docstr_particles.rst
+   docstr_bonds.rst
+   docstr_angles.rst
+   docstr_dihedrals.rst
+   docstr_structureContainer.rst
+   docstr_simulation.rst
+   docstr_simulationLAMMPS1.rst
+   docstr_simulationGaussian1.rst

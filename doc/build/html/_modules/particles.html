@@ -80,7 +80,7 @@
 <span class="kn">import</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">sys</span>
 
 
-<div class="viewcode-block" id="create_search"><a class="viewcode-back" href="../framework_design.html#particles.create_search">[docs]</a><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">f_id</span><span class="p">,</span><span class="n">f_type</span><span class="p">,</span><span class="n">f_symb</span><span class="p">,</span><span class="n">f_chain</span><span class="p">,</span><span class="n">f_ring</span><span class="p">,</span><span class="n">f_resname</span><span class="p">,</span><span class="n">f_residue</span><span class="p">,</span><span class="n">f_linkid</span><span class="p">,</span><span class="n">f_fftype</span><span class="p">,</span><span class="n">f_gtype</span><span class="p">):</span>
+<div class="viewcode-block" id="create_search"><a class="viewcode-back" href="../docstr_particles.html#particles.create_search">[docs]</a><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">f_id</span><span class="p">,</span><span class="n">f_type</span><span class="p">,</span><span class="n">f_symb</span><span class="p">,</span><span class="n">f_chain</span><span class="p">,</span><span class="n">f_ring</span><span class="p">,</span><span class="n">f_resname</span><span class="p">,</span><span class="n">f_residue</span><span class="p">,</span><span class="n">f_linkid</span><span class="p">,</span><span class="n">f_fftype</span><span class="p">,</span><span class="n">f_gtype</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a dictionary to pass to particle search</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -127,7 +127,7 @@
             
     <span class="k">return</span> <span class="n">search_i</span>
 </div>
-<div class="viewcode-block" id="Particle"><a class="viewcode-back" href="../framework_design.html#particles.Particle">[docs]</a><span class="k">class</span> <span class="nc">Particle</span><span class="p">:</span>
+<div class="viewcode-block" id="Particle"><a class="viewcode-back" href="../docstr_particles.html#particles.Particle">[docs]</a><span class="k">class</span> <span class="nc">Particle</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data structure for describing any localized object in QM/MD simulations</span>
 <span class="sd">    A &#39;Particle&#39; has a position and type specifiers</span>
@@ -209,7 +209,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span>
 
 
-<div class="viewcode-block" id="Particle.setTagsDict"><a class="viewcode-back" href="../framework_design.html#particles.Particle.setTagsDict">[docs]</a>    <span class="k">def</span> <span class="nf">setTagsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">td</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.setTagsDict"><a class="viewcode-back" href="../docstr_particles.html#particles.Particle.setTagsDict">[docs]</a>    <span class="k">def</span> <span class="nf">setTagsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">td</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define custom dictionary for id tags (eg {&quot;molnum&quot;:1,})</span>
 <span class="sd">        Leaving type tag as a default</span>
@@ -224,7 +224,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tagsDict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newdict</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Particle.isTagEqualTo"><a class="viewcode-back" href="../framework_design.html#particles.Particle.isTagEqualTo">[docs]</a>    <span class="k">def</span> <span class="nf">isTagEqualTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">valList</span><span class="p">):</span>
+<div class="viewcode-block" id="Particle.isTagEqualTo"><a class="viewcode-back" href="../docstr_particles.html#particles.Particle.isTagEqualTo">[docs]</a>    <span class="k">def</span> <span class="nf">isTagEqualTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">valList</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if tags[key]= any of the values in valList. Exits if key not in dictionary</span>
 
@@ -263,7 +263,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s">  &quot;</span><span class="o">%</span><span class="p">(</span>  <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ParticleContainer"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer">[docs]</a><span class="k">class</span> <span class="nc">ParticleContainer</span><span class="p">:</span>
+<div class="viewcode-block" id="ParticleContainer"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer">[docs]</a><span class="k">class</span> <span class="nc">ParticleContainer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main data structure for holding Particle objects. Map of global</span>
 <span class="sd">    particle ID (integer) to Particle object instances</span>
@@ -300,7 +300,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxgid</span>
 
 
-<div class="viewcode-block" id="ParticleContainer.dump"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePrefix</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.dump"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePrefix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dump a pickled version of this object</span>
 
@@ -420,7 +420,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
 
-<div class="viewcode-block" id="ParticleContainer.put"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.put"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcl</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append &#39;Particle&#39; object to this container. Updates globalID for container</span>
 <span class="sd">        by incrementing the maxgid member. Performs deep copy of ptcl so container</span>
@@ -444,7 +444,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
 </div>
-<div class="viewcode-block" id="ParticleContainer.replaceID"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.replaceID">[docs]</a>    <span class="k">def</span> <span class="nf">replaceID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">findID</span><span class="p">,</span> <span class="n">newID</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.replaceID"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.replaceID">[docs]</a>    <span class="k">def</span> <span class="nf">replaceID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">findID</span><span class="p">,</span> <span class="n">newID</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Replace global particle ID with another value. Attempts to make rational</span>
 <span class="sd">        checks about new IDs</span>
@@ -482,7 +482,7 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="ParticleContainer.getParticlesWithTags"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.getParticlesWithTags">[docs]</a>    <span class="k">def</span> <span class="nf">getParticlesWithTags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">searchDict</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.getParticlesWithTags"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.getParticlesWithTags">[docs]</a>    <span class="k">def</span> <span class="nf">getParticlesWithTags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">searchDict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return particles whose dictionary tags match all specified key,values</span>
 <span class="sd">        The search dictionary criteria is that ALL key,value pairs must match</span>
@@ -513,7 +513,7 @@
 
         
 </div>
-<div class="viewcode-block" id="ParticleContainer.getTypeInfoDict"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.getTypeInfoDict"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.getTypeInfoDict">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeInfoDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a map of type to (typeIndex, mass, charge)</span>
 <span class="sd">        Method assigns a type index and checkes for consistency</span>
@@ -583,7 +583,7 @@
 
 
 </div>
-<div class="viewcode-block" id="ParticleContainer.scatterPlot"><a class="viewcode-back" href="../framework_design.html#particles.ParticleContainer.scatterPlot">[docs]</a>    <span class="k">def</span> <span class="nf">scatterPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParticleContainer.scatterPlot"><a class="viewcode-back" href="../docstr_particles.html#particles.ParticleContainer.scatterPlot">[docs]</a>    <span class="k">def</span> <span class="nf">scatterPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a scatter plot of particle positions</span>
 <span class="sd">        &quot;&quot;&quot;</span>

@@ -242,9 +242,12 @@ def main():
         
     # Print system properties
     if( rank == 0 ):
-        sys_prop = struc_o.printprop()
+        # sys_prop = struc_o.printprop()
+        struc_o.verbose=False
+        sys_prop = str(struc_o)        
         print sys_prop
         log_out.write(str(sys_prop))
+        struc_o.verbose=True
         
     # Create sub lists for RDF groups i and j
     search_i = particles.create_search(options.id_i,options.type_i,options.symbol_i,options.chains_i,options.ring_i,options.resname_i,options.residue_i,options.linkid_i,options.fftype_i,options.gtype_i)
