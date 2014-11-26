@@ -13,7 +13,7 @@ from bonds         import Bond,     BondContainer
 from angles        import Angle,    AngleContainer
 from dihedrals     import Dihedral, DihedralContainer
 from impropers     import Improper, ImproperContainer
-from periodictable import periodictable
+# from periodictable import periodictable
 
 import pbcs, units
 

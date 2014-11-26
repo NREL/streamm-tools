@@ -1,17 +1,14 @@
+import os, sys, math, random, time
+
 """
 Wrapper classes for MPI python using the Peregrine module enviroment
 
 The derived classes implement the interface defined in the base class
 'ParallelMsgr'. These derived classes currently implement communication using:
-  * boost.mpi
-  * mpi4py
-  * serial
+boost.mpi, mpi4py and serial
 
 NOTE: continue to end of this documentation to see short tutorial methods on use
-
 """
-import os, sys, math, random, time
-
 
 class ParallelMsgr:
     """
@@ -389,6 +386,7 @@ class MsgrSerial(ParallelMsgr):
 
 
 
+
 def getMPIObject(verbose=True, localVerbose=True):
     """
     Driver for comm classes.
@@ -433,52 +431,4 @@ def getMPISerialObject(verbose=True):
     """
     mpiObj = MsgrSerial(verbose)
     return mpiObj
-
-
-def showExampleUsage():
-    """
-    Instructions and a sample code for testing the MPI routines.
-
-    Usage is as follows:
-       1. paste code below to a file --> e.g. 'commTst.py'
-       2. While logged onto Peregrine load an MPI python module e.g.
-          'module load boost/1.54.0.a/impi-intel'
-       3. mpirun -n 2 python commTst.py
-
-    --------------------------------------------------------------
-
-    # commTst.py
-    import mpiNREL
-    p = mpiNREL.getMPIObject()
-
-    # MPI setup
-    rank = p.getRank()
-    size = p.getCommSize()
-
-    x = 0              # Sets x on all processors
-    p.barrier()
-    if rank == 0:      # Resets x on proc 0
-        x = 12.3456
-    p.barrier()
-
-    # Check x setting on each processor
-    for proc in range(size):
-        if proc == rank:
-            print "Before broadcast x = ", x, " on processor ", proc
-        p.barrier()
-    p.barrier()
-
-    # Broadcast x to all processors (default root proc is '0')
-    xAll = p.bcast(x)
-    p.barrier()
-
-    # Check x setting on each processor
-    for proc in range(size):
-        if proc == rank:
-            print "After broadcast x = ", xAll, " on processor ", proc
-        p.barrier()
-    p.barrier()
-    """
-
-    print showExampleCode.__doc__
 

@@ -156,7 +156,6 @@ class Misc:
         return xList
 
 
-
     def getTagForSorting(self, num):
         """
         Return a string with leading 0's so file systems etc
@@ -185,8 +184,6 @@ class Misc:
         # Make 'parts' number of chunks
         chunks=[data[x:x+partLen] for x in xrange(0, len(data), partLen)]
         return chunks
-
-
 
     def tupleOfLists2List(self, tup):
         """

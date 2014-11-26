@@ -67,7 +67,6 @@ Example code: commTst.py::
         p.barrier()
     p.barrier()
 
-
 Note that this file can be run if one loads another python MPI library
 or none at all.
 
