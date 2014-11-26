@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Particle Class API &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
+    <link rel="up" title="STREAMM design" href="framework_design.html" />
+    <link rel="next" title="Bond Class API" href="docstr_bonds.html" />
+    <link rel="prev" title="STREAMM design" href="framework_design.html" /> 
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="index.html"><img src="_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docstr_bonds.html" title="Bond Class API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="framework_design.html" title="STREAMM design"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+
+          <li><a href="framework_design.html" accesskey="U">STREAMM design</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="framework_design.html"
+                        title="previous chapter">STREAMM design</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="docstr_bonds.html"
+                        title="next chapter">Bond Class API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/docstr_particles.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="docstr-particles"></span><div class="section" id="module-particles">
+<span id="particle-class-api"></span><span id="index-0"></span><h1>Particle Class API<a class="headerlink" href="#module-particles" title="Permalink to this headline">¶</a></h1>
+<p>Class data structures for atomic data</p>
+<dl class="class">
+<dt id="particles.Particle">
+<em class="property">class </em><code class="descclassname">particles.</code><code class="descname">Particle</code><span class="sig-paren">(</span><em>pos=[0.0, 0.0, 0.0], type='blank', charge=0.0, mass=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#Particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.Particle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data structure for describing any localized object in QM/MD simulations
+A &#8216;Particle&#8217; has a position and type specifiers</p>
+<dl class="docutils">
+<dt>Note, for an object p1 of Particle type</dt>
+<dd>p1.__dict__ returns a dictionary of all class members</dd>
+</dl>
+<p>Current use cases include: atoms, united-atoms and &#8216;beads&#8217;</p>
+<dl class="docutils">
+<dt>Possible tags: ELN = [], ASYMB = [], CTYPE = [],  CHARGES = [],  R = [], VEL = []</dt>
+<dd>ATYPE = [], AMASS = [], MOLNUMB = [], RING_NUMB = [], RESID = [],
+RESN = [], CHARN = [], UNITNUMB = [], UNITTYPE = []</dd>
+</dl>
+<dl class="method">
+<dt id="particles.Particle.isTagEqualTo">
+<code class="descname">isTagEqualTo</code><span class="sig-paren">(</span><em>key</em>, <em>valList</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#Particle.isTagEqualTo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.Particle.isTagEqualTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if tags[key]= any of the values in valList. Exits if key not in dictionary</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>key            dictionary key
+valList (list) dictionary values</dd>
+</dl>
+<p>Returns: true if tagsDict[key]=value for any value in valueList</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.Particle.setTagsDict">
+<code class="descname">setTagsDict</code><span class="sig-paren">(</span><em>td</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#Particle.setTagsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.Particle.setTagsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define custom dictionary for id tags (eg {&#8220;molnum&#8221;:1,})
+Leaving type tag as a default</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>td (dictionary)</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="particles.ParticleContainer">
+<em class="property">class </em><code class="descclassname">particles.</code><code class="descname">ParticleContainer</code><span class="sig-paren">(</span><em>idList=[]</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main data structure for holding Particle objects. Map of global
+particle ID (integer) to Particle object instances</p>
+<dl class="method">
+<dt id="particles.ParticleContainer.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><em>filePrefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a pickled version of this object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filePrefix (str): name of pickle file. will dump filePrefix.pkl</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.ParticleContainer.getParticlesWithTags">
+<code class="descname">getParticlesWithTags</code><span class="sig-paren">(</span><em>searchDict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.getParticlesWithTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.getParticlesWithTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return particles whose dictionary tags match all specified key,values
+The search dictionary criteria is that ALL key,value pairs must match
+(the logic is {key1:value1} AND {key2:value2}.....</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>searchDict (dict) dictionary of search pairs {keyTag:valTag}....</dd>
+</dl>
+<p>Returns: list of particle gid&#8217;s that satisfy search</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.ParticleContainer.getTypeInfoDict">
+<code class="descname">getTypeInfoDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.getTypeInfoDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.getTypeInfoDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a map of type to (typeIndex, mass, charge)
+Method assigns a type index and checkes for consistency</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dictionary of {type:[typeIndex, mass, charge], ....}</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.ParticleContainer.put">
+<code class="descname">put</code><span class="sig-paren">(</span><em>ptcl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append &#8216;Particle&#8217; object to this container. Updates globalID for container
+by incrementing the maxgid member. Performs deep copy of ptcl so container
+is managing memory</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ptcl (Particle) correctly initialized Particle object</dd>
+<dt>NOTE:</dt>
+<dd><ol class="first last arabic simple">
+<li>One can imagine extra conditions on distances between ptcl being
+inserted and current particles.</li>
+<li>This could check for uniqueness of all globalID&#8217;s and throw error
+for copies</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.ParticleContainer.replaceID">
+<code class="descname">replaceID</code><span class="sig-paren">(</span><em>findID</em>, <em>newID</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.replaceID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.replaceID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace global particle ID with another value. Attempts to make rational
+checks about new IDs</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>findGID (int) ptcl ID to search
+newGID  (int) ptcl ID to replace findGID with</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>Errors if</dt>
+<dd><ul class="first last simple">
+<li>findGID not found</li>
+<li>newGID already present</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="particles.ParticleContainer.scatterPlot">
+<code class="descname">scatterPlot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#ParticleContainer.scatterPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.ParticleContainer.scatterPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a scatter plot of particle positions</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="particles.create_search">
+<code class="descclassname">particles.</code><code class="descname">create_search</code><span class="sig-paren">(</span><em>f_id</em>, <em>f_type</em>, <em>f_symb</em>, <em>f_chain</em>, <em>f_ring</em>, <em>f_resname</em>, <em>f_residue</em>, <em>f_linkid</em>, <em>f_fftype</em>, <em>f_gtype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/particles.html#create_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#particles.create_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dictionary to pass to particle search</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docstr_bonds.html" title="Bond Class API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="framework_design.html" title="STREAMM design"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+
+          <li><a href="framework_design.html" >STREAMM design</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Dr. Scott W. Sides, Dr. Travis Kemper.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.
+    </div>
+  </body>
+</html>

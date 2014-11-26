@@ -30,5 +30,6 @@ Contents
    getting_started.rst
    tools_tests.rst
    framework_design.rst
+   utilities.rst
    db_interface.rst
    examples.rst

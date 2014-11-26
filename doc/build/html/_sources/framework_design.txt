@@ -1,6 +1,6 @@
 .. _framework_design:
 
-.. index:: Particle, Bond, Angle, Dihedral, Simulation, Structure, Class
+.. index:: Particle, Bond, Angle, Dihedral, Simulation, Structure, Class, Improper
 
 
 *********************************************
@@ -20,6 +20,7 @@ IDs and spatial positions and can have user specified attributes such
 as mass, charge and type. These particles can have 2-body (bond),
 3-body (angle) and 4-body (dihedral) interactions, which are
 implemented by the python classes Particle, Bond, Angle and Dihedral.
+Impropers are special dihedral 4-body interactions.
 
 Each of these classes has an associated container. For example,
 multiple Particle objects are held in an instance of a
@@ -33,14 +34,22 @@ and their related containers are:
 - :mod:`bonds`
 - :mod:`angles`
 - :mod:`dihedrals`
+- :mod:`impropers`
 
 Finally, a StructureContainer object is a container for the Particle, Bond,
-Angle and Dihedral containers. This class is in the module
+Angle Dihedral and Improper containers. This class is in the module
 :mod:`structureContainer`
 
 .. figure:: figures/strucC.png
    :align: center
    :scale: 40%
+
+The StructureContainer must contain a ParticleContainer at a minimum
+(eg for setting Gaussian runs when no connectivity information is
+requested).
+StructureContainer objects can be created without Bonds, Angles,
+Dihedrals and/or Impropers, with the default empty containers being
+set automatically. 
 
 
 
@@ -55,17 +64,17 @@ The embedded docstrings for the simulation modules are:
 
 
 
-Algorithms
-============================
-This may or may not be part of STREAMM design
+Structure / Simulation Class API
+======================================
 
 .. toctree::
-   :hidden:
+   :maxdepth: 1
 
    docstr_particles.rst
    docstr_bonds.rst
    docstr_angles.rst
    docstr_dihedrals.rst
+   docstr_impropers.rst
    docstr_structureContainer.rst
    docstr_simulation.rst
    docstr_simulationLAMMPS1.rst

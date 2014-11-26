@@ -63,7 +63,7 @@
 <li><a class="reference internal" href="#">STREAMM design</a><ul>
 <li><a class="reference internal" href="#structurecontainer-class">StructureContainer Class</a></li>
 <li><a class="reference internal" href="#simulation-class">Simulation Class</a></li>
-<li><a class="reference internal" href="#algorithms">Algorithms</a></li>
+<li><a class="reference internal" href="#structure-simulation-class-api">Structure / Simulation Class API</a></li>
 </ul>
 </li>
 </ul>
@@ -113,7 +113,8 @@ collection of discrete particles. These particles have unique integer
 IDs and spatial positions and can have user specified attributes such
 as mass, charge and type. These particles can have 2-body (bond),
 3-body (angle) and 4-body (dihedral) interactions, which are
-implemented by the python classes Particle, Bond, Angle and Dihedral.</p>
+implemented by the python classes Particle, Bond, Angle and Dihedral.
+Impropers are special dihedral 4-body interactions.</p>
 <p>Each of these classes has an associated container. For example,
 multiple Particle objects are held in an instance of a
 ParticleContainer class. These containers are essentially modified
@@ -126,13 +127,20 @@ and their related containers are:</p>
 <li><a class="reference internal" href="docstr_bonds.html#module-bonds" title="bonds"><code class="xref py py-mod docutils literal"><span class="pre">bonds</span></code></a></li>
 <li><a class="reference internal" href="docstr_angles.html#module-angles" title="angles"><code class="xref py py-mod docutils literal"><span class="pre">angles</span></code></a></li>
 <li><a class="reference internal" href="docstr_dihedrals.html#module-dihedrals" title="dihedrals"><code class="xref py py-mod docutils literal"><span class="pre">dihedrals</span></code></a></li>
+<li><a class="reference internal" href="docstr_impropers.html#module-impropers" title="impropers"><code class="xref py py-mod docutils literal"><span class="pre">impropers</span></code></a></li>
 </ul>
 <p>Finally, a StructureContainer object is a container for the Particle, Bond,
-Angle and Dihedral containers. This class is in the module
+Angle Dihedral and Improper containers. This class is in the module
 <a class="reference internal" href="docstr_structureContainer.html#module-structureContainer" title="structureContainer"><code class="xref py py-mod docutils literal"><span class="pre">structureContainer</span></code></a></p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/strucC.png"><img alt="_images/strucC.png" src="_images/strucC.png" style="width: 359.2px; height: 236.8px;" /></a>
+<a class="reference internal image-reference" href="_images/strucC.png"><img alt="_images/strucC.png" src="_images/strucC.png" style="width: 478.4px; height: 298.4px;" /></a>
 </div>
+<p>The StructureContainer must contain a ParticleContainer at a minimum
+(eg for setting Gaussian runs when no connectivity information is
+requested).
+StructureContainer objects can be created without Bonds, Angles,
+Dihedrals and/or Impropers, with the default empty containers being
+set automatically.</p>
 </div>
 <div class="section" id="simulation-class">
 <h2>Simulation Class<a class="headerlink" href="#simulation-class" title="Permalink to this headline">¶</a></h2>
@@ -143,10 +151,20 @@ Angle and Dihedral containers. This class is in the module
 <li><a class="reference internal" href="docstr_simulationGaussian1.html#module-simulationGaussian1" title="simulationGaussian1"><code class="xref py py-mod docutils literal"><span class="pre">simulationGaussian1</span></code></a></li>
 </ul>
 </div>
-<div class="section" id="algorithms">
-<h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
-<p>This may or may not be part of STREAMM design</p>
+<div class="section" id="structure-simulation-class-api">
+<h2>Structure / Simulation Class API<a class="headerlink" href="#structure-simulation-class-api" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docstr_particles.html">Particle Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_bonds.html">Bond Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_angles.html">Angle Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_dihedrals.html">Dihedral Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_impropers.html">Improper Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_structureContainer.html">StructureContainer Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_simulation.html">Simulation Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_simulationLAMMPS1.html">simulationLAMMPS1 Class API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docstr_simulationGaussian1.html">simulationGaussian Class API</a></li>
+</ul>
 </div>
 </div>
 </div>

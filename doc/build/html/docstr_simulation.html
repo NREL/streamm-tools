@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Simulation Class API &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
+    <link rel="up" title="STREAMM design" href="framework_design.html" />
+    <link rel="next" title="simulationLAMMPS1 Class API" href="docstr_simulationLAMMPS1.html" />
+    <link rel="prev" title="StructureContainer Class API" href="docstr_structureContainer.html" /> 
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="index.html"><img src="_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docstr_simulationLAMMPS1.html" title="simulationLAMMPS1 Class API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="docstr_structureContainer.html" title="StructureContainer Class API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+
+          <li><a href="framework_design.html" accesskey="U">STREAMM design</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="docstr_structureContainer.html"
+                        title="previous chapter">StructureContainer Class API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="docstr_simulationLAMMPS1.html"
+                        title="next chapter">simulationLAMMPS1 Class API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/docstr_simulation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="docstr-simulation"></span><div class="section" id="module-simulation">
+<span id="simulation-class-api"></span><span id="index-0"></span><h1>Simulation Class API<a class="headerlink" href="#module-simulation" title="Permalink to this headline">¶</a></h1>
+<p>Class data structures for simulation data</p>
+<dl class="class">
+<dt id="simulation.Simulation">
+<em class="property">class </em><code class="descclassname">simulation.</code><code class="descname">Simulation</code><span class="sig-paren">(</span><em>name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data structure for describing how a simulation can be performed.
+The attributes stored can be used by a caller to construct/gather the
+appropriate components to run a simulation.</p>
+<p>There will be a tight coupling between objects of this class and the
+StructureContainer objects. Information from the StructureContainer objects
+will in general be used as part of the input to a simulation generated
+by using the data from this object</p>
+<p>A template directory can be set. This is a common location for derived classes
+to access any template files needed to setup simulation</p>
+<p>NOTE:
+1. This is not the simulation code itself and does no calculations.</p>
+<dl class="method">
+<dt id="simulation.Simulation.copyStructureContainerInto">
+<code class="descname">copyStructureContainerInto</code><span class="sig-paren">(</span><em>strucC</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.copyStructureContainerInto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.copyStructureContainerInto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the structure container. Deep copy performed,
+so that external changes to structure container are not
+reflected here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.createSimulation">
+<code class="descname">createSimulation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.createSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.createSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for existence of a top level simulation directory and writes out
+all files needed for running a simulation.</p>
+<p>Files copied/output are contained in the attribute &#8216;inputFileNames&#8217;.</p>
+<p>In principle many input files/scripts could be copied to this location.
+If directory not found, then directory is created. Directory is creating
+from top level of where this class is executed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.getSimName">
+<code class="descname">getSimName</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.getSimName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.getSimName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return name used to create the simulation object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.printStruc">
+<code class="descname">printStruc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.printStruc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.printStruc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump contents of held structure container</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.readOutput">
+<code class="descname">readOutput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.readOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.readOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that reads in an external output file and populates an instance
+of this class object</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def readOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.setStructureContainer">
+<code class="descname">setStructureContainer</code><span class="sig-paren">(</span><em>strucC</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.setStructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.setStructureContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setter for the structure container.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.setTemplateDir">
+<code class="descname">setTemplateDir</code><span class="sig-paren">(</span><em>tdir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.setTemplateDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.setTemplateDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set template directory location</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.writeInput">
+<code class="descname">writeInput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.writeInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.writeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that writes an input file based on the internal attributes of an instance
+of the Simulation object</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def writeOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docstr_simulationLAMMPS1.html" title="simulationLAMMPS1 Class API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="docstr_structureContainer.html" title="StructureContainer Class API"
+             >previous</a> |</li>
+        <li><a href="index.html">home</a>|&nbsp;</li>
+        <li><a href="search.html">search</a>|&nbsp;</li>
+
+          <li><a href="framework_design.html" >STREAMM design</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Dr. Scott W. Sides, Dr. Travis Kemper.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.
+    </div>
+  </body>
+</html>

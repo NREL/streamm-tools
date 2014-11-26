@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>units &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="../index.html"><img src="../_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">home</a>|&nbsp;</li>
+        <li><a href="../search.html">search</a>|&nbsp;</li>
+
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for units</h1><div class="highlight"><pre>
+<span class="c">#! /usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Unit conversions</span>
+
+<span class="sd">File will be read in and all units will be converted to the default units</span>
+
+<span class="sd">   distance - Angstroms </span>
+<span class="sd">   mass - AMU</span>
+<span class="sd">   energy - kcal/mol</span>
+<span class="sd">   charge - electron</span>
+<span class="sd">   density - AMU Angstroms^-3</span>
+
+<span class="sd">Upon output default units will be converted to the appropriate units,</span>
+<span class="sd">which will be displayed in the header of the output file</span>
+<span class="sd">or given for a certian type of input file </span>
+
+<span class="sd">Conversions are taken from the</span>
+
+<span class="sd">CRC Handbook of Chemistry and Physics</span>
+<span class="sd">95th</span>
+
+<span class="sd">see CRC_HCP_energy.pdf in doc directory </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Distance </span>
+<span class="n">nm_angstroms</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">bohr_angstrom</span> <span class="o">=</span> <span class="mf">0.5291772086</span>
+
+<span class="c"># Energy </span>
+<span class="n">kJmol_kcalmol</span> <span class="o">=</span> <span class="mf">0.239006</span>
+<span class="n">kJmol_eV</span> <span class="o">=</span> <span class="mf">0.01036427</span>
+<span class="n">kJmol_H</span> <span class="o">=</span> <span class="mf">0.0003808798</span>
+<span class="n">kcalmol_eV</span> <span class="o">=</span> <span class="mf">0.04336411</span> 
+<span class="n">kcalmol_H</span> <span class="o">=</span> <span class="mf">0.001593601</span> 
+<span class="n">eV_H</span> <span class="o">=</span> <span class="mf">0.03674931</span> 
+<span class="c">#kJmol_incm = 83.5935</span>
+<span class="c">#eV_kcalmol = 96.4853</span>
+
+
+<span class="c"># Constants </span>
+<span class="c"># http://physics.nist.gov/cgi-bin/cuu/Value?na</span>
+<span class="n">const_avo</span> <span class="o">=</span> <span class="mf">6.02214129</span> <span class="c"># x10^23 mol^-1 </span>
+
+
+<span class="c"># grosig_kcalmol = 5.61230943</span>
+
+
+<div class="viewcode-block" id="convert_bohr_ang"><a class="viewcode-back" href="../docstr_extras.html#units.convert_bohr_ang">[docs]</a><span class="k">def</span> <span class="nf">convert_bohr_ang</span><span class="p">(</span><span class="n">dist_bohr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert bohr to angstroms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dist_bohr</span><span class="o">*</span><span class="n">bohr_angstrom</span>
+
+</div>
+<div class="viewcode-block" id="convert_ang_bohr"><a class="viewcode-back" href="../docstr_extras.html#units.convert_ang_bohr">[docs]</a><span class="k">def</span> <span class="nf">convert_ang_bohr</span><span class="p">(</span><span class="n">dist_ang</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert  angstroms to bohr </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dist_ang</span><span class="o">/</span><span class="n">bohr_angstrom</span>
+        
+</div>
+<div class="viewcode-block" id="convert_gcm3_AMUA3"><a class="viewcode-back" href="../docstr_extras.html#units.convert_gcm3_AMUA3">[docs]</a><span class="k">def</span> <span class="nf">convert_gcm3_AMUA3</span><span class="p">(</span><span class="n">den_gmc3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert density from g/cm^3 to AMU Angstroms^-3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">den_gmc3</span><span class="o">*</span><span class="n">const_avo</span><span class="o">/</span><span class="mf">10.0</span>
+    
+</div>
+<div class="viewcode-block" id="convert_AMUA3_gcm3"><a class="viewcode-back" href="../docstr_extras.html#units.convert_AMUA3_gcm3">[docs]</a><span class="k">def</span> <span class="nf">convert_AMUA3_gcm3</span><span class="p">(</span><span class="n">den_AMUA3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert density from AMU Angstroms^-3 to  g/cm^3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">den_AMUA3</span><span class="o">/</span><span class="n">const_avo</span><span class="o">*</span><span class="mf">10.0</span>
+    </div>
+<div class="viewcode-block" id="convert_nm_angstroms"><a class="viewcode-back" href="../docstr_extras.html#units.convert_nm_angstroms">[docs]</a><span class="k">def</span> <span class="nf">convert_nm_angstroms</span><span class="p">(</span><span class="n">d_nm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert nm to angstroms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">d_nm</span><span class="o">*</span><span class="n">nm_angstroms</span>
+    </div>
+<div class="viewcode-block" id="convert_angstroms_nm"><a class="viewcode-back" href="../docstr_extras.html#units.convert_angstroms_nm">[docs]</a><span class="k">def</span> <span class="nf">convert_angstroms_nm</span><span class="p">(</span><span class="n">d_angstroms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert angstroms to nm </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">d_angstroms</span><span class="o">/</span><span class="n">nm_angstroms</span>
+    
+    </div>
+<div class="viewcode-block" id="convert_kJmol_kcalmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kJmol_kcalmol">[docs]</a><span class="k">def</span> <span class="nf">convert_kJmol_kcalmol</span><span class="p">(</span><span class="n">en_kJmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kJmol to kcalmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kJmol</span><span class="o">*</span><span class="n">kJmol_kcalmol</span>
+    </div>
+<div class="viewcode-block" id="convert_kJmol_eV"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kJmol_eV">[docs]</a><span class="k">def</span> <span class="nf">convert_kJmol_eV</span><span class="p">(</span><span class="n">en_kJmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kJmol to eV</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kJmol</span><span class="o">*</span><span class="n">kJmol_eV</span>
+    
+</div>
+<div class="viewcode-block" id="convert_kJmol_H"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kJmol_H">[docs]</a><span class="k">def</span> <span class="nf">convert_kJmol_H</span><span class="p">(</span><span class="n">en_kJmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kJmol to Hartree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kJmol</span><span class="o">*</span><span class="n">kJmol_H</span>
+</div>
+<div class="viewcode-block" id="convert_kcalmol_kJmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kcalmol_kJmol">[docs]</a><span class="k">def</span> <span class="nf">convert_kcalmol_kJmol</span><span class="p">(</span><span class="n">en_kcalmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kcalmol  to kJmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kcalmol</span><span class="o">/</span><span class="n">kJmol_kcalmol</span>
+    </div>
+<div class="viewcode-block" id="convert_kcalmol_eV"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kcalmol_eV">[docs]</a><span class="k">def</span> <span class="nf">convert_kcalmol_eV</span><span class="p">(</span><span class="n">en_kcalmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kcalmol  to eV</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kcalmol</span><span class="o">*</span><span class="n">kcalmol_eV</span>
+</div>
+<div class="viewcode-block" id="convert_kcalmol_H"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kcalmol_H">[docs]</a><span class="k">def</span> <span class="nf">convert_kcalmol_H</span><span class="p">(</span><span class="n">en_kcalmol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert kcalmol  to Hartree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_kcalmol</span><span class="o">*</span><span class="n">kcalmol_H</span>
+</div>
+<div class="viewcode-block" id="convert_eV_kJmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_eV_kJmol">[docs]</a><span class="k">def</span> <span class="nf">convert_eV_kJmol</span><span class="p">(</span><span class="n">en_eV</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert eV to kJmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_eV</span><span class="o">/</span><span class="n">kJmol_eV</span>
+    </div>
+<div class="viewcode-block" id="convert_eV_kcalmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_eV_kcalmol">[docs]</a><span class="k">def</span> <span class="nf">convert_eV_kcalmol</span><span class="p">(</span><span class="n">en_eV</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert eV to kcalmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_eV</span><span class="o">/</span><span class="n">kcalmol_eV</span>
+    </div>
+<div class="viewcode-block" id="convert_eV_H"><a class="viewcode-back" href="../docstr_extras.html#units.convert_eV_H">[docs]</a><span class="k">def</span> <span class="nf">convert_eV_H</span><span class="p">(</span><span class="n">en_eV</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert eV to Hartree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_eV</span><span class="o">*</span><span class="n">eV_H</span>
+    
+</div>
+<div class="viewcode-block" id="convert_H_kJmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_H_kJmol">[docs]</a><span class="k">def</span> <span class="nf">convert_H_kJmol</span><span class="p">(</span><span class="n">en_H</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert Hartree to kJmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_H</span><span class="o">/</span><span class="n">kJmol_H</span>
+
+</div>
+<div class="viewcode-block" id="convert_H_kcalmol"><a class="viewcode-back" href="../docstr_extras.html#units.convert_H_kcalmol">[docs]</a><span class="k">def</span> <span class="nf">convert_H_kcalmol</span><span class="p">(</span><span class="n">en_H</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert Hartree to kcalmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_H</span><span class="o">/</span><span class="n">kcalmol_H</span>
+
+</div>
+<div class="viewcode-block" id="convert_H_eV"><a class="viewcode-back" href="../docstr_extras.html#units.convert_H_eV">[docs]</a><span class="k">def</span> <span class="nf">convert_H_eV</span><span class="p">(</span><span class="n">en_H</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert Hartree to kcalmol</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">en_H</span><span class="o">/</span><span class="n">eV_H</span>
+
+
+    
+<span class="c">#def convert_kJmol_incm(en_kJmol):</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    convert kJmol to cm^-1</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    return en_kJmol*kJmol_incm</span>
+    
+<span class="c">#def convert_gro_sig(sig_gro):</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    convert epsilon from gromacs to kcal/mol </span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    return sig_gro*grosig_kcalmol</span>
+    
+    
+</div>
+<div class="viewcode-block" id="convert_g_bond_kb"><a class="viewcode-back" href="../docstr_extras.html#units.convert_g_bond_kb">[docs]</a><span class="k">def</span> <span class="nf">convert_g_bond_kb</span><span class="p">(</span><span class="n">g_kb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert gromacs harmonic bond parameter in</span>
+<span class="sd">       2.0 kJ/mol /nm /nm</span>
+<span class="sd">    to general bond parameter defined by lammps</span>
+<span class="sd">       kcal/mol /angstrom/angstrom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">g_kb</span><span class="o">*</span><span class="n">kJmol_kcalmol</span><span class="o">/</span><span class="n">nm_angstroms</span><span class="o">/</span><span class="n">nm_angstroms</span><span class="o">/</span><span class="mf">2.0</span>
+
+</div>
+<div class="viewcode-block" id="convert_kb_g_bond"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kb_g_bond">[docs]</a><span class="k">def</span> <span class="nf">convert_kb_g_bond</span><span class="p">(</span><span class="n">g_kb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert to gromacs harmonic bond parameter in</span>
+<span class="sd">       2.0 kJ/mol /nm /nm</span>
+<span class="sd">    from general bond parameter defined by lammps</span>
+<span class="sd">       kcal/mol /angstrom/angstrom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">g_kb</span><span class="o">/</span><span class="n">kJmol_kcalmol</span><span class="o">*</span><span class="n">nm_angstroms</span><span class="o">*</span><span class="n">nm_angstroms</span><span class="o">*</span><span class="mf">2.0</span>
+
+
+</div>
+<div class="viewcode-block" id="convert_g_angle_kb"><a class="viewcode-back" href="../docstr_extras.html#units.convert_g_angle_kb">[docs]</a><span class="k">def</span> <span class="nf">convert_g_angle_kb</span><span class="p">(</span><span class="n">g_ka</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert gromacs harmonic angle parameter in</span>
+<span class="sd">       1/2.0 K kJ/mol/radina^2</span>
+<span class="sd">    to general angle parameter defined by lammps</span>
+<span class="sd">       kcal/mol /radina^2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">g_ka</span><span class="o">*</span><span class="n">kJmol_kcalmol</span><span class="o">/</span><span class="mf">2.0</span>
+
+    </div>
+<div class="viewcode-block" id="convert_kb_g_angle"><a class="viewcode-back" href="../docstr_extras.html#units.convert_kb_g_angle">[docs]</a><span class="k">def</span> <span class="nf">convert_kb_g_angle</span><span class="p">(</span><span class="n">g_ka</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert to gromacs harmonic angle parameter in</span>
+<span class="sd">        1/2.0 K kJ/mol/radina^2</span>
+<span class="sd">    from general angle parameter defined by lammps</span>
+<span class="sd">        kcal/mol /radina^2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">g_ka</span><span class="o">/</span><span class="n">kJmol_kcalmol</span><span class="o">*</span><span class="mf">2.0</span>
+
+    
+    </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">home</a>|&nbsp;</li>
+        <li><a href="../search.html">search</a>|&nbsp;</li>
+
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, Dr. Scott W. Sides, Dr. Travis Kemper.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.
+    </div>
+  </body>
+</html>
