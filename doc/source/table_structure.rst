@@ -1,0 +1,34 @@
+.. _table_structure
+
+.. index:: structure, search, tags SQL, database, OPV
+
+
+Structure Search Tag Table
+================================
+
+**vw_structure**
+
+=============================    ======================
+Keyword                          Type
+=============================    ======================
+project_id                       integer                      
+project_name                     character varying(150)       
+structure_id                     integer                      
+tag                              character varying(150)       
+backbone_type_name               character varying            
+max_oligomer_number              integer                      
+isomer_type                      character varying(10)        
+conformer_type                   character varying(10)        
+structure_created_on             timestamp without time zone  
+structure_result_id              integer                      
+basis                            character varying(150)       
+structure_result_date_added      timestamp without time zone  
+structure_result_created_on      timestamp without time zone  
+delta_homo                       numeric(45,20)               
+delta_lumo                       numeric(45,20)               
+delta_optical_lumo               numeric(45,20)               
+homo_extrapolated                numeric(45,20)               
+lumo_extrapolated                numeric(45,20)               
+gap_extrapolated                 numeric(45,20)               
+optical_lumo_extrapolated        numeric(45,20)
+=============================    ======================

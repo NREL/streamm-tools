@@ -303,7 +303,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&#39;There have been 0 new oligomers created in the last 7 days. </span><span class="se">\n</span><span class="s">&#39;</span>
 
-
 </div>
 <div class="viewcode-block" id="OPVSqlBase.runSQLCmd"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.runSQLCmd">[docs]</a>    <span class="k">def</span> <span class="nf">runSQLCmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqlCmd</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -336,7 +335,6 @@
         <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s"> Number of results &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">resList</span><span class="p">),</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
         <span class="k">return</span> <span class="n">resList</span>
 
-
 </div>
 <div class="viewcode-block" id="OPVSqlBase.getTotalResults"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.getTotalResults">[docs]</a>    <span class="k">def</span> <span class="nf">getTotalResults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -360,95 +358,6 @@
         <span class="n">sqlExecStr</span> <span class="o">=</span> <span class="s">&quot;select tag,dipole_difference from opv.vw_oligomer where dipole_difference is not null&quot;</span>
         <span class="n">rList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runSQLCmd</span><span class="p">(</span><span class="n">sqlExecStr</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         <span class="k">print</span> <span class="s">&quot;Results have &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rList</span><span class="p">),</span> <span class="s">&quot; d(dipole) values </span><span class="se">\n</span><span class="s">&quot;</span>
-
-</div>
-<div class="viewcode-block" id="OPVSqlBase.plotScatter"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotScatter">[docs]</a>    <span class="k">def</span> <span class="nf">plotScatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nameStr</span><span class="p">,</span> <span class="n">cullPts</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Take 3D scatter coords and coloring list</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            data  (tuple): 4 tuples of 3D coords and colors strings</span>
-<span class="sd">            nameStr (str): File name string</span>
-<span class="sd">            cullPts (int): Number of points to plot (for speed)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">col1</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c"># Unpack data</span>
-        <span class="n">col2</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">col3</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">colors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-
-        <span class="c"># Make 3d scatter</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s">&#39;3d&#39;</span><span class="p">)</span>
-
-        <span class="n">col1</span> <span class="o">=</span> <span class="n">col1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
-        <span class="n">col2</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
-        <span class="n">col3</span> <span class="o">=</span> <span class="n">col3</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>        
-        <span class="n">colors</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
-        <span class="n">fList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectStr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>      <span class="c"># Set x label</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>      <span class="c"># Set y label</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>          <span class="c"># If z exists, set z-label</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
-        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvScatter_&quot;</span> <span class="o">+</span> <span class="n">nameStr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-
-</div>
-<div class="viewcode-block" id="OPVSqlBase.plotContour"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotContour">[docs]</a>    <span class="k">def</span> <span class="nf">plotContour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nameStr</span><span class="p">,</span> <span class="n">cullPts</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Take 3D scatter coords and coloring list</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            data  (tuple): 4 tuples of 3D coords and colors strings</span>
-<span class="sd">            nameStr (str): File name string</span>
-<span class="sd">            cullPts (int): Number of points to plot (for speed)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">col1</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c"># Unpack data</span>
-        <span class="n">col2</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">col3</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">colors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-
-        <span class="c"># Make 2d contour</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-
-        <span class="n">col1</span> <span class="o">=</span> <span class="n">col1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># homo  x</span>
-        <span class="n">col2</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># gap    z</span>
-        <span class="n">col3</span> <span class="o">=</span> <span class="n">col3</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># lumo  y</span>
-
-        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">col1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">col1</span><span class="p">)</span>
-        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">col3</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">col3</span><span class="p">)</span>
-
-        <span class="c"># Reshape data for matplotlib contour calls</span>
-        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
-        <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
-        <span class="n">zi</span> <span class="o">=</span> <span class="n">ml</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">)</span>
-
-        <span class="c"># Make contour plot</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="s">&#39;k&#39;</span><span class="p">)</span>
-
-        <span class="c"># Label plot</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s">&#39;rainbow&#39;</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span> 
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Simple contour plot&quot;</span><span class="p">)</span>
-
-        <span class="c"># Output</span>
-        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvContour_&quot;</span> <span class="o">+</span> <span class="n">nameStr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="OPVSqlBase.getBasisScatter"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.getBasisScatter">[docs]</a>    <span class="k">def</span> <span class="nf">getBasisScatter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -565,42 +474,6 @@
         <span class="n">dat</span> <span class="o">=</span> <span class="p">[</span><span class="n">tmp1</span><span class="p">,</span> <span class="n">tmp2</span><span class="p">,</span> <span class="n">tmp3</span><span class="p">,</span> <span class="n">tmpcolors</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">dat</span>
 
-
-</div>
-<div class="viewcode-block" id="OPVSqlBase.plotHist"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotHist">[docs]</a>    <span class="k">def</span> <span class="nf">plotHist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">,</span> <span class="n">idstr</span><span class="p">,</span> <span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Analyze 1D-histogram </span>
-<span class="sd">    </span>
-<span class="sd">        Args:</span>
-<span class="sd">            dat      (): result of histogram object</span>
-<span class="sd">            idstr (str): middle string tag for output file</span>
-<span class="sd">            xlab (str): x-axis label</span>
-<span class="sd">            ylab (str): y-axis label</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Calc parameters for histograms</span>
-        <span class="n">mintmp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
-        <span class="n">maxtmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
-        <span class="n">xmin</span> <span class="o">=</span> <span class="n">mintmp</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.01</span><span class="o">*</span><span class="n">mintmp</span><span class="p">)</span>
-        <span class="n">xmax</span> <span class="o">=</span> <span class="n">maxtmp</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.01</span><span class="o">*</span><span class="n">maxtmp</span><span class="p">)</span>
-        <span class="n">numbins</span> <span class="o">=</span> <span class="mi">100</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">Histogram1D</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">numbins</span><span class="p">)</span>
-        <span class="n">hist</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">getHistogram</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
-
-        <span class="n">binVals</span>     <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">avgHistVals</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="c"># Hist data plot</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlab</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylab</span><span class="p">)</span>
-        <span class="c">#plt.title(idstr)</span>
-
-        <span class="c"># Output to image</span>
-        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvHist_&quot;</span> <span class="o">+</span> <span class="n">idstr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 </div>
 <div class="viewcode-block" id="OPVSqlBase.runBasisStats"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.runBasisStats">[docs]</a>    <span class="k">def</span> <span class="nf">runBasisStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -976,8 +849,134 @@
         <span class="c"># Run command</span>
         <span class="n">rList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runSQLCmd</span><span class="p">(</span><span class="n">sqlExecStr</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         
-        <span class="k">print</span> <span class="n">rList</span></div></div>
-</pre></div>
+        <span class="k">print</span> <span class="n">rList</span>
+
+</div>
+<div class="viewcode-block" id="OPVSqlBase.plotHist"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotHist">[docs]</a>    <span class="k">def</span> <span class="nf">plotHist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">,</span> <span class="n">idstr</span><span class="p">,</span> <span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Analyze 1D-histogram </span>
+<span class="sd">    </span>
+<span class="sd">        Args:</span>
+<span class="sd">            dat      (): result of histogram object</span>
+<span class="sd">            idstr (str): middle string tag for output file</span>
+<span class="sd">            xlab (str): x-axis label</span>
+<span class="sd">            ylab (str): y-axis label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Calc parameters for histograms</span>
+        <span class="n">mintmp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">maxtmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="n">mintmp</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.01</span><span class="o">*</span><span class="n">mintmp</span><span class="p">)</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="n">maxtmp</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.01</span><span class="o">*</span><span class="n">maxtmp</span><span class="p">)</span>
+        <span class="n">numbins</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">Histogram1D</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">numbins</span><span class="p">)</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">getHistogram</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+
+        <span class="n">binVals</span>     <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">avgHistVals</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c"># Hist data plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlab</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylab</span><span class="p">)</span>
+        <span class="c">#plt.title(idstr)</span>
+
+        <span class="c"># Output to image</span>
+        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvHist_&quot;</span> <span class="o">+</span> <span class="n">idstr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+</div>
+<div class="viewcode-block" id="OPVSqlBase.plotScatter"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotScatter">[docs]</a>    <span class="k">def</span> <span class="nf">plotScatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nameStr</span><span class="p">,</span> <span class="n">cullPts</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take 3D scatter coords and coloring list</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data  (tuple): 4 tuples of 3D coords and colors strings</span>
+<span class="sd">            nameStr (str): File name string</span>
+<span class="sd">            cullPts (int): Number of points to plot (for speed)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">col1</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c"># Unpack data</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">col3</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c"># Make 3d scatter</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s">&#39;3d&#39;</span><span class="p">)</span>
+
+        <span class="n">col1</span> <span class="o">=</span> <span class="n">col1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
+        <span class="n">col3</span> <span class="o">=</span> <span class="n">col3</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>        
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
+        <span class="n">fList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectStr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>      <span class="c"># Set x label</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>      <span class="c"># Set y label</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>          <span class="c"># If z exists, set z-label</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="n">fList</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvScatter_&quot;</span> <span class="o">+</span> <span class="n">nameStr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+</div>
+<div class="viewcode-block" id="OPVSqlBase.plotContour"><a class="viewcode-back" href="../db_interface.html#opvSQL.OPVSqlBase.plotContour">[docs]</a>    <span class="k">def</span> <span class="nf">plotContour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nameStr</span><span class="p">,</span> <span class="n">cullPts</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take 3D scatter coords and coloring list</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data  (tuple): 4 tuples of 3D coords and colors strings</span>
+<span class="sd">            nameStr (str): File name string</span>
+<span class="sd">            cullPts (int): Number of points to plot (for speed)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">col1</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c"># Unpack data</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">col3</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c"># Make 2d contour</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="n">col1</span> <span class="o">=</span> <span class="n">col1</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># homo  x</span>
+        <span class="n">col2</span> <span class="o">=</span> <span class="n">col2</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># gap    z</span>
+        <span class="n">col3</span> <span class="o">=</span> <span class="n">col3</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">cullPts</span><span class="p">]</span> <span class="c"># lumo  y</span>
+
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">col1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">col1</span><span class="p">)</span>
+        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">col3</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">col3</span><span class="p">)</span>
+
+        <span class="c"># Reshape data for matplotlib contour calls</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+        <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+        <span class="n">zi</span> <span class="o">=</span> <span class="n">ml</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">)</span>
+
+        <span class="c"># Make contour plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">linewidths</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="s">&#39;k&#39;</span><span class="p">)</span>
+
+        <span class="c"># Label plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s">&#39;rainbow&#39;</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span> 
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Simple contour plot&quot;</span><span class="p">)</span>
+
+        <span class="c"># Output</span>
+        <span class="n">distName</span> <span class="o">=</span> <span class="s">&quot;opvContour_&quot;</span> <span class="o">+</span> <span class="n">nameStr</span> <span class="o">+</span> <span class="s">&quot;.png&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Plotting &quot;</span><span class="p">,</span> <span class="n">distName</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">distName</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div></div></div>
 
           </div>
         </div>

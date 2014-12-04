@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
-    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="next" title="Oligomer Search Tag Table" href="table_oligomer.html" />
     <link rel="prev" title="Extras API" href="docstr_extras.html" /> 
   </head>
   <body role="document">
@@ -45,7 +45,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="examples.html" title="Examples"
+          <a href="table_oligomer.html" title="Oligomer Search Tag Table"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="docstr_extras.html" title="Extras API"
@@ -72,8 +72,8 @@
   <p class="topless"><a href="docstr_extras.html"
                         title="previous chapter">Extras API</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="examples.html"
-                        title="next chapter">Examples</a></p>
+  <p class="topless"><a href="table_oligomer.html"
+                        title="next chapter">Oligomer Search Tag Table</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -117,222 +117,17 @@ Peregrine compute cluster. The python modules and scripts that enable
 efficient access to the OPV database is described below.</p>
 <div class="section" id="description-of-opv-data">
 <h2>Description of OPV data<a class="headerlink" href="#description-of-opv-data" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="docutils">
-<colgroup>
-<col width="52%" />
-<col width="48%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Column</th>
-<th class="head">Type</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>project_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-odd"><td>project_name</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-even"><td>oligomer_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-odd"><td>tag</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-even"><td>oligomer_number</td>
-<td>integer</td>
-</tr>
-<tr class="row-odd"><td>backbone_type_name</td>
-<td>character varying</td>
-</tr>
-<tr class="row-even"><td>molecule_type</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-odd"><td>bblock_list</td>
-<td>character varying[]</td>
-</tr>
-<tr class="row-even"><td>isomer_type</td>
-<td>character varying(10)</td>
-</tr>
-<tr class="row-odd"><td>conformer_type</td>
-<td>character varying(10)</td>
-</tr>
-<tr class="row-even"><td>oligomer_created_on</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>oligomer_result_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-even"><td>basis</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-odd"><td>oligomer_result_date_added</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-even"><td>oligomer_result_created_on</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>date_calculation_finished</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-even"><td>oligomer_result_last_updated</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>homo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>lumo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>optical_lumo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>homo_contour</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>lumo_contour</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>gap</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>logp</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>mu_x</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>mu_y</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>mu_z</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>mu_tot</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>total_energy</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>mu2_x</td>
-<td>numeric</td>
-</tr>
-<tr class="row-even"><td>mu2_y</td>
-<td>numeric</td>
-</tr>
-<tr class="row-odd"><td>mu2_z</td>
-<td>numeric</td>
-</tr>
-<tr class="row-even"><td>mu2_tot</td>
-<td>numeric</td>
-</tr>
-<tr class="row-odd"><td>dipole_difference</td>
-<td>numeric</td>
-</tr>
-<tr class="row-even"><td>date_cation_calc_finished</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>vert_cat_en</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>neutral_reorganization_energy</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>cation_reorganization_energy</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>vertical_ionization_energy</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>adiabatic_ionization_energy</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>relaxed_neut_en</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>relaxed_cat_en</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>mol</td>
-<td>text</td>
-</tr>
-</tbody>
-</table>
-<p>vw_structure</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="52%" />
-<col width="48%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Column</th>
-<th class="head">Type</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>project_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-odd"><td>project_name</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-even"><td>structure_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-odd"><td>tag</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-even"><td>backbone_type_name</td>
-<td>character varying</td>
-</tr>
-<tr class="row-odd"><td>max_oligomer_number</td>
-<td>integer</td>
-</tr>
-<tr class="row-even"><td>isomer_type</td>
-<td>character varying(10)</td>
-</tr>
-<tr class="row-odd"><td>conformer_type</td>
-<td>character varying(10)</td>
-</tr>
-<tr class="row-even"><td>structure_created_on</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>structure_result_id</td>
-<td>integer</td>
-</tr>
-<tr class="row-even"><td>basis</td>
-<td>character varying(150)</td>
-</tr>
-<tr class="row-odd"><td>structure_result_date_added</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-even"><td>structure_result_created_on</td>
-<td>timestamp without time zone</td>
-</tr>
-<tr class="row-odd"><td>delta_homo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>delta_lumo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>delta_optical_lumo</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>homo_extrapolated</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>lumo_extrapolated</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-even"><td>gap_extrapolated</td>
-<td>numeric(45,20)</td>
-</tr>
-<tr class="row-odd"><td>optical_lumo_extrapolated</td>
-<td>numeric(45,20)</td>
-</tr>
-</tbody>
-</table>
+<p>The SQL database is organized into two major sections. The raw data
+from DFT calculations is in the <em>vw_oligomer</em> section. The
+extrapolated results that use the oligomer data is in the
+<em>vw_structure</em> section. The various keywords are shown in the tables
+below:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="table_oligomer.html">Oligomer Search Tag Table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="table_structure.html">Structure Search Tag Table</a></li>
+</ul>
+</div>
 </div>
 <div class="section" id="module-opvSQL">
 <span id="desciption-of-opvsql-python-module"></span><h2>Desciption of opvSQL python module<a class="headerlink" href="#module-opvSQL" title="Permalink to this headline">¶</a></h2>
@@ -589,7 +384,7 @@ datLine    (list) Input data [&#8220;<a href="#id1"><span class="problematic" id
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="examples.html" title="Examples"
+          <a href="table_oligomer.html" title="Oligomer Search Tag Table"
              >next</a> |</li>
         <li class="right" >
           <a href="docstr_extras.html" title="Extras API"
