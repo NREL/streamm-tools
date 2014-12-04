@@ -36,6 +36,9 @@ sys.path.append(os.path.abspath('../../src'))
 # SWS: (set location of tools-tests?)  Point to tools-tests so docstrings can be generated
 sys.path.append(os.path.abspath('../../../tools-tests'))
 
+# SWS: flag for when tools-opv is not present
+sys.path.append(os.path.abspath('../../../tools-opv'))
+
 # sys.path.append('/Users/ssides/opv-project/tools/src')
 
 # Add any Sphinx extension module names here, as strings. They can be

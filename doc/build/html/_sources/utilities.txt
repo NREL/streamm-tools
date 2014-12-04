@@ -67,7 +67,6 @@ Example code: commTst.py::
         p.barrier()
     p.barrier()
 
-
 Note that this file can be run if one loads another python MPI library
 or none at all.
 
@@ -82,7 +81,7 @@ and simulation input parameters.
 - :mod:`atomtypes`
 - :mod:`elements`
 - :mod:`parameters`
-- :mod:`periodtable`
+- :mod:`periodictable`
 - :mod:`topology`
 - :mod:`units`
 
