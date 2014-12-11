@@ -4,13 +4,21 @@
 Examples
 *************************
 
-Detailed explanation of some tools-tests
+Selected tools-tests
 ========================================================
-Pick a subset of tools-tests and explain (SCOTT)
+These examples are closely related to regression tests in the
+tools-tests repo. 
 
-- test_particleContainer
-- test_subStructure
 
+.. toctree::
+   :maxdepth: 1
+
+   example_subStructure.rst
+
+Each of the selections above is available as an IPython
+notebook, so you may explore these examples further.
+
+:download:`example_subStructure.ipynb <example_subStructure.ipynb>`
 
 
 More complicated example with simulation objects
