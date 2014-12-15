@@ -65,6 +65,8 @@ def get_bond_len(don, acc, dt, at):
         return 1.35
     elif (is_pair(don_elmnt, acc_elmnt, ["C","Si"])):
         return 1.94
+    elif (is_pair(don_elmnt, acc_elmnt, ["C","H"])):
+        return 1.09
     else:
         return 1.4
 
