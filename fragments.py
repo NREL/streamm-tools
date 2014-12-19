@@ -794,7 +794,7 @@ class Fragment(Structure):
         """
 
         # import re
-        #  print "capidx, term_tag, cap_tag ", cap_idx, term_tag, cap_tag
+        print "capidx, term_tag, cap_tag ", cap_idx, term_tag, cap_tag
         ## first find cap_idx'th cap of the right type
         cap_atom_idx = None
         capcnt = 0
