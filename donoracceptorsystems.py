@@ -426,8 +426,6 @@ def build_from_str(bblocks, s, options):
         # make_ff TK
         #newfrag.setall_resnumb(fragidx+1)
         #newfrag.setall_restype(s)
-
-        
         
         print "processing fragment of type : ", newfrag.type," fragidx ",fragidx," s ",s
         #  print "processing fragment of type : ", newfrag.type, " rot ctrl crit= ", rot_ctrl.free_rot_criteria

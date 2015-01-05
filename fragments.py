@@ -1027,6 +1027,8 @@ class Fragment(Structure):
         e.g.:  bond_idx = [[0,3],[4,7]] means self.atoms[0] connects to frag.atoms[3], and self.4 to frag.7 
         """
 
+        from math import sqrt, acos, cos, pi
+
         selfpos1 = self.atoms[bond_idx[0][0]].pos
         selfpos2 = self.atoms[bond_idx[1][0]].pos
         fragpos1 = frag.atoms[bond_idx[0][1]].pos
