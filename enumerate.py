@@ -368,6 +368,16 @@ class BuildingBlockEnumerator(BuildingBlocks):
                             self.try_str(str, options, True)
 
 
+        if "TSpDSpT" in classes:            
+            for iterm1 in range(0,len(good_term)):
+                for idon in range(0,len(good_don)):                                    
+                    for ispc in range(0,len(allthespacers)):
+                        sp = "%s" % allthespacers[ispc]  ## one of the spacer names can be "", for no spacer
+                        str = "%s %s %s %s %s" % (good_term[iterm1], sp, good_don[idon], sp, good_term[iterm1])
+                        print "TRYING %s" % str
+                        self.try_str(str, options, True)
+
+
         if "TSpDDSpT" in classes:            
             for iterm1 in range(0,len(good_term)):
                 for idon in range(0,len(good_don)):                                    
@@ -375,7 +385,7 @@ class BuildingBlockEnumerator(BuildingBlocks):
                         sp = "%s" % allthespacers[ispc]  ## one of the spacer names can be "", for no spacer
                         str = "%s %s %s %s %s %s" % (good_term[iterm1], sp, good_don[idon], good_don[idon], sp, good_term[iterm1])
                         print "TRYING %s" % str
-                        self.try_str(str, options, True)
+                        self.try_str(str, options, True)                        
 
 
         if "TSpSpDDSpSpT" in classes:            
