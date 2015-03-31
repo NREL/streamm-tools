@@ -201,7 +201,6 @@ class Misc:
         return bigList
 
 
-
 class IO:
     """
     Class for managing output to files/screen
@@ -576,6 +575,7 @@ class JobStatus:
 
 
 
+
 class FileEditorWithTags:
     """
     Creates objects capable of editing files by replacing string tags
@@ -738,8 +738,6 @@ class FileEditorWithTags:
         # Copy over template file w/new file
         shutil.copy2(outFile, inFile)
         os.remove(outFile)
-
-
 
 
 class Geometry:
@@ -1066,7 +1064,6 @@ class Histogram1D:
         return binCounts, binWeights
 
 
-
     def _getBinVals(self):
         """
         Return position list of midpoints of bins
@@ -1094,3 +1091,208 @@ class Histogram1D:
         Driver for bin1D(val) for a list of values
         """
         return map(self._bin1D, valList)
+
+
+
+
+class EditFileLines:
+    """
+    Creates an object that can edit a file by manipulating lines
+    Close in spirit to bash utilities like 'sed' and 'awk'.
+    """
+
+    def __init__(self, inputfile, debugFlag=False):
+        """
+        Constructor
+        """
+
+        # Input file name
+        self.inputfile = inputfile
+
+        # File object for input name
+        self.fobj =open(inputfile,  'r+')
+        
+        self.debugFlag = debugFlag
+        if (self.debugFlag):
+            print " "
+            print "Misc class created"
+            print " debugFlag set to --> ", debugFlag
+            print " "
+
+
+    def __del__(self):
+        """
+        Destructor
+        """
+
+        # Close open file object
+        self.fobj.close()
+
+        if (self.debugFlag):
+            print " "
+            print "Misc class closed"
+
+
+    def fileLines(self):
+        """
+        Count lines in the input file
+        """
+        self.fobj.seek(0) # Reset file position
+        for i, l in enumerate(self.fobj):
+            pass
+        return i + 1        
+
+
+    def getLinesAfter(self, startnum):
+        """
+        Return file lines after a line number. First line in file is '1'
+
+        Args:
+            startnum (int) Line number of file to start returning lines after
+
+        Returns:
+            Return list of strings
+        """
+        linenum = 0
+        getLines = list()
+        
+        for line in self.fobj:
+            if linenum < startnum:
+                pass
+            else:
+                getLines.append(line)
+            linenum += 1
+
+        return getLines
+
+
+
+    def getLinesBetween(self, start, end):
+        """
+        Get file lines in-between specified line strings.
+
+        Args:
+            start (str): String in file to begin section
+            end   (str): String in file to end section
+
+        Returns:
+            Return list of strings (not including start and end string)
+        """
+
+        startFound = False  # Flag for finding start string
+        endFound   = False  # Flag for finding end string
+        outLines = list()   # Declare output list result
+        self.fobj.seek(0)   # Reset pointer for file
+        
+        # Loop over all lines in file until start string found and end string found
+        while (not endFound):
+
+            # Read line and break out of loop for EOF
+            raw = self.fobj.readline()
+            if not raw:
+                break
+
+            # Set start/end flags
+            strline = raw.strip()
+            if start == strline:
+                startFound = True
+            elif (end == strline) and startFound:
+                endFound = True
+            else:
+                pass
+
+            # Decide to append line between start-end string
+            if ( startFound and (not endFound) ):
+                outLines.append(strline)
+
+        # Leave off start line in result
+        return outLines[1:]
+
+
+
+    def insertLinesAfter(self, linesList, start):
+        """
+        Insert lines after the search string
+
+        Args:
+            linesList (list): List of strings to insert
+            start      (str): Search string marker to insert after
+
+        Returns:
+            Edits the internal file object
+        """
+
+        oldLinesBefore = list()
+        oldLinesAfter  = list()
+        startFound = False  # Flag for finding start string
+        self.fobj.seek(0)   # Reset pointer for file
+
+        # Open file for edited content
+        editFileName = self.inputfile + ".inserted"
+        newfobj = open(editFileName, 'w')
+
+        # Loop over all lines in file and split lines depending on 'start' string
+        for oldline in self.fobj:
+
+            # Write out part of old file to new file before insert string
+            if not startFound:
+                oldLinesBefore.append(oldline)
+            else:
+                oldLinesAfter.append(oldline)
+
+            # Check for start line
+            if start == oldline.strip():
+                startFound = True
+                
+        newfobj.writelines(oldLinesBefore) # Write out before chunk
+        newfobj.writelines(linesList)      # Write out insert chunk
+        newfobj.writelines(oldLinesAfter)  # Write out after  chunk
+        newfobj.close()                    # Close new edited file
+
+
+
+    def deleteLinesBetween(self, start, end):
+        """
+        Remove file lines in-between specified line strings.
+
+        Args:
+            start (str): String in file to begin section
+            end   (str): String in file to end section
+
+        Returns:
+            Return list of strings (not including start and end string)
+        """
+
+        startFound = False  # Flag for finding start string
+        endFound   = False  # Flag for finding end string
+        outLines = list()   # Declare output list result
+        self.fobj.seek(0)   # Reset pointer for file
+
+        # Open file for edited content
+        editFileName = self.inputfile + ".deleted"
+        newfobj = open(editFileName, 'w')
+
+        # Loop over all lines in file until start string found and end string found
+        for oldline in self.fobj:
+
+            if not startFound:
+                newfobj.write(oldline)
+            elif startFound and (not endFound):
+                pass
+            elif startFound and endFound:
+                newfobj.write(oldline)
+            else:
+                print "Error with file line delete"
+                sys.exit(0)
+                
+            # Set start/end flags
+            strline = oldline.strip()
+            if start == strline:
+                startFound = True
+            elif (end == strline) and startFound:
+                endFound = True
+            else:
+                pass
+
+        # Close edited file
+        newfobj.close()

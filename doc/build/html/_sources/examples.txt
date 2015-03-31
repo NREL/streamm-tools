@@ -9,7 +9,6 @@ Selected tools-tests
 These examples are closely related to regression tests in the
 tools-tests repo. 
 
-
 .. toctree::
    :maxdepth: 1
 
