@@ -1249,6 +1249,7 @@ class EditFileLines:
         newfobj.writelines(oldLinesAfter)  # Write out after  chunk
         newfobj.close()                    # Close new edited file
 
+        print "Created file ", editFileName
 
 
     def deleteLinesBetween(self, start, end):
@@ -1296,3 +1297,4 @@ class EditFileLines:
 
         # Close edited file
         newfobj.close()
+        print "Created file ", editFileName
