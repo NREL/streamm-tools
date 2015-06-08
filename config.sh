@@ -14,7 +14,7 @@ echo " "
 #
 # Cleaning environment of previous STREAMM related paths
 # 
-$TOP_PATH/scripts/cleanPath.py
+$TOP_PATH/cleanPath.py
 echo " "
 source clean-PYTHONPATH.sh
 source clean-PATH.sh
@@ -24,7 +24,6 @@ rm -rf clean-*PATH.sh
 #
 # Set PYTHONPATH, PATH  and TOOLS_PATH
 # 
-PYTHONPATH=$TOP_PATH/AtomicPy/src:$PYTHONPATH  # Will be removed when tools code consolidated
 PYTHONPATH=$TOP_PATH/src:$PYTHONPATH
 PYTHONPATH=./:$PYTHONPATH
 export PYTHONPATH
