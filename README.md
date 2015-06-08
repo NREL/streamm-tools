@@ -5,7 +5,6 @@ Common Tools for all STREAMM projects (private access)
 
 (Note Jan 23 2014: Moved job creation/submission/monitoring python scripts to tools-public)
 
-
 File structure:
 
 stream/tools/
@@ -15,7 +14,6 @@ stream/tools/
                 functions
                 structures 
                 properties
-                ( will have Eric set up these files)
         scripts/
                 jobmanagment/
                         run_qm
@@ -26,11 +24,9 @@ stream/tools/
                 force_field/
                         torsion/        
                 electron_transfer/
-
                                 
         examples/
 
-        tools/Atom/
 
 Flow:
         All calculations will be tracked via the json file
