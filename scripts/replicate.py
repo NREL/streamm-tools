@@ -13,7 +13,7 @@ from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
 import pbcs,topology
-import mpiNREL, file_io
+import mpiBase, file_io
 
 import numpy as np 
 import sys , datetime, random, math 
@@ -85,7 +85,7 @@ def main():
 
     
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()

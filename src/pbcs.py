@@ -150,7 +150,7 @@ def replicate(p,options,oligo_array,sol_array):
     Returns: None
 
     """
-    import mpiNREL
+    import mpiBase
     import file_io, units 
     from structureContainer import StructureContainer
     import sys , datetime, random, math 

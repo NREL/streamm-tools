@@ -32,7 +32,7 @@ from bonds     import BondContainer
 from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
-import mpiNREL
+import mpiBase
 import pbcs
 import json, math , sys 
 import numpy as np
@@ -137,7 +137,7 @@ def main():
     sperator_line = "\n---------------------------------------------------------------------"
 
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()

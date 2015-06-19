@@ -14,7 +14,7 @@ import numpy as np
 from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
-import mpiNREL,file_io
+import mpiBase,file_io
 import particles 
 
 
@@ -80,7 +80,7 @@ def aveprop():
     
 
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()

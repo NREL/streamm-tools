@@ -1,4 +1,4 @@
-.. _docstr_mpiNREL:
+.. _docstr_mpiBase:
 
 .. index:: MPI, Boost, mpi4py
 
@@ -6,6 +6,6 @@
 MPI Wrapper Class API
 -----------------------------
 
-.. automodule:: mpiNREL
+.. automodule:: mpiBase
    :members:
    :show-inheritance:

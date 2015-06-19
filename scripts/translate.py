@@ -15,7 +15,7 @@ from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
 import particles 
-import mpiNREL, lammps , gromacs , file_io , xmol , topology 
+import mpiBase, lammps , gromacs , file_io , xmol , topology 
 
 const_avo = 6.02214129 # x10^23 mol^-1 http://physics.nist.gov/cgi-bin/cuu/Value?na
 
@@ -106,7 +106,7 @@ def main():
     
 
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()

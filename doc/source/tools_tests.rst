@@ -59,10 +59,10 @@ Test descriptions
 .. automodule:: test_ffparameters
    :members: main
 
-.. automodule:: test_n2_mpiNREL
+.. automodule:: test_n2_mpiBase
    :members: main
 
-.. automodule:: test_nX_mpiNREL_splitData
+.. automodule:: test_nX_mpiBase_splitData
    :members: main
 
 .. automodule:: test_particleConstructors

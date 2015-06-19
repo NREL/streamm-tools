@@ -13,7 +13,7 @@ Utilities
 MPI Interface Class
 ============================
 
-The MPI module :mod:`mpiNREL` provides a common interface for typical
+The MPI module :mod:`mpiBase` provides a common interface for typical
 communication operations. The implementation of these operations is
 handled by derived clases that use a variety of external
 libraries. Currently these include:
@@ -36,8 +36,8 @@ code for testing the MPI routines follows.
 
 Example code: commTst.py::
 
-    import mpiNREL
-    p = mpiNREL.getMPIObject()
+    import mpiBase
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()
@@ -93,5 +93,5 @@ Utility API's
 .. toctree::
    :maxdepth: 1
 
-   docstr_mpiNREL.rst
+   docstr_mpiBase.rst
    docstr_extras.rst

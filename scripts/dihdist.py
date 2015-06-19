@@ -13,7 +13,7 @@ k-i-j-l
 from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
-import mpiNREL, lammps , file_io
+import mpiBase, lammps , file_io
 import datetime, sys
 import numpy as np
 
@@ -149,7 +149,7 @@ def dihdist():
     
 
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()

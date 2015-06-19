@@ -12,7 +12,7 @@ from structureContainer import StructureContainer
 from parameters import ParameterContainer
 
 import particles 
-import mpiNREL,  file_io 
+import mpiBase,  file_io 
 
 
 def get_options():
@@ -73,7 +73,7 @@ def main():
     
 
     # Initialize mpi
-    p = mpiNREL.getMPIObject()
+    p = mpiBase.getMPIObject()
 
     # MPI setup
     rank = p.getRank()
