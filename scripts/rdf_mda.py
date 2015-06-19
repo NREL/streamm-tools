@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 """
-
 Radial distribution  code
 
  length - Angstroms
