@@ -14,15 +14,24 @@ tools-tests repo.
 
    example_subStructure.rst
 
-Each of the selections above is available as an IPython
-notebook, so you may explore these examples further.
+
+IPython notebook downloads
+========================================================
+Each of the selections above is available as an IPython notebook, so you may explore these examples further.
+After clicking on the download link, drag the desired file to a location on your computer.
 
 :download:`example_subStructure.ipynb <example_subStructure.ipynb>`
 
+The IPython web interface for a notebook can be started from the command line by e.g. ::
 
-More complicated example with simulation objects
-========================================================
-Functional/basis 'spamming' description (SCOTT)
+   ipython notebook example_subStructure.ipynb
+
+
+
+.. Removing this code since OPV-database description is out for release
+.. More complicated example with simulation objects
+.. ========================================================
+.. Functional/basis 'spamming' description (SCOTT)
 
 
 More complicated example with analysis
