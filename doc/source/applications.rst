@@ -1,7 +1,7 @@
-.. _projects:
+.. _applications:
 
 *************************
-Projects
+Applications
 *************************
 
 These projects use the core STREAMM functionality. These projects reside in separate repositories and download the core STREAMM code.

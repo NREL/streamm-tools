@@ -14,10 +14,8 @@ requires a number of different kinds of simulation methodolgies and codes. STREA
 that enables
 
 - data containers that allow transfer between quantum chemistry and molecular dynamics simulations
-- an interface to the NREL Materials Database
 - integration with analysis and visualization algorithms (both internal and third-party)
 - an object-oriented framework for extending the functionality to specific needs
-
 
 
 *****************
@@ -31,6 +29,6 @@ Contents
    tools_tests.rst
    framework_design.rst
    utilities.rst
-   projects.rst
+   applications.rst
    .. db_interface.rst
    examples.rst
