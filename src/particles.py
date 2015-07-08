@@ -21,13 +21,13 @@ class Particle:
     def __init__(self, pos=[0.0,0.0,0.0], type="blank", charge=0.0, mass=1.0):
         """
         Constructor for a general particle. Checks for types in arguments
-        and throws a TypeError when appropriate
+        and throws a TypeError when appropriate. User must set units consistently.
 
         Args:
-            pos     (list)  Cartesian position vector
+            pos     (list)  Cartesian position vector (arb. units)
             type     (str)  String identifier (eg, Si, UA1, Bead1)
-            charge (float)  Charge value in units of [e]
-            mass   (float)  Mass in units of [?]
+            charge (float)  Charge value in arb. units
+            mass   (float)  Mass in arb. units
         """
         
         if isinstance(pos, list):

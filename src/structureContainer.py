@@ -15,7 +15,8 @@ from dihedrals     import Dihedral, DihedralContainer
 from impropers     import Improper, ImproperContainer
 # from periodictable import periodictable
 
-import pbcs, units
+# TWK: import pbcs, units
+import units
 
 sperator_line = "---------------------------------------------------------------------\n"
 
