@@ -2,55 +2,7 @@
 Class data structures for atomic data
 """
 import copy, sys
-
-
-def create_search(f_id,f_type,f_symb,f_chain,f_ring,f_resname,f_residue,f_linkid,f_fftype,f_gtype):
-    """
-    Create a dictionary to pass to particle search
-    """
     
-    # search_i = {}
-    search_i = dict()
-
-    if( len( f_type ) ):
-        search_i["type"] = []
-        for id_s in f_symb.split():
-            search_i["type"].append(id_s)
-    if( len( f_symb ) ):
-        search_i["symbol"] = []
-        for id_s in f_symb.split():
-            search_i["symbol"].append(id_s)
-    if( len( f_chain ) ):
-        search_i["chain"] = []
-        for id_s in f_chain.split():
-            search_i["chain"].append(id_s)
-    if( len( f_ring ) ):
-        search_i["ring"] = []
-        for id_s in f_ring.split():
-            search_i["f_ring"].append(id_s)
-    if( len( f_resname ) ):
-        search_i["resname"] = []
-        for id_s in f_resname.split():
-            search_i["resname"].append(id_s)
-    if( len( f_residue ) ):
-        search_i["residue"] = []
-        for id_s in f_residue.split():
-            search_i["residue"].append(id_s)
-    if( len( f_linkid  ) ):
-        search_i["linkid"] = []
-        for id_s in f_linkid.split():
-            search_i["linkid"].append(id_s)
-    if( len( f_fftype ) ):
-        search_i["fftype"] = []
-        for id_s in f_fftype.split():
-            search_i["fftype"].append(id_s)
-    if( len( f_gtype ) ):
-        search_i["gtype"] = []
-        for id_s in f_gtype.split():
-            search_i["gtype"].append(id_s)
-            
-    return search_i
-
 class Particle:
     """
     Data structure for describing any localized object in QM/MD simulations
@@ -102,9 +54,13 @@ class Particle:
             print "4th arg should be float value"
             raise TypeError
 
-        # Tags dictionary. To be set by caller
+	# Tags dictionary. To be set by caller
         self.tagsDict=dict()
         self.tagsDict["type"] = type
+        
+        """
+	TWK: Remove for release
+	# Tags dictionary. To be set by caller
         self.tagsDict["chain"] = 1
         self.tagsDict["ring"] = 0
         self.tagsDict["resname"] = "RES" 
@@ -121,7 +77,8 @@ class Particle:
         self.tagsDict["ffmass"] = self.mass  
         self.tagsDict["cov_radii"] = 0.0
         self.tagsDict["vdw_radii"] = 0.0
-
+	"""
+	
     def __del__(self):
         """
         Destructor, clears object memory
@@ -504,7 +461,6 @@ class ParticleContainer:
             typeInfoDict[key] = [index, mass, charge]
 
         return typeInfoDict
-
 
 
     def scatterPlot(self):
