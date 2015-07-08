@@ -2,37 +2,18 @@ tools
 =====
 
 Common Tools for all STREAMM projects
-(Note Jan 23 2014: Moved job creation/submission/monitoring python scripts to tools-public)
+Note:
+  Jan  23 2014 -- Moved job creation/submission/monitoring python scripts to tools-public
+  July 08 2015 -- Big reorg/cleaning in preparation for release
 
+
+*****************
 File structure:
+*****************
 
-stream/tools/
-        src/
-           classes
-           mpi
-           functions
-           structures 
-           properties
-        scripts/
-        examples/
-
-                
-
-************************
-Release Goals/Issues:
-************************
-
-  Documentation — A writeup of the overall design principles should be included,
-                  along with a series of examples and how to run the tests.
-
-  Release details — STREAMM has github, but how exactly does this fit in with the release?
-                    Is the github access simply made public? Also, we need to sort out what goes into private repos
-                    and public repos. Will the public repos we have setup essentially be like 'tagged' releases?
-
-  Review testing — We should review the current tests and come up with other tests that we need for better coverage
-
-  Portability — How hard are we going to think about this? Its not like we are selling this… but it would be
-                good to think about any big barriers to running on different platforms. Again, this comes down to
-                actually testing on other platforms… which we should do a minimal amount probably.
-
-  Performance — Serial performance for large systems and timing tests for how the python parallelization is working
+analysis:   3rd party codes used for post-processing
+da_builder: Donor-Acceptor builder source code
+doc:        Sphinx documentation for STREAMM code
+examples:   High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
+scripts:    High-level drivers using tools/src code
+src:        Main source code for /tools.
