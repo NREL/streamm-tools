@@ -590,7 +590,6 @@ class StructureContainer:
     #
     # Private class methods
     #
-
     def _getDensity(self):
         """
         Calculate density of system in AMU/A^3 and convert to g/cm^3
@@ -602,12 +601,32 @@ class StructureContainer:
 	density_i = units.convert_AMUA3_gcm3(total_mass_i/volume_i) 
 	
 	return density_i
+
+    def _getCenterOfMass(self):
+        """
+        Find center of mass of a structure
+        NOTE: needs to consider units
+
+        Return
+          r_mass (numpy array) position of the center of mass
+        """
+        import numpy as np
+
+        total_mass_i = self.getTotMass()
+        r_mass = np.array( [0.0,0.0,0.0] )
+    
+        for pid, ptclObj in self.ptclC :
+             r_mass += ptclObj.mass*np.array( ptclObj.position )
+
+        r_mass = r_mass/total_mass_i
+
+        return r_mass
     #########################################################
 
 
-    """
-    TWK: Testing removing method so pbcs module can be erased from release.
-    Travis will either reimplement elsewhere or remove permanently
+"""
+TWK: Testing removing method so pbcs module can be erased from release.
+TWK: Travis will either reimplement elsewhere or remove permanently
         
     def getlength(self):
 
@@ -631,97 +650,32 @@ class StructureContainer:
         struc_len = np.sqrt(sq_maxdr)
 
         return struc_len
-    """
+"""
 
 
+"""
     def vec_shift(self,r_shift):
-        """
+
         Shift structure by vector
         NOTE: only called in pbcs.py
 
         Args:
           r_shift (numpy vector) to shift all the cordinates by
-        """
+
     
         for pid, ptclObj in self.ptclC :
              r_i = np.array( ptclObj.position ) + r_shift
              ptclObj.position = [r_i[0],r_i[1],r_i[2]]
+"""
 
-            
-    def center_mass(self):
-        """
-        Find center of mass of a structure
-        NOTE: needs to consider units
 
-        Return
-          r_mass (numpy array) position of the center of mass
-        """
-        import numpy as np
 
-        total_mass_i = self.getTotMass()
-        r_mass = np.array( [0.0,0.0,0.0] )
-    
-        for pid, ptclObj in self.ptclC :
-             r_mass += ptclObj.mass*np.array( ptclObj.position )
-
-        r_mass = r_mass/total_mass_i
-
-        return r_mass
-
-            
-    def shift_center_mass(self,r_shift):
-        """
-        Translate center of mass of a structure to a location 
-        NOTE: keep here (maybe re-name method) only in pbcs.py
-
-        Return
-          r_shift (numpy array) position of the center of mass
-
-        """
-        r_mass = self.center_mass()
-        r_m_s = r_shift - r_mass
-        self.vec_shift(r_m_s)
-
-        
-    def rotate(self, rot_angle_i, rot_angle_j):
-        """
-        Rotate particles in particle container. Rotation angle i around y axis
-        and rotation angle j around z-axis
-
-        Arguments
-          rot_angle_i (float)  0 - pi 
-          rot_angle_j (float)  0 - pi 
-
-        """
-        import numpy as np 
-        import math
-
-        # set variables of rotation matrix
-        #   for rotation i around y axis 
-        cy = math.cos(rot_angle_i)
-        sy = math.sin(rot_angle_i)
-        #   for rotation j around z axis 
-        cz = math.cos(rot_angle_j)
-        sz = math.sin(rot_angle_j)
-
-        # loop over each particle 
-        for pid, ptclObj in self.ptclC :
-            xd = ptclObj.position[0]
-            yd = ptclObj.position[1]
-            zd = ptclObj.position[2]
-            # Apply rotation matrix i and j to get new postion 
-            r_x =  cy*cz*xd - sz*cy*yd + sy*zd 
-            r_y =  sz*xd    + cz*yd            
-            r_z = -sy*cz*xd + sy*sz*yd + cy*zd
-
-            # ptclObj.position = numpy.array( [r_x,r_y,r_z] )
-            ptclObj.position = [r_x,r_y,r_z]
-        
-
+"""
+TWK: Move or re-write for hardwired x,y,z_min,max values (units problem for default numbers?)
     def maxminLatVec(self):
-        """
+
         Set lattice vector based on the max/min position of the particles
-        """
+
         x_max = -100000.0
         y_max = -100000.0
         z_max = -100000.0
@@ -753,16 +707,73 @@ class StructureContainer:
         self.latvec[0][0] = l_max
         self.latvec[1][1] = l_max
         self.latvec[2][2] = l_max
-        
 
+"""
+        
+"""
+TWK: Either remove or write test
+    def shift_center_mass(self,r_shift):
+
+        Translate center of mass of a structure to a location 
+        NOTE: keep here (maybe re-name method) only in pbcs.py
+
+        Return
+          r_shift (numpy array) position of the center of mass
+
+
+        r_mass = self.center_mass()
+        r_m_s = r_shift - r_mass
+        self.vec_shift(r_m_s)
+"""
+        
+   
+"""
+TWK: Either remove or write test
+    def rotate(self, rot_angle_i, rot_angle_j):
+
+        Rotate particles in particle container. Rotation angle i around y axis
+        and rotation angle j around z-axis
+
+        Arguments
+          rot_angle_i (float)  0 - pi 
+          rot_angle_j (float)  0 - pi 
+
+
+        import numpy as np 
+        import math
+
+        # set variables of rotation matrix
+        #   for rotation i around y axis 
+        cy = math.cos(rot_angle_i)
+        sy = math.sin(rot_angle_i)
+        #   for rotation j around z axis 
+        cz = math.cos(rot_angle_j)
+        sz = math.sin(rot_angle_j)
+
+        # loop over each particle 
+        for pid, ptclObj in self.ptclC :
+            xd = ptclObj.position[0]
+            yd = ptclObj.position[1]
+            zd = ptclObj.position[2]
+            # Apply rotation matrix i and j to get new postion 
+            r_x =  cy*cz*xd - sz*cy*yd + sy*zd 
+            r_y =  sz*xd    + cz*yd            
+            r_z = -sy*cz*xd + sy*sz*yd + cy*zd
+
+            # ptclObj.position = numpy.array( [r_x,r_y,r_z] )
+            ptclObj.position = [r_x,r_y,r_z]
+"""        
+
+"""
+TWK: dont necessarily always have chains in a structureContainer (or have tagsDict["chain"] defined) probably should remove
     def getchainnumb(self):   # Move out of class
-        """
+
         Return number of chains in a structure
         NOTE: only in replicate
-        """
+
         n_chains = 0
         for pid, ptclObj in self.ptclC :
             if( ptclObj.tagsDict["chain"] > n_chains): n_chains = ptclObj.tagsDict["chain"]
 
         return n_chains
-
+"""
