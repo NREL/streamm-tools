@@ -604,16 +604,19 @@ class StructureContainer:
     #########################################################
 
 
-
+    """
+    TWK: Testing removing method so pbcs module can be erased from release.
+    Travis will either reimplement elsewhere or remove permanently
+        
     def getlength(self):
-        """
+
         Calculate length from maximum seperation between particles
         NOTE: pbcs also calls methods from StructureContainer and this should be moved.
         NOTE: pbcs functionality should be moved here since lattice vectors are here
 
         Return
           struc_len (float) 
-        """
+
         
         sq_maxdr = -1000000.0 
         for p_i, ptclObj_i in self.ptclC :
@@ -627,6 +630,7 @@ class StructureContainer:
         struc_len = np.sqrt(sq_maxdr)
 
         return struc_len
+    """
 
 
     def vec_shift(self,r_shift):
