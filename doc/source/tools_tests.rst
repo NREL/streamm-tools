@@ -44,9 +44,6 @@ Test descriptions
 .. automodule:: test_checkTypes
    :members: main
 
-.. automodule:: test_dihdist1
-   :members: main
-
 .. automodule:: test_dihedralContainer
    :members: main
 
@@ -75,21 +72,6 @@ Test descriptions
    :members: main
 
 .. automodule:: test_ptclContainerConstructor
-   :members: main
-
-.. automodule:: test_rdf
-   :members: main
-
-.. automodule:: test_rdf2
-   :members: main
-
-.. automodule:: test_rdf_mda
-   :members: main
-
-.. automodule:: test_replicate2
-   :members: main
-
-.. automodule:: test_replicate_setSeed
    :members: main
 
 .. automodule:: test_searchTags
@@ -138,7 +120,4 @@ Test descriptions
    :members: main
 
 .. automodule:: test_subStructureWithDihedrals
-   :members: main
-
-.. automodule:: test_translate1
    :members: main
