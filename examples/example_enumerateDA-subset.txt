@@ -1,0 +1,10 @@
+donor_functional_groups = 0 f1 R1
+acceptor_functional_groups = 0 R3
+donors = D1
+fdonors = 0
+acceptors = A1 A2
+facceptors = 0
+spacers = 0
+terminals = 0
+spacer_functional_groups = 0
+terminal_functional_groups = 0
