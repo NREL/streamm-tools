@@ -27,7 +27,7 @@
 # Example 1
 # Generate a gaussian input file for thiophene by running     
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks_release  -r 1 
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
 
 # this creates the file
 
@@ -39,7 +39,7 @@
 # To create a gaussian input file you can add the gaussian templates to the current directory
 
    cp ../../donoracceptor.* ./
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks_release  -r 1 
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
 
 # creates the file
 #    mols/thiophene_R_hydrogen_/acc1_thiophene_R_hydrogen__n1.com    
@@ -57,15 +57,15 @@
 # Example 2
 # Generate a gaussian input file for oligo methylthiophene 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane  ) " -b ../../BuildingBlocks_release  -r 5
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane  ) " -b ../../BuildingBlocks-release  -r 5
 
 # will generate a rigioregular oligomer of methylthiol n=1-5 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane  ) " -b ../../BuildingBlocks_release  -r 5  -p "0"
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane  ) " -b ../../BuildingBlocks-release  -r 5  -p "0"
 
 # sets the inter-ring dihedral angle to zero making the sulfurs of thiophene in the cis configuration 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane ) " -b ../../BuildingBlocks_release  -r 5  -p "180 0 "
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane ) " -b ../../BuildingBlocks-release  -r 5  -p "180 0 "
 
 # sets the inter-ring dihedral angle to alternate between sero and 180 making the sulfurs of thiophene in the trans configuration 
 
@@ -73,19 +73,19 @@
 # Example 3
 # Generate a gaussian input file for oligo hexylthiophene (P3HT)
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks_release  -r 5
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks-release  -r 5
 
 # will generate a rigioregular oligomer of methylthiol n=1-5 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks_release  -r 5  -p "0"
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks-release  -r 5  -p "0"
 
 # sets the inter-ring dihedral angle to zero making the sulfurs of thiophene in the cis configuration 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks_release  -r 5  -p "180 0 "
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks-release  -r 5  -p "180 0 "
 
 # sets the inter-ring dihedral angle to alternate between sero and 180 making the sulfurs of thiophene in the trans configuration 
 # however, the alkyl chains end up overlapping 
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks_release  -r 5  -p "140 40 "
+   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hexane  ) " -b ../../BuildingBlocks-release  -r 5  -p "140 40 "
 
 # increases the inter-ring dihedral angle to remove the overlap between alkyl chains
