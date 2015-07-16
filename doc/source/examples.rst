@@ -115,7 +115,7 @@ sets the inter-ring dihedral angle to zero making the sulfurs of thiophene in th
 
    python ../da_builder/donoracceptorsystems.py  "thiophene ( R_methane ) " -b ../../BuildingBlocks_release  -r 5  -p "180 0 "
 
-sets the inter-ring dihedral angle to alternate between sero and 180 making the sulfurs of thiophene in the trans configuration 
+sets the inter-ring dihedral angle to alternate between zero and 180 making the sulfurs of thiophene in the trans configuration 
 
 
 Example 3
