@@ -65,7 +65,7 @@ donors, and can be  decorated with molecules from the
 functional_groups directory  and terminated with molecules from the
 terminals directory. Run ::
    python ../da_builder/donoracceptorsystems.py -h
-to see a list of the commands 
+to see a list of the options  
 
 
 
@@ -85,7 +85,9 @@ which is just a file containing the cartesian coordinates of a
 thiophene molecule.  You can view with your favorite viewer. The -r option is set to 1 to generate a single molecule rather than an oligomer 
 
 To create a gaussian input file you can add the gaussian templates to the current directory::
+   
    cp ../../donoracceptor.* ./
+   
    python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks_release  -r 1 
 
 creates the file::
