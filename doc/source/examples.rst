@@ -6,29 +6,19 @@ Examples
 
 Selected tools-tests
 ========================================================
-These examples are closely related to regression tests in the
-tools-tests repo. 
+These examples are closely related to regression tests in the tools-tests repo. Each of the selections below is available as
+an IPython notebook, so you may explore these examples further. After clicking on the example, there is a download link. Click on the
+download and drag the desired file to a location on your computer. The IPython web interface for a notebook can be started from
+the command line by e.g. ::
+
+   ipython notebook example_test.ipynb
 
 .. toctree::
    :maxdepth: 1
 
    example_particleContainer.rst
    example_subStructure.rst
-
-
-IPython notebook downloads
-========================================================
-Each of the selections above is available as an IPython notebook, so you may explore these examples further.
-After clicking on the download link, drag the desired file to a location on your computer.
-
-:download:`example_subStructure.ipynb      <example_subStructure.ipynb>`
-
-:download:`example_particleContainer.ipynb <example_particleContainer.ipynb>`
-
-
-The IPython web interface for a notebook can be started from the command line by e.g. ::
-
-   ipython notebook example_test.ipynb
+   example_searchTags.rst
 
 .. Removing this code since OPV-database description is out for release
 .. More complicated example with simulation objects

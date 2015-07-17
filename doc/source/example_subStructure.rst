@@ -2,6 +2,8 @@
 Substructure Test for StructureContainer object
 ===============================================
 
+:download:`Download ipython version <example_subStructure.ipynb>`
+
 This test shows how to set up Structure container with Particle and Bond Containers. Shows how IDs changed in StructureContainer propagate to values set in BondContainer for its held particle ID values. Illustrates how a substructure method can return subgroup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -32,6 +34,7 @@ This test shows how to set up Structure container with Particle and Bond Contain
          -    |
            -  3
     """
+
 Load the Particle and Bond classes and their associated container classes. Load the structureContainer class
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -46,6 +49,7 @@ Load the Particle and Bond classes and their associated container classes. Load 
     from bonds import BondContainer
     
     from structureContainer import StructureContainer
+
 Create a set of test Particle and Bond objects. The Bond connectivity is set manually to match the diagramBefore string above.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -61,6 +65,7 @@ Create a set of test Particle and Bond objects. The Bond connectivity is set man
     b2 = Bond( 2, 3, 0.500, "hooke")
     b3 = Bond( 3, 4, 2.301, "hooke")
     b4 = Bond( 5, 3, 0.828, "hooke")
+
 Pushing the Particle and Bond objects above into the Particle and Bond Container objects.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,6 +89,7 @@ Pushing the Particle and Bond objects above into the Particle and Bond Container
     
     # Removing separate particle and bond objects. This is possible because insertion into the Container objects performs deep copies.
     del p1, p2, p3, p4, b1, b2, b3, b4
+
 Initialize StructureContainer with the Particle and Bond Containers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -91,6 +97,7 @@ Initialize StructureContainer with the Particle and Bond Containers
 
     polymer1 = StructureContainer(atoms1, bonds)
     del atoms1, bonds
+
 StructureContainer objects implement a python magic method that enables a 'print' statement to output the objects' contents. Default box lengths and the associated lattice vectors are included. At the bottom are the particle, bond, angle, dihedral labels and the connectivity associated with these 2, 3, 4 body interactions.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -298,5 +305,3 @@ Example 2: Return substructure containing particle ID's --> [2,3,5]
        'b4'   |
          -    |
            -  3
-    
-
