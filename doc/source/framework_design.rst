@@ -52,7 +52,6 @@ Dihedrals and/or Impropers, with the default empty containers being
 set automatically. 
 
 
-
 Simulation Class
 ============================
 

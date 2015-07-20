@@ -17,6 +17,8 @@ that enables
 - integration with analysis and visualization algorithms (both internal and third-party)
 - an object-oriented framework for extending the functionality to specific needs
 
+.. The file db_interface.rst (and related links) have been stored in /misc for use in later releases
+.. The db_interface.rst file was included in the table of contents below
 
 *****************
 Contents
@@ -30,5 +32,4 @@ Contents
    framework_design.rst
    utilities.rst
    applications.rst
-   .. db_interface.rst
    examples.rst

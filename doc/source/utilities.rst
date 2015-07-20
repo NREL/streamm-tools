@@ -68,30 +68,21 @@ Example code: commTst.py::
     p.barrier()
 
 Note that this file can be run if one loads another python MPI library
-or none at all.
+or none at all. Details of the MPI wrapper class API can be found in
 
+.. toctree::
+   :maxdepth: 1
+
+   docstr_mpiBase.rst
 
 
 External Parameter Classes
 ============================
 
 These classes contain various external definitions of units, elements
-and simulation input parameters.
+and simulation input parameters:
 
-- :mod:`atomtypes`
 - :mod:`elements`
 - :mod:`parameters`
 - :mod:`periodictable`
-- :mod:`topology`
 - :mod:`units`
-
-
-
-Utility API's
-============================
-
-.. toctree::
-   :maxdepth: 1
-
-   docstr_mpiBase.rst
-   docstr_extras.rst
