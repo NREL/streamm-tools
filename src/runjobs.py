@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-A collection of classes for useful functions. Needs to be split
+A collection of classes for useful functions. Used throughout STREAMM
 """
 
 ######################################################################
@@ -275,6 +273,7 @@ class IO:
     def floatToStr(self, x, num=5):
         """
         Convert/format a float value to a string
+        
         Args:
             x (float): value
             num (int): Size of format field
@@ -584,10 +583,10 @@ class FileEditorWithTags:
     
      'tagValDict'    --> actual dictionary used to do string replacements
      'tagValDictTpl' --> dictionary template used by class method to automatically
-    create new file edit objects with one parameter "sweeping" over a series of specified values
+     
+    Create new file edit objects with one parameter "sweeping" over a series of specified values
     """
     
-
     def __init__(self, tagValDictTpl):
         """
         Constructor (set base level input file values)

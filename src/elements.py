@@ -1,7 +1,7 @@
 """
-Class to store properties of each element 
-    from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+Class to store properties of each element from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
 """
+
 # Dr. Travis Kemper
 # NREL
 # Initial Date 07/29/2013

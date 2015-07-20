@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """
-S. Sides  (NREL)
 Script for submitting multiple Moab jobs and monitoring queue
 """
 

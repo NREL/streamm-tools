@@ -3,6 +3,32 @@
 """
 For generating directory structure with job submission
 scripts submitting multiple Moab jobs and monitoring queue
+
+From createJobsDirs help:
+
+     Manages multiple job creation w/parameter scans
+     suitable for submitting through a queueing system
+     
+     User must set up a 'repo' directory with:
+        * an executable
+        * an input file 'template'
+        * a PBS/Moab queue script 'template'
+
+     Assumptions: each job to be submitted corresponds to
+     a separate directory with an edited input file and if
+     necessary an edited script file. The script file uses
+     the executable and edited input file template in the
+     appropriate way for the specific code.
+
+     NOTE: the term 'template' refers to a file that can
+     be edited (or otherwise transformed) by the runjobs
+     python module.
+
+     NOTE: An editors.py file must be in PYTHONPATH. This
+     file contains methods to create the editor objects for
+     scripts and input files. This separate file allows
+     same create jobs and submit jobs .py scripts for
+     different input parameters.
 """
 
 try:

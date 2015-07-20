@@ -45,11 +45,9 @@ Angle Dihedral and Improper containers. This class is in the module
    :scale: 40%
 
 The StructureContainer must contain a ParticleContainer at a minimum
-(eg for setting Gaussian runs when no connectivity information is
-requested).
+(eg for setting Gaussian runs when no connectivity information is requested).
 StructureContainer objects can be created without Bonds, Angles,
-Dihedrals and/or Impropers, with the default empty containers being
-set automatically. 
+Dihedrals and/or Impropers, with the default empty containers being set automatically.
 
 
 Simulation Class
@@ -60,7 +58,6 @@ The embedded docstrings for the simulation modules are:
 - :mod:`simulation`
 - :mod:`simulationLAMMPS1`
 - :mod:`simulationGaussian1`
-
 
 
 Structure / Simulation Class API
