@@ -19,6 +19,7 @@ the command line by e.g. ::
    example_particleContainer.rst
    example_subStructure.rst
    example_searchTags.rst
+   example_strucAdd.rst
 
 .. Removing this code since OPV-database description is out for release
 .. More complicated example with simulation objects
