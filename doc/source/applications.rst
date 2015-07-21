@@ -10,3 +10,12 @@ These projects use the core STREAMM functionality. These projects reside in sepa
    :maxdepth: 1
 
    project_opv.rst
+
+
+Publications
+========================
+
+.. toctree::
+   :maxdepth: 1
+
+   publications.rst
