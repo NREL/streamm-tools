@@ -33,7 +33,7 @@ sys.path.append(os.path.abspath('sphinxext'))
 # Point to source python module so docstrings can be generated
 sys.path.append(os.path.abspath('../../src'))
 
-# SWS: (set location of tools-tests?)  Point to tools-tests so docstrings can be generated
+# Point to tools-tests so docstrings can be generated
 sys.path.append(os.path.abspath('../../../tools-tests'))
 
 # SWS: flag for when tools-opv is not present
@@ -113,7 +113,7 @@ exclude_patterns = []
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -234,7 +234,7 @@ latex_elements = {
 #'papersize': 'letterpaper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+'pointsize': '12pt',
 
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
@@ -248,7 +248,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'STREAMM-Tools.tex', u'STREAMM-Tools Documentation',
-   u'Dr. Scott W. Sides, Dr. Travis Kemper', 'manual'),
+   u'Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -278,7 +278,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'streamm-tools', u'STREAMM-Tools Documentation',
-     [u'Dr. Scott W. Sides, Dr. Travis Kemper'], 1)
+     [u'Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -292,7 +292,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'STREAMM-Tools', u'STREAMM-Tools Documentation',
-   u'Dr. Scott W. Sides, Dr. Travis Kemper', 'STREAMM-Tools', 'One line description of project.',
+   u'Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf', 'STREAMM-Tools', 'One line description of project.',
    'Miscellaneous'),
 ]
 

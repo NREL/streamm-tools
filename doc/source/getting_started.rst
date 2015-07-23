@@ -17,15 +17,14 @@ The STREAMM *tools* code is maintained in a Github repository at https://github.
 
 The tools repo contains the following directories and files
 
-- AtomicPy      -- legacy python files (converting to src)
-- README.md -- Repo notes
-- config.sh      -- Configuration script that sets PYTHONPATH and other needed environment variables
-- analysis        -- Code for analysis, visualization
-- doc               -- Sphinx documentation and scripts for creating Python API from docstrings
-- examples     -- Examples of using STREAMM tools for specific applications
-- simmod        -- ?
-- src                -- Main classes implementing the STREAMM tools functionality
-
+- README.md  -- Repo notes
+- analysis   -- 3rd party codes used for post-processing
+- config.sh  -- Configuration script that sets PYTHONPATH and other needed environment variables
+- da_builder -- Donor-Acceptor builder source code
+- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
+- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
+- scripts    -- High-level drivers using tools/src code
+- src        -- Main classes implementing the STREAMM tools functionality
 
 
 ..  _configure-tools:

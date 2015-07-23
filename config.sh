@@ -14,7 +14,7 @@ echo " "
 #
 # Cleaning environment of previous STREAMM related paths
 # 
-$TOP_PATH/cleanpath.py
+$TOP_PATH/src/cleanpath.py
 echo " "
 source clean-PYTHONPATH.sh
 source clean-PATH.sh

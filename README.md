@@ -11,9 +11,11 @@ Note:
 File structure:
 *****************
 
-analysis:   3rd party codes used for post-processing
-da_builder: Donor-Acceptor builder source code
-doc:        Sphinx documentation for STREAMM code
-examples:   High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
-scripts:    High-level drivers using tools/src code
-src:        Main source code for /tools.
+- README.md  -- Repo notes
+- analysis   -- 3rd party codes used for post-processing
+- config.sh  -- Configuration script that sets PYTHONPATH and other needed environment variables
+- da_builder -- Donor-Acceptor builder source code
+- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
+- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
+- scripts    -- High-level drivers using tools/src code
+- src        -- Main classes implementing the STREAMM tools functionality
