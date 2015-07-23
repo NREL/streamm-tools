@@ -75,7 +75,6 @@ External Parameter Classes
 These classes contain various external definitions of units, elements
 and simulation input parameters.
 
-- :mod:`elements`
 - :mod:`parameters`
 - :mod:`periodictable`
 - :mod:`units`

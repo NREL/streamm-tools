@@ -6,10 +6,6 @@
 Extras API
 -----------------------------
 
-.. automodule:: elements
-   :members:
-   :show-inheritance:
-
 .. automodule:: parameters
    :members:
    :show-inheritance:

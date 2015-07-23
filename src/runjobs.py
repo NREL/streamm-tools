@@ -273,10 +273,13 @@ class IO:
     def floatToStr(self, x, num=5):
         """
         Convert/format a float value to a string
-        
+
         Args:
-            x (float): value
-            num (int): Size of format field
+          x (float): value
+          num (int): Size of format field
+
+        Returns:
+          string type value
         """
 
         formatStr = "%." + str(num) + "f"
@@ -284,7 +287,7 @@ class IO:
         return xStr
 
 
-#class FileEditorWithSomething:
+# class FileEditorWithSomething:
 #    def __init__(self):
 #        pass
 
@@ -581,10 +584,10 @@ class FileEditorWithTags:
     with values. The correspondence between these tags and values are
     specified by the dictionary objects:
     
-     'tagValDict'    --> actual dictionary used to do string replacements
-     'tagValDictTpl' --> dictionary template used by class method to automatically
+    'tagValDict'    --> actual dictionary used to do string replacements
+    'tagValDictTpl' --> dictionary template used by class method to automatically
      
-    Create new file edit objects with one parameter "sweeping" over a series of specified values
+    Create new file edit objects with one parameter 'sweeping' over a series of specified values
     """
     
     def __init__(self, tagValDictTpl):
