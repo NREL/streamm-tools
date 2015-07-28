@@ -80,6 +80,28 @@ Donor-Acceptor Builder tutorials
 
 
 
+
+File convertions 
+========================================================
+
+Examples of converting file types between different software packages 
+
+A bash file of these examples in ::
+   
+   /tools/examples/convert.sh
+
+
+
+Convertion examples 
+-------------------------------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   com2xyz.rst
+   com2gro.rst
+
+
 Coming soon
 ========================================================
 
