@@ -50,7 +50,7 @@ Test descriptions
 .. automodule:: test_dumpLammps
    :members: main
 
-.. automodule:: test_elements
+.. automodule:: test_periodictable
    :members: main
 
 .. automodule:: test_ffparameters
