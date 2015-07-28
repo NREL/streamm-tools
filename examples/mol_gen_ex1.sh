@@ -1,28 +1,7 @@
 #!/bin/bash
 
 
-#
-# Check if TOOLS_PATH is set
-#
-if [ ! -n "${TOOLS_PATH}" ]; then
-    echo "---------------------------------------------------------------"
-    echo "TOOLS_PATH is unset. "
-    echo "    run "
-    echo " source mol_gen_setup.sh to set need variables for this example "
-    echo "----------------------------------------------------------------"
-fi
-
-
-#
-# Check if BB_PATH is set
-#
-if [ ! -n "${BB_PATH}" ]; then
-    echo "---------------------------------------------------------------"
-    echo "BB_PATH is unset. "
-    echo "    run "
-    echo " source mol_gen_setup.sh to set need variables for this example "
-    echo "----------------------------------------------------------------"
-fi
+source mol_gen_setup.sh 
 
 
 # The backbone of the molecule can be composed of  acceptors, spacers or

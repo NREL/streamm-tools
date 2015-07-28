@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source mol_gen_setup.sh 
+
 # Example 2
 # Generate a gaussian input file for oligo methylthiophene 
 
