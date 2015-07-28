@@ -1,8 +1,8 @@
 examples
 ============
 
- mol_gen.sh
-
- Examples of running the donoracceptorsystems.py script to build complex molecules 
+ mol_gen_setup.sh   -- Set paths and copy files into directory that examples need to run
+ mol_gen.sh         -- Run all examples of running the donoracceptorsystems.py script to build complex molecules
+ mol_gen_ex[1--].sh -- Run separate examples
 
 

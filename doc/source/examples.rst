@@ -30,18 +30,28 @@ the command line by e.g. ::
 Molecular generation
 ========================================================
 
-Examples of running the donoracceptorsystems.py script to build complex molecules 
+Examples of running the donoracceptorsystems.py script to build complex molecules.
+Bash scripts of these examples are in ::
 
-A bash file of these examples in ::
-   
-   /tools/examples/mol_gen.sh 
+   /tools/examples/mol_gen_ex1.sh
+   /tools/examples/mol_gen_ex2.sh
+   /tools/examples/mol_gen_ex3.sh
+
+To run these examples, various templates from the OPV project must be available as well as files describing
+the structure of molecular building blocks (see below). To set these paths and check/copy the appropriate
+files into the examples directory, a user can run ::
+
+   mol_gen_setup.sh
+
+which will indicate whether the necessary paths/files can be set.
+
 
 
 Files and directories
 -------------------------------------------------------
 
-- donoracceptorsystems.py: Concatenates molecular cply files based on connectivity tags 
-- BuildingBlocks: must contain the directories 
+- tools/da_builder/donoracceptorsystems.py: Concatenates molecular cply files based on connectivity tags 
+- BuildingBlocks repos: must contain the directories
 
    - acceptors   
    - donors            
@@ -50,7 +60,7 @@ Files and directories
 
 The backbone of the molecule can be composed of  acceptors, spacers or
 donors, and can be  decorated with molecules from the
-functional_groups directory  and terminated with molecules from the
+functional_groups directory and terminated with molecules from the
 terminals directory. Run ::
 
 	python ../da_builder/donoracceptorsystems.py -h

@@ -14,13 +14,12 @@ class element():
     Gives the basic properties of the elements in the periodic table
     """
 
-
     def __init__(self,symbol,number,mass,cov_radii,vdw_radii):
         """
         Constructor for a element
         
         Args:
-        symbol,number,ionic_radii
+        symbol,number,ionic_radii TRAVIS
         """
 
         if isinstance(symbol, str):
@@ -589,7 +588,7 @@ class periodictable:
     
     def getelementWithSymbol(self,symbol_i):
         """
-        Find element based on mass
+        Find element based on mass  TRAVIS
         """
         for el_symb in self.elements:
             if( el_symb == symbol_i ):
@@ -608,5 +607,3 @@ class periodictable:
             #raise Error 
             
         return el
-
-    

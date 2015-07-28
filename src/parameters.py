@@ -57,8 +57,7 @@ class ljtype:
 
     def setpid(self,pid):
         """
-        set particle id
-
+        set particle ID
 
         Args:
             pid (int)  element number for atomic types 
@@ -73,7 +72,6 @@ class ljtype:
     def setmass(self,mass):
         """
         set mass of LJ particle 
-
 
         Args:
             mass (float)  mass  AMU  
@@ -203,7 +201,6 @@ class bondtype:
         Return bond type index for gromacs
         """
         return self.g_indx
-
 
 
     def __del__(self):
@@ -563,7 +560,7 @@ class imptype:
         """
         set Harmonic parameters
 
-        E = ?
+        E = ? TRAVIS
 
         Args:
             e0     (float) 
@@ -844,7 +841,7 @@ class dihtype:
         """
         set Harmonic parameters
 
-        E = ?
+        E = ? TRAVIS
 
         Args:
             e0     (float) 
@@ -994,7 +991,7 @@ class dihtype:
         Divide all force constants by a value
         """
         
-        # Haromic 
+        # Harmonic
         self.kb = self.kb/dihen_norm
 
         # Fourier opls coefficients 
@@ -1667,7 +1664,7 @@ class ParameterContainer:
 
         return self
 
-    def set_nbfunc(self,nbfunc):
+    def set_nbfunc(self, nbfunc):
         '''
         Set nbfunc
         '''

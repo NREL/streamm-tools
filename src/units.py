@@ -16,11 +16,7 @@ or given for a certian type of input file
 
 Conversions are taken from the
 
-CRC Handbook of Chemistry and Physics
-95th
-
-see CRC_HCP_energy.pdf in doc directory 
-
+CRC Handbook of Chemistry and Physics 95th see CRC_HCP_energy.pdf in doc director
 """
 
 # Distance 
@@ -55,7 +51,7 @@ def convert_bohr_ang(dist_bohr):
 
 def convert_ang_bohr(dist_ang):
     """
-    Convert  angstroms to bohr 
+    Convert angstroms to bohr 
     """
     return dist_ang/bohr_angstrom
         
@@ -84,7 +80,7 @@ def convert_angstroms_nm(d_angstroms):
     convert angstroms to nm 
     """
     return d_angstroms/nm_angstroms
-    
+
     
 def convert_kJmol_kcalmol(en_kJmol):
     """
@@ -113,13 +109,13 @@ def convert_kcalmol_kJmol(en_kcalmol):
     
 def convert_kcalmol_eV(en_kcalmol):
     """
-    convert kcalmol  to eV
+    convert kcalmol to eV
     """
     return en_kcalmol*kcalmol_eV
 
 def convert_kcalmol_H(en_kcalmol):
     """
-    convert kcalmol  to Hartree
+    convert kcalmol to Hartree
     """
     return en_kcalmol*kcalmol_H
 
@@ -217,6 +213,3 @@ def convert_kb_g_angle(g_ka):
         kcal/mol /radina^2
     """
     return g_ka/kJmol_kcalmol*2.0
-
-    
-    
