@@ -160,3 +160,5 @@ cp ${TEMPLATE_PATH}/donoracceptor.com.template ./
 cp ${TEMPLATE_PATH}/donoracceptor.com.template.r1 ./
 cp ${TEMPLATE_PATH}/donoracceptor.com.template.r2 ./
 cp ${TEMPLATE_PATH}/donoracceptor.pbs.template ./
+
+echo "mol_gen_setup.sh finished with out errors "

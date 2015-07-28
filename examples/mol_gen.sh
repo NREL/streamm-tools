@@ -17,7 +17,6 @@
 
 source mol_gen_setup.sh 
 
-echo "mol_gen_setup.sh finished with out errors "
 echo "  Proceed to example 1 [y]yes [n]no"
 read -e ans
 # Example 1
