@@ -81,7 +81,7 @@ Donor-Acceptor Builder tutorials
 
 
 
-File convertions 
+File conversions
 ========================================================
 
 Examples of converting file types between different software packages 
@@ -92,7 +92,7 @@ A bash file of these examples in ::
 
 
 
-Convertion examples 
+Conversion examples 
 -------------------------------------------------------
 
 .. toctree::
