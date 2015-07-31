@@ -35,6 +35,7 @@ def get_options():
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
     parser.add_option("--in_com", dest="in_com", type="string", default="", help="Input gaussain .com file ")
+    parser.add_option("--in_itp", dest="in_itp", type="string", default="", help="Input  .itp  GROMACS file ")
     parser.add_option("--out_data", dest="out_data", type="string", default="out.gro", help="Output .data LAMMPS file")
     #
     (options, args) = parser.parse_args()
@@ -1707,8 +1708,7 @@ def main():
 
     oplsaa_atomtypes(struc_o,cov_nblist, cov_nbindx)
 
-    ff_file = "oplsaa.itp"
-    param_o = read_itp(param_o,ff_file)
+    param_o = read_itp(param_o,options.in_itp)
     norm_dihparam = False
     param_i,struc_o  = set_param(struc_o,param_o,norm_dihparam,cov_nblist, cov_nbindx)
     write_data(struc_o,param_i,options.out_data)
