@@ -1593,10 +1593,7 @@ def write_data(strucC,parmC,data_file):
             charge_i = ptclObj_o.charge
             #type_indx = int(ptclObj_o.type)
             lmptype_i = ptclObj_o.tagsDict["lmptype"]
-            r_i = ptclObj_o.position
-
-            print pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i
-            
+            r_i = ptclObj_o.position            
             F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
             TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
 

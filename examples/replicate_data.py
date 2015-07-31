@@ -1199,8 +1199,9 @@ def add_struc_ongrid(verbose,p,molecule_rep,struc_i,n_sol_l,atomic_cut,lc_expand
     
     for pid, ptclObj in struc_i.ptclC :
         ptclObj.tagsDict["residue"] = max_residue_number_i 
-        ptclObj.tagsDict["chain"] = max_chain_number_i 
-        print pid,"residue", ptclObj.tagsDict["residue"],ptclObj.tagsDict["chain"]
+        ptclObj.tagsDict["chain"] = max_chain_number_i
+        
+        # print pid,"residue", ptclObj.tagsDict["residue"],ptclObj.tagsDict["chain"]
     
     sol_maxlength = getlength(struc_i)
     org =  np.array( [0.0,0.0,0.0] ) #get_origin(molecule_rep)
@@ -1353,7 +1354,7 @@ def add_struc_ongrid(verbose,p,molecule_rep,struc_i,n_sol_l,atomic_cut,lc_expand
                             if( debug):
                                 print sys_sol_n,lat_pos,struc_i.center_mass()
 
-                            debug_resid = True 
+                            debug_resid = False 
                             # Rest molecule numbers
                             for pid, ptclObj in struc_i.ptclC :
                                 #ptclObj.tagsDict["chain"] = sys_sol_n
@@ -1630,10 +1631,7 @@ def write_data(strucC,parmC,data_file):
             charge_i = ptclObj_o.charge
             #type_indx = int(ptclObj_o.type)
             lmptype_i = ptclObj_o.tagsDict["lmptype"]
-            r_i = ptclObj_o.position
-
-            print pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i
-            
+            r_i = ptclObj_o.position            
             F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pid_o,chain_i,lmptype_i,charge_i,r_i[0],r_i[1],r_i[2] ,fftype_i)  )
             TOTAL_CHARGE = TOTAL_CHARGE + float( charge_i )
 
@@ -1787,8 +1785,6 @@ def main():
     update_data_prop(struc_o)
     
     f_new = StructureContainer()
-
-    
     
     if( not options.grid ):
         f_new = add_struc(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap)

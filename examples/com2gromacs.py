@@ -1472,7 +1472,6 @@ def write_top(strucC,top_file,out_itp):
     TOTAL_CHARGE = 0.0
 
     for pid, ptclObj  in strucC.ptclC:
-        print pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.tagsDict["ffmass"]
         F.write( "%5d %5s %5d %10s %5s %5d %16.12f %12.6f  \n" % (pid,ptclObj.tagsDict["fftype"],ptclObj.tagsDict["residue"],ptclObj.tagsDict["resname"],ptclObj.tagsDict["gtype"],ptclObj.tagsDict["qgroup"],ptclObj.charge,ptclObj.tagsDict["ffmass"]) )
         TOTAL_CHARGE = TOTAL_CHARGE + float(ptclObj.charge)
 
