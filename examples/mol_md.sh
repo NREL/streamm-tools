@@ -45,8 +45,8 @@ python com2data.py --in_com ${MOLDIR}${MOLID}.com  --in_itp conj.itp --out_data 
 # Replicate the .data file to produce a larger simulations cell
 #
 # Replicate to random points with random rotations
-python replicate_data.py  --in_data ${MOLDIR}${MOLID}.data --out_data ${MOLDIR}${MOLID}x10.data  --out_xyz t1.xyz  --mol_n 10
+python replicate_data.py  --in_data ${MOLDIR}${MOLID}.data --out_data ${MOLDIR}${MOLID}x10.data  --out_xyz ${MOLDIR}${MOLID}x10.xyz  --mol_n 10
 # Replicate on a grid
-python replicate_data.py  --in_data ${MOLDIR}${MOLID}.data --out_data ${MOLDIR}${MOLID}x10_g.data  --out_xyz t1.xyz  --mol_n 10 --grid
+python replicate_data.py  --in_data ${MOLDIR}${MOLID}.data --out_data ${MOLDIR}${MOLID}x10_g.data  --out_xyz ${MOLDIR}${MOLID}x10_g.xyz  --mol_n 10 --grid
 #
 
