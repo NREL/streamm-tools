@@ -1,3 +1,4 @@
+
 .. _examples:
 
 *************************
@@ -74,40 +75,40 @@ Donor-Acceptor Builder tutorials
 .. toctree::
    :maxdepth: 1
 
-   example_da_1.rst
-   example_da_2.rst
-   example_da_3.rst
+   mol_gen_ex1.rst
+   mol_gen_ex2.rst
+   mol_gen_ex3.rst
 
 
 
-
-File conversions
+Molecular dynamics
 ========================================================
 
-Examples of converting file types between different software packages 
-
-A bash file of these examples in ::
+Create input files for molecular dynamics runs based the Molecular
+generation example::
    
-   /tools/examples/convert.sh
+   /tools/examples/mol_md.sh
+
+This script acts on example 3 of the Donor-Acceptor Builder
+tutorials, by setting some local variables:: 
+
+    MOLDIR=mols/thiophene_R_hexane_/
+    MOLID=acc1_thiophene_R_hexane__n5
+
+which is the P3HT example, but any structure can be used. 
 
 
-
-Conversion examples 
+Molecular dynamics file generation examples 
 -------------------------------------------------------
 
 .. toctree::
    :maxdepth: 1
 
-   com2xyz.rst
-   com2gro.rst
-
+   xyz2gromacs.rst
+   xyz2data.rst
+   replicate_data.rst
 
 Coming soon
 ========================================================
 
-- running MD sim (LAMMPS, Gromacs)
-- calculation of RDFsd
-
-- setup of system inputs
-- running MD sim (LAMMPS, Gromacs)
-- calculation of RDFs
+- analyize MD output 
