@@ -31,7 +31,7 @@ the command line by e.g. ::
 Molecular generation
 ========================================================
 
-Examples of running the donoracceptorsystems.py script to build complex molecules.
+Examples of running the :ref:`donoracceptorsystems.py<donoracceptorsystems>` script to build complex molecules.
 Bash scripts of these examples are in ::
 
    /tools/examples/mol_gen_ex1.sh
@@ -39,35 +39,12 @@ Bash scripts of these examples are in ::
    /tools/examples/mol_gen_ex3.sh
 
 To run these examples, various templates from the OPV project must be available as well as files describing
-the structure of molecular building blocks (see below). To set these paths and check/copy the appropriate
+the structure of molecular building blocks. To set these paths and check/copy the appropriate
 files into the examples directory, a user can run ::
 
    mol_gen_setup.sh
 
 which will indicate whether the necessary paths/files can be set.
-
-
-
-Files and directories
--------------------------------------------------------
-
-- tools/da_builder/donoracceptorsystems.py: Concatenates molecular cply files based on connectivity tags 
-- BuildingBlocks repos: must contain the directories
-
-   - acceptors   
-   - donors            
-   - functional_groups spacers           
-   - terminals
-
-The backbone of the molecule can be composed of  acceptors, spacers or
-donors, and can be  decorated with molecules from the
-functional_groups directory and terminated with molecules from the
-terminals directory. Run ::
-
-	python ../da_builder/donoracceptorsystems.py -h
-
-to see a list of the options  
-
 
 Donor-Acceptor Builder tutorials
 -------------------------------------------------------
@@ -79,8 +56,6 @@ Donor-Acceptor Builder tutorials
    mol_gen_ex2.rst
    mol_gen_ex3.rst
 
-
-
 Molecular dynamics
 ========================================================
 
@@ -89,7 +64,7 @@ generation example::
    
    /tools/examples/mol_md.sh
 
-This script acts on example 3 of the Donor-Acceptor Builder
+This script acts on :ref:`Example 3 <molgenex3>` of the Donor-Acceptor Builder
 tutorials, by setting some local variables:: 
 
     MOLDIR=mols/thiophene_R_hexane_/
@@ -104,11 +79,8 @@ Molecular dynamics file generation examples
 .. toctree::
    :maxdepth: 1
 
+   com2xyz.rst
    xyz2gromacs.rst
    xyz2data.rst
    replicate_data.rst
 
-Coming soon
-========================================================
-
-- analyize MD output 

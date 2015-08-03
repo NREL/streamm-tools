@@ -1,12 +1,12 @@
-.. _xyz2data_:
+.. _xyz2data:
 
 
-Convert a structure generated Example 3 into input files for `LAMMPS <http://lammps.sandia.gov/>`_
+Convert a structure generated :ref:`Example 3 <molgenex3>` into input files for `LAMMPS <http://lammps.sandia.gov/>`_
 ================================================================================================================================================
 
 In this example a we use the ``xyz2data.py`` example script to
 generate input files for `LAMMPS <http://lammps.sandia.gov/>`_. We use
-the .xyz file generated in `Example 3<_mol_gen_ex3>`_ as an input
+the .xyz file generated in :ref:`Example 3 <molgenex3>` as an input
 structure. The .xyz file is read in to get the atomic positions and
 atom types, and a `.itp
 <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file
@@ -20,12 +20,13 @@ force-field that is included in the `GROMACS release
 
 Run::
 
-  ```python xyz2data.py --in_itp conj.itp 
+  python xyz2data.py --in_itp conj.itp 
   --in_com mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.com 
-  --out_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data```
+  --out_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
  
 
 this creates the files::
 
-    ```mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data```
+    mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
 
+* :ref:`replicate_data`
