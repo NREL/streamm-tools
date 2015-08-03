@@ -1,4 +1,4 @@
-.. _replicate_data_:
+.. _replicate_data:
 
 
 Replicate a molecule for an MD run
