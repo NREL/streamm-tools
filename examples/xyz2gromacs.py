@@ -55,7 +55,58 @@ def check_int(var):
         return False
     
     return True
+
     
+def read_xyz(strucC,data_file):
+    """
+    Read in xmol file
+    
+    Args:
+        data_file (str) xmol file name
+
+    Returns
+        struc_array (list) of ParticleContainer's for each frame
+        
+    """
+    # Check to see if a previous read has occured
+    pt_update = False
+
+    verbose = False
+
+    F = open(data_file,'r')
+    Lines = F.readlines()
+    F.close()
+
+    # Initialize line count and structure count 
+    line_cnt = 0
+    ptclC_cnt = 0 
+    # Read in file line by line 
+    for line in Lines:
+            line_cnt += 1
+            col = line.split()
+            if( line_cnt == 1  ):
+                # Read first line to record number of particles NP
+                NP = int(col[0])
+                ptclC_cnt += 1 
+            elif( line_cnt > 2 and len(col) >= 4 ):
+                # Read lines and add particles to structure
+                symbol = str(col[0])
+                r_i = [float(col[1]),float(col[2]),float(col[3]) ]
+                if( pt_update ):
+                    strucC.ptclC[p_i].position = r_i
+                    strucC.ptclC[p_i].setTagsDict({"symbol":symbol})                    
+                else:
+                    pt_i = Particle( r_i ) 
+                    pt_i.setTagsDict({"symbol":symbol})                    
+                    strucC.ptclC.put(pt_i)
+                
+            if( line_cnt > 1  and line_cnt > ptclC_cnt*(NP + 2) ):
+                # xmol file contains multiple frames
+                #   store in structure array 
+                ptclC_cnt += 1 
+
+    return (strucC)
+            
 def read_com(strucC,data_file):
     """
     Read in structure information from gaussian com file
@@ -1682,7 +1733,7 @@ def main():
     #struc_o.unset_verbose()
     param_o = ParameterContainer()
 
-    struc_o = read_com(struc_o,options.in_com)
+    struc_o = read_xyz(struc_o,options.in_xyz)
     struc_o = add_atomic_prop(struc_o)
     struc_o = add_ff_prop(struc_o)
 

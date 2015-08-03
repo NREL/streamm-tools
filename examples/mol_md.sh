@@ -29,18 +29,14 @@ fi
 #
 python com2xyz.py --in_com ${MOLDIR}${MOLID}.com --out_xyz ${MOLDIR}${MOLID}.xyz
 #
-# Transplate the .com tile to .gro file 
+# Translate the .xyz file to .gro file, .itp file and .top file for use GROMACS
 #
-python com2gro.py --in_com ${MOLDIR}${MOLID}.com --out_gro ${MOLDIR}${MOLID}.gro 
-#
-# Transplate the .com tile to .gro file, .itp file and .top file for use GROMACS
-#
-python com2gromacs.py --in_com ${MOLDIR}${MOLID}.com  --in_itp conj.itp --out_gro ${MOLDIR}${MOLID}.gro --out_itp ${MOLID}.itp --out_top ${MOLDIR}${MOLID}.top 
+python xyz2gromacs.py --in_xyz ${MOLDIR}${MOLID}.xyz  --in_itp conj.itp --out_gro ${MOLDIR}${MOLID}.gro --out_itp ${MOLID}.itp --out_top ${MOLDIR}${MOLID}.top 
 mv ${MOLID}.itp ${MOLDIR}
 #
-# Transplate the .com tile to .data file 
+# Translate the .xyz file to a .data file 
 #
-python com2data.py --in_com ${MOLDIR}${MOLID}.com  --in_itp conj.itp --out_data ${MOLDIR}${MOLID}.data
+python xyz2data.py --in_xyz ${MOLDIR}${MOLID}.xyz  --in_itp conj.itp --out_data ${MOLDIR}${MOLID}.data
 #
 # Replicate the .data file to produce a larger simulations cell
 #
