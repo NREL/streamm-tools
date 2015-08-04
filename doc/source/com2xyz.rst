@@ -2,7 +2,7 @@
 
 
 Convert `Gaussian <http://www.gaussian.com/>`_  input generated :ref:`Example 3 <molgenex3>` into xyz file 
-================================================================================
+==========================================================================================================================================================================================================
 
 So this first example is a bit redundant, in that there is already an
 .xyz file generated using the :ref:`donoracceptorsystems.py<donoracceptorsystems>`
