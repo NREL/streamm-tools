@@ -6,8 +6,8 @@ Example 1: Gaussian input file for thiophene
 
 Generate a gaussian input file for thiophene by running ::
 
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
-
+   python ../da_builder/donoracceptorsystems.py  
+        "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
 
 this creates the file::
 
@@ -20,7 +20,8 @@ To create a gaussian input file you can add the gaussian templates to the curren
    
    cp ../../donoracceptor.* ./
    
-   python ../da_builder/donoracceptorsystems.py  "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
+   python ../da_builder/donoracceptorsystems.py
+        "thiophene ( R_hydrogen  ) " -b ../../BuildingBlocks-release  -r 1 
 
 creates the file::
 

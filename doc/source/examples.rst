@@ -83,4 +83,3 @@ Molecular dynamics file generation examples
    xyz2gromacs.rst
    xyz2data.rst
    replicate_data.rst
-
