@@ -31,5 +31,5 @@ Contents
    tools_tests.rst
    framework_design.rst
    utilities.rst
-   applications.rst
    examples.rst
+   applications.rst

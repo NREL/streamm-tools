@@ -87,7 +87,7 @@ if [ -z  ${BB_PATH} ]; then
 else
     echo " "
     echo "---------------------------------------------------------------"
-    echo " Useing exsisting BuildingBlocks repo path  BB_PATH:"
+    echo " Using existing BuildingBlocks repo path  BB_PATH:"
     echo "    " ${BB_PATH}
     echo "---------------------------------------------------------------"
     echo " "
