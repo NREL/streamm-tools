@@ -34,12 +34,15 @@ def get_options():
     parser.add_option("--out_data", dest="out_data", type="string", default="out.data", help="Output .data LAMMPS file")
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="out.xyz", help="Output xyz (xmol) file")
     #
+    #parser.add_option("--seed", dest="seed", type="int", default="", help="Seed for random")
+    parser.add_option("--seed", dest="seed", type="int", help="Seed for random")
+    #
     parser.add_option("--mol_n", dest="mol_n", type=int, default=0, help="Set number of molecules directly  ")
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=3.5, help="Minimum distance between atoms of molecules ")
     parser.add_option("--lc_expand", dest="lc_expand", type=float, default=0.100, help="Fraction of the box size to increase system size after max_sys is excieded ")
     parser.add_option("--max_sys", dest="max_sys", type=float, default=3, help="Maximum system recreations at a certain lattice constant ")
     parser.add_option("--max_mol_place", dest="max_mol_place", type=float, default=50, help="Maximum attempts to place a molecule  ")
-    parser.add_option("--calc_overlap", dest="calc_overlap",  default=False,action="store_true",help=" Turn on or off calculation of molecular overlap, handy to build a quick input file" )
+    parser.add_option("--calc_overlap", dest="calc_overlap",  default=True,action="store_false",help=" Turn off calculation of molecular overlap, handy to build a quick input file" )
     parser.add_option("--grid", dest="grid", default=False,action="store_true",help=" Replicate molecules on grid " )
     
     (options, args) = parser.parse_args()
@@ -97,7 +100,26 @@ def shift_center_mass(strucC,r_shift):
     r_m_s = r_shift - r_mass
     vec_shift(strucC,r_m_s)
 
+def sq_drij_c(r_i,r_j,latticevec):
+    """
+    Reutrn square magnitude of distance between two vectors
+    using cubic periodic boundry conditions 
+    Args:
+         r_i (vector numpy[3] ) position of particle i 
+         r_j (vector numpy[3] ) position of particle j
+         latticevec (numpy[3][3] ) 3 lattice vectors 
+    Returns:
+         sq_dr (float) square of vector from r_i to r_j 
 
+    """
+
+    dr_pbc = delta_r_c(r_i,r_j,latticevec)
+    
+    sq_dr = np.dot( dr_pbc,dr_pbc)
+    
+    return sq_dr
+    
+    
 def rotate(strucC, rot_angle_i, rot_angle_j):
 
     """
@@ -929,10 +951,13 @@ def read_data( strucC , parmC , data_file):
     """
 
 
-def add_struc(verbose,p,molecule_rep,struc_i,n_struc_i,atomic_cut,lc_expand,max_sys,max_mol_place,calc_overlap):
+def add_struc(verbose,p,molecule_rep,struc_i,n_struc_i,atomic_cut,lc_expand,max_sys,max_mol_place,calc_overlap,seed):
     """
     Add structure struc_i to molecule_rep n_struc_i times via random placement
     """
+
+    random.seed(seed)
+    
     debug = False 
 
     cut_ij_sq = atomic_cut*atomic_cut
@@ -972,6 +997,10 @@ def add_struc(verbose,p,molecule_rep,struc_i,n_struc_i,atomic_cut,lc_expand,max_
     add_mol = True
     if( rank == 0  ):
         print " Adding %d  molecules  "%n_struc_i
+        if( seed == None ):
+            print "   random seed will be taken from clock"
+        else:
+            print "   with random seed %s "%(seed)
         
     while ( add_mol ):
         #
@@ -1030,13 +1059,13 @@ def add_struc(verbose,p,molecule_rep,struc_i,n_struc_i,atomic_cut,lc_expand,max_
                 #
                 # If there are particles in the system check atoms do not overlap
                 #   
-                if( calc_overlap == 1  ):
+                if( calc_overlap ):
 
                     for p_i, ptclObj_i in struc_i.ptclC(myChunk):
                         r_i = np.array( ptclObj_i.position )
                         for p_sys, ptclObj_sys in molecule_rep.ptclC :
                             r_sys = np.array( ptclObj_sys.position )
-                            r_ij_sq = pbcs.sq_drij_c(r_i,r_sys,molecule_rep.getLatVec() )
+                            r_ij_sq = sq_drij_c(r_i,r_sys,molecule_rep.getLatVec() )
                             if( r_ij_sq < cut_ij_sq ):
                                 overlap = 1
 
@@ -1787,7 +1816,7 @@ def main():
     f_new = StructureContainer()
     
     if( not options.grid ):
-        f_new = add_struc(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap)
+        f_new = add_struc(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap,options.seed)
     elif(  options.grid ):
         f_new = add_struc_ongrid(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap)
 
