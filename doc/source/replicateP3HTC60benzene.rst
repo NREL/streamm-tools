@@ -1,8 +1,13 @@
-.. _replicate_data:
+.. _replicateP3HTC60benzene:
 
+This entire example can be exicuted by running::
 
-Replicate a molecule for an MD run
-================================================================================
+   replicateP3HTC60benzene.sh
+
+in tools/examples
+
+Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run
+--------------------------------------------------------------------------------------------------------------
 
 In this example a we use the ``replicate_data.py`` script to read in
 the structure from a `.data
@@ -17,9 +22,15 @@ the 2 axes.  Then distance between that added particiles of the
 coppied structure and all the particiles in the system is calculated
 to be sure no 2 structures overlap eachother. 
 
+This example requires output from previous examples
+
+* :ref:`P3HT <P3HT>` 
+* :ref:`C60 <C60>` 
+* :ref:`benzene  <benzene>` 
+
 Run::
 
-   python replicate_data.py --mol_n 10 
+   replicate_data.py --mol_n 10 
    --in_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data 
    --out_data  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10.data 
    --out_xyz mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10.xyz 
@@ -38,7 +49,7 @@ The second method is to place the molecular structures on a grid.
 
 Run::
 
-    python replicate_data.py --mol_n 10 --grid
+    replicate_data.py --mol_n 10 --grid
     --in_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data 
     --out_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10_g.data 
     --out_xyz mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10_g.xyz 

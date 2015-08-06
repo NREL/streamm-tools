@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os, sys, fileinput, random
 from copy import deepcopy
 from basics import *
