@@ -10,11 +10,32 @@
 
 # Generate structure files for P3HT
 
-donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "140 40"
+#if [ ! -s mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz ]; then 
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz
+     ========================================================================
+     "
+    donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "140 40"
+#else
+#    echo " 
+##     ========================================================================
+#          mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz
+#                has already been generated 
+#     ========================================================================
+#     "
+#fi
 
 # Generate topology  files for P3HT
-xyz2data.py  --in_itp conj.itp     --in_xyz  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz     --out_data  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
-
+#if [ ! -s mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data ]; then 
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
+     ========================================================================
+     "
+   xyz2data.py  --in_itp conj.itp     --in_xyz  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz     --out_data  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
 
 
 

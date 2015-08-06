@@ -10,10 +10,22 @@
 
 # Generate structure files for oligomethylthiophene
 
-donoracceptorsystems.py  "thiophene  ( R_methane  )" -b  BuildingBlocks-release -r 5 -p "180 0 "
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz
+     ========================================================================
+     "
+     donoracceptorsystems.py  "thiophene  ( R_methane  )" -b  BuildingBlocks-release -r 5 -p "180 0 "
 
 # Generate topology  files for oligomethylthiophene
-xyz2data.py  --in_itp conj.itp --in_xyz  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz --out_data  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.data
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.data
+     ========================================================================
+     "
+     xyz2data.py  --in_itp conj.itp --in_xyz  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz --out_data  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.data
 
 
 

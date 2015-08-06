@@ -9,10 +9,22 @@
 # terminals directory. Run 
 
 # Generate structure files for benzene
-donoracceptorsystems.py  "benzene" -b BuildingBlocks-release  -r 1 
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/benzene/acc1_benzene_n1.xyz
+     ========================================================================
+     "
+     donoracceptorsystems.py  "benzene" -b BuildingBlocks-release  -r 1 
 
 # Generate topology  files for benzene
-xyz2data.py --in_itp conj.itp --in_xyz mols/benzene/acc1_benzene_n1.xyz --out_data  mols/benzene/acc1_benzene_n1.data
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/benzene/acc1_benzene_n1.xyz
+     ========================================================================
+     "
+     xyz2data.py --in_itp conj.itp --in_xyz mols/benzene/acc1_benzene_n1.xyz --out_data  mols/benzene/acc1_benzene_n1.data
 
 
 

@@ -9,10 +9,22 @@
 # terminals directory. Run 
 
 # Generate structure files for C60
-donoracceptorsystems.py  "C60" -b BuildingBlocks-release  -r 1 
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/C60/acc1_C60_n1.xyz
+     ========================================================================
+     "
+     donoracceptorsystems.py  "C60" -b BuildingBlocks-release  -r 1 
 
 # Generate topology  files for C60
-xyz2data.py --in_itp conj.itp --in_xyz mols/C60/acc1_C60_n1.xyz --out_data  mols/C60/acc1_C60_n1.data
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/C60/acc1_C60_n1.data
+     ========================================================================
+     "
+     xyz2data.py --in_itp conj.itp --in_xyz mols/C60/acc1_C60_n1.xyz --out_data  mols/C60/acc1_C60_n1.data
 
 
 

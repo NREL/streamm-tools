@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import numpy as np
-import random , math
+import random , math, sys
 
 # Streamm toolkit modules 
 import mpiBase

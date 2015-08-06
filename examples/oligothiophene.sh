@@ -10,14 +10,26 @@
 
 # Generate structure files for oligothiophene
 
-donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 5
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene/acc1_thiophene_n5.xyz
+     ========================================================================
+     "
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 5
 
-donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release    -r 5 -p "0"
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release    -r 5 -p "0"
 
-donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release   -r 5  -p "180 0 "
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release   -r 5  -p "180 0 "
 
 # Generate topology  files for oligothiophene
-xyz2data.py --in_itp conj.itp --in_xyz mols/thiophene/acc1_thiophene_n5.xyz --out_data  mols/thiophene/acc1_thiophene_n5.data
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene/acc1_thiophene_n5.data
+     ========================================================================
+     "
+     xyz2data.py --in_itp conj.itp --in_xyz mols/thiophene/acc1_thiophene_n5.xyz --out_data  mols/thiophene/acc1_thiophene_n5.data
 
 
 
