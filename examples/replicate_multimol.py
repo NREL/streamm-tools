@@ -28,22 +28,25 @@ def get_options():
  
     usage = "usage: %prog [options] \n"
     parser = OptionParser(usage=usage)
+
     
     parser.add_option("-v","--verbose", dest="verbose", default=False,action="store_true", help="Verbose output ")
-    parser.add_option("--in_data", dest="in_data", type="string", default="", help="Input  .data LAMMPS file")
+    parser.add_option("--mol1_data", dest="mol1_data", type="string", default="", help="Input for molecule 1 .data LAMMPS file")
+    parser.add_option("--mol1_n", dest="mol1_n", type=int, default=0, help="Numnber times molecule 1 is to be replicated  ")
+    parser.add_option("--mol2_data", dest="mol2_data", type="string", default="", help="Input for molecule 1 .data LAMMPS file")
+    parser.add_option("--mol2_n", dest="mol2_n", type=int, default=0, help="Numnber times molecule 1 is to be replicated  ")
+    parser.add_option("--mol3_data", dest="mol3_data", type="string", default="", help="Input for molecule 1 .data LAMMPS file")
+    parser.add_option("--mol3_n", dest="mol3_n", type=int, default=0, help="Numnber times molecule 1 is to be replicated  ")
     parser.add_option("--out_data", dest="out_data", type="string", default="out.data", help="Output .data LAMMPS file")
     parser.add_option("--out_xyz", dest="out_xyz", type="string", default="out.xyz", help="Output xyz (xmol) file")
     #
-    #parser.add_option("--seed", dest="seed", type="int", default="", help="Seed for random")
-    parser.add_option("--seed", dest="seed", type="int", help="Seed for random")
     #
-    parser.add_option("--mol_n", dest="mol_n", type=int, default=0, help="Set number of molecules directly  ")
+    parser.add_option("--seed", dest="seed", type="int", help="Seed for random")
     parser.add_option("--atomic_cut", dest="atomic_cut", type=float, default=3.5, help="Minimum distance between atoms of molecules ")
     parser.add_option("--lc_expand", dest="lc_expand", type=float, default=0.100, help="Fraction of the box size to increase system size after max_sys is excieded ")
     parser.add_option("--max_sys", dest="max_sys", type=float, default=3, help="Maximum system recreations at a certain lattice constant ")
     parser.add_option("--max_mol_place", dest="max_mol_place", type=float, default=50, help="Maximum attempts to place a molecule  ")
     parser.add_option("--calc_overlap", dest="calc_overlap",  default=True,action="store_false",help=" Turn off calculation of molecular overlap, handy to build a quick input file" )
-    parser.add_option("--grid", dest="grid", default=False,action="store_true",help=" Replicate molecules on grid " )
     
     (options, args) = parser.parse_args()
         
@@ -1359,7 +1362,7 @@ def add_struc_ongrid(verbose,p,molecule_rep,struc_i,n_sol_l,atomic_cut,lc_expand
 
                             for p_i, ptclObj_i in molecule_rep.ptclC :
                                 r_i = np.array( ptclObj_i.position )
-                                r_ij_sq = pbcs.sq_drij_c(r_i,lat_pos,molecule_rep.getLatVec() )
+                                r_ij_sq = sq_drij_c(r_i,lat_pos,molecule_rep.getLatVec() )
                                 if( r_ij_sq < sol_length_sq ):
                                     overlap = 1
 
@@ -1786,6 +1789,667 @@ def write_xmol(strucC,data_file):
         symbol = str(ptclObj.tagsDict['symbol'])
         F.write( " %5s %16.8f %16.8f %16.8f \n"  % (symbol ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
     F.close()
+
+def set_param(struc_o,param_all,norm_dihparam,cov_nblist, cov_nbindx):
+    """
+    Set force-field parameters
+    """
+
+    use_last = True 
+
+    log_file = "param.log"
+    param_out = open(log_file,"w")
+
+    ptclC_o =  struc_o.ptclC
+    bondC_o  = struc_o.bondC
+    angleC_o  = struc_o.angleC
+    dihC_o  = struc_o.dihC
+    impC_o  = struc_o.impC
+    
+    ljtypC_all =  param_all.ljtypC
+    btypC_all =  param_all.btypC
+    atypC_all =  param_all.atypC
+    dtypC_all =  param_all.dtypC
+    imptypC_all =  param_all.imptypC
+    
+    #
+    # Create new parameter container to hold each unique type
+    #   which exsists in the structure container struc_i
+    #   this is necessary for parameter outputs to no have
+    #   redundent values 
+    #
+    paramC_p = ParameterContainer()
+    
+    ljtypC_p =  paramC_p.ljtypC
+    btypC_p =  paramC_p.btypC
+    atypC_p =  paramC_p.atypC
+    dtypC_p =  paramC_p.dtypC
+    imptypC_p =  paramC_p.imptypC
+    paramC_p.set_nbfunc( param_all.get_nbfunc() )
+    paramC_p.set_combmixrule( param_all.get_combmixrule() )
+    paramC_p.set_genpairs( param_all.get_genpairs() )
+    paramC_p.set_fudgeLJ( param_all.get_fudgeLJ() )
+    paramC_p.set_fudgeQQ( param_all.get_fudgeQQ() )
+    #
+    # Count atom types
+    #
+    debug_lj = False 
+    for pid_o, ptclObj_o  in ptclC_o:    
+        new_type = True
+        lj_p = 0
+        fftype_i = ptclObj_o.tagsDict["fftype"]
+        #mass_i = ptclObj_o.mass
+
+        if( debug_lj ):
+            print " Checking type ",fftype_i
+        
+        for lj_p, ljObj_p  in ljtypC_p:    
+            if( fftype_i == ljObj_p.ptype1 ):
+                new_type = False
+                ptclObj_o.type = str(lj_p)
+                ptclObj_o.tagsDict["lmptype"] = lj_p
+                if(debug_lj):
+                    print ' maches previous ',pid_o, lj_p,ljObj_p.ptype1
+                 
+        if( new_type ):
+
+            if( debug_lj ):
+                print " New type ",fftype_i
+                    
+            # Find type in ljtypC_all
+            cnt_check = 0
+            type_found = False 
+            ptclObj_o.type = str(lj_p+1)
+            ptclObj_o.tagsDict["lmptype"] = lj_p+1
+            for lj_all, ljObj_all  in ljtypC_all:
+                if( fftype_i == ljObj_all.ptype1):
+                    cnt_check += 1
+                    type_found = True 
+                    set_obj = ljObj_all
+                if( type_found and not use_last  ):
+                    # Set mass of particle type
+                    #   This is need for some force-field input files (LAMMPS)
+                    #mass_i =
+                    set_obj.setpid( ptclObj_o.tagsDict["number"] )
+                    #ljObj_all.setmass( mass_i )
+                    ljtypC_p.put(set_obj)
+                    type_found = False
+                    
+            if(  use_last and type_found ):
+                set_obj.setpid( ptclObj_o.tagsDict["number"] )
+                #ljObj_all.setmass( mass_i )
+                ljtypC_p.put(set_obj)
+                type_found = False 
+                
+                    
+            if( cnt_check < 1 ):
+                print " No LJ parameters were found for atom type %s ",fftype_i
+                #raise TypeErrorb
+            elif( cnt_check > 1 ):
+                print " Multiple LJ parameters (%d) were found for atom type %s "%(cnt_check,fftype_i)
+                if( not use_last  ):
+                    raise TypeError
+    if( debug_lj ):
+
+        for lj_all, ljObj_all  in ljtypC_p:
+            print ljObj_all
+        sys.exit("LJ debug 89798")
+        
+    #
+    # Count bonds types
+    #
+    debug = 0
+    for b_o, bondObj_o  in bondC_o:
+        new_type = True
+        btyp_p = 0
+        pid_i = bondObj_o.pgid1
+        pid_j = bondObj_o.pgid2
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ pid_j ].tagsDict["fftype"]
+        r_i = np.array( ptclC_o[ bondObj_o.pgid1 ].position  )
+        r_j = np.array( ptclC_o[ bondObj_o.pgid2 ].position  )
+        bond_len = np.linalg.norm(delta_r_c(r_i,r_j,struc_o.getLatVec() ))
+        
+        for btyp_p, btypObj_p  in btypC_p:
+            p_i = btypObj_p.ptype1 
+            p_j = btypObj_p.ptype2
+            if( fftype_i == p_i  and  fftype_j == p_j ):
+                new_type = False
+                bondObj_o.set_lmpindx(btyp_p)
+                bondObj_o.set_g_indx(btypObj_p.get_g_indx())
+                log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
+                param_out.write(log_line)
+                break 
+            elif( fftype_i == p_j  and  fftype_j == p_i ):
+                new_type = False
+                bondObj_o.set_lmpindx(btyp_p)
+                bondObj_o.set_g_indx(btypObj_p.get_g_indx())
+                log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
+                param_out.write(log_line)
+                break 
+                
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            type_found = False 
+            bondObj_o.set_lmpindx(btyp_p+1)
+            
+            for b_all, btypObj_all  in btypC_all:
+                all_i = btypObj_all.ptype1 
+                all_j = btypObj_all.ptype2
+                if( fftype_i == all_i  and  fftype_j == all_j ):
+                    type_found = True 
+                if( fftype_j == all_i  and  fftype_i == all_j ):
+                    type_found = True
+                    
+                if( type_found ):
+                    cnt_check += 1
+                    bondObj_o.set_g_indx(btypObj_all.get_g_indx())
+                    btypC_p.put(btypObj_all)
+                    if( debug ):
+                        print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
+                        
+                    type_found = False 
+                    log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_all.get_r0(),bond_len-btypObj_all.get_r0() )
+                    param_out.write(log_line)
+                    
+            if( cnt_check < 1 ):
+                print " No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j)
+                raise TypeError
+            elif( cnt_check > 1 ):
+                print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
+                for btyp_p, btypObj_p  in btypC_p:
+                    print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2                    
+                if( not use_last  ):
+                    raise TypeError
+                    
+
+    #
+    # Count angles types
+    #
+    debug = 0
+    for a_o,angleObj_o in angleC_o:
+        new_type = True
+        atyp_p = 0
+        pid_k = angleObj_o.pgid1
+        pid_i = angleObj_o.pgid2
+        pid_j = angleObj_o.pgid3
+        fftype_k =  ptclC_o[ angleObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ angleObj_o.pgid2 ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[ angleObj_o.pgid3 ].tagsDict["fftype"]
+        r_k = np.array( ptclC_o[ pid_k ].position  )
+        r_i = np.array( ptclC_o[ pid_i ].position  )
+        r_j = np.array( ptclC_o[ pid_j ].position  )
+        r_ik = delta_r_c(r_i,r_k,struc_o.getLatVec() )
+        r_ij = delta_r_c(r_i,r_j,struc_o.getLatVec() )
+        angle_kij = getAngle(r_ik,r_ij)
+        for atyp_p, atypObj_p  in atypC_p:
+            p_k = atypObj_p.ptype1 
+            p_i = atypObj_p.ptype2 
+            p_j = atypObj_p.ptype3
+            theta0_kij = atypObj_p.get_theta0()
+            delta_theta = angle_kij - theta0_kij
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j ):
+                new_type = False
+                angleObj_o.set_lmpindx(atyp_p)
+                angleObj_o.set_g_indx(atypObj_p.get_g_indx())
+                
+                log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
+                param_out.write(log_line)
+                    
+                break 
+            if( fftype_j == p_k  and  fftype_i == p_i  and  fftype_k == p_j ):
+                new_type = False
+                angleObj_o.set_lmpindx(atyp_p)
+                angleObj_o.set_g_indx(atypObj_p.get_g_indx())
+                log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
+                param_out.write(log_line)
+                break 
+                
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            type_found = False 
+            angleObj_o.set_lmpindx(atyp_p+1)
+            for a_all, atypObj_all  in atypC_all:
+                all_k = atypObj_all.ptype1 
+                all_i = atypObj_all.ptype2 
+                all_j = atypObj_all.ptype3
+                theta0_kij =  atypObj_all.get_theta0()
+                delta_theta = angle_kij-theta0_kij
+                if( fftype_k == all_k  and fftype_i == all_i  and  fftype_j == all_j ):
+                    type_found = True 
+                if( fftype_j == all_k  and  fftype_i == all_i  and  fftype_k == all_j ):
+                    type_found = True 
+
+                if( type_found ):
+                    cnt_check += 1
+                    angleObj_o.set_g_indx(atypObj_all.get_g_indx())
+                    atypC_p.put(atypObj_all)
+                    type_found = False
+                    if( debug ):
+                        print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
+                    log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p+1,theta0_kij,delta_theta )
+                    param_out.write(log_line)
+                    
+            if( cnt_check < 1 ):
+                print " No Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j)
+                raise TypeError
+            elif( cnt_check > 1 ):
+                log_line=" %d Angles parameters were found for angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f  \n"%(cnt_check,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij )
+                #param_out.write(log_line)
+                print log_line
+                atypC_p.findtype(fftype_k,fftype_i,fftype_j)
+
+                if( not use_last  ):
+                    raise TypeError
+               
+ 
+    #
+    # Count dihedrals types
+    #
+    debug = False
+    if( debug):
+        for d_all, dtypObj_all  in dtypC_all:
+            all_k = dtypObj_all.ptype1 
+            all_i = dtypObj_all.ptype2 
+            all_j = dtypObj_all.ptype3
+            all_l = dtypObj_all.ptype4
+            print " all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.get_type()
+            #sys.exit("  type check debug ")
+            
+    imp_cnt = 0 
+    for d_o,dihObj_o in dihC_o:
+        new_type = True
+        dtyp_p = 0
+        pid_i = dihObj_o.pgid2 
+        pid_j = dihObj_o.pgid3
+        fftype_k =  ptclC_o[ dihObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[pid_j ].tagsDict["fftype"]
+        fftype_l =  ptclC_o[ dihObj_o.pgid4 ].tagsDict["fftype"]
+
+        if( debug):
+            print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+        # Check to see if dihedral type is already in parameter set for the structure container
+        for dtyp_p, dtypObj_p  in dtypC_p:
+            p_k = dtypObj_p.ptype1 
+            p_i = dtypObj_p.ptype2 
+            p_j = dtypObj_p.ptype3
+            p_l = dtypObj_p.ptype4
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
+                new_type = False
+                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+
+                if( debug):
+                    print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                    print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
+                break
+            if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
+                new_type = False
+                dihObj_o.set_lmpindx(dtyp_p)
+                dihObj_o.set_g_indx(dtypObj_p.get_g_indx())
+                if( debug):
+                    print " dihObj_o.get_lmpindx()  ",dihObj_o.get_lmpindx() 
+                    print " dihObj_o.get_g_indx()  ",dihObj_o.get_g_indx() 
+                    print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.get_g_indx()
+                break
+
+        # If it is not in the parameter set for the struture container
+        #  find it in the parameters from the reference parameter file 
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            type_found = False 
+            # Set type to new type = last type+1
+            dihObj_o.set_lmpindx(dtyp_p+1)
+
+            if( debug):
+                print "  new type checking against %d read in parameters "%len(dtypC_all)
+
+            copy_type = False 
+            for d_all, dtypObj_all  in dtypC_all:
+                all_k = dtypObj_all.ptype1 
+                all_i = dtypObj_all.ptype2 
+                all_j = dtypObj_all.ptype3
+                all_l = dtypObj_all.ptype4
+
+                if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                    copy_type = True    
+                if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                    copy_type = True
+
+                if( copy_type ):
+                    cnt_check += 1
+                    dtypObj_temp = copy.deepcopy(dtypObj_all)
+                    #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
+                    type_found = True
+                    copy_type = False 
+                    if( debug ):
+                        print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                        print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                    
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - FF "
+                copy_type = False 
+                for d_all, dtypObj_all  in dtypC_all:
+                    all_k = dtypObj_all.ptype1 
+                    all_i = dtypObj_all.ptype2 
+                    all_j = dtypObj_all.ptype3
+                    all_l = dtypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                        copy_type = True
+                    if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l  ):
+                        copy_type = True
+                    if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+                        
+                    if( copy_type ):
+                        cnt_check += 1
+                        dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                            
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - X "
+                copy_type = False 
+                for d_all, dtypObj_all  in dtypC_all:
+                    all_k = dtypObj_all.ptype1 
+                    all_i = dtypObj_all.ptype2 
+                    all_j = dtypObj_all.ptype3
+                    all_l = dtypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+
+                    if( copy_type ):
+                        cnt_check += 1
+                        dtypObj_temp = copy.deepcopy(dtypObj_all)
+                        #dtypObj_temp.set_g_indx(dtypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+
+            if( cnt_check < 1 ):
+                print " No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
+            elif( cnt_check > 1 ):
+                print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print dtypObj_temp
+                #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
+                if( not use_last  ):
+                    raise TypeError
+
+            if( type_found ):
+                if( debug ):
+
+                    print " adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.ptype1,dtypObj_temp.ptype2,dtypObj_temp.ptype3,dtypObj_temp.ptype4
+                
+                # Set FF types to read in bond to remove X's 
+                dtypObj_temp.ptype1 = fftype_k
+                dtypObj_temp.ptype2 = fftype_i
+                dtypObj_temp.ptype3 = fftype_j
+                dtypObj_temp.ptype4 = fftype_l
+
+                if( norm_dihparam ):
+                    # normalize by number of nieghbors
+                    dihen_norm = 1.0
+                    if( debug):
+                        print " Normalizing dihedral potential "
+                        print " finding types for ",pid_i,pid_j
+                    NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
+                    NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
+                    
+                    dihen_norm = float( NNAB_i + NNAB_j)/2.0
+
+                    if(debug): print " dihen_norm ",dihen_norm
+                        
+                    dtypObj_temp.normforceconstants(dihen_norm)
+
+
+                dihObj_o.set_lmpindx(dtyp_p+1)
+                dihObj_o.set_g_indx(dtypObj_temp.get_g_indx())
+                dtypC_p.put(dtypObj_temp)                
+                if( debug ):
+                    print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " len(dtypC_p) ",len(dtypC_p) 
+                    print " dtypObj_temp.get_lmpindx()  ",dtypObj_temp.get_lmpindx() 
+                    print " dtypObj_temp.get_g_indx()  ",dtypObj_temp.get_g_indx() 
+    #
+    # Count improper dihedrals types
+    #
+    debug = False
+    if( debug):
+        for d_all, imptypObj_all  in imptypC_all:
+            all_k = imptypObj_all.ptype1 
+            all_i = imptypObj_all.ptype2 
+            all_j = imptypObj_all.ptype3
+            all_l = imptypObj_all.ptype4
+            print " all types in parameters ",all_k,all_i,all_j,all_l,imptypObj_all.get_type()
+            #sys.exit("  type check debug ")
+            
+    imp_cnt = 0 
+    for imp_o,impObj_o in impC_o:
+        new_type = True
+        imptyp_p = 0
+        pid_k = impObj_o.pgid1
+        pid_i = impObj_o.pgid2 
+        pid_j = impObj_o.pgid3
+        pid_l = impObj_o.pgid4 
+        fftype_k =  ptclC_o[ impObj_o.pgid1 ].tagsDict["fftype"]
+        fftype_i =  ptclC_o[ pid_i ].tagsDict["fftype"]
+        fftype_j =  ptclC_o[pid_j ].tagsDict["fftype"]
+        fftype_l =  ptclC_o[ impObj_o.pgid4 ].tagsDict["fftype"]
+
+        if( debug):
+            print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+        # Check to see if impedral type is already in parameter set for the structure container
+        for imptyp_p, imptypObj_p  in imptypC_p:
+            p_k = imptypObj_p.ptype1 
+            p_i = imptypObj_p.ptype2 
+            p_j = imptypObj_p.ptype3
+            p_l = imptypObj_p.ptype4
+            if( fftype_k == p_k  and  fftype_i == p_i  and  fftype_j == p_j  and  fftype_l == p_l ):
+                new_type = False
+                impObj_o.set_lmpindx(imptyp_p)
+                impObj_o.set_g_indx(imptypObj_p.get_g_indx())
+
+                if( debug):
+                    print " impObj_o.get_lmpindx()  ",impObj_o.get_lmpindx() 
+                    print " impObj_o.get_g_indx()  ",impObj_o.get_g_indx() 
+                    print "  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.get_g_indx()
+                break
+            if( fftype_l == p_k  and  fftype_j == p_i  and  fftype_i == p_j  and  fftype_k == p_l ):
+                new_type = False
+                impObj_o.set_lmpindx(imptyp_p)
+                impObj_o.set_g_indx(imptypObj_p.get_g_indx())
+                if( debug):
+                    print " impObj_o.get_lmpindx()  ",impObj_o.get_lmpindx() 
+                    print " impObj_o.get_g_indx()  ",impObj_o.get_g_indx() 
+                    print "  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.get_g_indx()
+                break
+
+        # If it is not in the parameter set for the struture container
+        #  find it in the parameters from the reference parameter file 
+        if( new_type ):
+            # Find type in btypC_all
+            cnt_check = 0
+            type_found = False 
+            # Set type to new type = last type+1
+            impObj_o.set_lmpindx(imptyp_p+1)
+
+            if( debug):
+                print "  new type checking against %d read in parameters "%len(imptypC_all)
+
+            copy_type = False 
+            for d_all, imptypObj_all  in imptypC_all:
+                all_k = imptypObj_all.ptype1 
+                all_i = imptypObj_all.ptype2 
+                all_j = imptypObj_all.ptype3
+                all_l = imptypObj_all.ptype4
+
+                if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                    copy_type = True    
+                if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l   ):
+                    copy_type = True
+
+                if( copy_type ):
+                    cnt_check += 1
+                    imptypObj_temp = copy.deepcopy(imptypObj_all)
+                    #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                    type_found = True
+                    copy_type = False 
+                    if( debug ):
+                        print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                        print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                    
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - FF "
+                copy_type = False 
+                for d_all, imptypObj_all  in imptypC_all:
+                    all_k = imptypObj_all.ptype1 
+                    all_i = imptypObj_all.ptype2 
+                    all_j = imptypObj_all.ptype3
+                    all_l = imptypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == fftype_l   ):
+                        copy_type = True
+                    if ( all_k == fftype_k and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == fftype_l  ):
+                        copy_type = True
+                    if ( all_l == fftype_k and all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+                        
+                    if( copy_type ):
+                        cnt_check += 1
+                        imptypObj_temp = copy.deepcopy(imptypObj_all)
+                        #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                            
+            if( not type_found ):
+                if(debug):
+                    print " checking  X - FF - FF - X "
+                copy_type = False 
+                for d_all, imptypObj_all  in imptypC_all:
+                    all_k = imptypObj_all.ptype1 
+                    all_i = imptypObj_all.ptype2 
+                    all_j = imptypObj_all.ptype3
+                    all_l = imptypObj_all.ptype4
+
+                    if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
+                        copy_type = True
+                    if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
+                        copy_type = True
+
+                    if( copy_type ):
+                        cnt_check += 1
+                        imptypObj_temp = copy.deepcopy(imptypObj_all)
+                        #imptypObj_temp.set_g_indx(imptypObj_all.get_g_indx())
+                        type_found = True 
+                        copy_type = False 
+                        if( debug ):
+                            print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                            print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+
+            if( cnt_check < 1 ):
+                print " No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l)
+                raise TypeError
+            elif( cnt_check > 1 ):
+                print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                print imptypObj_temp
+                #imptypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
+                if( not use_last  ):
+                    raise TypeError
+
+            if( type_found ):
+                if( debug ):
+
+                    print " adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.ptype1,imptypObj_temp.ptype2,imptypObj_temp.ptype3,imptypObj_temp.ptype4
+                
+                # Set FF types to read in bond to remove X's 
+                imptypObj_temp.ptype1 = fftype_k
+                imptypObj_temp.ptype2 = fftype_i
+                imptypObj_temp.ptype3 = fftype_j
+                imptypObj_temp.ptype4 = fftype_l
+
+                norm_impdihparam = False 
+                if( norm_impdihparam ):
+                    # normalize by number of nieghbors
+                    dihen_norm = 1.0
+                    if( debug):
+                        print " Normalizing dihedral potential "
+                        print " finding types for ",pid_i,pid_j
+                    NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
+                    NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
+                    
+                    dihen_norm = float( NNAB_i + NNAB_j)/2.0
+
+                    if(debug): print " dihen_norm ",dihen_norm
+                    print " dihen_norm ",dihen_norm
+
+                    imptypObj_temp.normforceconstants(dihen_norm)
+
+                impObj_o.set_lmpindx(imptyp_p+1)
+                impObj_o.set_g_indx(imptypObj_temp.get_g_indx())
+                imptypC_p.put(imptypObj_temp)
+
+                if( debug ):
+                    print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
+                    print " len(imptypC_p) ",len(imptypC_p) 
+                    print " imptypObj_temp.get_lmpindx()  ",imptypObj_temp.get_lmpindx() 
+                    print " imptypObj_temp.get_g_indx()  ",imptypObj_temp.get_g_indx() 
+
+    debug = False 
+    if(debug):
+        print " LJ atom types found %d "%(len(ljtypC_p))
+        for lj_p, ljObj_p  in ljtypC_p: 
+            print lj_p,ljObj_p.ptype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
+        print " Bond types found %d "%(len(btypC_p))
+        for btyp_p, btypObj_p  in btypC_p:
+            print btyp_p ,btypObj_p.ptype1 ,btypObj_p.ptype2,btypObj_p.get_lmpindx(),btypObj_p.get_g_indx()
+        print " Angle types found %d "%(len(atypC_p))
+        for atyp_p, atypObj_p  in atypC_p:
+            print atyp_p ,atypObj_p.ptype1 ,atypObj_p.ptype2,atypObj_p.ptype3,atypObj_p.get_lmpindx(),atypObj_p.get_g_indx()
+        print " Dih types found %d "%(len(dtypC_p))
+        for dtyp_p, dtypObj_p  in dtypC_p:
+            print dtyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
+        print " imp Dih types found %d "%(len(paramC_p.imptypC))
+        for imptyp_p, dtypObj_p  in imptypC_p:
+            print imptyp_p ,dtypObj_p.ptype1 ,dtypObj_p.ptype2,dtypObj_p.ptype3,dtypObj_p.ptype4,dtypObj_p.get_lmpindx(),dtypObj_p.get_g_indx()
+        sys.exit('find_types')
+
+    debug = False 
+    if(debug):
+        print "  All particles should have new type labeled as interger stored as a string "
+        for pid_o, ptclObj_o  in ptclC_o:
+            print ptclObj_o.tagsDict["fftype"],ptclObj_o.type
+        for d_o,dihObj_o in dihC_o:
+            print " lmpindx() g_indx()  ",d_o,dihObj_o.pgid1,dihObj_o.pgid2,dihObj_o.pgid3,dihObj_o.pgid4, dihObj_o.get_lmpindx() ,dihObj_o.get_g_indx() 
+
+    param_out.close()
+
+    return paramC_p,struc_o
     
 def main():
     """
@@ -1801,27 +2465,51 @@ def main():
     # Initialize mpi
     p = mpiBase.getMPIObject()
 
-    #
-    #  Initialize blank system 
-    # 
-    struc_o = StructureContainer()
-    #struc_o.unset_verbose()
-    param_o = ParameterContainer()
+    all_mol_struc = StructureContainer()
+    replicate_struc = StructureContainer()
+    replicate_prama = ParameterContainer()
 
 
-    struc_o , param_o = read_data( struc_o , param_o , options.in_data )
-    
-    update_data_prop(struc_o)
-    
-    f_new = StructureContainer()
-    
-    if( not options.grid ):
-        f_new = add_struc(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap,options.seed)
-    elif(  options.grid ):
-        f_new = add_struc_ongrid(options.verbose,p,f_new,struc_o,options.mol_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap)
 
-    write_data(f_new,param_o,options.out_data)
-    write_xmol(f_new,options.out_xyz)
+    if( len(options.mol1_data) > 0 and options.mol1_n > 0 ):
+        mol1_struc = StructureContainer()
+        mol1_struc , replicate_prama = read_data( mol1_struc , replicate_prama , options.mol1_data )
+        update_data_prop(mol1_struc)
+        print str(mol1_struc)
+        all_mol_struc += mol1_struc
+
+    if( len(options.mol2_data) > 0 and options.mol2_n > 0 ):
+        mol2_struc = StructureContainer()
+        mol2_struc , replicate_prama = read_data( mol2_struc , replicate_prama , options.mol2_data )
+        update_data_prop(mol2_struc)
+        print str(mol1_struc)
+        all_mol_struc += mol2_struc
+
+
+    if( len(options.mol3_data) > 0 and options.mol3_n > 0 ):
+        mol3_struc = StructureContainer()
+        mol3_struc , replicate_prama = read_data( mol3_struc , replicate_prama , options.mol3_data )
+        update_data_prop(mol3_struc)
+        print str(mol1_struc)
+        all_mol_struc += mol3_struc
+
+    
+    # Don't need since not using norm_dihparam
+    norm_dihparam = False 
+    cov_nblist = []
+    cov_nbindx = []
+    #replicate_prama_clean,all_mol_struc  = set_param(all_mol_struc,replicate_prama,norm_dihparam,cov_nblist, cov_nbindx)
+
+
+    if( len(options.mol1_data) > 0 and options.mol1_n > 0 ):
+        replicate_struc = add_struc(options.verbose,p,replicate_struc,mol1_struc,options.mol1_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap,options.seed)
+    if( len(options.mol2_data) > 0 and options.mol2_n > 0 ):
+        replicate_struc = add_struc(options.verbose,p,replicate_struc,mol2_struc,options.mol2_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap,options.seed)
+    if( len(options.mol3_data) > 0 and options.mol3_n > 0 ):
+        replicate_struc = add_struc_ongrid(options.verbose,p,replicate_struc,mol3_struc,options.mol3_n,options.atomic_cut,options.lc_expand,options.max_sys,options.max_mol_place,options.calc_overlap)
+
+    write_data(replicate_struc,replicate_prama,options.out_data)
+    write_xmol(replicate_struc,options.out_xyz)
 
 if __name__=="__main__":
     main()
