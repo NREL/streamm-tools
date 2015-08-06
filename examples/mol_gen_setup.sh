@@ -123,42 +123,42 @@ fi
 #
 # Check if the templates are in the opv-project directory 
 #
-if [ -z  ${TEMPLATE_PATH} ]; then
-    TEMPLATE_PATH=${TOOLS_PATH}/../
-    export TEMPLATE_PATH
-    echo " "
-    echo "---------------------------------------------------------------"
-    echo " Template path being set to:"
-    echo "    " ${TEMPLATE_PATH}
-    echo "---------------------------------------------------------------"
-    echo " "
-fi
+#if [ -z  ${TEMPLATE_PATH} ]; then
+#    TEMPLATE_PATH=${TOOLS_PATH}/../
+#    export TEMPLATE_PATH
+#    echo " "
+#    echo "---------------------------------------------------------------"
+#    echo " Template path being set to:"
+#    echo "    " ${TEMPLATE_PATH}
+#    echo "---------------------------------------------------------------"
+#    echo " "
+#fi
 
 
-if [ -s ${TEMPLATE_PATH}/donoracceptor.com.template -a -s ${TEMPLATE_PATH}/donoracceptor.pbs.template  -a -s ${TEMPLATE_PATH}/donoracceptor.pbs.template  -a -s ${TEMPLATE_PATH}/donoracceptor.com.template.r1   -a -s ${TEMPLATE_PATH}/donoracceptor.com.template.r2 ]; then
-    echo " "
-    echo "---------------------------------------------------------------"
-    echo " TEMPLATEs have been found in:"
-    echo "    " ${TEMPLATE_PATH}
-    echo "---------------------------------------------------------------"
-    echo " "
-else
-    echo " "
-    echo "---------------------------------------------------------------"
-    echo " TEMPLATEs have not been found in:"
-    echo "    " ${TEMPLATE_PATH}
-    echo " rerun setup.sh in the opv-project directory to pull these templates  "
-    echo " or set TEMPLATE_PATH to it's location "
-    echo " eg: TEMPLATE_PATH='path-to-templates'/"
-    echo "     then "
-    echo "     export TEMPLATE_PATH"
-    echo "---------------------------------------------------------------"
-fi
+#if [ -s ${TEMPLATE_PATH}/donoracceptor.com.template -a -s ${TEMPLATE_PATH}/donoracceptor.pbs.template  -a -s ${TEMPLATE_PATH}/donoracceptor.pbs.template  -a -s ${TEMPLATE_PATH}/donoracceptor.com.template.r1   -a -s ${TEMPLATE_PATH}/donoracceptor.com.template.r2 ]; then
+#    echo " "
+#    echo "---------------------------------------------------------------"
+#    echo " TEMPLATEs have been found in:"
+#    echo "    " ${TEMPLATE_PATH}
+#    echo "---------------------------------------------------------------"
+#    echo " "
+#else
+#    echo " "
+#    echo "---------------------------------------------------------------"
+#    echo " TEMPLATEs have not been found in:"
+#    echo "    " ${TEMPLATE_PATH}
+#    echo " rerun setup.sh in the opv-project directory to pull these templates  "
+#    echo " or set TEMPLATE_PATH to it's location "
+#    echo " eg: TEMPLATE_PATH='path-to-templates'/"
+#    echo "     then "
+#    echo "     export TEMPLATE_PATH"
+#    echo "---------------------------------------------------------------"
+#fi
 
 # To create a gaussian input file you can add the gaussian templates to the current directory
-cp ${TEMPLATE_PATH}/donoracceptor.com.template ./
-cp ${TEMPLATE_PATH}/donoracceptor.com.template.r1 ./
-cp ${TEMPLATE_PATH}/donoracceptor.com.template.r2 ./
-cp ${TEMPLATE_PATH}/donoracceptor.pbs.template ./
+#cp ${TEMPLATE_PATH}/donoracceptor.com.template ./
+#cp ${TEMPLATE_PATH}/donoracceptor.com.template.r1 ./
+#cp ${TEMPLATE_PATH}/donoracceptor.com.template.r2 ./
+#cp ${TEMPLATE_PATH}/donoracceptor.pbs.template ./
 
 echo "mol_gen_setup.sh finished with out errors "

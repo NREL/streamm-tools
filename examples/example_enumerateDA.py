@@ -14,7 +14,8 @@ def main():
 
     print "Running enumerate.py (donoracceptorsystems) test"
     print " "
-    run_py = "python ../da_builder/enumerate.py -d -c DA -b ../../BuildingBlocks-private -s example_enumerateDA-subset.txt -f example_enumerateDA-mols-dir --opvPath=../.. --repoPath=./test-repo > example_enumerateDA.dat"
+    # run_py = "python ../da_builder/enumerate.py -d -c DA -b ../../BuildingBlocks-private -s example_enumerateDA-subset.txt -f example_enumerateDA-mols-dir --opvPath=../.. --repoPath=./test-repo > example_enumerateDA.dat"
+    run_py = "python ../da_builder/enumerate.py -d -c DA -b ../../BuildingBlocks-private -s example_enumerateDA-subset.txt -f example_enumerateDA-mols-dir --repoPath=./test-repo > example_enumerateDA.dat"
     os.system(run_py)
 
     # Partial output for diff-ing

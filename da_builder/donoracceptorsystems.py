@@ -1,6 +1,4 @@
 import os, sys, fileinput, random
-# from math import *
-# import math
 from copy import deepcopy
 from basics import *
 from fragments import *
@@ -815,17 +813,21 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         job_name = "acc%d_%s_n%d" % (options.accuracy, short_name, number)
         frag.write_xyz(xyz_name)
 
+        print "------------------------------------------------------------------------------------------------------"
+
         fullFilePath=os.path.join(opvPath,"donoracceptor.com.template")
         if ( not os.path.exists(fullFilePath) ):
-            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
-            sys.exit(0)
-        frag.write_com(fullFilePath, xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+            print "Template file", fullFilePath, " not found. Check --opvPath option"
+            #sys.exit(0)
+        else:
+            frag.write_com(fullFilePath, xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
 
         fullFilePath=os.path.join(opvPath,"donoracceptor.pbs.template")
         if ( not os.path.exists(fullFilePath) ):
-            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
-            sys.exit(0)
-        frag.write_pbs(fullFilePath, xyz_name, job_name, repoPath)
+            print "Template file", fullFilePath, " not found. Check --opvPath option"
+            #sys.exit(0)
+        else:
+            frag.write_pbs(fullFilePath, xyz_name, job_name, repoPath)
 
 
         #
@@ -833,22 +835,19 @@ def gen_struct(base_input_str, bblocks, options, number, write_files = True):
         #
         fullFilePath=os.path.join(opvPath,"donoracceptor.com.template.r1")
         if ( not os.path.exists(fullFilePath) ):
-            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
-            sys.exit(0)
-        frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+            print "Template file", fullFilePath, " not found. Check --opvPath option"
+            # sys.exit(0)
+        else:
+            frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
 
         fullFilePath=os.path.join(opvPath,"donoracceptor.com.template.r2")
         if ( not os.path.exists(fullFilePath) ):
-            print "OPV template file", fullFilePath, " not found. Check opv-project repo location"
-            sys.exit(0)
-        frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+            print "Template file", fullFilePath, " not found. Check --opvPath option"
+            #sys.exit(0)
+        else:
+            frag.write_com_restart(fullFilePath,  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
 
-
-        # frag.write_com("donoracceptor.com.template",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
-        # frag.write_pbs("donoracceptor.pbs.template",  xyz_name, job_name)
-        # SWS: adding new file templates explicitly for restart com files
-        # frag.write_com_restart("donoracceptor.com.template.r1",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
-        # frag.write_com_restart("donoracceptor.com.template.r2",  xyz_name, job_name, get_basis_str(options.accuracy), options.nstates)
+        print "------------------------------------------------------------------------------------------------------"
 
         # Build meta data 
         json_data = build_meta(frag, short_name, base_input_str, bblocks, options)
