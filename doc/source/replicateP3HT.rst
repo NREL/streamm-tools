@@ -1,6 +1,13 @@
 .. _replicateP3HT:
 
 
+This entire example can be exicuted by running::
+
+   replicateP3HT.sh
+
+in tools/examples
+
+
 Replicate a P3HT for an MD run
 -------------------------------------------------------
 
@@ -16,6 +23,10 @@ structure at that point after randomly rotating the structure along
 the 2 axes.  Then distance between that added particiles of the
 coppied structure and all the particiles in the system is calculated
 to be sure no 2 structures overlap eachother. 
+
+This example requires output from previous examples
+
+* :ref:`P3HT <P3HT>` 
 
 Run::
 

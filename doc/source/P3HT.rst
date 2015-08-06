@@ -1,14 +1,12 @@
 .. _P3HT:
 
-
 This entire example can be exicuted by running::
 
    P3HT.sh
 
 in tools/examples
 
-
-P3HT
+P3HT 
 -------------------------------------------------------
 
 *Generate structure and quantum input*
@@ -20,7 +18,7 @@ script ".pbs"  for thiophene by running ::
    donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "180 0 "
 
 will generate oligomers  with n=1-5 repeat units with sulfurs of
-thiophene in the trans configuration, see :ref:`oligothiophene` for -p
+thiophene in the trans configuration, see :ref:`Oligo-thiophene <oligothiophene>` for -p
 usage ::
 
    mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n1.xyz

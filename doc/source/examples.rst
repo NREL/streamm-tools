@@ -37,10 +37,15 @@ BuildingBlocks-release repo are needed, your PATH needs to include
 `tools/da_builder/`  and your PTYHONPATH needs to include `tools/src/`
 needs to set correctly to include . By running::
 
+   source config.sh
+
+in the tools directory and::
+
    examples_setup.sh
 
-the functionality of :ref:`donoracceptorsystems.py<donoracceptorsystems>` and the
-donoracceptorsystems.py repo will be cloned in your current directory. 
+in the directory where you are running the examples. The functionality
+of :ref:`donoracceptorsystems.py<donoracceptorsystems>` will be tested
+and the BuildingBlocks-release repo will be cloned in your current directory. 
 
 .. toctree::
    :maxdepth: 1

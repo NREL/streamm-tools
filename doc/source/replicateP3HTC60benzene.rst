@@ -1,8 +1,13 @@
 .. _replicateP3HTC60benzene:
 
+This entire example can be exicuted by running::
+
+   replicateP3HTC60benzene.sh
+
+in tools/examples
 
 Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run
--------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
 
 In this example a we use the ``replicate_data.py`` script to read in
 the structure from a `.data
@@ -16,6 +21,12 @@ structure at that point after randomly rotating the structure along
 the 2 axes.  Then distance between that added particiles of the
 coppied structure and all the particiles in the system is calculated
 to be sure no 2 structures overlap eachother. 
+
+This example requires output from previous examples
+
+* :ref:`P3HT <P3HT>` 
+* :ref:`C60 <C60>` 
+* :ref:`benzene  <benzene>` 
 
 Run::
 
