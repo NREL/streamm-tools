@@ -54,4 +54,4 @@ def rmFromEnvironPath(pathVar, rmSearchList):
 # 
 rmFromEnvironPath('PYTHONPATH', ['/tools/src', '/tools-', './'] )
 rmFromEnvironPath('PATH',       ['/tools/src', 'tools-', './', '/scripts'] )
-rmFromEnvironPath('TOOLS_PATH', ['/tools'] )
+# rmFromEnvironPath('TOOLS_PATH', ['/tools'] )

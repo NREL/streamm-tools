@@ -8,7 +8,7 @@ echo "Setting top path $TOP_PATH in setup"
 # Setting paths for python tools
 #
 echo "================================================================================"
-echo "                 Setting PYTHONPATH, PATH and TOOLS_PATH                        "
+echo "                 Setting PYTHONPATH, PATH                                       "
 echo " "
 
 #
@@ -18,7 +18,7 @@ $TOP_PATH/src/cleanpath.py
 echo " "
 source clean-PYTHONPATH.sh
 source clean-PATH.sh
-source clean-TOOLS_PATH.sh
+# source clean-TOOLS_PATH.sh
 rm -rf clean-*PATH.sh
 
 #
@@ -34,15 +34,13 @@ PATH=./:$PATH
 export PATH
 
 # For external tools-tests path
-TOOLS_PATH=$TOP_PATH
-export TOOLS_PATH
+# TOOLS_PATH=$TOP_PATH
+# export TOOLS_PATH
 
 echo " "
 echo "Setting PYTHONPATH = $PYTHONPATH"
 echo " "
 echo "Setting PATH       = $PATH"
-echo " "
-echo "Setting TOOLS_PATH = $TOOLS_PATH"
 echo " "
 echo "NOTE: be sure to source this file to include path in environment"
 echo " "

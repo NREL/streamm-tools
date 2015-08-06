@@ -1,19 +1,17 @@
 .. _framework_design:
 
-.. index:: Particle, Bond, Angle, Dihedral, Simulation, Structure, Class, Improper
+.. index:: Particle, Bond, Angle, Dihedral, Simulation, Structure, Class, Improper, MPI, Boost, mpi4py, parameters, periodic table, units
 
 
 *********************************************
-STREAMM design
+STREAMM code description
 *********************************************
-
-Object-oriented design is used throughout  STREAMM to enable ease of
-use and the ability to update and extend its functionality. 
-
 
 StructureContainer Class
 ============================
 
+Object-oriented design is used throughout STREAMM to enable ease of
+use and the ability to update and extend its functionality. 
 The StructureContainer class is a data structure for describing a
 collection of discrete particles. These particles have unique integer
 IDs and spatial positions and can have user specified attributes such
@@ -50,17 +48,42 @@ StructureContainer objects can be created without Bonds, Angles,
 Dihedrals and/or Impropers, with the default empty containers being set automatically.
 
 
-Simulation Class
+MPI Wrapper Class
 ============================
 
-The embedded docstrings for the simulation modules are:
+.. toctree::
+   :maxdepth: 1
+
+   mpi_interface.rst
+
+
+Molecular Building-Block Assembler
+========================================
+
+.. toctree::
+   :maxdepth: 1
+
+   donoracceptorsystems.rst
+
+
+
+External Utility / Simulation Classes
+===========================================
+
+A number of utility classes are included in STREAMM that use the core functionality described above.
+These utility classes are used in a number of :ref:`examples` included in the documentation.
+The embedded docstrings for these are listed below.
 
 - :mod:`simulation`
 - :mod:`simulationLAMMPS1`
 - :mod:`simulationGaussian1`
+- :mod:`parameters`
+- :mod:`periodictable`
+- :mod:`units`
 
 
-Structure / Simulation Class API
+
+Class APIs
 ======================================
 
 .. toctree::
@@ -75,3 +98,5 @@ Structure / Simulation Class API
    docstr_simulation.rst
    docstr_simulationLAMMPS1.rst
    docstr_simulationGaussian1.rst
+   docstr_mpiBase.rst
+   docstr_extras.rst

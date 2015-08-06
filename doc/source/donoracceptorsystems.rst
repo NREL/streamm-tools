@@ -6,7 +6,8 @@
 Molecular Generator: (Donor-Acceptor Systems)
 ==================================================
 
-Concatenates molecular cply files based on connectivity tags  to generate input files for `Gaussian <http://www.gaussian.com/>`_ . See :ref:`examples`
+Concatenates molecular cply files based on connectivity tags  to generate input
+files for `Gaussian <http://www.gaussian.com/>`_ . See :ref:`examples`
 
 
 Files and directories

@@ -28,8 +28,6 @@ Contents
    :maxdepth: 2
 
    getting_started.rst
-   tools_tests.rst
    framework_design.rst
-   utilities.rst
    examples.rst
    applications.rst
