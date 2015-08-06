@@ -26,7 +26,19 @@
      ========================================================================
      "
      xyz2data.py  --in_itp conj.itp --in_xyz  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz --out_data  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.data
-
-
-
-
+     echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.gro
+              mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.top
+              mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.itp
+     ========================================================================
+     "
+     xyz2gromacs.py --in_itp conj.itp --in_xyz  mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz --out_gro mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.gro   --out_top mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.top   --out_itp  acc1_thiophene_R_methane__n5.itp
+     mv acc1_thiophene_R_methane__n5.itp  mols/thiophene_R_methane_/
+    echo " 
+     ========================================================================
+         Generateration of input files for oligo-thiophene_R_methane_ finished  
+     ========================================================================
+     "
+exit 

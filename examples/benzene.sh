@@ -21,11 +21,24 @@
     echo " 
      ========================================================================
          Generating: 
-              mols/benzene/acc1_benzene_n1.xyz
+              mols/benzene/acc1_benzene_n1.data
      ========================================================================
      "
      xyz2data.py --in_itp conj.itp --in_xyz mols/benzene/acc1_benzene_n1.xyz --out_data  mols/benzene/acc1_benzene_n1.data
 
-
-
-
+    echo " 
+     ========================================================================
+         Generating: 
+              mols/benzene/acc1_benzene_n1.gro
+              mols/benzene/acc1_benzene_n1.top
+              mols/benzene/acc1_benzene_n1.itp
+     ========================================================================
+     "
+     xyz2gromacs.py --in_itp conj.itp --in_xyz  mols/benzene/acc1_benzene_n1.xyz --out_gro mols/benzene/acc1_benzene_n1.gro   --out_top mols/benzene/acc1_benzene_n1.top   --out_itp  acc1_benzene_n1.itp
+     mv acc1_benzene_n1.itp  mols/benzene/
+    echo " 
+     ========================================================================
+         Generateration of input files for benzene finished  
+     ========================================================================
+     "
+exit 

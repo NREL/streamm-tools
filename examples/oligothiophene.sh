@@ -30,7 +30,22 @@
      ========================================================================
      "
      xyz2data.py --in_itp conj.itp --in_xyz mols/thiophene/acc1_thiophene_n5.xyz --out_data  mols/thiophene/acc1_thiophene_n5.data
-
+     echo " 
+     ========================================================================
+         Generating: 
+              mols/thiophene/acc1_thiophene_n5.gro
+              mols/thiophene/acc1_thiophene_n5.top
+              mols/thiophene/acc1_thiophene_n5.itp
+     ========================================================================
+     "
+     xyz2gromacs.py --in_itp conj.itp --in_xyz  mols/thiophene/acc1_thiophene_n5.xyz --out_gro mols/thiophene/acc1_thiophene_n5.gro   --out_top mols/thiophene/acc1_thiophene_n5.top   --out_itp  acc1_thiophene_n5.itp
+     mv acc1_thiophene_n5.itp  mols/thiophene/
+    echo " 
+     ========================================================================
+         Generateration of input files for oligo-thiophene finished  
+     ========================================================================
+     "
+exit 
 
 
 
