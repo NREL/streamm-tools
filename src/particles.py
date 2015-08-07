@@ -507,4 +507,3 @@ class ParticleContainer:
         plt.savefig(distName)
         plt.show()
         plt.close()
-
