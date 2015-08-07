@@ -35,7 +35,7 @@ class StructureContainer:
     (eg box length, pressure, temperature.....)
     """
 
-    def __init__(self, ptclC=ParticleContainer(), bondC=BondContainer(), angleC=AngleContainer(), dihC=DihedralContainer(), impC=ImproperContainer(), verbose=True):
+    def __init__(self, ptclC=None, bondC=None, angleC=None, dihC=None, impC=None, verbose=True):
         """
         Constructor for a composite structure. Deepcopy of containers is used
         so this is the main container that manages memory for all sim objects
@@ -45,8 +45,23 @@ class StructureContainer:
             bondC  (BondContainer)  
             angleC (AngleContainer)
             dihC   (DihedralContainer)
+            verbose (bool) -- Flag for debug/status messages. Default=True
         """
         
+        # Creating default containers here so constructor does not
+        # instantiate at definition time
+        if ptclC is None:
+            ptclC = ParticleContainer()
+        if bondC is None:
+            bondC = BondContainer()
+        if angleC is None:
+            angleC = AngleContainer()
+        if dihC is None:
+            dihC = DihedralContainer()
+        if impC is None:
+            impC = ImproperContainer()            
+            
+
         if isinstance(ptclC, ParticleContainer):
             self.ptclC = copy.deepcopy(ptclC)
         else:

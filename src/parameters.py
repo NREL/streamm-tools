@@ -1557,7 +1557,9 @@ class ParameterContainer:
     Container for force-field parameters
     """
 
-    def __init__(self, ljtypC = LJtypesContainer(), btypC = BondtypesContainer(),atypC=AngletypesContainer(),dtypC=DihtypesContainer(),imptypC=ImptypesContainer() ):
+#  def __init__(self, ljtypC = LJtypesContainer(), btypC = BondtypesContainer(),atypC=AngletypesContainer(),dtypC=DihtypesContainer(),imptypC=ImptypesContainer() ):
+    
+    def __init__(self, ljtypC=None, btypC=None, atypC=None, dtypC=None, imptypC=None):
         """
         Constructor for ParameterContainer.
 
@@ -1568,7 +1570,20 @@ class ParameterContainer:
              dtypC  (DihtypesContainer)
              imptypC  (DihtypesContainer)
         """
-        
+
+        # Creating default containers here so constructor does not
+        # instantiate at definition time
+        if ljtypC is None:
+            ljtypC = LJtypesContainer()
+        if btypC is None:
+            btypC = BondtypesContainer()
+        if atypC is None:
+            atypC = AngletypesContainer()
+        if dtypC is None:
+            dtypC = DihtypesContainer()
+        if imptypC is None:
+            imptypC = ImptypesContainer()
+
         if isinstance(ljtypC, LJtypesContainer):
             self.ljtypC = copy.deepcopy(ljtypC)
         else:
