@@ -8,14 +8,14 @@ MPI Interface Class
 
 The MPI module :mod:`mpiBase` provides a common interface for typical
 communication operations. The implementation of these operations is
-handled by derived clases that use a variety of external
+handled by derived classes that use a variety of external
 libraries. Currently these include:
 
 - boost
 - mpi4py
 - serial
 
-where 'serial' is explicity listed to emphasize that this implementation
+where 'serial' is explicitly listed to emphasize that this implementation
 uses the same interface as the actual MPI libraries. Therefore, a user
 can write an algorithm using the MPI interface that does not have to
 be changed if their code is moved to a system that does not have any

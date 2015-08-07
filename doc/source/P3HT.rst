@@ -1,6 +1,6 @@
 .. _P3HT:
 
-This entire example can be exicuted by running::
+This entire example can be executed by running::
 
    P3HT.sh
 
@@ -78,5 +78,5 @@ this creates the files::
       mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.top
       acc1_thiophene_n5.itp 
 
-The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the conectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
+The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
 

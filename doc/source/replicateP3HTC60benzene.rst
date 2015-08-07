@@ -1,6 +1,6 @@
 .. _replicateP3HTC60benzene:
 
-This entire example can be exicuted by running::
+This entire example can be executed by running::
 
    replicateP3HTC60benzene.sh
 
@@ -18,9 +18,9 @@ The first method is the default and chooses a random point within the
 box dimensions specified in the `.data
 <http://lammps.sandia.gov/doc/2001/data_format.html>`_  file and places a copied
 structure at that point after randomly rotating the structure along
-the 2 axes.  Then distance between that added particiles of the
-coppied structure and all the particiles in the system is calculated
-to be sure no 2 structures overlap eachother. 
+the 2 axes.  Then distance between that added particles of the
+copied structure and all the particles in the system is calculated
+to be sure no 2 structures overlap each other. 
 
 This example requires output from previous examples
 
@@ -64,5 +64,5 @@ The new `.data
 <http://lammps.sandia.gov/doc/2001/data_format.html>`_  file with 10
 molecules placed on grid in the box defined by the original `.data
 <http://lammps.sandia.gov/doc/2001/data_format.html>`_ file. The grid
-method has the advantage on not need to calculate the inter-particile
+method has the advantage on not need to calculate the inter-particle
 distances, so it is much faster.  

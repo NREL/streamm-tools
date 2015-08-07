@@ -146,7 +146,7 @@ Demonstrates the 'in' operator which can be used to test if an object contains a
     key not found in atoms1
 
 
-ParticleContainers can be directly combined with the '+=' operator. Note: Particle object indices within a container are always unique. If indices overlap, the maximun index within the container on the left of the '+=' is used to shift all other indices
+ParticleContainers can be directly combined with the '+=' operator. Note: Particle object indices within a container are always unique. If indices overlap, the maximum index within the container on the left of the '+=' is used to shift all other indices
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python

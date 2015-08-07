@@ -1,7 +1,7 @@
 .. _C60:
 
 
-This entire example can be exicuted by running::
+This entire example can be executed by running::
 
    C60.sh
 
@@ -22,7 +22,7 @@ this creates the file::
 
    mols/C60/acc1_C60_n1.xyz
 
-which is just a file containing the cartesian coordinates of a
+which is just a file containing the Cartesian coordinates of a
 C60 molecule.  You can view with your favorite viewer. The -r option is set to 1 to generate a single molecule rather than an oligomer::
 
    mols/C60/acc1_C60_n1.com
@@ -73,5 +73,5 @@ this creates the files::
       mols/C60/acc1_C60_n1.top
       acc1_C60_n1.itp 
 
-The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the conectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
+The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
 

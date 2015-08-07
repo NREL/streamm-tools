@@ -34,7 +34,7 @@ Molecular generation and replication
 
 To run these examples the reference coordinate files in the
 BuildingBlocks-release repo are needed, your PATH needs to include
-`tools/da_builder/`  and your PTYHONPATH needs to include `tools/src/`
+`tools/da_builder/`  and your PYTHONPATH needs to include `tools/src/`
 needs to set correctly to include . By running::
 
    source config.sh

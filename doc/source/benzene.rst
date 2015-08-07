@@ -22,7 +22,7 @@ this creates the file::
 
    mols/benzene/acc1_benzene_n1.xyz
 
-which is just a file containing the cartesian coordinates of a
+which is just a file containing the Cartesian coordinates of a
 benzene molecule.  You can view with your favorite viewer. The -r option is set to 1 to generate a single molecule rather than an oligomer::
 
    mols/benzene/acc1_benzene_n1.com

@@ -82,7 +82,7 @@ Create Particle, Bond objects. Then create their containers and final the Struct
     Number of particles in polymer2 =  2
 
 
-Clean all auxillary data objects, then one is left with only the StructureContainer-s '1' and '2'
+Clean all auxiliary data objects, then one is left with only the StructureContainer-s '1' and '2'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
