@@ -78,6 +78,9 @@ tornado==3.2
 virtualenv==1.11.4
 wsgiref==0.1.2
 
+Python 2.7.3 or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
+Python 2.7.3 on the Peregrine cluster at NREL and Python 2.7.7 on Mac OSX. We recommend not using Python 3.x and greater as no
+testing has been done for those versions. 
 
 Running tests
 ========================
