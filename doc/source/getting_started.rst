@@ -30,10 +30,15 @@ The tools repo contains the following directories and files
 - src        -- Main classes implementing the STREAMM tools functionality
 
 
+
 ..  _configure-tools:
 
 Configure tools
 ============================
+
+Python 2.7.3 or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
+Python 2.7.3 on the Peregrine cluster at NREL and Python 2.7.7 on Mac OSX. We recommend not using Python 3.x and greater as no
+testing has been done for those versions. 
 
 The config.sh script is provided to set various environment variables
 and the PYTHONPATH required for the source code modules to run
@@ -45,42 +50,49 @@ This will set the correct environment for the current terminal
 session. To set permanently, note the output of the script and then
 set in your local environment. A number of packages are required for
 the complete functionality of the STREAMM tools.
-A current list of python module dependencies on the Peregrine cluster
-at NREL (our default test platform) is as follows
 
-Cython==0.20.1
-GridDataFormats==0.2.4
-MDAnalysis==0.8.1
-MDAnalysisTests==0.8.1
-backports.ssl-match-hostname==3.4.0.2
-biopython==1.64
-decorator==3.4.0
-h5py==2.2.1
-ipython==2.0.0
-matplotlib==1.3.1
-memory-profiler==0.31
-mpi4py==1.3.1
-networkx==1.9
-nose==1.3.1
-numpy==1.8.1
-pandas==0.13.1
-psutil==2.1.1
-psycopg2==2.5.3
-pyparsing==2.0.1
-python-dateutil==2.2
-pytz==2014.2
-pyzmq==14.1.1
-requests==2.3.0
-scikit-learn==0.14.1
-scipy==0.13.3
-six==1.6.1
-tornado==3.2
-virtualenv==1.11.4
-wsgiref==0.1.2
+- MDAnalysis
+- numpy
+- mpi4py or boost.mpi
+- ipython
+- matplotlib
 
-Python 2.7.3 or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
-Python 2.7.3 on the Peregrine cluster at NREL and Python 2.7.7 on Mac OSX. We recommend not using Python 3.x and greater as no
-testing has been done for those versions. 
+.. note::
+
+ A current list of python module dependencies on the Peregrine cluster at NREL (our default test platform) is as follows:
+
+ Cython==0.20.1
+ GridDataFormats==0.2.4
+ MDAnalysis==0.8.1
+ MDAnalysisTests==0.8.1
+ backports.ssl-match-hostname==3.4.0.2
+ biopython==1.64
+ decorator==3.4.0
+ h5py==2.2.1
+ ipython==2.0.0
+ matplotlib==1.3.1
+ memory-profiler==0.31
+ mpi4py==1.3.1
+ networkx==1.9
+ nose==1.3.1
+ numpy==1.8.1
+ pandas==0.13.1
+ psutil==2.1.1
+ psycopg2==2.5.3
+ pyparsing==2.0.1
+ python-dateutil==2.2
+ pytz==2014.2
+ pyzmq==14.1.1
+ requests==2.3.0
+ scikit-learn==0.14.1
+ scipy==0.13.3
+ six==1.6.1
+ tornado==3.2
+ virtualenv==1.11.4
+ wsgiref==0.1.2
+
+
+
 
 Running tests
 ========================
