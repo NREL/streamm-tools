@@ -79,7 +79,13 @@ class element():
 
 class periodictable:
     """
-    Elements of the periodic table 
+    Elements of the periodic table
+
+    Set covalent radi
+    from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+    Van der Waals  radi
+    from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
+
     """
 
     def __init__(self):
