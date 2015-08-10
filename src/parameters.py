@@ -560,7 +560,7 @@ class imptype:
         """
         set Harmonic parameters
 
-        E = ? TRAVIS
+        E = kb ( e_{lijk} - e0 )^2 
 
         Args:
             e0     (float) 
