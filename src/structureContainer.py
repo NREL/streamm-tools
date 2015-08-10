@@ -3,7 +3,6 @@ Class data structures for atomic data
 """
 
 import copy
-import numpy as np 
 import json
 import sys
 import os
@@ -99,7 +98,7 @@ class StructureContainer:
         self.boxLengths = [ [0.0, 1.0], [0.0, 1.0], [0.0, 1.0] ]
 
         # Lattice vectors 
-        self.latvec = [  np.array([100.0,0.0,0.0]) ,  np.array( [0.0,100.0,0.0]),  np.array( [0.0,0.0,100.0]) ]
+        self.latvec = [  [100.0,0.0,0.0] ,  [0.0,100.0,0.0] , [0.0,0.0,100.0] ]
 
 
     def __del__(self):
@@ -180,9 +179,9 @@ class StructureContainer:
         strucStr += "        Lx (A) = " + str(self.boxLengths[0]) + "\n"
         strucStr += "        Ly (A) = " + str(self.boxLengths[1]) + "\n"
         strucStr += "        Lz (A) = " + str(self.boxLengths[2]) + "\n"
-        strucStr += "      Volume %f  A^3 \n"%self.getVolume()
+        strucStr += "      Volume %f  A^3 \n"%self.getVolume_c()
         strucStr += "      Mass %f  AMU \n"%self.getTotMass()     
-        strucStr += "      Density %f g/cm^3 \n"%self._getDensity()     
+        strucStr += "      Density %f g/cm^3 \n"%self.getDensity()     
         strucStr += "      Lattice vectors \n"
         latvec_i = self.getLatVec()
         strucStr += "        v_i (A)  ( %f , %f , %f ) \n"%(latvec_i[0][0],latvec_i[0][1],latvec_i[0][2])
@@ -576,16 +575,14 @@ class StructureContainer:
         return self.latvec
 
 
-    def getVolume(self):
+    def getVolume_c(self):
         """
-        Calculate volume
-        NOTE: needs to consider units
-
+        Calculate volume of Orthorhombic unit cell 
         Method:
-            Volume = ( v_i x v_j ) . v_k
+            none cubic Volume = ( v_i x v_j ) . v_k
+            cubic Volume =v_i  v_j  v_k
         """
-        br1 = np.cross(self.latvec[0],self.latvec[1])
-        vol = np.dot(br1,self.latvec[2])
+        vol = self.latvec[0][0]*self.latvec[1][1]*self.latvec[2][2]
         return vol
 
 
@@ -605,190 +602,14 @@ class StructureContainer:
     #
     # Private class methods
     #
-    def _getDensity(self):
+    def getDensity(self):
         """
         Calculate density of system in AMU/A^3 and convert to g/cm^3
         NOTE: mass units contained in PtclConatiner
         """
 
-	volume_i = self.getVolume()    
+	volume_i = self.getVolume_c()    
 	total_mass_i = self.getTotMass()
 	density_i = units.convert_AMUA3_gcm3(total_mass_i/volume_i) 
 	
 	return density_i
-
-    def _getCenterOfMass(self):
-        """
-        Find center of mass of a structure
-        NOTE: needs to consider units
-
-        Return
-          r_mass (numpy array) position of the center of mass
-        """
-        import numpy as np
-
-        total_mass_i = self.getTotMass()
-        r_mass = np.array( [0.0,0.0,0.0] )
-    
-        for pid, ptclObj in self.ptclC :
-             r_mass += ptclObj.mass*np.array( ptclObj.position )
-
-        r_mass = r_mass/total_mass_i
-
-        return r_mass
-    #########################################################
-
-
-"""
-TWK: Testing removing method so pbcs module can be erased from release.
-TWK: Travis will either reimplement elsewhere or remove permanently
-        
-    def getlength(self):
-
-        Calculate length from maximum seperation between particles
-        NOTE: pbcs also calls methods from StructureContainer and this should be moved.
-        NOTE: pbcs functionality should be moved here since lattice vectors are here
-
-        Return
-          struc_len (float) 
-
-        
-        sq_maxdr = -1000000.0 
-        for p_i, ptclObj_i in self.ptclC :
-            r_i = np.array( ptclObj_i.position )
-            for p_j, ptclObj_j in self.ptclC :
-                r_j = np.array( ptclObj_j.position )
-                r_ij_sq = pbcs.sq_drij_c(r_i,r_j,self.latvec)
-                if( r_ij_sq > sq_maxdr):
-                    sq_maxdr = r_ij_sq
-
-        struc_len = np.sqrt(sq_maxdr)
-
-        return struc_len
-"""
-
-
-"""
-    def vec_shift(self,r_shift):
-
-        Shift structure by vector
-        NOTE: only called in pbcs.py
-
-        Args:
-          r_shift (numpy vector) to shift all the cordinates by
-
-    
-        for pid, ptclObj in self.ptclC :
-             r_i = np.array( ptclObj.position ) + r_shift
-             ptclObj.position = [r_i[0],r_i[1],r_i[2]]
-"""
-
-
-
-"""
-TWK: Move or re-write for hardwired x,y,z_min,max values (units problem for default numbers?)
-    def maxminLatVec(self):
-
-        Set lattice vector based on the max/min position of the particles
-
-        x_max = -100000.0
-        y_max = -100000.0
-        z_max = -100000.0
-        
-        x_min = 100000.0
-        y_min = 100000.0
-        z_min = 100000.0
-        l_max = -100000.0
-        
-        for pid, ptclObj in self.ptclC :
-
-            r_x = float(ptclObj.position[0])
-            r_y = float(ptclObj.position[1])
-            r_z = float(ptclObj.position[2])
-
-            if( r_x > x_max): x_max = r_x
-            if( r_y > y_max): y_max = r_y
-            if( r_z > z_max): z_max = r_z
-                
-            if( r_x < x_min): x_min = r_x
-            if( r_y < y_min): y_min = r_y
-            if( r_z < z_min): z_min = r_z
-
-
-        if( (x_max - x_min) > l_max ): l_max = (x_max - x_min)
-        if( (y_max - y_min) > l_max ): l_max = (y_max - y_min)
-        if( (z_max - z_min) > l_max ): l_max = (z_max - z_min)
-            
-        self.latvec[0][0] = l_max
-        self.latvec[1][1] = l_max
-        self.latvec[2][2] = l_max
-
-"""
-        
-"""
-TWK: Either remove or write test
-    def shift_center_mass(self,r_shift):
-
-        Translate center of mass of a structure to a location 
-        NOTE: keep here (maybe re-name method) only in pbcs.py
-
-        Return
-          r_shift (numpy array) position of the center of mass
-
-
-        r_mass = self.center_mass()
-        r_m_s = r_shift - r_mass
-        self.vec_shift(r_m_s)
-"""
-        
-   
-"""
-TWK: Either remove or write test
-    def rotate(self, rot_angle_i, rot_angle_j):
-
-        Rotate particles in particle container. Rotation angle i around y axis
-        and rotation angle j around z-axis
-
-        Arguments
-          rot_angle_i (float)  0 - pi 
-          rot_angle_j (float)  0 - pi 
-
-
-        import numpy as np 
-        import math
-
-        # set variables of rotation matrix
-        #   for rotation i around y axis 
-        cy = math.cos(rot_angle_i)
-        sy = math.sin(rot_angle_i)
-        #   for rotation j around z axis 
-        cz = math.cos(rot_angle_j)
-        sz = math.sin(rot_angle_j)
-
-        # loop over each particle 
-        for pid, ptclObj in self.ptclC :
-            xd = ptclObj.position[0]
-            yd = ptclObj.position[1]
-            zd = ptclObj.position[2]
-            # Apply rotation matrix i and j to get new postion 
-            r_x =  cy*cz*xd - sz*cy*yd + sy*zd 
-            r_y =  sz*xd    + cz*yd            
-            r_z = -sy*cz*xd + sy*sz*yd + cy*zd
-
-            # ptclObj.position = numpy.array( [r_x,r_y,r_z] )
-            ptclObj.position = [r_x,r_y,r_z]
-"""        
-
-"""
-TWK: dont necessarily always have chains in a structureContainer (or have tagsDict["chain"] defined) probably should remove
-    def getchainnumb(self):   # Move out of class
-
-        Return number of chains in a structure
-        NOTE: only in replicate
-
-        n_chains = 0
-        for pid, ptclObj in self.ptclC :
-            if( ptclObj.tagsDict["chain"] > n_chains): n_chains = ptclObj.tagsDict["chain"]
-
-        return n_chains
-"""
