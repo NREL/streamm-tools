@@ -7,8 +7,6 @@ Class of elements with associated atomic properties
 # Initial Date 7/01/2014
 # travis.kemper@nrel.gov
 
-import numpy 
-
 class element():
     """
     Gives the basic properties of the elements in the periodic table
@@ -204,7 +202,7 @@ class periodictable:
         elsymbol[90] =   'Th'  
         elsymbol[92] =   ' U'
 
-        ELMASS = numpy.zeros(self.maxgid+1)
+        ELMASS = [0.0]*(self.maxgid+1)
 
         ELMASS[1] =  1.0080 #  H
         ELMASS[2] =  4.0030 #  He
@@ -316,7 +314,7 @@ class periodictable:
         ELMASS[90] =  232.0380 #  Th
         ELMASS[92] =  238.0290 #  U
 
-        radi_cov = numpy.zeros(self.maxgid+1)
+        radi_cov = [1.5]*(self.maxgid+1)
 
         radi_cov[1] =  0.230 #  H
         radi_cov[2] =  1.500 #  He
@@ -417,9 +415,9 @@ class periodictable:
         radi_cov[94] =  1.870 #  Pu
         radi_cov[90] =  2.060 #  Th
         radi_cov[92] =  1.960 #  U
-        radi_cov[ 100:self.maxgid ] =  1.500
+        #radi_cov[ 100:self.maxgid ] =  1.500
 
-        radi_vdw = numpy.zeros(self.maxgid+1)
+        radi_vdw = [2.0]*(self.maxgid+1)
 
         radi_vdw[1] =  1.090 #  H
         radi_vdw[2] =  1.400 #  He
@@ -520,7 +518,7 @@ class periodictable:
         radi_vdw[94] =  2.000 #  Pu
         radi_vdw[90] =  2.000 #  Th
         radi_vdw[92] =  1.860 #  U
-        radi_vdw[100:self.maxgid] =  2.000
+        #radi_vdw[100:self.maxgid-1] =  2.000
 
         for el_indx in range(1,self.maxgid):
             symbol_i  = elsymbol[el_indx]
