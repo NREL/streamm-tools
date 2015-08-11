@@ -2,11 +2,6 @@
 Class of elements with associated atomic properties 
 """
 
-# Dr. Travis Kemper
-# NREL
-# Initial Date 7/01/2014
-# travis.kemper@nrel.gov
-
 class element():
     """
     Gives the basic properties of the elements in the periodic table
@@ -17,7 +12,11 @@ class element():
         Constructor for a element
         
         Args:
-        symbol,number,ionic_radii TRAVIS
+          symbol - atomic symbol  
+          number - atomic number  
+          mass - atomic mass  
+          cov_radii - covalent radi
+          vdw_radii - Van der Waals  radi
         """
 
         if isinstance(symbol, str):
@@ -85,7 +84,6 @@ class periodictable:
     from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
     Van der Waals  radi
     from: http://www.ccdc.cam.ac.uk/products/csd/radii/table.php4
-
     """
 
     def __init__(self):
@@ -592,7 +590,7 @@ class periodictable:
     
     def getelementWithSymbol(self,symbol_i):
         """
-        Find element based on mass  TRAVIS
+        Find element based on atomic mass  
         """
         for el_symb in self.elements:
             if( el_symb == symbol_i ):

@@ -836,40 +836,6 @@ class dihtype:
             print "3th arg theat_s should be float"
             raise TypeError
 
-
-    def setimp(self, e0, ke):
-        """
-        set Harmonic parameters
-
-        E = ? TRAVIS
-
-        Args:
-            e0     (float) 
-            kb     (float) force constant    kcal/mol
-        """
-
-        if isinstance(e0, float):
-            self.e0 = e0
-        else:
-            print "1st arg should be float"
-            raise TypeError
-
-        if isinstance(ke, float):
-            self.ke = ke
-        else:
-            print "2nd arg should be float"
-            raise TypeError
-
-    def getimp(self):
-        """
-        Get Improper parameters
-
-        Return:
-            e0     (float) 
-            kb     (float) force constant    kcal/mol
-        """
-        return self.e0, self.ke
-    
     def setopls(self,k1,k2,k3,k4):
         """
         set opls parameters
