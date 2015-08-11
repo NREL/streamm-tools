@@ -5,6 +5,14 @@
 Examples
 *************************
 
+To run these examples your PATH needs to include `tools/da_builder/`
+and your PYTHONPATH needs to include `tools/src/`. This can be done by
+sourcing `tools/config.sh` ::
+
+    source config.sh
+
+All the needed reference files and scrips are in `tools/examples/`. 
+
 Selected tools-tests
 ========================================================
 These examples are closely related to regression tests in the tools-tests repo. Each of the selections below is available as
@@ -31,21 +39,18 @@ the command line by e.g. ::
 Molecular generation and replication 
 ========================================================
 
+These examples create molecular structures files, and input files for
+`Gaussian <http://www.gaussian.com/>`_ , `GROMACS
+<http://www.gromacs.org/>`_  and `LAMMPS <http://lammps.sandia.gov/>`_
+by reading in reference structures from  the `BuildingBlocks-release`
+repository and reference force-field parameters from `conj.itp`.
+The `BuildingBlocks-release` repository clonned manually or using ::
+     
+     ./examples_setup.sh
 
-To run these examples the reference coordinate files in the
-BuildingBlocks-release repo are needed, your PATH needs to include
-`tools/da_builder/`  and your PYTHONPATH needs to include `tools/src/`
-needs to set correctly to include . By running::
-
-   source config.sh
-
-in the tools directory and::
-
-   examples_setup.sh
-
-in the directory where you are running the examples. The functionality
-of :ref:`donoracceptorsystems.py<donoracceptorsystems>` will be tested
-and the BuildingBlocks-release repo will be cloned in your current directory. 
+which will also check that
+:ref:`donoracceptorsystems.py<donoracceptorsystems>` is in your `PATH`
+and that all the needed scripts are in your directory. 
 
 .. toctree::
    :maxdepth: 1

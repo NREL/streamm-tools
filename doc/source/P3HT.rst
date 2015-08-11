@@ -4,7 +4,13 @@ This entire example can be executed by running::
 
    P3HT.sh
 
-in tools/examples
+in `tools/examples`. Needed files and scripts are 
+
+*  donoracceptor.com.template
+*  donoracceptor.pbs.template 
+*  conj.itp      
+*  xyz2data.py
+*  xyz2gromacs.py
 
 P3HT 
 -------------------------------------------------------

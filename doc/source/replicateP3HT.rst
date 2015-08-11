@@ -5,8 +5,13 @@ This entire example can be executed by running::
 
    replicateP3HT.sh
 
-in tools/examples
+in `tools/examples`. Needed files and scripts are 
 
+*  replicate_data.py
+
+This example requires output from previous examples
+
+* :ref:`P3HT <P3HT>` 
 
 Replicate a P3HT for an MD run
 -------------------------------------------------------
@@ -24,9 +29,6 @@ the 2 axes.  Then distance between that added particles of the
 copied structure and all the particles in the system is calculated
 to be sure no 2 structures overlap each other. 
 
-This example requires output from previous examples
-
-* :ref:`P3HT <P3HT>` 
 
 Run::
 
