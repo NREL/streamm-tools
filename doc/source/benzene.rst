@@ -13,7 +13,7 @@ in `tools/examples`. Needed files and scripts are
 *  xyz2data.py
 *  xyz2gromacs.py
 
-Benzenean
+Benzene
 -------------------------------------------------------
 
 *Generate structure and quantum input*
@@ -30,11 +30,11 @@ this creates the file::
 which is just a file containing the Cartesian coordinates of a
 benzene molecule.  You can view with your favorite viewer. The -r
 option is set to 1 to generate a single molecule rather than an
-oligomer. ::
+oligomer. The `Gaussian <http://www.gaussian.com/>`_  .com  ::
 
    mols/benzene/acc1_benzene_n1.com
 
-which is the `Gaussian <http://www.gaussian.com/>`_  input file based on "donoracceptor.com.template"::
+is based on "donoracceptor.com.template"::
 
    mols/benzene/acc1_benzene_n1.pbs
 

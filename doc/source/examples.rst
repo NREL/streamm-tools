@@ -7,11 +7,11 @@ Examples
 
 To run these examples your PATH needs to include `tools/da_builder/`
 and your PYTHONPATH needs to include `tools/src/`. This can be done by
-sourcing `tools/config.sh` ::
+running::
 
     source config.sh
 
-All the needed reference files and scrips are in `tools/examples/`. 
+in `tools/`. All the needed reference files and scrips are in `tools/examples/`. 
 
 Selected tools-tests
 ========================================================

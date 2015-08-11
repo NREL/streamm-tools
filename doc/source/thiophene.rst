@@ -28,11 +28,11 @@ this creates the file::
    mols/thiophene/acc1_thiophene_n1.xyz
 
 which is just a file containing the Cartesian coordinates of a
-thiophene molecule.  You can view with your favorite viewer. The -r option is set to 1 to generate a single molecule rather than an oligomer::
+thiophene molecule.  You can view with your favorite viewer. The -r option is set to 1 to generate a single molecule rather than an oligomer.  The `Gaussian <http://www.gaussian.com/>`_  .com  ::
 
    mols/thiophene/acc1_thiophene_n1.com
 
-which is the `Gaussian <http://www.gaussian.com/>`_  input file based on "donoracceptor.com.template"::
+is based on "donoracceptor.com.template"::
 
    mols/thiophene/acc1_thiophene_n1.pbs
 
