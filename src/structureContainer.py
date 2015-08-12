@@ -579,8 +579,7 @@ class StructureContainer:
         """
         Calculate volume of Orthorhombic unit cell 
         Method:
-            none cubic Volume = ( v_i x v_j ) . v_k
-            cubic Volume =v_i  v_j  v_k
+        none cubic Volume = ( v_i x v_j ) . v_k / cubic Volume =v_i  v_j  v_k
         """
         vol = self.latvec[0][0]*self.latvec[1][1]*self.latvec[2][2]
         return vol
