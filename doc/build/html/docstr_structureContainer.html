@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>StructureContainer Class API &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
+    <link rel="up" title="STREAMM code description" href="framework_design.html" />
+    <link rel="next" title="Simulation Class API" href="docstr_simulation.html" />
+    <link rel="prev" title="Improper Class API" href="docstr_impropers.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="index.html"><img src="_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          STREAMM-Tools</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Installation / Getting starting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="framework_design.html">STREAMM code description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">StructureContainer Class API</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="docstr_impropers.html" title="Previous Chapter: Improper Class API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Improper Class A...</span>
+    </a>
+  </li>
+  <li>
+    <a href="docstr_simulation.html" title="Next Chapter: Simulation Class API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Simulation Class... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/docstr_structureContainer.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><ul>
+<li><a class="reference internal" href="#">StructureContainer Class API</a></li>
+</ul>
+
+  <li>
+    <a href="docstr_impropers.html" title="Previous Chapter: Improper Class API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Improper Class A...</span>
+    </a>
+  </li>
+  <li>
+    <a href="docstr_simulation.html" title="Next Chapter: Simulation Class API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Simulation Class... &raquo;</span>
+    </a>
+  </li>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-12">
+      
+  <span class="target" id="docstr-structurecontainer"></span><div class="section" id="module-structureContainer">
+<span id="structurecontainer-class-api"></span><span id="index-0"></span><h1>StructureContainer Class API<a class="headerlink" href="#module-structureContainer" title="Permalink to this headline">¶</a></h1>
+<p>Class data structures for atomic data</p>
+<dl class="class">
+<dt id="structureContainer.StructureContainer">
+<em class="property">class </em><code class="descclassname">structureContainer.</code><code class="descname">StructureContainer</code><span class="sig-paren">(</span><em>ptclC=None</em>, <em>bondC=None</em>, <em>angleC=None</em>, <em>dihC=None</em>, <em>impC=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data structure for describing a collection of Particles that have associated
+Bond, Angle, Dihedral descriptions</p>
+<p>The contained ParticleContainer object has a special role... this object is a
+dictionary that tracks the globalIDs for all particles in this Structure.</p>
+<p>GlobalIDs for a structure should be unique. All gid-s referred to by the
+BondContainer, AngleContainer etc should be consistent.</p>
+<p>This class will also contain data related to global parameters for a simulation
+(eg box length, pressure, temperature.....)</p>
+<dl class="method">
+<dt id="structureContainer.StructureContainer.compressPtclIDs">
+<code class="descname">compressPtclIDs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.compressPtclIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.compressPtclIDs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace all particle IDs such that if there are N particles in structure
+the particle ID&#8217;s run from 1...N. Tracks these changes
+for all other (bond, angle, dihedral) containers that reference particleIDs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><em>filePrefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a pickled version of this object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filePrefix (str): name of pickle file. will dump filePrefix.pkl</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.expandLatVec">
+<code class="descname">expandLatVec</code><span class="sig-paren">(</span><em>percent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.expandLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.expandLatVec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand lattice vector by a certain percent
+NOTE: needs to consider units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getBoxLengths">
+<code class="descname">getBoxLengths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getBoxLengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getBoxLengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return: list of cartesian box lengths [units ?]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getDensity">
+<code class="descname">getDensity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getDensity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate density of system in AMU/A^3 and convert to g/cm^3
+NOTE: mass units contained in PtclConatiner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getLatVec">
+<code class="descname">getLatVec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getLatVec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get lattice vector
+NOTE: needs to consider units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getPtclNum">
+<code class="descname">getPtclNum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getPtclNum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getPtclNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of particles in a structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getPtclPositions">
+<code class="descname">getPtclPositions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getPtclPositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getPtclPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of indexed particle positions</p>
+<dl class="docutils">
+<dt>Return: (list) [ [1, 0.5, 0.1, 12.0],</dt>
+<dd>[2, 0.4, 33.3, -0.1] .....]</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getSubStructure">
+<code class="descname">getSubStructure</code><span class="sig-paren">(</span><em>ptclIDList</em>, <em>particlesOnly=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getSubStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getSubStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Structure object with partcleID&#8217;s in input list
+Preserves IDs of particles (and any bonds, angles, dihedrals...)
+Bonds, angles, dihedrals... etc are included if and ONLY if all the
+particles of which it consists is in the ptclIDList</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ptclIDList    (list): global particles ID&#8217;s for which to return structure
+particlesOnly (bool): Flag for including ParticleContainer only (executes faster) Default includes any angles, bonds, dihedrals</dd>
+<dt>Return:</dt>
+<dd>New StructureContainer() object. IDs in new object are unique</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getTotMass">
+<code class="descname">getTotMass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getTotMass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getTotMass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate total mass of system 
+NOTE: needs to consider units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.getVolume_c">
+<code class="descname">getVolume_c</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.getVolume_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.getVolume_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate volume of Orthorhombic unit cell 
+Method:
+none cubic Volume = ( v_i x v_j ) . v_k / cubic Volume =v_i  v_j  v_k</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.readOutput">
+<code class="descname">readOutput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.readOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.readOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that reads in an external output file and populates an instance
+of this class object</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def readOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.restore">
+<code class="descname">restore</code><span class="sig-paren">(</span><em>pickleName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore state of object from a pickled file. Sets information
+in an instance of this class</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pickleName (str): Complete name of pickle file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.setBoxLengths">
+<code class="descname">setBoxLengths</code><span class="sig-paren">(</span><em>bLs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.setBoxLengths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.setBoxLengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set length of cartesian box size... [ [xmin, xmax], [ymin, ymax]...]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>bLs (list) box lengths (x,y,z) values</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.setLatVec">
+<code class="descname">setLatVec</code><span class="sig-paren">(</span><em>latvec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.setLatVec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.setLatVec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set lattice vector</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>latvec (list): 3-element lattice vector</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.setPtclPositions">
+<code class="descname">setPtclPositions</code><span class="sig-paren">(</span><em>ptclPosList</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.setPtclPositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.setPtclPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset all particle positions from an indexed list</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>ptclPosList (list) [ [1, 0.5, 0.1, 12.0],</dt>
+<dd>[2, 0.4, 33.3, -0.1] .....]</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="structureContainer.StructureContainer.writeInput">
+<code class="descname">writeInput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/structureContainer.html#StructureContainer.writeInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#structureContainer.StructureContainer.writeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that writes an input file based on the internal attributes of an instance
+of the StructureContainer</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def writeOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+    
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen, Dr. Peter Graf.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

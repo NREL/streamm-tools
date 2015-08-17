@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Simulation Class API &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
+    <link rel="up" title="STREAMM code description" href="framework_design.html" />
+    <link rel="next" title="simulationLAMMPS1 Class API" href="docstr_simulationLAMMPS1.html" />
+    <link rel="prev" title="StructureContainer Class API" href="docstr_structureContainer.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="index.html"><img src="_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          STREAMM-Tools</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Installation / Getting starting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="framework_design.html">STREAMM code description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Simulation Class API</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="docstr_structureContainer.html" title="Previous Chapter: StructureContainer Class API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; StructureContain...</span>
+    </a>
+  </li>
+  <li>
+    <a href="docstr_simulationLAMMPS1.html" title="Next Chapter: simulationLAMMPS1 Class API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">simulationLAMMPS... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/docstr_simulation.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><ul>
+<li><a class="reference internal" href="#">Simulation Class API</a></li>
+</ul>
+
+  <li>
+    <a href="docstr_structureContainer.html" title="Previous Chapter: StructureContainer Class API"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; StructureContain...</span>
+    </a>
+  </li>
+  <li>
+    <a href="docstr_simulationLAMMPS1.html" title="Next Chapter: simulationLAMMPS1 Class API"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">simulationLAMMPS... &raquo;</span>
+    </a>
+  </li>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-12">
+      
+  <span class="target" id="docstr-simulation"></span><div class="section" id="module-simulation">
+<span id="simulation-class-api"></span><span id="index-0"></span><h1>Simulation Class API<a class="headerlink" href="#module-simulation" title="Permalink to this headline">¶</a></h1>
+<p>Class data structures for simulation data</p>
+<dl class="class">
+<dt id="simulation.Simulation">
+<em class="property">class </em><code class="descclassname">simulation.</code><code class="descname">Simulation</code><span class="sig-paren">(</span><em>name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data structure for describing how a simulation can be performed.
+The attributes stored can be used by a caller to construct/gather the
+appropriate components to run a simulation.</p>
+<p>There will be a tight coupling between objects of this class and the
+StructureContainer objects. Information from the StructureContainer objects
+will in general be used as part of the input to a simulation generated
+by using the data from this object</p>
+<p>A template directory can be set. This is a common location for derived classes
+to access any template files needed to setup simulation</p>
+<p>NOTE:
+1. This is not the simulation code itself and does no calculations.</p>
+<dl class="method">
+<dt id="simulation.Simulation.copyStructureContainerInto">
+<code class="descname">copyStructureContainerInto</code><span class="sig-paren">(</span><em>strucC</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.copyStructureContainerInto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.copyStructureContainerInto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the structure container. Deep copy performed,
+so that external changes to structure container are not
+reflected here.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.createSimulation">
+<code class="descname">createSimulation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.createSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.createSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for existence of a top level simulation directory and writes out
+all files needed for running a simulation.</p>
+<p>Files copied/output are contained in the attribute &#8216;inputFileNames&#8217;.</p>
+<p>In principle many input files/scripts could be copied to this location.
+If directory not found, then directory is created. Directory is creating
+from top level of where this class is executed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.getSimName">
+<code class="descname">getSimName</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.getSimName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.getSimName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return name used to create the simulation object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.printStruc">
+<code class="descname">printStruc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.printStruc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.printStruc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump contents of held structure container</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.readOutput">
+<code class="descname">readOutput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.readOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.readOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that reads in an external output file and populates an instance
+of this class object</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def readOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.setStructureContainer">
+<code class="descname">setStructureContainer</code><span class="sig-paren">(</span><em>strucC</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.setStructureContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.setStructureContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setter for the structure container.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.setTemplateDir">
+<code class="descname">setTemplateDir</code><span class="sig-paren">(</span><em>tdir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.setTemplateDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.setTemplateDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set template directory location</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.Simulation.writeInput">
+<code class="descname">writeInput</code><span class="sig-paren">(</span><em>fileName</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulation.html#Simulation.writeInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.Simulation.writeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the &#8216;effective&#8217; base class interface for a method
+that writes an input file based on the internal attributes of an instance
+of the Simulation object</p>
+<p>This method should be redefined for each kind of file types
+(typically defined by simulation version eg LAMMPS, Gaussian etc)
+The derived classes must implement the following:</p>
+<p>def writeOutput(self, fileName):
+...
+...
+return None</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fileName (str) string of filename to input</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+    
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen, Dr. Peter Graf.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

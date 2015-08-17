@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Replicate a P3HT for an MD run &mdash; STREAMM-Tools 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="STREAMM-Tools 1.0.0 documentation" href="index.html" />
+    <link rel="up" title="Examples" href="examples.html" />
+    <link rel="next" title="Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run" href="replicateP3HTC60benzene.html" />
+    <link rel="prev" title="P3HT" href="P3HT.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+  
+<a href="index.html"><img src="_static/logo.png" border="0" alt="sampledoc"/></a>
+</div>
+
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          STREAMM-Tools</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.0.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Installation / Getting starting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework_design.html">STREAMM code description</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Replicate a P3HT for an MD run</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="P3HT.html" title="Previous Chapter: P3HT"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; P3HT</span>
+    </a>
+  </li>
+  <li>
+    <a href="replicateP3HTC60benzene.html" title="Next Chapter: Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Replicate a P3HT... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/replicateP3HT.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><ul>
+<li><a class="reference internal" href="#">Replicate a P3HT for an MD run</a></li>
+</ul>
+
+  <li>
+    <a href="P3HT.html" title="Previous Chapter: P3HT"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; P3HT</span>
+    </a>
+  </li>
+  <li>
+    <a href="replicateP3HTC60benzene.html" title="Next Chapter: Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Replicate a P3HT... &raquo;</span>
+    </a>
+  </li>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-12">
+      
+  <p id="replicatep3ht">This entire example can be executed by running:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">replicateP3HT</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>in <cite>tools/examples</cite>. Needed files and scripts are</p>
+<ul class="simple">
+<li>replicate_data.py</li>
+</ul>
+<p>This example requires output from previous examples</p>
+<ul class="simple">
+<li><a class="reference internal" href="P3HT.html#p3ht"><em>P3HT</em></a></li>
+</ul>
+<div class="section" id="replicate-a-p3ht-for-an-md-run">
+<h1>Replicate a P3HT for an MD run<a class="headerlink" href="#replicate-a-p3ht-for-an-md-run" title="Permalink to this headline">¶</a></h1>
+<p>In this example a we use the <code class="docutils literal"><span class="pre">replicate_data.py</span></code> script to read in
+the structure from a <a class="reference external" href="http://lammps.sandia.gov/doc/2001/data_format.html">.data</a> file and
+replicate the structure in space in two ways.</p>
+<p>The first method is the default and chooses a random point within the
+box dimensions specified in the <a class="reference external" href="http://lammps.sandia.gov/doc/2001/data_format.html">.data</a>  file and places a copied
+structure at that point after randomly rotating the structure along
+the 2 axes.  Then distance between that added particles of the
+copied structure and all the particles in the system is calculated
+to be sure no 2 structures overlap each other.</p>
+<p>Run:</p>
+<div class="highlight-python"><div class="highlight"><pre>replicate_data.py --mol_n 10
+--in_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
+--out_data  mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10.data
+--out_xyz mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10.xyz
+</pre></div>
+</div>
+<p>this creates the files:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mols</span><span class="o">/</span><span class="n">thiophene_R_hexane_</span><span class="o">/</span><span class="n">acc1_thiophene_R_hexane__n5x10</span><span class="o">.</span><span class="n">data</span>
+<span class="n">mols</span><span class="o">/</span><span class="n">thiophene_R_hexane_</span><span class="o">/</span><span class="n">acc1_thiophene_R_hexane__n5x10</span><span class="o">.</span><span class="n">xyz</span>
+</pre></div>
+</div>
+<p>The new <a class="reference external" href="http://lammps.sandia.gov/doc/2001/data_format.html">.data</a>  file with 10
+molecules randomly placed and randomly oriented.</p>
+<p>The second method is to place the molecular structures on a grid.</p>
+<p>Run:</p>
+<div class="highlight-python"><div class="highlight"><pre>replicate_data.py --mol_n 10 --grid
+--in_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.data
+--out_data mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10_g.data
+--out_xyz mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5x10_g.xyz
+</pre></div>
+</div>
+<p>this creates the files:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mols</span><span class="o">/</span><span class="n">thiophene_R_hexane_</span><span class="o">/</span><span class="n">acc1_thiophene_R_hexane__n5x10_g</span><span class="o">.</span><span class="n">data</span>
+<span class="n">mols</span><span class="o">/</span><span class="n">thiophene_R_hexane_</span><span class="o">/</span><span class="n">acc1_thiophene_R_hexane__n5x10_g</span><span class="o">.</span><span class="n">xyz</span>
+</pre></div>
+</div>
+<p>The new <a class="reference external" href="http://lammps.sandia.gov/doc/2001/data_format.html">.data</a>  file with 10
+molecules placed on grid in the box defined by the original <a class="reference external" href="http://lammps.sandia.gov/doc/2001/data_format.html">.data</a> file. The grid
+method has the advantage on not need to calculate the inter-particle
+distances, so it is much faster.</p>
+</div>
+
+
+    </div>
+    
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen, Dr. Peter Graf.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
