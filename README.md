@@ -20,4 +20,22 @@ File structure:
 - scripts    -- High-level drivers using tools/src code
 - src        -- Main classes implementing the STREAMM tools functionality
 
-Test line
+********************************
+Development/Release workflow
+********************************
+
+1. Develop in a branch
+
+2. Merge necessary branches into master
+
+3. Test master and update docs
+
+4. Once ready for a new release, tag the master branch
+   *  git tag -a v1.1.4 -m "Give release a descriptive name"
+   *  git push origin --tags
+
+5. Push master and tags for repo to external NREL github
+   *  git remote add streamm-tools  https://github.com/NREL/streamm-tools.git
+   *  git push -u streamm-tools  master
+   *  git push -u streamm-tools  v1.1.4
+   *  git remote rm -u streamm-tools
