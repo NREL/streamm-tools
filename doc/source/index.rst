@@ -31,3 +31,10 @@ Contents
    framework_design.rst
    examples.rst
    applications.rst
+
+
+*****************
+Release Notes
+*****************
+
+v1.0.0 -- August 28 2015 -- Initial release
