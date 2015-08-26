@@ -4,13 +4,8 @@
 """externals
 
 Created by kurt on 2014-07-23
+Edited by Scott Sides between 2014-08-01 and 2015-08-31
 
-USAGE
-========
-Place in your git repo root
-Edit the external list
-Then run the command:
-  externals
 
 
 About
@@ -25,11 +20,59 @@ import time
 import re
 import shutil
 import subprocess
+from optparse import OptionParser
 
 
-externals = [
+#############################################################################
+# Command line option parse
+
+parser = OptionParser()
+usage = """
+
+%prog [options]
+
+     Manages pulling external git repos into project
+     Default is to pull from the github.com/NREL external site
+
+     Place in your git repo root, edit the external list, then run the command: externals
+
+     Version flags are (default is external_git)
+       * internal_git
+       * external_git
+"""
+parser.set_usage(usage)
+
+parser.add_option("--version",
+                  dest="versionStr",
+                  default='external_git',
+                  type="string",
+                  help="Chooses internal/external github versions of repo. Release versions should be external \n")
+
+# Acessing options
+(options,args) = parser.parse_args()
+versionStr     = options.versionStr
+#############################################################################
+
+
+
+NRELinternal_externals = [
 ('./BuildingBlocks-release','git@github.nrel.gov:streamm/BuildingBlocks-release.git'),
 ]
+
+NRELexternal_externals = [
+('./BuildingBlocks-release','http://github.com/NREL/streamm-BuildingBlocks-release.git'),
+]
+
+#
+# Choosing version repo flag
+#
+if ( versionStr == 'internal_git' ):
+    externals = NRELinternal_externals
+elif ( versionStr == 'external_git' ):
+    externals = NRELexternal_externals
+else:
+    print "Repo version string not recognized"
+    sys.exit(0)
 
 
 def pull_externals():

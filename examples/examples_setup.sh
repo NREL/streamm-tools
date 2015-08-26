@@ -47,7 +47,11 @@ do
 
 done
 
-pull_BuildingBlocks.py
+#
+# Select version of repo
+#
+#pull_BuildingBlocks.py internal-git
+pull_BuildingBlocks.py external-git
 
 echo " "
 echo "================================================================================"

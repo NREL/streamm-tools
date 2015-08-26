@@ -18,7 +18,6 @@ $TOP_PATH/src/cleanpath.py
 echo " "
 source clean-PYTHONPATH.sh
 source clean-PATH.sh
-# source clean-TOOLS_PATH.sh
 rm -rf clean-*PATH.sh
 
 #
@@ -32,10 +31,6 @@ PATH=$TOP_PATH/src:$PATH
 PATH=$TOP_PATH/da_builder:$PATH
 PATH=./:$PATH
 export PATH
-
-# For external tools-tests path
-# TOOLS_PATH=$TOP_PATH
-# export TOOLS_PATH
 
 echo " "
 echo "Setting PYTHONPATH = $PYTHONPATH"
