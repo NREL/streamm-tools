@@ -648,12 +648,13 @@ class BuildingBlocks:
         self.allspacerres, self.allspacerresname, self.allspacerresdict = load_one_dir(resdir, False, "spacer_functional_groups", subsets_dict, True)
         self.allterm, self.alltermname, self.alltermdict = load_one_dir(termdir, True, "terminals", subsets_dict, True)
         self.allspacer, self.allspacername, self.allspacerdict = load_one_dir(spacerdir, True, "spacers", subsets_dict, True)
-
-
-        # Hack TWK TRAVIS
+        #
         # Add molecules to donors
         #    this is done so molecule exist in a different directory so they will not be called by enumerate.py
         #    but can be found when running donoracceptorsystems.py
+        # 
+        # TWK TRAVIS
+        # 
         moldir = "%s/fullerene" % (bbdir)
         self.allmol, self.allmolname, self.allmoldict = load_one_dir(moldir, True, "mols", subsets_dict, True)
         for key,val in self.allmoldict.iteritems():
