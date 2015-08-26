@@ -331,11 +331,11 @@ class BondContainer:
 
     def getTypeInfoDict(self):
         """
-        Return a map of type to (typeIndex, ??????)
+        Return a map of type to typeIndex
         Method assigns a type index and checkes for consistency
 
         Returns:
-            dictionary of {type:[typeIndex, ????], ....}
+            dictionary
         """
 
         # Look for types and get unique list
