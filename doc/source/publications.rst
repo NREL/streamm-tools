@@ -6,6 +6,8 @@ Publications
 
 - Larsen, R. E.; Kemper, T. W; Sides, S. W.; et al., "High throughput combinatorial study of organic photovoltaic polymer materials", in preparation.
 
+- Larsen, R. E., "Fragment frontier orbital model to extrapolate the electronic structure of conjugated oligomers to the polymer limit", in preparation.
+
 - Oosterhout, S. D.; Kopidakis, N.; Owczarczyk, Z. R.; Braunecker, W. A.; Larsen, R. E.; Ratcliff, E. L.; Olson, D. C., "Integrating Theory, Synthesis, Spectroscopy and Device Efficiency to Design and Characterize Donor Materials for Organic Photovoltaics: a Case Study Including 12 Donors", *J. Mater. Chem. A* **2015**, 3, 9777–9788.
 
 - Braunecker, W. A.; Oosterhout, S. D.; Owczarczyk, Z. R.; Larsen, R. E.; Larson, B. W.; Ginley, D. S.; Boltalina, O. V.; Strauss, S. H.; Kopidakis, N.; Olson, D. C., "Ethynylene-Linked Donor–Acceptor Alternating Copolymers", *Macromolecules* **2013**, 46, 3367–3375.
