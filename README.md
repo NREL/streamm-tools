@@ -38,4 +38,4 @@ Development/Release workflow
    *  git remote add streamm-tools  https://github.com/NREL/streamm-tools.git
    *  git push -u streamm-tools  master
    *  git push -u streamm-tools  v1.1.4
-   *  git remote rm -u streamm-tools
+   *  git remote rm streamm-tools
