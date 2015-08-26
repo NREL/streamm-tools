@@ -14,9 +14,8 @@ Publications
 
 - Braunecker, W. A.; Owczarczyk, Z. R.; Garcia, A.; Kopidakis, N.; Larsen, R. E.; Hammond, S. R.; Ginley, D. S.; Olson, D. C., "Benzodithiophene and Imide-Based Copolymers for Photovoltaic Applications", *Chem. Mater.* **2012**, 24, 1346–1356.
 
-*************************
 In preparation
-*************************
+---------------
 
 - Larsen, R. E.; Kemper, T. W; Sides, S. W.; et al., "High throughput combinatorial study of organic photovoltaic polymer materials", in preparation.
 
