@@ -18,10 +18,10 @@ This example requires output from previous examples
 Replicate a P3HT and C60 molecule with benzene as a solvent for an MD run
 --------------------------------------------------------------------------------------------------------------
 
-In this example a we use the ``replicate_multimol.py`` script to read in
+TRAVIS: fix all nearby text
+In this example a we use the replicate_multimol.py script to read in
 the structure from a `.data
-<http://lammps.sandia.gov/doc/2001/data_format.html>`_ files of a
-P3HT,  C60 and benzene.
+<http://lammps.sandia.gov/doc/2001/data_format.html>`_ files of a P3HT,  C60 and benzene.
 
 Run::
 
