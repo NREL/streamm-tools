@@ -16,11 +16,11 @@
               mols/thiophene/acc1_thiophene_n5.xyz
      ========================================================================
      "
-     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 5
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks -r 5
 
-     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release    -r 5 -p "0"
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks -r 5 -p "0"
 
-     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release   -r 5  -p "180 0 "
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks -r 5  -p "180 0 "
 
 # Generate topology  files for oligothiophene
     echo " 

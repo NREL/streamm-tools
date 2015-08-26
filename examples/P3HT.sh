@@ -17,7 +17,7 @@
               mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz
      ========================================================================
      "
-    donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "140 40"
+    donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks -r 5 -p "140 40"
 #else
 #    echo " 
 ##     ========================================================================

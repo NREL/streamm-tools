@@ -56,23 +56,28 @@ versionStr     = options.versionStr
 
 
 NRELinternal_externals = [
-('./BuildingBlocks-release','git@github.nrel.gov:streamm/BuildingBlocks-release.git'),
+('./BuildingBlocks','git@github.nrel.gov:streamm/BuildingBlocks-release.git'),
 ]
 
 NRELexternal_externals = [
-('./BuildingBlocks-release','http://github.com/NREL/streamm-BuildingBlocks-release.git'),
+('./BuildingBlocks','http://github.com/NREL/streamm-BuildingBlocks.git'),
 ]
 
 #
 # Choosing version repo flag
 #
 if ( versionStr == 'internal_git' ):
+    print "-------------- PULLING INTERNAL REPO (DO NOT RELEASE) -------------------- "
     externals = NRELinternal_externals
+    print "-------------- PULLING INTERNAL REPO (DO NOT RELEASE) -------------------- "
+
 elif ( versionStr == 'external_git' ):
     externals = NRELexternal_externals
+
 else:
     print "Repo version string not recognized"
     sys.exit(0)
+
 
 
 def pull_externals():

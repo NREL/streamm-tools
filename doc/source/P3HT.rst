@@ -21,7 +21,7 @@ P3HT
 Generate a .xyz file, a `Gaussian <http://www.gaussian.com/>`_ .com input file and a submission
 script ".pbs"  for thiophene by running ::
 
-   donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "180 0 "
+   donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks -r 5 -p "180 0 "
 
 will generate oligomers  with n=1-5 repeat units with sulfurs of
 thiophene in the trans configuration, see :ref:`Oligo-thiophene <oligothiophene>` for -p
@@ -33,7 +33,7 @@ usage ::
 
 However, the alkyl chains end up overlapping ::
 
-   donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks-release -r 5 -p "140 40"
+   donoracceptorsystems.py  "thiophene  ( R_hexane  )" -b  BuildingBlocks -r 5 -p "140 40"
 
 increases the inter-ring dihedral angle to remove the overlap between
 alkyl chains. The `Gaussian <http://www.gaussian.com/>`_  input files are also created for each oligomer::

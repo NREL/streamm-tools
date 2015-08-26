@@ -15,7 +15,7 @@
               mols/C60/acc1_C60_n1.xyz
      ========================================================================
      "
-     donoracceptorsystems.py  "C60" -b BuildingBlocks-release  -r 1 
+     donoracceptorsystems.py  "C60" -b BuildingBlocks  -r 1 
 
 # Generate topology  files for C60
     echo " 

@@ -42,9 +42,9 @@ Molecular generation and replication
 These examples create molecular structures files, and input files for
 `Gaussian <http://www.gaussian.com/>`_ , `GROMACS
 <http://www.gromacs.org/>`_  and `LAMMPS <http://lammps.sandia.gov/>`_
-by reading in reference structures from  the `BuildingBlocks-release`
+by reading in reference structures from  the `BuildingBlocks`
 repository and reference force-field parameters from `conj.itp`.
-The `BuildingBlocks-release` repository clonned manually or using ::
+The `BuildingBlocks` repository clonned manually or using ::
      
      ./examples_setup.sh
 

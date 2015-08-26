@@ -21,7 +21,7 @@ Thiophene
 Generate a .xyz file, a `Gaussian <http://www.gaussian.com/>`_  .com input file and a submission
 script ".pbs"  for thiophene by running ::
 
-   donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 1 
+   donoracceptorsystems.py  "thiophene" -b BuildingBlocks  -r 1 
 
 this creates the file::
 

@@ -50,8 +50,8 @@ done
 #
 # Select version of repo
 #
-#pull_BuildingBlocks.py internal-git
-pull_BuildingBlocks.py external-git
+pull_BuildingBlocks.py --version internal_git
+# pull_BuildingBlocks.py --version external_git
 
 echo " "
 echo "================================================================================"

@@ -21,7 +21,7 @@ C60
 Generate a .xyz file, a `Gaussian <http://www.gaussian.com/>`_  .com input file and a submission
 script ".pbs"  for C60 by running ::
 
-   donoracceptorsystems.py  "C60" -b BuildingBlocks-release  -r 1 
+   donoracceptorsystems.py  "C60" -b BuildingBlocks  -r 1 
 
 this creates the file::
 

@@ -21,7 +21,7 @@ Oligo-thiophene
 Generate a .xyz file, a `Gaussian <http://www.gaussian.com/>`_ .com input file and a submission
 script ".pbs"  for thiophene by running ::
 
-   donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 5
+   donoracceptorsystems.py  "thiophene" -b BuildingBlocks  -r 5
 
 will generate oligomer of thiophene with n=1-5 repeat units::
 
@@ -35,13 +35,13 @@ you will notice that the angles between repeat units is rather
 random. In order to control the angle between units use the -p
 function::
 
-   donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  
+   donoracceptorsystems.py  "thiophene" -b BuildingBlocks  
       -r 5 -p "0"
 
 sets the inter-ring dihedral angle to zero making the sulfurs of
 thiophene in the cis configuration ::
 
-   donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  
+   donoracceptorsystems.py  "thiophene" -b BuildingBlocks
       -r 5  -p "180 0 "
 
 sets the inter-ring dihedral angle to alternate between zero and 180

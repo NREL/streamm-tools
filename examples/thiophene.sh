@@ -15,7 +15,7 @@
               mols/thiophene/acc1_thiophene_n1.xyz
      ========================================================================
      "
-     donoracceptorsystems.py  "thiophene" -b BuildingBlocks-release  -r 1 
+     donoracceptorsystems.py  "thiophene" -b BuildingBlocks  -r 1 
 
 # Generate topology  files for thiophene
     echo " 

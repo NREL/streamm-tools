@@ -21,7 +21,7 @@ Benzene
 Generate a .xyz file, a `Gaussian <http://www.gaussian.com/>`_  .com input file and a submission
 script ".pbs"  for benzene by running ::
 
-   donoracceptorsystems.py  "benzene" -b BuildingBlocks-release  -r 1 
+   donoracceptorsystems.py  "benzene" -b BuildingBlocks  -r 1 
 
 this creates the file::
 

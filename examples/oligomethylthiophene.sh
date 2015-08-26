@@ -16,7 +16,7 @@
               mols/thiophene_R_methane_/acc1_thiophene_R_methane__n5.xyz
      ========================================================================
      "
-     donoracceptorsystems.py  "thiophene  ( R_methane  )" -b  BuildingBlocks-release -r 5 -p "180 0 "
+     donoracceptorsystems.py  "thiophene  ( R_methane  )" -b  BuildingBlocks -r 5 -p "180 0 "
 
 # Generate topology  files for oligomethylthiophene
     echo " 

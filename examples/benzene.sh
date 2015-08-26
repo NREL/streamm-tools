@@ -15,7 +15,7 @@
               mols/benzene/acc1_benzene_n1.xyz
      ========================================================================
      "
-     donoracceptorsystems.py  "benzene" -b BuildingBlocks-release  -r 1 
+     donoracceptorsystems.py  "benzene" -b BuildingBlocks  -r 1 
 
 # Generate topology  files for benzene
     echo " 
