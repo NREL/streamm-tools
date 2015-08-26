@@ -343,16 +343,14 @@ class AngleContainer:
                 angle.pgid3 = toID
 
 
-
+    # SWS: needs test
     def getTypeInfoDict(self):
         """
-        Return a map of type to (typeIndex, ??????)
+        Return a map of type to typeIndex
         Method assigns a type index and checkes for consistency
 
-        NOTE: not tested
-
         Returns:
-            dictionary of {type:[typeIndex, ????], ....}
+            dictionary
         """
 
         # Look for types and get unique list
