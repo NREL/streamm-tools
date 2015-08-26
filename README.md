@@ -39,3 +39,9 @@ Development/Release workflow
    *  git push -u 'name-of-repo'  master
    *  git push -u 'name-of-repo'  v1.1.4
    *  git remote rm 'name-of-repo'
+
+6. Making documentation available
+   * Develop docs in master (as always)
+   * Assuming step 5 complete and streamm-tools repo has been updated with tagged version
+   * Email Toby Walhers to git pull from the tagged version on the external site
+   * Toby will build and publish docs
