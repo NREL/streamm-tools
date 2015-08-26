@@ -30,12 +30,12 @@ Development/Release workflow
 
 3. Test master and update docs
 
-4. Once ready for a new release, tag the master branch
+4. Once ready for a new release, tag the master branch (version number is actual example)
    *  git tag -a v1.1.4 -m "Give release a descriptive name"
    *  git push origin --tags
 
 5. Push master and tags for repo to external NREL github
-   *  git remote add streamm-tools  https://github.com/NREL/streamm-tools.git
-   *  git push -u streamm-tools  master
-   *  git push -u streamm-tools  v1.1.4
-   *  git remote rm streamm-tools
+   *  git remote add 'name-of-repo' https://github.com/NREL/'name-of-repo'.git
+   *  git push -u 'name-of-repo'  master
+   *  git push -u 'name-of-repo'  v1.1.4
+   *  git remote rm 'name-of-repo'
