@@ -15,4 +15,6 @@ that enables
 - integration with analysis and visualization algorithms (both internal and third-party)
 - an object-oriented framework for extending the functionality to specific needs
 
-In-depth documentation can be found at [STREAMM website](http://streamm.nrel.gov/)
+In-depth documentation can be found at [STREAMM website](http://streamm.nrel.gov/). This source code contains
+some undocumented capabilities. These features will be further developed and documented in later releases
+or will be deprecated.
