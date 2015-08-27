@@ -38,3 +38,5 @@ Release Notes
 *****************
 
 v1.0.0 -- August 28 2015 -- Initial release
+
+`NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy, Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.

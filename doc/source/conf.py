@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'STREAMM-Tools'
-copyright = u'2015, Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen, Dr. Peter Graf'
+#copyright = u'2015, Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen, Dr. Peter Graf'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -136,8 +136,8 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # html_theme = 'default'
-html_theme = 'bootstrap'
 # html_theme = 'bootstrap.slate'
+html_theme = 'bootstrap'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -152,7 +152,7 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
+html_short_title = 'STREAMM'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -182,29 +182,29 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+# html_additional_pages = {}
 
 # If false, no module index is generated.
 #html_domain_indices = True
 
 # If false, no index is generated.
-#html_use_index = True
+# html_use_index = True
 
 # If true, the index is split into individual pages for each letter.
-#html_split_index = False
+# html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+# html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+# html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+html_show_copyright = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -296,8 +296,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'STREAMM-Tools', u'STREAMM-Tools Documentation',
-   u'Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf', 'STREAMM-Tools', 'One line description of project.',
-   'Miscellaneous'),
+   u'Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf', 'STREAMM-Tools', 'Simulation Toolkit for Renewable Energy and Advanced Materials Modeling', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
