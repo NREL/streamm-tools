@@ -1,47 +1,16 @@
-tools
-=====
+STREAMM-tools
+================
 
-Common Tools for all STREAMM projects
-Note:
-  Jan  23 2014 -- Moved job creation/submission/monitoring python scripts to tools-public
-  July 08 2015 -- Big reorg/cleaning in preparation for release
+Advanced materials are important for a number of cutting edge renewable energy applications.
+These applications include organic polymer photovoltaics, thermoelectrics and organic radical batteries
+to name a few. The optimal synthesis of these materials and device fabrication spans a large parameter
+space that is a challenge for progress using only experimental investigation. Modeling and numerical
+simulation needs to be an integral part of the search for these critical materials.
 
+The energy applications mentioned above combine a need to understand materials on a range of length and energy scales that
+requires a number of different kinds of simulation methodologies and codes. STREAMM is a framework of python modules
+that enables
 
-*****************
-File structure:
-*****************
-
-- README.md  -- Repo notes
-- analysis   -- 3rd party codes used for post-processing
-- config.sh  -- Configuration script that sets PYTHONPATH and other needed environment variables
-- da_builder -- Donor-Acceptor builder source code
-- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
-- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
-- scripts    -- High-level drivers using tools/src code
-- src        -- Main classes implementing the STREAMM tools functionality
-
-********************************
-Development/Release workflow
-********************************
-
-1. Develop in a branch
-
-2. Merge necessary branches into master
-
-3. Test master and update docs
-
-4. Once ready for a new release, tag the master branch (version number is actual example)
-   *  git tag -a v1.1.4 -m "Give release a descriptive name"
-   *  git push origin --tags
-
-5. Push master and tags for repo to external NREL github
-   *  git remote add 'name-of-repo' https://github.com/NREL/'name-of-repo'.git
-   *  git push -u 'name-of-repo'  master
-   *  git push -u 'name-of-repo'  v1.1.4
-   *  git remote rm 'name-of-repo'
-
-6. Making documentation available
-   * Develop docs in master (as always)
-   * Assuming step 5 complete and streamm-tools repo has been updated with tagged version
-   * Email Toby Walhers to git pull from the tagged version on the external site
-   * Toby will build and publish docs
+- data containers that allow transfer between quantum chemistry and molecular dynamics simulations
+- integration with analysis and visualization algorithms (both internal and third-party)
+- an object-oriented framework for extending the functionality to specific needs
