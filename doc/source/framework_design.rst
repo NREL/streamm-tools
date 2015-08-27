@@ -67,16 +67,29 @@ Molecular Building-Block Assembler
 
 
 
-External Utility / Simulation Classes
+Simulation Classes
+===========================================
+
+These classes make use of the StructureContainer to organize data needed to run specific simulations.
+The `Simulation` class is an interface to the derived classes `simulationLAMMPS1` and `simulationGaussian1`.
+The derived classes have specific methods for input/output that are specific to particular applications
+and projects. The intent is for users to be able to design additional derived classes for other projects
+and/or additional simulation packages. There is one example in the `tools-tests` (see :mod:`test_dumpLammps`)
+illustrating the LAMMPS simulation derived class.
+
+- :mod:`simulation`
+- :mod:`simulationLAMMPS1`
+- :mod:`simulationGaussian1`
+
+
+
+External Utilities
 ===========================================
 
 A number of utility classes are included in STREAMM that use the core functionality described above.
 These utility classes are used in a number of :ref:`examples` included in the documentation.
 The embedded docstrings for these are listed below.
 
-- :mod:`simulation`
-- :mod:`simulationLAMMPS1`
-- :mod:`simulationGaussian1`
 - :mod:`parameters`
 - :mod:`periodictable`
 - :mod:`units`
