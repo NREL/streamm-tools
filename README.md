@@ -14,3 +14,5 @@ that enables
 - data containers that allow transfer between quantum chemistry and molecular dynamics simulations
 - integration with analysis and visualization algorithms (both internal and third-party)
 - an object-oriented framework for extending the functionality to specific needs
+
+In-depth documentation can be found at [STREAMM website](http://streamm.nrel.gov/)
