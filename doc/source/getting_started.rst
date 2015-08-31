@@ -40,14 +40,12 @@ Installation
 The curent release of STREAMM *tools* is a pure python based code with
 minimal dependencies. Therefore, no compolation is
 necessary. 
+
 ..  _configure-tools:
+
 
 Configure tools
 ============================
-
-Python 2.7.3 or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
-Python 2.7.3 on the Peregrine cluster at NREL and Python 2.7.7 on Mac OSX. We recommend not using Python 3.x and greater as no
-testing has been done for those versions. 
 
 The config.sh script is provided to set various environment variables
 and the PYTHONPATH required for the source code modules to run
@@ -57,14 +55,49 @@ correctly. Before using STREAMM tools or running the tests execute ::
 
 This will set the correct environment for the current terminal
 session. To set permanently, note the output of the script and then
-set in your local environment. A number of packages are required for
-the complete functionality of the STREAMM tools.
+set in your local environment. 
 
-- MDAnalysis
+
+Dependencies 
+============================
+
+- Python 2.7.3 
+
+`Python 2.7.3 <https://www.python.org/download/releases/2.7.3/>`_ or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
+`Python 2.7.3 <https://www.python.org/download/releases/2.7.3/>`_ on
+the `Peregrine <http://hpc.nrel.gov/users/systems/peregrine>`_ cluster
+at NREL and `Python 2.7.7 <https://www.python.org/download/releases/2.7.7/>`_ on Mac OSX. We recommend not using Python 3.x and greater as no
+testing has been done for those versions.  
+
+Imported external python modules:
+
+- boost.mpi
+- copy
+- datetime
+- fileinput
+- fnmatch
+- glob
+- json
+- math
+- matplotlib.pyplot
 - numpy
-- mpi4py or boost.mpi
-- ipython
-- matplotlib
+- optparse
+- os
+- os.path
+- pickle
+- platform
+- random
+- re
+- shlex
+- shutil
+- socket
+- string
+- subprocess
+- sys
+- time
+- traceback
+
+
 
 .. note::
 
