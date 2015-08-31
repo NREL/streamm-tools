@@ -8,7 +8,7 @@ Getting started
 
 .. _download-from-github:
 
-Download from Github
+Clone Github repository 
 ============================
 
 The STREAMM *tools* code is maintained in a Github repository at https://github.com/NREL/streamm-tools hosted by
