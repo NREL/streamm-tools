@@ -32,14 +32,15 @@ The tools repo contains the following directories and files
 
 
 
-..  _install-tools:
+..  
+   _install-tools:
 
-Installation
-============================
+    Installation
+   ============================
 
-The curent release of STREAMM *tools* is a pure python based code with
-minimal dependencies. Therefore, no compolation is
-necessary. 
+    The curent release of STREAMM *tools* is a pure python based code with
+    minimal dependencies. Therefore, no compolation is
+    necessary. 
 
 ..  _configure-tools:
 
