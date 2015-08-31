@@ -3,7 +3,7 @@
 .. index:: regression tests, unit tests, test scripts, github
 
 *********************************
-Installation / Getting started
+Getting started
 *********************************
 
 .. _download-from-github:
