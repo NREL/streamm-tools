@@ -1,18 +1,6 @@
 .. _benzene:
 
 
-This entire example can be executed by running::
-
-   benzene.sh
-
-in `tools/examples`. Needed files and scripts are 
-
-*  donoracceptor.com.template
-*  donoracceptor.pbs.template 
-*  conj.itp      
-*  xyz2data.py
-*  xyz2gromacs.py
-
 Benzene
 -------------------------------------------------------
 
@@ -30,15 +18,13 @@ this creates the file::
 which is just a file containing the Cartesian coordinates of a
 benzene molecule.  You can view with your favorite viewer. The -r
 option is set to 1 to generate a single molecule rather than an
-oligomer. The `Gaussian <http://www.gaussian.com/>`_  .com  ::
+oligomer. The `Gaussian <http://www.gaussian.com/>`_  .com  is based on "donoracceptor.com.template"::
 
    mols/benzene/acc1_benzene_n1.com
 
-is based on "donoracceptor.com.template"::
+And the pbs submission script file  based on `donoracceptor.pbs.template` is::
 
    mols/benzene/acc1_benzene_n1.pbs
-
-which is the pbs script file based on `donoracceptor.pbs.template`
 
 *Generate topology  files*
 
@@ -56,14 +42,9 @@ For `LAMMPS <http://lammps.sandia.gov/>`_ input generation run `xyz2data.py`::
     --in_xyz  mols/benzene/acc1_benzene_n1.xyz 
     --out_data  mols/benzene/acc1_benzene_n1.data
 
-this creates the files::
+This creates the `.data <http://lammps.sandia.gov/doc/2001/data_format.html>`_  formated `LAMMPS <http://lammps.sandia.gov/>`_ input file::
 
     mols/benzene/acc1_benzene_n1.data
-
-And an input `.data
-<http://lammps.sandia.gov/doc/2001/data_format.html>`_  for a
-`LAMMPS <http://lammps.sandia.gov/>`_ run is generated. 
-
 
 And input files for a `GROMACS <http://www.gromacs.org/>`_ run are
 generated `xyz2gromacs.py`::
@@ -74,11 +55,25 @@ generated `xyz2gromacs.py`::
       --out_top mols/benzene/acc1_benzene_n1.top
       --out_itp  acc1_benzene_n1.itp 
 
-this creates the files::
+This creates the `GROMACS <http://www.gromacs.org>`_ input files::
 
       mols/benzene/acc1_benzene_n1.gro 
       mols/benzene/acc1_benzene_n1.top
       acc1_benzene_n1.itp 
 
-The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
+where the `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
+
+.. note::
+
+   This entire example can be executed by running::
+
+       benzene.sh
+
+   in `tools/examples`. Needed files and scripts are 
+
+   *  donoracceptor.com.template
+   *  donoracceptor.pbs.template 
+   *  conj.itp      
+   *  xyz2data.py
+   *  xyz2gromacs.py
 

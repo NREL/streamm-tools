@@ -1,18 +1,6 @@
 .. _oligothiophene:
 
 
-This entire example can be executed by running::
-
-   oligothiophene.sh
-
-in `tools/examples`. Needed files and scripts are 
-
-*  donoracceptor.com.template
-*  donoracceptor.pbs.template 
-*  conj.itp      
-*  xyz2data.py
-*  xyz2gromacs.py
-
 Oligo-thiophene
 -------------------------------------------------------
 
@@ -32,7 +20,7 @@ will generate oligomer of thiophene with n=1-5 repeat units::
    mols/thiophene/acc1_thiophene_n5.xyz
 
 you will notice that the angles between repeat units is rather
-random. In order to control the angle between units use the -p
+random. In order to control the angle between units use the `-p`
 function::
 
    donoracceptorsystems.py  "thiophene" -b BuildingBlocks  
@@ -55,7 +43,6 @@ making the sulfurs of thiophene in the trans configuration. The
    mols/thiophene/acc1_thiophene_n5.pbs
  
 
-
 *Generate topology  files*
 
 The .xyz file is read in to get the atomic positions and
@@ -72,14 +59,9 @@ For `LAMMPS <http://lammps.sandia.gov/>`_ input generation run `xyz2data.py`::
     --in_xyz  mols/thiophene/acc1_thiophene_n5.xyz 
     --out_data  mols/thiophene/acc1_thiophene_n5.data
 
-this creates the files::
+This creates the `.data <http://lammps.sandia.gov/doc/2001/data_format.html>`_  formated `LAMMPS <http://lammps.sandia.gov/>`_ input file::
 
     mols/thiophene/acc1_thiophene_n5.data
-
-And an input `.data
-<http://lammps.sandia.gov/doc/2001/data_format.html>`_  for a
-`LAMMPS <http://lammps.sandia.gov/>`_ run is generated. 
-
 
 And input files for a `GROMACS <http://www.gromacs.org/>`_ run are
 generated `xyz2gromacs.py`::
@@ -90,11 +72,25 @@ generated `xyz2gromacs.py`::
       --out_top mols/thiophene/acc1_thiophene_n5.top
       --out_itp  acc1_thiophene_n5.itp 
 
-this creates the files::
+This creates the `GROMACS <http://www.gromacs.org>`_ input files::
 
       mols/thiophene/acc1_thiophene_n5.gro 
       mols/thiophene/acc1_thiophene_n5.top
       acc1_thiophene_n5.itp 
 
-The `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule. 
+where the `.gro <http://manual.gromacs.org/current/online/gro.html>`_ file includes the structural information, the `.top <http://manual.gromacs.org/current/online/top.html>`_ file is the connectivity file and the new `.itp <http://www.gromacs.org/Documentation/File_Formats/.itp_File>`_ file contains the Force-field parameters for the molecule.  
+
+.. note::
+
+   This entire example can be executed by running::
+
+      oligothiophene.sh
+
+   in `tools/examples`. Needed files and scripts are 
+
+   *  donoracceptor.com.template
+   *  donoracceptor.pbs.template 
+   *  conj.itp      
+   *  xyz2data.py
+   *  xyz2gromacs.py
 

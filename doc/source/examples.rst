@@ -39,13 +39,16 @@ These examples create molecular structures files, and input files for
 <http://www.gromacs.org/>`_  and `LAMMPS <http://lammps.sandia.gov/>`_
 by reading in reference structures from  the `BuildingBlocks`
 repository and reference force-field parameters from `conj.itp`.
-The `BuildingBlocks` repository clonned manually or using ::
+The `BuildingBlocks` repository clonned manually::
+
+    git clone https://github.com/NREL/streamm-BuildingBlocks
+
+or using ::
      
      ./examples_setup.sh
 
-which will also check that
-:ref:`donoracceptorsystems.py<donoracceptorsystems>` is in your `PATH`
-and that all the needed scripts are in your directory. 
+which will also check that the `PATH` and `PYTHONPATH` enviromental variables were set correctly
+by the :ref:`configure-tools <configure-tools>` script. 
 
 .. toctree::
    :maxdepth: 1
