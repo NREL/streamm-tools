@@ -63,7 +63,7 @@ This creates the `.data <http://lammps.sandia.gov/doc/2001/data_format.html>`_  
 
     mols/thiophene/acc1_thiophene_n5.data
 
-And input files for a `GROMACS <http://www.gromacs.org/>`_ run are
+And input files for a `GROMACS <http://www.gromacs.org>`_ run are
 generated `xyz2gromacs.py`::
 
    xyz2gromacs.py --in_itp conj.itp 
