@@ -58,47 +58,6 @@ session. To set permanently, note the output of the script and then
 set in your local environment. 
 
 
-Dependencies 
-============================
-
-- Python 2.7.3 
-
-`Python 2.7.3 <https://www.python.org/download/releases/2.7.3/>`_ or greater should be installed to run STREAMM. Development and testing of the STREAMM code has been performed with
-`Python 2.7.3 <https://www.python.org/download/releases/2.7.3/>`_ on
-the `Peregrine <http://hpc.nrel.gov/users/systems/peregrine>`_ cluster
-at NREL and `Python 2.7.7 <https://www.python.org/download/releases/2.7.7/>`_ on Mac OSX. We recommend not using Python 3.x and greater as no
-testing has been done for those versions.  
-
-Imported external python modules:
-
-- boost.mpi
-- copy
-- datetime
-- fileinput
-- fnmatch
-- glob
-- json
-- math
-- matplotlib.pyplot
-- numpy
-- optparse
-- os
-- os.path
-- pickle
-- platform
-- random
-- re
-- shlex
-- shutil
-- socket
-- string
-- subprocess
-- sys
-- time
-- traceback
-
-
-
 Running tests
 ========================
 
