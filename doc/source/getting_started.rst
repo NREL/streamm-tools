@@ -99,43 +99,6 @@ Imported external python modules:
 
 
 
-.. note::
-
- A current list of python module dependencies on the Peregrine cluster at NREL (our default test platform) is as follows:
-
- Cython==0.20.1
- GridDataFormats==0.2.4
- MDAnalysis==0.8.1
- MDAnalysisTests==0.8.1
- backports.ssl-match-hostname==3.4.0.2
- biopython==1.64
- decorator==3.4.0
- h5py==2.2.1
- ipython==2.0.0
- matplotlib==1.3.1
- memory-profiler==0.31
- mpi4py==1.3.1
- networkx==1.9
- nose==1.3.1
- numpy==1.8.1
- pandas==0.13.1
- psutil==2.1.1
- psycopg2==2.5.3
- pyparsing==2.0.1
- python-dateutil==2.2
- pytz==2014.2
- pyzmq==14.1.1
- requests==2.3.0
- scikit-learn==0.14.1
- scipy==0.13.3
- six==1.6.1
- tornado==3.2
- virtualenv==1.11.4
- wsgiref==0.1.2
-
-
-
-
 Running tests
 ========================
 
