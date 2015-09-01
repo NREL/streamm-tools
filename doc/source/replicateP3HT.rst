@@ -13,7 +13,7 @@ box dimensions specified in the `LAMMPS <http://lammps.sandia.gov/>`_ input file
 structure at that point after randomly rotating the structure along
 2 axes.  Then the distance between the added particles of the
 copied structure and all the particles in the system is calculated
-to be sure structures are not overlaping each other. 
+to be sure structures are not overlapping each other. 
 
 
 Run::

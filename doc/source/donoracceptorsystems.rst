@@ -17,7 +17,8 @@ Files and directories
 
    - acceptors   
    - donors            
-   - functional_groups spacers           
+   - functional_groups
+   - spacers           
    - terminals
 
 The backbone of the molecule can be composed of  acceptors, spacers or

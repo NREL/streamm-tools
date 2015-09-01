@@ -5,8 +5,9 @@ STREAMM (Simulation Toolkit for Renewable Energy and Advanced Materials Modeling
 
 Advanced materials are important for a number of cutting edge renewable energy applications.
 These applications include organic polymer photovoltaics, thermoelectrics and organic radical batteries
-to name a few. The optimal synthesis of these materials and device fabrication spans a large parameter
-space that is a challenge for progress using only experimental investigation. Modeling and numerical
+to name a few.
+To optimize performance requires novel synthesis and device fabrication that spans a large parameter
+space, making it a challenge to make progress using only experimental investigation. Modeling and numerical
 simulation needs to be an integral part of the search for these critical materials.
 
 The energy applications mentioned above combine a need to understand materials on a range of length and energy scales that

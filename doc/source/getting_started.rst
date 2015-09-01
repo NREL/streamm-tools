@@ -62,7 +62,7 @@ set in your local environment.
 Running tests
 ========================
 
-The tests for the STREAMM tools is in a separate Github repository https://github.com/NREL/streamm-tools-tests hosted by the National
+The tests for the STREAMM tools are in a separate Github repository https://github.com/NREL/streamm-tools-tests hosted by the National
 Renewable Energy Lab (NREL). The tools repo can be downloaded using the linux command line ::
 
      git clone https://github.com/NREL/streamm-tools-tests.git

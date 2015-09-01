@@ -39,7 +39,7 @@ These examples create molecular structures files, and input files for
 <http://www.gromacs.org/>`_  and `LAMMPS <http://lammps.sandia.gov/>`_
 by reading in reference structures from  the `BuildingBlocks`
 repository and reference force-field parameters from `conj.itp`.
-The `BuildingBlocks` repository clonned manually::
+The `BuildingBlocks` repository can be cloned manually::
 
     git clone https://github.com/NREL/streamm-BuildingBlocks
 
