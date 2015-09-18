@@ -29,9 +29,6 @@ The tools repo contains the following directories and files
 - scripts    -- High-level drivers using tools/src code
 - src        -- Main classes implementing the STREAMM tools functionality
 
-
-
-
 ..  
    _install-tools:
 
@@ -58,6 +55,49 @@ This will set the correct environment for the current terminal
 session. To set permanently, note the output of the script and then
 set in your local environment. 
 
+
+.. _dependencies:
+
+Dependencies
+============================
+
+STREAMM is a purely python application and needs no external
+compilers other than python. 
+
+Python modules::
+ 
+   - boost.mpi
+   - copy
+   - datetime
+   - fileinput
+   - fnmatch
+   - glob
+   - json
+   - math
+   - matplotlib.pyplot
+   - mpiBase
+   - numpy
+   - optparse
+   - os
+   - os.path
+   - pickle
+   - platform
+   - random
+   - re
+   - shlex
+   - shutil
+   - socket
+   - string
+   - subprocess
+   - sys
+   - time
+   - traceback
+   - units
+
+
+.. note::
+
+   Not all these modules need to be installed to utilize the STREAMM tool kit.
 
 Running tests
 ========================

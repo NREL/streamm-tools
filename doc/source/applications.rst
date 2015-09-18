@@ -17,9 +17,11 @@ These projects use the core STREAMM functionality. These projects reside in sepa
 
    publications.rst
 
-
 .. note::
 
   When referencing the STREAMM toolkit in publications, this website can be cited as
 
-  Title of website [Internet]. Location: Website publisher; 2015. ** STREAMM (Simulation Toolkit for Renewable Energy and Advanced Materials Modeling) ** Available from: <http://github.com/NREL>
+  Dr. Scott W. Sides, Dr. Travis Kemper, Dr. Ross Larsen and Dr. Peter Graf. "STREAMM (Simulation Toolkit for
+  Renewable Energy and Advanced Materials Modeling." Simulation Toolkit for Renewable Energy and Advanced Materials
+  Modeling. National Renewable Energy Lab, 21 Sept. 2015. <http://github.com/NRE>.
+
