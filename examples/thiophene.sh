@@ -8,7 +8,10 @@
 # functional_groups directory  and terminated with molecules from the
 # terminals directory. Run 
 
-# Generate structure files for thiophene
+exitcode=$?
+if [ $exitcode == 0  ]
+then
+    # Generate structure files for thiophene
     echo " 
      ========================================================================
          Generating: 
@@ -40,4 +43,6 @@
          Generateration of input files for thiophene finished  
      ========================================================================
      "
+fi 
+
 exit 

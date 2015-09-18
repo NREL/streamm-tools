@@ -8,8 +8,10 @@
 # functional_groups directory  and terminated with molecules from the
 # terminals directory. Run 
 
-# Generate structure files for oligothiophene
-
+exitcode=$?
+if [ $exitcode == 0  ]
+then
+    # Generate structure files for oligothiophene
     echo " 
      ========================================================================
          Generating: 
@@ -45,6 +47,8 @@
          Generateration of input files for oligo-thiophene finished  
      ========================================================================
      "
+fi
+
 exit 
 
 

@@ -59,3 +59,4 @@ echo "                 mol_gen_setup.sh finished with out errors                
 echo "================================================================================"
 echo " "
 
+exit 0

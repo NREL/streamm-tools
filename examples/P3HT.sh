@@ -10,7 +10,10 @@
 
 # Generate structure files for P3HT
 
-#if [ ! -s mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz ]; then 
+exitcode=$?
+if [ $exitcode == 0  ]
+then
+    #if [ ! -s mols/thiophene_R_hexane_/acc1_thiophene_R_hexane__n5.xyz ]; then 
     echo " 
      ========================================================================
          Generating: 
@@ -51,4 +54,6 @@
          Generateration of input files for oligo-thiophene_R_hexane_ (P3HT) finished  
      ========================================================================
      "
+fi
+
 exit 

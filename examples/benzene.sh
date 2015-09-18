@@ -2,13 +2,17 @@
 
 # Examples of running the donoracceptorsystems.py script to build benzene
 ./examples_setup.sh 
+exitcode=$?
 
 # The backbone of the molecule can be composed of  acceptors, spacers or
 # donors, and can be  decorated with molecules from the
 # functional_groups directory  and terminated with molecules from the
 # terminals directory. Run 
 
-# Generate structure files for benzene
+
+if [ $exitcode == 0  ]
+then
+    # Generate structure files for benzene
     echo " 
      ========================================================================
          Generating: 
@@ -17,7 +21,7 @@
      "
      donoracceptorsystems.py  "benzene" -b BuildingBlocks  -r 1 
 
-# Generate topology  files for benzene
+    # Generate topology  files for benzene
     echo " 
      ========================================================================
          Generating: 
@@ -40,5 +44,8 @@
      ========================================================================
          Generateration of input files for benzene finished  
      ========================================================================
+
      "
+fi
+
 exit 
