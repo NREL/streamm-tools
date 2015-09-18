@@ -1,20 +1,63 @@
-STREAMM-tools
-================
+tools
+=====
 
-Advanced materials are important for a number of cutting edge renewable energy applications.
-These applications include organic polymer photovoltaics, thermoelectrics and organic radical batteries
-to name a few. The optimal synthesis of these materials and device fabrication spans a large parameter
-space that is a challenge for progress using only experimental investigation. Modeling and numerical
-simulation needs to be an integral part of the search for these critical materials.
+Common Tools for all STREAMM projects
+Note:
+  Jan  23 2014 -- Moved job creation/submission/monitoring python scripts to tools-public
+  July 08 2015 -- Big reorg/cleaning in preparation for release
 
-The energy applications mentioned above combine a need to understand materials on a range of length and energy scales that
-requires a number of different kinds of simulation methodologies and codes. STREAMM is a framework of python modules
-that enables
 
-- data containers that allow transfer between quantum chemistry and molecular dynamics simulations
-- integration with analysis and visualization algorithms (both internal and third-party)
-- an object-oriented framework for extending the functionality to specific needs
+*****************
+File structure:
+*****************
 
-In-depth documentation can be found at [STREAMM website](http://streamm.nrel.gov/). This source code contains
-some undocumented capabilities. These features will be further developed and documented in later releases
-or will be deprecated.
+- README.md  -- Repo notes
+- analysis   -- 3rd party codes used for post-processing
+- config.sh  -- Configuration script that sets PYTHONPATH and other needed environment variables
+- da_builder -- Donor-Acceptor builder source code
+- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
+- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
+- scripts    -- High-level drivers using tools/src code
+- src        -- Main classes implementing the STREAMM tools functionality
+
+
+
+Source code
+===========
+
+Source code is hosted in a git repository at
+
+https://github.com/NREL/streamm-tools
+
+and is available under the Apache License, Version 2.0 (see
+the file LICENSE.txt).
+
+
+Configure 
+===========
+
+The config.sh script is provided to set various environment variables
+and the PYTHONPATH required for the source code modules to run
+correctly. Before using STREAMM tools or running the tests execute 
+
+source config.sh
+
+********************************
+Development/Release workflow
+********************************
+
+1. Develop in a branch
+
+2. Merge necessary branches into master
+
+3. Test master and update docs
+
+4. Once ready for a new release, tag the master branch
+   *  git tag -a v1.1.4 -m "Give release a descriptive name"
+   *  git push origin --tags
+
+5. Push master and tags for repo to external NREL github
+   *  git remote add streamm-tools  https://github.com/NREL/streamm-tools.git
+   *  git push -u streamm-tools  master
+   *  git push -u streamm-tools  v1.1.4
+   *  git remote rm -u streamm-tools
