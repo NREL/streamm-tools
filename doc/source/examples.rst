@@ -43,7 +43,7 @@ The `BuildingBlocks` repository can be cloned manually::
 
     git clone https://github.com/NREL/streamm-BuildingBlocks
 
-or using ::
+(this will create a directory streamm-BuildingBlocks so if you clone manually you will need to alter the directory name/path in the examples below.) To avoid this, one can instead use ::
      
      ./examples_setup.sh
 
