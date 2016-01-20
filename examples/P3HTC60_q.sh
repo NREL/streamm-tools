@@ -35,8 +35,7 @@ then
     
     python ../functions/cply2film.py  --ranmol   "thiophene_R_hexane_v2_n5  10  C60 10 "  -v  -o P3HT_x10_C60_x10 
     
-    python ../functions/cply2data.py  --in_cply P3HT_x10_C60_x10.cply  --in_itp biaryl_v1.itp  --out_data P3HT_x10_C60_x10.data 
-
+    python ../functions/cply2data.py  --in_cply P3HT_x10_C60_x10.cply  --in_itp conj.itp  --out_data P3HT_x10_C60_x10.data 
 
 fi
 
