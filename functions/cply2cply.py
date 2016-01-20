@@ -389,7 +389,8 @@ def main():
     if( options.setrings ):  bb_i.find_rings()
     if( options.setfftype ):
         bb_i.oplsaa_atomtypes()
-        set_biaryl = True 
+        bb_i.atomtypes()
+        set_biaryl = False 
         if(set_biaryl):
             bb_i.biaryl_types()
             bb_i.interring_types()

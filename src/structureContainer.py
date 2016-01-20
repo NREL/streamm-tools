@@ -1112,6 +1112,255 @@ class StructureContainer:
         return  #(  self.ring_nblist, self.ring_nbindex  )
 
 
+    def atomtypes(self, update_chr = False ):
+        """
+        Set OPLSaa atom types 
+        """
+    
+
+        for pid_i, ptclObj_i  in self.ptclC:
+            NNAB = self.calc_nnab(pid_i,self.bonded_nbindx)
+            ELCNT = self.calc_elcnt(pid_i,self.bonded_nblist,self.bonded_nbindx)
+            if ptclObj_i.tagsDict["number"] == 6 :
+
+                # simple guess based on coordination 
+                if int(NNAB) == 4 :
+                    ptclObj_i.tagsDict["fftype"] = 'CT' # Alkane
+                    # refine guess based on nieghbors 
+                    if( ELCNT[1] == 4 ):                              # Methane 
+                        ptclObj_i.tagsDict["fftype"] = 'CT'
+                        if( update_chr ): ptclObj_i.charge =  -0.24
+                    elif( ELCNT[6] == 1 and ELCNT[1] == 3):         # Methyl 
+                        ptclObj_i.tagsDict["fftype"] = 'CT'
+                        if( update_chr ): ptclObj_i.charge =  -0.18
+                    elif(   ELCNT[6] == 2 and ELCNT[1] == 2 ):      
+                        ptclObj_i.tagsDict["fftype"] = 'CT'
+                        if( update_chr ): ptclObj_i.charge =  -0.12
+                    elif( ELCNT[6] == 3 and ELCNT[1] == 1 ):         # Alkane 
+                        ptclObj_i.tagsDict["fftype"] = 'CT'
+                        if( update_chr ): ptclObj_i.charge =  -0.06
+                    elif(  ELCNT[6] == 4 ):
+                        ptclObj_i.tagsDict["fftype"] = 'CT'
+                        if( update_chr ): ptclObj_i.charge =  0.0
+                    elif(  ELCNT[1] == 1 and ELCNT[8] == 2 ):       #acetal
+                        ptclObj_i.tagsDict["fftype"] = 'CO'
+                        if( update_chr ): ptclObj_i.charge =  -0.4
+
+                if  int(NNAB) == 3 :
+                    r_numb = ptclObj_i.tagsDict["ring"]
+                    if( r_numb != 0 ):
+                        nring = self.calc_nnab(r_numb,self.ring_nbindex)
+                        nring_mod = nring % 2     # to tell 6 adn 5 member rings apart
+                        ptclObj_i.tagsDict["fftype"] = 'CA' # Aromatic C
+                        if( ELCNT[6] == 2 and ELCNT[1] == 1 ):           # "Aromatic C"  
+                            ptclObj_i.tagsDict["fftype"] = 'CA'
+                            if( update_chr ): ptclObj_i.charge =  -0.1150
+                        if( ELCNT[6] == 3  and nring_mod == 0 ):            # "Naphthalene Fusion C"
+                            ptclObj_i.tagsDict["fftype"] = 'CA'
+                            if( update_chr ): ptclObj_i.charge =  0.0
+
+                        debug = 0
+                        if( debug  ):
+                            print " r_numb ",nring,r_numb, nring_mod, ELCNT[6], ELCNT[7], ptclObj_i.tagsDict["fftype"]
+                            # sys.exit(' debug ')
+
+                    else: # not aromatic
+                        if( ELCNT[6] == 2 and ELCNT[1] == 1 ):          # diene 
+                            ptclObj_i.tagsDict["fftype"] = 'C='
+                            if( update_chr ): ptclObj_i.charge =  0.0
+                        elif( ELCNT[6] == 2 and ELCNT[8] == 1 ):          # Benzophenone
+                            ptclObj_i.tagsDict["fftype"] = 'C'
+                            if( update_chr ): ptclObj_i.charge =  0.7
+                        elif( ELCNT[6] == 1 and ELCNT[8] == 2 ):
+                            ptclObj_i.tagsDict["fftype"] = 'C' # pmma
+                            if( update_chr ): ptclObj_i.charge =  0.7
+
+                if int(NNAB) == 2 :
+                    ptclObj_i.tagsDict["fftype"] = 'C:'    # Allene
+                    if( ELCNT[6] == 1 and ELCNT[7] == 1 ):   # "Benzonitrile -CN"  
+                        ptclObj_i.tagsDict["fftype"] = 'CZ'
+
+                if int(NNAB) == 1 :
+                    ptclObj_i.tagsDict["fftype"] = '' # Aromatic C
+                    error_line =  " WARNING!!! carbon index ",pid_i," bonded to single atom "
+                    sys.exit(error_line)
+            #
+            # label oxygens
+            #
+            if( ptclObj_i.tagsDict["number"] == 8 ):
+                if int(NNAB) == 1 :
+                    ptclObj_i.tagsDict["fftype"] = 'O' # double bonded
+                    if( update_chr ): ptclObj_i.charge =  -0.5
+                if int(NNAB) == 2 :
+                    ptclObj_i.tagsDict["fftype"] = 'OS' # ether
+                    if( update_chr ): ptclObj_i.charge =  -0.5
+                    if( ELCNT[1] == 1 ):
+                        ptclObj_i.tagsDict["fftype"] = 'OH' # Alcohol
+                        if( update_chr ): ptclObj_i.charge =   -0.6830
+                    if( ELCNT[8] == 1 ):
+                        ptclObj_i.tagsDict["fftype"] = 'O2' # Carboxylate
+                        if( update_chr ): ptclObj_i.charge =   -0.800
+                    if( ELCNT[16] == 1 ):
+                        ptclObj_i.tagsDict["fftype"] = 'OY' # Sulfoxide
+                        if( update_chr ): ptclObj_i.charge =   -0.4200
+                if int(NNAB) == 3 :
+                    if( ELCNT[7] == 1  ):
+                        ptclObj_i.tagsDict["fftype"] = 'ON'
+                        if( update_chr ): ptclObj_i.charge =  -0.118
+
+            #
+            # label nitrogens 
+            #
+            if ptclObj_i.tagsDict["number"] == 7 :
+                if int(NNAB) == 3 :      # amide
+                    ptclObj_i.tagsDict["fftype"] = 'N' 
+                    if( ELCNT[1] == 3 ): # Ammonia NH3"   
+                        ptclObj_i.tagsDict["fftype"] = 'NT'
+                    if( ELCNT[1] == 2 ): # -NH2
+                        ptclObj_i.tagsDict["fftype"] = 'N2'
+                    if( ELCNT[1] == 1 ): # -NH2
+                        ptclObj_i.tagsDict["fftype"] = 'N2'
+
+                r_numb = ptclObj_i.tagsDict["ring"]
+                if( r_numb != 0 ):
+                    nring = self.calc_nnab(r_numb,self.ring_nbindex)
+                    nring_mod = nring % 2     # to tell 6 adn 5 member rings apart
+                    if ( nring == 5 or nring == 8 or nring == 12 ):   # Ring with 5 membered parts
+                        if ( int(NNAB) == 2 ):
+                            ptclObj_i.tagsDict["fftype"] = 'NC'      # "Imidazole N3"     
+                        if  int(NNAB) == 3 :
+                            ptclObj_i.tagsDict["fftype"] = 'NA'      # "Imidazole N1"      
+                    else:
+                        if ( int(NNAB) == 2  ):
+                            ptclObj_i.tagsDict["fftype"] = 'NB'
+                if ( int(NNAB) == 1 and ELCNT[6] == 1 ) :      # Nitrile 
+                    ptclObj_i.tagsDict["fftype"] = 'NZ'
+
+
+            #
+            # label sulfurs
+            #
+            if( ptclObj_i.tagsDict["number"] == 16 ):
+                if int(NNAB) == 2 :
+                    ptclObj_i.tagsDict["fftype"] = 'S'   #  Thioether RSR (UA)
+                    if( update_chr ): ptclObj_i.charge =-0.4350
+                    if( ELCNT[1] == 1  ):
+                        ptclObj_i.tagsDict["fftype"] = 'SH'
+                        if( update_chr ): ptclObj_i.charge =  -0.335
+                    if( ELCNT[1] == 2  ):
+                        ptclObj_i.tagsDict["fftype"] = 'SH'
+                        if( update_chr ): ptclObj_i.charge =  -0.470
+
+                if ( int(NNAB) == 4 and ELCNT[8] == 2 and ELCNT[7] == 1 ):
+                    ptclObj_i.tagsDict["fftype"] = 'SY'   #  "Sulfonamide -SO2N<" 
+                if ( int(NNAB) == 3 and ELCNT[8] == 1 ):
+                    ptclObj_i.tagsDict["fftype"] = 'SZ'   #  Sulfoxide   
+
+            # Label chlorine 
+            if ( ptclObj_i.tagsDict["number"] == 17):
+                ptclObj_i.tagsDict["fftype"] = 'Cl'
+                if( update_chr ): ptclObj_i.charge =  -0.2
+
+            # Label Fluorine   
+            if ( ptclObj_i.tagsDict["number"] == 9):
+                ptclObj_i.tagsDict["fftype"] = 'F'
+                if( update_chr ): ptclObj_i.charge =  -0.2057
+
+        #
+        # label hydrogens
+        #
+
+        for pid_i, ptclObj_i  in self.ptclC:
+            NNAB = self.calc_nnab(pid_i,self.bonded_nbindx)
+            ELCNT = self.calc_elcnt(pid_i,self.bonded_nblist,self.bonded_nbindx)
+            if( ptclObj_i.tagsDict["number"] == 1 ):
+                if ( NNAB > 1  ):
+                    sys.exit(' over coordinated H')
+                pid_j = self.bonded_nblist[ self.bonded_nbindx[pid_i] ]
+                ptclObj_j = self.ptclC[pid_j]
+                ELCNT_j = self.calc_elcnt(pid_j,self.bonded_nblist,self.bonded_nbindx)
+                if ( ptclObj_j.tagsDict["fftype"]== 'CA' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HA' #
+                    if( update_chr ): ptclObj_i.charge =  0.115
+                if ( ptclObj_j.tagsDict["fftype"]== 'CT' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HC' #
+                    if( update_chr ): ptclObj_i.charge =  0.06
+                if ( ptclObj_j.tagsDict["fftype"]== 'CW' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HA' #
+                if ( ptclObj_j.tagsDict["fftype"]== 'CS' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HA' #
+                if( ELCNT_j[6] == 2 and ELCNT_j[8] == 1  ): # "Ester -OCH<"
+                    ptclObj_i.tagsDict["fftype"] = 'H1'
+                    if( update_chr ): ptclObj_j.charge =  0.03
+                if ( ptclObj_j.tagsDict["fftype"]== 'SH' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HS' #
+                    if( update_chr ): ptclObj_i.charge = 0.1550
+                if ( ptclObj_j.tagsDict["number"] == 7 ):
+                    ptclObj_i.tagsDict["fftype"] = 'H' #
+                if ( ptclObj_j.tagsDict["fftype"]== 'NA' ):
+                    ptclObj_i.tagsDict["fftype"] = 'H' #
+                if ( ptclObj_j.tagsDict["fftype"]== 'N2' ):
+                    ptclObj_i.tagsDict["fftype"] = 'H' #
+                if ( ptclObj_j.tagsDict["fftype"]== 'OH' ):
+                    ptclObj_i.tagsDict["fftype"] = 'HO' #
+
+
+        # relabel based on neighbors
+        for pid_i, ptclObj_i  in self.ptclC:
+            NNAB = self.calc_nnab(pid_i,self.bonded_nbindx)
+            ELCNT = self.calc_elcnt(pid_i,self.bonded_nblist,self.bonded_nbindx)
+            N_o = self.bonded_nbindx[ pid_i ]
+            N_f = self.bonded_nbindx[ pid_i + 1 ] - 1
+            nring_i = ptclObj_i.tagsDict["ring"]
+            if ( ptclObj_i.tagsDict["fftype"] == 'CA' ):
+                for indx_j in range( N_o,N_f+1):
+                    pid_j = self.bonded_nblist[indx_j]
+                    ptclObj_j = self.ptclC[pid_j]
+                    ELCNT_j =  self.calc_elcnt(pid_j,self.bonded_nblist,self.bonded_nbindx)
+                    nring_j = ptclObj_j.tagsDict["ring"]
+                    if ( ptclObj_j.tagsDict["fftype"]== 'CW' ):
+                        if( ELCNT[1] == 1 and ELCNT[6] == 2 ):
+                            ptclObj_i.tagsDict["fftype"] = 'CS'
+                    if(  ELCNT[6] == 2 and nring_i == nring_j and ptclObj_j.tagsDict["number"] != 6 ):          # fussed 
+                        if( debug):
+                            print ' CB ',pid_i+1, ELCNT[6] ,  nring_i , nring_j 
+                        ptclObj_i.tagsDict["fftype"] = 'CB'
+                if ( ptclObj_i.tagsDict["fftype"] == 'CS' ):
+                    for indx_j in range( N_o,N_f+1):
+                        pid_j = self.bonded_nblist[indx_j]
+                        ptclObj_j = self.ptclC[pid_j]
+                        ELCNT_j = self.calc_elcnt(pid_j,self.bonded_nblist,self.bonded_nbindx)
+                        if (  ptclObj_j.tagsDict["fftype"]== 'CA' ):
+                            if ( ELCNT_j[6] == 3 ):
+                                ptclObj_j.tagsDict["fftype"]= 'CS'
+                            if ( ELCNT_j[6] == 2 and ELCNT_j[1] == 1 ):
+                                ptclObj_j.tagsDict["fftype"]= 'CS'
+
+            if ptclObj_i.tagsDict["fftype"] == 'CT' :
+                for indx_j in range( N_o,N_f+1):
+                    pid_j = self.bonded_nblist[indx_j]
+                    ptclObj_j = self.ptclC[pid_j]
+                    if ( ptclObj_j.tagsDict["fftype"]== 'O' ):
+                        if( ELCNT[1] == 3 and ELCNT[8] == 1 ):
+                            ptclObj_i.tagsDict["fftype"] = 'C3' # Methyloxide
+
+
+        if(debug):   sys.exit('linkers')
+
+        debug = 0
+        if(debug):
+            for pid_i, ptclObj_i  in self.ptclC:
+                print pid_i,ptclObj_i.tagsDict["fftype"],ptclObj_i.tagsDict["number"]
+            sys.exit('debug')
+
+        # Check for unidentified atoms
+        for pid_i, ptclObj_i  in self.ptclC:
+            if ( ptclObj_i.tagsDict["fftype"] == '?' ):
+                print ' atom ', pid_i , ptclObj_i.tagsDict["number"],' unknow '
+                sys.exit(' Unknow atom ')
+
+        return #(self)
+    
     def oplsaa_atomtypes(self, update_chr = False ):
         """
         Set OPLSaa atom types 

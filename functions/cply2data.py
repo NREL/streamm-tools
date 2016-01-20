@@ -632,8 +632,6 @@ def read_itp(parmC,ff_file):
                         ptype1 = col[col_int]
                         ljtyp_i = ljtype(ptype1)
                         # Set parameters according to type
-                        print "col_int",col_int
-                        print "col",col
                         
                         mass_i = float( col[col_int+2] )
                         g_sig = float(col[col_int+5])
