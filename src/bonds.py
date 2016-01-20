@@ -258,6 +258,26 @@ class BondContainer:
         return False
 
 
+    def deletepid(self, pid):
+        """
+        Delete bond with a partile id 
+        """
+        del_id = -1 
+        for gid, bondObj in self.bonds.iteritems():
+            p1 = bondObj.pgid1
+            p2 = bondObj.pgid2
+            if ( p1 == pid or p2 == pid ):
+                #del bondObj
+                del_id = gid
+                # print " deleting ",gid,p1,p2
+        if( del_id > 0 ):
+            self.bonds.pop(del_id)
+        else:
+            error_line = "!!! Pid {} not found in bonds !!!".format(pid)
+            print error_line
+        return
+    
+
     def __iadd__(self, other):
         """
         'Magic' method to implement the '+=' operator

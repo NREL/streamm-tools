@@ -507,3 +507,59 @@ class ParticleContainer:
         plt.savefig(distName)
         plt.show()
         plt.close()
+
+    def guess_radii(self):
+        """
+        Guess radii based on type 
+        """
+        from periodictable import periodictable
+        # Load periodic table 
+        pt = periodictable()
+        for pid, ptclObj  in self :
+            el = pt.getelementWithSymbol( ptclObj.tagsDict["symbol"] )
+            ptclObj.radii = el.cov_radii 
+
+            
+            
+        return 
+
+
+    def shift(self, vec):
+        """
+        Shift all particles by vec
+        """
+        if( len(self[1].position) != len(vec) ):
+            error_line = " ptclObj.position and vec do not have the same lngth"
+            sys.exit(error_line)
+            
+        for pid, ptclObj  in self :
+            for d in range(len(ptclObj.position)):
+                ptclObj.position[d] += vec[d]
+
+        return 
+
+
+    def write_xmol(self, xmol_file,comment,append):
+        """
+        Write a structure  to an xmol file
+
+        Args:
+            xmol_file    (str) xmol file name
+            comment  (str) for comment line 
+            append  (boolean) to append or create a new file 
+        Reutrns
+            null
+        """
+        # Open xmol file 
+        if(append):
+            F = open(xmol_file,"a")
+        else:
+            F = open(xmol_file,"w")
+
+        # Loop over structures
+        F.write(" %d \n" % len( self ) )
+        F.write(" %s \n"%comment)
+        for pid, ptclObj  in self :
+            r_i = ptclObj.position
+            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (ptclObj.type ,float(r_i[0]), float(r_i[1]),float(r_i[2]) ) )   
+        F.close()
