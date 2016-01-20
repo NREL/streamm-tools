@@ -1112,7 +1112,7 @@ class StructureContainer:
         return  #(  self.ring_nblist, self.ring_nbindex  )
 
 
-    def atomtypes(self, update_chr = False ):
+    def atomtypes(self, update_chr = False,debug=False ):
         """
         Set OPLSaa atom types 
         """
@@ -1343,15 +1343,6 @@ class StructureContainer:
                     if ( ptclObj_j.tagsDict["fftype"]== 'O' ):
                         if( ELCNT[1] == 3 and ELCNT[8] == 1 ):
                             ptclObj_i.tagsDict["fftype"] = 'C3' # Methyloxide
-
-
-        if(debug):   sys.exit('linkers')
-
-        debug = 0
-        if(debug):
-            for pid_i, ptclObj_i  in self.ptclC:
-                print pid_i,ptclObj_i.tagsDict["fftype"],ptclObj_i.tagsDict["number"]
-            sys.exit('debug')
 
         # Check for unidentified atoms
         for pid_i, ptclObj_i  in self.ptclC:
