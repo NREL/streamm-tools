@@ -1,7 +1,7 @@
 **Official docs:** http://www.http://streamm.nrel.gov/
 
 STREAMM (Simulation Toolkit for Renewable Energy and Advanced
-Materials Modeling) is a frame work for running quantum chemical
+Materials Modeling) is a framework for running quantum chemical
 calculations and molecular dynamics simulations of molecular
 systems. The main features include:
 
@@ -9,7 +9,7 @@ systems. The main features include:
 2. Property dictionaries for each class for easy data analysis and
    integration with data analysis tools such as pandas.
 3. Workflow classes including calculations and resources.
-4. Analysis of timeseries results from molecular dynamics simulations
+4. Analysis of time series results from molecular dynamics simulations
 including radial distribution functions.
 
 
@@ -32,7 +32,7 @@ or a development version
 
 python setup.py develop
 
-Unittests can be ran using
+Unittests can be run using
 
 python setup.py test 
 
@@ -53,4 +53,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
