@@ -1,22 +1,16 @@
-tools
-=====
+**Official docs:** http://www.http://streamm.nrel.gov/
 
-Common Tools for all STREAMM projects
-Note:
-  Jan  23 2014 -- Moved job creation/submission/monitoring python scripts to tools-public
-  July 08 2015 -- Big reorg/cleaning in preparation for release
-  Jan 08 2016 --  Adding development branch v0.2.1 
-  Nov 01 `016 --  Adding development branch devel_v0.3.0.12 
+STREAMM (Simulation Toolkit for Renewable Energy and Advanced
+Materials Modeling) is a frame work for running quantum chemical
+calculations and molecular dynamics simulations of molecular
+systems. The main features include:
 
-*****************
-File structure:
-*****************
-
-- README.md  -- Repo notes
-- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
-- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
-- streamm    -- Main classes implementing the STREAMM tools functionality
-
+1. Classes for molecular structures and force-field parameters.
+2. Property dictionaries for each class for easy data analysis and
+   integration with data analysis tools such as pandas.
+3. Workflow classes including calculations and resources.
+4. Analysis of timeseries results from molecular dynamics simulations
+including radial distribution functions.
 
 
 Source code
@@ -26,22 +20,37 @@ Source code is hosted in a git repository at
 
 https://github.com/NREL/streamm-tools
 
-and is available under the Apache License, Version 2.0 (see
-the file LICENSE.txt).
 
-
-Install
+INSTALL
 ===========
 
-Clone the git repo
-
-git clone https://github.com/NREL/streamm-tools
-
-change directory in to the main directory 
-
-cd streamm-tools
-
-Install python module
+STREAMM can be installed as a python module
 
 python setup.py install
+
+or a development version
+
+python setup.py develop
+
+Unittests can be ran using
+
+python setup.py test 
+
+
+License 
+===========
+
+Copyright 2015 Alliance for Sustainable Energy, LLC
+ 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
