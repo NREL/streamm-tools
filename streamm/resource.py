@@ -3,9 +3,9 @@ Class data structures for resource data
 """
 
 __author__ = "Travis W. Kemper"
-__version__ = "0.1"
+__version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
-__status__ = "Alpha"
+__status__ = "Beta"
 
 
 

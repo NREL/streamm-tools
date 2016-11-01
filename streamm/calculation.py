@@ -5,7 +5,7 @@ Class data structures for calculation data
 __author__ = "Travis W. Kemper"
 __version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
-__status__ = "Alpha"
+__status__ = "Beta"
 
 
 import copy, sys, os, shutil, math

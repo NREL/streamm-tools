@@ -2,6 +2,12 @@
 This module defines the classes relating to a molecular building block 
 """
 
+__author__ = "Travis W. Kemper"
+__version__ = "0.3"
+__email__ = "travis.kemper.w@gmail.com"
+__status__ = "Beta"
+
+
 import numpy as np 
 import copy, sys
 

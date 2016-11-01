@@ -6,10 +6,11 @@ calculations and molecular dynamics simulations of molecular
 systems. The main features include:
 
 1. Classes for molecular structures and force-field parameters.
-2. Property dictionaries for each class for easy data analysis and
+2. Functions to join molecular structures into larger molecules or oligomers
+3. Property dictionaries for each class for easy data analysis and
    integration with data analysis tools such as pandas.
-3. Workflow classes including calculations and resources.
-4. Analysis of time series results from molecular dynamics simulations
+4. Workflow classes including calculations and resources.
+5. Analysis of time series results from molecular dynamics simulations
 including radial distribution functions.
 
 

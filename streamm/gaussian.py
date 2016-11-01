@@ -3,10 +3,9 @@ Class data structures for Gaussian data
 """
 
 __author__ = "Travis W. Kemper"
-__version__ = "0.1"
+__version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
-__status__ = "Alpha"
-
+__status__ = "Beta"
 
 import copy, sys, os, shutil, math
 import time, datetime
@@ -15,7 +14,7 @@ import numpy as np
 from string import replace
 
 
-import structure, parameters, units, periodictable, project, resource, buildingblock
+import structure, parameters, units, periodictable, resource, buildingblock
 from calculation import CalculationRes
 
 import logging

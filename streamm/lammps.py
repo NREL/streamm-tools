@@ -3,9 +3,9 @@ Class data structures for Gaussian data
 """
 
 __author__ = "Travis W. Kemper"
-__version__ = "0.1"
+__version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
-__status__ = "Alpha"
+__status__ = "Beta"
 
 
 import copy, sys, os, shutil, math
@@ -15,9 +15,7 @@ import numpy as np
 from string import replace
 
 
-import structure, parameters, units, periodictable, project, resource, buildingblock
-import gromacs
-import gaussian
+import structure, parameters, units, periodictable, resource, buildingblock
 from calculation import CalculationRes
 
 import logging
@@ -84,6 +82,8 @@ class LAMMPS(CalculationRes):
             Hartree -> kcal/mol 
 
         '''
+        import gaussian
+        
         if isinstance(calc_gaussian, gaussian.Gaussian):
             #
             # Convert Structure 
@@ -134,6 +134,7 @@ class LAMMPS(CalculationRes):
             kJ/mol -> kcal/mol 
 
         '''
+        import gromacs
         if isinstance(sim_gro, gromacs.GROMACS):
             # Initialize LAMMPS simulation object 
             #

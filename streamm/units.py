@@ -6,6 +6,11 @@ Unit conversions
 import scipy
 
 
+__author__ = "Travis W. Kemper"
+__version__ = "0.3"
+__email__ = "travis.kemper.w@gmail.com"
+__status__ = "Beta"
+
 
 # These need to be update to use scipy module 
 # Distance 
