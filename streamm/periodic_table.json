@@ -1,0 +1,765 @@
+{
+  "": {
+    "symbol": "", 
+    "mass": 0.0, 
+    "number": 103, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Ru": {
+    "symbol": "Ru", 
+    "mass": 101.07, 
+    "number": 44, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.46
+  }, 
+  "Re": {
+    "symbol": "Re", 
+    "mass": 186.207, 
+    "number": 75, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.51
+  }, 
+  "Rf": {
+    "symbol": "Rf", 
+    "mass": 261.0, 
+    "number": 104, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Ra": {
+    "symbol": "Ra", 
+    "mass": 226.0, 
+    "number": 88, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.21
+  }, 
+  "Rb": {
+    "symbol": "Rb", 
+    "mass": 85.468, 
+    "number": 37, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.2
+  }, 
+  "Rn": {
+    "symbol": "Rn", 
+    "mass": 222.0, 
+    "number": 86, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Rh": {
+    "symbol": "Rh", 
+    "mass": 102.906, 
+    "number": 45, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.45
+  }, 
+  "Be": {
+    "symbol": "Be", 
+    "mass": 9.012, 
+    "number": 4, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 0.96
+  }, 
+  "Ba": {
+    "symbol": "Ba", 
+    "mass": 137.327, 
+    "number": 56, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.15
+  }, 
+  "Bh": {
+    "symbol": "Bh", 
+    "mass": 264.0, 
+    "number": 107, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Bi": {
+    "symbol": "Bi", 
+    "mass": 208.98, 
+    "number": 83, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.48
+  }, 
+  "Bk": {
+    "symbol": "Bk", 
+    "mass": 247.0, 
+    "number": 97, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.54
+  }, 
+  "Br": {
+    "symbol": "Br", 
+    "mass": 79.904, 
+    "number": 35, 
+    "vdw_radii": 1.85, 
+    "cov_radii": 1.21
+  }, 
+  " U": {
+    "symbol": " U", 
+    "mass": 238.029, 
+    "number": 92, 
+    "vdw_radii": 1.86, 
+    "cov_radii": 1.96
+  }, 
+  "H": {
+    "symbol": "H", 
+    "mass": 1.008, 
+    "number": 1, 
+    "vdw_radii": 1.09, 
+    "cov_radii": 0.23
+  }, 
+  "P": {
+    "symbol": "P", 
+    "mass": 30.974, 
+    "number": 15, 
+    "vdw_radii": 1.8, 
+    "cov_radii": 1.05
+  }, 
+  "Os": {
+    "symbol": "Os", 
+    "mass": 190.23, 
+    "number": 76, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.44
+  }, 
+  "Es": {
+    "symbol": "Es", 
+    "mass": 252.0, 
+    "number": 99, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Hg": {
+    "symbol": "Hg", 
+    "mass": 200.59, 
+    "number": 80, 
+    "vdw_radii": 1.55, 
+    "cov_radii": 1.32
+  }, 
+  "Ge": {
+    "symbol": "Ge", 
+    "mass": 72.61, 
+    "number": 32, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.17
+  }, 
+  "Gd": {
+    "symbol": "Gd", 
+    "mass": 157.25, 
+    "number": 64, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.96
+  }, 
+  "Ga": {
+    "symbol": "Ga", 
+    "mass": 69.723, 
+    "number": 31, 
+    "vdw_radii": 1.87, 
+    "cov_radii": 1.22
+  }, 
+  "Pr": {
+    "symbol": "Pr", 
+    "mass": 140.908, 
+    "number": 59, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.03
+  }, 
+  "Pt": {
+    "symbol": "Pt", 
+    "mass": 195.078, 
+    "number": 78, 
+    "vdw_radii": 1.72, 
+    "cov_radii": 1.36
+  }, 
+  "Pu": {
+    "symbol": "Pu", 
+    "mass": 244.0, 
+    "number": 94, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.87
+  }, 
+  "C": {
+    "symbol": "C", 
+    "mass": 12.011, 
+    "number": 6, 
+    "vdw_radii": 1.7, 
+    "cov_radii": 0.68
+  }, 
+  "Pb": {
+    "symbol": "Pb", 
+    "mass": 207.2, 
+    "number": 82, 
+    "vdw_radii": 2.02, 
+    "cov_radii": 1.46
+  }, 
+  "Pa": {
+    "symbol": "Pa", 
+    "mass": 231.036, 
+    "number": 91, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.0
+  }, 
+  "Pd": {
+    "symbol": "Pd", 
+    "mass": 106.42, 
+    "number": 46, 
+    "vdw_radii": 1.63, 
+    "cov_radii": 1.39
+  }, 
+  "Cd": {
+    "symbol": "Cd", 
+    "mass": 112.411, 
+    "number": 48, 
+    "vdw_radii": 1.58, 
+    "cov_radii": 1.44
+  }, 
+  "Po": {
+    "symbol": "Po", 
+    "mass": 210.0, 
+    "number": 84, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.4
+  }, 
+  "Pm": {
+    "symbol": "Pm", 
+    "mass": 145.0, 
+    "number": 61, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.99
+  }, 
+  "Hs": {
+    "symbol": "Hs", 
+    "mass": 269.0, 
+    "number": 108, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Ho": {
+    "symbol": "Ho", 
+    "mass": 164.93, 
+    "number": 67, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.92
+  }, 
+  "Hf": {
+    "symbol": "Hf", 
+    "mass": 178.49, 
+    "number": 72, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.75
+  }, 
+  "K": {
+    "symbol": "K", 
+    "mass": 39.098, 
+    "number": 19, 
+    "vdw_radii": 2.75, 
+    "cov_radii": 2.03
+  }, 
+  "He": {
+    "symbol": "He", 
+    "mass": 4.003, 
+    "number": 2, 
+    "vdw_radii": 1.4, 
+    "cov_radii": 1.5
+  }, 
+  "Md": {
+    "symbol": "Md", 
+    "mass": 258.0, 
+    "number": 101, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Mg": {
+    "symbol": "Mg", 
+    "mass": 24.305, 
+    "number": 12, 
+    "vdw_radii": 1.73, 
+    "cov_radii": 1.41
+  }, 
+  "Mo": {
+    "symbol": "Mo", 
+    "mass": 95.94, 
+    "number": 42, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.54
+  }, 
+  "Mn": {
+    "symbol": "Mn", 
+    "mass": 54.938, 
+    "number": 25, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.61
+  }, 
+  "O": {
+    "symbol": "O", 
+    "mass": 15.999, 
+    "number": 8, 
+    "vdw_radii": 1.52, 
+    "cov_radii": 0.68
+  }, 
+  "Mt": {
+    "symbol": "Mt", 
+    "mass": 268.0, 
+    "number": 109, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "S": {
+    "symbol": "S", 
+    "mass": 32.066, 
+    "number": 16, 
+    "vdw_radii": 1.8, 
+    "cov_radii": 1.02
+  }, 
+  "W": {
+    "symbol": "W", 
+    "mass": 183.84, 
+    "number": 74, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.62
+  }, 
+  "Zn": {
+    "symbol": "Zn", 
+    "mass": 65.39, 
+    "number": 30, 
+    "vdw_radii": 1.39, 
+    "cov_radii": 1.22
+  }, 
+  "Eu": {
+    "symbol": "Eu", 
+    "mass": 151.964, 
+    "number": 63, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.98
+  }, 
+  "Zr": {
+    "symbol": "Zr", 
+    "mass": 91.224, 
+    "number": 40, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.75
+  }, 
+  "Er": {
+    "symbol": "Er", 
+    "mass": 167.26, 
+    "number": 68, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.89
+  }, 
+  "Ni": {
+    "symbol": "Ni", 
+    "mass": 58.693, 
+    "number": 28, 
+    "vdw_radii": 1.63, 
+    "cov_radii": 1.24
+  }, 
+  "Na": {
+    "symbol": "Na", 
+    "mass": 22.991, 
+    "number": 11, 
+    "vdw_radii": 2.27, 
+    "cov_radii": 1.66
+  }, 
+  "Nb": {
+    "symbol": "Nb", 
+    "mass": 92.906, 
+    "number": 41, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.64
+  }, 
+  "Nd": {
+    "symbol": "Nd", 
+    "mass": 144.24, 
+    "number": 60, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.01
+  }, 
+  "Ne": {
+    "symbol": "Ne", 
+    "mass": 20.18, 
+    "number": 10, 
+    "vdw_radii": 1.54, 
+    "cov_radii": 1.5
+  }, 
+  "Np": {
+    "symbol": "Np", 
+    "mass": 237.0, 
+    "number": 93, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.9
+  }, 
+  "Fr": {
+    "symbol": "Fr", 
+    "mass": 223.0, 
+    "number": 87, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.6
+  }, 
+  "Fe": {
+    "symbol": "Fe", 
+    "mass": 55.845, 
+    "number": 26, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.52
+  }, 
+  "Fm": {
+    "symbol": "Fm", 
+    "mass": 257.0, 
+    "number": 100, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "B": {
+    "symbol": "B", 
+    "mass": 10.811, 
+    "number": 5, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 0.83
+  }, 
+  "F": {
+    "symbol": "F", 
+    "mass": 18.998, 
+    "number": 9, 
+    "vdw_radii": 1.47, 
+    "cov_radii": 0.64
+  }, 
+  "Sr": {
+    "symbol": "Sr", 
+    "mass": 87.62, 
+    "number": 38, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.95
+  }, 
+  "N": {
+    "symbol": "N", 
+    "mass": 14.007, 
+    "number": 7, 
+    "vdw_radii": 1.55, 
+    "cov_radii": 0.68
+  }, 
+  "Kr": {
+    "symbol": "Kr", 
+    "mass": 83.8, 
+    "number": 36, 
+    "vdw_radii": 2.02, 
+    "cov_radii": 1.5
+  }, 
+  "Si": {
+    "symbol": "Si", 
+    "mass": 28.086, 
+    "number": 14, 
+    "vdw_radii": 2.1, 
+    "cov_radii": 1.2
+  }, 
+  "Sn": {
+    "symbol": "Sn", 
+    "mass": 118.71, 
+    "number": 50, 
+    "vdw_radii": 2.17, 
+    "cov_radii": 1.39
+  }, 
+  "Sm": {
+    "symbol": "Sm", 
+    "mass": 150.36, 
+    "number": 62, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.98
+  }, 
+  "V": {
+    "symbol": "V", 
+    "mass": 50.942, 
+    "number": 23, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.53
+  }, 
+  "Sc": {
+    "symbol": "Sc", 
+    "mass": 44.956, 
+    "number": 21, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.7
+  }, 
+  "Sb": {
+    "symbol": "Sb", 
+    "mass": 121.76, 
+    "number": 51, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.39
+  }, 
+  "Sg": {
+    "symbol": "Sg", 
+    "mass": 266.0, 
+    "number": 106, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Se": {
+    "symbol": "Se", 
+    "mass": 78.96, 
+    "number": 34, 
+    "vdw_radii": 1.9, 
+    "cov_radii": 1.22
+  }, 
+  "Co": {
+    "symbol": "Co", 
+    "mass": 58.933, 
+    "number": 27, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.26
+  }, 
+  "Cm": {
+    "symbol": "Cm", 
+    "mass": 247.0, 
+    "number": 96, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.69
+  }, 
+  "Cl": {
+    "symbol": "Cl", 
+    "mass": 35.453, 
+    "number": 17, 
+    "vdw_radii": 1.75, 
+    "cov_radii": 0.99
+  }, 
+  "Ca": {
+    "symbol": "Ca", 
+    "mass": 40.078, 
+    "number": 20, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.76
+  }, 
+  "Cf": {
+    "symbol": "Cf", 
+    "mass": 251.0, 
+    "number": 98, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.83
+  }, 
+  "Ce": {
+    "symbol": "Ce", 
+    "mass": 140.116, 
+    "number": 58, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.04
+  }, 
+  "Xe": {
+    "symbol": "Xe", 
+    "mass": 131.29, 
+    "number": 54, 
+    "vdw_radii": 2.16, 
+    "cov_radii": 1.5
+  }, 
+  "Lu": {
+    "symbol": "Lu", 
+    "mass": 174.967, 
+    "number": 71, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.87
+  }, 
+  "Cs": {
+    "symbol": "Cs", 
+    "mass": 132.905, 
+    "number": 55, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.44
+  }, 
+  "Cr": {
+    "symbol": "Cr", 
+    "mass": 51.996, 
+    "number": 24, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.39
+  }, 
+  "Cu": {
+    "symbol": "Cu", 
+    "mass": 63.546, 
+    "number": 29, 
+    "vdw_radii": 1.4, 
+    "cov_radii": 1.32
+  }, 
+  "La": {
+    "symbol": "La", 
+    "mass": 138.906, 
+    "number": 57, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.07
+  }, 
+  "Li": {
+    "symbol": "Li", 
+    "mass": 6.941, 
+    "number": 3, 
+    "vdw_radii": 1.82, 
+    "cov_radii": 1.28
+  }, 
+  "Tl": {
+    "symbol": "Tl", 
+    "mass": 204.383, 
+    "number": 81, 
+    "vdw_radii": 1.96, 
+    "cov_radii": 1.45
+  }, 
+  "Tm": {
+    "symbol": "Tm", 
+    "mass": 168.934, 
+    "number": 69, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.9
+  }, 
+  "Lr": {
+    "symbol": "Lr", 
+    "mass": 259.0, 
+    "number": 102, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Th": {
+    "symbol": "Th", 
+    "mass": 232.038, 
+    "number": 90, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.06
+  }, 
+  "Ti": {
+    "symbol": "Ti", 
+    "mass": 47.867, 
+    "number": 22, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.6
+  }, 
+  "Te": {
+    "symbol": "Te", 
+    "mass": 127.6, 
+    "number": 52, 
+    "vdw_radii": 2.06, 
+    "cov_radii": 1.47
+  }, 
+  "Tb": {
+    "symbol": "Tb", 
+    "mass": 158.925, 
+    "number": 65, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.94
+  }, 
+  "Tc": {
+    "symbol": "Tc", 
+    "mass": 98.0, 
+    "number": 43, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.47
+  }, 
+  "Ta": {
+    "symbol": "Ta", 
+    "mass": 180.948, 
+    "number": 73, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.7
+  }, 
+  "Yb": {
+    "symbol": "Yb", 
+    "mass": 173.04, 
+    "number": 70, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.87
+  }, 
+  "Db": {
+    "symbol": "Db", 
+    "mass": 262.0, 
+    "number": 105, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.5
+  }, 
+  "Dy": {
+    "symbol": "Dy", 
+    "mass": 162.5, 
+    "number": 66, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.92
+  }, 
+  "I": {
+    "symbol": "I", 
+    "mass": 126.904, 
+    "number": 53, 
+    "vdw_radii": 1.98, 
+    "cov_radii": 1.4
+  }, 
+  "Y": {
+    "symbol": "Y", 
+    "mass": 88.906, 
+    "number": 39, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.9
+  }, 
+  "Ac": {
+    "symbol": "Ac", 
+    "mass": 227.0, 
+    "number": 89, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 2.15
+  }, 
+  "Ag": {
+    "symbol": "Ag", 
+    "mass": 107.868, 
+    "number": 47, 
+    "vdw_radii": 1.72, 
+    "cov_radii": 1.45
+  }, 
+  "Ir": {
+    "symbol": "Ir", 
+    "mass": 192.217, 
+    "number": 77, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.41
+  }, 
+  "Am": {
+    "symbol": "Am", 
+    "mass": 243.0, 
+    "number": 95, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.8
+  }, 
+  "Al": {
+    "symbol": "Al", 
+    "mass": 26.982, 
+    "number": 13, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.21
+  }, 
+  "As": {
+    "symbol": "As", 
+    "mass": 74.922, 
+    "number": 33, 
+    "vdw_radii": 1.85, 
+    "cov_radii": 1.21
+  }, 
+  "Ar": {
+    "symbol": "Ar", 
+    "mass": 39.948, 
+    "number": 18, 
+    "vdw_radii": 1.88, 
+    "cov_radii": 1.51
+  }, 
+  "Au": {
+    "symbol": "Au", 
+    "mass": 196.967, 
+    "number": 79, 
+    "vdw_radii": 1.66, 
+    "cov_radii": 1.5
+  }, 
+  "At": {
+    "symbol": "At", 
+    "mass": 210.0, 
+    "number": 85, 
+    "vdw_radii": 2.0, 
+    "cov_radii": 1.21
+  }, 
+  "In": {
+    "symbol": "In", 
+    "mass": 114.818, 
+    "number": 49, 
+    "vdw_radii": 1.93, 
+    "cov_radii": 1.42
+  }
+}
