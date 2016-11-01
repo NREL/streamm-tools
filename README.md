@@ -30,4 +30,18 @@ and is available under the Apache License, Version 2.0 (see
 the file LICENSE.txt).
 
 
+Install
+===========
+
+Clone the git repo
+
+git clone https://github.com/NREL/streamm-tools
+
+change directory in to the main directory 
+
+cd streamm-tools
+
+Install python module
+
+python setup.py install
 
