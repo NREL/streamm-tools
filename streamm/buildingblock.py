@@ -78,7 +78,10 @@ class Container(structure_Container):
         """
         Constructor for a composite structure. 
         """
-        structure.Container.__init__(self,tag=tag)
+        structure.Container.__init__(self)
+        #super(structure.Container,self).__init__()
+        self.tag = tag 
+        
         self.n_term = int(0)
         self.n_func = int(0)
         self.n_sub = int(0)

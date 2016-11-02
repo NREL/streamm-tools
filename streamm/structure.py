@@ -1543,10 +1543,7 @@ class Container():
         """
         Write a coordnates into string 
         """
-        coord = ""
-        for pkey_i,particle_i in self.particles.iteritems():
-            pos_i = self.positions[pkey_i]
-            coord += " %5s %16.8f %16.8f %16.8f \n"%(particle_i.tag,pos_i[0],pos_i[1],pos_i[2] )
+        coord = ''.join([" %5s %16.8f %16.8f %16.8f \n"%(particle_i.tag,self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2] ) for pkey_i,particle_i in self.particles.iteritems()])
 
         return coord
     
@@ -2270,9 +2267,13 @@ class Container():
         return self
                 
 
-    def add_struc_grid(self,other,n_i,p=None,tag="blank",verbose=False):
+    def add_struc_grid(self,other,n_i,p=None,tag="blank",verbose=False,calc_overlap = True ):
         """
-        Add structure other to self n times on a grid 
+        Add structure other to self n times on a grid
+        
+        Args:
+            n_i  (int) number of times to replicate 
+            
         """
         #
         # Initialize 
@@ -2353,8 +2354,8 @@ class Container():
                         other.shift_pos(r_random)  # Place center of mass at random position in lattice 
                         #
                         # Calculate inter particle seperation between particles in the structure and structure to be added
-                        overlap = 0
-                        if( strucC_new.n_particles > 0 ):
+                        overlap = 0                        
+                        if( strucC_new.n_particles > 0 and calc_overlap ):
                             npos_i = other.positions
                             npos_j = strucC_new.positions
                             npos_ij,nd_ij = strucC_new.lat.delta_npos(npos_i,npos_j)
@@ -2380,7 +2381,8 @@ class Container():
                             for pkey_i, particle_i  in structoadd.particles.iteritems():
                                 particle_i.properties["mol"] = struc_add_cnt
                             struc_add_cnt += 1
-                            strucC_new += structoadd                            
+                            strucC_new += structoadd
+                            logger.info( "Molecule %d/%d added "%(struc_add_cnt,n_i))
                         if( struc_add_cnt == n_i ):
                             add_strucC = False
 
