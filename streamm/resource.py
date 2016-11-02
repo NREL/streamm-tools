@@ -48,6 +48,7 @@ class Resource:
         self.dir['launch'] = '%s/scratch'%(self.dir['home'])
         self.dir['scratch'] = '%s/scratch'%(self.dir['home'])
         self.dir['storage'] = '%s/storage'%(self.dir['home'])
+        self.dir['materials'] = '%s/materials'%(self.dir['home'])
         # These will be used for defaults for the simulation specs
         self.properties = dict()
         self.properties['walltime'] = 24

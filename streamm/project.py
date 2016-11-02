@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # streamm
 from resource import Resource 
-import resource,buildingblock, calculation, structure
+import resource, calculation
 
 
 class Project:
@@ -45,6 +45,7 @@ class Project:
             raise TypeError("1st arg (tag) in %s Project initialization should be string"%(__name__))
         
         self.calculations = dict()
+        self.resources = dict()
         
     def __del__(self):
         """
@@ -52,3 +53,4 @@ class Project:
         """
         del self.tag
         del self.calculations
+        del self.resources

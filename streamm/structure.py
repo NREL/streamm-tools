@@ -1365,6 +1365,7 @@ class Container():
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
+        self.prop_particles =  dict() 
         self.positions = []                                   # Creates empty array
         self.bonds = dict()                                   # Creates empty dict struc
         self.angles = dict()                                  # Creates empty dict struc
@@ -1431,7 +1432,6 @@ class Container():
         'Magic' method for printng contents of container
         """
         return " %s "%(self.tag)
-
 
     def dump_pickle(self):
         '''
@@ -1743,7 +1743,6 @@ class Container():
         self.center_mass = self.center_mass/self.mass
 
         return
-
 
     def maxtags(self):
         """
@@ -2815,7 +2814,56 @@ class Container():
         for pkey_i in list_i:
             npos_i.append(self.positions[pkey_i])
         return npos_i
-    
+
+
+# Particle manipulations
+
+    def propcompile_particles(self):
+        '''
+        Compile all the properties of each particle into a single dictionary
+        '''
+        if( self.n_particles > 0 ):
+            # Create dict of properties 
+            self.prop_particles = {}
+            # Use first particle's keys 
+            part_i = self.particles[0]
+            columns = part_i.properties.keys()
+            for prop_key in columns:
+                self.prop_particles[prop_key] = []
+
+            for pkey_i, particle_i  in self.particles.iteritems():
+                for prop_i in columns:
+                    self.prop_particles[prop_i].append(particle_i.properties[prop_i])
+                    
+        return 
+
+    def write_particles(self,particle_file,keys=[]):
+        '''
+        Write out bonds in csv file 
+        '''
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.particles.keys()
+        
+        if( len(keys) > 0 ):
+            fout = open(particle_file,'wb')
+            writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            header = ['key']
+            part_i = self.particles[0]
+            for prop_key in part_i.properties.keys():
+                header.append(prop_key)
+            writer.writerow(header)
+            for key_i in keys:
+                bond_i = self.bonds[key_i]
+                row_i = [key_i,bond_i.pkey1,bond_i.pkey2]
+                for prop_key,prop_val in bond_i.properties.iteritems():
+                    row_i.append(prop_val)                    
+                writer.writerow(row_i)
+            fout.close()
+        else:
+            logger.warning("Empty bond dictionary passed to write_bonds no file will be writen")
+        return
+        
 # Bond manipulation 
     def bonded_bonds(self):
         """

@@ -322,9 +322,6 @@ class Container(structure_Container):
         '''
         cos_kijl = self.calc_cosdih(key_k,key_i,key_j,key_l)
         
-
-        
-        
         
     def read_cply(self,cply_file='',debug = False):
         """
@@ -509,6 +506,37 @@ class Container(structure_Container):
 
         return
 
+    def getSubStructure(self,pkeys,tag="blank"):
+        """
+        This is redundant to getSubStructure in structure.py
+        """
+        new_strucC = Container(str(tag))
+        
+        key_update = dict()
+        # Set lattice 
+        new_strucC.lat = self.lat
+        # Set particles
+        for pkey_i in pkeys:
+            p_i = self.particles[pkey_i]
+            pos_i = self.positions[pkey_i]            
+            new_strucC.add_partpos(p_i,pos_i, deepcopy = True)
+            key_update[pkey_i]  = new_strucC.n_particles -1
+            
+        if( len(self.bonded_nblist.index) > 0 ):
+            # Update bonded nieghbor list
+            new_strucC.bonded_nblist = structure.NBlist() 
+            for pkey_i in pkeys:
+                new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
+                for pkey_j in self.bonded_nblist.getnbs(pkey_i):
+                    if( pkey_j in pkeys ):
+                        new_strucC.bonded_nblist.cnt += 1 
+                        new_strucC.bonded_nblist.list.append(key_update[pkey_j])
+
+            new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
+            new_strucC.bonded_bonds()
+
+        return new_strucC
+    
     def prepattach(self,bbid_i="R",n_i=0,Xn_i=0,dir=1,yangle=0.0,debug = False):
         '''
         Preppair a building block to be attached to another
