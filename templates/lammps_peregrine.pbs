@@ -23,7 +23,6 @@ LAMMPSEXE="lmp"
 NPROC=<nproc>
 echo " Running  $LAMMPSEXE   on  $NPROC processors "
 
-#mpirun -np <n_proc> $LAMMPSEXE -in <input_in>  -log <output_log>  >> <output_out>
-$LAMMPSEXE -in <input_in>  -log <tag>.log  >> <tag>.out
+mpirun -np $NPROC $LAMMPSEXE -in <input_in>  -log <tag>.log  >> <tag>.out
 
 

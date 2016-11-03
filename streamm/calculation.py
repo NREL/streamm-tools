@@ -126,7 +126,6 @@ class Calculation:
         compress_files = ''
         for fkey,file_i in self.files[file_type].iteritems():
             if( fkey != self.properties['comp_key'] ):
-                print 'Adding %s file %s with key %s '%(file_type,file_i,str(fkey))
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
         bash_command = "%s %s %s "%(self.properties['compress'],compressed_file,compress_files)
@@ -231,7 +230,6 @@ class Calculation:
         '''
         self.paramC += paramC_i
 
-
     def run(self):
         '''
         Run calculation script
@@ -239,15 +237,24 @@ class Calculation:
         print "Calculation with status %s "%(self.meta['status'])
         if( self.meta['status'] == 'written' ):
             print "Resource type %s "%(self.resource.meta['type'] )
-            if( self.resource.meta['type'] == "local" ):
-                for fkey,file_i in self.files['scripts'].iteritems():
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+            for fkey,file_i in self.files['scripts'].iteritems():
+                if( fkey != self.properties['comp_key'] ):
                     
                     bash_command = "chmod 755   %s "%(file_i)
+                    if( self.resource.meta['type'] == "ssh" ):
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
                     os.system(bash_command)
+                        
                     bash_command = "%s%s"%(self.properties['exe_command'],file_i)
+                    if( self.resource.meta['type'] == "ssh" ):
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
                     print "Executing run command %s "%(bash_command) 
                     os.system(bash_command)
-    
+
+            self.meta['status'] == 'submitted'
+
     def check(self,output_key='log'):
         '''
         Check if calculation has finished        
@@ -1119,7 +1126,7 @@ class CalculationRes(Calculation):
         Push input files to resource 
         '''
         #
-        logger.info(" Resource type %s "%(self.resource.meta['type']))
+        print " Resource type %s "%(self.resource.meta['type'])
 
         if( self.meta['status'] == 'written' ):
             if( self.resource.meta['type'] == "ssh" ):
@@ -1135,18 +1142,17 @@ class CalculationRes(Calculation):
                 file_key = self.properties['comp_key']
                 for file_type in ['input','templates','scripts']:
                     if( len(self.files[file_type]) ):
+                        print "Compressing and copying %s files to scratch directory "%(file_type)
                         self.compress_files(file_type)
                         file_name = self.files[file_type][file_key]
                         # self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
                         from_pathfile = os.path.join(fromdir,file_name)
                         to_pathfile = os.path.join(todir,file_name)
                         bash_command = "scp %s %s:%s"%(from_pathfile,ssh_id,todir)
-                        #os.system(bash_command)
-                        print " bash_command ",bash_command
-
+                        os.system(bash_command)
+                        # Uncompress file 
                         bash_command = "%s %s "%(self.properties['uncompress'],file_name)
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,todir,bash_command)
-                        # Run bash command
                         os.system(bash_command)
                     else:
                         print "No files of type %s present"%(file_type)
@@ -1156,6 +1162,7 @@ class CalculationRes(Calculation):
             # Copy reference simulation output over to scratch directory
             #
             for ref_key,ref_calc in self.references.iteritems():
+                print "Copying output of reference calculations %s"%(ref_key)
                 file_type = 'output'
                 file_name = ref_calc.files[file_type][file_key]
                 # Copy compressed reference output to scratch directory 
@@ -1167,6 +1174,7 @@ class CalculationRes(Calculation):
                         # Copy on external resource 
                         bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
                         bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                        os.system(bash_command)                
                     else:
                         # Copy between resources 
                         ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
