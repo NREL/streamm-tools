@@ -118,22 +118,29 @@ class Calculation:
         #
         return    
         #
-    def compress_files(self,file_type):
+    def get_compress_str(self,file_type):
         '''
-        Compress  files
+        get bash string to compress files
         '''
-        logger.info("Compressing %s files in dir %s "%(file_type,os.getcwd()))
         compress_files = ''
         for fkey,file_i in self.files[file_type].iteritems():
             if( fkey != self.properties['comp_key'] ):
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
-        bash_command = "%s %s %s "%(self.properties['compress'],compressed_file,compress_files)
+        # Add compressed file to file dictionary 
+        self.add_file(file_type,self.properties['comp_key'],compressed_file)
+        # Return bash command as string 
+        return "%s %s %s "%(self.properties['compress'],compressed_file,compress_files)
+        
+    def compress_files(self,file_type):
+        '''
+        Compress  files
+        '''
+        logger.info("Compressing %s files in dir %s "%(file_type,os.getcwd()))
+        bash_command = self.get_compress_str(file_type)
         logger.debug(" compressing with %s "%(bash_command))
         # Run bash command
         os.system(bash_command)
-        # Add compressed file to file dictionary 
-        self.add_file(file_type,self.properties['comp_key'],compressed_file)
 
 
     def load_str(self,file_type,file_key):
@@ -269,7 +276,7 @@ class Calculation:
                 print "Calculation %s no output_file file  with key %s found"%(self.tag,output_key)
 
             if( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
                 bash_command = "ssh  %s  grep \'%s\' %s%s >> ./%s "%(ssh_id,self.properties['finish_str'],self.dir['scratch'],output_file,output_file)
                 os.system(bash_command)        
             elif( self.resource.meta['type'] == "local" ):
@@ -304,23 +311,29 @@ class Calculation:
         # This assumes storage is accesable by cp from ssh resource 
         '''
         if( self.meta['status'] == 'finished' ):
-            if( self.resource.meta['type'] == "local" ):
-                print "runnning store function in %s "%(os.getcwd())
-                from_dirkey = 'scratch'
-                to_dirkey = 'storage'
-                file_key = self.properties['comp_key']
-                for file_type in ['input','scripts','output','data']:
-                    if( len(self.files[file_type]) ):
-                        self.compress_files(file_type)
-                        file_name = self.files[file_type][file_key]
-                        self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
-                    else:
-                        print "No files of type %s present"%(file_type)
-                self.meta['status'] = 'stored'
-            elif( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])
-            else:
-                print " Resource type %s unknown "%(self.resource.meta['type'])
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+            print "runnning store function in %s "%(os.getcwd())
+            from_dirkey = 'scratch'
+            fromdir = self.dir[from_dirkey]
+            to_dirkey = 'storage'
+            todir = self.dir[to_dirkey]
+            file_key = self.properties['comp_key']
+            for file_type in ['input','scripts','output','data']:
+                if( len(self.files[file_type]) ):
+                    print "Storing %s files "%(file_type)
+                    bash_command = self.get_compress_str(file_type)
+                    if( self.resource.meta['type'] == "ssh" ):
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                    os.system(bash_command)
+                    file_name = self.files[file_type][file_key]
+                    bash_command = self.get_cp_str(file_type,file_key,file_name,from_dirkey,to_dirkey)
+                    if( self.resource.meta['type'] == "ssh" ):
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                    os.system(bash_command)
+                else:
+                    print "No files of type %s present"%(file_type)
+            self.meta['status'] = 'stored'
             
 
     def pull(self,file_type='output'):
@@ -1086,6 +1099,28 @@ class CalculationRes(Calculation):
         by the current calculation
         '''
         self.references[ref_calc.tag] = ref_calc
+        
+    def get_cp_str(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
+        '''
+        Return bash command as string to copy a file
+        '''
+        cpfile = True
+        try:
+            fromdir = self.dir[from_dirkey]
+        except:
+            cpfile = False
+            print " dir dictionary key %s not set for calculation %s files "%(from_dirkey,self.tag)
+        try:
+            todir = self.dir[to_dirkey]
+        except:
+            cpfile = False
+            print " dir dictionary key %s not set for calculation %s files "%(to_dirkey,self.tag)
+        if( cpfile ):
+            from_pathfile = os.path.join(fromdir,file_name)
+            to_pathfile = os.path.join(todir,file_name)
+            return "cp %s %s "%(from_pathfile,to_pathfile)
+        else:
+            return ''
         
     def cp_file(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
         '''

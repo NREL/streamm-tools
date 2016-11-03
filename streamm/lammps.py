@@ -1006,12 +1006,21 @@ class LAMMPS(CalculationRes):
         in_key = 'in'
         try:
             in_file = self.files['input'][in_key]
-            self.proc_in(in_file)            
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],in_file)
+                os.system(bash_command)
+                data2cply=False              
+            self.proc_in(in_file,data2cply=data2cply)            
         except KeyError:
             print "Calculation %s No output_file file  with key %s found"%(self.tag,in_key)
         # Find output_key file 
         try:
             output_file = self.files['output'][output_key]
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+                os.system(bash_command)                
             self.proc_log(output_file)            
         except KeyError:
             print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
