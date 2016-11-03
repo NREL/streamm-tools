@@ -54,3 +54,36 @@ class Project:
         del self.tag
         del self.calculations
         del self.resources
+
+
+    def dump_json(self):
+        '''
+        Dump json file for reference 
+        '''
+        json_data = dict()
+        json_data['meta'] = self.meta
+        json_data['units'] = self.units
+        json_data['files'] = self.files
+        
+        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        f = open(json_file, 'w')
+        json.dump(json_data,f, indent=2)
+        f.close()
+
+
+    def load_json(self):
+        '''
+        Load json file for reference 
+        '''        
+        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        try:
+            with open(json_file) as f:            
+                json_data = json.load(f)
+                f.close()
+                
+                self.meta = json_data['meta']
+                self.units = json_data['units']
+                self.files = json_data['files']
+
+        except IOError:
+            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))

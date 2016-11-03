@@ -85,6 +85,8 @@ class Calculation:
         self.properties['compress_sufix'] =  "tgz"
         self.properties['comp_key'] = 'compressed'
         
+        self.references = dict()        
+        
     def __del__(self):
         """
         Delete Calculation object
@@ -1022,12 +1024,36 @@ class CalculationRes(Calculation):
         Check that needed directories exist 
         '''
         logger.debug("Creating directories for resource %s "%(self.tag))
+        
         if( self.resource.meta['type'] == "local" ):
             os.chdir(self.dir['home'])
             for dkey,dir_i in self.dir.iteritems():
                 if ( not os.path.isdir(dir_i) ):
                     os.mkdir(dir_i)
-        os.chdir(self.dir['home'])
+            os.chdir(self.dir['home'])
+        elif( self.resource.meta['type'] == "ssh" ):
+            # Create local directories 
+            os.chdir(self.dir['home'])
+            dkey = 'launch'
+            try:
+                dir_i = self.dir[dkey]
+                if ( not os.path.isdir(dir_i) ):
+                    os.mkdir(dir_i)                
+            except:
+                logger.warning("%s directory not set "%(dkey))
+            # Create remote directories 
+            ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])#
+            for dkey in ['storage','scratch']:
+                try:
+                    dir_i = self.dir[dkey]
+                    # Create  directory
+                    bash_command = ' mkdir -p %s  '%(dir_i)
+                    bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                    os.system(bash_command)                       
+                except:
+                    logger.warning("%s directory not set "%(dkey))
+                    
+            
                             
     def set_resource(self,resource_i):
         '''
@@ -1043,11 +1069,16 @@ class CalculationRes(Calculation):
         self.dir['storage'] = '%s/%s/'%(resource_i.dir['storage'] ,self.tag)
         self.dir['scratch'] = '%s/%s/'%(resource_i.dir['scratch'],self.tag)
         self.dir['launch'] = '%s/%s/'%(resource_i.dir['launch'],self.tag)
-        # Make directories
-        self.resource.make_dir()
-        self.make_dir()
 
-        # print " self.dir", self.dir
+
+    def add_refcalc(self,ref_calc):
+        '''
+        Add reference calculation to current calculation
+        this will copy the output of the reference calculation
+        to the current calculation's scratch location to be used
+        by the current calculation
+        '''
+        self.references[ref_calc.tag] = ref_calc
         
     def cp_file(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
         '''
@@ -1082,6 +1113,138 @@ class CalculationRes(Calculation):
         self.compress_files(file_type)
         os.chdir(self.dir['home'])
 
+
+    def push(self):
+        '''
+        Push input files to resource 
+        '''
+        #
+        logger.info(" Resource type %s "%(self.resource.meta['type']))
+
+        if( self.meta['status'] == 'written' ):
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+                print "runnning push function in %s "%(os.getcwd())
+                #
+                # Scp compressed files over to resource 
+                #
+                from_dirkey = 'launch'
+                fromdir = self.dir[from_dirkey]
+                to_dirkey = 'scratch'
+                todir = self.dir[to_dirkey]
+                file_key = self.properties['comp_key']
+                for file_type in ['input','templates','scripts']:
+                    if( len(self.files[file_type]) ):
+                        self.compress_files(file_type)
+                        file_name = self.files[file_type][file_key]
+                        # self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
+                        from_pathfile = os.path.join(fromdir,file_name)
+                        to_pathfile = os.path.join(todir,file_name)
+                        bash_command = "scp %s %s:%s"%(from_pathfile,ssh_id,todir)
+                        #os.system(bash_command)
+                        print " bash_command ",bash_command
+
+                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,todir,bash_command)
+                        # Run bash command
+                        os.system(bash_command)
+                    else:
+                        print "No files of type %s present"%(file_type)
+            else:
+                print " Resource type %s does not need to push files created localy "%(self.resource.meta['type'])
+            #
+            # Copy reference simulation output over to scratch directory
+            #
+            for ref_key,ref_calc in self.references.iteritems():
+                file_type = 'output'
+                file_name = ref_calc.files[file_type][file_key]
+                # Copy compressed reference output to scratch directory 
+                if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
+                    bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                    os.system(bash_command)
+                elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
+                    if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
+                        # Copy on external resource 
+                        bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                        bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                    else:
+                        # Copy between resources 
+                        ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                        bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
+                        os.system(bash_command)                
+                else:
+                    logger.warning(" Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type']))
+                # Uncompress reference output 
+                bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                if( self.resource.meta['type'] == "ssh" ):
+                    bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                # Run bash command
+                os.system(bash_command)
+
+                
+                
+            '''
+            # Copy over reference output
+            #for ref_tag in self.files['reference']:
+            for ref_sim in self.references:
+                #ref_sim = load_json(ref_tag)
+                ref_compressed_output = "%s_output.%s"%(ref_sim.tag,ref_sim.compress_sufix)
+                if( ref_sim.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
+                    bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
+                    os.system(bash_command)                
+                if( ref_sim.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh"):
+                    if( ref_sim.resource.meta['address'] == self.resource.meta['address'] ):
+                        bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
+                        bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                        os.system(bash_command)                
+                    else:
+                        logger.info("Can't transfer simulations between two extrernal resources :( ")
+                else:
+                    logger.info(" Resource type %s unknown "%(ref_sim.resource.meta['type']))
+                #
+                # Record compressedinputs
+                self.files['compressedinputs'].append(ref_compressed_output)            
+                         
+            os.chdir(self.meta['launch_dir'])
+            #
+            # Compress input files 
+            self.compress_input()
+            #
+            # Copy over input files 
+            if( self.resource.meta['type'] == "local" ):
+                bash_command = "cp %s %s"%(self.compressed_input,self.meta['scratch_dir'])
+                os.system(bash_command)                
+            elif( self.resource.meta['type'] == "ssh" ):
+                bash_command = "scp %s %s:%s"%(self.compressed_input,ssh_id,self.meta['scratch_dir'])
+                os.system(bash_command)
+            else:
+                logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
+            #
+            # Record compressedinputs
+            self.files['compressedinputs'].append(self.compressed_input)
+
+
+            if( self.resource.meta['type'] == "local" ):
+                # Change to scratch directory 
+                os.chdir(self.meta['scratch_dir'])
+                logger.debug("scratch_dir %s "%(self.meta['scratch_dir']))
+                # Uncompress input files
+
+                
+                
+                for file_i in self.files['compressedinputs']:
+                    bash_command = "%s %s "%(self.uncompress_method,file_i)
+                    # Run bash command
+                    os.system(bash_command)
+
+            elif( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])                              
+                for file_i in self.files['compressedinputs']:
+                    bash_command = "%s %s "%(self.uncompress_method,file_i)
+                    bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.meta['scratch_dir'],bash_command)
+                    # Run bash command
+                    os.system(bash_command)
+            '''
         
         
         

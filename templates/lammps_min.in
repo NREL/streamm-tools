@@ -1,0 +1,28 @@
+# LAMMPS input: minimization w/ full potential   
+     
+units 		real           
+boundary     p p p    
+newton          on  # use off for np>4
+
+atom_style    full    
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  opls
+improper_style  harmonic  
+
+pair_style      lj/cut/coul/long 15.0
+pair_modify     mix geometric  #  shift   yes
+kspace_style    pppm    1.0e-5
+
+read_data  <data_file>
+
+thermo_style    custom step temp pe etotal press vol lx ly lz ebond eangle edihed eimp evdwl  ecoul  elong  etail
+thermo          1000
+
+restart          1000 min1_restart
+timestep     0.1
+min_style     cg
+min_modify      dmax 0.1
+minimize      1.0e-3 1.0e-5 10000 100000
+
+write_data min1.data
