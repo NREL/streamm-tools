@@ -299,6 +299,10 @@ class Gaussian(CalculationRes):
         # Find output_key file 
         try:
             output_file = self.files['output'][output_key]
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+                os.system(bash_command)
             self.proc_log(output_file)            
         except KeyError:
             print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
@@ -306,6 +310,10 @@ class Gaussian(CalculationRes):
         fchk_key = 'fchk'
         try:
             output_file = self.files['output'][fchk_key]
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+                os.system(bash_command)
             self.proc_fchk(output_file)            
         except KeyError:
             print "Calculation %s No output_file file  with key %s found"%(self.tag,fchk_key)

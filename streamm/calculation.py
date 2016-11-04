@@ -1049,6 +1049,7 @@ class CalculationRes(Calculation):
             os.chdir(self.dir['home'])
             for dkey,dir_i in self.dir.iteritems():
                 if ( not os.path.isdir(dir_i) ):
+                    print "Making %s "%(dir_i)
                     os.mkdir(dir_i)
             os.chdir(self.dir['home'])
         elif( self.resource.meta['type'] == "ssh" ):
@@ -1058,6 +1059,7 @@ class CalculationRes(Calculation):
             try:
                 dir_i = self.dir[dkey]
                 if ( not os.path.isdir(dir_i) ):
+                    print "Making %s "%(dir_i)
                     os.mkdir(dir_i)                
             except:
                 logger.warning("%s directory not set "%(dkey))
