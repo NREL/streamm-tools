@@ -218,6 +218,7 @@ class Calculation:
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+            print " File not found %s in %s "%(json_file,os.getcwd())
 
     def set_strucC(self,strucC_i):
         '''

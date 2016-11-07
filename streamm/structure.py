@@ -1667,7 +1667,18 @@ class Container():
         for pkey_i, particle_i  in self.particles.iteritems():
             self.mass += particle_i.properties["mass"]
 
-        return 
+        return
+
+    def calc_charge(self):
+        """
+        Calculate total charge of structure  
+        """
+        self.charge = float(0.0)
+        
+        for pkey_i, particle_i  in self.particles.iteritems():
+            self.charge += particle_i.properties["charge"]
+
+        return
 
 
     def calc_volume(self):
@@ -1741,6 +1752,19 @@ class Container():
 
         return
 
+    def sum_prop(self,propkey,pkey_i,pkeyp_j):
+        '''
+        Sum property of particle i into particle j
+        '''
+        try:
+            # Sum charges of particles to be removed into attachment points
+            #print " Summing ",self.particles[pkeyp_j].properties['symbol'],self.particles[pkeyp_j].properties['charge']
+            #print " into ",self.particles[pkey_i].properties['symbol'],self.particles[pkey_i].properties['charge']
+            self.particles[pkey_i].properties['charge'] += self.particles[pkeyp_j].properties['charge']
+            self.particles[pkeyp_j].properties['charge'] = 0.0
+        except:
+            logger.warning("Container %s does not have particle charges"%(pkeyp_j.tag))
+                                 
     def maxtags(self):
         """
         Find max mol and residue numbers
