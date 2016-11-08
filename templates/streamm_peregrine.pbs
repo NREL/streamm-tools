@@ -18,9 +18,6 @@ module load conda/4.1
 module load openmpi-gcc/1.7.3-4.8.2
 module load mdanalysis/0.8.1 
 
-<streamm_commands>
-
-#mpirun -np $NPROC python  <py_script>  <tag>   >> <tag>.out
-# python  <py_script>  <tag>   >> <tag>.out
+<streamm_command>
 
 
