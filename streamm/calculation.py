@@ -124,9 +124,13 @@ class Calculation:
         '''
         compress_files = ''
         for fkey,file_i in self.files[file_type].iteritems():
+            print " file_i ",file_i
             if( fkey != self.properties['comp_key'] ):
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
+        #
+        print "> compressed_file ",compressed_file
+        #
         # Add compressed file to file dictionary 
         self.add_file(file_type,self.properties['comp_key'],compressed_file)
         # Return bash command as string 
@@ -169,7 +173,7 @@ class Calculation:
         new_str = replace(new_str,"<tag>",self.tag)
         
         for propkey,prop_i in self.properties.iteritems():
-                prop_replace = "<%s>"%(propkey)                
+                prop_replace = "<%s>"%(propkey)
                 new_str = replace(new_str,prop_replace,str(prop_i))
 
         return new_str
@@ -195,6 +199,9 @@ class Calculation:
         json_data['meta'] = self.meta
         json_data['units'] = self.units
         json_data['files'] = self.files
+        json_data['data'] = self.data
+        json_data['properties'] = self.properties
+        json_data['references'] = self.references
         
         json_file = "%s_%s.json"%(self.prefix,self.tag)
         f = open(json_file, 'w')
@@ -215,6 +222,14 @@ class Calculation:
                 self.meta = json_data['meta']
                 self.units = json_data['units']
                 self.files = json_data['files']
+                self.dir = json_data['dir']
+
+                dkey = 'resource'
+                try:
+                    res_i = self.meta[dkey]
+                except:
+                    print "No %s found "%(dkey)
+                    
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
@@ -230,8 +245,8 @@ class Calculation:
         '''
         Add a structure.Container to the simulation 
         '''
-        self.strucC += strucC_i   
-
+        self.strucC += strucC_i
+        
     def add_paramC(self,paramC_i):
         '''
         Add force field parameters based on fftypes in structure 
@@ -304,7 +319,7 @@ class Calculation:
                 print "If ouput file missing leave status and return"
                 return
         else:
-            print "Calculation %s has status %s and will not be checked "%(self.meta['status'])
+            print "Calculation %s has status %s and will not be checked "%(self.tag,self.meta['status'])
 
     def store(self):
         '''
@@ -332,6 +347,7 @@ class Calculation:
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
                     os.system(bash_command)
+                    self.add_file(file_type,file_key,file_name)
                 else:
                     print "No files of type %s present"%(file_type)
             self.meta['status'] = 'stored'
@@ -341,6 +357,7 @@ class Calculation:
         '''
         Copy output and data of simulation from storage 
         '''
+        print "394jr092"
         if( self.meta['status'] == 'stored' ):
             if( self.resource.meta['type'] == "local" ):
                 print "runnning pull function in %s "%(os.getcwd())
@@ -354,7 +371,33 @@ class Calculation:
                 os.system(bash_command)
                 
             elif( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+                from_dirkey = 'scratch'
+                fromdir = self.dir[from_dirkey]
+                to_dirkey = 'launch'
+                todir = self.dir[to_dirkey]
+                comp_key = self.properties['comp_key']
+                #for file_type,files in self.files:
+                for file_type in ['output','data']:
+                    #if( len(self.files[file_type]) ):
+                    run_cp  = False 
+                    try:
+                        file_name = self.files[file_type][comp_key]
+                        run_cp  = True 
+                        print file_type,self.files[file_type][comp_key]
+                    except:
+                        logging.warning("No commpressed files for file type %s with key %s "%(file_type,comp_key))
+                        print "No commpressed files for file type %s with key %s "%(file_type,comp_key)
+                    if( run_cp ):
+                        from_pathfile = os.path.join(fromdir,file_name)
+                        to_pathfile = os.path.join(todir,file_name)
+                        bash_command = "scp %s:%s%s %s "%(ssh_id,fromdir,file_name,todir)
+                        print "bash_command ",bash_command
+                        os.system(bash_command)
+                        # Uncompress file
+                        os.chdir(todir)
+                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                        os.system(bash_command)
             else:
                 print " Resource type %s unknown "%(self.resource.meta['type'])
             
@@ -1040,6 +1083,57 @@ class CalculationRes(Calculation):
         Calculation.__del__(self)
         del self.resource
         #
+
+
+    def dump_json(self):
+        '''
+        Dump json file for reference 
+        '''
+        json_data = dict()
+        json_data['meta'] = self.meta
+        json_data['units'] = self.units
+        json_data['files'] = self.files
+        json_data['data'] = self.data
+        json_data['properties'] = self.properties
+        json_data['references'] = self.references
+        json_data['resource'] = self.resource
+        
+        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        f = open(json_file, 'w')
+        json.dump(json_data,f, indent=2)
+        f.close()
+
+
+    def load_json(self):
+        '''
+        Load json file for reference 
+        '''        
+        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        try:
+            with open(json_file) as f:            
+                json_data = json.load(f)
+                f.close()
+                
+                self.meta = json_data['meta']
+                self.units = json_data['units']
+                self.files = json_data['files']
+                self.data = json_data['data'] 
+                self.properties = json_data['properties'] 
+                self.references = json_data['references'] 
+                self.resource = json_data['resource'] 
+
+                dkey = 'resource'
+                try:
+                    res_i = self.meta[dkey]
+                except:
+                    print "No %s found "%(dkey)
+                    
+
+        except IOError:
+            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+            print " File not found %s in %s "%(json_file,os.getcwd())
+
+        
     def make_dir(self):
         '''
         Check that needed directories exist 
@@ -1086,6 +1180,7 @@ class CalculationRes(Calculation):
         self.meta['resource'] = resource_i.tag
         # Add resource properties to calculation properties
         self.properties.update(resource_i.properties)
+        
         # Set simulation directories based on resource
         self.dir = copy.deepcopy(resource_i.dir)
         # Set storage and scratch to have calculation directories 
@@ -1167,7 +1262,7 @@ class CalculationRes(Calculation):
         print " Resource type %s "%(self.resource.meta['type'])
 
         if( self.meta['status'] == 'written' ):
-            if( self.resource.meta['type'] == "ssh" ):
+            if( self.resource.meta['type'] == "sshaf" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
                 print "runnning push function in %s "%(os.getcwd())
                 #
@@ -1199,33 +1294,42 @@ class CalculationRes(Calculation):
             #
             # Copy reference simulation output over to scratch directory
             #
+            file_key = self.properties['comp_key']
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
             for ref_key,ref_calc in self.references.iteritems():
                 print "Copying output of reference calculations %s"%(ref_key)
                 file_type = 'output'
-                file_name = ref_calc.files[file_type][file_key]
-                # Copy compressed reference output to scratch directory 
-                if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
-                    bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                    os.system(bash_command)
-                elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
-                    if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
-                        # Copy on external resource 
+                try:
+                    file_name = ref_calc.files[file_type][file_key]
+                except:
+                    print "Fine type %s has no compressed files "%(file_type)
+                    file_name = ''
+                if( len(file_name) > 0 ):
+                    
+                    # Copy compressed reference output to scratch directory 
+                    if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
                         bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                        bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
-                        os.system(bash_command)                
+                        os.system(bash_command)
+                    elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
+                        if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
+                            # Copy on external resource 
+                            bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                            bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                            os.system(bash_command)                
+                        else:
+                            # Copy between resources 
+                            ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                            bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
+                            os.system(bash_command)                
                     else:
-                        # Copy between resources 
-                        ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
-                        bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
-                        os.system(bash_command)                
-                else:
-                    logger.warning(" Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type']))
-                # Uncompress reference output 
-                bash_command = "%s %s "%(self.properties['uncompress'],file_name)
-                if( self.resource.meta['type'] == "ssh" ):
-                    bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                # Run bash command
-                os.system(bash_command)
+                        print " Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type'])
+                    # Uncompress reference output 
+                    bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                    if( self.resource.meta['type'] == "ssh" ):
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                    # Run bash command
+                    os.system(bash_command)
 
                 
                 

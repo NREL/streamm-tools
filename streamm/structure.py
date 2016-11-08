@@ -1746,7 +1746,7 @@ class Container():
         for pkey_i, particle_i  in self.particles.iteritems():
             mass_i = particle_i.properties["mass"]
             # print self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2],mass_i
-            self.center_mass += mass_i*self.positions[pkey_i]
+            self.center_mass += mass_i*np.array(self.positions[pkey_i])
 
         self.center_mass = self.center_mass/self.mass
 
@@ -2553,7 +2553,8 @@ class Container():
                 # If no overlap detected add molecule to the system
                 if( poxpass ):
                     if ( rank == 0 ):
-                        logging.debug('No overlap found adding structure ')
+                        logging.debug('No overlap found adding structure %s'(struc_add_cnt))
+                        print 'No overlap found adding structure %s'(struc_add_cnt)
                     # Create copy of structure to add to preserve original state 
                     structoadd= copy.deepcopy(other)
                     # Update mol number

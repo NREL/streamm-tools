@@ -483,7 +483,10 @@ class LAMMPS(CalculationRes):
                     logger.warning("Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lmpindx))
                     sys.exit(2)
                 # set particle and  properties
-                particle_i = buildingblock.BBatom(ljtype_i.atomic_symbol)
+                try:
+                    particle_i = self.strucC.particles[pkey_i]
+                except:
+                    particle_i = buildingblock.BBatom(ljtype_i.atomic_symbol)
                 particle_i.properties["mol"] = int(col[1])      
                 particle_i.properties["charge"] = float(col[3])
                 particle_i.properties["mass"] = ljtype_i.mass
@@ -878,7 +881,7 @@ class LAMMPS(CalculationRes):
                 output_file = str(col[1])
                 logger.info("Reading %s data file"%(output_file))
                 self.add_file('output','data_%d'%(len(self.properties['run_list'])),output_file)
-                if( data2cply):
+                if( data2cply ):
                     
                     self.read_data(output_file)
                     # Update particle properties with reference
@@ -929,8 +932,7 @@ class LAMMPS(CalculationRes):
             update_run = True
             run_cnt_i = 0
             run_i = self.properties['run_list'][run_cnt_i]
-            if( debug):
-                print ">  using mdrun with len %d "%(len(self.properties['run_list']))
+            print ">  using mdrun with len %d "%(len(self.properties['run_list']))
         else:
             self.properties['run_list']  = []
             run_i = mdrun()
@@ -938,50 +940,67 @@ class LAMMPS(CalculationRes):
             print ">analyze_log update_run",update_run
         thermo_keywords = ['Step','Temp','PotEng','TotEng','Press','Volume']
         for line in log_lines:
+            # print "line:",line
             # llow = line.lower()
+            col = line.split()
+  
+            if( 'Loop time' in str(line) ):
+                print " Calc %s finished "%(run_cnt_i)
+                run_cnt_i += 1
+                if( update_run and len(self.properties['run_list']) <= run_cnt_i):
+                    run_i = self.properties['run_list'][run_cnt_i]
+                else:
+                    self.properties['run_list'].append(copy.deepcopy(run_i))
+                    run_i = mdrun()                    
+
             if( 'Step Temp PotEng TotEng Press Volume' not in line):
                 
-                col = line.split()
-                if( debug):
-                    print ">analyze_log col ",col
+                
             
+
                 if( len(col) >= 17 and col[0] != 'thermo_style' ):
+                    print "> col ",run_i.properties['n_frames'],col
+                    
                     if(  run_i.properties['n_frames']  == 2 ):
                         # Calculate dstep
+                        print  run_i.timeseries['step']
                         run_i.properties['dstep']  =  run_i.timeseries['step'][1] -  run_i.timeseries['step'][0]
                         if( debug):
                             print ">LAMMPS.analyze_log run_i. dstep %f "%(run_i.properties['dstep'] )
+                    '''
                     elif(  run_i.properties['n_frames'] > 2 ):
                         # Test for new run 
                         new_run = False
                         dstep_i = int(col[0]) -  run_i.timeseries['step'][-1]
                         if( int(col[0]) < run_i.timeseries['step'][-1] ):
                             new_run = True
-                            if( debug):
-                                print ">LAMMPS.proc_log next step %d less than last %d "%(int(col[0]) , run_i.timeseries['step'][-1])
+                            print ">LAMMPS.proc_log next step %d less than last %d "%(int(col[0]) , run_i.timeseries['step'][-1])
                         
                         elif( dstep_i != run_i.properties['dstep']  ):
                             new_run = True
-                            if( debug):
-                                print ">LAMMPS.proc_log dstep %f has changed %f at %f "%(dstep_i,run_i.dstep, run_i.step_list[-1])
+                            print ">LAMMPS.proc_log dstep %f has changed %f at %f "%(dstep_i,run_i.properties['dstep', run_i.step_list[-1])
                         if( new_run ):
-                            if( debug):
-                                print "> LAMMPS.proc_log  new run found"
+                            print "> LAMMPS.proc_log  new run found"
                             if( update_run ):
                                 run_cnt_i += 1
                                 run_i = self.properties['run_list'][run_cnt_i]
                             else:
                                 self.properties['run_list'].append(copy.deepcopy(run_i))
                                 run_i = mdrun()
+                    '''
                         
                     if( debug ):
                         print "> read_enline ",len(col),col
+                    
                     for prop_i in run_i.timeseries.keys():
-                        i = run_i.prop_col[prop_i] 
+                        i = run_i.prop_col[prop_i]
                         run_i.timeseries[prop_i].append(float(col[i]))
-                    run_i.properties['n_frames'] +=1
 
+                    run_i.properties['n_frames'] +=1
+                    print run_i.properties['n_frames'],"9823u ",run_i.timeseries['step']
+                  
             else:
+                print " Adding thermo keys from line: %s "%(line)
                 # Add thermo keys to properties
                 llow = line.lower()
                 col = llow.split()
