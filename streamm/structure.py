@@ -2748,7 +2748,7 @@ class Container():
         return None 
 
             
-    def find_pairs(self,list_i,list_j,groups_inter,mol_inter,mol_intra,size):
+    def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
         '''
         Find pairs based on criteria
         '''
@@ -2756,10 +2756,11 @@ class Container():
         N_j = len(list_j)
 
         if( N_i == 0 or N_j == 0 ):
-            sys.exit(" Empty list passed to structure.find_pairs ")
+            logger.warning(" Empty list passed to structure.find_pairs ")
+            return 
         
         # probabilityperpair = 1.0     # Probability per pair i-j 
-        logger.info("Finding %d x %d  pairs on %d proc "%(N_i,N_j,size))
+        logger.info("Finding %d x %d  pairs  "%(N_i,N_j))
         
         pairvalue_ij =  np.zeros((N_i,N_j), dtype=np.float64)   # value assigned to each pair 
         # 
@@ -2769,14 +2770,10 @@ class Container():
                 pid_j = list_j[indx_j]
                 if( pid_i != pid_j ):
                     pairvalue_ij[indx_i][indx_j] = 1.0
-                    if( mol_inter and strucC.particle[pid_i].properties["mol"] == strucC.particle[pid_j].properties["mol"] ):
+                    if( mol_inter and self.particles[pid_i].properties["mol"] == self.particles[pid_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    elif( mol_intra and strucC.particle[pid_i].properties["mol"] != strucC.particle[pid_j].properties["mol"] ):
+                    elif( mol_intra and self.particles[pid_i].properties["mol"] != self.particles[pid_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    if( groups_inter ):
-                        sys.exit(" Broke structure.find_pairs ")
-                        if( self.particles[pid_i].properties["group"]  == self.particles[pid_j].properties["group"]  ):
-                            pairvalue_ij[indx_i][indx_j] = 0.0
                     logger.debug(" keyi %d keyj %d has probility value of %f "%(pid_i,pid_j,pairvalue_ij[indx_i][indx_j]))
                         
         return pairvalue_ij

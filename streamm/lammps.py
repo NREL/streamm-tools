@@ -638,6 +638,92 @@ class LAMMPS(CalculationRes):
         #      
         return  
 
+
+    def read_data_pos(self, data_file,
+        btype = "harmonic",
+        atype = "harmonic",
+        dtype = "multiharmonic",
+        imptype = "improper",
+        debug = False):
+
+        """
+        Read positions only from Lammps data file
+
+        Arguments:
+            data_file  (str) data file
+        Return:
+            None
+        """
+
+        F = open(data_file , 'r' )
+        lines = F.readlines()
+        F.close()
+        logger.debug(" Reading {} ",data_file)
+        #
+        # Read in data header with number of parameters 
+        #
+        matrix = self.strucC.lat._matrix 
+        for line in lines:
+            col = line.split()
+
+            if ( len(col) >=2 ):
+                # Read in number of each topolgical component  
+                if( col[1] == "atoms" and self.strucC.n_particles != int( col[0] )):
+                    print "LAMMPS data file %s has %d particles while strucC object has %d particles "%(data_file, self.strucC.n_particles, int( col[0] ))
+                    return 
+
+            # Read in box size    
+            if ( len(col) >= 4 ):
+                if( col[2]  == "xlo"  and col[3]  == "xhi"  ):
+                    matrix[0][0] = float( col[1] ) - float( col[0] )
+                    matrix[0][1] = 0.0  
+                    matrix[0][2] = 0.0  
+                if( col[2]  == "ylo"  and col[3]  == "yhi"  ):
+                    matrix[1][0] = 0.0  
+                    matrix[1][1] = float( col[1] ) - float( col[0] ) 
+                    matrix[1][2] = 0.0  
+                if( col[2]  == "zlo"  and col[3]  == "zhi"  ):
+                    matrix[2][0] = 0.0  
+                    matrix[2][1] = 0.0  
+                    matrix[2][2] = float( col[1] ) - float( col[0] )
+                    # Set lattice
+                    self.strucC.lat.set_matrix(matrix)
+             
+        #
+        # Intialize read in boolean to off                    
+        #
+
+        read_Atoms = False
+        #
+        # Read in data parameters 
+        #
+        for line in lines:
+            col = line.split()
+            
+
+            if( read_Atoms and len(col) >= 7 ):
+
+                # print ">read_Atoms col",col
+                
+                cnt_Atoms += 1
+                
+                pkey_i = int( col[0]) - 1
+                # set position 
+                pos_i =  [ float(col[4]),float(col[5]),float(col[6])] 
+                self.strucC.positions[pkey_i] = pos_i
+
+                if( cnt_Atoms >=  self.strucC.n_particles ):
+                    read_Atoms = False
+
+            if ( len(col) >= 1  ):
+                if( col[0] == "Atoms" ):
+                    read_Atoms = True
+                    cnt_Atoms = 0
+                    # 
+                    logger.debug("Reading Atoms   ")
+        #      
+        return  
+    
     def write_data(self,data_file=''):
         """
         Write data file
