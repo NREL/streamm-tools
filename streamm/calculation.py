@@ -222,14 +222,9 @@ class Calculation:
                 self.meta = json_data['meta']
                 self.units = json_data['units']
                 self.files = json_data['files']
-                self.dir = json_data['dir']
-
-                dkey = 'resource'
-                try:
-                    res_i = self.meta[dkey]
-                except:
-                    print "No %s found "%(dkey)
-                    
+                self.data = json_data['data'] 
+                self.properties = json_data['properties'] 
+                self.references = json_data['references'] 
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
@@ -1074,6 +1069,7 @@ class CalculationRes(Calculation):
         Calculation.__init__(self, tag)
         # Computational Resource used for simulation/calculation  
         self.resource = resource.Resource()
+        self.dir = dict()
         #
     def __del__(self):
         """
@@ -1082,6 +1078,7 @@ class CalculationRes(Calculation):
         # Call base class destructor
         Calculation.__del__(self)
         del self.resource
+        del self.dir 
         #
 
 
@@ -1095,8 +1092,15 @@ class CalculationRes(Calculation):
         json_data['files'] = self.files
         json_data['data'] = self.data
         json_data['properties'] = self.properties
-        json_data['references'] = self.references
-        json_data['resource'] = self.resource
+        json_data['properties']['run_list'] = ''
+        
+        json_data['references'] = dict()
+        for ref_key,ref_calc in self.references.iteritems(): 
+            json_data['references'][ref_key] = ref_calc.tag
+            
+        json_data['dir'] = self.dir
+
+        print json_data
         
         json_file = "%s_%s.json"%(self.prefix,self.tag)
         f = open(json_file, 'w')
@@ -1119,15 +1123,32 @@ class CalculationRes(Calculation):
                 self.files = json_data['files']
                 self.data = json_data['data'] 
                 self.properties = json_data['properties'] 
-                self.references = json_data['references'] 
-                self.resource = json_data['resource'] 
+                self.dir = json_data['dir']
 
-                dkey = 'resource'
+                # Load resource 
                 try:
-                    res_i = self.meta[dkey]
+                    res_tag = json_data['meta']['resource']
                 except:
-                    print "No %s found "%(dkey)
+                    res_tag = ''
+                    print "No resource found "
+                if( len(res_tag) > 0 ):
+                    print "Resource tag found %s "%(res_tag)
+                    resource_i = resource.Resource(str(res_tag))
+                    resource_i.load_json()
+                    self.resource = resource_i
+                                    
+                # Load references 
+                try:
+                    ref_tags = json_data['references']
+                    for rekey,ref_tag in ref_tags:
+                        ref_i = Calculation(ref_tag)
+                        ref_i.load_json()
+                        self.add_refcalc(ref_i)
+                        print " Need to set reference calculation type "
+                except:
+                    print "No references found "
                     
+
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
@@ -1262,7 +1283,7 @@ class CalculationRes(Calculation):
         print " Resource type %s "%(self.resource.meta['type'])
 
         if( self.meta['status'] == 'written' ):
-            if( self.resource.meta['type'] == "sshaf" ):
+            if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
                 print "runnning push function in %s "%(os.getcwd())
                 #
@@ -1306,7 +1327,6 @@ class CalculationRes(Calculation):
                     print "Fine type %s has no compressed files "%(file_type)
                     file_name = ''
                 if( len(file_name) > 0 ):
-                    
                     # Copy compressed reference output to scratch directory 
                     if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
                         bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
