@@ -261,17 +261,11 @@ def setup_calc(proj_tag,options,p):
         logger.info("Reading %s "%(options.t_nw))
         logger.info("Reading %s "%(options.t_run))
         logger.info("Setting up resource %s "%("local"))
-    
-    # Set up local as resource 
-    local = resource.Resource("local")
-    # Set default simulation specs 
-    local.properties['exe_command'] = './' 
-    local.properties['ppn'] = 24
-    local.dir['launch'] = local.dir['home'] 
-    # Create local directories for project 
-    local.make_dir()
-    local.dump_json()
-
+        
+    local = resource.Resource('local')
+    local.load_json()
+    #
+    nw_o = nwchem.NWChem('nw_ref')
     nw_o.files['templates']['t_nw'] = options.t_nw
     nw_o.files['templates']['t_run'] = options.t_run
 
@@ -324,12 +318,14 @@ def setup_calc(proj_tag,options,p):
             struc_i = group_list[g_i]
             struc_j = group_list[g_j]
             mol_i = int(g_i_info[2])
-            mol_j = int(g_j_info[3])
+            mol_j = int(g_j_info[2])
             #if( mol_i != mol_j ):
             pair_cnt += 1         
 
             nw_i = nwchem.NWChem(tag_i) #simulation.NWChem(tag_i)
             nw_i.set_resource(local)
+            nw_i.properties['scratch'] = nw_i.dir['scratch']
+            
             nw_i.str['t_nw'] = copy.deepcopy(nw_o.str['t_nw'])
             nw_i.str['t_run'] = copy.deepcopy(nw_o.str['t_run'])
 
@@ -339,17 +335,23 @@ def setup_calc(proj_tag,options,p):
             nw_i.properties['coord_i'] = struc_i.write_coord()
             nw_i.properties['coord_j'] = struc_j.write_coord()
             nw_i.properties['coord_ij'] = struc_ij.write_coord()
-
+            
+            #nw_i.make_dir()
+            if ( not os.path.isdir(nw_i.dir['scratch']) ):
+                print "Making %s "%(nw_i.dir['scratch'])
+                os.mkdir(nw_i.dir['scratch'])
+                         
+            os.chdir(nw_i.dir['scratch'])
+            
             nw_i.replacewrite_prop('t_nw','input','in',"%s.in"%(nw_i.tag))
+            nw_i.properties['input_nw'] = nw_i.files['input']['in']
             nw_i.replacewrite_prop('t_run','input','run',"%s.sh"%(nw_i.tag))
+            
+            nw_i.add_file('output','log',"%s.log"%(nw_i.tag))
 
+            os.chdir(nw_i.dir['home'])
             nw_i.dump_json()
-            nw_i.push()
-
-            # proj_i.add_sim(sim_i)
-            #simtags_p.append(tag_i)
-            #sims_p.append(sim_i)
-
+            
             fout = open(sims_file,'a')
             sims_writer = csv.writer(fout,delimiter=',')
             row_i = [tag_i]
@@ -440,20 +442,17 @@ def split_proj(proj_tag,options,p):
         proj_tag_n = "%s_node_%d"%(proj_tag,n)
         proj_n = project.Project(proj_tag_n)
         
-        proj_n.resources['peregrine'] = peregrine
-
         logger.info("Writing proj %s with %d sims on proc %d "%(proj_n.tag,N_sims_p,rank))
         sim_cnt = 0 
         for sim_i_tag in simtags_n:
             #proj_i.add_sim(sim_i)
-            sim_i = nwchem.load_json(sim_i_tag)
-            #sim_i.push()
-            # sim_i.check()
-            # print " simulation %s has status %s "%(sim_i.tag,sim_i.meta['status'])
+            sim_i = nwchem.NWChem(sim_i_tag)
+            sim_i.load_json()
+            print " simulation %s has status %s "%(sim_i.tag,sim_i.meta['status'])
             # os.chdir(proj_n.meta['scratch_dir'])
             #if( sim_i.meta['status'] != 'finished' ):
             #    sim_i.meta['status'] = 'written'
-            proj_n.calculations['sim_i_tag'] = sim_i
+            proj_n.calculations[sim_i_tag] = sim_i
             logger.info("Sim %s [%d]/%d (%d) with status %s => %s "%(sim_i.tag,sim_cnt,N_sims_p,N_sims,sim_i.meta['status'],proj_n.tag))
             #else:
             #    logger.info("Sim %s status %s"%(sim_i.tag,sim_i.meta['status']))
@@ -461,41 +460,14 @@ def split_proj(proj_tag,options,p):
             sim_cnt += 1
         logger.info("Sim %s on proc %d for node %d "%(proj_tag_n,rank,n))
         proj_n.files['input']['pyscript'] = 'run_proj.py'
-        proj_n.properties['pyscript'] = 'run_proj.py'
-        proj_n.load_str('input','pyscript')
-        proj_n.replacewrite_prop('pyscript','input','run',"%s.pbs"%(proj_n.tag))
+        proj_n.files['templates']['run'] = 'streamm_peregrine.pbs'
+        proj_n.load_str('templates','run')
+        proj_n.properties['streamm_command'] = 'python run_proj.py %s > %s.out '%(proj_n.tag,proj_n.tag)
+        proj_n.replacewrite_prop('run','input','run',"%s.pbs"%(proj_n.tag))
         proj_n.dump_json()
     
     p.barrier()
     
-def run_calc(proj_tag,options,p):
-    #
-    # MPI setup
-    #
-    rank = p.getRank()
-    size = p.getCommSize()
-
-    
-        
-    if( rank == 0 ):
-        logging.info('Running on %d procs %s '%(size,datetime.now()))        
-    
-    if( rank == 0 ):
-        logger.info("Running  %s "%(proj_tag))
-        
-    proj_i = project.load_json(calc_tag)
-    local = proj_i.resources["local"]
-
-    #sys.exit("2093r902u3r982uriu2h498y")
-
-    proj_i.run()
-    # proj_i.check()
-    proj_i = check_p(proj_i)
-    #proj_i.store()
-    # proj_i.analysis()
-    os.chdir(proj_i.home_dir)
-    proj_i.dump_json()
-
 
 def read_energies(proj_tag,options,p):
     #
@@ -542,121 +514,22 @@ def read_energies(proj_tag,options,p):
         logger.info('output group_%s group_%s.csv'%(options.group_id,options.group_id))
     proj_i.dump_json()
 
-def read_struc(proj_tag,options,p):
-    #
-    # MPI setup
-    #
-    rank = p.getRank()
-    size = p.getCommSize()
+def set_res():
 
-    if( rank == 0 ):
-        logging.info('Running on %d procs %s '%(size,datetime.now()))        
-
-    if( rank == 0 ):
-        logger.info("Creating empty buildingblock.Container  %s "%('mol_min'))
-    
-    mol_lmp = buildingblock.Container('mol_min')
-
-    # Run position update from individual minimizations 
-    proj_i = project.load_json(calc_tag)
-    proj_i.check()
-
-    sim_cnt = 0 
-    for sim_i in proj_i.simulations:
-        os.chdir(sim_i.meta['scratch_dir'])
-        sim_i.read_data(sim_i.files['output']["1"])
-        mol_lmp += sim_i.strucC
-        print "From sim %s reading data file %s with %d particles into container with %d particles "%(sim_i.tag,sim_i.files['output']["1"],sim_i.strucC.n_particles,mol_lmp.n_particles)
-        #if( rank == 0 ):
-        #    logger.info("output sim_%d_json %s "%(group_tag,group_file))
-        sim_cnt += 1
-
-    if( rank == 0 ):
-        logger.info("Reading in structure from %s "%(options.cply))
-
-    if( rank == 0 ):
-        logger.info("Reading  %s "%(proj_tag))
-        
-
-    print "Changing to home directory %s "%(proj_i.home_dir)
-    os.chdir(proj_i.home_dir)
-    new_bulk = buildingblock.Container(proj_tag)
-    new_bulk.read_cply(cply_file = options.cply)
-    new_bulk.write_xyz(xmol_file='initial.xyz')
-    new_bulk.positions = mol_lmp.positions
-    if( rank == 0 ):
-        logger.info("Groups for pbcs %s "%(options.group_id))
-    new_bulk.particles_select = new_bulk.particles.keys()
-    mols_index = new_bulk.group_prop("mol")
-    new_bulk.group_pbcs()
-
-    if( rank == 0 ):
-        logger.info("output cply %s.cply "%(new_bulk.tag))
-        
-    new_bulk.write_cply()
-    new_bulk.write_xyz(xmol_file='finial.xyz')
-    # 
-    proj_i.add_struc(new_bulk)
-    proj_i.dump_json()
-
-
-def write_newdata(calc_tag,options,p):
-    #
-    # MPI setup
-    #
-    rank = p.getRank()
-    size = p.getCommSize()
-    
-    if( rank == 0 ):
-        logger.info("Reading %s "%(options.t_in))
-        script_in_str = string_load(options.t_in)
-        
-    if( rank == 0 ):
-        logger.info("Reading %s "%(options.t_run))
-        script_run_str = string_load(options.t_run)
-    
-    proj_i = project.load_json(calc_tag)
-
-    if( rank == 0 ):
-        logger.info("Writing new data file ")
-        
-    local = proj_i.resources["local"]
-
-    lmp_new = simulation.LAMMPS(calc_tag)
-    lmp_new.set_resource(local)
-    lmp_new.read_data(options.data)
-    # lmp_new.read_data('prod1.data')
-    struc_o = buildingblock.Container(calc_tag)
-    struc_o.read_cply()
-    lmp_new.strucC.positions = struc_o.positions
-    # Update mols numbers 
-    for pkey_i, particle_i in struc_o.particles.iteritems():
-        lmp_new.strucC.particles[pkey_i].properties["mol"] = particle_i.properties["mol"]
-    #struc_o = lmp_new.update_cply('%s.cply'%(calc_tag))
-    lmp_new.write_data()
-    if( rank == 0 ):
-        logger.info("output data %s.data "%(calc_tag))
-
-    lmp_new.template_in = copy.deepcopy(script_in_str)
-    lmp_new.template_script = copy.deepcopy(script_run_str)
-    lmp_new.write_data()
-
-    '''
-    lmp_new.write_in()
-    lmp_new.write_script()
-    lmp_new.push()
-    
-    proj_i.add_sim(lmp_new)
-    proj_i.dump_json()
-    
-    lmp_new.run()
-    lmp_new.check()
-    #proj_i.store()
-    lmp_new.analysis()
-    
-    proj_i.dump_json()
-    '''
+    # Set up local as resource 
+    local = resource.Resource("local")
+    # Set default simulation specs 
+    local.properties['exe_command'] = './' 
+    local.properties['ppn'] = 24
+    local.properties['nproc'] = 24
+    local.dir['launch'] = local.dir['home'] 
+    # Create local directories for project 
+    local.make_dir()
+    local.dump_json()
+      
 def et(calc_tag,options,p):
+
+    set_res()
 
     #rdf(calc_tag,options)
     group_file = 'group_%s.csv'%(options.group_id)

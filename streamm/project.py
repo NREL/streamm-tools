@@ -41,13 +41,8 @@ class Project(CalculationRes):
             tag (str): String identifier for object
         """
         # Base class constructor is called
-        CalculationRes.__init__(self)
+        CalculationRes.__init__(self,tag)
         
-        if isinstance(tag, str):
-            self.tag = tag   # String name of simulation code (eg GaussianJuly21)
-        else:
-            raise TypeError("1st arg (tag) in %s Project initialization should be string"%(__name__))
-          
         self.prefix = 'proj'        
         self.calculations = dict()
         self.resources = dict()
@@ -93,8 +88,12 @@ class Project(CalculationRes):
             with open(json_file) as f:            
                 json_data = json.load(f)
                 f.close()
+
+                self.meta = json_data['meta']
                 
-                for calc_key,software_i in json_data['calculations']:
+                for calc_key,software_i in json_data['calculations'].iteritems():
+                  calc_key = str(calc_key)
+                  logger.debug("Loading calculation %s using %s module "%(calc_key,software_i))
                   if( software_i == 'nwchem' ):
                     calc_i = nwchem.NWChem(calc_key)
                   elif( software_i == 'lammps' ):
@@ -106,10 +105,9 @@ class Project(CalculationRes):
                   else:
                     print "Unknow software %s will set as general calculation object "%(software_i)
                     calc_i = calculation.CalculationRes(calc_key)
-                    
+                  # Load calculation
                   calc_i.load_json()
-                self.units = json_data['units']
-                self.files = json_data['files']
+                  self.calculations[calc_key] = calc_i
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))

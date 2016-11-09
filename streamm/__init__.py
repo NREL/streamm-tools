@@ -1,2 +1,2 @@
-__all__ = ["periodictable","units","structure","parameters","buildingblock","resource","calculation","gaussian","lammps","gromacs","nwchem","mpiBase"]
+__all__ = ["project","periodictable","units","structure","parameters","buildingblock","resource","calculation","gaussian","lammps","gromacs","nwchem","mpiBase"]
 

@@ -285,7 +285,8 @@ class Calculation:
                 output_file = self.files['output'][output_key]
             except KeyError:
                 print "Calculation %s no output_file file  with key %s found"%(self.tag,output_key)
-
+                return
+            
             if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
                 bash_command = "ssh  %s  grep \'%s\' %s%s >> ./%s "%(ssh_id,self.properties['finish_str'],self.dir['scratch'],output_file,output_file)
@@ -1356,7 +1357,7 @@ class CalculationRes(Calculation):
                     else:
                         print "No files of type %s present"%(file_type)
             else:
-                print " Resource type %s does not need to push files created localy "%(self.resource.meta['type'])
+                print " Resource type %s does not need to push files created locally "%(self.resource.meta['type'])
             #
             # Copy reference simulation output over to scratch directory
             #

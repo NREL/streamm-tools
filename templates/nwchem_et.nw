@@ -1,13 +1,10 @@
 start test
  geometry GEOMI units angstroms NOCENTER NOAUTOZ NOAUTOSYM
- <coord_i>
- end
+ <coord_i>end
  geometry GEOMJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
- <coord_j>
-end
+ <coord_j>end
  geometry GEOMIJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
- <particles_ij>
-end
+ <coord_ij>end
 
  BASIS 
  * LIBRARY 6-31g 
