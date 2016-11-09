@@ -33,11 +33,11 @@ class NWChem(CalculationRes):
         # Base class constructor is called
         CalculationRes.__init__(self, tag)
 
-        self.meta['software'] = 'gaussian'
+        self.meta['software'] = 'nwchem'
         self.units['distance'] = 'bohr'
         self.units['energy'] = 'hartree'
         # String found in log file when simulation finishes
-        self.properties['finish_str'] = 'Normal termination of Gaussian'
+        self.properties['finish_str'] = 'Total times  cpu:'
         #
     def __del__(self):
         """
@@ -45,13 +45,6 @@ class NWChem(CalculationRes):
         """
         # Call base class destructor
         CalculationRes.__del__(self)
-
-
-    def check(self):
-        '''
-        Check if simulation is finished 
-        '''
-        self.check_file(finish_key_str = 'Normal termination of Gaussian',key = "log")
         
 
     def analyze_log(self,log_file):
@@ -152,3 +145,52 @@ class NWChem(CalculationRes):
                 
             
         return
+
+
+    def load_json(self):
+        '''
+        Load json file for reference 
+        '''        
+        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        try:
+            with open(json_file) as f:            
+                json_data = json.load(f)
+                f.close()
+                
+                self.meta = json_data['meta']
+                self.units = json_data['units']
+                self.files = json_data['files']
+                self.data = json_data['data'] 
+                self.properties = json_data['properties'] 
+                self.dir = json_data['dir']
+
+                # Load resource 
+                try:
+                    res_tag = json_data['meta']['resource']
+                except:
+                    res_tag = ''
+                    print "No resource found "
+                if( len(res_tag) > 0 ):
+                    print "Resource tag found %s "%(res_tag)
+                    resource_i = resource.Resource(str(res_tag))
+                    resource_i.load_json()
+                    self.resource = resource_i
+                                    
+                # Load references 
+                try:
+                    ref_tags = json_data['references']
+                    for rekey,ref_tag in ref_tags:
+                        ref_i = Calculation(ref_tag)
+                        ref_i.load_json()
+                        self.add_refcalc(ref_i)
+                        print " Need to set reference calculation type "
+                except:
+                    print "No references found "
+                    
+
+
+        except IOError:
+            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+            print " File not found %s in %s "%(json_file,os.getcwd())
+
+            

@@ -1,9 +1,12 @@
 start test
- geometry GEOMI units angstroms NOCENTER NOAUTOZ NOAUTOSYM <particles_i>
+ geometry GEOMI units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <coord_i>
  end
- geometry GEOMJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM <particles_j>
+ geometry GEOMJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <coord_j>
 end
- geometry GEOMIJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM <particles_ij>
+ geometry GEOMIJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <particles_ij>
 end
 
  BASIS 

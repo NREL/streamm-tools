@@ -29,24 +29,6 @@ def file_test(file_i):
 
     return True
 
-def string_load(template_file):
-    '''
-    Read file into string 
-    '''
-    file_string = ''
-    try:
-        with open(template_file) as F:            
-            template_lines = F.readlines()
-            for line in template_lines:
-                file_string += line
-            F.close()
-
-    except IOError:
-        logger.info(" File not found %s "%(template_file))
-        print " File not found %s "%(template_file)
-        
-
-    return file_string
 
 def read_group_cplys(group_id):
     
@@ -236,14 +218,14 @@ def pull_groups(tag,options,p):
         fout.close()
         logger.info('file: output pairs_%s %s '%(options.group_id,pairs_file))
 
-    logger.debug(" Writing %d group pairs on %d "%(len(gkeys_p),rank))
+    logger.debug(" Writing %d group pairs on proc %d "%(len(gkeys_p),rank))
     for g_i in gkeys_p:
         group_i = groupset_i.groups[g_i]
         mol_i =group_i.properties['mol']
         # 
         fout = open(pairs_file,'a')
         pair_writer = csv.writer(fout,delimiter=',')
-        
+        #
         nb_cnt = groupset_i.group_nblist.calc_nnab(g_i)
         logger.debug(" group %d has %d nieghbors with radius of %f "%(g_i,nb_cnt,group_i.properties['radius']))
         for g_j in groupset_i.group_nblist.getnbs(g_i):
@@ -266,40 +248,38 @@ def setup_calc(proj_tag,options,p):
     size = p.getCommSize()
     #
     if( rank == 0 ):
-        logging.info('Running setup_calc on %d procs %s '%(size,datetime.now()))        
-    #
-    if( rank == 0 ):
-        logger.info("Setting up %s "%(proj_tag))
-    #
-    #
-    if( rank == 0 ):
-        logger.info("Reading %s "%(options.t_nw))
-    script_nw_str = string_load(options.t_nw)
-    #
-    if( rank == 0 ):
-        logger.info("Reading %s "%(options.t_run))
-    script_run_str = string_load(options.t_run)
-    #
-    if( rank == 0 ):
-        logger.info("Setting up resource %s "%("local"))
-    #
-    # Set up local as resource 
-    local = resource.Resource("local")
-    # Set default simulation specs 
-    local.specs['exe_command'] = './' 
-    local.specs['ppn'] = 24
-    local.meta['launch_dir'] = local.meta['home_dir'] 
-    # Create local directories for project 
-    local.make_dir()
-    local.dump_json()
-
-    if( rank == 0 ):
         logger.info("Reading in groups ")
     group_tags,group_list = read_group_cplys(options.group_id)
     if( rank == 0 ):
         logger.info("Reading in pairs ")
     pair_tags = read_pairs(options.group_id)
+        
+    #
+    if( rank == 0 ):
+        logging.info('Running setup_calc on %d procs %s '%(size,datetime.now()))        
+        logger.info("Setting up %s "%(proj_tag))
+        logger.info("Reading %s "%(options.t_nw))
+        logger.info("Reading %s "%(options.t_run))
+        logger.info("Setting up resource %s "%("local"))
     
+    # Set up local as resource 
+    local = resource.Resource("local")
+    # Set default simulation specs 
+    local.properties['exe_command'] = './' 
+    local.properties['ppn'] = 24
+    local.dir['launch'] = local.dir['home'] 
+    # Create local directories for project 
+    local.make_dir()
+    local.dump_json()
+
+    nw_o.files['templates']['t_nw'] = options.t_nw
+    nw_o.files['templates']['t_run'] = options.t_run
+
+    nw_o.load_str('templates','t_nw')
+    nw_o.load_str('templates','t_run')
+
+
+
     if( rank == 0 ):
         logger.info("Setting up  simulations for %s  "%(proj_tag))
         
@@ -313,14 +293,13 @@ def setup_calc(proj_tag,options,p):
         logger.info("1st %s read with %d entries "%(sims_file,len(sim_tags)))
         logger.info("Writing %s header "%(sims_file))
         fout = open(sims_file,'wb')
-        sims_writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+        sims_writer = csv.writer(fout,delimiter=',')
         header = ['tag']
         #if( rank == 0 ):
         sims_writer.writerow(header)
         for sim_tag in sim_tags:
             sims_writer.writerow([sim_tag])
         fout.close()
-
         
     N_pairs = len(pair_tags)
     pair_indx_list = range(N_pairs)
@@ -342,25 +321,37 @@ def setup_calc(proj_tag,options,p):
         
             g_i_info = group_tags[g_i]
             g_j_info = group_tags[g_j]
+            struc_i = group_list[g_i]
+            struc_j = group_list[g_j]
             mol_i = int(g_i_info[2])
-            mol_j = int(g_j_info[2])
+            mol_j = int(g_j_info[3])
             #if( mol_i != mol_j ):
             pair_cnt += 1         
 
-            sim_i = simulation.NWChem(tag_i)
-            sim_i.set_resource(local)
-            sim_i.template_nw = copy.deepcopy(script_nw_str)
-            sim_i.template_script = copy.deepcopy(script_run_str)
-            sim_i.write_et(group_list[g_i],group_list[g_j])
-            sim_i.write_script()
-            sim_i.dump_json()
-            sim_i.push()
+            nw_i = nwchem.NWChem(tag_i) #simulation.NWChem(tag_i)
+            nw_i.set_resource(local)
+            nw_i.str['t_nw'] = copy.deepcopy(nw_o.str['t_nw'])
+            nw_i.str['t_run'] = copy.deepcopy(nw_o.str['t_run'])
+
+            struc_ij = copy.deepcopy(struc_i)
+            struc_ij +=  struc_j
+        
+            nw_i.properties['coord_i'] = struc_i.write_coord()
+            nw_i.properties['coord_j'] = struc_j.write_coord()
+            nw_i.properties['coord_ij'] = struc_ij.write_coord()
+
+            nw_i.replacewrite_prop('t_nw','input','in',"%s.in"%(nw_i.tag))
+            nw_i.replacewrite_prop('t_run','input','run',"%s.sh"%(nw_i.tag))
+
+            nw_i.dump_json()
+            nw_i.push()
+
             # proj_i.add_sim(sim_i)
             #simtags_p.append(tag_i)
             #sims_p.append(sim_i)
 
             fout = open(sims_file,'a')
-            sims_writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            sims_writer = csv.writer(fout,delimiter=',')
             row_i = [tag_i]
             sims_writer.writerow(row_i)
             fout.close()
@@ -371,32 +362,6 @@ def setup_calc(proj_tag,options,p):
         else:
             logger.info("Tag %s already written "%(tag_i))
 
-    p.barrier()
-    # Add simulations to project
-    # sims_all =  p.gatherList(sims_p)
-    sim_tags = read_sims(sims_file)
-    if( rank == 0 ):
-        logger.info("2nd %s read with %d entries "%(sims_file,len(sim_tags)))
-
-
-    # 
-    if( rank == 0 ):
-        logger.info("Writing project %s"%(proj_tag))
-        proj_i = project.Project(proj_tag)
-        proj_i.add_resource(local)
-        proj_i.set_resource(local)
-        N_sims = len(sim_tags)
-        for sim_i_tag in sim_tags:
-            #proj_i.add_sim(sim_i)
-            sim_i = simulation.load_json(sim_i_tag)
-            ind_j = 0 
-            for sim_j in proj_i.simulations:
-                if( sim_i_tag == sim_j.tag ):
-                    proj_i.simulations.pop(ind_j)
-                ind_j += 1 
-            proj_i.simulations.append(sim_i)
-            logger.info("Simulation %s [%d]/%d  with status %s added to project %s "%(sim_i.tag,sim_cnt,N_sims,sim_i.meta['status'],proj_i.tag))
-        proj_i.dump_json()
     p.barrier()
     
 def check_p(proj_i,p):
@@ -428,8 +393,6 @@ def split_proj(proj_tag,options,p):
         
     if( rank == 0 ):
         logging.info('Running on %d procs %s '%(size,datetime.now()))        
-    
-    if( rank == 0 ):
         logger.info("Running split_proj function for  %s "%(proj_tag))
         
     sims_file = "et_sims.csv"
@@ -441,80 +404,28 @@ def split_proj(proj_tag,options,p):
 
     if( rank == 0 ):
         logger.info("Setting up resource ")
-    # 
-    # Set up HPC resource 
-    #
-    peregrine = resource.Resource("peregrine")
-    peregrine.meta['type'] = "local"
-    peregrine.meta['username'] = "tkemper"    
-    peregrine.meta['address'] = "peregrine.nrel.gov"    
-    peregrine.meta['home_dir'] = '/home/%s'%(peregrine.meta['username'])
-    peregrine.meta['storage_dir'] = '/mss/users/%s'%(peregrine.meta['username'])
-    peregrine.meta['scratch_dir'] = '/scratch/%s/%s'%(peregrine.meta['username'],proj_tag)
-    peregrine.meta['launch_dir'] = peregrine.meta['scratch_dir'] 
-    # Set default simulation specs 
-    peregrine.specs['allocation'] = 'orgopv'
-    peregrine.specs['walltime'] = 48
-    peregrine.specs['nodes'] = int(1)
-    peregrine.specs['ppn'] = int(24)
-    peregrine.specs['queue'] = 'batch'
-    peregrine.specs['feature'] = '24core'
-    peregrine.specs['exe_command'] = 'qsub '
-    peregrine.dump_json()
         
-    '''
-    # 
-    # This is way too slow needs to be put on nodes 
-    #
-    #sys.exit("2093r902u3r982uriu2h498y")
-    # check_p(proj_i,p)
-    if( rank == 0 ):
-        logger.info("Splitting tags onto %d proc "%(size))
-
-    sims_p = []
-    sim_tags_p = p.splitListOnProcs(sim_tags)
-    for sim_i_tag in sim_tags_p:
-            #proj_i.add_sim(sim_i)
-            sim_i = simulation.load_json(sim_i_tag)
-            # sim_i.push()
-            sim_i.check()
-            # print " simulation %s has status %s "%(sim_i.tag,sim_i.meta['status'])
-            os.chdir(peregrine.meta['scratch_dir'])
-            if( sim_i.meta['status'] != 'finished' ):
-                sim_i.meta['status'] = 'written'
-                sims_p.append(sim_i)
-    sims_all =  p.gatherList(sims_p)
-    if( rank == 0 ):
-        logger.info("%d sims to run "%(N_sims))
-    
-    # proj_i.run()
-    # proj_i.check()
-    # sims_p = check_p(proj_i,p)
-    # Gather sim list from proc 
-    # sims_all =  p.gatherList(sims_p)
-    '''
-    
-    n_nodes = int(N_sims/500)
-    if( n_nodes < 1 ):
-        n_nodes = 1 
-    nodes = range(n_nodes)
+    n_jobs = int(N_sims/500)
+    if( n_jobs < 1 ):
+        n_jobs = 1 
+    jobs = range(n_jobs)
     
     if( rank == 0 ):
-        logger.info("Splitting sims onto %d nodes  "%(n_nodes))
-    nodes_p = p.splitListOnProcs(nodes)
+        logger.info("Splitting sims onto %d jobs  "%(n_jobs))
+    jobs_p = p.splitListOnProcs(jobs)
     
     
-    n = N_sims/n_nodes
-    r = N_sims%n_nodes
+    n = N_sims/n_jobs
+    r = N_sims%n_jobs
     b,e = 0, n + min(1, r) # first split
     newseq = []                       # New partitioned list
-    for i in nodes:
+    for i in jobs:
         newseq.append(sim_tags[b:e])
         r = max(0, r-1)             # use up remainders
         b,e = e, e + n + min(1, r)  # min(1,r) is always 0 or 1
     plist = newseq                  # Make 'parts' number of chunks
     # Error check or return results
-    if len(plist) != n_nodes:
+    if len(plist) != n_jobs:
         print " " 
         print "Partitioning failed, check data length and #-procs"
         sys.exit(0)
@@ -523,29 +434,26 @@ def split_proj(proj_tag,options,p):
     if( rank == 0 ):
         logger.info("Writing projects for each node")
     
-    for n in nodes_p:
+    for n in jobs_p:
         simtags_n = plist[n]
         N_sims_p = len(simtags_n)
         proj_tag_n = "%s_node_%d"%(proj_tag,n)
         proj_n = project.Project(proj_tag_n)
         
-        proj_n.add_resource(peregrine)
-        proj_n.set_resource(peregrine)
-        proj_n.meta['scratch_dir'] = peregrine.meta['scratch_dir'] 
-        proj_n.specs = peregrine.specs
+        proj_n.resources['peregrine'] = peregrine
 
         logger.info("Writing proj %s with %d sims on proc %d "%(proj_n.tag,N_sims_p,rank))
         sim_cnt = 0 
         for sim_i_tag in simtags_n:
             #proj_i.add_sim(sim_i)
-            sim_i = simulation.load_json(sim_i_tag)
+            sim_i = nwchem.load_json(sim_i_tag)
             #sim_i.push()
             # sim_i.check()
             # print " simulation %s has status %s "%(sim_i.tag,sim_i.meta['status'])
             # os.chdir(proj_n.meta['scratch_dir'])
             #if( sim_i.meta['status'] != 'finished' ):
             #    sim_i.meta['status'] = 'written'
-            proj_n.add_sim(sim_i)
+            proj_n.calculations['sim_i_tag'] = sim_i
             logger.info("Sim %s [%d]/%d (%d) with status %s => %s "%(sim_i.tag,sim_cnt,N_sims_p,N_sims,sim_i.meta['status'],proj_n.tag))
             #else:
             #    logger.info("Sim %s status %s"%(sim_i.tag,sim_i.meta['status']))
@@ -553,8 +461,9 @@ def split_proj(proj_tag,options,p):
             sim_cnt += 1
         logger.info("Sim %s on proc %d for node %d "%(proj_tag_n,rank,n))
         proj_n.files['input']['pyscript'] = 'run_proj.py'
-        proj_n.template_script = string_load('run_etproj_v1.pbs')
-        proj_n.write_script()
+        proj_n.properties['pyscript'] = 'run_proj.py'
+        proj_n.load_str('input','pyscript')
+        proj_n.replacewrite_prop('pyscript','input','run',"%s.pbs"%(proj_n.tag))
         proj_n.dump_json()
     
     p.barrier()
@@ -758,14 +667,13 @@ def et(calc_tag,options,p):
         logger.info('file: output group_%s %s '%(options.group_id,group_file))
         logger.info('file: output pairs_%s %s '%(options.group_id,pairs_file))
        
-    #sims_file = "et_sims.csv"
-    #if( file_test(sims_file) ):
-    #    setup_calc(calc_tag,options,p)
-    #else:
-    #    if( rank == 0 ):
-    #        logger.info('output sim_file %s'%(sims_file))
+    sims_file = "et_sims.csv"
+    if( file_test(sims_file) ):
+        setup_calc(calc_tag,options,p)
+    elif( rank == 0 ):
+        logger.info('output sim_file %s'%(sims_file))
     #
-    #split_proj(calc_tag,options,p)
+    split_proj(calc_tag,options,p)
     #read_energies(calc_tag,options,p)
     #read_struc(calc_tag,options,p) 
     #write_newdata(calc_tag,options,p)

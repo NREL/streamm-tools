@@ -1,8 +1,8 @@
 #!/bin/bash
 
-scratch_dir=<scratch_dir>
+scratch_dir=<scratch>
 cd $scratch_dir
 
-NPROC=<n_proc>
+NPROC=<nproc>
 INPUT_FILE=<input_nw> 
-mpirun -np $NPROC  nwchem   $INPUT_FILE    >& <output_log>
+mpirun -np $NPROC  nwchem   $INPUT_FILE    >& <tag>.log 
