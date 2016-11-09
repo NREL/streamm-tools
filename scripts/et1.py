@@ -167,10 +167,12 @@ def pull_groups(tag,options,p):
     groupset_i.group_pbcs()
     
     # Set radii to fixed value
-    et_cut = 10.0 
+    et_cut = 30.0 
     groupset_i.properties['radius'] = []
     for gkey,group_i in groupset_i.groups.iteritems():
+        group_i.properties['radius'] = et_cut
         groupset_i.properties['radius'].append(et_cut)
+        
     #
     # Write group properties 
     #
@@ -212,7 +214,8 @@ def pull_groups(tag,options,p):
         bb_i.write_xyz()
         mol_i = bb_i.particles[0].properties['mol']
         row_i = [g_i,tag_i,mol_i]
-        row_i += group_i.properties['cent_mass']
+        for x_i in group_i.properties['cent_mass']:
+            row_i.append(x_i)
         group_writer.writerow(row_i)
         fout.close()
     
@@ -233,9 +236,10 @@ def pull_groups(tag,options,p):
         fout.close()
         logger.info('file: output pairs_%s %s '%(options.group_id,pairs_file))
 
-
+    logger.debug(" Writing %d group pairs on %d "%(len(gkeys_p),rank))
     for g_i in gkeys_p:
         group_i = groupset_i.groups[g_i]
+        mol_i =group_i.properties['mol']
         # 
         fout = open(pairs_file,'a')
         pair_writer = csv.writer(fout,delimiter=',')
@@ -243,10 +247,12 @@ def pull_groups(tag,options,p):
         nb_cnt = groupset_i.group_nblist.calc_nnab(g_i)
         logger.debug(" group %d has %d nieghbors with radius of %f "%(g_i,nb_cnt,group_i.properties['radius']))
         for g_j in groupset_i.group_nblist.getnbs(g_i):
+            logger.debug("checking neighbor group %d "%(g_j))
             if( g_j > g_i ):
                 group_j  = groupset_i.groups[g_j]
-                if( group_i.mol != group_j.mol ):
-                    row_i = [g_i,g_j,group_i.properties['mol'],group_j.properties['mol'] ]
+                mol_j =group_j.properties['mol']
+                if( mol_i != mol_j):
+                    row_i = [g_i,g_j,mol_i,mol_j]
                     pair_writer.writerow(row_i)
   
         fout.close()
@@ -746,7 +752,7 @@ def et(calc_tag,options,p):
     #rdf(calc_tag,options)
     group_file = 'group_%s.csv'%(options.group_id)
     pairs_file = 'pairs_%s.csv'%(options.group_id)
-    if( file_test(group_file) and file_test(pairs_file)  ):
+    if( file_test(group_file) or file_test(pairs_file)  ):
         pull_groups(calc_tag,options,p)
     elif( rank == 0 ):
         logger.info('file: output group_%s %s '%(options.group_id,group_file))
@@ -788,7 +794,7 @@ if __name__=="__main__":
     size = p.getCommSize()
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -798,13 +804,13 @@ if __name__=="__main__":
         calc_tag =  args[0]
 
     ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
+    ch.setLevel(logging.DEBUG)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
 
     hdlr = logging.FileHandler('%s.log'%(calc_tag),mode='w')
-    hdlr.setLevel(logging.INFO)
+    hdlr.setLevel(logging.DEBUG)
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
 

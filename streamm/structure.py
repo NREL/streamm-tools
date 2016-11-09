@@ -1830,7 +1830,7 @@ class Container():
                     group_i = Group(self)
                     group_i.gkey = gkey
                     group_i.tag = "%s_%s"%(tag,gkey)
-                    group_i.mol = particle_i.properties["mol"] 
+                    group_i.properties["mol"]  = particle_i.properties["mol"] 
                     group_i.residue = particle_i.properties["residue"] 
                     groupset_i.groups[gkey] = group_i
                     # 
