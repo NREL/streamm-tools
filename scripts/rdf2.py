@@ -34,7 +34,6 @@ Radial distribution  code
 """
 
 
-
 __author__ = "Travis W. Kemper"
 __version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
@@ -47,8 +46,6 @@ from datetime import datetime
 from optparse import OptionParser
 
 from streamm import *
-
-
 
 from MDAnalysis import *
 from MDAnalysis.core.distances import * ##distance_array
@@ -146,6 +143,7 @@ def calc_rdf(N_i,N_j,bin_r,bin_r_nn,volumes,bin_size,rdf_tag,options,p):
 
         # Write data file 
         dat_file = rdf_tag + ".dat"
+        logger.info("file: output %s %s "%('rdf_dat',dat_file))
         dat_out = open(dat_file,"w") 
         dat_out.write(dat_lines)
         dat_out.close()            

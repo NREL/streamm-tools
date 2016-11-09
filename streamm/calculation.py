@@ -315,7 +315,53 @@ class Calculation:
                 return
         else:
             print "Calculation %s has status %s and will not be checked "%(self.tag,self.meta['status'])
+            
 
+
+    def proc_log(self,log_file,verbose=False,debug=False):
+        """
+        Read in new files created by script recorded in the log file
+
+        Args:
+            log_file (str) script log file
+
+        """
+
+        f = open(log_file,'r')
+        log_lines = f.readlines()
+        f.close()
+        for line in log_lines:
+            # print "line:",line
+            llow = line.lower()
+            if( 'file:' in  llow):
+                col = llow.split()
+                file_type = col[8]
+                file_key = col[9]
+                file_name = col[10]
+                print "Adding file type %s with key %s and name %s "%(file_type,file_key,file_name)
+                self.add_file(file_type,file_key,file_name)
+                
+        
+
+    def analysis(self,output_key='log'):
+        """
+        Read in results from streamm script 
+        """
+        # Find output_key file 
+        try:
+            output_file = self.files['output'][output_key]
+        except KeyError:
+            output_file = ''
+            print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+        if( len(output_file) > 0 ):
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                            
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+                os.system(bash_command)                
+            self.proc_log(output_file)            
+            
+        
+        
     def store(self):
         '''
         Copy input, output and data of simulation to storage 
@@ -352,7 +398,6 @@ class Calculation:
         '''
         Copy output and data of simulation from storage 
         '''
-        print "394jr092"
         if( self.meta['status'] == 'stored' ):
             if( self.resource.meta['type'] == "local" ):
                 print "runnning pull function in %s "%(os.getcwd())
