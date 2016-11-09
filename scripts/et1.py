@@ -345,7 +345,7 @@ def setup_calc(proj_tag,options,p):
             
             nw_i.replacewrite_prop('t_nw','input','in',"%s.in"%(nw_i.tag))
             nw_i.properties['input_nw'] = nw_i.files['input']['in']
-            nw_i.replacewrite_prop('t_run','input','run',"%s.sh"%(nw_i.tag))
+            nw_i.replacewrite_prop('t_run','scripts','run',"%s.sh"%(nw_i.tag))
             
             nw_i.add_file('output','log',"%s.log"%(nw_i.tag))
 
@@ -392,7 +392,8 @@ def split_proj(proj_tag,options,p):
     #
     rank = p.getRank()
     size = p.getCommSize()
-        
+    peregrine = resource.Resource('peregrine')
+    peregrine.load_json()
     if( rank == 0 ):
         logging.info('Running on %d procs %s '%(size,datetime.now()))        
         logger.info("Running split_proj function for  %s "%(proj_tag))
@@ -441,6 +442,8 @@ def split_proj(proj_tag,options,p):
         N_sims_p = len(simtags_n)
         proj_tag_n = "%s_node_%d"%(proj_tag,n)
         proj_n = project.Project(proj_tag_n)
+        proj_n.set_resource(peregrine)
+        proj_n.properties['scratch'] = peregrine.dir['scratch'] 
         
         logger.info("Writing proj %s with %d sims on proc %d "%(proj_n.tag,N_sims_p,rank))
         sim_cnt = 0 
@@ -460,7 +463,7 @@ def split_proj(proj_tag,options,p):
             sim_cnt += 1
         logger.info("Sim %s on proc %d for node %d "%(proj_tag_n,rank,n))
         proj_n.files['input']['pyscript'] = 'run_proj.py'
-        proj_n.files['templates']['run'] = 'streamm_peregrine.pbs'
+        proj_n.files['templates']['run'] = 'nwchem_peregrine.pbs'
         proj_n.load_str('templates','run')
         proj_n.properties['streamm_command'] = 'python run_proj.py %s > %s.out '%(proj_n.tag,proj_n.tag)
         proj_n.replacewrite_prop('run','input','run',"%s.pbs"%(proj_n.tag))
@@ -514,7 +517,7 @@ def read_energies(proj_tag,options,p):
         logger.info('output group_%s group_%s.csv'%(options.group_id,options.group_id))
     proj_i.dump_json()
 
-def set_res():
+def set_res(proj_tag):
 
     # Set up local as resource 
     local = resource.Resource("local")
@@ -526,10 +529,34 @@ def set_res():
     # Create local directories for project 
     local.make_dir()
     local.dump_json()
+
+    # 
+    # Set up HPC resource 
+    #
+    peregrine = resource.Resource("peregrine")
+    peregrine.meta['type'] = "local"
+    peregrine.ssh['username'] = "tkemper"    
+    peregrine.ssh['address'] = "peregrine.nrel.gov"    
+    peregrine.dir['home'] = '/home/%s'%(peregrine.ssh['username'])
+    peregrine.dir['storage'] = '/mss/users/%s'%(peregrine.ssh['username'])
+    peregrine.dir['scratch'] = '/scratch/%s/%s'%(peregrine.ssh['username'],proj_tag)
+    peregrine.dir['launch'] = peregrine.dir['scratch'] 
+    # Set default simulation specs 
+    peregrine.properties['allocation'] = 'orgopv'
+    peregrine.properties['walltime'] = 48
+    peregrine.properties['nodes'] = int(1)
+    peregrine.properties['ppn'] = int(24)
+    peregrine.properties['nproc'] = 24
+    peregrine.properties['queue'] = 'batch'
+    peregrine.properties['feature'] = '24core'
+    peregrine.properties['exe_command'] = 'qsub '
+    peregrine.properties['e-mail'] = 'travis.kemper@nrel.gov'
+    peregrine.dump_json()
+            
       
 def et(calc_tag,options,p):
 
-    set_res()
+    set_res(calc_tag)
 
     #rdf(calc_tag,options)
     group_file = 'group_%s.csv'%(options.group_id)
