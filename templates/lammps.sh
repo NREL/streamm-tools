@@ -1,5 +1,5 @@
 
-lmp < <input_in> >&  <tag>.log
+lmp  -in <input_in>  -log <tag>.log  >> <tag>.out
 
 
 

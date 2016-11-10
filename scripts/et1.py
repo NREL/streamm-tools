@@ -557,8 +557,7 @@ def set_res(proj_tag):
 def et(calc_tag,options,p):
 
     set_res(calc_tag)
-
-    #rdf(calc_tag,options)
+    
     group_file = 'group_%s.csv'%(options.group_id)
     pairs_file = 'pairs_%s.csv'%(options.group_id)
     if( file_test(group_file) or file_test(pairs_file)  ):

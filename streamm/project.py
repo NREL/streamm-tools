@@ -46,18 +46,13 @@ class Project(CalculationRes):
         self.prefix = 'proj'        
         self.calculations = dict()
         self.resources = dict()
-
-        # Meta data for project
-        self.meta = dict()
-        dt = datetime.datetime.fromtimestamp(time.time())
-        self.meta['date'] = dt.isoformat()        
         
     def __del__(self):
         """
         Delete Calculation object
         """
-        del self.tag
-        del self.meta
+        # Call base class destructor
+        Calculation.__del__(self)        
         del self.calculations
         del self.resources
 
@@ -111,3 +106,42 @@ class Project(CalculationRes):
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+
+
+    def check(self):
+        '''
+        Check if calculations in the project have finished
+        '''
+        
+        for calc_key,calc_i in self.calculations.iteritems():
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['scratch'])
+            calc_i.check()
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['home'])
+
+    def run(self):
+        '''
+        Run calculations in the project 
+        '''
+        
+        for calc_key,calc_i in self.calculations.iteritems():
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['scratch'])
+            calc_i.run()
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['home'])
+                        
+
+    def store(self):
+        '''
+        Store calculations in the project 
+        '''
+        
+        for calc_key,calc_i in self.calculations.iteritems():
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['scratch'])
+            calc_i.store()
+            if( calc_i.resource.meta['type'] == "local" )
+                os.chdir(calc_i.dir['home'])
+                                
