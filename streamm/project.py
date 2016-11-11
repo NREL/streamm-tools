@@ -42,7 +42,7 @@ class Project(CalculationRes):
         """
         # Base class constructor is called
         CalculationRes.__init__(self,tag)
-        
+        self.meta['software'] = 'streamm_proj'
         self.prefix = 'proj'        
         self.calculations = dict()
         self.resources = dict()
@@ -52,7 +52,7 @@ class Project(CalculationRes):
         Delete Calculation object
         """
         # Call base class destructor
-        Calculation.__del__(self)        
+        CalculationRes.__del__(self)        
         del self.calculations
         del self.resources
 
@@ -62,7 +62,13 @@ class Project(CalculationRes):
         Dump json file for reference 
         '''
         json_data = dict()
-        json_data['meta'] =  self.meta
+        json_data['meta'] = self.meta
+        json_data['units'] = self.units
+        json_data['files'] = self.files
+        json_data['data'] = self.data
+        json_data['properties'] = self.properties
+        json_data['references'] = self.references
+        json_data['dir'] = self.dir
         json_data['calculations'] =  dict()
         for calc_key,calc_i in self.calculations.iteritems():
             json_data['calculations'][calc_key] = calc_i.meta['software']
@@ -85,6 +91,12 @@ class Project(CalculationRes):
                 f.close()
 
                 self.meta = json_data['meta']
+                self.units = json_data['units']
+                self.files = json_data['files']
+                self.data = json_data['data'] 
+                self.properties = json_data['properties'] 
+                self.references = json_data['references'] 
+                self.dir = json_data['dir']
                 
                 for calc_key,software_i in json_data['calculations'].iteritems():
                   calc_key = str(calc_key)
@@ -97,6 +109,10 @@ class Project(CalculationRes):
                     calc_i = gaussian.Gaussian(calc_key)
                   elif( software_i == 'gromacs' ):
                     calc_i = gromacs.GROMACS(calc_key)
+                  elif( software_i == 'streamm_proj' ):
+                    calc_i = Project(calc_key)
+                  elif( software_i == 'streamm_calc' ):
+                    calc_i = CalculationRes(calc_key)
                   else:
                     print "Unknow software %s will set as general calculation object "%(software_i)
                     calc_i = calculation.CalculationRes(calc_key)
@@ -114,11 +130,12 @@ class Project(CalculationRes):
         '''
         
         for calc_key,calc_i in self.calculations.iteritems():
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['scratch'])
             calc_i.check()
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['home'])
+            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
 
     def run(self):
         '''
@@ -126,10 +143,11 @@ class Project(CalculationRes):
         '''
         
         for calc_key,calc_i in self.calculations.iteritems():
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['scratch'])
+            print os.getcwd()
             calc_i.run()
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['home'])
                         
 
@@ -139,9 +157,23 @@ class Project(CalculationRes):
         '''
         
         for calc_key,calc_i in self.calculations.iteritems():
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['scratch'])
             calc_i.store()
-            if( calc_i.resource.meta['type'] == "local" )
+            if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['home'])
                                 
+                 
+    def set_resource(self,resource_i):
+        '''
+        Set resource for simulation 
+        '''
+        self.resource = resource_i
+        self.meta['resource'] = resource_i.tag
+        # Add resource properties to calculation properties
+        self.properties.update(resource_i.properties)
+        # Set simulation directories based on resource
+        self.dir = copy.deepcopy(resource_i.dir)
+        self.dir['scratch'] = resource_i.dir['home']
+        self.dir['launch'] = resource_i.dir['home']
+        self.properties['scratch'] = resource_i.dir['scratch'] 

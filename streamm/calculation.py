@@ -64,6 +64,7 @@ class Calculation:
         self.meta = dict()
         self.meta['date'] = dt.isoformat()
         self.meta['status'] = 'written'
+        self.meta['software'] = 'streamm_calc'
         
         self.units = dict()
         self.units['distance'] = 'angstroms'
@@ -293,7 +294,7 @@ class Calculation:
                 os.system(bash_command)        
             elif( self.resource.meta['type'] == "local" ):
                 # Change to scratch directory
-                print "Running check in local directory %s "%(os.getcwd())
+                logger.debug("Running check in local directory %s "%(os.getcwd()))
             else:
                 logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
 
@@ -1254,6 +1255,7 @@ class CalculationRes(Calculation):
         self.dir['storage'] = '%s/%s/'%(resource_i.dir['storage'] ,self.tag)
         self.dir['scratch'] = '%s/%s/'%(resource_i.dir['scratch'],self.tag)
         self.dir['launch'] = '%s/%s/'%(resource_i.dir['launch'],self.tag)
+        self.properties['scratch'] = resource_i.dir['scratch'] 
 
 
     def add_refcalc(self,ref_calc):
