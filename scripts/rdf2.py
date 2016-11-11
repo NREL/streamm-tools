@@ -261,12 +261,14 @@ def rdfs(tag,options,p):
     #
     rank = p.getRank()
     size = p.getCommSize()
-        
+    #
     if( rank == 0 ):
         logging.info('Running on %d procs %s '%(size,datetime.now()))
         logging.info('Reading structure files ')
-        
+    #
     logging.debug(" proc %d of %d "%(rank,size))
+    if( rank == 0 ):
+        logger.info("Reading in structure for %s from %s "%(tag,options.cply))
     #
     # Read cply file 
     #
