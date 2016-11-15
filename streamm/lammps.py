@@ -1026,7 +1026,11 @@ class LAMMPS(CalculationRes):
             if( 'dump' in line and len(col) > 5 ):
                 if( col[3] == 'dcd' ):
                     output_file = str(col[5])
-                    self.add_file('output','dcd_%d'%(len(self.properties['run_list'])),output_file)
+                    self.add_file('data','dcd_%d'%(len(self.properties['run_list'])),output_file)
+
+            if( 'restart' in line and len(col)  ):
+                    output_file = "%s.*"%str(col[2])
+                    self.add_file('data','restart_%d'%(len(self.properties['run_list'])),output_file)
 
                 
         # set run cnt for check()
@@ -1067,17 +1071,15 @@ class LAMMPS(CalculationRes):
   
             if( 'Loop time' in str(line) ):
                 print " Calc %s finished "%(run_cnt_i)
-                run_cnt_i += 1
                 if( update_run and len(self.properties['run_list']) <= run_cnt_i):
+                    print "update_run ", len(self.properties['run_list']) , run_cnt_i
                     run_i = self.properties['run_list'][run_cnt_i]
                 else:
                     self.properties['run_list'].append(copy.deepcopy(run_i))
                     run_i = mdrun()                    
+                run_cnt_i += 1
 
             if( 'Step Temp PotEng TotEng Press Volume' not in line):
-                
-                
-            
 
                 if( len(col) >= 17 and col[0] != 'thermo_style' ):
                     print "> col ",run_i.properties['n_frames'],col
