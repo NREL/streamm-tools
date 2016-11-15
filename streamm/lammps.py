@@ -1228,7 +1228,7 @@ class LAMMPS(CalculationRes):
             for itkey_i, imptype_i  in self.paramC.imptypes.iteritems():
                 param_lines += "%s %s %s %s  %s"%(imptype_i.fftype1,imptype_i.fftype2,imptype_i.fftype3,imptype_i.fftype4 ,imptype_i.type)
                 if( imptype_i.type == "multiharmonic"):
-                    param_lines += " %f %f \n".format(imptype_i.ke,imptype_i.e0)
+                    param_lines += " %f %f \n"%(imptype_i.ke,imptype_i.e0)
                 else:
                     logger.warning(" Unknown IMPROPER type %s "%(imptype_i.type))
                     print " Unknown IMPROPER type %s "%(imptype_i.type)
