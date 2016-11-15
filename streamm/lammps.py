@@ -238,7 +238,7 @@ class LAMMPS(CalculationRes):
         else:
             raise TypeError("1st arg should be GROMACS simulation ")
 
-    def read_data(self, data_file,
+    def read_data_0(self, data_file,
         btype = "harmonic",
         atype = "harmonic",
         dtype = "multiharmonic",
@@ -314,32 +314,6 @@ class LAMMPS(CalculationRes):
         # Structure 
         pos_i = np.zeros(self.strucC.lat.n_dim)
         self.strucC.positions = [ pos_i for pkey_i in range(self.strucC.n_particles) ]
-
-        '''
-        
-        for pkey_i in range(self.strucC.n_particles):                                                
-            self.strucC.particles[pkey_i] = None        
-        for bkey_i in range(self.strucC.n_bonds):                                                
-            self.strucC.bonds[bkey_i] = None 
-        for akey_i in range(self.strucC.n_angles):                                                
-            self.strucC.angles[akey_i] = None 
-        for dkey_i in range(self.strucC.n_dihedrals):                                                
-            self.strucC.dihedrals[dkey_i] = None 
-        for ikey_i in range(self.strucC.n_impropers):
-            self.strucC.impropers[ikey_i] = None
-        # Parameters
-        for ljkey_i in range(self.paramC.n_ljtypes):                                                
-            self.paramC.ljtypes[ljkey_i] = None 
-        for bkey_i in range(self.paramC.n_bondtypes):                                                
-            self.paramC.bondtypes[bkey_i] = None 
-        for akey_i in range(self.paramC.n_angletypes):                                                
-            self.paramC.angletypes[akey_i] = None 
-        for dkey_i in range(self.paramC.n_dihtypes):                                                
-            self.paramC.dihtypes[dkey_i] = None 
-        for ikey_i in range(self.paramC.n_imptypes):                                                
-            self.paramC.imptypes[ikey_i] = None
-        '''
-                      
         #
         # Intialize read in boolean to off                    
         #
@@ -638,6 +612,440 @@ class LAMMPS(CalculationRes):
         #      
         return  
 
+    def read_data(self, data_file,
+        btype = "harmonic",
+        atype = "harmonic",
+        dtype = "multiharmonic",
+        imptype = "improper",
+        debug = False):
+
+        """
+        Read Lammps data file
+
+        Arguments:
+            data_file  (str) data file
+        Return:
+            None
+        """
+
+        F = open(data_file , 'r' )
+        lines = F.readlines()
+        F.close()
+        logger.debug(" Reading {} ",data_file)
+        #
+        # Read in data header with number of parameters 
+        #
+        matrix = self.strucC.lat._matrix 
+        for line in lines:
+            col = line.split()
+
+            if ( len(col) >=2 ):
+                # Read in number of each topolgical component  
+                if( col[1] == "atoms" ):
+                    self.strucC.n_particles = int( col[0] )
+                elif( col[1] == "bonds" ):
+                    self.strucC.n_bonds = int( col[0] )
+                elif( col[1] == "angles" ):
+                    self.strucC.n_angles = int( col[0] )
+                elif( col[1] == "dihedrals" ):
+                    self.strucC.n_dihedrals = int( col[0] )
+                elif( col[1] == "impropers" ):
+                    self.strucC.n_impropers = int( col[0] )
+                    
+            if ( len(col) >= 3 ):
+                # Read in number of each parameter type 
+                if( col[1] == "atom" and   col[2] == "types" ):
+                    self.paramC.n_ljtypes = int( col[0] )
+                elif( col[1] == "bond" and   col[2] == "types"  ):
+                    self.paramC.n_bondtypes = int( col[0] )
+                elif( col[1] == "angle" and   col[2] == "types"  ):
+                   self.paramC.n_angletypes = int( col[0] )
+                elif( col[1] == "dihedral" and   col[2] == "types"  ):
+                    self.paramC.n_dihtypes = int( col[0] )
+                elif( col[1] == "improper" and   col[2] == "types"  ):
+                    self.paramC.n_imptypes = int( col[0] )
+            
+            # Read in box size    
+            if ( len(col) >= 4 ):
+                if( col[2]  == "xlo"  and col[3]  == "xhi"  ):
+                    matrix[0][0] = float( col[1] ) - float( col[0] )
+                    matrix[0][1] = 0.0  
+                    matrix[0][2] = 0.0  
+                if( col[2]  == "ylo"  and col[3]  == "yhi"  ):
+                    matrix[1][0] = 0.0  
+                    matrix[1][1] = float( col[1] ) - float( col[0] ) 
+                    matrix[1][2] = 0.0  
+                if( col[2]  == "zlo"  and col[3]  == "zhi"  ):
+                    matrix[2][0] = 0.0  
+                    matrix[2][1] = 0.0  
+                    matrix[2][2] = float( col[1] ) - float( col[0] )
+                    # Set lattice
+                    self.strucC.lat.set_matrix(matrix)
+                   
+        #      
+        # Initialize blank structure and parameters in case entries are not in numerical order 
+        #
+        # Structure 
+        pos_i = np.zeros(self.strucC.lat.n_dim)
+        self.strucC.positions = [ pos_i for pkey_i in range(self.strucC.n_particles) ]
+        #
+        # Intialize read in boolean to off                    
+        #
+        read_Masses = False
+        read_Pair = False
+        read_Bond_coeff = False
+        read_Angle_coeff = False
+        read_Dihedral_coeff = False
+        read_Improper_coeff = False
+
+        read_Atoms = False
+        read_Bonds = False
+        read_Angles = False
+        read_Dihedrals = False
+        read_Impropers = False
+  
+        #
+        # Read in data parameters 
+        #
+        for line in lines:
+            col = line.split()
+            
+            if( read_Masses and  len(col) >= 2 ):
+                cnt_Masses += 1
+                ljkey_i = int( col[0]) -1
+                
+                mass_i = float(col[1])
+                el_i = periodictable.element_mass(mass_i)
+                fftype1 = str(el_i["symbol"]) + str(cnt_Masses)
+                ljtype_i = parameters.LJtype(fftype1)
+                ljtype_i.lmpindx = int(col[0])
+                ljtype_i.mass = mass_i
+                ljtype_i.atomic_symbol = el_i["symbol"]
+
+                #print ">read_data ljtype_i",ljkey_i,ljtype_i.mass,ljtype_i.lmpindx,cnt_Masses ,self.paramC.n_ljtypes 
+                
+                self.paramC.ljtypes[ljkey_i] = copy.deepcopy(ljtype_i)
+                #self.paramC.add_LJtype(ljtype_i,deepcopy = True )
+
+                # Turn of mass read
+                if(cnt_Masses ==  self.paramC.n_ljtypes ):
+                    read_Masses = False 
+
+            if( read_Pair and  len(col) >= 3 ):
+                cnt_Pair += 1
+                
+                ljkey_i = int(col[0]) - 1
+                
+                #print ">read_data read_Pair",ljkey_i #,ljtype_i.epsilon,ljtype_i.sigma
+                ljtype_i = self.paramC.ljtypes[ljkey_i]
+                ljtype_i.epsilon = float(col[1])
+                ljtype_i.sigma = float(col[2])
+                
+                #print ">read_data read_Pair",ljkey_i,ljtype_i.epsilon,ljtype_i.sigma,cnt_Pair ,  self.paramC.n_ljtypes
+                # ljtype_i.setparam(epsilon,sigma)
+                # Turn pair parameter read off 
+                if( cnt_Pair ==  self.paramC.n_ljtypes ):
+                    read_Pair = False
+
+
+            if( read_Bond_coeff and  len(col) >= 3 ):
+                cnt_Bond_coeff += 1
+                bkey_i = int(col[0]) - 1
+                
+                bondtype_i = parameters.Bondtype(type=btype)
+                bondtype_i.kb = float(col[1]) 
+                bondtype_i.r0 = float(col[2])
+                bondtype_i.lmpindx = int( col[0])
+                self.paramC.bondtypes[bkey_i] = copy.deepcopy(bondtype_i)
+                
+                # btyp_i.setharmonic(r0,kb)
+                if( cnt_Bond_coeff >=  self.paramC.n_bondtypes ):
+                    read_Bond_coeff = False
+
+
+            if( read_Angle_coeff and  len(col) >= 3 ):
+                cnt_Angle_coeff += 1
+                akey_i = int(col[0]) - 1
+                
+                angletype_i = parameters.Angletype(type=atype)
+                angletype_i.kb = float(col[1]) 
+                angletype_i.theta0 = float(col[2])
+                angletype_i.lmpindx = int( col[0])
+                self.paramC.angletypes[akey_i] = copy.deepcopy(angletype_i)
+                                
+                if( cnt_Angle_coeff >= self.paramC.n_angletypes ):
+                    read_Angle_coeff = False
+
+
+            if( read_Dihedral_coeff and  len(col) >= 3 ):
+                cnt_Dihedral_coeff += 1
+                dkey_i = int(col[0]) - 1
+
+                #print "self.paramC.n_dihtypes ",self.paramC.n_dihtypes,cnt_Dihedral_coeff,dkey_i
+                
+                dihtype_i = parameters.Dihtype(type=dtype)
+                if( dtype == "opls" ):
+                    dihtype_i.setopls(float(col[1]),float(col[2]),float(col[3]),float(col[4]))
+                    dihtype_i.g_indx = int(3)
+                elif( dtype == "harmonic" ):
+                    dihtype_i.setharmonic(float(col[2]),float(col[1]),float(col[3]))
+                    dihtype_i.g_indx = int(1)
+                elif( dtype == "multiharmonic" ):
+                    dihtype_i.setharmonic(float(col[2]),float(col[1]),float(col[3]))
+                    dihtype_i.g_indx = int(1)
+                dihtype_i.lmpindx = int( col[0])
+                self.paramC.dihtypes[dkey_i] = copy.deepcopy(dihtype_i)
+                
+                if( cnt_Dihedral_coeff >= self.paramC.n_dihtypes ):
+                    logger.debug( " %d dihedral types read in "%(cnt_Dihedral_coeff))
+                    read_Dihedral_coeff = False
+
+
+            if( read_Improper_coeff and  len(col) >= 3 ):
+                cnt_Improper_coeff += 1
+                ikey_i = int(col[0]) - 1
+
+
+                imptype_i = parameters.Imptype(type=imptype)
+                if( imptype == "improper" ):
+                    imptype_i.setimp(float(col[2]),float(col[1]))
+                    imptype_i.g_indx = int(2)
+                imptype_i.lmpindx = int( col[0])
+                self.paramC.imptypes[ikey_i] = copy.deepcopy(imptype_i)
+
+                if( cnt_Improper_coeff >= self.paramC.n_imptypes ):
+                    read_Improper_coeff = False
+
+
+
+            if( read_Atoms and len(col) >= 7 ):
+
+                # print ">read_Atoms col",col
+                
+                cnt_Atoms += 1
+                
+                pkey_i = int( col[0]) - 1
+                ljkey_i = int( col[2]) - 1
+                
+                ljtype_i = self.paramC.ljtypes[ljkey_i]
+                if( ljtype_i.lmpindx != ljkey_i +1 ):
+                    logger.warning("Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lmpindx))
+                    sys.exit(2)
+                # set particle and  properties
+                try:
+                    particle_i = self.strucC.particles[pkey_i]
+                    try:
+                        ljtype_i.fftype1 = particle_i.properties['fftype']
+                    except:
+                        print " Particle %d has no ffytpe"%(pkey_i)
+                except:
+                    particle_i = buildingblock.BBatom(ljtype_i.atomic_symbol)
+                particle_i.properties["mol"] = int(col[1])      
+                particle_i.properties["charge"] = float(col[3])
+                particle_i.properties["mass"] = ljtype_i.mass
+                particle_i.properties["lmpindx"] = ljtype_i.lmpindx
+
+                #print ">read_data cnt_Atoms ",cnt_Atoms,pkey_i,ljkey_i,ljtype_i.mass,ljtype_i.lmpindx 
+                #if( cnt_Atoms > 10 ):
+                #    sys.exit("9320ur092ur0298")
+                
+                self.strucC.particles[pkey_i] = copy.deepcopy(particle_i)
+                # set position 
+                pos_i =  [ float(col[4]),float(col[5]),float(col[6])] 
+                self.strucC.positions[pkey_i] = pos_i
+
+                if( cnt_Atoms >=  self.strucC.n_particles ):
+                    read_Atoms = False
+
+            if(read_Bonds and len(col) >= 4 ):
+                cnt_Bonds += 1
+                
+                bkey_i = int( col[0]) - 1
+                pkey1 = int(col[2]) - 1
+                pkey2 = int(col[3]) - 1
+                
+                bond_i = structure.Bond(pkey1,pkey2)
+                bond_i.lmpindx = int(col[1])
+
+                typekey =  bond_i.lmpindx  - 1
+                try:
+                    bondtype_i = self.paramC.bondtypes[typekey]
+                    try:
+                        bondtype_i.fftype1 = self.strucC.particles[pkey1].properties['fftype']
+                        bondtype_i.fftype2 = self.strucC.particles[pkey2].properties['fftype']
+                    except:
+                        print " Particles %d %d has no ffytpe"%(pkey1,pkey2)
+                except:
+                    print "Bond type  %d is not set "%(typekey)
+                    
+                
+                self.strucC.bonds[bkey_i] = copy.deepcopy(bond_i)
+
+                if( cnt_Bonds >=  self.strucC.n_bonds ):
+                    read_Bonds = False
+
+            if(read_Angles and len(col) >= 5 ):
+                cnt_Angles += 1
+                
+                akey_i = int( col[0]) - 1
+                pkey1 = int(col[2]) - 1
+                pkey2 = int(col[3]) - 1
+                pkey3 = int(col[4]) - 1
+                angle_i = structure.Angle(pkey1,pkey2,pkey3)
+                angle_i.lmpindx = int(col[1])
+
+                typekey =  angle_i.lmpindx  - 1
+                try:
+                    angletype_i = self.paramC.angletypes[typekey]
+                    try:
+                        angletype_i.fftype1 = self.strucC.particles[pkey1].properties['fftype']
+                        angletype_i.fftype2 = self.strucC.particles[pkey2].properties['fftype']
+                        angletype_i.fftype3 = self.strucC.particles[pkey3].properties['fftype']
+                    except:
+                        print " Particles %d %d has no ffytpe"%(pkey1,pkey2,pkey3)
+                except:
+                    print "angletype type  %d is not set "%(typekey)
+                                    
+                self.strucC.angles[akey_i] = copy.deepcopy(angle_i)
+
+                if( cnt_Angles >=  self.strucC.n_angles ):
+                    read_Angles = False
+
+
+            if(read_Dihedrals and len(col) >= 6 ):
+                cnt_Dihedrals += 1
+
+                dkey_i = int( col[0]) - 1
+                pkey1 = int(col[2]) - 1
+                pkey2 = int(col[3]) - 1
+                pkey3 = int(col[4]) - 1
+                pkey4 = int(col[5]) - 1
+                dihedral_i = structure.Dihedral(pkey1,pkey2,pkey3,pkey4)
+                dihedral_i.lmpindx = int(col[1])
+                # Set parameter types 
+                typekey =  dihedral_i.lmpindx  - 1
+                try:
+                    dihtype_i = self.paramC.dihtypes[typekey]
+                    try:
+                        dihtype_i.fftype1 = self.strucC.particles[pkey1].properties['fftype']
+                        dihtype_i.fftype2 = self.strucC.particles[pkey2].properties['fftype']
+                        dihtype_i.fftype3 = self.strucC.particles[pkey3].properties['fftype']
+                        dihtype_i.fftype4 = self.strucC.particles[pkey4].properties['fftype']
+                    except:
+                        print " Particles %d %d has no ffytpe"%(pkey1,pkey2,pkey3,pkey4)
+                except:
+                    print "dihtype type  %d is not set "%(typekey)
+
+                    
+                self.strucC.dihedrals[dkey_i] = copy.deepcopy(dihedral_i)
+
+                if( cnt_Dihedrals >=  self.strucC.n_dihedrals ):
+                    read_Dihedrals = False
+
+
+            if(read_Impropers and len(col) >= 2 ):
+                cnt_Impropers += 1
+
+
+                ikey_i = int( col[0]) - 1
+                pkey1 = int(col[2]) - 1
+                pkey2 = int(col[3]) - 1
+                pkey3 = int(col[4]) - 1
+                pkey4 = int(col[5]) - 1
+                improper_i = structure.Improper(pkey1,pkey2,pkey3,pkey4)
+                improper_i.lmpindx = int(col[1])
+                # Set parameter types 
+                typekey =  improper_i.lmpindx  - 1
+                try:
+                    improper_i = self.paramC.imptypes[typekey]
+                    try:
+                        improper_i.fftype1 = self.strucC.particles[pkey1].properties['fftype']
+                        improper_i.fftype2 = self.strucC.particles[pkey2].properties['fftype']
+                        improper_i.fftype3 = self.strucC.particles[pkey3].properties['fftype']
+                        improper_i.fftype4 = self.strucC.particles[pkey4].properties['fftype']
+                    except:
+                        print " Particles %d %d has no ffytpe"%(pkey1,pkey2,pkey3,pkey4)
+                except:
+                    print "improper type  %d is not set "%(typekey)
+                    
+                self.strucC.impropers[ikey_i] = copy.deepcopy(improper_i)
+                
+                if( cnt_Impropers >=  self.strucC.n_impropers ):
+                    read_Impropers = False
+
+            if ( len(col) >= 1  ):
+                if( col[0] == "Masses" ):
+                    read_Masses = True
+                    cnt_Masses = 0
+                    # 
+                    logger.debug("Reading Masses  ")
+                    # 
+                if( col[0] == "Atoms" ):
+                    read_Atoms = True
+                    cnt_Atoms = 0
+                    # 
+                    logger.debug("Reading Atoms   ")
+                    # 
+                    # for ljtkey_i, ljtype_i  in self.paramC.ljtypes.iteritems():
+                    #    print ljtkey_i, ljtype_i.lmpindx , ljtype_i.mass ,  ljtype_i.fftype1,ljtype_i.epsilon,  ljtype_i.sigma 
+                    # 
+                if( col[0] == "Bonds" ):
+                    # 
+                    logger.debug("Reading Bonds ")
+                    # 
+                    read_Bonds = True
+                    cnt_Bonds = 0 
+                if( col[0] == "Angles" ):
+                    # 
+                    logger.debug("Reading Angles  ")
+                    # 
+                    read_Angles = True
+                    cnt_Angles = 0 
+                if( col[0] == "Dihedrals" ):
+                    # 
+                    logger.debug("Reading Dihedrals  ")
+                    # 
+                    read_Dihedrals = True
+                    cnt_Dihedrals = 0 
+                if( col[0] == "Impropers" ):
+                    # 
+                    logger.debug("Reading  Impropers ")
+                    # 
+                    read_Impropers = True
+                    cnt_Impropers = 0 
+            if ( len(col) >= 2 ):
+                if( col[0] == "Pair" and col[1] == "Coeffs" ):
+                    # 
+                    logger.debug("Reading Pairs  ")
+                    # 
+                    read_Pair = True
+                    cnt_Pair = 0 
+                if( col[0] == "Bond" and col[1] == "Coeffs" ):
+                    # 
+                    logger.debug("Reading Bond_coeff  ")
+                    # 
+                    read_Bond_coeff = True
+                    cnt_Bond_coeff = 0 
+                if( col[0] == "Angle" and col[1] == "Coeffs" ):
+                    # 
+                    logger.debug("Reading Angle_coeff  ")
+                    # 
+                    read_Angle_coeff  = True
+                    cnt_Angle_coeff = 0 
+                if( col[0] == "Dihedral" and col[1] == "Coeffs" ):
+                    # 
+                    logger.debug("Reading Dihedral_coeff   ")
+                    # 
+                    read_Dihedral_coeff  = True
+                    cnt_Dihedral_coeff = 0 
+                if( col[0] == "Improper" and col[1] == "Coeffs" ):
+                    # 
+                    logger.debug("Reading Improper_coeff   ")
+                    # 
+                    read_Improper_coeff  = True
+                    cnt_Improper_coeff = 0 
+        #      
+        return  
 
     def read_data_pos(self, data_file,
         btype = "harmonic",
@@ -669,7 +1077,7 @@ class LAMMPS(CalculationRes):
             if ( len(col) >=2 ):
                 # Read in number of each topolgical component  
                 if( col[1] == "atoms" and self.strucC.n_particles != int( col[0] )):
-                    print "LAMMPS data file %s has %d particles while strucC object has %d particles "%(data_file, self.strucC.n_particles, int( col[0] ))
+                    print "LAMMPS data file %s has %d particles while strucC object has %d particles "%(data_file, int(col[0]), self.strucC.n_particles )
                     return 
 
             # Read in box size    
@@ -723,6 +1131,8 @@ class LAMMPS(CalculationRes):
                     logger.debug("Reading Atoms   ")
         #      
         return  
+
+
     
     def write_data(self,data_file=''):
         """

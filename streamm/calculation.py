@@ -396,7 +396,7 @@ class Calculation:
             self.meta['status'] = 'stored'
             
 
-    def pull(self,file_type='output'):
+    def pull(self,file_type_list=['output','data']):
         '''
         Copy output and data of simulation from storage 
         '''
@@ -406,11 +406,12 @@ class Calculation:
                 from_dirkey = 'storage'
                 to_dirkey = 'scratch'
                 file_key = self.properties['comp_key']
-                file_name = self.files[file_type][file_key]
-                self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
-                os.chdir( self.dir[to_dirkey] )
-                bash_command = "%s %s "%(self.properties['uncompress'],file_name)
-                os.system(bash_command)
+                for file_type in file_type_list:
+                    file_name = self.files[file_type][file_key]
+                    self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
+                    os.chdir( self.dir[to_dirkey] )
+                    bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                    os.system(bash_command)
                 
             elif( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
@@ -420,7 +421,7 @@ class Calculation:
                 todir = self.dir[to_dirkey]
                 comp_key = self.properties['comp_key']
                 #for file_type,files in self.files:
-                for file_type in ['output','data']:
+                for file_type in file_type_list:
                     #if( len(self.files[file_type]) ):
                     run_cp  = False 
                     try:
@@ -1323,7 +1324,7 @@ class CalculationRes(Calculation):
         os.chdir(self.dir['home'])
 
 
-    def push(self):
+    def push(self,file_type_list=['output','data']):
         '''
         Push input files to resource 
         '''
@@ -1364,40 +1365,48 @@ class CalculationRes(Calculation):
             # Copy reference simulation output over to scratch directory
             #
             file_key = self.properties['comp_key']
-            if( self.resource.meta['type'] == "ssh" ):
+            if( self.resource.meta['type'] == "ssh"  ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
             for ref_key,ref_calc in self.references.iteritems():
                 print "Copying output of reference calculations %s"%(ref_key)
-                file_type = 'output'
-                try:
-                    file_name = ref_calc.files[file_type][file_key]
-                except:
-                    print "Fine type %s has no compressed files "%(file_type)
-                    file_name = ''
-                if( len(file_name) > 0 ):
-                    # Copy compressed reference output to scratch directory 
-                    if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
-                        bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                        os.system(bash_command)
-                    elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
-                        if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
-                            # Copy on external resource 
+                # file_type = 'output'
+                for file_type in file_type_list:
+                    
+                    try:
+                        file_name = ref_calc.files[file_type][file_key]
+                    except:
+                        print "Fine type %s has no compressed files "%(file_type)
+                        file_name = ''
+                    if( len(file_name) > 0 ):
+                        # Copy compressed reference output to scratch directory 
+                        if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
                             bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                            bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
-                            os.system(bash_command)                
+                            os.system(bash_command)
+                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
+                            if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
+                                # Copy on external resource 
+                                bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                                bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                                os.system(bash_command)                
+                            else:
+                                # Copy between resources 
+                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                                bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
+                                os.system(bash_command)
+
+                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "local" ):
+                                # Copy between resources 
+                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                                bash_command = "scp %s:%s/%s %s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                                os.system(bash_command)                                            
                         else:
-                            # Copy between resources 
-                            ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
-                            bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
-                            os.system(bash_command)                
-                    else:
-                        print " Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type'])
-                    # Uncompress reference output 
-                    bash_command = "%s %s "%(self.properties['uncompress'],file_name)
-                    if( self.resource.meta['type'] == "ssh" ):
-                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                    # Run bash command
-                    os.system(bash_command)
+                            print " Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type'])
+                        # Uncompress reference output 
+                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                        if( self.resource.meta['type'] == "ssh" ):
+                            bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                        # Run bash command
+                        os.system(bash_command)
 
                 
                 

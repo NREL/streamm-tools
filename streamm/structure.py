@@ -881,6 +881,15 @@ class GroupSet():
             self.properties['A_sphere_num'].append(group_i.properties['A_sphere_num'])
             self.properties['A_sphere_dem'].append(group_i.properties['A_sphere_dem'])
 
+    def calc_dl(self):
+        '''
+        Calculate radius of groups and store them in list
+        '''
+        self.properties['dl_sq'] = []
+        for gkey,group_i in self.groups.iteritems():
+            group_i.calc_dl()
+            self.properties['dl_sq'].append(group_i.properties['dl_sq'])
+            
     def write_cm_xyz(self,group_file=""):
         '''
         Write center of mass of each group into an xyz file
@@ -1627,8 +1636,19 @@ class Container():
         except:
             logger.warning(" File not found %s in %s "%(xyz_file,os.getcwd()))
         
-        return 
+        return
+    
+    def write_list(self,list_i,tag_i):
+        '''
+        Write list of particle keys to  file to use in remote analysis
+        '''
+        list_str = [str(pkey) for pkey in list_i]
+        list_file = '%s.list'%(tag_i)
+        outfile = open(list_file,'wb')
+        outfile.write("\n".join(list_str))
+        outfile.close()        
 
+        return list_file
 
     def shift(self, pkey, vec):
         """
