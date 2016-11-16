@@ -557,9 +557,9 @@ class LAMMPS(CalculationRes):
                         dihtype_i.fftype3 = self.strucC.particles[pkey3].properties['fftype']
                         dihtype_i.fftype4 = self.strucC.particles[pkey4].properties['fftype']
                     except:
-                        print " Particles %d %d has no ffytpe"%(pkey1,pkey2,pkey3,pkey4)
+                        logger.warning(" Particles %d %d has no ffytpe"%(pkey1,pkey2,pkey3,pkey4))
                 except:
-                    print "dihtype type  %d is not set "%(typekey)
+                    logger.warning("dihtype type  %d is not set "%(typekey))
 
                     
                 self.strucC.dihedrals[dkey_i] = copy.deepcopy(dihedral_i)
