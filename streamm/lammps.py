@@ -1140,7 +1140,7 @@ class LAMMPS(CalculationRes):
         if( not update_run ):
             self.properties['run_list'].append(copy.deepcopy(run_i))
 
-    def analysis(self,output_key='log'):
+    def analysis(self,output_key='log',data2cply=True):
         """
         Read in results from LAMMPS 
         """
