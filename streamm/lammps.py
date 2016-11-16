@@ -1267,8 +1267,7 @@ class LAMMPS(CalculationRes):
         read_Angle_coeff  = False
         read_Dihedral_coeff  = False
         read_Improper_coeff  = False
-        #
-
+        # 
         for line in lines:
             col = line.split()
             if( read_Masses ):
@@ -1398,7 +1397,7 @@ class LAMMPS(CalculationRes):
                     fftype4 = str(col[3])
                     dtype = str(col[4])
                     
-                    imptype_i = parameters.Dihtype(fftype1,fftype2,fftype3,fftype4,type=dtype)
+                    imptype_i = parameters.Imptype(fftype1,fftype2,fftype3,fftype4,type=dtype)
                     if( dtype == "multiharmonic"):
                         imptype_i.kb = float(col[5])
                         imptype_i.e0 = float(col[6])

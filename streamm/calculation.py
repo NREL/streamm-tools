@@ -460,17 +460,17 @@ class Calculation:
         #
         # Create a container of possible parameters
         #
-        paramC_o = copy.deepcopy( self.paramC)
+        self.paramC_o = copy.deepcopy( self.paramC)
         # Reset parameters container
         self.paramC = parameters.Container()
         #
         # Set general parameters 
         #
-        self.paramC.nbfunc = paramC_o.nbfunc
-        self.paramC.combmixrule = paramC_o.combmixrule
-        self.paramC.genpairs = paramC_o.genpairs
-        self.paramC.fudgeJ = paramC_o.fudgeLJ
-        self.paramC.fudgeQQ = paramC_o.fudgeQQ
+        self.paramC.nbfunc = self.paramC_o.nbfunc
+        self.paramC.combmixrule = self.paramC_o.combmixrule
+        self.paramC.genpairs = self.paramC_o.genpairs
+        self.paramC.fudgeJ = self.paramC_o.fudgeLJ
+        self.paramC.fudgeQQ = self.paramC_o.fudgeQQ
         #
         # Examine atom types
         #
@@ -502,7 +502,7 @@ class Calculation:
                 type_found = False 
                 # particle_o.type = str(lj_p+1)
                 particle_o.properties["lmpindx"] = lmptype_p
-                for lj_all, ljObj_all  in paramC_o.ljtypes.iteritems():
+                for lj_all, ljObj_all  in self.paramC_o.ljtypes.iteritems():
                     all_i = ljObj_all.fftype1
                     if( fftype_i == all_i ):
                         type_found = True
@@ -517,10 +517,13 @@ class Calculation:
 
 
                 if( cnt_check < 1 ):
+                    self.paramC = self.paramC_o
                     raise TypeError(" No LJ parameters were found for atom type %s "%fftype_i)
+                     
                 elif( cnt_check > 1 ):
                     logger.warning(" Multiple LJ parameters (%d) were found for atom type %s "%(cnt_check,fftype_i))
                     if( not use_last  ):
+                        self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
         if( debug_lj ):
 
@@ -568,7 +571,7 @@ class Calculation:
                 type_found = False 
                 copy_type = False 
                 
-                for b_all, btypObj_all  in paramC_o.bondtypes.iteritems():
+                for b_all, btypObj_all  in self.paramC_o.bondtypes.iteritems():
                     all_i = btypObj_all.fftype1 
                     all_j = btypObj_all.fftype2
                     if( fftype_i == all_i  and  fftype_j == all_j ):
@@ -583,12 +586,14 @@ class Calculation:
                         copy_type = False 
 
                 if( cnt_check < 1 ):
+                    self.paramC = self.paramC_o
                     raise TypeError(" No Bond parameters were found for bond type %s-%s "%(fftype_i,fftype_j))
                 elif( cnt_check > 1 ):
                     logger.warning(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
                     for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
                         print btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2                    
                     if( not use_last  ):
+                        self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
                         
                 if( type_found ):
@@ -655,7 +660,7 @@ class Calculation:
                 cnt_check = 0
                 type_found = False 
                 copy_type = False 
-                for a_all, atypObj_all  in paramC_o.angletypes.iteritems():
+                for a_all, atypObj_all  in self.paramC_o.angletypes.iteritems():
                     all_k = atypObj_all.fftype1 
                     all_i = atypObj_all.fftype2 
                     all_j = atypObj_all.fftype3
@@ -673,6 +678,7 @@ class Calculation:
                         copy_type = False 
 
                 if( cnt_check < 1 ):
+                    self.paramC = self.paramC_o
                     raise TypeError(" No Angles parameters were found for bond type %s-%s-%s "%(fftype_k,fftype_i,fftype_j))
                 elif( cnt_check > 1 ):
                     # log_line=" %d Angles parameters were found for angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f  \n"%(cnt_check,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij )
@@ -682,6 +688,7 @@ class Calculation:
                     # atypC_p.findtype(fftype_k,fftype_i,fftype_j)
 
                     if( not use_last  ):
+                        self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
                 if( type_found ):
                         
@@ -701,7 +708,7 @@ class Calculation:
         #
         debug = False
         if( debug):
-            for d_all, dtypObj_all  in paramC_o.dihtypes.iteritems():
+            for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                 all_k = dtypObj_all.fftype1 
                 all_i = dtypObj_all.fftype2 
                 all_j = dtypObj_all.fftype3
@@ -759,10 +766,10 @@ class Calculation:
                 dihObj_o.lmpindx = lmptype_p
 
                 if( debug):
-                    print "  new type checking against %d read in parameters "%len(paramC_o.dihtypes)
+                    print "  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes)
 
                 copy_type = False 
-                for d_all, dtypObj_all  in paramC_o.dihtypes.iteritems():
+                for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                     all_k = dtypObj_all.fftype1 
                     all_i = dtypObj_all.fftype2 
                     all_j = dtypObj_all.fftype3
@@ -787,7 +794,7 @@ class Calculation:
                     if(debug):
                         print " checking  X - FF - FF - FF "
                     copy_type = False 
-                    for d_all, dtypObj_all  in paramC_o.dihtypes.iteritems():
+                    for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
                         all_i = dtypObj_all.fftype2 
                         all_j = dtypObj_all.fftype3
@@ -816,7 +823,7 @@ class Calculation:
                     if(debug):
                         print " checking  X - FF - FF - X "
                     copy_type = False 
-                    for d_all, dtypObj_all  in paramC_o.dihtypes.iteritems():
+                    for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
                         all_i = dtypObj_all.fftype2 
                         all_j = dtypObj_all.fftype3
@@ -838,12 +845,14 @@ class Calculation:
                                 print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
 
                 if( cnt_check < 1 ):
+                    self.paramC = self.paramC_o
                     raise TypeError(" No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l))
                 elif( cnt_check > 1 ):
                     print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                     print dtypObj_temp
                     #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                     if( not use_last  ):
+                        self.paramC = self.paramC_o
                         raise TypeError
 
                 if( type_found ):
@@ -888,7 +897,7 @@ class Calculation:
         #
         debug = False
         if( debug):
-            for d_all, imptypObj_all  in paramC_o.imptypes.iteritems():
+            for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                 all_k = imptypObj_all.fftype1 
                 all_i = imptypObj_all.fftype2 
                 all_j = imptypObj_all.fftype3
@@ -948,7 +957,7 @@ class Calculation:
                     print "  new type checking against %d read in parameters "%len(imptypC_all)
 
                 copy_type = False 
-                for d_all, imptypObj_all  in paramC_o.imptypes.iteritems():
+                for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                     all_k = imptypObj_all.fftype1 
                     all_i = imptypObj_all.fftype2 
                     all_j = imptypObj_all.fftype3
@@ -973,7 +982,7 @@ class Calculation:
                     if(debug):
                         print " checking  X - FF - FF - FF "
                     copy_type = False 
-                    for d_all, imptypObj_all  in paramC_o.imptypes.iteritems():
+                    for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
                         all_i = imptypObj_all.fftype2 
                         all_j = imptypObj_all.fftype3
@@ -1002,7 +1011,7 @@ class Calculation:
                     if(debug):
                         print " checking  X - FF - FF - X "
                     copy_type = False 
-                    for d_all, imptypObj_all  in paramC_o.imptypes.iteritems():
+                    for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
                         all_i = imptypObj_all.fftype2 
                         all_j = imptypObj_all.fftype3
@@ -1024,12 +1033,14 @@ class Calculation:
                                 print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
 
                 if( cnt_check < 1 ):
+                    self.paramC = self.paramC_o
                     raise TypeError(" No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l))
                 elif( cnt_check > 1 ):
                     print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
                     print imptypObj_temp
                     #imptypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                     if( not use_last  ):
+                        self.paramC = self.paramC_o
                         raise TypeError
 
                 if( type_found ):
