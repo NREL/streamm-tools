@@ -278,7 +278,7 @@ def setup_calc(proj_tag,options,p):
         tag_i = "gmin_%s_%d"%(options.group_id,g_i)
         if( tag_i not in sim_tags):
 
-            lmp_i = lammps.LAMMPS(tag_i)        
+            lmp_i = lammps.LAMMPS(tag_i)
             lmp_i.set_resource(local)
             lmp_i.properties['scratch'] = lmp_i.dir['scratch']
             
