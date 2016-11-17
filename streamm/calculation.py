@@ -336,7 +336,7 @@ class Calculation:
             # print "line:",line
             llow = line.lower()
             if( 'file:' in  llow):
-                col = llow.split()
+                col = line.split()
                 file_type = col[8]
                 file_key = col[9]
                 file_name = col[10]
