@@ -750,7 +750,7 @@ class NBlist():
         del dist_matrix
 
 
-    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True):
+    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True,del_drmatrix=False):
         """
         Create neighbor list of particles based on distance and radius of each particle 
         
@@ -777,7 +777,7 @@ class NBlist():
         # Create 2D list of lists of inter particle distances
         npos_i = positions
         npos_j = positions
-        dr_matrix, dist_matrix  = lat.delta_npos(npos_i,npos_j)
+        self.dr_matrix, self.dist_matrix  = lat.delta_npos(npos_i,npos_j)
         # Loop over all particles
         for key_i  in range(len(npos_i)):
             self.index.append(self.cnt + 1)
@@ -787,8 +787,8 @@ class NBlist():
                 if( key_i != key_j):
                     dr_cut = radi_i + radi_j
                     dr_cut = dr_cut*radii_buffer
-                    dr = dist_matrix[key_i,key_j] 
-                    if( dist_matrix[key_i,key_j] <= dr_cut ):
+                    dr = self.dist_matrix[key_i,key_j] 
+                    if( dr <= dr_cut ):
                         self.cnt += 1
                         self.list.append(key_j)
                         if( write_dr  ):
@@ -802,9 +802,12 @@ class NBlist():
                         
         # Add extra index positions for key+1 call made by final key 
         self.index.append(self.cnt + 1)
-        # Clear list from memory 
-        #del dr_matrix
-        return  dr_matrix,dist_matrix
+        if( del_drmatrix ):
+            # Clear list from memory
+            del self.dr_matrix
+            del self.dist_matrix
+        else:
+            logger.debug(" Saving dr and dist matrix for groupset ")
         
 
         
