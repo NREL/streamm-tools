@@ -168,7 +168,7 @@ def pull_groups(tag,options,p):
         fout = open(group_file,'wb')
         #group_writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
         group_writer = csv.writer(fout,delimiter=',')
-        header = ['g_i','tag','mol','x_cent_mas','y_cent_mas','z_cent_mas']
+        header = ['g_i','tag',"residue",'mol','x_cent_mas','y_cent_mas','z_cent_mas']
         #if( rank == 0 ):
         group_writer.writerow(header)
         fout.close()
@@ -194,8 +194,9 @@ def pull_groups(tag,options,p):
         # bb_i.guess_oplsa()
         bb_i.write_cply()
         bb_i.write_xyz()
-        mol_i = bb_i.particles[0].properties['mol']
-        row_i = [g_i,tag_i,mol_i]
+        mol_i = group_i.properties["mol"] 
+        res_i = group_i.properties["residue"] 
+        row_i = [g_i,tag_i,res_i,mol_i]
         for x_i in group_i.properties['cent_mass']:
             row_i.append(x_i)
         group_writer.writerow(row_i)
@@ -212,7 +213,7 @@ def pull_groups(tag,options,p):
     if( rank == 0 ):
         fout = open(pairs_file,'wb')
         pair_writer = csv.writer(fout,delimiter=',')
-        header = ['g_i','g_j','mol_i','mol_j']
+        header = ['g_i','g_j']
         #if( rank == 0 ):
         pair_writer.writerow(header)
         fout.close()
@@ -221,7 +222,7 @@ def pull_groups(tag,options,p):
     logger.debug(" Writing %d group pairs on proc %d "%(len(gkeys_p),rank))
     for g_i in gkeys_p:
         group_i = groupset_i.groups[g_i]
-        mol_i =group_i.properties['mol']
+        # mol_i =group_i.properties['mol']
         # 
         fout = open(pairs_file,'a')
         pair_writer = csv.writer(fout,delimiter=',')
@@ -232,9 +233,9 @@ def pull_groups(tag,options,p):
             logger.debug("checking neighbor group %d "%(g_j))
             if( g_j > g_i ):
                 group_j  = groupset_i.groups[g_j]
-                mol_j =group_j.properties['mol']
+                # mol_j =group_j.properties['mol']
                 if( mol_i != mol_j):
-                    row_i = [g_i,g_j,mol_i,mol_j]
+                    row_i = [g_i,g_j]
                     pair_writer.writerow(row_i)
   
         fout.close()

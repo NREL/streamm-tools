@@ -691,7 +691,7 @@ class LAMMPS(CalculationRes):
         F = open(data_file , 'r' )
         lines = F.readlines()
         F.close()
-        logger.debug(" Reading {} ",data_file)
+        logger.debug(" Reading %s "%(data_file))
         #
         # Read in data header with number of parameters 
         #

@@ -750,7 +750,7 @@ class NBlist():
         del dist_matrix
 
 
-    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25):
+    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True):
         """
         Create neighbor list of particles based on distance and radius of each particle 
         
@@ -763,7 +763,16 @@ class NBlist():
         """
         self.index = []
         self.list = []
-        self.cnt = 0 
+        self.cnt = -1
+
+        # Record rd
+        if( write_dr ):
+            dr_file = 'dr.csv'
+            fout = open(dr_file,'wb')
+            pair_writer = csv.writer(fout,delimiter=',')
+            header = ['key_i','key_j','dr']
+            #if( rank == 0 ):
+            pair_writer.writerow(header)            
         
         # Create 2D list of lists of inter particle distances
         npos_i = positions
@@ -778,15 +787,24 @@ class NBlist():
                 if( key_i != key_j):
                     dr_cut = radi_i + radi_j
                     dr_cut = dr_cut*radii_buffer
+                    dr = dist_matrix[key_i,key_j] 
                     if( dist_matrix[key_i,key_j] <= dr_cut ):
                         self.cnt += 1
                         self.list.append(key_j)
-                    
+                        if( write_dr  ):
+                            row_i = [key_i,key_j,dr]
+                            pair_writer.writerow(row_i)
+
+
+        # Record rd
+        if( write_dr ):
+            fout.close()
+                        
         # Add extra index positions for key+1 call made by final key 
         self.index.append(self.cnt + 1)
         # Clear list from memory 
-        del dr_matrix
-        del dist_matrix
+        #del dr_matrix
+        return  dr_matrix,dist_matrix
         
 
         
@@ -902,7 +920,7 @@ class GroupSet():
         group_out.write(group_line)        
         for gkey,group_i in self.groups.iteritems():
             cent_mass_i = group_i.properties['cent_mass']
-            group_line = " {}   {} {} {}  \n".format(gkey,cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
+            group_line = " Ar   {} {} {}  \n".format(cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
             group_out.write(group_line)
         group_out.close()
 
@@ -1255,6 +1273,8 @@ class Group():
         pt_H.properties = periodictable.element_number(1)
         pt_H.properties["fftype"] = "HC"
         pt_H.properties["resname"] = "TERM"
+        pt_H.properties["mol"] = self.properties["mol"] 
+        pt_H.properties["residue"] = self.properties["residue"] 
 
         original_ref_mod = []
         sub_ref_mod = []
@@ -1669,6 +1689,14 @@ class Container():
             self.shift( pkey_i, vec)
 
 
+    def pbc_pos(self):
+        '''
+        Apply periodic boundry conditions to 
+        '''
+        for r_i in self.positions:
+            for d in range(self.lat.n_dim ):
+                r_i[d] = r_i[d] - self.lat._matrix[d][d] * round( r_i[d]/  self.lat._matrix[d][d] )
+                    
     def lat_cubic(self,len_o):
         '''
         Set lattice to cubic with lattice constant len
@@ -1851,7 +1879,8 @@ class Container():
                     group_i.gkey = gkey
                     group_i.tag = "%s_%s"%(tag,gkey)
                     group_i.properties["mol"]  = particle_i.properties["mol"] 
-                    group_i.residue = particle_i.properties["residue"] 
+                    group_i.properties["residue"] = particle_i.properties["residue"] 
+                    group_i.properties["resname"] = particle_i.properties["resname"] 
                     groupset_i.groups[gkey] = group_i
                     # 
                     groupset_i.properties['keys'].append(group_i.gkey)
@@ -2573,8 +2602,8 @@ class Container():
                 # If no overlap detected add molecule to the system
                 if( poxpass ):
                     if ( rank == 0 ):
-                        logging.debug('No overlap found adding structure %s'(struc_add_cnt))
-                        print 'No overlap found adding structure %s'(struc_add_cnt)
+                        # logging.debug('No overlap found adding structure %d'%(struc_add_cnt))
+                        print 'No overlap found adding structure %s'%(struc_add_cnt)
                     # Create copy of structure to add to preserve original state 
                     structoadd= copy.deepcopy(other)
                     # Update mol number
