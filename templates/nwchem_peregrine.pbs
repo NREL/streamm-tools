@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -A <allocation>
+#PBS -l walltime=<walltime>:00:00 # WALLTIME limit
+#PBS -l nodes=<nodes>:ppn=<ppn> # Number of nodes, put 16 processes on each
+#PBS -l pmem=1500
+#PBS -M <e-mail>
+#PBS -m e
+#PBS -N <tag>
+#PBS -q <queue>
+#PBS -l feature=<feature>
+
+
+scratch_dir=<scratch>
+cd $scratch_dir
+
+module purge;
+module load conda/4.1
+module load openmpi-intel/1.6.4-13.1.1
+module load nwchem
+
+export NWCHEM_BASIS_LIBRARY=/home/tkemper/nwchem/basis/libraries/
+
+<streamm_command>
+
+
