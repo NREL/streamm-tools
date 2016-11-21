@@ -5,7 +5,7 @@ NPROC=<nproc>
 scratch_dir=<scratch>
 cd $scratch_dir
 
-SCRATCH=<scratch_dir>/GAUSSIAN-<tag>.$PBS_JOBID.src
+SCRATCH=<scratch>/GAUSSIAN-<tag>.$PBS_JOBID.src
 SCRATCH2=/dev/shm
 
 if [ -d $SCRATCH ]
