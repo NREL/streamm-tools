@@ -129,7 +129,7 @@ def pull_groups(tag,options,p):
     # Select considered particles 
     #
     if( rank == 0 ):
-        logger.info("Writing %s group cplys  "%(options.group_id))
+        logger.info("Reading in list of particles to be considered %s "%(options.list_i))
     struc_o.propcompile_particles()
     # Read lists
     lfile = open(options.list_i,'rb')
@@ -142,8 +142,12 @@ def pull_groups(tag,options,p):
     #
     # Apply molecular pbcs
     #
-    if( options.group_id != 'mol' ):
+    molpbcs = False 
+    if( options.group_id != 'mol' and molpbcs ):
         group_i_id = 'mol'
+        if( rank == 0 ):
+            logger.info("Applying %s PBC's "%(group_i_id))        
+
         struc_o.group_prop(group_i_id,group_i_id)
         groupset_mol = struc_o.groupsets[group_i_id]
         groupset_mol.calc_cent_mass()
@@ -151,8 +155,13 @@ def pull_groups(tag,options,p):
         groupset_mol.group_pbcs()
         if( rank == 0 ):
             struc_o.write_xyz('%s_pbcs.xyz'%(group_i_id))
+            struc_o.write_cply('%s_pbcs.cply'%(group_i_id))
         
-        
+    #
+    # Select considered particles 
+    #
+    if( rank == 0 ):
+        logger.info("Grouping by %s "%(options.group_id))        
     struc_o.group_prop(options.group_id,options.group_id,particles_select=list_i)
     groupset_i = struc_o.groupsets[options.group_id]
     #
@@ -160,11 +169,16 @@ def pull_groups(tag,options,p):
     #
     groupset_i.calc_cent_mass()
     groupset_i.calc_radius()
-    groupset_i.group_pbcs()
     if( rank == 0 ):
         struc_o.write_xyz('%s_pbcs.xyz'%(options.group_id))
     
+    #
     # Set radii to fixed value
+    #
+    if( rank == 0 and options.et_cut  > 0  ):
+        logger.info(" Set radii to fixed value %d "%(options.et_cut))
+    #
+    #
     groupset_i.properties['radius'] = []
     for gkey,group_i in groupset_i.groups.iteritems():
         if(  options.et_cut  > 0 ):
@@ -178,6 +192,11 @@ def pull_groups(tag,options,p):
         # groupset_i.write_xyzs()
         groupset_i.dump_json()
     #
+    # Select considered particles 
+    #
+    if( rank == 0 ):
+        logger.info("Writing %s group cplys  "%(options.group_id))
+    
     group_file = "group_%s.csv"%(options.group_id)
     if( rank == 0 ):
         fout = open(group_file,'wb')
@@ -431,6 +450,18 @@ def split_proj(proj_tag,options,p):
     size = p.getCommSize()
     peregrine = resource.Resource('peregrine')
     peregrine.load_json()
+    #
+    local = resource.Resource('local')
+    local.load_json()
+
+    proj_i = project.Project(proj_tag)
+    proj_i.set_resource(local)
+    proj_i.properties['scratch'] = local.dir['scratch']
+    proj_i.properties['streamm_command'] = ''
+    proj_i.properties['run_calcs'] = []
+    if( rank == 0 ):
+        proj_i.dump_json()
+    
     if( rank == 0 ):
         logging.info('Running on %d procs %s '%(size,datetime.now()))        
         logger.info("Running split_proj function for  %s "%(proj_tag))
@@ -445,7 +476,7 @@ def split_proj(proj_tag,options,p):
     if( rank == 0 ):
         logger.info("Setting up resource ")
         
-    n_jobs = int(N_sims/500)
+    n_jobs = int(N_sims/options.jobs_node)
     if( n_jobs < 1 ):
         n_jobs = 1 
     jobs = range(n_jobs)
@@ -505,8 +536,13 @@ def split_proj(proj_tag,options,p):
         proj_n.properties['streamm_command'] = 'python run_proj.py %s > %s.out '%(proj_n.tag,proj_n.tag)
         proj_n.replacewrite_prop('run','input','run',"%s.pbs"%(proj_n.tag))
         proj_n.dump_json()
+        proj_i.calculations[proj_n.tag] = proj_n
+        proj_i.properties['run_calcs'].append( 'qsub  %s.qsub  '%(proj_n.tag))
     
     p.barrier()
+    if( rank == 0 ):
+        proj_i.dump_json()
+    
     
 
 def read_energies(proj_tag,options,p):
@@ -554,22 +590,22 @@ def read_energies(proj_tag,options,p):
         logger.info('output group_%s group_%s.csv'%(options.group_id,options.group_id))
     proj_i.dump_json()
 
-def set_res(proj_tag):
+def set_res(proj_tag,options):
 
     # Set up local as resource 
     local = resource.Resource("local")
     # Set default simulation specs 
     local.properties['exe_command'] = './' 
-    local.properties['ppn'] = 24
-    local.properties['nproc'] = 24
+    local.properties['ppn'] = options.ppn
+    local.properties['nproc'] =  options.ppn
+    local.properties['feature'] = '%dcore'%( options.ppn)
     local.dir['launch'] = local.dir['home'] 
     # Create local directories for project 
     local.make_dir()
     local.dump_json()
-
     # 
     # Set up HPC resource 
-    #
+    # 
     peregrine = resource.Resource("peregrine")
     peregrine.meta['type'] = "local"
     peregrine.ssh['username'] = "tkemper"    
@@ -582,10 +618,10 @@ def set_res(proj_tag):
     peregrine.properties['allocation'] = 'orgopv'
     peregrine.properties['walltime'] = 48
     peregrine.properties['nodes'] = int(1)
-    peregrine.properties['ppn'] = int(24)
-    peregrine.properties['nproc'] = 24
+    peregrine.properties['ppn'] = int( options.ppn)
+    peregrine.properties['nproc'] =  options.ppn
     peregrine.properties['queue'] = 'batch'
-    peregrine.properties['feature'] = '24core'
+    peregrine.properties['feature'] = '%dcore'%( options.ppn)
     peregrine.properties['exe_command'] = 'qsub '
     peregrine.properties['e-mail'] = 'travis.kemper@nrel.gov'
     peregrine.dump_json()
@@ -593,7 +629,7 @@ def set_res(proj_tag):
       
 def et(calc_tag,options,p):
 
-    set_res(calc_tag)
+    set_res(calc_tag,options)
 
     
     group_file = 'group_%s.csv'%(options.group_id)
@@ -628,6 +664,8 @@ if __name__=="__main__":
     parser.add_option("--hterm", dest="hterm", default=False,action="store_true", help=" Hydrogen terminate groups ")
     parser.add_option("--et_cut", dest="et_cut", type="float", default=0.0, help="Cut off for inter et neighbors ")
     parser.add_option("--pairbuffer", dest="pairbuffer", type="float", default=2.5, help="Pair buffer ")
+    parser.add_option("--ppn", dest="ppn", type="int", default=16, help="Processors per node for nwchem calculations ")
+    parser.add_option("--jobs_node", dest="jobs_node", type="int", default=1000, help="Jobs per project to submit to individual nodes ")
     
     (options, args) = parser.parse_args()
     #
@@ -640,15 +678,15 @@ if __name__=="__main__":
     rank = p.getRank()
     size = p.getCommSize()
 
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
     if( len(args) < 1 ):
         calc_tag = 'et'
     else:
         calc_tag =  args[0]
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.DEBUG)

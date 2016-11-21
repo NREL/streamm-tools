@@ -1370,6 +1370,7 @@ class Group():
                 else:
                     error_line =  " Nubmer of missing atoms %d has yet to be accounted for in groups.hterm \n"%(dB)
                     error_line +=  " {} -> {}".format(NNAB_o,NNAB_i)
+                    Htermed.write_xyz("hterm_failed.xyz")
                     sys.exit(error_line)
                 # Redo neighbor list
                 Htermed.bonded_nblist.build_nblist(Htermed.particles,Htermed.bonds )
