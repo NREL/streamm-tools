@@ -359,8 +359,6 @@ class Container(structure_Container):
             self.rotate_xz(np.arccos(calc_cos(unit_x,pos_xz)),direction="counterclockwise",verbose=False)
         # if  pos_xy[1] == 0.0 no rotation is needed
 
-        
-
         if( debug ):
             print "     >align_bond  after xz rot self.positions[key_j] ",self.positions[key_j] 
 

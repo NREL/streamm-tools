@@ -123,10 +123,25 @@ class Calculation:
         '''
         get bash string to compress files
         '''
+        
+        def file_test(file_i):
+            '''
+            Read file into string 
+            '''
+            try:
+                with open(file_i) as F:            
+                    F.close()
+                    return True  
+
+            except IOError:
+                logger.warning(" File not found %s "%(file_i))
+
+            return False
+
         compress_files = ''
         for fkey,file_i in self.files[file_type].iteritems():
-            print " file_i ",file_i
-            if( fkey != self.properties['comp_key'] ):
+            if( fkey != self.properties['comp_key'] and file_test(file_i) ):
+                print "Adding %f "%(file_i)
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
         #
@@ -1335,7 +1350,7 @@ class CalculationRes(Calculation):
         os.chdir(self.dir['home'])
 
 
-    def push(self,file_type_list=['output','data']):
+    def push(self,file_type_list=[ 'output', 'data']):
         '''
         Push input files to resource 
         '''
@@ -1356,6 +1371,7 @@ class CalculationRes(Calculation):
                 file_key = self.properties['comp_key']
                 for file_type in ['input','templates','scripts']:
                     if( len(self.files[file_type]) ):
+                        
                         print "Compressing and copying %s files to scratch directory "%(file_type)
                         self.compress_files(file_type)
                         file_name = self.files[file_type][file_key]
@@ -1369,7 +1385,7 @@ class CalculationRes(Calculation):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,todir,bash_command)
                         os.system(bash_command)
                     else:
-                        print "No files of type %s present"%(file_type)
+                        print "No files of type %s set"%(file_type)
             else:
                 print " Resource type %s does not need to push files created locally "%(self.resource.meta['type'])
             #

@@ -22,6 +22,8 @@ module load conda
 
 source  activate chempy
 
+# python -c "import pybel,openbabel"
+
 <streamm_command>
 
 

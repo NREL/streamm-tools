@@ -738,7 +738,7 @@ class NBlist():
                     radii_j = particle_j.properties[radii_key]
                     dr_cut = radii_i + radii_j
                     dr_cut = dr_cut*radii_buffer
-                    logger.debug("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
+                    print "Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut)
                     if( dist_matrix[pkey_i,pkey_j] <= dr_cut ):
                         self.cnt += 1
                         self.list.append(pkey_j)
