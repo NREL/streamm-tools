@@ -227,18 +227,18 @@ class Container(structure_Container):
          
         '''
 
-        self.terms = []
-        self.funcs = []
-        self.subs = []
+        self.properties['term_list'] = []
+        self.properties['sub_list']  = []
+        self.properties['func_list']  = []
             
         for pkey_i, particle_i  in self.particles.iteritems():
            
             if( particle_i.properties["bbid"] == "T" ):                
-                self.terms.append(pkey_i)
+                self.properties['term_list'].append(pkey_i)
             elif( particle_i.properties["bbid"] == "R"  ):
-                self.funcs.append(pkey_i)
+                self.properties['sub_list'].append(pkey_i)
             elif( particle_i.properties["bbid"] == "S"):
-                self.subs.append(pkey_i)
+                self.properties['func_list'].append(pkey_i)
                 
         return 
         
