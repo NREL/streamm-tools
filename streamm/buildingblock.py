@@ -213,7 +213,35 @@ class Container(structure_Container):
             else: 
                 particle_i.properties["bbid"] = particle_i.properties["cplytag"]
                 
+ 
+    def proc_bbid(self):
+        '''
+        Define bbid pased on <=v0.2 cplytag
+
+        bb - X - T  - terminal site for polymerization 
+        bb - X - R  - functionalizable site for functional groups 
+        bb - X - S  - substitutable site for atomic substitutions 
+
+        this should be flipped ...
+        but it makes it easier to id the H since it's only bonded to 1 thing
+         
+        '''
+
+        self.terms = []
+        self.funcs = []
+        self.subs = []
             
+        for pkey_i, particle_i  in self.particles.iteritems():
+           
+            if( particle_i.properties["bbid"] == "T" ):                
+                self.terms.append(pkey_i)
+            elif( particle_i.properties["bbid"] == "R"  ):
+                self.funcs.append(pkey_i)
+            elif( particle_i.properties["bbid"] == "S"):
+                self.subs.append(pkey_i)
+                
+        return 
+        
 
     def find_XR(self,bbid_i,n_i,Xn_i):
         '''

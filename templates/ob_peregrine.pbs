@@ -18,7 +18,7 @@ module load conda
 #module load openmpi-gcc/1.7.3-4.8.2
 #module load mdanalysis/0.8.1
 #conda create -n testopenbabel -c bioconda python=2 openbabel psycopg2
-# conda create -n  chempy  -c bioconda python=2 openbabel psycopg2 luigi numpy scipy 
+# conda create -n  chempy  -c bioconda python=2 openbabel psycopg2 luigi numpy scipy pandas 
 
 source  activate chempy
 
