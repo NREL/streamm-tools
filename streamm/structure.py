@@ -2313,6 +2313,7 @@ class Container():
             pkey1 = self.keyupdate[bond_other.pkey1]
             pkey2 = self.keyupdate[bond_other.pkey2]
             bond_i = Bond(pkey1,pkey2)
+            bond_i.properties = bond_other.properties
             self.add_bond(bond_i)
         #
         # Add angles 
@@ -2321,6 +2322,7 @@ class Container():
             pkey2 = self.keyupdate[angle_other.pkey2]
             pkey3 = self.keyupdate[angle_other.pkey3]
             angle_i = Angle(pkey1,pkey2,pkey3)
+            angle_i.properties = angle_i.properties
             self.add_angle(angle_i)
         #
         # Add dihedrals 
@@ -2330,6 +2332,7 @@ class Container():
             pkey3 = self.keyupdate[dihedral_other.pkey3]
             pkey4 = self.keyupdate[dihedral_other.pkey4]
             dihedral_i = Dihedral(pkey1,pkey2,pkey3,pkey4)
+            dihedral_i.properties = dihedral_i.properties
             self.add_dihedral(dihedral_i)
         #
         # Add impropers 

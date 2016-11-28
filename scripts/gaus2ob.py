@@ -147,7 +147,7 @@ def opt_struc(options):
     else:
         fpbits = 001
         fplong = fpbits
-        
+    
     gaus_i.properties['fpbits'] = fpbits
     gaus_i.properties['fplong'] = fplong
 

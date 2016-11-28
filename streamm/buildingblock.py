@@ -8,6 +8,7 @@ __email__ = "travis.kemper.w@gmail.com"
 __status__ = "Beta"
 
 
+
 import numpy as np 
 import copy, sys
 
@@ -16,6 +17,9 @@ import structure, periodictable, units
 from structure import Atom 
 from structure import Bond 
 from structure import Container as  structure_Container
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Attachment():
@@ -293,6 +297,7 @@ class Container(structure_Container):
         pos_k = self.positions[key_k]
 
         if( debug ):
+            print " pos_k ",pos_k
             print "     >align_yaxis  pos_k", pos_k
         
         # Get the zy component of position k
@@ -349,6 +354,9 @@ class Container(structure_Container):
         pos_i = self.positions[key_i]
         pos_j = self.positions[key_j]
 
+        if( debug ):
+            print ">align_bond pos_i pos_j ",pos_i,pos_j
+
         # Shift particle i to origin 
         self.shift_pos(-1.0*pos_i)
         # Get the xy component of position j
@@ -361,14 +369,16 @@ class Container(structure_Container):
         if( pos_xy[1] > 0.0 ):
             # if in the 1st or 2nd quadrents rotate  clockwise 
             self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="clockwise",verbose=False)
-        elif( pos_xy[1] <= 0.0 ):
+        elif( pos_xy[1] < 0.0 ):
             # if in the 3rd or 4th quadrents rotate counter clockwise 
             # of if 180 rotation 
             self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="counterclockwise",verbose=False)
+        else:
+            logger.debug(" Bond already aligned skipping rotation")
         # if  pos_xy[1] == 0.0 no rotation is needed
 
-        if( debug ):
-            print "     >align_bond after xy rot self.positions[key_j] ",self.positions[key_j]
+        #if( debug ):
+        #print "     >align_bond after xy rot self.positions[key_j] ",self.positions[key_j]
         # Update position j after rotation 
         pos_j = np.array(self.positions[key_j]  )
         # Get components of position j 
@@ -630,6 +640,7 @@ class Container(structure_Container):
     
         if( debug ):                
             print " >prepattach ",bbid_i,n_i,Xn_i
+            print "self.positions 9247502 ",bb_prepped.positions
         
         bb_prepped = copy.deepcopy(self)
         if( bb_prepped.n_particles > 1 ):
@@ -654,9 +665,10 @@ class Container(structure_Container):
             else:
                 error_line = " dir is not 1 or -1 "
                 error_line += " in streamm.buildingblock.attachprep "
+                print error_line
 
             # Find attached heavy atoms
-            # align fist heavy neighbor with y axis 
+            # align fist heavy neighbor with y axis
             for key_k in bb_prepped.bonded_nblist.getnbs(key_i):
                     particle_k = bb_prepped.particles[key_k]
                     if( particle_k.properties['number'] != 1 ):                        
@@ -805,6 +817,8 @@ def attachprep(bbC_i,bbC_j,debug=False):
     #
     # Create bond between  X_i - X_j
     bond_ij = structure.Bond(Xo_i,Xp_j)
+    bond_ij.properties['bondorder'] = 1
+    print ">attachprep set bondorder ",Xo_i,Xp_j,bond_ij.properties['bondorder']
     bbC_i.add_bond(bond_ij)
     #
     # Remake neighbor list based on updated bonds 
