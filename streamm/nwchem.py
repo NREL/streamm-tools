@@ -20,7 +20,35 @@ from calculation import CalculationRes
 
 import logging
 logger = logging.getLogger(__name__)
-          
+
+class electrontransfer():
+    """
+    Calculation of electron transfer between groups of particles
+    """
+    def __init__(self,  verbose=False):
+        """
+        Constructor for  class. 
+        """
+        self.producten = 0.0 
+        self.reactanten = 0.0 
+        self.productMO = ""
+        self.reactantMO = ""
+        self.V = 0.0
+        self.S = 0.0
+        self.cputime = ""
+
+    def __str__(self):
+        log_line = ""
+        log_line += "\n producten {}".format(self.producten)
+        log_line += "\n reactanten {}".format(self.reactanten)
+        log_line += "\n productMO {}".format(self.productMO)
+        log_line += "\n reactantMO {}".format(self.reactantMO)
+        log_line += "\n S {} H ".format(self.S)
+        log_line += "\n V {} H ".format(self.V)
+        log_line += "\n cputime {}".format(self.cputime)
+
+        return log_line
+                            
 class NWChem(CalculationRes):
     """
     Dervied class implementing input/output methods Gaussian
@@ -39,6 +67,8 @@ class NWChem(CalculationRes):
         # String found in log file when simulation finishes
         self.properties['finish_str'] = 'Total times  cpu:'
         #
+        self.et_list = []
+        
     def __del__(self):
         """
         Destructor, clears object memory
@@ -47,7 +77,7 @@ class NWChem(CalculationRes):
         CalculationRes.__del__(self)
         
 
-    def analyze_log(self,log_file):
+    def proc_log(self,log_file):
         """
         Read NWChem simulation log files  
         """
@@ -57,14 +87,13 @@ class NWChem(CalculationRes):
         self.calctype = 'et'
 
         # self.converged = False
+        self.et_list = []
         
         try:
             with open(log_file,"r") as F:
                 log_lines = F.readlines()
                 F.close()
                 # self.converged = True
-
-
                 self.stinfo = []
                 self.N_alpha_occ = 0  
                 self.N_beta_occ = 0
@@ -110,10 +139,7 @@ class NWChem(CalculationRes):
                                 et_ij.V = float( col[5] )
                             if(  col[0]  == "Task" and  col[1]  == "times"  and  col[1]  == "times" ):
                                 read_et = False
-                                et_ij.cputime = col[3]
-                                
-                                print ">analyze_log ",et_ij
-                                
+                                et_ij.cputime = col[3]                                                                
                                 self.et_list.append(copy.deepcopy(et_ij))
                                 
                     if( len(col) >= 3 and read_et == False ):
@@ -147,6 +173,21 @@ class NWChem(CalculationRes):
         return
 
 
+    def analysis(self,output_key='log'):
+        """
+        Read in results from NWChem 
+        """
+        # Find output_key file 
+        try:
+            output_file = self.files['output'][output_key]
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+                os.system(bash_command)                
+            self.proc_log(output_file)            
+        except KeyError:
+            print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+        
     def load_json(self):
         '''
         Load json file for reference 

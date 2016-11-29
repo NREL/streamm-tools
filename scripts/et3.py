@@ -465,7 +465,9 @@ def split_proj(proj_tag,options,p):
     if( rank == 0 ):
         logging.info('Running on %d procs %s '%(size,datetime.now()))        
         logger.info("Running split_proj function for  %s "%(proj_tag))
-        
+
+    # This should read in project master
+    sys.exit("Read project master")
     sims_file = "et_sims.csv"
     sim_tags = read_sims(sims_file)
     # sim_tags = sim_tags[0:1000]
@@ -640,18 +642,33 @@ def proj_check(proj_tag,options,p):
     if( rank == 0 ):
         logger.info("Running  %s "%(proj_tag))
     # 
+    peregrine = resource.Resource('peregrine')
+    peregrine.load_json()
+    #
+    local = resource.Resource('local')
+    local.load_json()
+
+
+    proj_tag_m = "%s_master"%(proj_tag)
+    logger.info("Setting up %s "%(proj_tag_m))
+    proj_m = project.Project(proj_tag_m)
+    proj_m.set_resource(peregrine)
+    proj_m.properties['scratch'] = peregrine.dir['scratch']
+    proj_m.dir['home'] = peregrine.dir['scratch'] #+"/"+proj_tag
+    print proj_m.dir['home'] 
+                
     #proj_i = project.Project(proj_tag)
     #proj_i.load_json()
     sims_file = "et_sims.csv"
-    
     sim_tags = read_sims(sims_file)
     N_sims = len(sim_tags)
     if( rank == 0 ):
         logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
-    
-    for calc_i_tag in sim_tags:
+
+    sim_tags_p = p.splitListOnProcs(sim_tags)        
+    for calc_i_tag in sim_tags_p:
         print "Checking %s "%(calc_i_tag)
-        calc_i = nwchem.NWChem(sim_i_tag)
+        calc_i = nwchem.NWChem(calc_i_tag)
         calc_i.load_json()
         if( calc_i.meta['status'] != 'finished' ):
             if( calc_i.resource.meta['type'] == "local" ):
@@ -662,9 +679,18 @@ def proj_check(proj_tag,options,p):
             print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
             calc_i.dump_json()
             
+    p.barrier()
+    os.chdir(proj_m.dir['home'])
     for calc_i_tag in sim_tags:
-        calc_i = nwchem.NWChem(sim_i_tag)
+        calc_i = nwchem.NWChem(calc_i_tag)
         calc_i.load_json()
+        if( calc_i.meta['status'] != 'finished' ):
+            proj_m.calculations[calc_i.tag] = calc_i
+
+    os.chdir(proj_m.dir['home'])
+    proj_m.dump_json()
+    p.barrier()
+            
     #
     #sys.exit("2093r902u3r982uriu2h498y")
     #
@@ -676,11 +702,126 @@ def proj_check(proj_tag,options,p):
     #os.chdir(proj_i.home_dir)
     #proj_i.dump_json()
 
-          
+
+def read_et(et_file):
+    
+    ets = dict()
+    et_keys = []
+    logger.debug("Reading et output from file %s "%(et_file))
+    with open(et_file, 'rb') as f:
+                reader = csv.reader(f)
+                rownum = 0
+                for row in reader:
+                    if rownum == 0:
+                        header = row
+                    else:
+                        key_i = str(row[0])
+                        et_keys.append(key_i)
+                        ets[key_i] = row[1:]
+                    rownum += 1
+                
+    return et_keys,ets
+
+def proj_analysis(proj_tag,options,p):
+    #
+    # MPI setup
+    #
+    rank = p.getRank()
+    size = p.getCommSize()
+    #
+    if( rank == 0 ):
+        logging.info('Running run_calc on %d procs %s '%(size,datetime.now()))        
+    
+    if( rank == 0 ):
+        logger.info("Running  %s "%(proj_tag))
+    # 
+    peregrine = resource.Resource('peregrine')
+    peregrine.load_json()
+    #
+    local = resource.Resource('local')
+    local.load_json()
+
+
+    et_file = "et.csv"
+    if( not file_test(et_file) ):
+        et_keys,ets = read_et(et_file)
+    else:
+        et_keys = []
+        ets = dict()
+
+        if( rank == 0 ):
+            logger.info("Writing %s header "%(et_file))
+            fout = open(et_file,'wb')
+            et_writer = csv.writer(fout,delimiter=',')
+            header = ['tag','g_i','g_j','reactanten_ij (H)','producten_ij (H)','S_ij','V_ij (H)','S_ji','V_ji (H)']
+            #if( rank == 0 ):
+            et_writer.writerow(header)
+            fout.close()
+    #
+    p.barrier()
+    logger.info("Writing electron trasfer results.")
+    logger.info("Where group i is the neutral and group j is the hole ")
+    #
+    sims_file = "et_sims.csv"
+    sim_tags = read_sims(sims_file)
+    N_sims = len(sim_tags)
+    if( rank == 0 ):
+        logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
+    #
+    sim_tags_p = p.splitListOnProcs(sim_tags)        
+    for tag_i in sim_tags_p:
+        if( tag_i not in et_keys ):
+            p1 = tag_i.split('_')
+            g_i = int(p1[2])
+            g_j = int(p1[3])
+            logger.info("Analyzing %s g_i %d g_j %d "%(tag_i,g_i,g_j))
+            calc_i = nwchem.NWChem(tag_i)
+            calc_i.load_json()
+            if( calc_i.resource.meta['type'] == "local" ):
+                 os.chdir(calc_i.dir['scratch'])
+            calc_i.check()
+            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
+            calc_i.analysis()
+            if( calc_i.resource.meta['type'] == "local" ):
+                 os.chdir(calc_i.dir['home'])
+            # Get energies 
+            calc_ij = False 
+            calc_ji = False
+            S_ij = None 
+            V_ij = None
+            S_ji = None
+            V_ji = None
+            for et_ij in calc_i.et_list:
+                if( et_ij.reactantMO == 'GEOMI_0GEOMJ_1.movecs' ):
+                    S_ij = et_ij.S
+                    V_ij = et_ij.V
+                    calc_ij = True  
+                elif( et_ij.reactantMO == 'GEOMI_1GEOMJ_0.movecs' ):
+                    S_ji = et_ij.S
+                    V_ji = et_ij.V
+                    calc_ji = True  
+                else:
+                    logger.warning(" Unknown reactantMO file %s "%( et_ij.reactantMO))
+                    sys.exit(0)
+
+            if( calc_ij and calc_ji ):
+                logger.info("Results found S_ij %f V_ij %f "%(S_ij,V_ij))
+                row = [tag_i,g_i,g_j,et_ij.reactanten,et_ij.producten,S_ij,V_ij,S_ji,V_ji]
+                fout = open(et_file,'a')
+                et_writer = csv.writer(fout,delimiter=',')
+                et_writer.writerow(row)
+                fout.close()
+            else:
+                logger.warning(" Error in calculation %s reactant and product ets not found "%(tag_i))
+            # calc_i.dump_json()
+        else:
+            logger.debug(" Et tags %s already in et_file %s "%(tag_i,et_file))        
+    p.barrier()
+    return
+
 def et(calc_tag,options,p):
 
     set_res(calc_tag,options)
-
     
     group_file = 'group_%s.csv'%(options.group_id)
     pairs_file = 'pairs_%s.csv'%(options.group_id)
@@ -696,10 +837,11 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
+    # proj_check(calc_tag,options,p)
     #split_proj(calc_tag,options,p)
     
-    run_calc(calc_tag,options,p)
-    
+    #run_calc(calc_tag,options,p)
+    proj_analysis(calc_tag,options,p)
     #read_energies(calc_tag,options,p)
     #read_struc(calc_tag,options,p) 
     #write_newdata(calc_tag,options,p)
@@ -736,18 +878,18 @@ if __name__=="__main__":
         calc_tag =  args[0]
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
 
     hdlr = logging.FileHandler('%s.log'%(calc_tag),mode='w')
-    hdlr.setLevel(logging.DEBUG)
+    hdlr.setLevel(logging.INFO)
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
 

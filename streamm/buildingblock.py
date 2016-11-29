@@ -818,7 +818,8 @@ def attachprep(bbC_i,bbC_j,debug=False):
     # Create bond between  X_i - X_j
     bond_ij = structure.Bond(Xo_i,Xp_j)
     bond_ij.properties['bondorder'] = 1
-    print ">attachprep set bondorder ",Xo_i,Xp_j,bond_ij.properties['bondorder']
+    if( debug ):
+        print ">attachprep set bondorder ",Xo_i,Xp_j,bond_ij.properties['bondorder']
     bbC_i.add_bond(bond_ij)
     #
     # Remake neighbor list based on updated bonds 
