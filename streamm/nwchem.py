@@ -146,7 +146,7 @@ class NWChem(CalculationRes):
                         if(  col[0]  == "Electron" and  col[1]  == "Transfer"  and  col[2]  == "Calculation" ):
                             read_et = True
                             et_ij = electrontransfer()
-                            logger.info(" Electron Transfer Calculation found on line {} ".format(line_cnt))
+                            logger.debug(" Electron Transfer Calculation found on line {} ".format(line_cnt))
 
 
                     if( len(col) > 3 ):

@@ -140,8 +140,9 @@ class Calculation:
 
         compress_files = ''
         for fkey,file_i in self.files[file_type].iteritems():
-            if( fkey != self.properties['comp_key'] and file_test(file_i) ):
-                print "Adding %f "%(file_i)
+            # if( fkey != self.properties['comp_key'] and file_test(file_i) ):
+            if( fkey != self.properties['comp_key']  ):
+                print "Adding %s "%(file_i)
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
         #
@@ -399,11 +400,13 @@ class Calculation:
                     bash_command = self.get_compress_str(file_type)
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                    print bash_command
                     os.system(bash_command)
                     file_name = self.files[file_type][file_key]
                     bash_command = self.get_cp_str(file_type,file_key,file_name,from_dirkey,to_dirkey)
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                    print bash_command
                     os.system(bash_command)
                     self.add_file(file_type,file_key,file_name)
                 else:

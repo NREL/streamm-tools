@@ -781,7 +781,9 @@ def proj_analysis(proj_tag,options,p):
                  os.chdir(calc_i.dir['scratch'])
             calc_i.check()
             print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
+            #if( sim_i.meta['status'] != 'written' and  sim_i.meta['status'] != 'running' ):
             calc_i.analysis()
+                
             if( calc_i.resource.meta['type'] == "local" ):
                  os.chdir(calc_i.dir['home'])
             # Get energies 
