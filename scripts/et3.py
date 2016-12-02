@@ -142,7 +142,7 @@ def pull_groups(tag,options,p):
     #
     # Apply molecular pbcs
     #
-    molpbcs = False 
+    molpbcs = True 
     if( options.group_id != 'mol' and molpbcs ):
         group_i_id = 'mol'
         if( rank == 0 ):
@@ -467,9 +467,13 @@ def split_proj(proj_tag,options,p):
         logger.info("Running split_proj function for  %s "%(proj_tag))
 
     # This should read in project master
-    sys.exit("Read project master")
-    sims_file = "et_sims.csv"
-    sim_tags = read_sims(sims_file)
+    #sys.exit("Read project master")
+    proj_tag_m = "%s_master"%(proj_tag)
+    logger.info("Reading up %s "%(proj_tag_m))
+    proj_m = project.Project(proj_tag_m)    
+    proj_m.load_json()
+    #sims_file = "et_sims.csv"
+    sim_tags =  proj_m.calculations.keys() #read_sims(sims_file)
     # sim_tags = sim_tags[0:1000]
     N_sims = len(sim_tags)
     if( rank == 0 ):
@@ -539,14 +543,19 @@ def split_proj(proj_tag,options,p):
         proj_n.replacewrite_prop('run','input','run',"%s.pbs"%(proj_n.tag))
         proj_n.dump_json()
         proj_i.calculations[proj_n.tag] = proj_n
-        proj_i.properties['run_calcs'].append( 'qsub  %s.qsub  '%(proj_n.tag))
+        proj_i.properties['run_calcs'].append( 'qsub  %s.pbs  '%(proj_n.tag))
     
     p.barrier()
     if( rank == 0 ):
         proj_i.dump_json()
     
     
-
+def run_calc(calc_tag,options,p):
+    proj_i = project.Project(proj_tag)
+    proj_i.load_json()
+    for r_i in proj_i.properties['run_calcs']:
+        os.system(r_i)
+    
 def read_energies(proj_tag,options,p):
     #
     # MPI setup
@@ -839,11 +848,11 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
-    # proj_check(calc_tag,options,p)
-    #split_proj(calc_tag,options,p)
+    proj_check(calc_tag,options,p)
+    split_proj(calc_tag,options,p)
     
-    #run_calc(calc_tag,options,p)
-    proj_analysis(calc_tag,options,p)
+    run_calc(calc_tag,options,p)
+    #proj_analysis(calc_tag,options,p)
     #read_energies(calc_tag,options,p)
     #read_struc(calc_tag,options,p) 
     #write_newdata(calc_tag,options,p)
