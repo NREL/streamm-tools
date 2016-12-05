@@ -1264,6 +1264,7 @@ class CalculationRes(Calculation):
                     # Create  directory
                     bash_command = ' mkdir -p %s  '%(dir_i)
                     bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                    print "MAKEDIR ",bash_command
                     os.system(bash_command)                       
                 except:
                     logger.warning("%s directory not set "%(dkey))
@@ -1382,6 +1383,7 @@ class CalculationRes(Calculation):
                         from_pathfile = os.path.join(fromdir,file_name)
                         to_pathfile = os.path.join(todir,file_name)
                         bash_command = "scp %s %s:%s"%(from_pathfile,ssh_id,todir)
+                        print "COPY ",bash_command
                         os.system(bash_command)
                         # Uncompress file 
                         bash_command = "%s %s "%(self.properties['uncompress'],file_name)

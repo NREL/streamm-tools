@@ -471,13 +471,15 @@ def split_proj(proj_tag,options,p):
     proj_tag_m = "%s_master"%(proj_tag)
     logger.info("Reading up %s "%(proj_tag_m))
     proj_m = project.Project(proj_tag_m)    
-    proj_m.load_json()
-    #sims_file = "et_sims.csv"
-    sim_tags =  proj_m.calculations.keys() #read_sims(sims_file)
-    # sim_tags = sim_tags[0:1000]
+    #proj_m.load_json()
+    
+    #sim_tags =  proj_m.calculations.keys() #
+    sims_file = "et_sims.csv"
+    sim_tags = read_sims(sims_file)
+    
     N_sims = len(sim_tags)
     if( rank == 0 ):
-        logger.info("3rd %s read with %d entries "%(sims_file,len(sim_tags)))
+        logger.info("ET calculations read in with %d entries "%(len(sim_tags)))
 
     if( rank == 0 ):
         logger.info("Setting up resource ")
@@ -550,11 +552,15 @@ def split_proj(proj_tag,options,p):
         proj_i.dump_json()
     
     
-def run_calc(calc_tag,options,p):
-    proj_i = project.Project(proj_tag)
-    proj_i.load_json()
-    for r_i in proj_i.properties['run_calcs']:
-        os.system(r_i)
+def run_calc(proj_tag,options,p):
+    rank = p.getRank()
+    size = p.getCommSize()
+    
+    if( rank == 0 ):
+        proj_i = project.Project(proj_tag)
+        proj_i.load_json()
+        for r_i in proj_i.properties['run_calcs']:
+            os.system(r_i)
     
 def read_energies(proj_tag,options,p):
     #
