@@ -644,7 +644,7 @@ def set_res(proj_tag,options):
     peregrine.dump_json()
             
   
-def proj_check(proj_tag,options,p):
+def proj_check(proj_tag,options,p,check_status=False):
     #
     # MPI setup
     #
@@ -680,19 +680,20 @@ def proj_check(proj_tag,options,p):
     if( rank == 0 ):
         logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
 
-    sim_tags_p = p.splitListOnProcs(sim_tags)        
-    for calc_i_tag in sim_tags_p:
-        print "Checking %s "%(calc_i_tag)
-        calc_i = nwchem.NWChem(calc_i_tag)
-        calc_i.load_json()
-        if( calc_i.meta['status'] != 'finished' ):
-            if( calc_i.resource.meta['type'] == "local" ):
-                os.chdir(calc_i.dir['scratch'])
-            calc_i.check()
-            if( calc_i.resource.meta['type'] == "local" ):
-                os.chdir(calc_i.dir['home'])
-            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
-            calc_i.dump_json()
+    sim_tags_p = p.splitListOnProcs(sim_tags)
+    if( check_status ):
+        for calc_i_tag in sim_tags_p:
+            print "Checking %s "%(calc_i_tag)
+            calc_i = nwchem.NWChem(calc_i_tag)
+            calc_i.load_json()
+            if( calc_i.meta['status'] != 'finished' ):
+                if( calc_i.resource.meta['type'] == "local" ):
+                    os.chdir(calc_i.dir['scratch'])
+                calc_i.check()
+                if( calc_i.resource.meta['type'] == "local" ):
+                    os.chdir(calc_i.dir['home'])
+                print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
+                calc_i.dump_json()
             
     p.barrier()
     os.chdir(proj_m.dir['home'])

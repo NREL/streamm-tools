@@ -231,6 +231,7 @@ class Calculation:
         Load json file for reference 
         '''        
         json_file = "%s_%s.json"%(self.prefix,self.tag)
+        print "Reading %s"%(json_file)
         try:
             with open(json_file) as f:            
                 json_data = json.load(f)
