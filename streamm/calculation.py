@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class Calculation:
+class Calculation(object):
     '''
     Data structure for a calculation where input files are read in
     and output files and data files are produced.
