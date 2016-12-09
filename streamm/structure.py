@@ -3241,6 +3241,24 @@ class Container():
             dihedral_i = self.dihedrals[key_i]
             cos_kijl = self.calc_dihedral(dihedral_i)
         
+    def proc_dihedrals(self,dih_file,keys=[]):
+        '''
+        Calculate the dihedral angels from angle_list
+        '''
+        self.dih_dic = {}
+        self.dih_dic['cosine'] = []
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.dihedrals.keys()
+        if( len(keys) > 0 ):
+            for key_i in keys:
+                dih_i = self.dihedrals[key_i]
+                self.dih_dic['cosine'] .append(dih_i.properties['cosine'] )
+                
+                
+                
+                
+                
     def write_dihedrals(self,dih_file,keys=[]):
         '''
         Calculate the dihedral angels from angle_list
@@ -3251,8 +3269,8 @@ class Container():
         
         if( len(keys) > 0 ):
             fout = open(dih_file,'wb')
-            writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            header = ['dkey','pkey_k','pkey_i','pkey_j','pkey_l']
+            writer = csv.writer(fout,delimiter=',')  #QUOTE_ALL)
+            header = ['dkey','pkey_k','pkey_i','pkey_j','pkey_l','mol_i','g_i','g_j','cosine']
             dih_i = self.dihedrals[0]
             for prop_key in dih_i.properties.keys():
                 header.append(prop_key)
@@ -3260,6 +3278,9 @@ class Container():
             for key_i in keys:
                 dih_i = self.dihedrals[key_i]
                 row_i = [key_i,dih_i.pkey1,dih_i.pkey2,dih_i.pkey3,dih_i.pkey4]
+                row_i.append(self.particles[dih_i.pkey2].properties['mol'])                    
+                row_i.append(self.particles[dih_i.pkey2].properties['group'])                    
+                row_i.append(self.particles[dih_i.pkey3].properties['group'])                    
                 for prop_key,prop_val in dih_i.properties.iteritems():
                     row_i.append(prop_val)                    
                 writer.writerow(row_i)

@@ -26,9 +26,5 @@ source  activate chempy
 
 <streamm_command>
 
-
-
 source deactivate
-
-
 
