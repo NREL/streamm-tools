@@ -21,7 +21,7 @@ from calculation import CalculationRes
 import logging
 logger = logging.getLogger(__name__)
 
-class electrontransfer():
+class electrontransfer(object):
     """
     Calculation of electron transfer between groups of particles
     """

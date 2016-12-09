@@ -33,7 +33,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Particle():
+class Particle(object):
     """
     Data structure for describing any localized object in QM/MD simulations
     A 'Particle' has a type and dict of specifiers to it's property 
@@ -90,7 +90,7 @@ class Atom(Particle):
         
         self.tag = self.properties["symbol"]
         
-class Bond:
+class Bond(object):
     """
     Data structure for describing any 2-point associatiaon of Particle-s
     """
@@ -141,7 +141,7 @@ class Bond:
 
 
 
-class Angle:
+class Angle(object):
     """
     Data structure for describing any 3-point associatiaon of Particle-s
     """
@@ -197,7 +197,7 @@ class Angle:
         """
         return " %s - %s - %s  "%(self.pkey1,self.pkey2,self.pkey3)
 
-class Dihedral:
+class Dihedral(object):
     """
     Data structure for describing any 4-point associatiaon of Particle-s
     """
@@ -263,7 +263,7 @@ class Dihedral:
         return " %s - %s - %s - %s "%(self.pkey1,self.pkey2,self.pkey3,self.pkey4 )
 
 
-class Improper:
+class Improper(object):
     """
     Data structure for describing any 4-point associatiaon of Particle-s
     """
@@ -327,7 +327,7 @@ class Improper:
         """
         return " %s - %s - %s - %s "%(self.pkey1,self.pkey2,self.pkey3,self.pkey4 )
         
-class Lattice():
+class Lattice(object):
     
     def __init__(self):
         """        
@@ -630,7 +630,7 @@ class Lattice():
                         
         return pos_o
                                 
-class NBlist():
+class NBlist(object):
     """
     Class for neighbor list
     """
@@ -811,7 +811,7 @@ class NBlist():
         
 
         
-class Replication():
+class Replication(object):
     '''
     Object to recode the replication of structure 
     '''
@@ -839,7 +839,7 @@ class Replication():
         """
         return " %s +  %s x %d ( %s ) -> %s "%(self.name_i,self.name_j,self.n,self.method,self.name_ij)
 
-class GroupSet():
+class GroupSet(object):
     """
     Set of groups within a structureContainer
     """
@@ -1001,7 +1001,7 @@ class GroupSet():
         json.dump(json_data,f, indent=2)
         f.close()
                
-class Group():
+class Group(object):
     """
     Sets of particles within a structureContainer
     """
@@ -1378,7 +1378,7 @@ class Group():
         return Htermed #original_ref_mod,sub_ref_mod 
 
                  
-class Container():
+class Container(object):
     """
     Data structure for describing a collection of Particles that have associated
     positions within a Lattice, and consistent set keys corresponding to

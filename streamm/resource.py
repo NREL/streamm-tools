@@ -14,7 +14,7 @@ import copy , os , json , sys
 import logging
 logger = logging.getLogger(__name__)
 
-class Resource:
+class Resource(object):
     '''
     Data structure for a compute resource  
     '''

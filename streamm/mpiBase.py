@@ -10,7 +10,7 @@ boost.mpi, mpi4py and serial
 NOTE: continue to end of this documentation to see short tutorial methods on use
 """
 
-class ParallelMsgr:
+class ParallelMsgr(object):
     """
     Base class defining the interface to parallel communication methods
     """

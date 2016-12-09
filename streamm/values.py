@@ -29,7 +29,7 @@ def calc_dec(num):
     """
     return -int(math.floor(math.log10(abs(num)))) 
 
-class Values:
+class Values(object):
     '''
     Functions for data processing of sets of values 
     '''

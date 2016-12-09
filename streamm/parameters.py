@@ -17,7 +17,7 @@ __status__ = "Beta"
 import copy 
 
 
-class LJtype:
+class LJtype(object):
     """
     Set of LJ particle parameters 
     """
@@ -71,7 +71,7 @@ class LJtype:
 
 
 
-class Bondtype:
+class Bondtype(object):
     """
     Set of bond parameters 
     """
@@ -163,7 +163,7 @@ class Bondtype:
             raise TypeError
     
    
-class Angletype:
+class Angletype(object):
     """
     Set of Angle parameters 
     """
@@ -263,7 +263,7 @@ class Angletype:
             raise TypeError
 
 
-class Dihtype:
+class Dihtype(object):
     """
     Set of Dihedral angle parameters 
     """
@@ -521,7 +521,7 @@ class Dihtype:
         self.k4 = -0.25*C4
 
         
-class Imptype:
+class Imptype(object):
     """
     Set of improper dihedral angle parameters
     """
@@ -630,7 +630,7 @@ class Imptype:
 
 
 
-class Container():
+class Container(object):
     """
     Container for force-field parameters
     """

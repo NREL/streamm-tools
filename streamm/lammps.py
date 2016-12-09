@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class mdrun():
+class mdrun(object):
     '''
     Object to store the output of a single MD run 
     '''
