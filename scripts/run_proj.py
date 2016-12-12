@@ -30,6 +30,8 @@ def run_calc(proj_tag,options):
         print "Running %s "%calc_i.tag
         os.chdir(calc_i.dir['scratch'])
         calc_i.check()
+        if( calc_i.meta['status'] == 'running' ):
+            calc_i.meta['status'] = 'written'
         calc_i.run()
         calc_i.check()
         os.chdir(calc_i.dir['home'])

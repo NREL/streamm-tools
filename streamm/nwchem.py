@@ -85,6 +85,7 @@ class NWChem(CalculationRes):
         debug = False
 
         self.calctype = 'et'
+        self.properties['calctype']  = 'SP'
 
         # self.converged = False
         self.et_list = []
@@ -94,21 +95,28 @@ class NWChem(CalculationRes):
                 log_lines = F.readlines()
                 F.close()
                 # self.converged = True
-                self.stinfo = []
-                self.N_alpha_occ = 0  
-                self.N_beta_occ = 0
-                self.alpha_energies = []
-                self.beta_energies = []
-
+                self.properties['stinfo'] = []
+                self.properties['N_alpha_occ'] = 0
+                self.properties['N_beta_occ'] = 0
+                self.properties['alpha_energies'] = []
+                self.properties['beta_energies'] = []
+                self.properties['calctype']  = 'SP'
+                self.properties['nstates']  = 0
+                self.properties['energy']  = 0.0
+                #
                 # Initialize read functions as off 
+                # 
                 read_et = False 
                 read_geom = False
+                read_molorben_alpha = False
+                read_molorben_beta = False
                 geom_name = "unknown"
                 
                 line_cnt = 0
                 for line in log_lines:
                     col = line.split()
                     line_cnt += 1
+                    
                 
         
                     if( read_et and len(col) > 0  ):
@@ -139,7 +147,7 @@ class NWChem(CalculationRes):
                                 et_ij.V = float( col[5] )
                             if(  col[0]  == "Task" and  col[1]  == "times"  and  col[1]  == "times" ):
                                 read_et = False
-                                et_ij.cputime = col[3]                                                                
+                                et_ij.cputime = col[3]
                                 self.et_list.append(copy.deepcopy(et_ij))
                                 
                     if( len(col) >= 3 and read_et == False ):
@@ -160,6 +168,60 @@ class NWChem(CalculationRes):
 
                     if( read_geom and len(col) < 1 and line_cnt >= 7  ):
                         read_geom = False 
+                        
+                    if( read_molorben_alpha and len(col) >= 4 ):
+                        if( col[0] == 'Vector' ):
+                            col_s = col[2].split('=')
+                            occ = float(col_s[1].replace("D","e"))
+                            if( occ > 0 ):
+                                self.properties['N_alpha_occ'] += 1 
+                            if( len(col) == 4  ):
+                                en_return =  col[3].split('=')
+                                en = float(en_return[1].replace("D","e")) 
+                            elif( len(col) == 5  ):
+                                en = float(col[4].replace("D","e"))
+                            else:
+                                print " Bad MO read ",col,len(col)
+                                sys.exit(4)
+                            self.properties['alpha_energies'].append(en)
+                            
+                            #print occ,en
+                            
+
+                    if( read_molorben_beta and len(col) >= 4 ):
+                        if( col[0] == 'Vector' ):
+                            col_s = col[2].split('=')
+                            occ = float(col_s[1].replace("D","e"))
+                            if( occ > 0 ):
+                                self.properties['N_beta_occ'] += 1 
+                            if( len(col) == 4  ):
+                                en_return =  col[3].split('=')
+                                en = float(en_return[1].replace("D","e")) 
+                            elif( len(col) == 5  ):
+                                en = float(col[4].replace("D","e"))
+                            else:
+                                print " Bad MO read ",col,len(col)
+                                sys.exit(4)
+                            self.properties['beta_energies'].append(en)
+                        
+                            
+                            
+                    if( len(col)  >= 5  ):
+                        if(  col[1]  == "Final" and col[3] == 'Molecular' and col[4] == 'Orbital' and col[5] == 'Analysis'  ):
+                            print "Checking MO Energies "
+                            if( col[2]  == "Alpha" ):
+                               read_molorben_alpha = True # True 
+                               cnt_molorben_alpha = 0
+                            if( col[2]  == "Beta" ):
+                               read_molorben_alpha = False # True 
+                               read_molorben_beta = True # True 
+                               cnt_molorben_beta = 0
+                               
+                    if( len(col)  >= 5  ):
+                        #if( 'Total SCF energy' in line ):
+                        if(  col[0]  == "Total" and col[1] == 'SCF' and col[2] == 'energy' ):
+                            self.properties['energy'] =  float(col[4].replace("D","e"))
+                        
 
 
                 logger.debug(" ---- {} Electron Transfer Calculations found ".format(len(self.et_list)))

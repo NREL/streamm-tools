@@ -14,7 +14,7 @@ scratch_dir=<scratch>
 cd $scratch_dir
 
 module purge;
-module load conda/4.1
+module load conda #/4.1
 module load openmpi-gcc/1.7.3-4.8.2
 module load mdanalysis/0.8.1 
 

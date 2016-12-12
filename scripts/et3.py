@@ -156,7 +156,6 @@ def pull_groups(tag,options,p):
         if( rank == 0 ):
             struc_o.write_xyz('%s_pbcs.xyz'%(group_i_id))
             struc_o.write_cply('%s_pbcs.cply'%(group_i_id))
-        
     #
     # Select considered particles 
     #
