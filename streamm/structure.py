@@ -26,7 +26,6 @@ except:
     import pickle
     
 from datetime import datetime
-
 import periodictable
 
 import logging
@@ -55,9 +54,7 @@ class Particle(object):
         del self.type
         del self.tag
         del self.properties
-
-        
-        
+    
     def __str__(self):
         """
         'Magic' method for printng contents of container
@@ -541,10 +538,9 @@ class Lattice(object):
         key_list_i = range(n_i)
         key_list_j = range(n_j)
         #
-
         n_ij = n_i*n_j
         #print n_i,n_j
-
+        #
         start_dpos = datetime.now()
         logging.debug(" Taking difference %d x %d "%(n_i,n_j))
         
@@ -987,6 +983,68 @@ class GroupSet(object):
                     r_i = strucC.positions[pid_i]
                     for dim in range(strucC.lat.n_dim):
                         r_i[dim] = r_i[dim] - shift[dim] 
+
+
+    def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
+        '''
+        Find pairs based on criteria
+        '''
+        N_i = len(list_i)
+        N_j = len(list_j)
+
+        if( N_i == 0 or N_j == 0 ):
+            logger.warning(" Empty list passed to structure.find_pairs ")
+            return 
+        
+        # probabilityperpair = 1.0     # Probability per pair i-j 
+        logger.info("Finding %d x %d  pairs  "%(N_i,N_j))
+        
+        pairvalue_ij =  np.zeros((N_i,N_j), dtype=np.float64)   # value assigned to each pair 
+        # 
+        for indx_i in range(N_i):
+            g_i = list_i[indx_i]
+            for indx_j in range(N_j):
+                g_j = list_j[indx_j]
+                if( g_i != g_j ):
+                    pairvalue_ij[indx_i][indx_j] = 1.0
+                    if( mol_inter and self.groups[g_i].properties["mol"] == self.groups[g_j].properties["mol"] ):
+                        pairvalue_ij[indx_i][indx_j] = 0.0
+                    elif( mol_intra and self.groups[g_i].properties["mol"] != self.groups[g_j].properties["mol"] ):
+                        pairvalue_ij[indx_i][indx_j] = 0.0
+                    logger.debug(" keyi %d keyj %d has probility value of %f "%(g_i,g_j,pairvalue_ij[indx_i][indx_j]))
+                        
+        return pairvalue_ij
+        
+        
+
+    def delta_pos_c(self,pos_i,pos_j):
+        """
+        Difference between two positions in cubic lattice  
+        """
+        dr_ij = self.deltasq_pos_c(pos_i,pos_j)
+        mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
+
+        return dr_ij,mag_dr_ij
+        
+
+    def dr_particles(self,g_i,g_j,r_cut):
+        
+        mag_dr_pi_pj = r_cut 
+        
+        group_i = self.groups[g_i]
+        group_j = self.groups[g_j]
+        #npart_pos_i = []
+        for pkey_i in group_i.pkeys:
+            pos_i = group_i.strucC.positions[pkey_i]
+            for pkey_j in group_j.pkeys:
+                pos_j = group_i.strucC.positions[pkey_j]
+                dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
+
+                if( mag_dr_ij < mag_dr_pi_pj ):
+                    mag_dr_pi_pj = mag_dr_ij
+                    
+        return mag_dr_pi_pj
+        
 
     def dump_json(self):
         '''
@@ -2834,55 +2892,6 @@ class Container(object):
                         
         return pairvalue_ij
 
-
-    def get_subdihedrals(self,list_k,list_i,list_j,list_l):
-        """
-        Find sets of dihedrals in system
-
-        k-i-j-l
-
-        Arguments
-            list_k (list) of atom indexes in of the first bonded atom in the dihedral 
-            list_i (list) of atom indexes in of the second bonded atom in the dihedral 
-            list_j (list) of atom indexes in of the third bonded atom in the dihedral 
-            list_l (list) of atom indexes in of the fourth bonded atom in the dihedral
-        Return
-            sub_dihedrals (list) of four aotms in each dihedral 
-        """
-        #
-        # Find  atom groups k-i-j-l
-        #
-        subdihedrals = {}
-        #
-        # Find atom indices  of group i and j
-        #
-        #for p_k, ptcl_k  in self.ptclC(list_k):
-        for pkey_k  in list_k:
-            for pkey_i in self.bonded_nblist.getnbs(pkey_k):
-                if( pkey_i in list_i ):
-                    for pkey_j in self.bonded_nblist.getnbs(pkey_i):
-                        if( pkey_j in list_j ):
-                            for pkey_l in self.bonded_nblist.getnbs(pkey_j):
-                                if( pkey_l in list_l ):
-                                    # Check to make sure not in list already
-                                    add_dih = True
-                                    for dkey_i,dih_i in subdihedrals.iteritems():
-                                        a_k = dih_i.pkey1
-                                        a_i = dih_i.pkey2
-                                        a_j = dih_i.pkey3
-                                        a_l = dih_i.pkey4
-                                        if( pkey_k == a_k and pkey_i == a_i and pkey_j == a_j and pkey_l == a_l ):
-                                            add_dih = False 
-                                        if( pkey_k == a_l and pkey_i == a_j and pkey_j == a_i and pkey_l == a_k ):
-                                            add_dih = False 
-                                    if( add_dih ):
-                                        dkey_i =  len(subdihedrals)
-                                        dih_i = Dihedral(pkey_k,pkey_i,pkey_j,pkey_l)
-                                        subdihedrals[dkey_i] = dih_i
-        #
-        # Return dictionary to allow multiple instances
-        #
-        return subdihedrals
 
 # Position manipulations
     def get_pos(self,list_i=[]):

@@ -381,7 +381,7 @@ class Calculation(object):
             
         
         
-    def store(self):
+    def store(self,file_type_list=['input','scripts','output','data']):
         '''
         Copy input, output and data of simulation to storage 
         # This assumes storage is accesable by cp from ssh resource 
@@ -395,7 +395,8 @@ class Calculation(object):
             to_dirkey = 'storage'
             todir = self.dir[to_dirkey]
             file_key = self.properties['comp_key']
-            for file_type in ['input','scripts','output','data']:
+            # for file_type in ['input','scripts','output','data']:
+            for file_type in file_type_list:
                 if( len(self.files[file_type]) ):
                     print "Storing %s files "%(file_type)
                     bash_command = self.get_compress_str(file_type)

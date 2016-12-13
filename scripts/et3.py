@@ -163,9 +163,9 @@ def pull_groups(tag,options,p):
         logger.info("Grouping by %s "%(options.group_id))        
     struc_o.group_prop(options.group_id,options.group_id,particles_select=list_i)
     groupset_i = struc_o.groupsets[options.group_id]
-    #
+    # 
     # Calculate group properties 
-    #
+    # 
     groupset_i.calc_cent_mass()
     groupset_i.calc_radius()
     if( rank == 0 ):

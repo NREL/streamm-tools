@@ -21,7 +21,6 @@ from structure import Container as  structure_Container
 import logging
 logger = logging.getLogger(__name__)
 
-
 class Attachment():
     '''
     Object to recode the attachment of two building block objects
@@ -425,10 +424,10 @@ class Container(structure_Container):
         # Set tag of structure based on file
         if( self.tag == "blank" ):
             tag_s1 = cply_file.split("/")   # split string based on dir 
-            tag_s2 = tag_s1[-1]            # take last string 
-            self.tag = tag_s2[:-5]         # remove .cply
+            tag_s2 = tag_s1[-1]             # take last string 
+            self.tag = tag_s2[:-5]          # remove .cply
             self.properties['common_tag'] = tag_s2[:-5]         # remove .cply
-
+        #
         with open(cply_file) as f:
             for line in f:
                 col = line.split()

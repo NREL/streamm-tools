@@ -725,6 +725,10 @@ def proj_analysis(proj_tag,options,p):
     if( rank == 0 ):
         logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
     #
+    logger.debug("Keys in output %s "%en_keys)
+    #sys.exit("debug en_keys")
+    energies = dict()
+    
     sim_tags_p = p.splitListOnProcs(sim_tags)        
     for tag_i in sim_tags_p:
         if( tag_i not in en_keys ):
@@ -736,30 +740,39 @@ def proj_analysis(proj_tag,options,p):
             if( calc_i.resource.meta['type'] == "local" ):
                  os.chdir(calc_i.dir['scratch'])
             calc_i.check()
-            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
-            if( sim_i.meta['status'] != 'written' and  sim_i.meta['status'] != 'running' ):
+            logger.info("Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status']))
+            #if( calc_i.meta['status'] != 'written' and  calc_i.meta['status'] != 'running' ):
+            if( calc_i.meta['status'] == 'finished' ):
                 
                 calc_i.analysis()
-                
                 if( calc_i.resource.meta['type'] == "local" ):
                      os.chdir(calc_i.dir['home'])
+                
                 # Get energies 
-                HOMO_en = calc_i.properties['alpha_energies'][nw_i.properties['N_alpha_occ']-1]
-                LUMO_en = calc_i.properties['alpha_energies'][nw_i.properties['N_alpha_occ']]
-                total_en = nw_i.properties['energy']
+                HOMO_en = calc_i.properties['alpha_energies'][calc_i.properties['N_alpha_occ']-1]
+                LUMO_en = calc_i.properties['alpha_energies'][calc_i.properties['N_alpha_occ']]
+                total_en = calc_i.properties['energy']
             
                 logger.info("Results found H %f L %f "%(HOMO_en,LUMO_en))
                 row = [tag_i,g_i,total_en,HOMO_en,LUMO_en]
-                fout = open(en_file,'a')
-                en_writer = csv.writer(fout,delimiter=',')
-                en_writer.writerow(row)
-                fout.close()
+                energies[tag_i] =  row
+
             else:
+                if( calc_i.resource.meta['type'] == "local" ):
+                     os.chdir(calc_i.dir['home'])
+                
                 logger.warning(" Error in calculation %s "%(tag_i))
             # calc_i.dump_json()
         else:
             logger.debug(" Calc tags %s already in et_file %s "%(tag_i,en_file))        
     p.barrier()
+    #
+    fout = open(en_file,'a')
+    for tag_i,row in energies.iteritems():
+        en_writer = csv.writer(fout,delimiter=',')
+        en_writer.writerow(row)
+    fout.close()
+    #
     return
 
 def groupprops(calc_tag,options,p):
