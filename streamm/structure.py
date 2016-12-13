@@ -944,15 +944,15 @@ class GroupSet(object):
                 # Get position of first particle in molecule
                 pid_o  = group_i.pkeys[0]
                 r_o = strucC.positions[pid_o]
-
+                # 
                 part_shifted = [False]*strucC.n_particles 
-
+                # 
                 r_mol_mass = np.zeros(strucC.lat.n_dim)
                 shift = np.zeros(strucC.lat.n_dim)
                 total_mass = 0.0 
-
+                #
                 # shift all atoms to be conected 
-
+                #
                 for pid_i in sorted(group_i.pkeys):
                     particle_i = strucC.particles[pid_i]
                     a_mass_i = particle_i.properties['mass']
@@ -1016,18 +1016,7 @@ class GroupSet(object):
         return pairvalue_ij
         
         
-
-    def delta_pos_c(self,pos_i,pos_j):
-        """
-        Difference between two positions in cubic lattice  
-        """
-        dr_ij = self.deltasq_pos_c(pos_i,pos_j)
-        mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
-
-        return dr_ij,mag_dr_ij
-        
-
-    def dr_particles(self,g_i,g_j,r_cut):
+    def dr_particles(self,g_i,g_j,r_cut,sub_list):
         
         mag_dr_pi_pj = r_cut 
         
@@ -1035,14 +1024,19 @@ class GroupSet(object):
         group_j = self.groups[g_j]
         #npart_pos_i = []
         for pkey_i in group_i.pkeys:
-            pos_i = group_i.strucC.positions[pkey_i]
-            for pkey_j in group_j.pkeys:
-                pos_j = group_i.strucC.positions[pkey_j]
-                dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
-
-                if( mag_dr_ij < mag_dr_pi_pj ):
-                    mag_dr_pi_pj = mag_dr_ij
-                    
+            if( pkey_i in sub_list ):
+                pos_i = group_i.strucC.positions[pkey_i]
+                for pkey_j in group_j.pkeys:
+                    if( pkey_j in sub_list ):
+                        pos_j = group_i.strucC.positions[pkey_j]
+                        dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
+                        if( mag_dr_ij < mag_dr_pi_pj ):
+                            #if( debug ):
+                            #    ff_i = group_i.strucC.particles[pkey_i].properties['fftype'],
+                            #    ff_j = group_i.strucC.particles[pkey_j].properties['fftype'],
+                            #    print pkey_i,ff_i,pkey_j,ff_j,mag_dr_ij
+                            mag_dr_pi_pj = mag_dr_ij
+                            
         return mag_dr_pi_pj
         
 

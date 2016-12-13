@@ -1210,21 +1210,22 @@ class TestGroup_dr(unittest.TestCase):
         
         #pairbuffer = 2.5        
         pairs_ij = groupset_i.find_pairs(list_i,list_j,mol_inter=True,mol_intra=False)
+        
+        
         r_cut = 25.0
         bin_size = 0.10            
+        close_contacts = True
+        
         n_bins = int(r_cut/bin_size) + 1 
         bin_r = np.zeros(n_bins)    
         bin_r_nn = np.zeros(n_bins)    # Nearest neighbor count 
         bin_r_pp = np.zeros(n_bins)    
         probabilityperpair = 1
         volumes = []
-        
-        close_contacts = True
         #
-        
-        
         N_i = len(list_i)
         N_j = len(list_j)
+        
         
         self.strucC.calc_volume()
         volumes.append(self.strucC.volume)
@@ -1234,8 +1235,6 @@ class TestGroup_dr(unittest.TestCase):
         npos_ij,nd_ij = self.strucC.lat.delta_npos(npos_i,npos_j)
         
         
-        print nd_ij
-
         for ref_i in range(N_i):
             a_i_hasnieghbor = False
             r_ij_nn = r_cut   # Nearest Neighbor distance  
