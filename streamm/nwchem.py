@@ -185,14 +185,14 @@ class NWChem(CalculationRes):
                     if( read_molorben_alpha and len(col) >= 4 ):
                         if( col[0] == 'Vector' ):
                             col_s = col[2].split('=')
-                            occ = float(col_s[1].replace("D","e"))
+                            occ = conv_float(col_s[1]) #.replace("D","e"))
                             if( occ > 0 ):
                                 self.properties['N_alpha_occ'] += 1 
                             if( len(col) == 4  ):
                                 en_return =  col[3].split('=')
-                                en = float(en_return[1].replace("D","e")) 
+                                en = conv_float(en_return[1]) #.replace("D","e")) 
                             elif( len(col) == 5  ):
-                                en = float(col[4].replace("D","e"))
+                                en = conv_float(col[4]) #.replace("D","e"))
                             else:
                                 print " Bad MO read ",col,len(col)
                                 sys.exit(4)
