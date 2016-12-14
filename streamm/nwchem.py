@@ -21,6 +21,19 @@ from calculation import CalculationRes
 import logging
 logger = logging.getLogger(__name__)
 
+
+
+def conv_float(fval_i):
+    
+    sval_i = replace(str(fval_i),"D","e")
+    
+    try:
+        val_i = float(sval_i)
+    except:
+        val_i = 0.0
+        
+    return val_i
+
 class electrontransfer(object):
     """
     Calculation of electron transfer between groups of particles
@@ -129,7 +142,7 @@ class NWChem(CalculationRes):
                             if(  col[0]  == "MO" and  col[1]  == "vectors" and  col[3]  == "reactants:" ):
                                 et_ij.reactantMO = str(col[4])                                
                             if(  col[0]  == "Reactants/Products" and  col[1]  == "overlap" ):                            
-                                et_ij.S = float( replace(str(col[4]),"D","e") )
+                                et_ij.S = conv_float(col[4]) # float( replace(str(col[4]),"D","e") )
                                 
                         if( len(col) >= 6 ):
                                 
@@ -191,14 +204,14 @@ class NWChem(CalculationRes):
                     if( read_molorben_beta and len(col) >= 4 ):
                         if( col[0] == 'Vector' ):
                             col_s = col[2].split('=')
-                            occ = float(col_s[1].replace("D","e"))
+                            occ = conv_float(col_s[1]) #float(col_s[1].replace("D","e"))
                             if( occ > 0 ):
                                 self.properties['N_beta_occ'] += 1 
                             if( len(col) == 4  ):
                                 en_return =  col[3].split('=')
-                                en = float(en_return[1].replace("D","e")) 
+                                en = conv_float(en_return[1]) #.replace("D","e")) 
                             elif( len(col) == 5  ):
-                                en = float(col[4].replace("D","e"))
+                                en = conv_float(col[4]) #.replace("D","e"))
                             else:
                                 print " Bad MO read ",col,len(col)
                                 sys.exit(4)
@@ -220,7 +233,7 @@ class NWChem(CalculationRes):
                     if( len(col)  >= 5  ):
                         #if( 'Total SCF energy' in line ):
                         if(  col[0]  == "Total" and col[1] == 'SCF' and col[2] == 'energy' ):
-                            self.properties['energy'] =  float(col[4].replace("D","e"))
+                            self.properties['energy'] =  conv_float(col[4]) # float( replace(str(col[4]),"D","e") )
                         
 
 
