@@ -73,9 +73,9 @@ class Values(object):
         self.mean = np.mean(self.data_raw)
         self.std = np.std(self.data_raw)
         self.mean_std = self.std/np.sqrt(self.n-1)
-        self.skew = scipy.stats.skew(self.data_raw)
-        self.conf_int = scipy.stats.norm.interval(0.95,loc=self.mean,scale=self.std)
-        self.conf_min, self.conf_max = self.conf_int
+        # self.skew = scipy.stats.skew(self.data_raw)
+        # self.conf_int = scipy.stats.norm.interval(0.95,loc=self.mean,scale=self.std)
+        # self.conf_min, self.conf_max = self.conf_int
         
         # Error is  given by the standard deviation of the mean with the appropriate two-tailed
         #   '''Students t-distribution prefactor to give a 95 percent confidence interval'''

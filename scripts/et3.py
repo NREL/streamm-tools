@@ -398,6 +398,9 @@ def setup_calc(proj_tag,options,p):
                          
             os.chdir(nw_i.dir['scratch'])
             
+            
+            
+            
             nw_i.replacewrite_prop('t_nw','input','in',"%s.in"%(nw_i.tag))
             nw_i.properties['input_nw'] = nw_i.files['input']['in']
             nw_i.replacewrite_prop('t_run','scripts','run',"%s.sh"%(nw_i.tag))
@@ -428,7 +431,7 @@ def check_p(proj_i,p):
     sim_indx_list = range(N_sim)
     sim_indx_list_p = p.splitListOnProcs(sim_indx_list)    
     sim_cnt = 0 
-    for sim_indx in sim_indx_list_p:  # proj_i.simulations: #[0:1]:
+    for nw_indx in sim_indx_list_p:  # proj_i.simulations: #[0:1]:
         sim_i = proj_i.simulations[sim_indx]
         sim_i.check()
         # print " simulation %s has status %s "%(sim_i.tag,sim_i.meta['status'])
@@ -467,14 +470,15 @@ def split_proj(proj_tag,options,p):
 
     # This should read in project master
     #sys.exit("Read project master")
-    proj_tag_m = "%s_master"%(proj_tag)
+    # proj_tag_m = "%s_master"%(proj_tag)
+    proj_tag_m = "%s_rerun"%(proj_tag)
     logger.info("Reading up %s "%(proj_tag_m))
     proj_m = project.Project(proj_tag_m)    
-    #proj_m.load_json()
+    proj_m.load_json()
     
-    #sim_tags =  proj_m.calculations.keys() #
-    sims_file = "et_sims.csv"
-    sim_tags = read_sims(sims_file)
+    sim_tags =  proj_m.calculations.keys() #
+    #sims_file = "et_sims.csv"
+    #sim_tags = read_sims(sims_file)
     
     N_sims = len(sim_tags)
     if( rank == 0 ):
@@ -550,7 +554,145 @@ def split_proj(proj_tag,options,p):
     if( rank == 0 ):
         proj_i.dump_json()
     
+
+def split_proj2(proj_tag,options,p):
+    #
+    # MPI setup
+    #
+    rank = p.getRank()
+    size = p.getCommSize()
+    peregrine = resource.Resource('peregrine')
+    peregrine.load_json()
+    #
+    local = resource.Resource('local')
+    local.load_json()
     
+
+    nw_o = nwchem.NWChem('nw_ref')
+    nw_o.files['templates']['t_nw'] = options.t_nw
+    nw_o.files['templates']['t_run'] = options.t_run
+
+    nw_o.load_str('templates','t_nw')
+    nw_o.load_str('templates','t_run')
+
+    
+
+    proj_i = project.Project(proj_tag)
+    proj_i.set_resource(local)
+    proj_i.properties['scratch'] = local.dir['scratch']
+    proj_i.properties['streamm_command'] = ''
+    proj_i.properties['run_calcs'] = []
+    if( rank == 0 ):
+        proj_i.dump_json()
+    
+    if( rank == 0 ):
+        logging.info('Running on %d procs %s '%(size,datetime.now()))        
+        logger.info("Running split_proj function for  %s "%(proj_tag))
+
+    # This should read in project master
+    #sys.exit("Read project master")
+    # proj_tag_m = "%s_master"%(proj_tag)
+    proj_tag_m = "%s_rerun"%(proj_tag)
+    logger.info("Reading up %s "%(proj_tag_m))
+    proj_m = project.Project(proj_tag_m)    
+    proj_m.load_json()
+    
+    sim_tags =  proj_m.calculations.keys() #
+    #sims_file = "et_sims.csv"
+    #sim_tags = read_sims(sims_file)
+    
+    N_sims = len(sim_tags)
+    if( rank == 0 ):
+        logger.info("ET calculations read in with %d entries "%(len(sim_tags)))
+
+    if( rank == 0 ):
+        logger.info("Setting up resource ")
+        
+    n_jobs = int(N_sims/options.jobs_node)
+    if( n_jobs < 1 ):
+        n_jobs = 1 
+    jobs = range(n_jobs)
+    
+    if( rank == 0 ):
+        logger.info("Splitting sims onto %d jobs  "%(n_jobs))
+    jobs_p = p.splitListOnProcs(jobs)
+    
+    
+    n = N_sims/n_jobs
+    r = N_sims%n_jobs
+    b,e = 0, n + min(1, r) # first split
+    newseq = []                       # New partitioned list
+    for i in jobs:
+        newseq.append(sim_tags[b:e])
+        r = max(0, r-1)             # use up remainders
+        b,e = e, e + n + min(1, r)  # min(1,r) is always 0 or 1
+    plist = newseq                  # Make 'parts' number of chunks
+    # Error check or return results
+    if len(plist) != n_jobs:
+        print " " 
+        print "Partitioning failed, check data length and #-procs"
+        sys.exit(0)
+        
+    p.barrier()
+    if( rank == 0 ):
+        logger.info("Writing projects for each node")
+    
+    for n in jobs_p:
+        simtags_n = plist[n]
+        N_sims_p = len(simtags_n)
+        proj_tag_n = "%s_node_%d"%(proj_tag,n)
+        proj_n = project.Project(proj_tag_n)
+        proj_n.set_resource(peregrine)
+        proj_n.properties['scratch'] = peregrine.dir['scratch'] 
+        
+        logger.info("Writing proj %s with %d sims on proc %d "%(proj_n.tag,N_sims_p,rank))
+        sim_cnt = 0 
+        for sim_i_tag in simtags_n:
+            #proj_i.add_sim(sim_i)
+            nw_i = nwchem.NWChem(sim_i_tag)
+            nw_i.load_json()
+            print " simulation %s has status %s "%(nw_i.tag,nw_i.meta['status'])
+            # os.chdir(proj_n.meta['scratch_dir'])
+            
+
+            
+
+            os.chdir(nw_i.dir['scratch'])
+            nw_i.set_resource(local)
+            nw_i.properties['scratch'] = nw_i.dir['scratch']
+            
+            nw_i.str['t_nw'] = copy.deepcopy(nw_o.str['t_nw'])
+            nw_i.str['t_run'] = copy.deepcopy(nw_o.str['t_run'])
+            
+            
+            nw_i.replacewrite_prop('t_nw','input','in',"%s.in"%(nw_i.tag))
+            nw_i.properties['input_nw'] = nw_i.files['input']['in']
+            nw_i.replacewrite_prop('t_run','scripts','run',"%s.sh"%(nw_i.tag))
+                    
+            os.chdir(nw_i.dir['home'])
+
+            #if( sim_i.meta['status'] != 'finished' ):
+            #    sim_i.meta['status'] = 'written'
+            proj_n.calculations[sim_i_tag] = nw_i
+            logger.info("Sim %s [%d]/%d (%d) with status %s => %s "%(nw_i.tag,sim_cnt,N_sims_p,N_sims,nw_i.meta['status'],proj_n.tag))
+            #else:
+            #    logger.info("Sim %s status %s"%(sim_i.tag,sim_i.meta['status']))
+            # sim_i.dump_json()
+            sim_cnt += 1
+        logger.info("Sim %s on proc %d for node %d "%(proj_tag_n,rank,n))
+        proj_n.files['input']['pyscript'] = 'run_proj.py'
+        proj_n.files['templates']['run'] = 'nwchem_peregrine.pbs'
+        proj_n.load_str('templates','run')
+        proj_n.properties['streamm_command'] = 'python run_proj.py %s > %s.out '%(proj_n.tag,proj_n.tag)
+        proj_n.replacewrite_prop('run','input','run',"%s.pbs"%(proj_n.tag))
+        proj_n.dump_json()
+        proj_i.calculations[proj_n.tag] = proj_n
+        proj_i.properties['run_calcs'].append( 'qsub  %s.pbs  '%(proj_n.tag))
+    
+    p.barrier()
+    if( rank == 0 ):
+        proj_i.dump_json()
+        
 def run_calc(proj_tag,options,p):
     rank = p.getRank()
     size = p.getCommSize()
@@ -756,7 +898,14 @@ def proj_analysis(proj_tag,options,p):
     local = resource.Resource('local')
     local.load_json()
 
-
+    proj_tag_r = "%s_rerun"%(proj_tag)
+    logger.info("Setting up %s "%(proj_tag_r))
+    proj_r = project.Project(proj_tag_r)
+    proj_r.set_resource(peregrine)
+    proj_r.properties['scratch'] = peregrine.dir['scratch']
+    proj_r.dir['home'] = peregrine.dir['scratch'] #+"/"+proj_tag
+    
+    
     et_file = "et.csv"
     if( not file_test(et_file) ):
         et_keys,ets = read_et(et_file)
@@ -789,13 +938,13 @@ def proj_analysis(proj_tag,options,p):
             p1 = tag_i.split('_')
             g_i = int(p1[2])
             g_j = int(p1[3])
-            logger.info("Analyzing %s g_i %d g_j %d "%(tag_i,g_i,g_j))
+            logger.debug("Analyzing %s g_i %d g_j %d "%(tag_i,g_i,g_j))
             calc_i = nwchem.NWChem(tag_i)
             calc_i.load_json()
             if( calc_i.resource.meta['type'] == "local" ):
                  os.chdir(calc_i.dir['scratch'])
             calc_i.check()
-            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
+            logger.debug("Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status']))
             #if( sim_i.meta['status'] != 'written' and  sim_i.meta['status'] != 'running' ):
             calc_i.analysis()
                 
@@ -829,13 +978,67 @@ def proj_analysis(proj_tag,options,p):
                 et_writer.writerow(row)
                 fout.close()
             else:
-                logger.warning(" Error in calculation %s reactant and product ets not found "%(tag_i))
-            # calc_i.dump_json()
+                logger.debug(" Error in calculation %s reactant and product ets not found "%(tag_i))
+                proj_r.calculations[calc_i.tag] = calc_i
+# calc_i.dump_json()
         else:
             logger.debug(" Et tags %s already in et_file %s "%(tag_i,et_file))        
     p.barrier()
+
+    os.chdir(proj_r.dir['home'])
+    proj_r.dump_json()
+    p.barrier()
+    
     return
 
+
+def proj_analysis(proj_tag,options,p):
+    #
+    # MPI setup
+    #
+    rank = p.getRank()
+    size = p.getCommSize()
+    #
+    if( rank == 0 ):
+        logging.info('Running run_calc on %d procs %s '%(size,datetime.now()))        
+    
+    if( rank == 0 ):
+        logger.info("Running  %s "%(proj_tag))
+    # 
+    peregrine = resource.Resource('peregrine')
+    peregrine.load_json()
+    #
+    local = resource.Resource('local')
+    local.load_json()
+    
+    et_file = "et.csv"
+    if( not file_test(et_file) ):
+        et_keys,ets = read_et(et_file)
+    else:
+        et_keys = []
+        ets = dict()
+
+        if( rank == 0 ):
+            logger.info("Writing %s header "%(et_file))
+            fout = open(et_file,'wb')
+            et_writer = csv.writer(fout,delimiter=',')
+            header = ['tag','g_i','g_j','reactanten_ij (H)','producten_ij (H)','S_ij','V_ij (H)','S_ji','V_ji (H)']
+            #if( rank == 0 ):
+            et_writer.writerow(header)
+            fout.close()
+    #
+    p.barrier()
+    
+    sims_file = "et_sims.csv"
+    sim_tags = read_sims(sims_file)
+    N_sims = len(sim_tags)
+    if( rank == 0 ):
+        logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
+    #
+    sim_tags_p = p.splitListOnProcs(sim_tags)        
+    for tag_i in sim_tags_p:
+        if( tag_i not in et_keys ):
+                
 def et(calc_tag,options,p):
 
     set_res(calc_tag,options)
@@ -854,14 +1057,18 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
-    proj_check(calc_tag,options,p)
-    split_proj(calc_tag,options,p)
+    #proj_check(calc_tag,options,p)
+    #split_proj(calc_tag,options,p)
     
-    run_calc(calc_tag,options,p)
+    #run_calc(calc_tag,options,p)
     #proj_analysis(calc_tag,options,p)
     #read_energies(calc_tag,options,p)
     #read_struc(calc_tag,options,p) 
     #write_newdata(calc_tag,options,p)
+    
+    #proj_analysis(calc_tag,options,p)
+    #split_proj2(calc_tag,options,p)
+    check_unfinished(calc_tag,options,p)
 
 if __name__=="__main__":
     
