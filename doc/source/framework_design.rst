@@ -7,12 +7,12 @@
 STREAMM code description
 *********************************************
 
-StructureContainer Class
+Structure.Container Class
 ============================
 
 Object-oriented design is used throughout STREAMM to enable ease of
 use and the ability to update and extend its functionality. 
-The StructureContainer class is a data structure for describing a
+The Structure.Container class is a data structure for describing a
 collection of discrete particles. These particles have unique integer
 IDs and spatial positions and can have user specified attributes such
 as mass, charge and type. These particles can have 2-body (bond),
@@ -34,7 +34,7 @@ and their related containers are:
 - :mod:`dihedrals`
 - :mod:`impropers`
 
-Finally, a StructureContainer object is a container for the Particle, Bond,
+Finally, a Structure.Container object is a container for the Particle, Bond,
 Angle Dihedral and Improper containers. This class is in the module
 :mod:`structureContainer`
 

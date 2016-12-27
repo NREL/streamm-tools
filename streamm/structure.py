@@ -1368,6 +1368,17 @@ class Group(object):
                     Bond_iH = Bond(pkey_i,p_j)
                     Htermed.add_bond(Bond_iH)
 
+                elif( NNAB_o == 3 and dB == 2 ):
+                    # For a Conjugated carbon with one remaining bond make it a 
+                    # methyl 
+                    logger.debug("Adding hterm_sp3 ")
+                    pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
+                    pt_H.properties["fftype"] = "HC"
+                    Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
+                    p_j = Htermed.n_particles -1 
+                    Bond_iH = Bond(pkey_i,p_j)
+                    Htermed.add_bond(Bond_iH)
+
                 elif( NNAB_o == 4 and dB == 1 ):
                     logger.debug("Adding hterm_sp3 ")
                     pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
@@ -1687,6 +1698,31 @@ class Container(object):
             pos_i = self.positions[pkey_i]
             F.write(" %5s %16.8f %16.8f %16.8f \n"%(particle_i.tag,pos_i[0],pos_i[1],pos_i[2] ))
         F.close()
+
+    def write_xyz_prop(self,prop_key,xyz_file=''):
+        '''
+        Write a list of certain particles of the structure  to an xyz file
+        taggd by a property type 
+
+        Args:
+            xyz_file    (str) xyz file tag
+            
+        Reutrns:
+            null
+            
+        '''
+        if( len(xyz_file) == 0 ):
+            xyz_file = "%s.xyz"%(prop_key)
+        # Loop over structures
+        F = open(xyz_file,"w")
+        F.write(" %d \n" % self.n_particles )
+        F.write(" %s \n"%" structure.Container  %s "%(prop_key))
+        for pkey_i,particle_i  in self.particles.iteritems():
+            pos_i = self.positions[pkey_i]
+            tag_i = particle_i.properties[prop_key]
+            F.write(" %5s %16.8f %16.8f %16.8f \n"%(tag_i,pos_i[0],pos_i[1],pos_i[2] ))
+        F.close()
+
 
     def read_xyz(self, xyz_file=''):
         '''
