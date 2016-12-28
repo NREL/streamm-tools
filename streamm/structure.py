@@ -1320,6 +1320,13 @@ class Group(object):
 
         hb_length = 1.09
         hb_angle =  109.5
+        
+        # tetrahedral angle cos and sin components 
+        tet_angle = np.deg2rad(hb_angle )
+        tet_sin = np.sin(tet_angle) * hb_length
+        tet_cos = np.cos(tet_angle) * hb_length
+
+        
         tetrahedral_angle = np.deg2rad(hb_angle/2.0 )
         scale_vcross = np.sin(tetrahedral_angle) * hb_length
         scale_vadd = np.cos(tetrahedral_angle) * hb_length
@@ -1357,7 +1364,9 @@ class Group(object):
                 if( len(r_ij_array) != NNAB_i ):
                     error_line = " len(r_ij_array) {} != NNAB_i {} in groups.hterm() ".format(len(r_ij_array),NNAB_i)
                     sys.exit(error_line)
-
+                    
+                print ">hterm_group",NNAB_o,dB 
+                
                 if( NNAB_o == 3 and dB == 1 ):
                     logger.debug("Adding hterm_conjugated sp2")
                     pos_j = hterm_Csp2(hb_length,r_i,r_ij_array)
@@ -1368,18 +1377,8 @@ class Group(object):
                     Bond_iH = Bond(pkey_i,p_j)
                     Htermed.add_bond(Bond_iH)
 
-                elif( NNAB_o == 3 and dB == 2 ):
-                    # For a Conjugated carbon with one remaining bond make it a 
-                    # methyl 
-                    logger.debug("Adding hterm_sp3 ")
-                    pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
-                    pt_H.properties["fftype"] = "HC"
-                    Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
-                    p_j = Htermed.n_particles -1 
-                    Bond_iH = Bond(pkey_i,p_j)
-                    Htermed.add_bond(Bond_iH)
-
                 elif( NNAB_o == 4 and dB == 1 ):
+                    
                     logger.debug("Adding hterm_sp3 ")
                     pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
                     pt_H.properties["fftype"] = "HC"
@@ -1388,48 +1387,145 @@ class Group(object):
                     Bond_iH = Bond(pkey_i,p_j)
                     Htermed.add_bond(Bond_iH)
 
+                elif( NNAB_o == 3 and dB == 2 ):
 
-                elif( NNAB_o == 4 and dB == 2 ):
+                    logger.debug("Adding 3 H to hterm_sp3 ")
+                    '''
+                    Choose vector cros_ik normal to plane of i,j and one nieghbor of j 
+                    
+                    
+                    
+                         cros_ik    H0
+                          |        / 
+                          |       /
+                          j ---- i 
+                        / 
+                       / 
+                    jk
+                    
+                    Scale vectore cros_ik by sin(109.5)
+                    
 
-                    logger.debug("Adding 2 H to hterm_sp3 ")
-                    #r_new = hterm_sp3v2(hb_length,r_i,r_ij_array)
+                             H1
+                            /  
+                           /    
+                    j----i  ----  dr_CC_s                        
+                    
+                    
+                    
+                    add to vector dr_CC between i-j scaled by cos(109.5) 
+                    to get a vector hbond_0 which has an angle jiH0 of 109.5  
+                    '''
+                    pkey_j = Htermed.bonded_nblist.getnbs(pkey_i)[0]
+                    r_j =  Htermed.positions[pkey_j]
+                    for pkey_jk in Htermed.bonded_nblist.getnbs(pkey_j):
+                        if( pkey_jk != pkey_i ):
+                            r_jk =  Htermed.positions[pkey_jk]
+                    dr_CC = r_ij_array[0]
+                    dr_CC_n = dr_CC/np.linalg.norm(dr_CC)
+                    dr_CC_s = dr_CC_n*tet_cos
 
-                    cros_jk = np.cross(r_ij_array[0],r_ij_array[1])
-                    add_jk = -1.0*( r_ij_array[0] + r_ij_array[1] )
-                    cros_scale = scale_vcross*cros_jk/np.linalg.norm(cros_jk)
-                    add_scale = scale_vadd*add_jk/np.linalg.norm(add_jk)
+                    dr_jk = Htermed.lat.deltasq_pos(r_j,r_jk)                    
+                    cros_ik = np.cross(dr_CC,dr_jk)
+                    cros_ik_n = cros_ik/np.linalg.norm(cros_ik)
+                    cros_ik_s = cros_ik/np.linalg.norm(cros_ik)*tet_sin
 
-                    hbond_1 = cros_scale + add_scale
-                    hbond_2 =  -1.0*cros_scale + add_scale
+                    hbond_0 = cros_ik_s    + dr_CC_s
+                    hpos_0 = r_i + hbond_0
+                    
+                    r_i0 = Htermed.lat.deltasq_pos(r_i,hpos_0)
+                    
+                    '''
+                                 H1
+                    theta=109.5 /   
+                               /    
+                        j----i ---- H0
+                               \
+                                \  
+                                 \
+                                  H2
+                                  
+                    so dr_CC_s is the same as H0 
+
+                        H0(cros_ik_n)
+                        | 
+                        |    theta2 = 120.0
+                        |
+                        i  -------cros_jk
+                       /  \
+                      /    \
+                     /      \
+                    H2       H1 
+                    
+                    H1 is at  2pi/3 from cros_ik_n and cros_jk
+                    H2 is at -2pi/3 from cros_ik_n and cros_jk
+
+                    and cros_ijk_n is again scaled by sin(109.5)
+                    
+                    '''
+
+                    cros_jk = np.cross(dr_CC,r_i0)
+                    cros_jk_n = cros_jk/np.linalg.norm(cros_jk)
+                    phi = 2.0*np.pi/3.0
+                    cros_ijk = cros_jk_n*np.sin(phi) + cros_ik_n*np.cos(phi)
+                    cros_ijk_n = cros_ijk/np.linalg.norm(cros_ijk)
+                    cros_ijk_s = cros_ijk_n*tet_sin
+                    hbond_1 = cros_ijk_s + dr_CC_s
+
+                    cros_ijk = -1.0*cros_jk_n*np.sin(phi) + cros_ik_n*np.cos(phi)
+                    cros_ijk_n = cros_ijk/np.linalg.norm(cros_ijk)
+                    cros_ijk_s = cros_ijk_n*tet_sin
+                    hbond_2 = cros_ijk_s + dr_CC_s
 
                     hpos_1 = r_i + hbond_1
                     hpos_2 = r_i + hbond_2
 
                     pt_H.properties["fftype"] = "HC"
-                    Htermed.add_partpos(pt_H,hpos_1,deepcopy = True)
-                    p_j = Htermed.n_particles -1 
-                    Bond_iH = Bond(pkey_i,p_j)
+                    Htermed.add_partpos(pt_H,hpos_0,deepcopy = True)
+                    p_h0 = Htermed.n_particles -1 
+                    Bond_iH = Bond(pkey_i,p_h0)
                     Htermed.add_bond(Bond_iH)
+                    #  Add (j)-(i)-H angle
+                    a_i = Angle( pkey_j ,pkey_i, p_h0 )            
+                    Htermed.add_angle(a_i)
+                    
+                    pt_H.properties["fftype"] = "HC"
+                    Htermed.add_partpos(pt_H,hpos_1,deepcopy = True)
+                    p_h1 = Htermed.n_particles -1 
+                    Bond_iH = Bond(pkey_i,p_h1)
+                    Htermed.add_bond(Bond_iH)
+                    #  Add (j)-(i)-H angle
+                    a_i = Angle( pkey_j ,pkey_i, p_h1 )            
+                    Htermed.add_angle(a_i)
+
+                    #  Add H0-(i)-H1 angle
+                    a_i = Angle( p_h0 ,pkey_i,p_h1 )            
+                    Htermed.add_angle(a_i)
+                    
 
                     pt_H.properties["fftype"] = "HC"
                     Htermed.add_partpos(pt_H,hpos_2,deepcopy = True)
-                    p_j = Htermed.n_particles -1 
-                    Bond_iH = Bond(pkey_i,p_j)
+                    p_h2 = Htermed.n_particles -1 
+                    Bond_iH = Bond(pkey_i,p_h2)
                     Htermed.add_bond(Bond_iH)
-
-                    #original_ref_mod.append(-1)
-                    #pid_i_mod += 1 
-                    #sub_ref_mod.append(pid_i_mod)
-
-                    #  Add H-(i)-H angle
-                    pid_H_j = Htermed.n_particles
-                    a_i = Angle( pid_H_j-1 ,pkey_i, pid_H_j )            
+                    #  Add (j)-(i)-H angle
+                    a_i = Angle( pkey_j ,pkey_i, p_h2 )            
                     Htermed.add_angle(a_i)
-
+                    
+                    #  Add H0-(i)-H2 angle
+                    a_i = Angle( p_h0 ,pkey_i,p_h2 )            
+                    Htermed.add_angle(a_i)
+                    
+                    #  Add H1-(i)-H2 angle
+                    a_i = Angle( p_h1 ,pkey_i,p_h2 )            
+                    Htermed.add_angle(a_i)
+                    
                     #original_ref_mod.append(-1)
                     #pid_i_mod += 1 
                     #sub_ref_mod.append(pid_i_mod)
-                    
+
+
+                                        
                 else:
                     error_line =  " Nubmer of missing atoms %d has yet to be accounted for in groups.hterm \n"%(dB)
                     error_line +=  " {} -> {}".format(NNAB_o,NNAB_i)
@@ -3441,6 +3537,7 @@ def hterm_Csp2(hb_length,r_i,r_ij_array):
          (i)  - (l)
         /  
     (k)
+    
     Hydrogens will be added to sp2 carbons in a plainer configuration
 
     """

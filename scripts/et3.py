@@ -111,9 +111,9 @@ def pull_groups(tag,options,p):
     # 
     if( rank == 0 ):
         logger.info("Building neighbor list from bonds in data file %d  "%(struc_o.n_bonds))
-    #
+    # 
     # Calculate bulk properties 
-    #
+    # 
     struc_o.bonded_nblist.build_nblist(struc_o.particles,struc_o.bonds )
     struc_o.calc_mass()
     struc_o.calc_volume()
