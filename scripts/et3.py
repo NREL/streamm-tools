@@ -1113,7 +1113,7 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
-    proj_check(calc_tag,options,p)
+    # proj_check(calc_tag,options,p)
     split_proj(calc_tag,options,p)
     
     #run_calc(calc_tag,options,p)
