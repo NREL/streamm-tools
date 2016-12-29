@@ -470,8 +470,8 @@ def split_proj(proj_tag,options,p):
 
     # This should read in project master
     #sys.exit("Read project master")
-    # proj_tag_m = "%s_master"%(proj_tag)
-    proj_tag_m = "%s_rerun"%(proj_tag)
+    proj_tag_m = "%s_master"%(proj_tag)
+    #proj_tag_m = "%s_rerun"%(proj_tag)
     logger.info("Reading up %s "%(proj_tag_m))
     proj_m = project.Project(proj_tag_m)    
     proj_m.load_json()
@@ -1113,7 +1113,7 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
-    # proj_check(calc_tag,options,p)
+    #proj_check(calc_tag,options,p)
     split_proj(calc_tag,options,p)
     
     #run_calc(calc_tag,options,p)
@@ -1124,7 +1124,7 @@ def et(calc_tag,options,p):
     
     #proj_analysis(calc_tag,options,p)
     #split_proj2(calc_tag,options,p)
-    check_unfinished(calc_tag,options,p)
+    # check_unfinished(calc_tag,options,p)
 
 if __name__=="__main__":
     

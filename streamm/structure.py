@@ -989,18 +989,20 @@ class GroupSet(object):
         '''
         Find pairs based on criteria
         '''
+        # 
         N_i = len(list_i)
         N_j = len(list_j)
-
+        #  
         if( N_i == 0 or N_j == 0 ):
             logger.warning(" Empty list passed to structure.find_pairs ")
             return 
-        
-        # probabilityperpair = 1.0     # Probability per pair i-j 
-        logger.info("Finding %d x %d  pairs  "%(N_i,N_j))
-        
-        pairvalue_ij =  np.zeros((N_i,N_j), dtype=np.float64)   # value assigned to each pair 
         # 
+        # probabilityperpair = 1.0     # Probability per pair i-j 
+        # 
+        logger.info("Finding %d x %d  pairs  "%(N_i,N_j))
+        # 
+        pairvalue_ij =  np.zeros((N_i,N_j), dtype=np.float64)   # value assigned to each pair 
+        #  
         for indx_i in range(N_i):
             g_i = list_i[indx_i]
             for indx_j in range(N_j):

@@ -171,7 +171,7 @@ def pdf_rdf(rdf_tag,rdf_i):
 
 
 
-def distbin_pairs(list_i,list_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,readall_f,bin_size,r_cut,rank):
+def singleframe_gpairs(struc_o,group_id,glist_i,glist_j,pairvalue_ij,bin_size,r_cut,rank):
     '''
     Bin distances between particle pairs
     
@@ -180,11 +180,84 @@ def distbin_pairs(list_i,list_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,re
              |                      |
         -bin_size/2.0   r_cut   +bin_size/2.0 
     '''
+    
     r_cut += bin_size/2.0 
     
-    N_i = len(list_i)
-    N_j = len(list_j)
+    N_i = len(glist_i)
+    N_j = len(glist_j)
+    #    
+    groupset_i = struc_o.groupsets[group_id]
+    #
+    probabilityperpair = 1
+    #
+    # Calculate rdf relate values
+    n_bins = int(r_cut/bin_size) + 1 
+    bin_r = np.zeros(n_bins)    
+    bin_r_nn = np.zeros(n_bins)    # Nearest neighbor count 
+    bin_r_pp = np.zeros(n_bins)    
 
+    volumes  = []
+    rdf_frames = 0 
+
+
+        npos_i = groupset_i.properties['cent_mass']
+        npos_j = groupset_i.properties['cent_mass']        
+        npos_ij,nd_ij = struc_o.lat.delta_npos(npos_i,npos_j)
+        # 
+        for ref_i in range(N_i):
+            a_i_hasnieghbor = False
+            r_ij_nn = r_cut   # Nearest Neighbor distance  
+            g_i = glist_i[ref_i]
+            for ref_j in range(N_j):
+                if(  pairs_ij[ref_i][ref_j] > 0.0 ):
+                    dr_ij =  nd_ij[ref_i,ref_j]
+                    if(  dr_ij <= r_cut ):
+                            # bin distance =
+                            bin_index = int( round( dr_ij / bin_size) )
+                            #
+                            # print " dist / bin / bin_sit", dist[ref_i,ref_j],bin_index,bin_size*float(bin_index)
+                            #
+                            bin_r[bin_index] += probabilityperpair
+                            # Find nearest neighbor distance 
+                            a_i_hasnieghbor = True
+                            if( dr_ij < r_ij_nn ):
+                                r_ij_nn = dr_ij
+                                p_ij_nn = pairs_ij[ref_i][ref_j]
+                            # 
+                            if( close_contacts ):
+                                g_j = glist_i[ref_j]
+                                dr_pi_pj = groupset_i.dr_particles(g_i,g_j,r_cut)
+                                bin_pp_index = int( round( dr_pi_pj / bin_size) )
+                                bin_r_pp[bin_pp_index] += probabilityperpair
+
+            # Record nearest neighbor distance 
+            if( a_i_hasnieghbor ):
+                bin_nn_index = int( round( r_ij_nn /bin_size) )
+                bin_r_nn[bin_nn_index] += p_ij_nn  
+
+
+
+    return bin_r,bin_r_nn,bin_r_pp,volumes
+
+
+
+def distbin_gpairs(struc_o,group_id,glist_i,glist_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,readall_f,bin_size,r_cut,rank):
+    '''
+    Bin distances between particle pairs
+    
+    Add size to cutoff
+    Assumes cut off is evenly divisable by bin_size 
+             |                      |
+        -bin_size/2.0   r_cut   +bin_size/2.0 
+    '''
+    
+    r_cut += bin_size/2.0 
+    
+    N_i = len(glist_i)
+    N_j = len(glist_j)
+    
+
+    groupset_i = struc_o.groupsets[group_id]
 
     probabilityperpair = 1
     # 
@@ -195,18 +268,9 @@ def distbin_pairs(list_i,list_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,re
     if( readall_f ):
         f_f = len(universe.trajectory)
         
-    # Relabel segments to correspond to lists i 
-    for pid_i in list_i:
-        universe.atoms[pid_i].resname = "grpi"
-    uni_i = universe.selectAtoms(" resname grpi ")
-    # Relabel segments to correspond to lists j
-    for pid_j in list_j:
-        universe.atoms[pid_j].resname = "grpj"
-    uni_j = universe.selectAtoms(" resname grpj ")
-
     
     # Allocate distance matrix 
-    dist = np.zeros((N_i,N_j), dtype=np.float64)
+    dist_pp = np.zeros((N_i,N_j), dtype=np.float64)
     # Calculate rdf relate values
     n_bins = int(r_cut/bin_size) + 1 
     bin_r = np.zeros(n_bins)    
@@ -221,9 +285,16 @@ def distbin_pairs(list_i,list_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,re
                     logger.info("Calculation %d frame %d/%d on proc %d" % (rdf_frames,ts.frame, f_f,rank))
                     volumes.append(ts.volume)     # correct unitcell volume
                     box = ts.dimensions
-                    coor_i = uni_i.coordinates()
-                    coor_j = uni_j.coordinates()
-                    distance_array(coor_i,coor_j, box, result=dist)  
+                    
+                    coor_i = uni_i_p.coordinates()
+                    
+
+
+                    npos_i = groupset_i.properties['cent_mass']
+                    npos_j = groupset_i.properties['cent_mass']        
+                    npos_ij,nd_ij = struc_o.lat.delta_npos(npos_i,npos_j)
+                    
+                    # distance_array(coor_i,coor_j, box, result=dist)  
                     for ref_i in range(N_i):
                         a_i_hasnieghbor = False
                         r_ij_nn = r_cut   # Nearest Neighbor distance  
@@ -254,8 +325,8 @@ def distbin_pairs(list_i,list_j,pairvalue_ij,gro_file,dcd_file,f_o,f_step,f_f,re
     
     return bin_r,bin_r_nn,volumes
 
-
-def rdfs(tag,options,p):
+    
+def grdfs(tag,options,p):
     #
     # MPI setup
     #
@@ -274,9 +345,31 @@ def rdfs(tag,options,p):
     #
     strucC = buildingblock.Container()
     strucC.read_cply(options.cply)
-    #
+    # 
+    # Calculate bulk properties 
+    # 
+    strucC.bonded_nblist.build_nblist(struc_o.particles,struc_o.bonds )
+    strucC.calc_mass()
+    strucC.calc_volume()
+    strucC.calc_density()
+    prop_dim = strucC.lat.n_dim
+    den_gcm3 = units.convert_AMUA3_gcm3(strucC.density)
+    if( rank == 0 ):
+        logger.info("Structure %s mass %f volume %f density %f "%(tag,strucC.mass,strucC.volume,den_gcm3))
+        logger.info("Breaking molecules into separate simulations")
+    if( rank == 0 ):
+        logger.info("Selecting groups %s "%(options.group_id))
+    # 
+
+    group_i_id = 'mol'
+    strucC.group_prop(group_i_id,group_i_id)
+    groupset_mol = c.strucC.groupsets[group_i_id]
+    groupset_mol.calc_cent_mass()
+    groupset_mol.calc_radius()
+    groupset_mol.group_pbcs()
+    
     # Write .gro file for MDanalysis 
-    #
+    # 
     gro_file = "%s.gro"%(tag)
     if( rank == 0 ):
         # Write gromacs gro file for MDANALYSIS 
@@ -284,43 +377,86 @@ def rdfs(tag,options,p):
         gromacs_i.add_strucC(strucC)
         gromacs_i.write_gro(gro_file=gro_file)
     p.barrier()
-    # strucC.molpbcs()
-    if( options.groups_inter ):
-        # Set groups to residues to prevent inter residue counts
-        strucC.group_prop('residue','residue')
+    #
     # Read lists
-    lfile = open(options.list_i,'rb')
-    t_i = lfile.readlines()
-    lfile.close()
-    list_i = [int(pkey) for pkey in  t_i]
+    #
+    if( len(options.list_i) > 0 ):
+        lfile = open(options.list_i,'rb')
+        t_i = lfile.readlines()
+        lfile.close()
+        list_i = [int(pkey) for pkey in  t_i]
+    else:
+        list_i = strucC.particles.keys()
     # 
-    lfile = open(options.list_j,'rb')
-    t_j = lfile.readlines()
-    lfile.close()
-    list_j = [int(pkey) for pkey in  t_j]    
-    
+    #
+    # Select considered particles 
+    #
+    if( rank == 0 ):
+        logger.info("Grouping by %s "%(options.group_id))        
+    struc_o.group_prop(options.group_id,options.group_id,particles_select=list_i)
+    groupset_i = struc_o.groupsets[options.group_id]
+    groupset_i.calc_cent_mass()
+    groupset_i.calc_radius()        
+    #
+    # Read lists
+    #
+    if( len(options.glist_i) > 0 ):
+        lfile = open(options.glist_i,'rb')
+        t_i = lfile.readlines()
+        lfile.close()
+        glist_i = [int(pkey) for pkey in  t_i]
+    else:
+        glist_i = groupset_i.groups.keys()
+    # 
+    if( len(options.glist_j) > ):
+        lfile = open(options.glist_j,'rb')
+        t_j = lfile.readlines()
+        lfile.close()
+        glist_j = [int(pkey) for pkey in  t_j]
+    else:
+        glist_j = self.groups.keys()
+        
+        
+    sub_cc = find_DAres(calc_j)
+    #
     #sub_j =  strucC.pd_df[sub_heavy & D1 ]
-    # Get list and pairs
-    pairs_ij = strucC.find_pairs(list_i,list_j,mol_inter=options.mol_inter,mol_intra=options.mol_intra)
+    # Get glist and pairs
+    #pairvalue_ij = groupset_i.find_pairs(glist_i,list_j,mol_inter=options.mol_inter,mol_intra=options.mol_intra)
     #
-    # Clear memory before loading MDanalysis universe 
+    #Calculate rdfs  
     #
-    del strucC
+    # gr2_rdf = rdf(gr2_tag,gr2_i,gr2_i_p,gr2_j,gr2_pairs,gro_file,options,p)
     #
-    #  Calculate rdfs  
-    #
-    #gr2_rdf = rdf(gr2_tag,gr2_i,gr2_i_p,gr2_j,gr2_pairs,gro_file,options,p)
+    logger.info(" Calculating close_contacts %s "%(tag))
+    
+    # for tag_i,calc_j in proj_j.calculations.iteritems():
+    #os.chdir(calc_j.dir['scratch'])
+    gdr_ij = dict()
+    gdr_ij['g_i'] = []
+    gdr_ij['g_j'] = []
+    gdr_ij['dcm_ij'] = []
+    gdr_ij['dr_pi_pj'] = []
+    
+    
+    pairs_df = pd.read_csv('pairs_residue.csv')
 
-    logger.info(" Calculating rdf %s "%(tag))
-    bin_r,bin_r_nn,volumes = distbin_pairs(list_i,list_j,pairs_ij,gro_file, options.dcd,options.frame_o,options.frame_step,options.frame_f,options.readall_f,options.bin_size,options.r_cut,rank)
+
+    for (g_i,g_j,dcm_ij) in pairs_df[['g_i','g_j','dcm_ij']].values:
+        dr_pi_pj = groupset_i.dr_particles(g_i,g_j,r_cut,sub_cc.index)
+        gdr_ij['g_i'].append(g_i)
+        gdr_ij['g_j'].append(g_j)
+        gdr_ij['dcm_ij'].append(dcm_ij)
+        gdr_ij['dr_pi_pj'].append(dr_pi_pj)
+    
+    calc_j.df_gdr_ij = pd.DataFrame(gdr_ij)
+    file_name = "gdr_ij.csv"
+    calc_i.df_gdr_ij.to_csv(file_name, sep=',', encoding='utf-8')    
+        
+    
+    #bin_r,bin_r_nn,volumes = distbin_pairs(glist_i,glist_j,pairs_ij,gro_file, options.dcd,options.frame_o,options.frame_step,options.frame_f,options.readall_f,options.bin_size,options.r_cut,rank)
+    #bin_r,bin_r_nn,volumes = singleframe_gpairs(struc_o,options.group_id,glist_i,glist_j,pairvalue_ij,options.bin_size,options.r_cut,rank)
+    
     p.barrier()
-    bin_r,bin_r_nn = reduce_bins(bin_r,bin_r_nn)
-    N_i = len(list_i)
-    N_j = len(list_j)
-    gr_rdf = calc_rdf(N_i,N_j,bin_r,bin_r_nn,volumes,options.bin_size,tag,options,p)
-    #pdf_rdf(gr2_tag,gr2_rdf)
-    
-    
     
             
 if __name__=="__main__":
@@ -334,16 +470,17 @@ if __name__=="__main__":
     parser.add_option("--mol_inter",dest="mol_inter", default=False,action="store_true", help="Use only inter molecular rdf's ")
     parser.add_option("--mol_intra",dest="mol_intra", default=False,action="store_true", help="Use only intra molecular rdf's")
     parser.add_option("--groups_inter",dest="groups_inter", default=True,action="store_true", help="Use only inter group rdf's")
+    parser.add_option("--group_id", dest="group_id", type="string", default="mol", help="Group id ")
     # parser.add_option("--truedensity",dest="truedensity", default=False,action="store_true", help="Use the true density of group j, this makes inter/intra molecular rdfs not components of the total rdf but true independent rdfs")
     
     
     # Frames
-    parser.add_option("--frame_o", dest="frame_o", type=int, default=1000, help=" Initial frame to read")
+    parser.add_option("--frame_o", dest="frame_o", type=int, default=1, help=" Initial frame to read")
     parser.add_option("--frame_f", dest="frame_f", type=int, default=10000, help=" Final frame to read")
-    parser.add_option("--frame_step", dest="frame_step", type=int, default=10, help=" Read every nth frame ")
+    parser.add_option("--frame_step", dest="frame_step", type=int, default=1, help=" Read every nth frame ")
     parser.add_option("--readall_f", dest="readall_f", default=True,action="store_true", help=" Read to end of trajectory file (negates frame_f value)")
     # Bins
-    parser.add_option("--r_cut", dest="r_cut", type=float, default=15.0, help=" Cut off radius in angstroms ")
+    parser.add_option("--r_cut", dest="r_cut", type=float, default=20.0, help=" Cut off radius in angstroms ")
     parser.add_option("--bin_size", dest="bin_size", type=float, default=0.10, help=" Bin size in angstroms")
     # 
     (options, args) = parser.parse_args()
@@ -363,29 +500,26 @@ if __name__=="__main__":
     #                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
     #                datefmt='%m-%d %H:%M',
     #                filemode='w')
-
     if( len(args) < 1 ):
         calc_tag = 'rdf'
     else:
         calc_tag =  args[0]
         
-
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-
-
+    #
     hdlr = logging.FileHandler('%s.log'%(calc_tag),mode='w')
     hdlr.setLevel(logging.INFO)
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
-
+    #
     start_time = datetime.now()
     if( p.getRank() == 0 ):
         logger.info('Started %s '%(start_time))
-    
-    rdfs(calc_tag,options,p)
+    #
+    grdfs(calc_tag,options,p)
     
     finish_time = datetime.now()
     delt_t = finish_time - start_time
