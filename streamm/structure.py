@@ -1238,6 +1238,9 @@ class Group(object):
 
          Soft Matter, 2013, 9, 3976-3984
          
+         
+         A_sphere = \frac{ (\lambda_1 - \lambda_3)^2 + (\lambda_2 - \lambda_3)^2 - (\lambda_1 - \lambda_2)^2 }{ (\lambda_1 + \lambda_2+ \lambda_3)^2  }
+         
         """
 
         eign_raw = np.linalg.eigvals(self.properties['Q_mn'])

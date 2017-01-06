@@ -992,109 +992,6 @@ def proj_analysis(proj_tag,options,p):
     return
 
 
-def proj_analysis(proj_tag,options,p):
-    #
-    # MPI setup
-    #
-    rank = p.getRank()
-    size = p.getCommSize()
-    #
-    if( rank == 0 ):
-        logging.info('Running run_calc on %d procs %s '%(size,datetime.now()))        
-    
-    if( rank == 0 ):
-        logger.info("Running  %s "%(proj_tag))
-    # 
-    peregrine = resource.Resource('peregrine')
-    peregrine.load_json()
-    #
-    local = resource.Resource('local')
-    local.load_json()
-    
-    et_file = "et.csv"
-    if( not file_test(et_file) ):
-        et_keys,ets = read_et(et_file)
-    else:
-        et_keys = []
-        ets = dict()
-
-        if( rank == 0 ):
-            logger.info("Writing %s header "%(et_file))
-            fout = open(et_file,'wb')
-            et_writer = csv.writer(fout,delimiter=',')
-            header = ['tag','g_i','g_j','reactanten_ij (H)','producten_ij (H)','S_ij','V_ij (H)','S_ji','V_ji (H)']
-            #if( rank == 0 ):
-            et_writer.writerow(header)
-            fout.close()
-    #
-    p.barrier()
-    
-    sims_file = "et_sims.csv"
-    sim_tags = read_sims(sims_file)
-    N_sims = len(sim_tags)
-    if( rank == 0 ):
-        logger.info("sims_file %s read with %d entries "%(sims_file,len(sim_tags)))
-    #
-    sim_tags_p = p.splitListOnProcs(sim_tags)        
-    for tag_i in sim_tags_p:
-        if( tag_i not in et_keys ):
-
-            p1 = tag_i.split('_')
-            g_i = int(p1[2])
-            g_j = int(p1[3])
-            logger.debug("Analyzing %s g_i %d g_j %d "%(tag_i,g_i,g_j))
-            calc_i = nwchem.NWChem(tag_i)
-            calc_i.load_json()
-            if( calc_i.resource.meta['type'] == "local" ):
-                 os.chdir(calc_i.dir['scratch'])
-            #calc_i.check()
-            logger.info("Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status']))
-            #if( sim_i.meta['status'] != 'written' and  sim_i.meta['status'] != 'running' ):
-            calc_i.analysis()
-
-            if( calc_i.resource.meta['type'] == "local" ):
-                 os.chdir(calc_i.dir['home'])
-            # Get energies 
-            calc_ij = False
-            calc_ji = False
-            S_ij = None
-            V_ij = None
-            S_ji = None
-            V_ji = None
-            for et_ij in calc_i.et_list:
-                if( et_ij.reactantMO == 'GEOMI_0GEOMJ_1.movecs' ):
-                    S_ij = et_ij.S
-                    V_ij = et_ij.V
-                    calc_ij = True
-                elif( et_ij.reactantMO == 'GEOMI_1GEOMJ_0.movecs' ):
-                    S_ji = et_ij.S
-                    V_ji = et_ij.V
-                    calc_ji = True
-                else:
-                    logger.warning(" Unknown reactantMO file %s "%( et_ij.reactantMO))
-                    sys.exit(0)
-
-            if( calc_ij and calc_ji ):
-                logger.info("Results found S_ij %f V_ij %f "%(S_ij,V_ij))
-                row = [tag_i,g_i,g_j,et_ij.reactanten,et_ij.producten,S_ij,V_ij,S_ji,V_ji]
-                fout = open(et_file,'a')
-                et_writer = csv.writer(fout,delimiter=',')
-                et_writer.writerow(row)
-                fout.close()
-            else:
-                logger.debug(" Error in calculation %s reactant and product ets not found "%(tag_i))
-                proj_r.calculations[calc_i.tag] = calc_i
-# calc_i.dump_json()
-        else:
-            logger.debug(" Et tags %s already in et_file %s "%(tag_i,et_file))
-    p.barrier()
-
-    os.chdir(proj_r.dir['home'])
-    proj_r.dump_json()
-    p.barrier()
-
-    return
-    
 def et(calc_tag,options,p):
 
     set_res(calc_tag,options)
@@ -1113,11 +1010,11 @@ def et(calc_tag,options,p):
     elif( rank == 0 ):
         logger.info('output sim_file %s'%(sims_file))
     #
-    #proj_check(calc_tag,options,p)
-    split_proj(calc_tag,options,p)
+    # proj_check(calc_tag,options,p)
+    # split_proj(calc_tag,options,p)
     
     #run_calc(calc_tag,options,p)
-    #proj_analysis(calc_tag,options,p)
+    proj_analysis(calc_tag,options,p)
     #read_energies(calc_tag,options,p)
     #read_struc(calc_tag,options,p) 
     #write_newdata(calc_tag,options,p)

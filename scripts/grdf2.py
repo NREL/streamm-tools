@@ -146,6 +146,48 @@ def grdfs(tag,options,p):
     # Get glist and pairs
     pairvalue_ij = groupset_i.find_pairs(glist_i,glist_j,mol_inter=options.mol_inter,mol_intra=options.mol_intra)
     #
+    # Find group neighbor list 
+    #
+    groupset_i.group_nblist.radii_nblist(strucC.lat,groupset_i.properties['cent_mass'],groupset_i.properties['radius'],radii_buffer=options.pairbuffer)
+    gkeys_p = p.splitListOnProcs( groupset_i.groups.keys())
+    #
+    # Write pairs 
+    #
+    pairs_file = 'pairs_%s.csv'%(options.group_id)
+    if( rank == 0 ):
+        fout = open(pairs_file,'wb')
+        pair_writer = csv.writer(fout,delimiter=',')
+        header = ['g_i','g_j','dcm_ij']
+        #if( rank == 0 ):
+        pair_writer.writerow(header)
+        fout.close()
+        logger.info('file: output pairs_%s %s '%(options.group_id,pairs_file))
+
+
+    logger.debug(" Writing %d group pairs on proc %d "%(len(gkeys_p),rank))
+    for g_i in gkeys_p:
+        group_i = groupset_i.groups[g_i]
+        mol_i =group_i.properties['mol']
+        # 
+        fout = open(pairs_file,'a')
+        pair_writer = csv.writer(fout,delimiter=',')
+        #
+        nb_cnt = groupset_i.group_nblist.calc_nnab(g_i)
+        logger.debug(" group %d has %d nieghbors with radius of %f "%(g_i,nb_cnt,group_i.properties['radius']))
+        for g_j in groupset_i.group_nblist.getnbs(g_i):
+            logger.debug("checking neighbor group %d "%(g_j))
+            if( g_j > g_i ):
+                group_j  = groupset_i.groups[g_j]
+                mol_j =group_j.properties['mol']
+                if( mol_i != mol_j):
+                    dcm_ij = groupset_i.group_nblist.dist_matrix[g_i,g_j] 
+                    row_i = [g_i,g_j,dcm_ij]
+                    pair_writer.writerow(row_i)
+  
+        fout.close()    #
+        
+    pairs_df = pd.read_csv('pairs_residue.csv')
+        
     #Calculate rdfs  
     #
     # gr2_rdf = rdf(gr2_tag,gr2_i,gr2_i_p,gr2_j,gr2_pairs,gro_file,options,p)
@@ -160,7 +202,6 @@ def grdfs(tag,options,p):
     gdr_ij['dcm_ij'] = []
     gdr_ij['dr_pi_pj'] = []
     #
-    pairs_df = pd.read_csv('pairs_residue.csv')
     #
     for (g_i,g_j,dcm_ij) in pairs_df[['g_i','g_j','dcm_ij']].values:
         dr_pi_pj = groupset_i.dr_particles(g_i,g_j,options.r_cut,p_list)
@@ -169,9 +210,9 @@ def grdfs(tag,options,p):
         gdr_ij['dcm_ij'].append(dcm_ij)
         gdr_ij['dr_pi_pj'].append(dr_pi_pj)
     
-    calc_j.df_gdr_ij = pd.DataFrame(gdr_ij)
+    df_gdr_ij = pd.DataFrame(gdr_ij)
     file_name = "gdr_ij.csv"
-    calc_i.df_gdr_ij.to_csv(file_name, sep=',', encoding='utf-8')    
+    df_gdr_ij.to_csv(file_name, sep=',', encoding='utf-8')    
         
     
     #bin_r,bin_r_nn,volumes = distbin_pairs(glist_i,glist_j,pairs_ij,gro_file, options.dcd,options.frame_o,options.frame_step,options.frame_f,options.readall_f,options.bin_size,options.r_cut,rank)
@@ -191,6 +232,7 @@ if __name__=="__main__":
     parser.add_option("--mol_intra",dest="mol_intra", default=False,action="store_true", help="Use only intra molecular rdf's")
     parser.add_option("--groups_inter",dest="groups_inter", default=True,action="store_true", help="Use only inter group rdf's")
     parser.add_option("--group_id", dest="group_id", type="string", default="mol", help="Group id ")
+    parser.add_option("--pairbuffer", dest="pairbuffer", type="float", default=2.5, help="Pair buffer ")
     # parser.add_option("--truedensity",dest="truedensity", default=False,action="store_true", help="Use the true density of group j, this makes inter/intra molecular rdfs not components of the total rdf but true independent rdfs")
     # List of groups 
     parser.add_option("--glist_i", dest="glist_i", type="string", default="", help="Input list file")

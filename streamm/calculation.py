@@ -1146,6 +1146,7 @@ class CalculationRes(Calculation):
         """
         # Base class constructor is called
         Calculation.__init__(self, tag)
+        #super(Calculation,self).__init__()
         # Computational Resource used for simulation/calculation  
         self.resource = resource.Resource()
         self.dir = dict()
