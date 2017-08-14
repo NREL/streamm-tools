@@ -22,8 +22,12 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
 
 verbose = False  
 n_elements = len(elements)
-# Create an empty element for unknow values
+# 
 def unknow_el():
+      '''
+      Create an empty element for unknown values.
+      '''
+      logger.debug("Creating blank element")
       el_i = dict()
       el_i["symbol"] = str("X")
       el_i["number"] = int(-1)
@@ -34,30 +38,34 @@ def unknow_el():
 
 def element_mass(mass_i):
     """
-    Find element based on atomic mass
+    Find element based on atomic mass. Atomic masses are compared as integers.
     """
+    logger.debug("Finding element based on atomic mass {}".format(mass_i))
     mass_i_int = int(mass_i)
     for el_symb in elements.keys():
+        #Loop over all elements 
         el = elements[el_symb]
         el_mass_int = int( el['mass'] )
         if( mass_i_int == el_mass_int ):
             return el
-    logger.warning("No element found for atomi with mass %s "%(mass_i))
+    logger.warning("No element found for atom with mass {} ".format(mass_i))
     el_empty = unknow_el()
     el_empty['mass']  = mass_i
+    # 
     return el_empty
 
 def element_number(atomic_number_i):
     """
     Find element based on atomic number 
     """
+    logger.debug("Finding element based on atomic number {}".format(atomic_number_i))
     for el_symb in elements.keys():
         el = elements[el_symb]
         el_n_i = int(el['number'] )
         if( el_n_i == atomic_number_i ):
             return el
         
-    logger.warning("No element found for atomic with number %s "%(atomic_number_i))
+    logger.warning("No element found for atomic with number {} ".format(atomic_number_i))
     el_empty = unknow_el()
     el_empty['number']  = atomic_number_i
     return el_empty
@@ -66,13 +74,13 @@ def element_symbol(symbol_i):
     """
     Find element based on atomic symbol  
     """
-
+    logger.debug("Finding element based on atomic symbol {}".format(symbol_i))
     for el_symb in elements.keys():
         el = elements[el_symb]
         if( symbol_i == el['symbol'] ):
             return el
 
-    logger.warning("No element found for atomi symbol %s "%(symbol_i))
+    logger.warning("No element found for atomic symbol {} ".format(symbol_i))
     el_empty = unknow_el()
     el_empty['symbol']  = symbol_i
     return el_empty

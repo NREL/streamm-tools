@@ -17,6 +17,7 @@ import structure, periodictable, units
 from structure import Atom 
 from structure import Bond 
 from structure import Container as  structure_Container
+# NoteTK why not use structure.Container
 
 import logging
 logger = logging.getLogger(__name__)
@@ -105,7 +106,6 @@ class Container(structure_Container):
         del self.attachments
 
     def convert_gaussian(self,calc_gaussian):
-        
         '''
         Convert Gaussian simulation to Buildingblock
 
@@ -122,7 +122,7 @@ class Container(structure_Container):
             #
             # Convert Structure 
             #
-            if( calc_gaussian.strucC.n_particles > 0):            
+            if( calc_gaussian.strucC.n_particles > 0):
                 # Add lattice to GROMACS object
                 matrix_o = calc_gaussian.strucC.lat._matrix 
                 matrix_i = self.lat._matrix 
@@ -156,7 +156,8 @@ class Container(structure_Container):
                 for ikey_o,imp_o in calc_gaussian.strucC.impropers.iteritems():
                     imp_i = copy.deepcopy(imp_o)
                     self.add_improper(imp_i)
-
+            else:
+                raise TypeError("GAUSSIAN simulation structure contains no atoms")
                     
     def calc_attachments(self):
         '''

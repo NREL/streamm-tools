@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
           
 class GROMACS(CalculationRes):
     """
-    Dervied class implementing input/output methods Gaussian
+    Derived class implementing input/output methods for GROMACS
     """
     def __init__(self, tag , verbose=False):
         """
@@ -97,7 +97,7 @@ class GROMACS(CalculationRes):
         
     def write_gro(self,gro_file=''):
         """
-        Write gromacs structure file 
+        Write gromacs structure .gro file 
         """
         #
         if( len(gro_file) == 0 ):

@@ -15,7 +15,7 @@ import csv , math
 
 def round_sigfigs(num, sig_figs):
     """
-    Round to specified number of sigfigs.
+    Round to specified number of significant figures.
     """
     if num != 0:
         return round(num, -int(math.floor(math.log10(abs(num))) - (sig_figs - 1)))
@@ -25,7 +25,7 @@ def round_sigfigs(num, sig_figs):
 
 def calc_dec(num):
     """
-    Round to specified number of sigfigs.
+    Round to specified number of significant figures.
     """
     return -int(math.floor(math.log10(abs(num)))) 
 
@@ -35,7 +35,9 @@ class Values(object):
     '''
 
     def __init__(self, tag, data_raw, verbose=False):
-
+        '''
+        Constructor for Value object 
+        '''
         self.tag = tag
         self.data_raw = data_raw
 
@@ -47,12 +49,16 @@ class Values(object):
 
     def __del__(self, verbose=False):
         """
-        Deconstructor for a composite structure. 
+        Deconstructor for a  Value object 
         """
         del self.tag
         del self.data_raw 
 
     def set_bins(self,bin_size):
+        '''
+        Set bin related values based on bin_size
+        '''
+        logger.debug("Setting bin related values based on bin size of {}".format(bin_size))
         
         self.bin_size = bin_size
 
@@ -66,6 +72,9 @@ class Values(object):
         #self.bin_w = (self.val_ceil-self.val_floor)/float(self.n_bins)
 
     def calc_stats(self):
+        '''
+        Calculate statistical values using numpy 
+        '''
         self.n = len(self.data_raw)
         self.max = max(self.data_raw)
         self.min = min(self.data_raw)
@@ -88,10 +97,11 @@ class Values(object):
         # self.error = self.conf_max-self.conf_min
 
     def calc_hist(self,setden = True):
-                
+        '''
+        Create histogram using numpy 
+        '''
         self.hist_cent,self.bins = np.histogram(self.data_raw, bins=self.n_bins, range=(self.val_floor,self.val_ceil) , density=setden)
-
-        
+        #
         # The center value of each bin with the correct length... 
         self.bins_cent = (self.bins[:-1] + self.bins[1:]) / 2
         # Add zero to initialize step list to be used
@@ -109,6 +119,9 @@ class Values(object):
         
 
     def write_hist(self):
+        '''
+        Write histogram to data file 
+        '''
         hist_file = "{}.hist".format(self.tag)
         print " Writing histogram {}".format(hist_file)
         with open(hist_file, 'wb') as struc_fout:
@@ -121,6 +134,9 @@ class Values(object):
                 
         
     def write_hist_v1(self):
+        '''
+        Depricated version of writing histogram file. 
+        '''
         hist_file = "{}.hist".format(self.tag)
         print " Calculating histogram {}".format(hist_file)
 
@@ -209,6 +225,9 @@ class Values(object):
         dat_file - file name 
         dat_col - column number
 
+        NoteTK:
+        
+        This should be a json/csv 
         """
         self.values = []
         self.prob_dens = []
@@ -257,6 +276,7 @@ class Values(object):
                 return 
             
         except IOError:
-            error_line = " File %s not found "%(dat_file)
+            logger.warning(" File %s not found "%(dat_file))
+            
 
         

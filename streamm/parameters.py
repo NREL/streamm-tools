@@ -69,8 +69,6 @@ class LJtype(object):
                 
         return strucStr
 
-
-
 class Bondtype(object):
     """
     Set of bond parameters 
@@ -609,7 +607,7 @@ class Imptype(object):
         """
         set Harmonic parameters
 
-        E = kb ( e_{lijk} - e0 )^2 
+        math::`E = kb ( e_{lijk} - e0 )^2`
 
         Args:
             e0     (float) 
@@ -740,8 +738,7 @@ class Container(object):
                 
             self.n_ljtypes = len(self.ljtypes)
         else:
-            print "Attempting to add non-Ljtype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Ljtype type to container")
 
 
 
@@ -759,8 +756,7 @@ class Container(object):
                 
             self.n_bondtypes = len(self.bondtypes)
         else:
-            print "Attempting to add non-Bondtype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Bondtype type to container")
 
 
     def add_angletype(self, angletype_i, deepcopy = True ):
@@ -776,8 +772,7 @@ class Container(object):
                 
             self.n_angletypes = len(self.angletypes)
         else:
-            print "Attempting to add non-Angletype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Angletype type to container")
 
     def add_dihtype(self, dihtype_i, deepcopy = True ):
         """
@@ -792,8 +787,7 @@ class Container(object):
                 
             self.n_dihtypes = len(self.dihtypes)
         else:
-            print "Attempting to add non-Dihtype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Dihtype type to container")
 
 
     def add_imptype(self, imptype_i, deepcopy = True ):
@@ -809,5 +803,4 @@ class Container(object):
                 
             self.n_imptypes = len(self.imptypes)
         else:
-            print "Attempting to add non-Imptype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Imptype type to container")

@@ -24,13 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 def conv_float(fval_i):
-    
+    '''
+    Convert a value to a float 
+    '''
     sval_i = replace(str(fval_i),"D","e")
     
     try:
         val_i = float(sval_i)
     except:
-        val_i = 0.0
+        val_i = 'Nan'
         
     return val_i
 

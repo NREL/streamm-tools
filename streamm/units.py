@@ -221,5 +221,5 @@ def convert_fs_ns(t_fs):
     convert to ns
     from fs
     """
-    return t_fs/1000000
+    return t_fs/1000000.0
 

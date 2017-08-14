@@ -225,11 +225,10 @@ class Calculation(object):
         json.dump(json_data,f, indent=2)
         f.close()
 
-
     def load_json(self):
         '''
         Load json file for reference 
-        '''        
+        '''   
         json_file = "%s_%s.json"%(self.prefix,self.tag)
         print "Reading %s"%(json_file)
         try:
@@ -295,7 +294,6 @@ class Calculation(object):
         '''
         Check if calculation has finished        
         '''
-        
         if( self.meta['status'] != 'stored' ):
         
             # Find output_key file 
@@ -345,7 +343,6 @@ class Calculation(object):
             log_file (str) script log file
 
         """
-
         f = open(log_file,'r')
         log_lines = f.readlines()
         f.close()
@@ -359,9 +356,8 @@ class Calculation(object):
                 file_name = col[10]
                 print "Adding file type %s with key %s and name %s "%(file_type,file_key,file_name)
                 self.add_file(file_type,file_key,file_name)
-                
-        
-
+        #
+        #
     def analysis(self,output_key='log'):
         """
         Read in results from streamm script 
@@ -1228,8 +1224,6 @@ class CalculationRes(Calculation):
                 except:
                     print "No references found "
                     
-
-
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
             print " File not found %s in %s "%(json_file,os.getcwd())

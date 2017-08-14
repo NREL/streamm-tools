@@ -26,6 +26,7 @@ except:
     import pickle
     
 from datetime import datetime
+# Import local STREAMM modules 
 import periodictable
 
 import logging
@@ -37,7 +38,6 @@ class Particle(object):
     Data structure for describing any localized object in QM/MD simulations
     A 'Particle' has a type and dict of specifiers to it's property 
     """
-
     def __init__(self, type="blank"):
         """
         Constructor for a general particle. 
@@ -66,11 +66,19 @@ class Atom(Particle):
     """
     A derived type of particles for atoms 
     """
-
     def __init__(self,symbol="X", type="atom"):
+        '''
+        Constructor for Particle object
+        
+        Args:
+            symbol (str) Atomic symbol
+            type   (str) Particle type
+            NoteTK: type should probably not be set
+        '''
         Particle.__init__(self, type=type)
-
-        # Get properties of element based on symbol 
+        # 
+        # Get properties of element based on symbol
+        # 
         self.properties = periodictable.element_symbol(symbol)
 
         self.properties["mol"] = 0  
@@ -89,9 +97,8 @@ class Atom(Particle):
         
 class Bond(object):
     """
-    Data structure for describing any 2-point associatiaon of Particle-s
+    Data structure for describing any 2-point association of Particle/s
     """
-
     def __init__(self, pkey1, pkey2):
         """
         Constructor for a general bond. Checks for types in arguments
@@ -105,14 +112,12 @@ class Bond(object):
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
         else:
-            print "1st arg should be int"
-            raise TypeError
+            raise TypeError("1st arg should be int")
 
         if isinstance(pkey2, int):
             self.pkey2 = pkey2
         else:
-            print "2nd arg should be int type"
-            raise TypeError
+            raise TypeError("2nd arg should be int type")
 
         self.lmpindx = 0 
         self.g_indx = 0
@@ -136,13 +141,11 @@ class Bond(object):
         """
         return " %s - %s  "%(self.pkey1,self.pkey2 )
 
-
-
+    #
 class Angle(object):
     """
-    Data structure for describing any 3-point associatiaon of Particle-s
+    Data structure for describing any 3-point associatiaon of Particle/s
     """
-
     def __init__(self, pkey1, pkey2, pkey3):
         """
         Constructor for a general angle. Checks for types in arguments
@@ -157,20 +160,17 @@ class Angle(object):
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
         else:
-            print "1st arg should be int"
-            raise TypeError
+            raise TypeError("1st arg should be int")
 
         if isinstance(pkey2, int):
             self.pkey2 = pkey2
         else:
-            print "2nd arg should be int type"
-            raise TypeError
+            raise TypeError("2nd arg should be int type")
 
         if isinstance(pkey3, int):
             self.pkey3 = pkey3
         else:
-            print "3rd arg should be int type"
-            raise TypeError
+            raise TypeError("3rd arg should be int type")
 
         self.lmpindx = 0
         self.g_indx = 0
@@ -196,7 +196,7 @@ class Angle(object):
 
 class Dihedral(object):
     """
-    Data structure for describing any 4-point associatiaon of Particle-s
+    Data structure for describing any 4-point associatiaon of Particle/s
     """
 
     def __init__(self, pkey1, pkey2, pkey3, pkey4):
@@ -214,26 +214,22 @@ class Dihedral(object):
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
         else:
-            print "1st arg should be int"
-            raise TypeError
+            raise TypeError("1st arg should be int")
 
         if isinstance(pkey2, int):
             self.pkey2 = pkey2
         else:
-            print "2nd arg should be int type"
-            raise TypeError
+            raise TypeError("2nd arg should be int type")
 
         if isinstance(pkey3, int):
             self.pkey3 = pkey3
         else:
-            print "3rd arg should be int type"
-            raise TypeError
+            raise TypeError("3rd arg should be int type")
 
         if isinstance(pkey4, int):
             self.pkey4 = pkey4
         else:
-            print "4rd arg should be int type"
-            raise TypeError
+            raise TypeError("4rd arg should be int type")
 
         self.lmpindx = 0
         self.g_indx = 0
@@ -243,7 +239,7 @@ class Dihedral(object):
 
     def __del__(self):
         """
-        Destructor, clears object memory
+        Destructor, clears dihedral object memory
         """
         del self.pkey1
         del self.pkey2 
@@ -262,7 +258,7 @@ class Dihedral(object):
 
 class Improper(object):
     """
-    Data structure for describing any 4-point associatiaon of Particle-s
+    Data structure for describing any 4-point associatiaon of Particle/s
     """
 
     def __init__(self, pkey1, pkey2, pkey3, pkey4):
@@ -280,26 +276,22 @@ class Improper(object):
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
         else:
-            print "1st arg should be int"
-            raise TypeError
+            raise TypeError("1st arg should be int")
 
         if isinstance(pkey2, int):
             self.pkey2 = pkey2
         else:
-            print "2nd arg should be int type"
-            raise TypeError
+            raise TypeError("2nd arg should be int type")
 
         if isinstance(pkey3, int):
             self.pkey3 = pkey3
         else:
-            print "3rd arg should be int type"
-            raise TypeError
+            raise TypeError("3rd arg should be int type")
 
         if isinstance(pkey4, int):
             self.pkey4 = pkey4
         else:
-            print "4rd arg should be int type"
-            raise TypeError
+            raise TypeError("4rd arg should be int type")
         #
         self.lmpindx = 0
         self.g_indx = 0
@@ -330,7 +322,7 @@ class Lattice(object):
         """        
         Create a lattice 
         """
-        self.n_dim = 3 # Number of spcail dimensions is set to 3
+        self.n_dim = 3 # Number of spatial dimensions is set to 3
         self._matrix = np.zeros((self.n_dim,self.n_dim)) #np.array(matrix, dtype=np.float64).reshape((3, 3))
         
         self._angles = np.zeros(self.n_dim)
@@ -342,16 +334,14 @@ class Lattice(object):
         """
         Destructor, clears structure memory and calls held container destructors
         """
-
         del self._angles
         del self._lengths
         del self._matrix
-                
+        #    
     def set_matrix(self,matrix):
         '''
         Set the matrix values and reset lengths and angles accordingly 
         '''
-
         def abs_cap(val, max_abs_val=1):
             """
             Returns the value with its absolute value capped at max_abs_val.
@@ -364,6 +354,7 @@ class Lattice(object):
 
             Returns:
                 val if abs(val) < 1 else sign of val * max_abs_val.
+                
             """
             return max(min(val, max_abs_val), -max_abs_val)
 
@@ -401,7 +392,6 @@ class Lattice(object):
         cy = C*(math.cos(alpha)- math.cos(beta)*math.cos(gamma))/math.sin(gamma)
         cz = np.sqrt( C*C - cx*cx - cy*cy )
 
- 
         self._lengths[0] = A
         self._lengths[1] = B
         self._lengths[2] = C
@@ -581,7 +571,7 @@ class Lattice(object):
         '''
         Generate random position in lattice
 
-        random.seed(seed) need to be initialized
+        random.seed(seed) needs to be initialized
         
         '''
         
@@ -592,6 +582,7 @@ class Lattice(object):
             for n in range(self.n_dim):
                 if( self._matrix[m][n] > 0.0 ):
                     pos_o[m] += float(random.randrange(0,int(int_mult*self._matrix[m][n]) ))/float(int_mult)
+                    
         return pos_o
 
 
@@ -610,8 +601,7 @@ class Lattice(object):
         self.set_matrix(matrix_i)
         
         return 
-
-
+        # 
     def fractoreal(self,frac_o):
         '''
         Translate fractional coordinates to real 
@@ -809,7 +799,7 @@ class NBlist(object):
         
 class Replication(object):
     '''
-    Object to recode the replication of structure 
+    Object to record the replication of structure 
     '''
     def __init__(self,name_i,name_j,name_ij,method,n):
 
@@ -831,7 +821,7 @@ class Replication(object):
         
     def __str__(self):
         """
-        'Magic' method for printng contents of container
+        'Magic' method for printng contents of container 
         """
         return " %s +  %s x %d ( %s ) -> %s "%(self.name_i,self.name_j,self.n,self.method,self.name_ij)
 
@@ -988,6 +978,12 @@ class GroupSet(object):
     def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
         '''
         Find pairs based on criteria
+        
+        Args:
+            list_i (list) list of particle index
+            list_j (list) list of particle index
+            mol_inter (Boolean) include inter-molecular connections
+            mol_intra (Boolean) include intra-molecular connections 
         '''
         # 
         N_i = len(list_i)
@@ -1044,7 +1040,7 @@ class GroupSet(object):
 
     def dump_json(self):
         '''
-        Write group coordinates into an xyz file
+        Write group coordinates into an json file
         '''
         json_data = dict()
                 
@@ -1077,26 +1073,10 @@ class Group(object):
         # 
         self.properties = dict()
         
-        '''
-        self.cent_mass = np.zeros( self.n_dim)
-        self.cent_charge = np.zeros( self.n_dim)
-        self.total_mass = 0.0
-        self.charge = 0.0
-
-        
-        self.radius = 0.0
-        self.dl = 0.0
-        self.dl_sq = 0.0 #  np.zeros( self.n_dim)
-        self.r_gy = 0.0
-        self.r_gy_sq = 0.0
-        self.S_mn = np.zeros([self.n_dim,self.n_dim])
-        self.Rgy_eignval = np.zeros(self.n_dim)
-        self.asphere = 0.0
-        '''
 
     def __del__(self):
         """
-        Destructor
+        Destructor for Group object
         """
 
         del self.n_dim 
@@ -1106,20 +1086,6 @@ class Group(object):
         del self.nonbonded_nblist
         del self.properties
         
-        '''
-        del self.cent_mass
-        
-        del self.cent_charge
-        del self.total_mass
-        del self.charge
-        del self.radius
-        del self.dl
-        del self.r_gy
-        del self.r_gy_sq
-        del self.S_mn
-        del self.Rgy_eignval
-        del self.asphere
-        '''
 
     def write_xyz(self, xyz_file=''):
         '''
@@ -1153,13 +1119,11 @@ class Group(object):
         """
         Calculate the center of mass
 
-        Center of mass of the molecule 
+        Center of mass of the molecule
+        
+        math:: r_{cmas} = \frac(\sum_i r_i*mass_i)(\sum_i mass_i) 
 
-                   \sum_i r_i*mass_i 
-        r_cmas =  __________________
-                    \sum_i mass_i
-
-        where r_i is the position of particle i and mass_i is it's mass 
+        where math::`r_i` is the position of particle math::`i` and math::`mass_i` is it's mass 
 
         """
         #
@@ -1187,25 +1151,22 @@ class Group(object):
         and
 
 
-        Radius of gyration^2 (r_gy_sq)
+        Radius of math::`gyration^2` (r_gy_sq)
 
-                  \sum_i  (r_i - r_cmas )^2
-        r_gy_sq = __________________________
-                      \sum_i
+        r_gy_sq = \frac(\sum_i  (r_i - r_cmas )^2)( \sum_i)
+                     
 
 
         Gyration tensor
 
-                    \sum_i  (r_i_m - r_cmas_m ) (r_i_n - r_cmas_n )
-        Q(m,n) = __________________________
-                      \sum_i
+        Q(m,n) = \frac( \sum_i  (r_i_m - r_cmas_m ) (r_i_n - r_cmas_n ) )( \sum_i )
 
         where m amd n are component of the r vector
 
         https://arxiv.org/pdf/1009.4358.pdf
         
         """
-        # Intialize sums 
+        # Initialize sums 
         self.properties['radius'] = 0.0
         self.properties['r_gy_sq'] = 0.0
         self.properties['Q_mn'] = np.zeros([self.n_dim,self.n_dim])
@@ -2686,7 +2647,7 @@ class Container(object):
                 log_line += "  n_lat 1 %f "%(n_lat[1])
                 log_line += "  n_lat 2 %f "%(n_lat[2])
                 log_line += "%d  expantions "%(exlat_cnt)
-                print log_line
+                logger.debug(log_line)
                             
 
         return None
@@ -2876,7 +2837,8 @@ class Container(object):
         Return:
             el_cnt (list) count of each element at it's atomic number index
 
-            example: el_cnt[6] is the number of carbon neighbors 
+        Example: el_cnt[6] is the number of carbon neighbors
+        
         '''
 
         el_cnt = np.zeros(periodictable.n_elements, dtype =int )
@@ -3101,7 +3063,10 @@ class Container(object):
 
     def calc_bond(self,bond_i):
         """
-        Calculate the distacne between two vectors 
+        Calculate the distacne between two vectors
+        
+        Args:
+            bond_i (Bond) Bond object
         """
         if isinstance(bond_i, Bond):
             r_i = self.positions[bond_i.pkey1]
@@ -3111,8 +3076,7 @@ class Container(object):
             
             return bond_l
         else:
-            print "Attempting to calculate non-Bond type"
-            raise TypeError
+            raise TypeError("Attempting to calculate non-Bond type")
         
         return None
 
@@ -3435,11 +3399,13 @@ class Container(object):
     def distbin_pairs(self,list_i,list_j,pairvalue_ij,bin_size,r_cut,rank):
         '''
         Bin distances between particle pairs
+        
+        Add size to cutoff
+        Assumes cut off is evenly divisible by bin_size 
+                 |                      |
+            -bin_size/2.0   r_cut   +bin_size/2.0
+        
         '''
-        # Add size to cutoff
-        # Assumes cut off is evenly divisable by bin_size 
-        #         |                      |
-        #    -bin_size/2.0   r_cut   +bin_size/2.0 
         r_cut += bin_size/2.0 
 
         N_i = len(list_i)

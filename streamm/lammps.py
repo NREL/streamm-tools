@@ -37,12 +37,10 @@ class mdrun(object):
         # Create dictionary of lists for time series data 
         self.timeseries = dict()
         self.prop_col  =  dict() # list of properties in column order
-
-
           
 class LAMMPS(CalculationRes):
     """
-    Dervied class implementing input/output methods Gaussian
+    Derived class implementing input/output methods for LAMMPS
     """
 
 
@@ -725,7 +723,6 @@ class LAMMPS(CalculationRes):
         #
         # Intialize read in boolean to off                    
         #
-
         read_Atoms = False
         #
         # Read in data parameters 
