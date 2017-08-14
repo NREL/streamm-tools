@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 """
 Handy routines to analize sets of values 
+
+NoteTK This should be changed to gen.py 
 """
 
 __author__ = "Travis W. Kemper"
