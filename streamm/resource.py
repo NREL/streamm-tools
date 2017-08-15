@@ -74,7 +74,6 @@ class Resource(object):
         del self.dir
         del self.properties
 
-
     def __str__(self):
         """
         Print resource information 

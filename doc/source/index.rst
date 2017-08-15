@@ -1,7 +1,6 @@
-.. highlight:: rst
 
-*****************
-STREAMM 
+
+STREAMM
 *****************
 
 
@@ -15,14 +14,10 @@ and analyizes output data.
 Quick install
 =============
 
-Clone the repository::
+Install the python package with pip::
 
-    $ git clone http://github.com/NREL/streamm-tools
-    $ cd streamm-tools
+    $ pip install streamm
 
-Run setup.py to install::
-
-    $ python setup.py 
 
 Contents
 ========
@@ -30,13 +25,11 @@ Contents
 .. toctree::
    :maxdepth: 2
     
-    installation-instructions.rst 
+    installation_instructions.rst 
     getting_started.rst
     examples.rst
-   framework_design.rst
-   applications.rst
-
-
+    publication_highlights.rst
+    developer_guide.rst
 
 Release Notes
 ================
@@ -55,7 +48,7 @@ Release Notes
 
 
 Referencing STREAMM
-================
+===================
 
 When referencing the STREAMM toolkit in publications, this website can be cited as::
 
