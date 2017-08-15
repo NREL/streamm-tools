@@ -11,10 +11,7 @@ Getting started
 Clone Github repository 
 ============================
 
-The STREAMM *tools* code is maintained in a Github repository at https://github.com/NREL/streamm-tools hosted by
-the National Renewable Energy Lab (NREL). The main STREAMM repo contains many projects that use the tools code as 
-well as the separate suite of unit/regression tests. The web based interface allows one to download the tools repo
-using the GUI. The tools repo can be downloaded using the linux command line ::
+
 
      git clone https://github.com/NREL/streamm-tools.git
 
