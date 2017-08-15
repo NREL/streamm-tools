@@ -1,30 +1,35 @@
-
+.. highlight:: rst
 
 STREAMM
-*****************
-
+#######
 
 The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python module that generates structures,
 input files for quantum chemical and molcular dynamics codes, monitors jobs running locally or on an external resource,
-and analyizes output data.
+and analyizes output data.  STREAMM does not directly conduct simulations, rather it is ment to drive and connect
+quantum chemical and molecular dynamics codes to allow for high-throughput compulational analysis of materials. 
 
 :STREAMM: Copyright (C) 2015, Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf.
-:Website: http://github.com/NREL/streamm-tools
+:Website: `<http://github.com/NREL/streamm-tools>`_
 
 Quick install
-=============
+*************
 
 Install the python package with pip::
 
     $ pip install streamm
 
+Access the streamm modules with::
+
+    $ import streamm
+    
+This will allow access to the streamm modules.
 
 Contents
-========
+********
 
 .. toctree::
-   :maxdepth: 2
-    
+    :maxdepth: 2
+     
     installation_instructions.rst 
     getting_started.rst
     examples.rst
@@ -32,7 +37,7 @@ Contents
     developer_guide.rst
 
 Release Notes
-================
+*************
 
 - v0.3.0 -- September 2017
 
@@ -48,7 +53,7 @@ Release Notes
 
 
 Referencing STREAMM
-===================
+*******************
 
 When referencing the STREAMM toolkit in publications, this website can be cited as::
 
