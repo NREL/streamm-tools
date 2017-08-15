@@ -1,4 +1,4 @@
-**Official docs:** http://www.http://streamm.nrel.gov/
+**Official docs:** http://streamm.nrel.gov/
 
 STREAMM (Simulation Toolkit for Renewable Energy and Advanced
 Materials Modeling) is a framework for running quantum chemical
