@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-#Afrom distutils.core import setup
 from setuptools import setup
 
 #  packages=['streamm', 'streamm.jobs', 'streamm.jobs', 'streamm.mpi', 'streamm.simulation', 'streamm.structure'],
