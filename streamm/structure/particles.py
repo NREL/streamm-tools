@@ -60,20 +60,20 @@ class Particle(object):
         """
         'Magic' method for printng contents of container
         """
-        return " {} ".format(self.type)
+        return " {}".format(self.type)
 
 
 class ForceField(object):
     '''
     Particle represented by a Force-field
     '''
-    def __init__(self, label,type="blank"):
+    def __init__(self, type='X',label='X1'):
         """
         Constructor for a Force-field particle. 
         """
+        self.type = type
         self.label = label
         self.charge = 0.0     
-        self.type = 'X'
         self.mass  = 0.0
         self.lammps_index = -1 
         self.gromacs_index = -1 
@@ -83,10 +83,16 @@ class ForceField(object):
         """
         Destructor, clears structure memory and calls held container destructors
         """
+        del self.type
         del self.label
         del self.charge
-        del self.type
         del self.mass
         del self.lammps_index
         del self.gromacs_index
         
+    def __str__(self):
+        """
+        'Magic' method for printng contents of container
+        """
+        return " {} ({})".format(self.label,self.type)
+
