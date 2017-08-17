@@ -1,6 +1,6 @@
 # coding: utf-8
-# Copyright (c) STREAMM Development Team.
-# Distributed under the terms of the MIT License.
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
 
 
 '''
@@ -9,23 +9,25 @@ Unit tests for the particles module
 
 from __future__ import division, unicode_literals
 
-import unittest2 as unittest
-import pickle
-from copy import deepcopy
+import logging
+logger = logging.getLogger(__name__)
 
+import unittest
 
-
-
-import unittest, os , random 
-import numpy as np
-
-from streamm import structure
-from streamm import periodictable
-
-
+try:
+    import streamm.structure.particles as particles
+except:
+    print("streamm is not installed test will use relative path")
+    import sys, os
+    rel_path = os.path.join(os.path.dirname(__file__),'..','')
+    print("rel_path {}".format(rel_path))
+    sys.path.append(rel_path)
+    import particles
+    
+    
 class TestParticle(unittest.TestCase):
     def setUp(self):
-	self.part = structure.Particle("genpart")
+        self.part = particles.Particle("genpart")
         
     def test_checktype(self):
         self.assertEqual(self.part.type,"genpart")
@@ -37,27 +39,15 @@ class TestParticle(unittest.TestCase):
         del self.part 
         self.part = None
 
-class TestParticleAtom(unittest.TestCase):
+class TestForceField(unittest.TestCase):
     def setUp(self):
-	self.part = structure.Atom(symbol="Ir")
-        self.part.properties["mol"] = 1
-        self.part.properties["fftype"] = "CIr"
+        self.part = particles.Particle("genpart")
         
     def test_checktype(self):
-        self.assertEqual(self.part.type,"atom")
-
-
-    def test_properties(self):
-        self.assertEqual(self.part.properties["symbol"],"Ir")
-        self.assertEqual(self.part.properties["number"],77)
-        self.assertEqual(self.part.properties["mass"],192.217)
-        self.assertEqual(self.part.properties["vdw_radii"],2.0)
-        self.assertEqual(self.part.properties["cov_radii"],1.41)
-        self.assertEqual(self.part.properties["mol"],1)
-        self.assertEqual(self.part.properties["fftype"],"CIr")
-
+        self.assertEqual(self.part.type,"genpart")
+        
     def test_str(self):
-        self.assertEqual(str(self.part)," atom ")
+        self.assertEqual(str(self.part)," genpart ")
 
     def tearDown(self):
         del self.part 

@@ -1,11 +1,15 @@
-#! /usr/bin/env python
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
 """
-This module defines the classes relating to atoms
+This module defines the classes relating to general particles 
 """
 
-__author__ = "Travis W. Kemper"
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
 __version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
+__email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 # Standard packages 
@@ -17,13 +21,13 @@ import sys
 import json
 import csv
 import os
-
 try:
     import cPickle as pickle
 except:
     import pickle
-    
 from datetime import datetime
+import logging
+logger = logging.getLogger(__name__)
 
 # Dependency packages 
 import numpy as np
@@ -31,9 +35,6 @@ import pandas as pd
 
 # pymatgen module
 import pymatgen.core.periodic_table as periodictable
-
-import logging
-logger = logging.getLogger(__name__)
 
 
 class Particle(object):
@@ -47,8 +48,6 @@ class Particle(object):
         """
         self.type = type
         self.tag = "blank"
-        # Tags dictionary. To be set by caller
-        self.properties=dict()
 
     def __del__(self):
         """
@@ -56,45 +55,38 @@ class Particle(object):
         """
         del self.type
         del self.tag
-        del self.properties
-    
+        
     def __str__(self):
         """
         'Magic' method for printng contents of container
         """
-        return " %s "%(self.type)
+        return " {} ".format(self.type)
 
-# Then you have types particles
-class Atom(Particle):
-    """
-    A derived type of particles for atoms 
-    """
-    def __init__(self,symbol="X", type="atom"):
-        '''
-        Constructor for Particle object
-        
-        Args:
-            symbol (str) Atomic symbol
-            type   (str) Particle type
-            NoteTK: type should probably not be set
-        '''
-        Particle.__init__(self, type=type)
-        # 
-        # Get properties of element based on symbol
-        # 
-        self.properties = periodictable.element_symbol(symbol)
 
-        self.properties["mol"] = 0  
-        self.properties["charge"] = 0.0     
-        self.properties["fftype"] = self.properties["symbol"]
-        self.properties["ffmass"] = self.properties["mass"]
-        self.properties["lmpindx"] = -1 
-        self.properties["group"] = 0
-        self.properties["ring"] = 0
-        self.properties["residue"] = 0
-        self.properties["resname"] = "RES"
-        self.properties["qgroup"] = 0
-        self.properties["label"] =  self.properties["symbol"]
-        
-        self.tag = self.properties["symbol"]
+class ForceField(object):
+    '''
+    Particle represented by a Force-field
+    '''
+    def __init__(self, label,type="blank"):
+        """
+        Constructor for a Force-field particle. 
+        """
+        self.label = label
+        self.charge = 0.0     
+        self.type = 'X'
+        self.mass  = 0.0
+        self.lammps_index = -1 
+        self.gromacs_index = -1 
+    
+    
+    def __del__(self):
+        """
+        Destructor, clears structure memory and calls held container destructors
+        """
+        del self.label
+        del self.charge
+        del self.type
+        del self.mass
+        del self.lammps_index
+        del self.gromacs_index
         
