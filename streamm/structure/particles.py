@@ -78,7 +78,6 @@ class ForceField(object):
         self.lammps_index = -1 
         self.gromacs_index = -1 
     
-    
     def __del__(self):
         """
         Destructor, clears structure memory and calls held container destructors
