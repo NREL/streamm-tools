@@ -1,5 +1,19 @@
 
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
 
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
+'''
+This module defines the classes relating to neighbor lists 
+'''
               
 class NBlist(object):
     """
@@ -9,7 +23,6 @@ class NBlist(object):
         """
         Constructor
         """
-        self.verbose = verbose
         self.list = []
         self.index = []
         self.cnt = -1 
@@ -18,11 +31,9 @@ class NBlist(object):
         """
         Destructor, clears dictionary memory
         """
-        del self.verbose
         del self.list
         del self.index
         del self.cnt
-
     
 
     def getnbs(self,key_i):
