@@ -19,9 +19,9 @@ class Angle(object):
         and throws a TypeError when appropriate
 
         Args:
-            pkey1   (int)   Dictionary key of Particle object in angle
-            pkey2   (int)   Dictionary key of Particle object in angle
-            pkey3   (int)   Dictionary key of Particle object in angle
+            pkey1   (int)   Index of Particle object in angle
+            pkey2   (int)   Index of Particle object in angle
+            pkey3   (int)   Index of Particle object in angle
         """
         
         if isinstance(pkey1, int):
@@ -39,10 +39,6 @@ class Angle(object):
         else:
             raise TypeError("3rd arg should be int type")
 
-        self.lmpindx = 0
-        self.g_indx = 0
-        self.properties = dict()
-        
     def __del__(self):
         """
         Destructor, clears object memory
@@ -50,9 +46,6 @@ class Angle(object):
         del self.pkey1
         del self.pkey2
         del self.pkey3
-        del self.lmpindx
-        del self.g_indx
-        del self.properties
 
 
     def __str__(self):

@@ -1,3 +1,15 @@
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
+"""
+This module defines the classes relating to containters of particles 
+"""
+
+__author__ = "Travis W. Kemper"
+__version__ = "0.3"
+__email__ = "travis.kemper.w@gmail.com"
+__status__ = "Beta"
 
 
 class Container(object):

@@ -18,8 +18,8 @@ class Bond(object):
         and throws a TypeError when appropriate
 
         Args:
-            pkey1   (int)   Dictionary key of Particle object in bond
-            pkey2   (int)   Dictionary key of Particle object in bond
+            pkey1   (int)   Index of Particle object in bond
+            pkey2   (int)   Index of Particle object in bond
         """
         
         if isinstance(pkey1, int):
@@ -32,24 +32,35 @@ class Bond(object):
         else:
             raise TypeError("2nd arg should be int type")
 
-        self.lmpindx = 0 
-        self.g_indx = 0
-
-        self.properties = dict()
-        # self.border = 1 # 1-single,2-double,3-triple
-
     def __del__(self):
         """
         Destructor, clears object memory
         """
         del self.pkey1
         del self.pkey2
-        del self.lmpindx
-        del self.g_indx
-        del self.properties
 
     def __str__(self):
         """
         'Magic' method for printng contents
         """
-        return " %s - %s  "%(self.pkey1,self.pkey2 )
+        return " %s - %s"%(self.pkey1,self.pkey2 )
+
+
+class ForceField(object):
+    '''
+    Particle represented by a Force-field
+    '''
+    def __init__(self, type='X',label='X1'):
+        """
+        Constructor for a Force-field particle. 
+        """
+        self.lammps_index = -1 
+        self.gromacs_index = -1 
+    
+    def __del__(self):
+        """
+        Destructor, clears structure memory and calls held container destructors
+        """
+        del self.lammps_index
+        del self.gromacs_index
+        

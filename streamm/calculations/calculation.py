@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
 """
 Class data structures for calculation data
 """
