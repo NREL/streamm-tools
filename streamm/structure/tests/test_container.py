@@ -1,7 +1,36 @@
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
+
+'''
+Unit tests for the particles module
+'''
+
+from __future__ import division, unicode_literals
+
+import logging
+logger = logging.getLogger(__name__)
+
+import unittest
+
+try:
+    import streamm.structure.container as container
+    import streamm.structure.atoms as atoms
+    import streamm.structure.bonds as bonds
+    import streamm.structure.nblists as nblists
+except:
+    print("streamm is not installed test will use relative path")
+    import sys, os
+    rel_path = os.path.join(os.path.dirname(__file__),'..','')
+    print("rel_path {}".format(rel_path))
+    sys.path.append(rel_path)
+    import container
+    
 
 class TestContainer(unittest.TestCase):
     def setUp(self):
-	self.strucC = structure.Container()
+        self.strucC = container.Container()
         
     def test_str(self):
         self.assertEqual(str(self.strucC)," blank ")
@@ -917,3 +946,56 @@ class TestGroupsProps(unittest.TestCase):
         del self.strucC         
 
 
+
+class TestNBlist_guess_nblist(unittest.TestCase):
+    def setUp(self):
+        self.nblist = nblists.NBlist()
+        #
+        # Structure of vanillin
+        #
+        self.particles = {}
+        self.particles[0] = {'symbol':'C'}
+        self.particles[1] = {'symbol':'C'}
+        self.particles[2] = {'symbol':'C'}
+        self.particles[3] = {'symbol':'C'}
+        self.particles[4] = {'symbol':'C'}
+        self.particles[5] = {'symbol':'C'}
+        self.particles[6] = {'symbol':'C'}
+        self.particles[7] = {'symbol':'H'}
+        self.particles[8] = {'symbol':'H'}
+        self.particles[9] = {'symbol':'H'}
+        self.particles[10] = {'symbol':'H'}
+        self.particles[11] = {'symbol':'O'}
+        self.particles[12] = {'symbol':'O'}
+        self.particles[13] = {'symbol':'C'}
+        self.particles[14] = {'symbol':'H'}
+        self.particles[15] = {'symbol':'H'}
+        self.particles[16] = {'symbol':'H'}
+        self.particles[17] = {'symbol':'O'}
+        self.particles[18] = {'symbol':'H'}
+        self.positions = []
+        positions.append( [-4.44757, -0.46852, 0.23517] )
+        positions.append( [-5.73928, -0.22315, 0.56601] )
+        positions.append( [-4.09692, -1.71718, -0.14672] )
+        positions.append( [-3.55731, 0.53604, 0.29719] )
+        positions.append( [-2.40576, 0.37099, 0.01567] )
+        positions.append( [-3.7469, 1.55922, 0.58956] )
+        positions.append( [-5.0182, -2.69598, -0.19622] )
+        positions.append( [-6.67694, -1.20312, 0.51984] )
+        positions.append( [-6.29585, -2.44349, 0.13323] )
+        positions.append( [-7.21877, -3.47563, 0.07082] )
+        positions.append( [-8.06725, -3.07719, 0.34558] )
+        positions.append( [-8.0212, -1.04496, 0.84102] )
+        positions.append( [-8.46776, 0.23598, 1.26884] )
+        positions.append( [-9.53866, 0.16478, 1.481] )
+        positions.append( [-8.33026, 0.98205, 0.47965] )
+        positions.append( [-7.96179, 0.53926, 2.19103] )
+        positions.append( [-6.02526, 0.77824, 0.87306] )
+        positions.append( [-3.06905, -1.95358, -0.41998] )
+        positions.append( [-4.73108, -3.6977, -0.5039] )
+        
+        
+    def tearDown(self):
+        del self.nblist 
+        
+        

@@ -1,4 +1,3 @@
-
 # coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
@@ -19,7 +18,7 @@ class NBlist(object):
     """
     Class for neighbor list
     """
-    def __init__(self,verbose=False):
+    def __init__(self):
         """
         Constructor
         """
@@ -34,11 +33,17 @@ class NBlist(object):
         del self.list
         del self.index
         del self.cnt
+        
+    def __str__(self):
+        """
+        'Magic' method for printng contents
+        """
+        return " NBlist of {} particle with {} connections".format(len(self.index),len(self.list))
     
 
     def getnbs(self,key_i):
         '''
-        Return list of keys of neighbors of key_i
+        Return list of keys of neighbors of key_i        
         '''
         try:
             nbs_i = self.list[self.index[key_i]:self.index[key_i+1]]
@@ -57,7 +62,7 @@ class NBlist(object):
         except:
             logger.warning(" Neighbor list not set ")
             nnab_i = 0
-            
+        #
         return nnab_i
 
     def build_nblist(self,particles,bonds):
@@ -87,10 +92,11 @@ class NBlist(object):
                 if( pkey_i != pkey_j):
                     self.cnt += 1
                     self.list.append(pkey_j)
+                    
         # Add extra index positions for key+1 call made by final key 
         self.index.append(self.cnt + 1)
         # Clear 2D list from memory 
-        del nd2D
+        del nd2D 
 
     def guess_nblist(self,lat,particles,positions,radii_key,radii_buffer=1.25):
         """

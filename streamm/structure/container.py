@@ -2,16 +2,23 @@
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
 """
 This module defines the classes relating to containters of particles 
 """
-
-__author__ = "Travis W. Kemper"
-__version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
-__status__ = "Beta"
-
-
+try:
+    from pymatgen.core.lattice import Lattice
+except:
+    logger.warning("pymatgen import error for Lattice object")
+    exit()
+    
 class Container(object):
     """
     Data structure for describing a collection of Particles that have associated
@@ -19,7 +26,7 @@ class Container(object):
     Bond, Angle, Dihedral and Improper descriptions 
     """
 
-    def __init__(self,tag="blank",verbose=False):
+    def __init__(self,tag="blank",matrix=[100.0,0.0,0.0,100.0,0.0,0.0,100.0,0.0,0.0],verbose=False):
         """
         Constructor for a composite structure. 
         """
@@ -28,7 +35,7 @@ class Container(object):
         else:
             raise TypeError("1st arg (tag) in %s Container initialization should be string"%(__name__))
         
-        self.lat = Lattice()                                  # Creates lattice object for structure
+        self.lat = Lattice(matrix)                                  # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
