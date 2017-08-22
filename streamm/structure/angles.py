@@ -1,14 +1,19 @@
-#! /usr/bin/env python
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
 """
 This module defines the classes relating to angles between atoms
 """
-
-__author__ = "Travis W. Kemper"
-__version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
-__status__ = "Beta"
-
-    #
+#
 class Angle(object):
     """
     Data structure for describing any 3-point associatiaon of Particle/s
@@ -52,4 +57,4 @@ class Angle(object):
         """
         'Magic' method for printng contents
         """
-        return " %s - %s - %s  "%(self.pkey1,self.pkey2,self.pkey3)
+        return " %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3)

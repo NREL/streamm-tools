@@ -15,15 +15,13 @@ This module defines the classes relating to atoms
 import logging
 logger = logging.getLogger(__name__)
 
-
-
 try:
     # Import streamm Classes 
-    from streamm.structure.particles import Particle, ForceField
+    from streamm.structure.particles import Particle
 
 except:
     print("streamm is not installed test will use relative path")
-    from particles import Particle, ForceField
+    from particles import Particle
 
 import pymatgen.core.periodic_table as pymatgen_pt
 
@@ -51,7 +49,7 @@ class Atom(Particle):
     A derived type of particles for atoms in a simulation
     
     """
-    def __init__(self,symbol="X",fftype='XX',label='X1', type="atom"):
+    def __init__(self,symbol="X",type="atom"):
         '''
         Constructor for Atom object
         
@@ -72,7 +70,6 @@ class Atom(Particle):
         self.element.covalent_radius = self.element.atomic_radius_calculated
         self.element.vdw_radius = self.element.van_der_waals_radius
 
-        self.ff = ForceField(fftype,label)
         self.mol = 0
         self.ring = 0
         self.residue = 0
@@ -85,7 +82,6 @@ class Atom(Particle):
         Destructor, clears structure memory and calls held container destructors
         """
         del self.element
-        del self.ff
         del self.mol
         del self.ring
         del self.residue
@@ -96,6 +92,6 @@ class Atom(Particle):
         """
         'Magic' method for printng contents of container
         """
-        return " {} ({})".format(self.element.symbol,self.ff.type )
+        return " {}".format(self.element.symbol)
 
         

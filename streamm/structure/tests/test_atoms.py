@@ -26,7 +26,7 @@ class TestParticleAtom(unittest.TestCase):
     
     
     def setUp(self):
-        self.atom = atoms.Atom("C","CC*",'C24')
+        self.atom = atoms.Atom("C")
         
         self.atom.mol = 112
         self.atom.ring  = 3
@@ -36,7 +36,6 @@ class TestParticleAtom(unittest.TestCase):
 
     def test_checktype(self):
         self.assertEqual(self.atom.type,"atom")
-
 
     def test_properties(self):
         self.assertEqual(self.atom.symbol,"C")
@@ -54,7 +53,7 @@ class TestParticleAtom(unittest.TestCase):
         self.assertEqual(self.atom.element.vdw_radius,1.7)
     
     def test_str(self):
-        self.assertEqual(str(self.atom)," C (CC*)")
+        self.assertEqual(str(self.atom)," C")
 
     def tearDown(self):
         del self.atom 
