@@ -1,4 +1,4 @@
-# coding: utf-8
+atoms.Atom# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -33,10 +33,10 @@ except:
 
 class TestContainer(unittest.TestCase):
     def setUp(self):
-        self.strucC = container.Container()
+        self.strucC = containers.Container("Test_structure1")
         
     def test_str(self):
-        self.assertEqual(str(self.strucC)," blank ")
+        self.assertEqual(str(self.strucC)," Test_structure1")
 
     def test_Lattice(self):
         matrix = [ 132,0,0,0,127,0,0,0,150 ]
@@ -59,57 +59,57 @@ class TestContainer(unittest.TestCase):
         self.strucC.add_position(pos_i)        
         self.assertEqual(self.strucC.n_particles,1)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,1.5]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,2)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,1.50,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,3)
 
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 1.50,0.0,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,-1.5]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,-1.50,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -1.50,0.0,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
 
 
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [ 0.0,0.750,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
         
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [ 0.750,0.0,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
         self.assertEqual(self.strucC.n_particles,len(pos_add))
 
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [- 0.53,-0.53,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
@@ -160,45 +160,45 @@ class TestContainer(unittest.TestCase):
 
     def test_nblist(self):
 
-        self.part = structure.Atom(symbol="Ir")
+        self.part = atoms.Atom(symbol="Ir")
         pos_i = [ 0.0,0.0,0.0]
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,1.5]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,1.50,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 1.50,0.0,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,-1.5]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,-1.50,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
 
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -1.50,0.0,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
 
 
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [ 0.0,0.750,1.75]   
         self.strucC.add_partpos(self.part,pos_i)
         
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [ 0.750,0.0,1.75]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="H")
+        self.part = atoms.Atom(symbol="H")
         pos_i = [- 0.53,-0.53,1.75]   
         self.strucC.add_partpos(self.part,pos_i)
         
@@ -293,8 +293,188 @@ class TestContainer(unittest.TestCase):
             self.assertEqual(str(improper_i),improper_str[ikey_i])
 
 
+    def test_dump_pickle(self):
+        self.strucC.dump_pickle()
+        
+    def test_write_coord(self):
+        coord = self.strucC.write_coord()
+        print coord 
+        self.assertEqual(coord,'')
+        
+    def test_write_xyz_str(self): 
+        self.strucC.write_xyz_str()
+        self.assertEqual(coord,'')
+        
+    def test_write_xyz(self): 
+        self.strucC.write_xyz()
+        
+    def test_write_xyz_list(self):
+        list_i = [2,3,4,8]
+        self.strucC.write_xyz_list(list_i)
+        
+    def test_read_xyz(self): 
+        self.strucC.read_xyz()
+        
+    def test_write_list(self): 
+        list_i = [2,3,4,8]
+        self.strucC.write_list()
+        
     def test_shift(self):
-        self.part = structure.Atom(symbol="C")
+        pkey = 2
+        vec = [34.32,13.1234,-218.3]
+        self.strucC.shift(pkey,vec)
+        nptu.assert_almost_equal(self.positions[pkey] ,[ 55. ,  0. , 30.])
+        
+    def test_shift_pos(self): 
+        vec = [-3478.324,234798.234,-234.234]
+        positions_correct = []
+        for i in self.strucC.n_particles:
+            positions_correct.append([0,0,0])
+        self.strucC.shift_pos(vec)
+        nptu.assert_almost_equal(self.positions ,positions_correct)
+        
+    def test_pbc_pos(self):
+        positions_correct = []
+        for i in self.strucC.n_particles:
+            positions_correct.append([0,0,0])
+        self.strucC.pbc_pos()
+        nptu.assert_almost_equal(self.positions ,positions_correct)
+        
+    def test_lat_cubic(self):
+        len_o = 256.16
+        matrix_correct = []
+        matrix_correct.append([len_o,0.0,0.0])
+        matrix_correct.append([0.0,len_o,0.0])
+        matrix_correct.append([0.0,0.0,len_o])
+        self.strucC.lat_cubic(len_o)
+        nptu.assert_almost_equal(self.strucC.lat._matrix,matrix_correct)
+        
+        
+    def test_calc_mass(self): 
+        self.strucC.calc_mass()
+        self.assertEqual(self.strucC.mass,0.0)
+ 
+    def test_calc_charge(self): 
+        self.strucC.calc_charge()
+        self.assertEqual(self.strucC.charge,0.0)
+        
+    def test_calc_volume(self): 
+        self.strucC.calc_volume()
+        self.assertEqual(self.strucC.volume,0.0)
+        
+    def test_calc_density(self): 
+        self.strucC.calc_density()
+        self.assertEqual(self.strucC.density,0.0)
+        
+    def test_calc_composition(self): 
+        self.strucC.calc_composition()
+        self.assertEqual(self.strucC.composition,0.0)
+        
+        
+    def test_calc_formula(self): 
+        self.strucC.calc_formula()
+        self.assertEqual(self.strucC.chemicalformula,0.0)
+        
+    def test_calc_center_mass(self): 
+        self.strucC.calc_center_mass()
+        self.assertEqual(self.strucC.center_mass,0.0)
+        
+    def test_sum_prop(self): 
+        self.strucC.sum_prop()
+        self.assertEqual(self.strucC.center_mass,0.0)
+        
+        
+    def test_maxtags(self): 
+        self.strucC.maxtags()
+    def test_mol_mult(self): 
+        self.strucC.mol_mult()
+    def test_group_prop(self): 
+        self.strucC.group_prop()
+    def test_aults to all particles.keys if none are specified(self): 
+        self.strucC.aults to all particles.keys if none are specified()
+    def test_n_molecules(self): 
+        self.strucC.n_molecules()
+    def test_rotate_xz(self): 
+        self.strucC.rotate_xz()
+    def test_Rxzdotv(self): 
+        self.strucC.Rxzdotv()
+    def test_rotate_xy(self): 
+        self.strucC.rotate_xy()
+    def test_Rxydotv(self): 
+        self.strucC.Rxydotv()
+    def test_rotate_yz(self): 
+        self.strucC.rotate_yz()
+    def test_Ryzdotv(self): 
+        self.strucC.Ryzdotv()
+    def test_del_particle(self): 
+        self.strucC.del_particle()
+    def test_get_max(self): 
+        self.strucC.get_max()
+    def test_add_mol(self): 
+        self.strucC.add_mol()
+    def test_shift_tag(self): 
+        self.strucC.shift_tag()
+    def test_getSubStructure(self): 
+        self.strucC.getSubStructure()
+    def test___iadd__(self): 
+        self.strucC.__iadd__()
+    def test_add_struc_grid(self): 
+        self.strucC.add_struc_grid()
+    def test_add_struc(self): 
+        self.strucC.add_struc()
+    def test_calc_elcnt(self): 
+        self.strucC.calc_elcnt()
+    def test_change_mass(self): 
+        self.strucC.change_mass()
+    def test_guess_oplsa(self): 
+        self.strucC.guess_oplsa()
+    def test_findbond_key(self): 
+        self.strucC.findbond_key()
+    def test_find_pairs(self): 
+        self.strucC.find_pairs()
+    def test_get_pos(self): 
+        self.strucC.get_pos()
+    def test_propcompile_particles(self): 
+        self.strucC.propcompile_particles()
+    def test_write_particles(self): 
+        self.strucC.write_particles()
+    def test_bonded_bonds(self): 
+        self.strucC.bonded_bonds()
+    def test_calc_bond(self): 
+        self.strucC.calc_bond()
+    def test_find_bonds(self): 
+        self.strucC.find_bonds()
+    def test_calc_bonds(self): 
+        self.strucC.calc_bonds()
+    def test_write_bonds(self): 
+        self.strucC.write_bonds()
+    def test_bonded_angles(self): 
+        self.strucC.bonded_angles()
+    def test_calc_angle(self): 
+        self.strucC.calc_angle()
+    def test_find_angles(self): 
+        self.strucC.find_angles()
+    def test_calc_angles(self): 
+        self.strucC.calc_angles()
+    def test_write_angles(self): 
+        self.strucC.write_angles()
+    def test_bonded_dih(self): 
+        self.strucC.bonded_dih()
+    def test_calc_dihedral(self): 
+        self.strucC.calc_dihedral()
+    def test_find_dihedrals(self): 
+        self.strucC.find_dihedrals()
+    def test_calc_dihedrals(self): 
+        self.strucC.calc_dihedrals()
+    def test_proc_dihedrals(self): 
+        self.strucC.proc_dihedrals()
+    def test_write_dihedrals(self): 
+        self.strucC.write_dihedrals()
+    def test_distbin_pairs(self): 
+        self.strucC.distbin_pairs()        
+        
+    def test_shift(self):
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 1.0,2.0,1.5]   
         self.strucC.add_partpos(self.part,pos_i)
         self.strucC.shift( 0, np.array([-0.5,-1.5,-1.0]) )
@@ -307,11 +487,11 @@ class TestContainer(unittest.TestCase):
 
     def test_shift_pos(self):
         
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 1.0,2.0,1.5]   
         self.strucC.add_partpos(self.part,pos_i)
         
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 6.0,7.0,6.5]   
         self.strucC.add_partpos(self.part,pos_i)
 
@@ -328,6 +508,8 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(pos_j[1],5.50)
         self.assertEqual(pos_j[2],5.50)
 
+
+
         
     def tearDown(self):
         del self.strucC 
@@ -341,16 +523,16 @@ class Test_guessnbs(unittest.TestCase):
         
         self.strucC = structure.Container()
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
         self.strucC.add_partpos(self.part,pos_i)        
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.750,0.750,0.750]   
         self.strucC.add_partpos(self.part,pos_i)
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -0.750,-0.750,0.750]   
         self.strucC.add_partpos(self.part,pos_i)
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -1.250,-1.250,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
 
@@ -371,6 +553,8 @@ class Test_guessnbs(unittest.TestCase):
                  # print " str_nbs_list.append(\' %d - %d \')"%(pkey_i,pkey_j)
                  self.assertEqual(str_nbs_list[cnt],' %d - %d '%(pkey_i,pkey_j) )
                  cnt += 1
+        
+
         
     def tearDown(self):
         del self.strucC 
@@ -393,7 +577,7 @@ class TestBuildThiophene(unittest.TestCase):
         positions.append([1.41682424,-0.35961818,-0.00138200])
         positions.append([-0.51943676,1.44024682,0.00064700])
         for i in range(len(symbols)):
-            pt_i = structure.Atom(symbols[i])
+            pt_i = atoms.Atom(symbols[i])
             #pt_i.properties = periodictable.element_symbol()
             pos_i = positions[i]
             self.Th.add_partpos(pt_i,pos_i)
@@ -425,7 +609,7 @@ class TestBuildEthane(unittest.TestCase):
         positions.append([-2.88382,0.36446,-0.44575])
         positions.append([-1.48044,-0.74646,-0.58763])
         for i in range(len(symbols)):
-            pt_i = structure.Atom(symbols[i])
+            pt_i = atoms.Atom(symbols[i])
             #pt_i.properties = periodictable.element_symbol()
             pos_i = positions[i]
             self.Eth.add_partpos(pt_i,pos_i)
@@ -474,22 +658,22 @@ class Testiadd(unittest.TestCase):
         self.strucC = structure.Container()
         self.strucC_j = structure.Container()
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
         self.strucC.add_partpos(self.part,pos_i)
         
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.750,0.750,0.750]   
         self.strucC.add_partpos(self.part,pos_i)
 
         self.strucC.bonded_nblist.guess_nblist(self.strucC.lat,self.strucC.particles,self.strucC.positions,"cov_radii",radii_buffer=1.25)
         self.strucC.bonded_bonds()
         
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -0.750,-0.750,0.750]   
         self.strucC_j.add_partpos(self.part,pos_i)
 
-        self.part = structure.Atom(symbol="C")
+        self.part = atoms.Atom(symbol="C")
         pos_i = [ -1.250,-1.250,0.0]   
         self.strucC_j.add_partpos(self.part,pos_i)
 
@@ -661,68 +845,6 @@ class TestProperties(unittest.TestCase):
     def tearDown(self):
         del self.strucC 
 
-
-
-class TestFrac(unittest.TestCase):
-    # 
-    def setUp(self):
-        self.th = structure.Container()
-        self.th.tag = "thiophene"
-        file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
-        # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
-        self.th.read_xyz(file_i)
-        matrix_i = self.th.lat._matrix
-        matrix_i[0][0] = 50.0 
-        matrix_i[0][1] = 50.0 
-        matrix_i[1][0] = 50.0 
-        matrix_i[1][1] = -50.0 
-        matrix_i[2][0] = 10.0 
-        matrix_i[2][1] = 0.0 
-        matrix_i[2][2] = 60.0 
-        self.th.lat.set_matrix(matrix_i)
-        #
-    def test_fractional(self):
-        frac_o = np.array([0.5,0.5,0.5])
-        pos_o = self.th.lat.fractoreal(frac_o)
-        # print " frac_o",frac_o
-        # print " pos_o",pos_o
-        frac_o = np.array([0.5,0.0,0.5])
-        pos_o = self.th.lat.fractoreal(frac_o)
-        # print " frac_o",frac_o
-        # print " pos_o",pos_o
-        frac_o = np.array([0.0,-0.50,0.5])
-        pos_o = self.th.lat.fractoreal(frac_o)
-        # print " frac_o",frac_o
-        # print " pos_o",pos_o
-        
-    def tearDown(self):
-        del self.th 
-
-class TestReplicateGrid(unittest.TestCase):
-    # 
-    def setUp(self):
-        self.strucC = structure.Container()
-        matrix_i = self.strucC.lat._matrix
-        matrix_i[0][0] = 100.0 
-        matrix_i[1][1] = 100.0 
-        matrix_i[2][2] = 100.0 
-        self.strucC.lat.set_matrix(matrix_i)
-        self.th = structure.Container("thiophene")
-        file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
-        # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
-        self.th.read_xyz(file_i)
-        #
-
-    def test_add_struc_grid(self):
-        self.strucC = self.strucC.add_struc_grid(self.th,10,verbose=True )
-        # print " test_add_struc_grid ",self.strucC.n_particles
-        self.assertEqual(self.strucC.n_molecules(),9)
-        file_i = os.path.join(os.path.dirname(__file__), "th_grid10.xyz")
-        self.strucC.write_xyz(file_i)
-
-    def tearDown(self):
-        del self.strucC 
-        del self.th
 
 
 class TestDihcalc(unittest.TestCase):
@@ -899,10 +1021,6 @@ class TestGroupsProps(unittest.TestCase):
     def tearDown(self):
         del self.th         
         del self.strucC         
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

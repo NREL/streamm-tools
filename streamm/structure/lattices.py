@@ -336,4 +336,16 @@ class Lattice(pymatgen_lat):
             for n in range(self.n_dim):
                 pos_o[m] += self._matrix[n][m]*frac_o[n]
                         
-        return pos_o        
+        return pos_o
+    
+
+    def set_cubic(self,len_o):
+        '''
+        Set lattice to cubic with lattice constant len
+        
+        '''
+        matrix = np.zeros((self.n_dim, self.n_dim))
+        for d in range(self.n_dim):
+            matrix[d][d] = len_o
+        self.set_matrix(matrix)        
+                    

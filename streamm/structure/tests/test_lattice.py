@@ -338,8 +338,18 @@ class TestLattice(unittest.TestCase):
         frac_o = np.array([0.0,-0.50,0.5])
         pos_o = self.lat.fractoreal(frac_o)
         nptu.assert_almost_equal(pos_o,[-20. , 25. , 30.])
-                
         
+
+    def test_lat_cubic(self):
+        len_o = 256.16
+        matrix_correct = []
+        matrix_correct.append([len_o,0.0,0.0])
+        matrix_correct.append([0.0,len_o,0.0])
+        matrix_correct.append([0.0,0.0,len_o])
+        self.lat.set_cubic(len_o)
+        nptu.assert_almost_equal(self.lat._matrix,matrix_correct)
+        
+                
     def tearDown(self):
         del self.lat 
         self.lat = None
