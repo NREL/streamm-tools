@@ -25,7 +25,7 @@ except:
     exit()
     
 import numpy as np 
-
+import random
 
 PRECISION = 8
 
@@ -184,6 +184,47 @@ class Lattice(pymatgen_lat):
         mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
 
         return dr_ij,mag_dr_ij
+            
+    def delta_npos(self,npos_i,npos_j):
+        """
+        Difference between two position lists in  cubic lattice  
+        """
+        n_i = len(npos_i)
+        n_j = len(npos_j)
+        key_list_i = range(n_i)
+        key_list_j = range(n_j)
+        #
+        n_ij = n_i*n_j
+        #
+        print(" Taking difference %d x %d "%(n_i,n_j))
+        
+        npos_ij = np.zeros(n_ij*self.n_dim,dtype='float64')
+        #npos_ij = np.zeros(shape=(n_ij,self.n_dim),dtype='float64')
+        nd_ij=  np.zeros(shape=(n_i,n_j),dtype='float64')
+
+        # if any pbc's are on 
+        if( any ( pbcs_i for pbcs_i in self.pbcs ) ):
+            logging.debug(" Using cubic pbcs")
+            for m in key_list_i:
+                pos_i = npos_i[m]
+                for n in key_list_j:
+                    pos_j = npos_j[n]
+                    dr_ij = self.deltasq_pos_c(pos_i,pos_j)
+                    dot_dr_ij = dr_ij.dot(dr_ij)
+                    #npos_ij[m][n] = dr_ij
+                    nd_ij[m][n] = np.sqrt(dot_dr_ij)
+        else:
+            logging.debug(" Using no pbcs")
+            for m in key_list_i:
+                pos_i = npos_i[m]
+                for n in key_list_j:
+                    pos_j = npos_j[n]
+                    dr_ij = self.deltasq_pos(pos_i,pos_j)
+                    dot_dr_ij = dr_ij.dot(dr_ij)
+                    #npos_ij[m][n] = dr_ij
+                    nd_ij[m][n] = np.sqrt(dot_dr_ij)
+          
+        return npos_ij,nd_ij
 
 
     def proximitycheck(self,npos_i,npos_j,pos_cut,p=None):
@@ -224,11 +265,17 @@ class Lattice(pymatgen_lat):
             for m in key_list_i_p:
                 pos_i = npos_i[m]
                 for n in key_list_j:
-                    pos_j = npos_i[n]
+                    pos_j = npos_j[n]
                     dr_ij = self.deltasq_pos(pos_i,pos_j)
                     dot_dr_ij = dr_ij.dot(dr_ij)
+                    logger.debug(pos_i)
+                    logger.debug(pos_j)
+                    logger.debug(pos_cut_sq)
+                    logger.debug(" {} - {} : {} ".format(m,n,dot_dr_ij))
                     if( dot_dr_ij < pos_cut_sq ):
-                        overlap_p += 1 
+                        overlap_p += 1
+                        
+        logger.debug(overlap_p)
         if( p == None ):
             if( overlap_p == 0 ):
                 return True
@@ -241,55 +288,7 @@ class Lattice(pymatgen_lat):
             else:
                 return False
                                 
-                            
-    def delta_npos(self,npos_i,npos_j):
-        """
-        Difference between two position lists in  cubic lattice  
-        """
-        n_i = len(npos_i)
-        n_j = len(npos_j)
-        key_list_i = range(n_i)
-        key_list_j = range(n_j)
-        #
-        n_ij = n_i*n_j
-        #print n_i,n_j
-        #
-        start_dpos = datetime.now()
-        logging.debug(" Taking difference %d x %d "%(n_i,n_j))
-        
-        npos_ij = np.empty(n_ij*self.n_dim,dtype='float64')
-        #nd_ij = np.empty(n_ij,dtype='float64')
-        nd_ij=  np.zeros(shape=(n_i,n_j),dtype='float64')
-
-        # if any pbc's are on 
-        if( any ( pbcs_i for pbcs_i in self.pbcs ) ):
-            logging.debug(" Using cubic pbcs")
-            for m in key_list_i:
-                pos_i = npos_i[m]
-                for n in key_list_j:
-                    pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos_c(pos_i,pos_j)
-                    dot_dr_ij = dr_ij.dot(dr_ij)
-                    #npos_ij[m][n] = dr_ij
-                    nd_ij[m][n] = np.sqrt(dot_dr_ij)
-        else:
-            logging.debug(" Using no pbcs")
-            for m in key_list_i:
-                pos_i = npos_i[m]
-                for n in key_list_j:
-                    pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos(pos_i,pos_j)
-                    dot_dr_ij = dr_ij.dot(dr_ij)
-                    #npos_ij[m][n] = dr_ij
-                    nd_ij[m][n] = np.sqrt(dot_dr_ij)
-
-        finish_dpos = datetime.now()
-        delt_t = finish_dpos - start_dpos
-        logging.debug(" Finished taking difference %s sec "%(delt_t.seconds))
-
-          
-        return npos_ij,nd_ij
-
+                
     def random_pos(self):
         '''
         Generate random position in lattice
@@ -324,18 +323,4 @@ class Lattice(pymatgen_lat):
         self.set_matrix(matrix_i)
         
         return 
-        # 
-    def fractoreal(self,frac_o):
-        '''
-        Translate fractional coordinates to real 
-
-        Arguments:
-            frac_o (np.array) fraction coordinates
-        '''
-        pos_o = np.zeros(self.n_dim)
-        for m in range(self.n_dim):
-            for n in range(self.n_dim):
-                pos_o[m] += self._matrix[n][m]*frac_o[n]
-                        
-        return pos_o
-                  
+        

@@ -213,6 +213,109 @@ class TestLattice(unittest.TestCase):
         
         nptu.assert_almost_equal(dr_ij,dr_ij_correct)
         
+    def test_deltasq_pos_c(self):
+        pos_i  = [123.9,1298.0,93.762]
+        pos_j = [832.123,112.127398,9374.9123]
+        
+        dr_ij_correct = np.array([708.223   , -1185.872602,  9281.1503 ])
+        dr_ij = self.lat.deltasq_pos(pos_i,pos_j)
+        
+        nptu.assert_almost_equal(dr_ij,dr_ij_correct)
+        
+    def test_norm_delta_pos_c(self):
+        pos_i  = [123.9,1298.0,93.762]
+        pos_j = [832.123,112.127398,9374.9123]
+        
+        dr_ij_correct = np.array([0.3295766,  0.5662239, -0.7554931])
+        dr_ij = self.lat.norm_delta_pos_c(pos_i,pos_j)
+        
+        nptu.assert_almost_equal(dr_ij,dr_ij_correct)
+        
+        
+        
+    def test_delta_pos_c(self):
+        pos_i  = [123.9,1298.0,93.762]
+        pos_j = [832.123,112.127398,9374.9123]
+        
+        dr_ij_correct = np.array([708.223   , -1185.872602,  9281.1503 ])
+        mag_dr_ij_correct  = 9383.3695726584974
+        dr_ij,mag_dr_ij = self.lat.delta_pos(pos_i,pos_j)
+        
+        nptu.assert_almost_equal(dr_ij,dr_ij_correct)
+        self.assertEqual(mag_dr_ij,mag_dr_ij_correct)
+        
+    def test_delta_npos(self):
+        
+        npos_i = []
+        npos_i.append([-123.9,1298.0,93.762])
+        npos_i.append([23487.885,-364,702673.0121])
+        npos_i.append([  32482.299, 77.917240,-12378.88234])   
+        
+        npos_j = []
+        npos_j.append([13.9,-23487.12,-3289.12834])
+        npos_j.append([918034.1234,-12648.0,-5.5])
+        npos_j.append([  487.1234, 7959236.314,-12378.883])
+        
+        
+        nd_ij_correct = []
+        nd_ij_correct.append([ 25015.2975059,   918263.9362965,  7957948.1117718])
+        nd_ij_correct.append([706730.6774047,  1137594.3743965,  7991687.2690533])
+        nd_ij_correct.append([  41135.5265133,   885729.6897238,  7959222.7055145])
+        
+        # nd_ij_correct = np.array([ 708.223   , -1185.872602,  9281.1503 ])
+        npos_ij,nd_ij = self.lat.delta_npos(npos_i,npos_j)
+        
+        # nptu.assert_almost_equal(npos_ij,npos_ij_correct)
+        nptu.assert_almost_equal(nd_ij,nd_ij_correct)
+        
+    def test_proximitycheck(self):
+        
+        npos_i = []
+        npos_i.append([-123.9,1298.0,93.762])
+        npos_i.append([13.9,-23487.12,-3289.12834])
+        npos_i.append([23487.885,-364,702673.0121])
+        
+        npos_j = []
+        npos_j.append([  32482.299, 77.917240,-12378.88234])   
+        npos_j.append([6.234,-23467.12,-3299.12834])
+        npos_j.append([  487.1234, 7959236.314,-12378.883])
+            
+        pos_cut = 10.0 
+        overlap = self.lat.proximitycheck(npos_i,npos_j,pos_cut)
+        self.assertTrue(overlap)
+        
+        pos_cut = 100.0 
+        overlap = self.lat.proximitycheck(npos_i,npos_j,pos_cut)
+        self.assertFalse(overlap)
+        
+    def test_expand_matrix(self):
+        
+        matrix = [ 100,0,0,0,100,0,0,0,100 ]
+        self.lat.set_matrix(matrix)
+        
+        exlat_frac = 0.0233
+        self.lat.expand_matrix(exlat_frac)
+        #
+        # Check matrix
+        # 
+        self.assertEqual(self.lat._matrix[0][0],102.33)
+        self.assertEqual(self.lat._matrix[0][1],0.0)
+        self.assertEqual(self.lat._matrix[0][2],0.0)
+        # 
+        self.assertEqual(self.lat._matrix[1][0],0.0)
+        self.assertEqual(self.lat._matrix[1][1],102.33)
+        self.assertEqual(self.lat._matrix[1][2],0.0)
+        # 
+        self.assertEqual(self.lat._matrix[2][0],0.0)
+        self.assertEqual(self.lat._matrix[2][1],0.0)
+        self.assertEqual(self.lat._matrix[2][2],102.33)
+        
+    def test_random_pos(self):
+        
+        pos_o = self.lat.random_pos()
+        
+        
+        
     def tearDown(self):
         del self.lat 
         self.lat = None
