@@ -412,15 +412,9 @@ class TestContainer(unittest.TestCase):
         
         
     def test_shift_tag(self): 
-        self.strucC.shift_tag()
-    def test_getSubStructure(self): 
-        self.strucC.getSubStructure()
-    def test___iadd__(self): 
-        self.strucC.__iadd__()
-    def test_add_struc_grid(self): 
-        self.strucC.add_struc_grid()
-    def test_add_struc(self): 
-        self.strucC.add_struc()
+        self.strucC.shift_tag('charge',0.2)
+        
+    
     def test_calc_elcnt(self): 
         self.strucC.calc_elcnt()
     def test_change_mass(self): 
