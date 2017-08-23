@@ -21,6 +21,8 @@ setup(
     url='http://streamm.nrel.gov',
     author='Travis W. Kemper and Scott W. Sides',
     author_email='travis.kemper.w@gmail.com',
+    maintainer="Ross Larsen",
+    maintainer_email="streamm@nrel.gov",
     #
     test_suite = 'streamm.structure.tests',
     # data_files=['streamm/periodic_table.json']
@@ -28,5 +30,5 @@ setup(
     # package_dir={'streamm': 'streamm'},
     # package_data={'streamm': ['periodic_table.json']},
     #install_requires=['numpy','copy'],
-    )
+    ) 
 

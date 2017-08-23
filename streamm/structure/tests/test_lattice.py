@@ -314,7 +314,31 @@ class TestLattice(unittest.TestCase):
         
         pos_o = self.lat.random_pos()
         
+
+    def test_fractional(self):
         
+        matrix_i = self.lat._matrix
+        matrix_i[0][0] = 50.0 
+        matrix_i[0][1] = 50.0 
+        matrix_i[1][0] = 50.0 
+        matrix_i[1][1] = -50.0 
+        matrix_i[2][0] = 10.0 
+        matrix_i[2][1] = 0.0 
+        matrix_i[2][2] = 60.0 
+        self.lat.set_matrix(matrix_i)
+        
+        frac_o = np.array([0.5,0.5,0.5])
+        pos_o = self.lat.fractoreal(frac_o)
+        nptu.assert_almost_equal(pos_o,[ 55. ,  0. , 30.])
+                                 
+        frac_o = np.array([0.5,0.0,0.5])
+        pos_o = self.lat.fractoreal(frac_o)
+        nptu.assert_almost_equal(pos_o,[ 30. , 25. , 30.])
+                                 
+        frac_o = np.array([0.0,-0.50,0.5])
+        pos_o = self.lat.fractoreal(frac_o)
+        nptu.assert_almost_equal(pos_o,[-20. , 25. , 30.])
+                
         
     def tearDown(self):
         del self.lat 

@@ -2,12 +2,18 @@
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
 
 '''
 Unit tests for the particles module
 '''
-
-from __future__ import division, unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,17 +21,14 @@ logger = logging.getLogger(__name__)
 import unittest
 
 try:
-    import streamm.structure.container as container
-    import streamm.structure.atoms as atoms
-    import streamm.structure.bonds as bonds
-    import streamm.structure.nblists as nblists
+    import streamm.structure.containers as containers
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
     rel_path = os.path.join(os.path.dirname(__file__),'..','')
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
-    import container
+    import containers
     
 
 class TestContainer(unittest.TestCase):
@@ -48,7 +51,7 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(self.strucC.lat._angles[2],90.0)
 
     def test_particles(self):
-        self.part = structure.Atom(symbol="Ir")
+        self.part = atoms.Atom(symbol="Ir")
         self.strucC.add_particle(self.part)
         pos_add = []
         pos_i = [ 0.0,0.0,0.0]
@@ -398,6 +401,7 @@ class TestBuildThiophene(unittest.TestCase):
     def test_tag(self):
         self.assertEqual(self.Th.tag,'thiophene')
         #el_cnt = calc_elcnt
+        
     def test_write_xyz(self):
         os.chdir(os.path.dirname(__file__))
         self.Th.write_xyz()
@@ -658,60 +662,11 @@ class TestProperties(unittest.TestCase):
         del self.strucC 
 
 
-class TestReplicate(unittest.TestCase):
-    # 
-    def setUp(self):
-        self.strucC = structure.Container()
-        matrix_i = self.strucC.lat._matrix
-        matrix_i[0][0] = 100.0 
-        matrix_i[1][1] = 100.0 
-        matrix_i[2][2] = 100.0 
-        self.strucC.lat.set_matrix(matrix_i)
-        self.th = structure.Container("thiophene")
-        file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
-        # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
-        self.th.read_xyz(file_i)
-        #
-        for pkey_i, particle_i  in self.th.particles.iteritems():
-            if( particle_i.properties['symbol'] == 'C' ):
-                particle_i.properties['resname'] = "SCP2"
-                particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'S' ):
-                particle_i.properties['resname'] = "ThS"
-                particle_i.properties['residue'] = 2
-            if( particle_i.properties['symbol'] == 'H' ):
-                particle_i.properties['resname'] = "HA"
-                particle_i.properties['residue'] = 3
-
-    def test_add_struc(self):
-        seed = 82343
-        self.strucC = self.strucC.add_struc(self.th,1,seed,verbose=False)
-        # print " test_add_struc ",self.strucC.n_particles 
-
-
-
-    def test_add_struc10(self):
-        seed = 82343
-        self.strucC = self.strucC.add_struc(self.th,10,seed,verbose=False)
-        for pkey_i, particle_i  in self.strucC.particles.iteritems():
-            mol_i = int(pkey_i/self.th.n_particles) 
-            self.assertEqual(str(particle_i.properties['mol']),str(mol_i))
-
-        self.assertEqual(self.strucC.n_molecules(),9)
-            
-        file_i = os.path.join(os.path.dirname(__file__), "th_x10.xyz")
-        self.strucC.write_xyz(file_i)
-            
-                
-    def tearDown(self):
-        del self.strucC 
-        del self.th
-
 
 class TestFrac(unittest.TestCase):
     # 
     def setUp(self):
-	self.th = structure.Container()
+        self.th = structure.Container()
         self.th.tag = "thiophene"
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
@@ -947,55 +902,9 @@ class TestGroupsProps(unittest.TestCase):
 
 
 
-class TestNBlist_guess_nblist(unittest.TestCase):
-    def setUp(self):
-        self.nblist = nblists.NBlist()
-        #
-        # Structure of vanillin
-        #
-        self.particles = {}
-        self.particles[0] = {'symbol':'C'}
-        self.particles[1] = {'symbol':'C'}
-        self.particles[2] = {'symbol':'C'}
-        self.particles[3] = {'symbol':'C'}
-        self.particles[4] = {'symbol':'C'}
-        self.particles[5] = {'symbol':'C'}
-        self.particles[6] = {'symbol':'C'}
-        self.particles[7] = {'symbol':'H'}
-        self.particles[8] = {'symbol':'H'}
-        self.particles[9] = {'symbol':'H'}
-        self.particles[10] = {'symbol':'H'}
-        self.particles[11] = {'symbol':'O'}
-        self.particles[12] = {'symbol':'O'}
-        self.particles[13] = {'symbol':'C'}
-        self.particles[14] = {'symbol':'H'}
-        self.particles[15] = {'symbol':'H'}
-        self.particles[16] = {'symbol':'H'}
-        self.particles[17] = {'symbol':'O'}
-        self.particles[18] = {'symbol':'H'}
-        self.positions = []
-        positions.append( [-4.44757, -0.46852, 0.23517] )
-        positions.append( [-5.73928, -0.22315, 0.56601] )
-        positions.append( [-4.09692, -1.71718, -0.14672] )
-        positions.append( [-3.55731, 0.53604, 0.29719] )
-        positions.append( [-2.40576, 0.37099, 0.01567] )
-        positions.append( [-3.7469, 1.55922, 0.58956] )
-        positions.append( [-5.0182, -2.69598, -0.19622] )
-        positions.append( [-6.67694, -1.20312, 0.51984] )
-        positions.append( [-6.29585, -2.44349, 0.13323] )
-        positions.append( [-7.21877, -3.47563, 0.07082] )
-        positions.append( [-8.06725, -3.07719, 0.34558] )
-        positions.append( [-8.0212, -1.04496, 0.84102] )
-        positions.append( [-8.46776, 0.23598, 1.26884] )
-        positions.append( [-9.53866, 0.16478, 1.481] )
-        positions.append( [-8.33026, 0.98205, 0.47965] )
-        positions.append( [-7.96179, 0.53926, 2.19103] )
-        positions.append( [-6.02526, 0.77824, 0.87306] )
-        positions.append( [-3.06905, -1.95358, -0.41998] )
-        positions.append( [-4.73108, -3.6977, -0.5039] )
+
+
+if __name__ == '__main__':
+    unittest.main()
         
-        
-    def tearDown(self):
-        del self.nblist 
-        
-        
+                

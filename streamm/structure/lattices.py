@@ -196,7 +196,7 @@ class Lattice(pymatgen_lat):
         #
         n_ij = n_i*n_j
         #
-        print(" Taking difference %d x %d "%(n_i,n_j))
+        logger.debug(" Taking difference %d x %d "%(n_i,n_j))
         
         npos_ij = np.zeros(n_ij*self.n_dim,dtype='float64')
         #npos_ij = np.zeros(shape=(n_ij,self.n_dim),dtype='float64')
@@ -324,3 +324,16 @@ class Lattice(pymatgen_lat):
         
         return 
         
+
+    def fractoreal(self,frac_o):
+        '''
+        Translate fractional coordinates to real 
+        Arguments:
+            frac_o (np.array) fraction coordinates
+        '''
+        pos_o = np.zeros(self.n_dim)
+        for m in range(self.n_dim):
+            for n in range(self.n_dim):
+                pos_o[m] += self._matrix[n][m]*frac_o[n]
+                        
+        return pos_o        
