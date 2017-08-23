@@ -16,7 +16,7 @@ setup(
     name='streamm',
     version='0.3.1',
     setup_requires=['numpy', 'setuptools>=18.0'],    
-    #packages=find_packages(),
+    packages=find_packages(),
     # 
     url='http://streamm.nrel.gov',
     author='Travis W. Kemper and Scott W. Sides',
@@ -24,8 +24,8 @@ setup(
     #
     test_suite = 'streamm.structure.tests',
     # data_files=['streamm/periodic_table.json']
-    packages=['streamm'],    
-    package_dir={'streamm': 'streamm'},
+    # packages=['streamm'],    
+    # package_dir={'streamm': 'streamm'},
     # package_data={'streamm': ['periodic_table.json']},
     #install_requires=['numpy','copy'],
     )
