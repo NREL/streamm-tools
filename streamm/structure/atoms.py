@@ -18,13 +18,17 @@ logger = logging.getLogger(__name__)
 try:
     # Import streamm Classes 
     from streamm.structure.particles import Particle
-
 except:
-    print("streamm is not installed test will use relative path")
+    logger.warning("streamm is not installed test will use relative path")
     from particles import Particle
 
-import pymatgen.core.periodic_table as pymatgen_pt
-
+try:
+    # Import pymatgen Class 
+    import pymatgen.core.periodic_table as pymatgen_pt
+except:
+    logger.warning("pymatgen import error for Lattice object")
+    exit()
+    
 
 '''    
 # Notes to add mendeleev dependency 

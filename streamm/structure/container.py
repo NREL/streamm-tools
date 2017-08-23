@@ -13,12 +13,7 @@ __status__ = "Beta"
 """
 This module defines the classes relating to containters of particles 
 """
-try:
-    from pymatgen.core.lattice import Lattice
-except:
-    logger.warning("pymatgen import error for Lattice object")
-    exit()
-    
+
 class Container(object):
     """
     Data structure for describing a collection of Particles that have associated
@@ -35,7 +30,7 @@ class Container(object):
         else:
             raise TypeError("1st arg (tag) in %s Container initialization should be string"%(__name__))
         
-        self.lat = Lattice(matrix)                                  # Creates lattice object for structure
+        self.lat = Lattice(matrix)                             # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
