@@ -379,39 +379,38 @@ class TestContainer(unittest.TestCase):
         self.strucC.calc_center_mass()
         self.assertEqual(self.strucC.center_mass,0.0)
         
-    def test_sum_prop(self): 
-        self.strucC.sum_prop()
-        self.assertEqual(self.strucC.center_mass,0.0)
+    def test_sum_prop(self):
+        propkey = 'charge'
+        pkey_i = 3
+        pkeyp_j = 8
+        self.strucC.sum_prop(propkey,pkey_i,pkeyp_j)
+        self.assertEqual(self.strucC.particles[pkeyp_j].properties[propkey],0.0)
         
         
     def test_maxtags(self): 
         self.strucC.maxtags()
+        self.assertEqual(self.strucC.mol_max,0.0)
+        
     def test_mol_mult(self): 
         self.strucC.mol_mult()
-    def test_group_prop(self): 
-        self.strucC.group_prop()
-    def test_aults to all particles.keys if none are specified(self): 
-        self.strucC.aults to all particles.keys if none are specified()
+        self.assertEqual(self.strucC.mol_multiplier,0.0)
+        
+        
     def test_n_molecules(self): 
-        self.strucC.n_molecules()
-    def test_rotate_xz(self): 
-        self.strucC.rotate_xz()
-    def test_Rxzdotv(self): 
-        self.strucC.Rxzdotv()
-    def test_rotate_xy(self): 
-        self.strucC.rotate_xy()
-    def test_Rxydotv(self): 
-        self.strucC.Rxydotv()
-    def test_rotate_yz(self): 
-        self.strucC.rotate_yz()
-    def test_Ryzdotv(self): 
-        self.strucC.Ryzdotv()
-    def test_del_particle(self): 
-        self.strucC.del_particle()
+        self.assertEqual(self.strucC.n_molecules(),1)
+        
     def test_get_max(self): 
         self.strucC.get_max()
+        self.assertEqual(self.strucC.max_mol,0.0)
+        self.assertEqual(self.strucC.max_residue,0.0)
+        self.assertEqual(self.strucC.max_qgroup,0.0)
+        self.assertEqual(self.strucC.max_ring,0.0)
+        
     def test_add_mol(self): 
-        self.strucC.add_mol()
+        self.strucC.add_mol(max_ref_mol)
+        self.assertEqual(self.strucC.max_ring,0.0)
+        
+        
     def test_shift_tag(self): 
         self.strucC.shift_tag()
     def test_getSubStructure(self): 
@@ -507,9 +506,6 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(pos_j[0],5.50)
         self.assertEqual(pos_j[1],5.50)
         self.assertEqual(pos_j[2],5.50)
-
-
-
         
     def tearDown(self):
         del self.strucC 
@@ -903,7 +899,7 @@ class TestProximityCheck(unittest.TestCase):
         npos_j = self.strucC2.positions
         pos_cut = 2.0 # minimum distance between particles of added structure and current s
         poxflag =  self.strucC1.lat.proximitycheck(npos_i,npos_j,pos_cut)
-        self.assertEqual(poxflag,False)
+        self.assertFalse(poxflag)
                                     
         #
     def test_poxcheck2(self):
@@ -912,9 +908,12 @@ class TestProximityCheck(unittest.TestCase):
         npos_j = self.strucC2.positions
         pos_cut = 2.0 # minimum distance between particles of added structure and current s
         poxflag =  self.strucC1.lat.proximitycheck(npos_i,npos_j,pos_cut)
-        self.assertEqual(poxflag,True)
+        self.assertTrue(poxflag)
                 
 
+    def test_del_particle(self): 
+        self.strucC.del_particle(4)
+        
     def tearDown(self):
         del self.strucC1 
         
@@ -1018,6 +1017,8 @@ class TestGroupsProps(unittest.TestCase):
         groupset_i.write_xyzs()
         groupset_i.dump_json()
         
+
+                
     def tearDown(self):
         del self.th         
         del self.strucC         
