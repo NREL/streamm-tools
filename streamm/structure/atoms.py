@@ -68,6 +68,7 @@ class Atom(Particle):
         #
         self.element = pymatgen_pt.Element(symbol)
         self.tag = self.element.symbol
+        
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
         self.element.atomic_weight = self.element.atomic_mass

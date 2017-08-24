@@ -412,7 +412,7 @@ class Container(object):
         
     def write_coord(self):
         """
-        Write a coordnates into string 
+        Write a coordinates into string 
         """
         coord = ''.join([" %5s %16.8f %16.8f %16.8f \n"%(particle_i.tag,self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2] ) for pkey_i,particle_i in self.particles.iteritems()])
 
@@ -1492,7 +1492,7 @@ class Container(object):
 
         el_cnt = np.zeros(len(pymatgen_pt._pt_data),dtype=np.int)    
         for key_j in nb_list.getnbs(key_i):
-            el_j = int( self.particles[key_j].properties["number"] )
+            el_j = int( self.particles[key_j].element.number )
             if( el_j >= 0 ):
                 el_cnt[el_j] += 1
                 
