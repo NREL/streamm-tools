@@ -30,13 +30,30 @@ class Particle(object):
         """
         self.type = type
         self.tag = "blank"
+        self.mass = 0.0
+        self.charge = 0.0
 
+        
+        self.mol = 0
+        self.ring = 0
+        self.residue = 0
+        self.resname = "RES"
+        self.qgroup = 0
+        
     def __del__(self):
         """
         Destructor, clears structure memory and calls held container destructors
         """
         del self.type
         del self.tag
+        del self.mass
+        del self.charge
+        # 
+        del self.mol
+        del self.ring
+        del self.residue
+        del self.resname
+        del self.qgroup
         
     def __str__(self):
         """

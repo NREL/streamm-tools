@@ -50,6 +50,7 @@ class Dihedral(object):
             self.pkey4 = pkey4
         else:
             raise TypeError("4rd arg should be int type")
+        self.cosine = None 
 
     def __del__(self):
         """
@@ -59,6 +60,7 @@ class Dihedral(object):
         del self.pkey2 
         del self.pkey3 
         del self.pkey4
+        del self.cosine 
 
     def __str__(self):
         """

@@ -43,6 +43,9 @@ class Angle(object):
             self.pkey3 = pkey3
         else:
             raise TypeError("3rd arg should be int type")
+        
+        #
+        self.cosine = None 
 
     def __del__(self):
         """
@@ -51,6 +54,7 @@ class Angle(object):
         del self.pkey1
         del self.pkey2
         del self.pkey3
+        del self.cosine 
 
 
     def __str__(self):

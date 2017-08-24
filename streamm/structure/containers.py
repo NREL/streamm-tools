@@ -20,6 +20,14 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 import copy
+import os
+
+
+try:
+    # Import pymatgen Class 
+    import pymatgen.core.periodic_table as pymatgen_pt
+except:
+    logger.warning("pymatgen import error for Lattice object")
 
 # Import streamm dependencies 
 import streamm.structure.lattices as lattices
@@ -44,10 +52,7 @@ class Container(object):
         """
         Constructor for a composite structure. 
         """
-        if isinstance(tag, str):
-            self.tag = tag
-        else:
-            raise TypeError("1st arg (tag) in %s Container initialization should be string"%(__name__))
+        self.tag = tag
         
         self.lat = lattices.Lattice(matrix)                             # Creates lattice object for structure
         self.bonded_nblist = nblists.NBlist()                         # Creates nblist object for  bonded particles
@@ -67,10 +72,7 @@ class Container(object):
         self.n_dihedrals = 0    
         self.n_impropers = 0    
 
-        # Container properties
-        self.properties = dict()
-        
-        self.properties['mass'] = 0.0 
+        self.mass = 0.0 
         self.properties['volume'] = 0.0 
         self.properties['density'] = 0.0 
         self.properties['center_mass'] = np.zeros(self.lat.n_dim)
@@ -530,7 +532,7 @@ class Container(object):
         self.mass = float(0.0)
         
         for pkey_i, particle_i  in self.particles.iteritems():
-            self.mass += particle_i.element.atomic_weight
+            self.mass += particle_i.mass
 
         return
 
@@ -541,7 +543,7 @@ class Container(object):
         self.charge = float(0.0)
         
         for pkey_i, particle_i  in self.particles.iteritems():
-            self.charge += particle_i.properties["charge"]
+            self.charge += particle_i.charge
 
         return
 
@@ -574,11 +576,11 @@ class Container(object):
         self.mol_max = -1
         self.residue_max = -1
         for pkey_i, particle_i  in self.particles.iteritems():
-            if( particle_i.properties["mol"] > self.mol_max ): self.mol_max =  particle_i.properties["mol"]
-            if( particle_i.properties["residue"] > self.residue_max ): self.residue_max =  particle_i.properties["residue"]
+            if( particle_i.mol > self.mol_max ): self.mol_max =  particle_i.mol
+            if( particle_i.residue > self.residue_max ): self.residue_max =  particle_i.residue
 
 
-        self.composition = np.zeros(periodictable.n_elements,dtype=np.int)    
+        self.composition = np.zeros(len(pymatgen_pt._pt_data),dtype=np.int)    
         for pkey_i, particle_i  in self.particles.iteritems():
             el_i = int( particle_i.properties["number"] )
             if( el_i >= 0 ):
@@ -593,7 +595,7 @@ class Container(object):
         self.calc_composition()
 
         el_n_list = [6,1]
-        el_n_list += [ i for i in range(1,periodictable.n_elements) if( i != 6 and i != 1 ) ]
+        el_n_list += [ i for i in range(1,len(pymatgen_pt._pt_data)) if( i != 6 and i != 1 ) ]
         for n_i in el_n_list:
             if( self.composition[n_i] > 0 ):
                 el_i = periodictable.element_number(n_i)
@@ -615,16 +617,18 @@ class Container(object):
 
         return
 
-    def sum_prop(self,propkey,pkey_i,pkeyp_j):
+    def sum_prop(self,pkey_i,pkey_j):
         '''
         Sum property of particle i into particle j
+        
+        NoteTK This should be changed to sum_charge 
         '''
         try:
             # Sum charges of particles to be removed into attachment points
-            #print " Summing ",self.particles[pkeyp_j].properties['symbol'],self.particles[pkeyp_j].properties['charge']
-            #print " into ",self.particles[pkey_i].properties['symbol'],self.particles[pkey_i].properties['charge']
-            self.particles[pkey_i].properties['charge'] += self.particles[pkeyp_j].properties['charge']
-            self.particles[pkeyp_j].properties['charge'] = 0.0
+            logger.info(" Summing {} with charge {} ".format(self.particles[pkeyp_j].tag,self.particles[pkeyp_j].charge))
+            #print " into ",self.particles[pkey_i].tag,self.particles[pkey_i].charge
+            self.particles[pkey_i].charge += self.particles[pkey_j].charge
+            self.particles[pkey_j].charge = 0.0
         except:
             logger.warning("Container %s does not have particle charges"%(pkeyp_j.tag))
                                  
@@ -635,8 +639,8 @@ class Container(object):
         self.mol_max = -1
         self.residue_max = -1
         for pkey_i, particle_i  in self.particles.iteritems():
-            if( particle_i.properties["mol"] > self.mol_max ): self.mol_max =  particle_i.properties["mol"]
-            if( particle_i.properties["residue"] > self.residue_max ): self.residue_max =  particle_i.properties["residue"]
+            if( particle_i.mol > self.mol_max ): self.mol_max =  particle_i.mol
+            if( particle_i.residue > self.residue_max ): self.residue_max =  particle_i.residue
 
     def mol_mult(self):
         """
@@ -681,9 +685,9 @@ class Container(object):
                 # If in selected set of particles 
                 uniqueid_i = pkey_i
                 if( prop == "mol" ): 
-                    uniqueid_i =  int(particle_i.properties["mol"] )
+                    uniqueid_i =  int(particle_i.mol )
                 elif( prop == "residue" ): 
-                    uniqueid_i =  int( particle_i.properties["mol"]*self.mol_multiplier + particle_i.properties["residue"] )
+                    uniqueid_i =  int( particle_i.mol*self.mol_multiplier + particle_i.residue )
                 else:
                     logger.warning(" Unsupported property selection for groups %s "%( prop))
                     sys.exit(2)
@@ -693,9 +697,9 @@ class Container(object):
                     group_i = Group(self)
                     group_i.gkey = gkey
                     group_i.tag = "%s_%s"%(tag,gkey)
-                    group_i.properties["mol"]  = particle_i.properties["mol"] 
-                    group_i.properties["residue"] = particle_i.properties["residue"] 
-                    group_i.properties["resname"] = particle_i.properties["resname"] 
+                    group_i.mol  = particle_i.mol 
+                    group_i.residue = particle_i.residue 
+                    group_i.resname = particle_i.resname 
                     groupset_i.groups[gkey] = group_i
                     # 
                     groupset_i.properties['keys'].append(group_i.gkey)
@@ -718,7 +722,7 @@ class Container(object):
         """
         max_mol = 0
         for pkey_i, particle_i  in self.particles.iteritems():
-            if( max_mol < particle_i.properties["mol"] ): max_mol = particle_i.properties["mol"]
+            if( max_mol < particle_i.mol ): max_mol = particle_i.mol
         return max_mol
 
     def rotate_xz(self,theta_xz,direction="counterclockwise"):
@@ -984,10 +988,10 @@ class Container(object):
         self.max_qgroup = 0 
         self.max_ring = 0
         for j,p_j in self.particles.iteritems():
-            if( p_j.properties["mol"] > self.max_mol ): self.max_mol =   p_j.properties["mol"] 
-            if(  p_j.properties["residue"] > self.max_residue ): self.max_residue =   p_j.properties["residue"] 
-            if(  p_j.properties["qgroup"] > self.max_qgroup ): self.max_qgroup =   p_j.properties["qgroup"]
-            if(  p_j.properties["ring"] > self.max_ring ): self.max_ring =   p_j.properties["ring"]
+            if( p_j.mol > self.max_mol ): self.max_mol =   p_j.mol 
+            if(  p_j.residue > self.max_residue ): self.max_residue =   p_j.residue 
+            if(  p_j.qgroup > self.max_qgroup ): self.max_qgroup =   p_j.qgroup
+            if(  p_j.ring > self.max_ring ): self.max_ring =   p_j.ring
 
 
     def shift_tag(self,tag,tag_min):
@@ -1234,7 +1238,7 @@ class Container(object):
                             structoadd= copy.deepcopy(other)
                             # Update mol number
                             for pkey_i, particle_i  in structoadd.particles.iteritems():
-                                particle_i.properties["mol"] = struc_add_cnt
+                                particle_i.mol = struc_add_cnt
                             struc_add_cnt += 1
                             strucC_new += structoadd
                             logger.info( "Molecule %d/%d added "%(struc_add_cnt,n_i))
@@ -1389,7 +1393,7 @@ class Container(object):
                     structoadd= copy.deepcopy(other)
                     # Update mol number
                     for pkey_i, particle_i  in structoadd.particles.iteritems():
-                        particle_i.properties["mol"] = struc_add_cnt
+                        particle_i.mol = struc_add_cnt
                     struc_add_cnt += 1
                     strucC_new += structoadd
                 if( placement_cnt >= max_mol_place ):
@@ -1464,7 +1468,7 @@ class Container(object):
         
         '''
 
-        el_cnt = np.zeros(periodictable.n_elements, dtype =int )
+        el_cnt = np.zeros(len(pymatgen_pt._pt_data),dtype=np.int)    
         for key_j in nb_list.getnbs(key_i):
             el_j = int( self.particles[key_j].properties["number"] )
             if( el_j >= 0 ):
@@ -1488,75 +1492,6 @@ class Container(object):
         for pkey_i, particle_i  in self.particles.iteritems():
             if( particle_i.properties["symbol"] == symbol_o ):
                 particle_i.element.atomic_weight = mass_o
-
-    def guess_oplsa(self):
-        """
-        Guess OPLS-aa atom types based on coordination 
-        """
-        for pkey_i,particle_i in self.particles.iteritems():
-            nb_cnt_i = self.bonded_nblist.calc_nnab(pkey_i)
-            el_cnt_i = self.calc_elcnt(pkey_i,self.bonded_nblist)
-            #
-            # label carbons 
-            #
-            if particle_i.properties["number"] == 6 :
-                if int(nb_cnt_i) == 4 :
-                    particle_i.properties["fftype"] = 'CT' # Alkane
-                if  int(nb_cnt_i) == 3 :
-                    particle_i.properties["fftype"] = 'CA'  # Conjugated 
-                if int(nb_cnt_i) == 2 :
-                    particle_i.properties["fftype"] = 'C:'   # Allene
-
-
-                if int(nb_cnt_i) == 1 :
-                    particle_i.properties["fftype"] = '' # Aromatic C
-                    error_line =  " WARNING!!! carbon index ",pkey_i," bonded to single atom "
-                    sys.exit(error_line)
-            #
-            # label oxygens
-            #
-            if( particle_i.properties["number"] == 8 ):
-                if int(nb_cnt_i) == 1 :
-                    particle_i.properties["fftype"] = 'O' # double bonded
-                if int(nb_cnt_i) == 2 :
-                    particle_i.properties["fftype"] = 'OS' # ether
-
-            #
-            # label nitrogens 
-            #
-            if particle_i.properties["number"] == 7 :
-                if int(nb_cnt_i) == 3 :      # amide
-                    particle_i.properties["fftype"] = 'N' 
-
-            #
-            # label sulfurs
-            #
-            if( particle_i.properties["number"] == 16 ):
-                if int(nb_cnt_i) == 2 :
-                    particle_i.properties["fftype"] = 'S'   #  Thioether RSR (UA)
-
-
-        #
-        # label hydrogens
-        #
-        for pkey_i,particle_i in self.particles.iteritems():
-            nb_cnt_i = self.bonded_nblist.calc_nnab(pkey_i)
-            el_cnt_i = self.calc_elcnt(pkey_i,self.bonded_nblist)
-            if( particle_i.properties["number"] == 1 ):
-                if ( nb_cnt_i > 1  ):
-                    sys.exit(' over coordinated H')
-                if ( nb_cnt_i < 1  ):
-                    error_line = ' unbonded H %d '%(pkey_i)
-                    sys.exit(error_line)
-                key_j = self.bonded_nblist.getnbs(pkey_i)[0]
-                particle_j = self.particles[key_j]
-                el_cnt_j = self.calc_elcnt(key_j,self.bonded_nblist)
-
-                if ( particle_j.properties["fftype"]== 'CA' ):
-                    particle_i.properties["fftype"] = 'HA' #
-                if ( particle_j.properties["fftype"]== 'CT' ):
-                    particle_i.properties["fftype"] = 'HC' #
-        return 
 
             
     def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
@@ -1584,9 +1519,9 @@ class Container(object):
                 pid_j = list_j[indx_j]
                 if( pid_i != pid_j ):
                     pairvalue_ij[indx_i][indx_j] = 1.0
-                    if( mol_inter and self.particles[pid_i].properties["mol"] == self.particles[pid_j].properties["mol"] ):
+                    if( mol_inter and self.particles[pid_i].mol == self.particles[pid_j].mol ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    elif( mol_intra and self.particles[pid_i].properties["mol"] != self.particles[pid_j].properties["mol"] ):
+                    elif( mol_intra and self.particles[pid_i].mol != self.particles[pid_j].mol ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
                     logger.debug(" keyi %d keyj %d has probility value of %f "%(pid_i,pid_j,pairvalue_ij[indx_i][indx_j]))
                         
@@ -1792,7 +1727,7 @@ class Container(object):
             r_j_norm = r_ij/np.linalg.norm(r_ij) 
             cos_kij = np.dot(r_i_norm,r_j_norm)
             
-            angle_i.properties['cosine'] = cos_kij
+            angle_i.cosine= cos_kij
         
             return cos_kij
         else:
@@ -1907,7 +1842,7 @@ class Container(object):
             r_j_norm = v2v3/np.linalg.norm(v2v3) 
             cos_kijl = np.dot(r_i_norm,r_j_norm)
             
-            dihedral_i.properties['cosine'] = cos_kijl
+            dihedral_i.cosine= cos_kijl
 
             return cos_kijl
 
@@ -1976,7 +1911,7 @@ class Container(object):
         if( len(keys) > 0 ):
             for key_i in keys:
                 dih_i = self.dihedrals[key_i]
-                self.dih_dic['cosine'] .append(dih_i.properties['cosine'] )
+                self.dih_dic['cosine'] .append(dih_i.cosine)
                 
 
     def write_dihedrals(self,dih_file,keys=[]):

@@ -67,32 +67,21 @@ class Atom(Particle):
         # Get properties of element based on symbol
         #
         self.element = pymatgen_pt.Element(symbol)
-        self.symbol = self.element.symbol
+        self.tag = self.element.symbol
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
         self.element.atomic_weight = self.element.atomic_mass
         self.element.covalent_radius = self.element.atomic_radius_calculated
         self.element.vdw_radius = self.element.van_der_waals_radius
-
-        # NoteTK This should go into Forcefield 
-        self.charge = 0.0
         
-        self.mol = 0
-        self.ring = 0
-        self.residue = 0
-        self.resname = "RES"
-        self.qgroup = 0
+        # Set particle mass according to element 
+        self.mass = self.element.atomic_weight
 
     def __del__(self):
         """
         Destructor, clears structure memory and calls held container destructors
         """
         del self.element
-        del self.mol
-        del self.ring
-        del self.residue
-        del self.resname
-        del self.qgroup
         
     def __str__(self):
         """

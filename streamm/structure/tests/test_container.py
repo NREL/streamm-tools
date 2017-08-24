@@ -19,6 +19,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
+import os
+import numpy as np
+import random
+import numpy.testing.utils as nptu
 
 try:
     import streamm.structure.containers as containers
@@ -270,13 +274,13 @@ class TestContainer(unittest.TestCase):
 
     def test_angles(self):
         angle_str = []        
-        self.angle_i = structure.Angle(2,0,1)
+        self.angle_i = angles.Angle(2,0,1)
         angle_str.append(' 2 - 0 - 1  ')
         self.strucC.add_angle(self.angle_i)
-        self.angle_i = structure.Angle(3,0,4)
+        self.angle_i = angles.Angle(3,0,4)
         angle_str.append(' 3 - 0 - 4  ')
         self.strucC.add_angle(self.angle_i)
-        self.angle_i = structure.Angle(5,0,6)
+        self.angle_i = angles.Angle(5,0,6)
         angle_str.append(' 5 - 0 - 6  ')
         self.strucC.add_angle(self.angle_i)
         for akey_i, angle_i  in self.strucC.angles.iteritems():
@@ -285,13 +289,13 @@ class TestContainer(unittest.TestCase):
 
     def test_dihedrals(self):
         dihedral_str = []        
-        self.dihedral_i = structure.Dihedral(2,0,1,7)
+        self.dihedral_i = dihedrals.Dihedral(2,0,1,7)
         dihedral_str.append(' 2 - 0 - 1 - 7 ')
         self.strucC.add_dihedral(self.dihedral_i)
-        self.dihedral_i = structure.Dihedral(2,0,1,8)
+        self.dihedral_i = dihedrals.Dihedral(2,0,1,8)
         dihedral_str.append(' 2 - 0 - 1 - 8 ')
         self.strucC.add_dihedral(self.dihedral_i)
-        self.dihedral_i = structure.Dihedral(2,0,1,9)
+        self.dihedral_i = dihedrals.Dihedral(2,0,1,9)
         dihedral_str.append(' 2 - 0 - 1 - 9 ')
         self.strucC.add_dihedral(self.dihedral_i)
         for dkey_i, dihedral_i  in self.strucC.dihedrals.iteritems():
@@ -300,10 +304,10 @@ class TestContainer(unittest.TestCase):
 
     def test_impropers(self):
         improper_str = []        
-        self.improper_i = structure.Improper(0,1,2,3)
+        self.improper_i = impropers.Improper(0,1,2,3)
         improper_str.append(' 0 - 1 - 2 - 3 ')
         self.strucC.add_improper(self.improper_i)
-        self.improper_i = structure.Improper(0,4,5,6)
+        self.improper_i = impropers.Improper(0,4,5,6)
         improper_str.append(' 0 - 4 - 5 - 6 ')
         self.strucC.add_improper(self.improper_i)
         for ikey_i, improper_i  in self.strucC.impropers.iteritems():
@@ -419,10 +423,6 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(self.strucC.max_mol,0.0)
         self.assertEqual(self.strucC.max_residue,0.0)
         self.assertEqual(self.strucC.max_qgroup,0.0)
-        self.assertEqual(self.strucC.max_ring,0.0)
-        
-    def test_add_mol(self): 
-        self.strucC.add_mol(max_ref_mol)
         self.assertEqual(self.strucC.max_ring,0.0)
         
         
@@ -551,7 +551,7 @@ class Test_guessnbs(unittest.TestCase):
         str_nbs_list.append(' 2 - 3 ')
         str_nbs_list.append(' 3 - 2 ')
         cnt = 0
-        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
+        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         
         for pkey_i, particle_i in self.strucC.particles.iteritems():
              for pkey_j in   self.strucC.bonded_nblist.getnbs(pkey_i):
@@ -569,7 +569,7 @@ class TestBuildThiophene(unittest.TestCase):
 
     def setUp(self):
         
-        self.Th = structure.Container('thiophene')
+        self.Th = containers.Container('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])
@@ -592,7 +592,7 @@ class TestBuildThiophene(unittest.TestCase):
         #el_cnt = calc_elcnt
         
     def test_write_xyz(self):
-        os.chdir(os.path.dirname(__file__))
+        # NoteTK os.chdir(os.path.dirname(__file__))
         self.Th.write_xyz()
 
     def tearDown(self):
@@ -602,7 +602,7 @@ class TestBuildEthane(unittest.TestCase):
 
     def setUp(self):
         
-        self.Eth = structure.Container('ethane')
+        self.Eth = containers.Container('ethane')
         symbols = ['C','C','H','H','H','H','H','H']
         positions = [ ]
         positions.append([-3.29091,-1.65766,-0.00000])
@@ -620,7 +620,7 @@ class TestBuildEthane(unittest.TestCase):
             self.Eth.add_partpos(pt_i,pos_i)
 
     def test_write_xyz(self):
-        os.chdir(os.path.dirname(__file__))
+        # NoteTK os.chdir(os.path.dirname(__file__))
         self.Eth.write_xyz()
                     
     def tearDown(self):
@@ -629,7 +629,7 @@ class TestBuildEthane(unittest.TestCase):
 class TestReadXYZ(unittest.TestCase):
     # 
     def setUp(self):
-        self.strucC = structure.Container("thiophene")
+        self.strucC = containers.Container("thiophene")
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
         self.strucC.read_xyz(file_i)
@@ -682,7 +682,7 @@ class Testiadd(unittest.TestCase):
         pos_i = [ -1.250,-1.250,0.0]   
         self.strucC_j.add_partpos(self.part,pos_i)
 
-        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
+        self.strucC_j.bonded_nblist = self.strucC_j.guess_nblist(0,radii_buffer=1.25)
         self.strucC_j.bonded_bonds()
         
         self.strucC += self.strucC_j
@@ -736,7 +736,7 @@ class TestProperties(unittest.TestCase):
         matrix_i[1][1] = 100.0 
         matrix_i[2][2] = 100.0 
         self.strucC.lat.set_matrix(matrix_i)
-        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
+        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         #
     def test_calc(self):
         #
@@ -802,18 +802,6 @@ class TestProperties(unittest.TestCase):
         n_el = self.strucC.calc_elcnt(4,self.strucC.bonded_nblist)
         self.assertEqual(n_el[6],2)
         
-    def test_guess_oplsa(self):
-        self.strucC.guess_oplsa()
-        self.assertEqual(self.strucC.particles[0].properties['fftype'],'CA')
-        self.assertEqual(self.strucC.particles[1].properties['fftype'],'CA')
-        self.assertEqual(self.strucC.particles[2].properties['fftype'],'CA')
-        self.assertEqual(self.strucC.particles[3].properties['fftype'],'CA')
-        self.assertEqual(self.strucC.particles[4].properties['fftype'],'S')
-        self.assertEqual(self.strucC.particles[5].properties['fftype'],'HA')
-        self.assertEqual(self.strucC.particles[6].properties['fftype'],'HA')
-        self.assertEqual(self.strucC.particles[7].properties['fftype'],'HA')
-        self.assertEqual(self.strucC.particles[8].properties['fftype'],'HA')
-        
 
     def test_bonds(self):
         self.strucC.bonded_bonds()
@@ -855,7 +843,7 @@ class TestProperties(unittest.TestCase):
 class TestDihcalc(unittest.TestCase):
     # 
     def setUp(self):
-        self.strucC = structure.Container("thiophene")
+        self.strucC = containers.Container("thiophene")
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
         self.strucC.read_xyz(file_i)
@@ -921,16 +909,17 @@ class TestProximityCheck(unittest.TestCase):
                 
 
     def test_del_particle(self): 
-        self.strucC.del_particle(4)
+        self.strucC1.del_particle(4)
         
     def tearDown(self):
         del self.strucC1 
+        del self.strucC2
         
         
 class TestGroupsProps(unittest.TestCase):
     # 
     def setUp(self):
-        self.th = structure.Container("thiophene")
+        self.th = containers.Container("thiophene")
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.th.tag)
         self.th.read_xyz(file_i)
         self.th.lat_cubic(100.0)
