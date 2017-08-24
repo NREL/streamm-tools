@@ -14,6 +14,14 @@ __status__ = "Beta"
 This module defines the classes relating to containters of particles 
 """
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+import numpy as np
+import copy
+
+# Import streamm dependencies 
 import streamm.structure.lattices as lattices
 import streamm.structure.nblists as nblists
 
@@ -23,8 +31,7 @@ import streamm.structure.angles as angles
 import streamm.structure.dihedrals as dihedrals
 import streamm.structure.impropers as impropers 
 
-import numpy as np
-import copy
+
 
 class Container(object):
     """
@@ -221,18 +228,18 @@ class Container(object):
 
     def build_nblist(self):
         """
-        Create neighbor list of bonded particles
+        Create neighbor list of bonded particles based on bonds in the container 
 
-        Arguments:
-            particles (dict) of particles with int keys
-            bonds (dict) of bonds with int keys of particles 
-
+        Return:
+            NBlist (object) 
         """
-        self.lat.list = []
-        self.lat.index = []
-        self.lat.cnt = -1 
-        
-        # Create 2D list of lists for each particle 
+        nblist_i = nblists.NBlist()
+        nblist_i.list = []
+        nblist_i.index = []
+        nblist_i.cnt = -1 
+        # 
+        # Create 2D list of lists for each particle
+        # 
         nd2D = [ [] for pkey_i  in self.particles.keys() ]
         # Fill each particle list with it's neighbors based on the bonds
         for bkey_i, bond_i  in self.bonds.iteritems():            
@@ -241,57 +248,83 @@ class Container(object):
         # Loop over all particles and add it's neighbors to 1D list  (NBlist.list)          
         #   while tracking the index in the 1D in the index list  (NBlist.index)
         for pkey_i  in self.particles.keys():
-            self.lat.index.append(self.lat.cnt + 1)
+            nblist_i.index.append(nblist_i.cnt + 1)
             for pkey_j in nd2D[pkey_i]:
                 if( pkey_i != pkey_j):
-                    self.lat.cnt += 1
-                    self.lat.list.append(pkey_j)
-                    
-        # Add extra index positions for key+1 call made by final key 
-        self.lat.index.append(self.cnt + 1)
+                    nblist_i.cnt += 1
+                    nblist_i.list.append(pkey_j)
+        #
+        # Add extra index positions for key+1 call made by final key
+        # 
+        nblist_i.index.append(nblist_i.cnt + 1)
         # Clear 2D list from memory 
-        del nd2D 
+        del nd2D
+        # 
+        return nblist_i
 
 
-    def guess_nblist(self,lat,particles,positions,radii_key,radii_buffer=1.25):
+    def guess_nblist(self,radius_type,radii_buffer=1.25):
         """
-        Create neighbor list of particles based on distance and radius of each particle 
+        Create neighbor list of particles based on distance and element.covalent_radius  of each particle 
         
-        Arguments:
-            lat (Lattice) object 
-            particles (dict) of particles with int keys
-            positions (list) of  particle position numpy arrays
-            radii_key (str) of key for particle radius in the particles dict
-            radii_buffer (float) to multiply radii cut off 
-
+        Args:
+            radius_type (int)
+                    0 - element.covalent_radius
+                    1 - element.vdw_radius
+                    
+            radii_buffer (float) to multiply radii cut off
+            
+        Return:
+            NBlist (object) 
         """
-        self.lat.list = []
-        self.lat.index = []
-        self.lat.cnt = -1 
+
+        nblist_i = nblists.NBlist()
+        nblist_i.list = []
+        nblist_i.index = []
+        nblist_i.cnt = -1
+        
+        if( radius_type == 0 ):
+            logger.info("Guessing nieghbor list using the covalent radius of the particles element ")
+        elif( radius_type == 1 ):
+            logger.info("Guessing nieghbor list using the Van der Waals radius of the particles element ")
+        else:
+            error_string = 'Argument "radius_type" needs to be an integer of 0 or 1'
+            error_string += "\n Returning Empty NBlist object "
+            print(error_string)
+            logger.warning(error_string)
+            return nblist_i
+            
+            
         # Create 2D list of lists of inter particle distances
-        npos_i = positions
-        npos_j = positions
-        dr_matrix, dist_matrix  = lat.delta_npos(npos_i,npos_j)
+        npos_i = self.positions
+        npos_j = self.positions
+        dr_matrix, dist_matrix  = self.lat.delta_npos(npos_i,npos_j)
         # Loop over all particles
-        for pkey_i,particle_i  in particles.iteritems():
-            radii_i = particle_i.properties[radii_key]
-            self.lat.index.append(self.lat.cnt + 1)
-            for pkey_j,particle_j in particles.iteritems():
+        for pkey_i,particle_i  in self.particles.iteritems():
+            if( radius_type == 0 ):
+                radii_i = particle_i.element.covalent_radius
+            elif( radius_type == 1 ):
+                radii_i = particle_i.element.vdw_radius
+            nblist_i.index.append(nblist_i.cnt + 1)
+            for pkey_j,particle_j in self.particles.iteritems():
                 if( pkey_i != pkey_j):
-                    radii_j = particle_j.properties[radii_key]
+                    if( radius_type == 0 ):
+                        radii_j = particle_j.element.covalent_radius
+                    elif( radius_type == 1 ):
+                        radii_j = particle_j.element.vdw_radius
                     dr_cut = radii_i + radii_j
                     dr_cut = dr_cut*radii_buffer
-                    print "Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut)
+                    logger.info("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
                     if( dist_matrix[pkey_i,pkey_j] <= dr_cut ):
-                        self.lat.cnt += 1
-                        self.lat.list.append(pkey_j)
+                        nblist_i.cnt += 1
+                        nblist_i.list.append(pkey_j)
                     
         # Add extra index positions for key+1 call made by final key 
-        self.lat.index.append(self.lat.cnt + 1)
+        nblist_i.index.append(nblist_i.cnt + 1)
         # Clear list from memory 
         del dr_matrix
         del dist_matrix
-
+        return nblist_i
 
         """
     def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True,del_drmatrix=False):

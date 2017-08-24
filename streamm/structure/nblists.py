@@ -13,6 +13,9 @@ __status__ = "Beta"
 '''
 This module defines the classes relating to neighbor lists 
 '''
+
+import logging
+logger = logging.getLogger(__name__)
               
 class NBlist(object):
     """

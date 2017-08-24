@@ -224,8 +224,7 @@ class TestContainer(unittest.TestCase):
         self.strucC.add_bond(self.bond_i)
         self.bond_i = structure.Bond(0,2)
         self.strucC.add_bond(self.bond_i)
-
-
+        # 
         self.bond_i = structure.Bond(0,3)
         self.strucC.add_bond(self.bond_i)
         self.bond_i = structure.Bond(0,4)
@@ -241,7 +240,7 @@ class TestContainer(unittest.TestCase):
         self.bond_i = structure.Bond(1,9)
         self.strucC.add_bond(self.bond_i)
 
-        self.strucC.bonded_nblist.build_nblist(self.strucC.particles,self.strucC.bonds )
+        self.strucC.bonded_nblist = self.strucC.build_nblist()
         
         nb_str = []
         nb_str.append('0  -  1')
@@ -551,8 +550,9 @@ class Test_guessnbs(unittest.TestCase):
         str_nbs_list.append(' 2 - 0 ')
         str_nbs_list.append(' 2 - 3 ')
         str_nbs_list.append(' 3 - 2 ')
-        cnt = 0 
-        self.strucC.bonded_nblist.guess_nblist(self.strucC.lat,self.strucC.particles,self.strucC.positions,"cov_radii",radii_buffer=1.25)
+        cnt = 0
+        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
+        
         for pkey_i, particle_i in self.strucC.particles.iteritems():
              for pkey_j in   self.strucC.bonded_nblist.getnbs(pkey_i):
                  # print " str_nbs_list.append(\' %d - %d \')"%(pkey_i,pkey_j)
@@ -671,7 +671,7 @@ class Testiadd(unittest.TestCase):
         pos_i = [ 0.750,0.750,0.750]   
         self.strucC.add_partpos(self.part,pos_i)
 
-        self.strucC.bonded_nblist.guess_nblist(self.strucC.lat,self.strucC.particles,self.strucC.positions,"cov_radii",radii_buffer=1.25)
+        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         self.strucC.bonded_bonds()
         
         self.part = atoms.Atom(symbol="C")
@@ -682,7 +682,7 @@ class Testiadd(unittest.TestCase):
         pos_i = [ -1.250,-1.250,0.0]   
         self.strucC_j.add_partpos(self.part,pos_i)
 
-        self.strucC_j.bonded_nblist.guess_nblist(self.strucC_j.lat,self.strucC_j.particles,self.strucC_j.positions,"cov_radii",radii_buffer=1.25)
+        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         self.strucC_j.bonded_bonds()
         
         self.strucC += self.strucC_j
@@ -736,7 +736,7 @@ class TestProperties(unittest.TestCase):
         matrix_i[1][1] = 100.0 
         matrix_i[2][2] = 100.0 
         self.strucC.lat.set_matrix(matrix_i)
-        self.strucC.bonded_nblist.guess_nblist(self.strucC.lat,self.strucC.particles,self.strucC.positions,"cov_radii",radii_buffer=1.25)
+        self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         #
     def test_calc(self):
         #
