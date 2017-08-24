@@ -219,7 +219,7 @@ class Container(object):
             print "Attempting to add non-Improper type to container"
             raise TypeError
 
-    def build_nblist(self,particles,bonds):
+    def build_nblist(self):
         """
         Create neighbor list of bonded particles
 
@@ -228,27 +228,27 @@ class Container(object):
             bonds (dict) of bonds with int keys of particles 
 
         """
-        self.list = []
-        self.index = []
-        self.cnt = -1 
+        self.lat.list = []
+        self.lat.index = []
+        self.lat.cnt = -1 
         
         # Create 2D list of lists for each particle 
-        nd2D = [ [] for pkey_i  in particles.keys() ]
+        nd2D = [ [] for pkey_i  in self.particles.keys() ]
         # Fill each particle list with it's neighbors based on the bonds
-        for bkey_i, bond_i  in bonds.iteritems():            
+        for bkey_i, bond_i  in self.bonds.iteritems():            
             nd2D[bond_i.pkey2].append( bond_i.pkey1 )
             nd2D[bond_i.pkey1].append( bond_i.pkey2 )
         # Loop over all particles and add it's neighbors to 1D list  (NBlist.list)          
         #   while tracking the index in the 1D in the index list  (NBlist.index)
-        for pkey_i  in particles.keys():
-            self.index.append(self.cnt + 1)
+        for pkey_i  in self.particles.keys():
+            self.lat.index.append(self.lat.cnt + 1)
             for pkey_j in nd2D[pkey_i]:
                 if( pkey_i != pkey_j):
-                    self.cnt += 1
-                    self.list.append(pkey_j)
+                    self.lat.cnt += 1
+                    self.lat.list.append(pkey_j)
                     
         # Add extra index positions for key+1 call made by final key 
-        self.index.append(self.cnt + 1)
+        self.lat.index.append(self.cnt + 1)
         # Clear 2D list from memory 
         del nd2D 
 
@@ -265,9 +265,9 @@ class Container(object):
             radii_buffer (float) to multiply radii cut off 
 
         """
-        self.list = []
-        self.index = []
-        self.cnt = -1 
+        self.lat.list = []
+        self.lat.index = []
+        self.lat.cnt = -1 
         # Create 2D list of lists of inter particle distances
         npos_i = positions
         npos_j = positions
@@ -275,7 +275,7 @@ class Container(object):
         # Loop over all particles
         for pkey_i,particle_i  in particles.iteritems():
             radii_i = particle_i.properties[radii_key]
-            self.index.append(self.cnt + 1)
+            self.lat.index.append(self.lat.cnt + 1)
             for pkey_j,particle_j in particles.iteritems():
                 if( pkey_i != pkey_j):
                     radii_j = particle_j.properties[radii_key]
@@ -283,18 +283,18 @@ class Container(object):
                     dr_cut = dr_cut*radii_buffer
                     print "Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut)
                     if( dist_matrix[pkey_i,pkey_j] <= dr_cut ):
-                        self.cnt += 1
-                        self.list.append(pkey_j)
+                        self.lat.cnt += 1
+                        self.lat.list.append(pkey_j)
                     
         # Add extra index positions for key+1 call made by final key 
-        self.index.append(self.cnt + 1)
+        self.lat.index.append(self.lat.cnt + 1)
         # Clear list from memory 
         del dr_matrix
         del dist_matrix
 
 
-    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True,del_drmatrix=False):
         """
+    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True,del_drmatrix=False):
         Create neighbor list of particles based on distance and radius of each particle 
         
         Arguments:
@@ -303,10 +303,9 @@ class Container(object):
             radii (list) of  radius of particle
             radii_buffer (float) to multiply radii cut off 
 
-        """
-        self.index = []
-        self.list = []
-        self.cnt = -1
+        self.lat.index = []
+        self.lat.list = []
+        self.lat.cnt = -1
 
         # Record rd
         if( write_dr ):
@@ -320,7 +319,7 @@ class Container(object):
         # Create 2D list of lists of inter particle distances
         npos_i = positions
         npos_j = positions
-        self.dr_matrix, self.dist_matrix  = lat.delta_npos(npos_i,npos_j)
+        self.lat.dr_matrix, self.lat.dist_matrix  = lat.delta_npos(npos_i,npos_j)
         # Loop over all particles
         for key_i  in range(len(npos_i)):
             self.index.append(self.cnt + 1)
@@ -351,6 +350,7 @@ class Container(object):
             del self.dist_matrix
         else:
             logger.debug(" Saving dr and dist matrix for groupset ")
+        """
         
         
     def write_coord(self):
