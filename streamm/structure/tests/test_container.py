@@ -1,4 +1,4 @@
-atoms.Atom# coding: utf-8
+# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -301,18 +301,16 @@ class TestContainer(unittest.TestCase):
         print coord 
         self.assertEqual(coord,'')
         
-    def test_write_xyz_str(self): 
-        self.strucC.write_xyz_str()
-        self.assertEqual(coord,'')
-        
-    def test_write_xyz(self): 
-        self.strucC.write_xyz()
-        
+    def test_write_xyz_str(self):
+        xyz_str = self.strucC.write_xyz_str()
+        self.assertEqual(xyz_str,'')
+                
     def test_write_xyz_list(self):
         list_i = [2,3,4,8]
         self.strucC.write_xyz_list(list_i)
         
-    def test_read_xyz(self): 
+    def test_read_write_xyz(self): 
+        self.strucC.write_xyz()
         self.strucC.read_xyz()
         
     def test_write_list(self): 
@@ -423,7 +421,7 @@ class TestContainer(unittest.TestCase):
         b_indx = self.strucC.findbond_key(5,6)
         self.assertEqual(b_indx,3)
         
-    def test_find_pairs(self):
+    def test_pairs(self):
         list_i = [0,2]
         list_j = [1,3]
         
@@ -431,7 +429,13 @@ class TestContainer(unittest.TestCase):
         
         pairvalue_ij = self.strucC.find_pairs(list_i,list_j)
         
-        nptu.assert_almost_equal(pairvalue_ij,pairvalue_ij_correct)
+        nptu.assert_almost_equal(pairvalue_ij ,pairvalue_ij_correct)
+        
+        bin_r,bin_r_nn,volumes = self.strucC.distbin_pairs(list_i,list_j,pairvalue_ij,0.1,5.0,0)
+
+        nptu.assert_almost_equal(bin_r ,pairvalue_ij_correct)
+        nptu.assert_almost_equal(bin_r_nn ,pairvalue_ij_correct)
+        nptu.assert_almost_equal(volumes ,pairvalue_ij_correct)
         
     def test_get_pos(self): 
         list_i = [0,2]
@@ -445,43 +449,19 @@ class TestContainer(unittest.TestCase):
         self.strucC.propcompile_particles()
         prop_particles_correct = {}
         
-        
         self.assertDictEqual(self.strucC.prop_particles,prop_particles_correct)
         
     def test_write_particles(self): 
         self.strucC.write_particles()
         
-    def test_find_bonds(self):
-        list_i = [0,2]
-        list_j = [1,3]
-        
-        keys_correct = []
-        keys = self.strucC.find_bonds(list_i,list_j)
-        
-        nptu.assert_almost_equal(keys,keys_correct)
-    
-    def test_find_angles(self):
-        
-        list_k = [4,5]
-        list_i = [0,2]
-        list_j = [1,3]
-        
-        keys_correct = []
-        keys = self.strucC.find_angles(list_k,list_i,list_j)
-        nptu.assert_almost_equal(keys,keys_correct)
-        
-    def test_calc_dihedral(self): 
-        self.strucC.calc_dihedral()
-    def test_find_dihedrals(self): 
-        self.strucC.find_dihedrals()
-    def test_calc_dihedrals(self): 
-        self.strucC.calc_dihedrals()
     def test_proc_dihedrals(self): 
-        self.strucC.proc_dihedrals()
-    def test_write_dihedrals(self): 
-        self.strucC.write_dihedrals()
-    def test_distbin_pairs(self): 
-        self.strucC.distbin_pairs()        
+        keys = [0,1]
+        self.strucC.proc_dihedrals(keys)
+        dih_dic_correct = {}
+        #
+        self.assertDictEqual(self.dih_dic,dih_dic_correct)
+        
+        
         
     def test_shift(self):
         self.part = atoms.Atom(symbol="C")
@@ -528,7 +508,7 @@ class Test_guessnbs(unittest.TestCase):
     
     def setUp(self):
         
-        self.strucC = structure.Container()
+        self.strucC = containers.Container()
 
         self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
@@ -662,8 +642,8 @@ class TestReadXYZ(unittest.TestCase):
 class Testiadd(unittest.TestCase):
     
     def setUp(self):
-        self.strucC = structure.Container()
-        self.strucC_j = structure.Container()
+        self.strucC = containers.Container()
+        self.strucC_j = containers.Container()
 
         self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
@@ -728,7 +708,7 @@ class Testiadd(unittest.TestCase):
 class TestProperties(unittest.TestCase):
     # 
     def setUp(self):
-        self.strucC = structure.Container()
+        self.strucC = containers.Container()
         self.strucC.tag = "thiophene"
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC.tag)
@@ -879,7 +859,7 @@ class TestDihcalc(unittest.TestCase):
 class TestProximityCheck(unittest.TestCase):
     # 
     def setUp(self):
-        self.strucC1 = structure.Container()
+        self.strucC1 = containers.Container()
         self.strucC1.tag = "thiophene"
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC1.tag)
@@ -890,7 +870,7 @@ class TestProximityCheck(unittest.TestCase):
         matrix_i[2][2] = 1000.0 
         self.strucC1.lat.set_matrix(matrix_i)
         
-        self.strucC2 = structure.Container()
+        self.strucC2 = containers.Container()
         self.strucC2.tag = "thiophene"
         file_i = os.path.join(os.path.dirname(__file__), "thiophene.xyz")
         # file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.strucC2.tag)
@@ -947,7 +927,7 @@ class TestGroupsProps(unittest.TestCase):
             if( particle_i.properties['symbol'] == 'H' ):
                 particle_i.properties['resname'] = "HA"
                 particle_i.properties['residue'] = 3
-        self.strucC = structure.Container()
+        self.strucC = containers.Container()
         self.strucC.lat_cubic(100.0)
         seed = 82343
         self.strucC = self.strucC.add_struc(self.th,10,seed,verbose=False)
