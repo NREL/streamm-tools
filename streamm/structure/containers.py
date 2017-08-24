@@ -163,7 +163,7 @@ class Container(object):
         """
         Add 'Bond' object to bonds dict in this container and update n_bonds accordingly
         """
-        if isinstance(bond_i, Bond):
+        if isinstance(bond_i,bonds.Bond):
             self.n_bonds = len(self.bonds)
             if( deepcopy ):
                 self.bonds[self.n_bonds] = copy.deepcopy(bond_i) # index 0 -> (N-1)
@@ -1087,8 +1087,8 @@ class Container(object):
         for bkey_other,bond_other in new_strcC.bonds.iteritems():
             pkey1 = self.keyupdate[bond_other.pkey1]
             pkey2 = self.keyupdate[bond_other.pkey2]
-            bond_i = Bond(pkey1,pkey2)
-            bond_i.properties = bond_other.properties
+            bond_i =bonds.Bond(pkey1,pkey2)
+            # NOteTK bond_i.properties = bond_other.properties
             self.add_bond(bond_i)
         #
         # Add angles 
@@ -1097,7 +1097,7 @@ class Container(object):
             pkey2 = self.keyupdate[angle_other.pkey2]
             pkey3 = self.keyupdate[angle_other.pkey3]
             angle_i = Angle(pkey1,pkey2,pkey3)
-            angle_i.properties = angle_i.properties
+            # NOteTK angle_i.properties = angle_i.properties
             self.add_angle(angle_i)
         #
         # Add dihedrals 
@@ -1107,7 +1107,7 @@ class Container(object):
             pkey3 = self.keyupdate[dihedral_other.pkey3]
             pkey4 = self.keyupdate[dihedral_other.pkey4]
             dihedral_i = Dihedral(pkey1,pkey2,pkey3,pkey4)
-            dihedral_i.properties = dihedral_i.properties
+            # NOteTK dihedral_i.properties = dihedral_i.properties
             self.add_dihedral(dihedral_i)
         #
         # Add impropers 
@@ -1116,7 +1116,7 @@ class Container(object):
             pkey2 = self.keyupdate[dihedral_other.pkey2]
             pkey3 = self.keyupdate[dihedral_other.pkey3]
             pkey4 = self.keyupdate[dihedral_other.pkey4]
-            improper_i = Improper(pkey1,pkey2,pkey3,pkey4)
+            # NOteTK improper_i = Improper(pkey1,pkey2,pkey3,pkey4)
             self.add_improper(improper_i)
             
         return self
@@ -1663,7 +1663,7 @@ class Container(object):
         for pkey_i in self.particles.keys():
             for pkey_j in self.bonded_nblist.getnbs(pkey_i):
                 if( pkey_i < pkey_j ):
-                    bond_i = Bond( pkey_i, pkey_j )            
+                    bond_i =bonds.Bond( pkey_i, pkey_j )            
                     self.add_bond(bond_i)
 
 
@@ -1674,7 +1674,7 @@ class Container(object):
         Args:
             bond_i (Bond) Bond object
         """
-        if isinstance(bond_i, Bond):
+        if isinstance(bond_i,bonds.Bond):
             r_i = self.positions[bond_i.pkey1]
             r_j = self.positions[bond_i.pkey2]
             r_ij,bond_l = self.lat.delta_pos_c(r_i, r_j)
