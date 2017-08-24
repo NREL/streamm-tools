@@ -530,7 +530,7 @@ class Container(object):
         self.mass = float(0.0)
         
         for pkey_i, particle_i  in self.particles.iteritems():
-            self.mass += particle_i.properties["mass"]
+            self.mass += particle_i.element.atomic_weight
 
         return
 
@@ -607,7 +607,7 @@ class Container(object):
         self.center_mass = np.zeros(self.lat.n_dim)
 
         for pkey_i, particle_i  in self.particles.iteritems():
-            mass_i = particle_i.properties["mass"]
+            mass_i = particle_i.element.atomic_weight
             # print self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2],mass_i
             self.center_mass += mass_i*np.array(self.positions[pkey_i])
 
@@ -1487,7 +1487,7 @@ class Container(object):
 
         for pkey_i, particle_i  in self.particles.iteritems():
             if( particle_i.properties["symbol"] == symbol_o ):
-                particle_i.properties["mass"] = mass_o
+                particle_i.element.atomic_weight = mass_o
 
     def guess_oplsa(self):
         """

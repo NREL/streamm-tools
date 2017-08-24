@@ -74,12 +74,14 @@ class Atom(Particle):
         self.element.covalent_radius = self.element.atomic_radius_calculated
         self.element.vdw_radius = self.element.van_der_waals_radius
 
+        # NoteTK This should go into Forcefield 
+        self.charge = 0.0
+        
         self.mol = 0
         self.ring = 0
         self.residue = 0
         self.resname = "RES"
         self.qgroup = 0
-        
 
     def __del__(self):
         """
