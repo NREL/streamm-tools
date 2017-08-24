@@ -670,7 +670,7 @@ class Testiadd(unittest.TestCase):
         self.part = atoms.Atom(symbol="C")
         pos_i = [ 0.750,0.750,0.750]   
         self.strucC.add_partpos(self.part,pos_i)
-
+        # 
         self.strucC_j.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         self.strucC.bonded_bonds()
         
