@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 import numpy as np
 import copy
 import os
-
+import pickle
 
 try:
     # Import pymatgen Class 
@@ -30,14 +30,14 @@ except:
     logger.warning("pymatgen import error for Lattice object")
 
 # Import streamm dependencies 
-import streamm.structure.lattices as lattices
-import streamm.structure.nblists as nblists
+from streamm.structure.lattices import Lattice 
+from streamm.structure.nblists import NBlist 
 
-import streamm.structure.atoms as atoms
-import streamm.structure.bonds as bonds 
-import streamm.structure.angles as angles
-import streamm.structure.dihedrals as dihedrals
-import streamm.structure.impropers as impropers 
+from streamm.structure.atoms import Atom
+from streamm.structure.bonds import Bond 
+from streamm.structure.angles import Angle
+from streamm.structure.dihedrals import Dihedral
+from streamm.structure.impropers import Improper
 
 
 
@@ -54,9 +54,9 @@ class Container(object):
         """
         self.tag = tag
         
-        self.lat = lattices.Lattice(matrix)                             # Creates lattice object for structure
-        self.bonded_nblist = nblists.NBlist()                         # Creates nblist object for  bonded particles
-        self.nonbonded_nblist = nblists.NBlist()                      # Creates nblist object for nonbonded particles
+        self.lat = Lattice(matrix)                             # Creates lattice object for structure
+        self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
+        self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
         self.prop_particles =  dict() 
         self.positions = []                                   # Creates empty array
@@ -70,25 +70,27 @@ class Container(object):
         self.n_bonds = 0    
         self.n_angles = 0    
         self.n_dihedrals = 0    
-        self.n_impropers = 0    
+        self.n_impropers = 0
+        # NoteTK this should be n_mol 
+        self.mol_max = 0 
 
         self.mass = 0.0 
-        self.properties['volume'] = 0.0 
-        self.properties['density'] = 0.0 
-        self.properties['center_mass'] = np.zeros(self.lat.n_dim)
-        self.properties['dipole'] = np.zeros(self.lat.n_dim)
+        self.volume = 0.0 
+        self.density = 0.0 
+        self.center_mass = np.zeros(self.lat.n_dim)
+        self.dipole = np.zeros(self.lat.n_dim)
         # Reference information 
-        self.properties['name'] = ""   # Tag of structure to be set by file read in 
-        self.properties['chemicalformula'] = ""
-        self.properties['IUPAC'] = ""
-        self.properties['common_tag'] = ""
-        self.properties['deptag'] = ""
-        self.properties['ctag'] = ""
-        self.properties['moltype'] = ""
-        self.properties['backbone'] = ""
-        self.properties['composition'] = ""
+        self.name = ""   # Tag of structure to be set by file read in 
+        self.chemicalformula = ""
+        self.IUPAC = ""
+        self.common_tag = ""
+        self.deptag = ""
+        self.ctag = ""
+        self.moltype = ""
+        self.backbone = ""
+        self.composition = ""
         # Particles with dangling bond
-        self.properties['danglkey'] = -1
+        self.danglkey = -1
         
         # Groups within structure 
         self.groupsets = dict()
@@ -112,8 +114,28 @@ class Container(object):
         del self.n_angles
         del self.n_dihedrals
         del self.n_impropers
-        # Del properties 
-        del self.properties
+        del self.mol_max
+        # Del properties
+
+        del self.mass 
+        del self.volume
+        del self.density
+        del self.center_mass 
+        del self.dipole 
+        # Reference information 
+        del self.name 
+        del self.chemicalformula 
+        del self.IUPAC
+        del self.common_tag
+        del self.deptag 
+        del self.ctag
+        del self.moltype
+        del self.backbone
+        del self.composition 
+        # Particles with dangling bond
+        del self.danglkey
+                
+        #
         del self.groupsets
         del self.replications
         
@@ -165,7 +187,7 @@ class Container(object):
         """
         Add 'Bond' object to bonds dict in this container and update n_bonds accordingly
         """
-        if isinstance(bond_i,bonds.Bond):
+        if isinstance(bond_i,Bond):
             self.n_bonds = len(self.bonds)
             if( deepcopy ):
                 self.bonds[self.n_bonds] = copy.deepcopy(bond_i) # index 0 -> (N-1)
@@ -235,7 +257,7 @@ class Container(object):
         Return:
             NBlist (object) 
         """
-        nblist_i = nblists.NBlist()
+        nblist_i = NBlist()
         nblist_i.list = []
         nblist_i.index = []
         nblist_i.cnt = -1 
@@ -280,7 +302,7 @@ class Container(object):
             NBlist (object) 
         """
 
-        nblist_i = nblists.NBlist()
+        nblist_i = NBlist()
         nblist_i.list = []
         nblist_i.index = []
         nblist_i.cnt = -1
@@ -676,8 +698,8 @@ class Container(object):
         # Group particles 
         #
         groupset_i = GroupSet(tag)
-        groupset_i.properties['keys'] = []
-        groupset_i.properties['tags'] = []
+        groupset_i.keys = []
+        groupset_i.tags = []
         group_uniqueid = dict()
         #gkey = 0 
         for pkey_i, particle_i  in self.particles.iteritems():
@@ -702,8 +724,8 @@ class Container(object):
                     group_i.resname = particle_i.resname 
                     groupset_i.groups[gkey] = group_i
                     # 
-                    groupset_i.properties['keys'].append(group_i.gkey)
-                    groupset_i.properties['tags'].append(group_i.tag)
+                    groupset_i.keys.append(group_i.gkey)
+                    groupset_i.tags.append(group_i.tag)
                 else:
                     gkey = group_uniqueid[uniqueid_i]
                     group_i =  groupset_i.groups[gkey]
@@ -1091,7 +1113,7 @@ class Container(object):
         for bkey_other,bond_other in new_strcC.bonds.iteritems():
             pkey1 = self.keyupdate[bond_other.pkey1]
             pkey2 = self.keyupdate[bond_other.pkey2]
-            bond_i =bonds.Bond(pkey1,pkey2)
+            bond_i =Bond(pkey1,pkey2)
             # NOteTK bond_i.properties = bond_other.properties
             self.add_bond(bond_i)
         #
@@ -1598,7 +1620,7 @@ class Container(object):
         for pkey_i in self.particles.keys():
             for pkey_j in self.bonded_nblist.getnbs(pkey_i):
                 if( pkey_i < pkey_j ):
-                    bond_i =bonds.Bond( pkey_i, pkey_j )            
+                    bond_i = Bond( pkey_i, pkey_j )            
                     self.add_bond(bond_i)
 
 
@@ -1609,17 +1631,16 @@ class Container(object):
         Args:
             bond_i (Bond) Bond object
         """
-        if isinstance(bond_i,bonds.Bond):
+        if isinstance(bond_i,Bond):
             r_i = self.positions[bond_i.pkey1]
             r_j = self.positions[bond_i.pkey2]
             r_ij,bond_l = self.lat.delta_pos_c(r_i, r_j)
-            bond_i.properties['length'] = bond_l
+            bond_i.length = bond_l
             
             return bond_l
         else:
             raise TypeError("Attempting to calculate non-Bond type")
-        
-        return None
+            return None
 
     def findbond_key(self,pid_i,pid_j):
         '''
@@ -1933,9 +1954,9 @@ class Container(object):
             for key_i in keys:
                 dih_i = self.dihedrals[key_i]
                 row_i = [key_i,dih_i.pkey1,dih_i.pkey2,dih_i.pkey3,dih_i.pkey4]
-                row_i.append(self.particles[dih_i.pkey2].properties['mol'])                    
-                row_i.append(self.particles[dih_i.pkey2].properties['group'])                    
-                row_i.append(self.particles[dih_i.pkey3].properties['group'])                    
+                row_i.append(self.particles[dih_i.pkey2].mol)                    
+                row_i.append(self.particles[dih_i.pkey2].group)                    
+                row_i.append(self.particles[dih_i.pkey3].group)                    
                 for prop_key,prop_val in dih_i.properties.iteritems():
                     row_i.append(prop_val)                    
                 writer.writerow(row_i)
