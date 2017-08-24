@@ -413,46 +413,63 @@ class TestContainer(unittest.TestCase):
         
     def test_shift_tag(self): 
         self.strucC.shift_tag('charge',0.2)
-        
+        self.assertEqual(self.strucC.particles[0].properties["charge"],0.2)
     
-    def test_calc_elcnt(self): 
-        self.strucC.calc_elcnt()
     def test_change_mass(self): 
-        self.strucC.change_mass()
-    def test_guess_oplsa(self): 
-        self.strucC.guess_oplsa()
+        self.strucC.change_mass('C',13.02)
+        self.assertEqual(self.strucC.particles[0].properties["mass"],13.02)
+        
     def test_findbond_key(self): 
-        self.strucC.findbond_key()
-    def test_find_pairs(self): 
-        self.strucC.find_pairs()
+        b_indx = self.strucC.findbond_key(5,6)
+        self.assertEqual(b_indx,3)
+        
+    def test_find_pairs(self):
+        list_i = [0,2]
+        list_j = [1,3]
+        
+        pairvalue_ij_correct =  np.zeros((2,2), dtype=np.float64)  
+        
+        pairvalue_ij = self.strucC.find_pairs(list_i,list_j)
+        
+        nptu.assert_almost_equal(pairvalue_ij,pairvalue_ij_correct)
+        
     def test_get_pos(self): 
-        self.strucC.get_pos()
+        list_i = [0,2]
+        npos_i_correct = np.zeros((2,3), dtype=np.float64)  
+        npos_i = self.strucC.get_pos()
+        
+        nptu.assert_almost_equal(npos_i,npos_i_correct)
+        
+        
     def test_propcompile_particles(self): 
         self.strucC.propcompile_particles()
+        prop_particles_correct = {}
+        
+        
+        self.assertDictEqual(self.strucC.prop_particles,prop_particles_correct)
+        
     def test_write_particles(self): 
         self.strucC.write_particles()
-    def test_bonded_bonds(self): 
-        self.strucC.bonded_bonds()
-    def test_calc_bond(self): 
-        self.strucC.calc_bond()
-    def test_find_bonds(self): 
-        self.strucC.find_bonds()
-    def test_calc_bonds(self): 
-        self.strucC.calc_bonds()
-    def test_write_bonds(self): 
-        self.strucC.write_bonds()
-    def test_bonded_angles(self): 
-        self.strucC.bonded_angles()
-    def test_calc_angle(self): 
-        self.strucC.calc_angle()
-    def test_find_angles(self): 
-        self.strucC.find_angles()
-    def test_calc_angles(self): 
-        self.strucC.calc_angles()
-    def test_write_angles(self): 
-        self.strucC.write_angles()
-    def test_bonded_dih(self): 
-        self.strucC.bonded_dih()
+        
+    def test_find_bonds(self):
+        list_i = [0,2]
+        list_j = [1,3]
+        
+        keys_correct = []
+        keys = self.strucC.find_bonds(list_i,list_j)
+        
+        nptu.assert_almost_equal(keys,keys_correct)
+    
+    def test_find_angles(self):
+        
+        list_k = [4,5]
+        list_i = [0,2]
+        list_j = [1,3]
+        
+        keys_correct = []
+        keys = self.strucC.find_angles(list_k,list_i,list_j)
+        nptu.assert_almost_equal(keys,keys_correct)
+        
     def test_calc_dihedral(self): 
         self.strucC.calc_dihedral()
     def test_find_dihedrals(self): 
