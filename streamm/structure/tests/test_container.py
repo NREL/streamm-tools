@@ -22,6 +22,16 @@ import unittest
 
 try:
     import streamm.structure.containers as containers
+            
+    import streamm.structure.lattices as lattices
+    import streamm.structure.nblists as nblists
+    
+    import streamm.structure.atoms as atoms
+    import streamm.structure.bonds as bonds 
+    import streamm.structure.angles as angles
+    import streamm.structure.dihedrals as dihedrals
+    import streamm.structure.impropers as impropers 
+    
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
@@ -29,6 +39,14 @@ except:
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
     import containers
+    
+    import lattices
+    import nblists
+    import atoms
+    import bonds 
+    import angles 
+    import dihedrals 
+    import impropers     
     
 
 class TestContainer(unittest.TestCase):
