@@ -133,17 +133,13 @@ class TestGroupsProps(unittest.TestCase):
         groupContainer_i.calc_radius()
         for gkey,group_i in groupContainer_i.groups.iteritems():
             self.assertEqual(str(group_i.cent_mass),str(cm[gkey]))
-            self.assertEqual(str(group_i.radius),'2.57775210944')
-            self.assertEqual(str(group_i.r_gy_sq),'3.6041389371')
+            self.assertEqual(str(group_i.radius),'2.5777512384')
+            self.assertEqual(str(group_i.r_gy_sq),'3.60413770284')
             # print "r_gy.append(\'%s\')"%str(group_i.properties)
-        for gkey in groupContainer_i.groups.keys:
-            self.assertEqual(str(groupContainer_i.cent_mass[gkey]),str(cm[gkey]))
-            self.assertEqual(str(groupContainer_i.radius[gkey]),'2.57775210944')
-            self.assertEqual(str(groupContainer_i.r_gy_sq[gkey]),'3.6041389371')
             
         groupContainer_i.group_pbcs()
 
-        os.chdir(os.path.dirname(__file__))
+        # Note TKos.chdir(os.path.dirname(__file__))
         groupContainer_i.write_cm_xyz()
         groupContainer_i.write_xyzs()
         groupContainer_i.dump_json()
@@ -157,7 +153,7 @@ class TestGroupsProps(unittest.TestCase):
         self.assertEqual(str(len(groupContainer_i.groups)),str(30))
         
         groupContainer_i.calc_cent_mass()
-        groupContainer_i.calc_radius()
+        groupContainer_i.calc_radius_asphericity()
 
         #for gkey,group_i in groupContainer_i.groups.iteritems():
         self.assertEqual(round(groupContainer_i.radius[2],6),2.587885)
@@ -171,11 +167,14 @@ class TestGroupsProps(unittest.TestCase):
         self.assertEqual(round(groupContainer_i.A_sphere_dem[0],6),1.995267)
         
         groupContainer_i.calc_dl()
-
+        
+        print len(groupContainer_i.groups)
+        
+            
         self.assertEqual(round(groupContainer_i.dl_sq[0],6),5.966521)
         self.assertEqual(round(groupContainer_i.dl_sq[2],6),20.729214)
                 
-        os.chdir(os.path.dirname(__file__))
+        # NoteTK os.chdir(os.path.dirname(__file__))
         groupContainer_i.write_cm_xyz()
         groupContainer_i.write_xyzs()
         groupContainer_i.dump_json()
@@ -273,9 +272,9 @@ class TestGroupsHtermSp3(unittest.TestCase):
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
             particle_i.resname = 'CRES'
             particle_i.residue = 1
-            if( particle_i.tag == 'H' and rmHcnt < 1 ):
+            if( particle_i.tag == 'H' and rmHcnt == 0 ):
                 particle_i.resname = 'HRES'
-                particle_i.residue = 3
+                particle_i.residue = 2
                 rmHcnt += 1
                 
         group_tag = 'residue'
@@ -284,7 +283,7 @@ class TestGroupsHtermSp3(unittest.TestCase):
         self.assertEqual(len(groupContainer_i.groups),2)  
         
         group_i =  groupContainer_i.groups[0]
-        group_i.write_xyz('Eth_C.xyz')
+        group_i.write_xyz('Eth_Cv1.xyz')
         hterm_i = group_i.hterm_group()
 
         for pkey_i, particle_i  in hterm_i.particles.iteritems():
@@ -294,35 +293,6 @@ class TestGroupsHtermSp3(unittest.TestCase):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),1)  
                         
         hterm_i.write_xyz('Eth_C_hterm1.xyz')
-        
-    def test_hterm2(self):
-
-        rmHcnt = 0 
-        for pkey_i, particle_i  in self.struc_i.particles.iteritems():
-            particle_i.resname = 'CRES'
-            particle_i.residue = 1
-            if( particle_i.tag == 'H' and rmHcnt < 2 ):
-                particle_i.resname = 'HRES'
-                particle_i.residue = 3
-                rmHcnt += 1
-            
-        group_tag = 'residue'
-        groupContainer_i = groups.Container(group_tag,self.struc_i )
-        groupContainer_i.group_prop('residue',group_tag)
-        self.assertEqual(len(groupContainer_i.groups),2)  
-        
-        # NoteTK os.chdir(os.path.dirname(__file__))
-        group_i =  groupContainer_i.groups[0]
-        group_i.write_xyz('Eth_C.xyz')
-        hterm_i = group_i.hterm_group()
-
-        for pkey_i, particle_i  in hterm_i.particles.iteritems():
-            if( particle_i.tag == 'C' ):
-                self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),4)  
-            if( particle_i.tag == 'H'):
-                self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),1)  
-                        
-        hterm_i.write_xyz('Eth_C_hterm2.xyz')
         
     def tearDown(self):
         del self.struc_i         

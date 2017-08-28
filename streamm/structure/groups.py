@@ -1,4 +1,4 @@
-sys.exit(error_line)# coding: utf-8
+# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -19,12 +19,11 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 import sys
+import json 
 
 from streamm.structure.nblists import NBlist 
 from streamm.structure.atoms import Atom
 from streamm.structure.bonds import Bond
-
-
 
 
 def hterm_Csp3(hb_length,r_i,r_ij_array):
@@ -281,7 +280,8 @@ class Group(object):
                 r_j = self.strucC.positions[pkey_j]
                 dr_ij = self.strucC.lat.deltasq_pos_c(r_i,r_j)
                 dot_dr_ij = dr_ij.dot(dr_ij)
-                if( dot_dr_ij > self.dl_sq ): self.dl_sq = dot_dr_ij
+                if( dot_dr_ij > self.dl_sq ):
+                    self.dl_sq = dot_dr_ij
                           
         
 
@@ -358,6 +358,7 @@ class Group(object):
             if( NNAB_o != NNAB_i):
                 # If there has been neighbors removed terminate 
                 dB = NNAB_o - NNAB_i
+                print("Initial structure had {} neighbors and {} have been removed".format(NNAB_o,dB))
                 particle_i = Htermed.particles[pkey_i]
                 r_i = Htermed.positions[pkey_i]
                 r_ij_array = []
@@ -384,19 +385,9 @@ class Group(object):
                     Bond_iH = Bond(pkey_i,p_j)
                     Htermed.add_bond(Bond_iH)
 
-                elif( NNAB_o == 4 and dB == 1 ):
-                    
-                    logger.debug("Adding hterm_sp3 ")
-                    pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
-                    # pt_H.properties["fftype"] = "HC"
-                    Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
-                    p_j = Htermed.n_particles -1 
-                    Bond_iH = Bond(pkey_i,p_j)
-                    Htermed.add_bond(Bond_iH)
-
                 elif( NNAB_o == 3 and dB == 2 ):
 
-                    logger.debug("Adding 3 H to hterm_sp3 ")
+                    logger.debug("Adding 2 H to hterm_sp3 ")
                     '''
                     Choose vector cros_ik normal to plane of i,j and one nieghbor of j 
                     
@@ -532,6 +523,16 @@ class Group(object):
                     #sub_ref_mod.append(pid_i_mod)
 
 
+                elif( NNAB_o == 4 and dB == 1 ):
+                    
+                    logger.debug("Adding hterm_sp3 ")
+                    pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
+                    # pt_H.properties["fftype"] = "HC"
+                    Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
+                    p_j = Htermed.n_particles -1 
+                    Bond_iH = Bond(pkey_i,p_j)
+                    Htermed.add_bond(Bond_iH)
+
                                         
                 else:
                     error_line =  " Nubmer of missing atoms %d has yet to be accounted for in groups.hterm \n"%(dB)
@@ -637,20 +638,20 @@ class Container(object):
                 if( uniqueid_i not in self.uniqueids.keys() ):
                     gkey = len(self.groups)
                     self.uniqueids[uniqueid_i] = gkey
-                    member_i = Group(self.strucC)
-                    member_i.gkey = gkey
-                    member_i.tag = "%s_%s"%(tag,gkey)
-                    member_i.mol  = particle_i.mol 
-                    member_i.residue = particle_i.residue 
-                    member_i.resname = particle_i.resname 
-                    self.groups[gkey] = member_i
+                    group_i = Group(self.strucC)
+                    group_i.gkey = gkey
+                    group_i.tag = "%s_%s"%(tag,gkey)
+                    group_i.mol  = particle_i.mol 
+                    group_i.residue = particle_i.residue 
+                    group_i.resname = particle_i.resname 
+                    self.groups[gkey] = group_i
                     # NoteTK this should be deprecated since dictionary has function keys()
-                    self.keys.append(member_i.gkey)
-                    self.tags.append(member_i.tag)
+                    self.keys.append(group_i.gkey)
+                    self.tags.append(group_i.tag)
                 else:
                     gkey = self.uniqueids[uniqueid_i]
-                    member_i =  self.groups[gkey]
-                member_i.pkeys.append(pkey_i)
+                    group_i =  self.groups[gkey]
+                group_i.pkeys.append(pkey_i)
                 
         # Store set of groups in dict
         self.strucC.groupsets[self.tag] = self
@@ -663,20 +664,21 @@ class Container(object):
         Calculate center of mass of groups and store them in list
         '''
         self.cent_mass = []
-        for gkey,member_i in self.groups.iteritems():
-            member_i.centerofmass()
-            self.cent_mass.append(member_i.cent_mass)
+        for gkey,group_i in self.groups.iteritems():
+            group_i.centerofmass()
+            self.cent_mass.append(group_i.cent_mass)
 
     def calc_dl(self):
         '''
         Calculate the maximum end to end distance of each group 
         '''
         self.dl_sq = []
-        for gkey,member_i in self.groups.iteritems():
-            member_i.calc_dl()
-            self.dl_sq.append(member_i.dl_sq)
+        for gkey,group_i in self.groups.iteritems():
+            group_i.calc_dl()
+            self.dl_sq.append(group_i.dl_sq)
+            print gkey,group_i.dl_sq
 
-    def calc_radius(self):
+    def calc_radius_asphericity(self):
         '''
         Calculate radius of groups and store them in list
         '''
@@ -687,25 +689,25 @@ class Container(object):
         self.A_sphere = []
         self.A_sphere_num = []
         self.A_sphere_dem = []
-        for gkey,member_i in self.groups.iteritems():
-            member_i.calc_radius()
-            member_i.calc_asphericity()
-            self.radius.append(member_i.radius)
-            self.r_gy_sq.append(member_i.r_gy_sq)
-            self.Q_mn.append(member_i.Q_mn)
-            self.Rgy_eignval.append(member_i.Rgy_eignval)
-            self.A_sphere.append(member_i.A_sphere)
-            self.A_sphere_num.append(member_i.A_sphere_num)
-            self.A_sphere_dem.append(member_i.A_sphere_dem)
+        for gkey,group_i in self.groups.iteritems():
+            group_i.calc_radius()
+            group_i.calc_asphericity()
+            self.radius.append(group_i.radius)
+            self.r_gy_sq.append(group_i.r_gy_sq)
+            self.Q_mn.append(group_i.Q_mn)
+            self.Rgy_eignval.append(group_i.Rgy_eignval)
+            self.A_sphere.append(group_i.A_sphere)
+            self.A_sphere_num.append(group_i.A_sphere_num)
+            self.A_sphere_dem.append(group_i.A_sphere_dem)
 
-    def calc_dl(self):
+    def calc_radius(self):
         '''
         Calculate radius of groups and store them in list
         '''
         self.radius = []
-        for gkey,member_i in self.groups.iteritems():
-            member_i.calc_radius()
-            self.radius.append(member_i.radius)
+        for gkey,group_i in self.groups.iteritems():
+            group_i.calc_radius()
+            self.radius.append(group_i.radius)
             
     def write_cm_xyz(self,group_file=""):
         '''
@@ -717,8 +719,8 @@ class Container(object):
         group_line = " %d \n"%(len(self.groups.keys()))
         group_line += " \n"
         group_out.write(group_line)        
-        for gkey,member_i in self.groups.iteritems():
-            cent_mass_i = member_i.cent_mass
+        for gkey,group_i in self.groups.iteritems():
+            cent_mass_i = group_i.cent_mass
             group_line = " Ar   {} {} {}  \n".format(cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
             group_out.write(group_line)
         group_out.close()
@@ -727,8 +729,8 @@ class Container(object):
         '''
         Write group coordinates into an xyz file
         '''
-        for gkey,member_i in self.groups.iteritems():
-            member_i.write_xyz()
+        for gkey,group_i in self.groups.iteritems():
+            group_i.write_xyz()
 
     def group_pbcs(self):
         """
@@ -737,50 +739,50 @@ class Container(object):
         Assumes group length is shorter than box length
 
         """
-        for gkey,member_i in self.groups.iteritems():
+        for gkey,group_i in self.groups.iteritems():
             # Make sure group has particles 
-            if( len( member_i.pkeys ) > 0 ):
+            if( len( group_i.pkeys ) > 0 ):
                 # Get position of first particle in molecule
-                pid_o  = member_i.pkeys[0]
+                pid_o  = group_i.pkeys[0]
                 r_o = self.strucC.positions[pid_o]
                 # 
-                part_shifted = [False]*strucC.n_particles 
+                part_shifted = [False]*self.strucC.n_particles 
                 # 
-                r_mol_mass = np.zeros(strucC.lat.n_dim)
-                shift = np.zeros(strucC.lat.n_dim)
+                r_mol_mass = np.zeros(self.strucC.lat.n_dim)
+                shift = np.zeros(self.strucC.lat.n_dim)
                 total_mass = 0.0 
                 #
                 # shift all atoms to be conected 
                 #
-                for pid_i in sorted(member_i.pkeys):
-                    particle_i = strucC.particles[pid_i]
+                for pid_i in sorted(group_i.pkeys):
+                    particle_i = self.strucC.particles[pid_i]
                     a_mass_i = particle_i.mass
-                    r_i = strucC.positions[pid_i]
-                    r_io = strucC.lat.deltasq_pos(r_i,r_o)
+                    r_i = self.strucC.positions[pid_i]
+                    r_io = self.strucC.lat.deltasq_pos(r_i,r_o)
                     # sum center of mass
                     total_mass += a_mass_i
                     
                     shifted = False 
-                    for dim in range(strucC.lat.n_dim):
-                        shift_dim = round( r_io[dim]/  strucC.lat._matrix[dim][dim] )
-                        r_i[dim] = r_i[dim]  + strucC.lat._matrix[dim][dim] * shift_dim
+                    for dim in range(self.strucC.lat.n_dim):
+                        shift_dim = round( r_io[dim]/  self.strucC.lat._matrix[dim][dim] )
+                        r_i[dim] = r_i[dim]  + self.strucC.lat._matrix[dim][dim] * shift_dim
                         if( shift_dim != 0 ):
                             shifted = True 
                         r_mol_mass[dim] = r_mol_mass[dim]  + a_mass_i*r_i[dim] 
 
-                    member_i.strucC.positions[pid_i] = r_i
+                    group_i.strucC.positions[pid_i] = r_i
                     r_o = r_i
                     pid_o = pid_i
 
                 # Shift molecular center of mass into box 
-                for dim in range(strucC.lat.n_dim):
+                for dim in range(self.strucC.lat.n_dim):
                     cent_mass_i = r_mol_mass[dim] /total_mass
-                    shift[dim] = strucC.lat._matrix[dim][dim] * round( cent_mass_i /  strucC.lat._matrix[dim][dim] )
+                    shift[dim] = self.strucC.lat._matrix[dim][dim] * round( cent_mass_i /  self.strucC.lat._matrix[dim][dim] )
 
 
-                for pid_i in sorted(member_i.pkeys):
-                    r_i = strucC.positions[pid_i]
-                    for dim in range(strucC.lat.n_dim):
+                for pid_i in sorted(group_i.pkeys):
+                    r_i = self.strucC.positions[pid_i]
+                    for dim in range(self.strucC.lat.n_dim):
                         r_i[dim] = r_i[dim] - shift[dim] 
 
 
@@ -835,16 +837,16 @@ class Container(object):
             sub_list = self.strucC.particles.keys()
 
         
-        member_i = self.groups[g_i]
-        member_j = self.groups[g_j]
+        group_i = self.groups[g_i]
+        group_j = self.groups[g_j]
         #npart_pos_i = []
-        for pkey_i in member_i.pkeys:
+        for pkey_i in group_i.pkeys:
             if( pkey_i in sub_list ):
-                pos_i = member_i.strucC.positions[pkey_i]
-                for pkey_j in member_j.pkeys:
+                pos_i = group_i.strucC.positions[pkey_i]
+                for pkey_j in group_j.pkeys:
                     if( pkey_j in sub_list ):
-                        pos_j = member_i.strucC.positions[pkey_j]
-                        dr_ij,mag_dr_ij = member_i.strucC.lat.delta_pos_c(pos_i,pos_j)
+                        pos_j = group_i.strucC.positions[pkey_j]
+                        dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
                         self.dr_pi_pj.append(mag_dr_ij)
                         
         return min(self.dr_pi_pj) 
@@ -856,8 +858,8 @@ class Container(object):
         '''
         json_data = dict()
                 
-        for gkey,member_i in self.groups.iteritems():
-            json_data[gkey] = member_i.pkeys
+        for gkey,group_i in self.groups.iteritems():
+            json_data[gkey] = group_i.pkeys
 
         f = open("groupset_%s.json"%(self.tag), 'w')
         json.dump(json_data,f, indent=2)
