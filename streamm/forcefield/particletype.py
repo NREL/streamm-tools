@@ -47,4 +47,4 @@ class Particletype(object):
         """
         'Magic' method for printng contents of container
         """
-        return " {} ({})".format(self.fftype,self.l)
+        return " {} ({})".format(self.fftype,self.label)
