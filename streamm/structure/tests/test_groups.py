@@ -1,4 +1,58 @@
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
 
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
+
+'''
+Unit tests for the particles module
+'''
+
+import logging
+logger = logging.getLogger(__name__)
+
+import unittest
+import os
+import numpy as np
+import random
+import numpy.testing.utils as nptu
+
+try:
+    import streamm.structure.containers as containers
+    import streamm.structure.groups as groups
+            
+    import streamm.structure.lattices as lattices
+    import streamm.structure.nblists as nblists
+    
+    import streamm.structure.atoms as atoms
+    import streamm.structure.bonds as bonds 
+    import streamm.structure.angles as angles
+    import streamm.structure.dihedrals as dihedrals
+    import streamm.structure.impropers as impropers 
+    
+except:
+    print("streamm is not installed test will use relative path")
+    import sys, os
+    rel_path = os.path.join(os.path.dirname(__file__),'..','')
+    print("rel_path {}".format(rel_path))
+    sys.path.append(rel_path)
+    import containers
+    import groups
+    import lattices
+    import nblists
+    import atoms
+    import bonds 
+    import angles 
+    import dihedrals 
+    import impropers     
+    
 
 class TestGroupsProps(unittest.TestCase):
     # 
@@ -53,9 +107,11 @@ class TestGroupsProps(unittest.TestCase):
             self.assertEqual(str(particle_i.mol),str(mol_i))
 
     def test_groupmol(self):
+        
         group_tag = 'mol'
-        self.strucC.group_prop('mol',group_tag)
-        groupset_i = self.strucC.groupsets[group_tag]
+        groupset_i = groups.GroupSet(group_tag,self.strucC )
+        groupset_i.group_prop('mol',group_tag)
+        
         self.assertEqual(str(len(groupset_i.groups)),str(10))
         groupset_i.calc_cent_mass()
         groupset_i.calc_cent_mass()
@@ -435,3 +491,8 @@ class TestGroup_dr(unittest.TestCase):
         del self.th         
         del self.strucC         
 
+
+if __name__ == '__main__':
+    unittest.main()
+        
+                

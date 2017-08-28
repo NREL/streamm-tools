@@ -12,6 +12,9 @@ __status__ = "Beta"
 class Group(object):
     """
     Sets of particles within a structureContainer
+    
+    NoteTK should be called a member
+    
     """
 
     def __init__(self,strucC,verbose=False):
@@ -22,6 +25,11 @@ class Group(object):
         self.strucC = strucC
         self.n_dim = strucC.lat.n_dim
         #self.pid_list  = []
+        self.tag = 'blank'
+        self.mol = 0
+        self.residue = 0
+        self.resname = 'RES'
+        # 
         self.pkeys  = []
         self.gkey = int(0)                   # group number/key
         self.bonded_nblist = NBlist()        # Creates nblist object for  bonded particles
@@ -29,18 +37,42 @@ class Group(object):
         # 
         # Group properties
         # 
-        self.properties = dict()
-
+        self.cent_mass = np.zeros( self.n_dim)
+        self.total_mass = 0.0  # NoteTK this should be .mass
+        self.radius = 0.0
+        self.r_gy_sq = 0.0
+        self.Q_mn = np.zeros([self.n_dim,self.n_dim])
+        self.Rgy_eignval = np.zeros( self.n_dim)
+        self.A_sphere_num = 0.0
+        self.A_sphere_dem = 0.0
+        self.A_sphere = 0.0
+        self.dl_sq = 0.0 #  np.zeros( self.n_dim)
+        
     def __del__(self):
         """
         Destructor for Group object
         """
+        del self.tag
+        del self.mol
+        del self.residue
+        del self.resname
+        # 
         del self.n_dim 
         del self.pkeys
         del self.gkey
         del self.bonded_nblist
         del self.nonbonded_nblist
-        del self.properties
+        del self.cent_mass
+        del self.total_mass
+        del self.radius
+        del self.r_gy_sq
+        del self.Q_mn
+        del self.Rgy_eignval
+        del self.A_sphere_num
+        del self.A_sphere_dem
+        del self.A_sphere
+        del self.dl_sq
+
 
     def write_xyz(self, xyz_file=''):
         '''
@@ -83,19 +115,19 @@ class Group(object):
         """
         #
         # Intialize center of mass list 
-        self.properties['cent_mass'] = np.zeros( self.n_dim)
-        self.properties['total_mass'] = 0.0
+        self.cent_mass = np.zeros( self.n_dim)
+        self.total_mass = 0.0
         #
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
             r_i = self.strucC.positions[pkey_i]
-            mass_i = particle_i.properties["mass"]
-            self.properties['total_mass'] += mass_i
+            mass_i = particle_i.mass
+            self.total_mass += mass_i
             for dim in range(self.n_dim):
-                self.properties['cent_mass'][dim] += mass_i*r_i[dim]
+                self.cent_mass[dim] += mass_i*r_i[dim]
         # Normalize
         for dim in range(self.n_dim):
-            self.properties['cent_mass'][dim] = self.properties['cent_mass'][dim]/self.properties['total_mass']
+            self.cent_mass[dim] = self.cent_mass[dim]/self.total_mass
         #
         return
 
@@ -122,30 +154,30 @@ class Group(object):
         
         """
         # Initialize sums 
-        self.properties['radius'] = 0.0
-        self.properties['r_gy_sq'] = 0.0
-        self.properties['Q_mn'] = np.zeros([self.n_dim,self.n_dim])
+        self.radius = 0.0
+        self.r_gy_sq = 0.0
+        self.Q_mn = np.zeros([self.n_dim,self.n_dim])
         
         
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
             r_i = self.strucC.positions[pkey_i]
-            dr_cmass = self.strucC.lat.deltasq_pos_c(r_i,self.properties['cent_mass'])
+            dr_cmass = self.strucC.lat.deltasq_pos_c(r_i,self.cent_mass)
             dot_dr_ij = dr_cmass.dot(dr_cmass)
-            if( dot_dr_ij > self.properties['radius']  ):
-                self.properties['radius'] = dot_dr_ij
+            if( dot_dr_ij > self.radius  ):
+                self.radius = dot_dr_ij
             # \sum_i  (r_i_n - r_cmas_n ) (r_i_m - r_cmas_m )
             for d_m in range(self.n_dim):
                 for d_n in range(self.n_dim):
-                    self.properties['Q_mn'][d_m,d_n] += dr_cmass[d_m]*dr_cmass[d_n]
+                    self.Q_mn[d_m,d_n] += dr_cmass[d_m]*dr_cmass[d_n]
         # Normalize
-        self.properties['radius'] = np.sqrt(self.properties['radius'])
+        self.radius = np.sqrt(self.radius)
         for d_m in range(self.n_dim):
             for d_n in range(self.n_dim):
-                self.properties['Q_mn'][d_m,d_n]  = self.properties['Q_mn'][d_m,d_n]  /float( len(self.pkeys))
+                self.Q_mn[d_m,d_n]  = self.Q_mn[d_m,d_n]  /float( len(self.pkeys))
                 
         for d_m in range(self.n_dim):
-             self.properties['r_gy_sq'] += self.properties['Q_mn'][d_m,d_m]
+             self.r_gy_sq += self.Q_mn[d_m,d_m]
         return
 
     def calc_asphericity(self):
@@ -159,7 +191,7 @@ class Group(object):
          
         """
 
-        eign_raw = np.linalg.eigvals(self.properties['Q_mn'])
+        eign_raw = np.linalg.eigvals(self.Q_mn)
         # Sort eignvalues 
         eign_raw.sort()
         Rgy_eignval = [x for x in reversed(eign_raw)]
@@ -168,13 +200,13 @@ class Group(object):
         # 
         # Add properties to property dictionary
         # 
-        self.properties['Rgy_eignval'] = Rgy_eignval
-        self.properties['A_sphere_num'] = num
-        self.properties['A_sphere_dem'] = dem
+        self.Rgy_eignval = Rgy_eignval
+        self.A_sphere_num = num
+        self.A_sphere_dem = dem
         if( dem != 0.0 ):
-            self.properties['A_sphere'] = num/(2.0*dem)
+            self.A_sphere = num/(2.0*dem)
         else:
-            self.properties['A_sphere'] = 0.0 
+            self.A_sphere = 0.0 
 
     def calc_dl(self ):
         """
@@ -183,7 +215,7 @@ class Group(object):
         """
 
         # Intialize center of mass list 
-        self.properties['dl_sq'] = 0.0 #  np.zeros( self.n_dim)
+        self.dl_sq = 0.0 #  np.zeros( self.n_dim)
         
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
@@ -193,7 +225,7 @@ class Group(object):
                 r_j = self.strucC.positions[pkey_j]
                 dr_ij = self.strucC.lat.deltasq_pos_c(r_i,r_j)
                 dot_dr_ij = dr_ij.dot(dr_ij)
-                if( dot_dr_ij > self.properties['dl_sq'] ): self.properties['dl_sq'] = dot_dr_ij
+                if( dot_dr_ij > self.dl_sq ): self.dl_sq = dot_dr_ij
                           
         
 
@@ -463,16 +495,30 @@ class GroupSet(object):
     """
     Set of groups within a structureContainer
     """
-    def __init__(self,tag):
+    def __init__(self,tag,strucC):
         """
         Constructor
         """
         # Set pointer for easy reference
+        self.strucC = strucC
+        # 
         self.tag = tag 
         self.groups = dict()
         self.group_nblist = NBlist()        # Creates nblist object for other groups
-        self.properties = dict()   # Dictionary of group properties
-
+        self.keys = []
+        self.tags = []
+        self.uniqueids = dict()
+        #gkey = 0
+        self.cent_mass = []
+        self.dl_sq = []
+        self.radius = []
+        self.r_gy_sq = []
+        self.Q_mn = []
+        self.Rgy_eignval = []
+        self.A_sphere = []
+        self.A_sphere_num = []
+        self.A_sphere_dem = []
+        
     def __del__(self):
         """
         Destructor
@@ -481,55 +527,126 @@ class GroupSet(object):
         del self.groups
         del self.group_nblist
         del self.properties
+        del self.keys
+        del self.tags
+        del self.uniqueids
+        #
+        del self.cent_mass
+        del self.dl_sq
+        del self.radius
+        del self.r_gy_sq
+        del self.Q_mn
+        del self.Rgy_eignval
+        del self.A_sphere       
+        del self.A_sphere_num
+        del self.A_sphere_dem
+        
+    def group_prop(self,prop,tag,particles_select=[]):
+        """
+        Create groups of mols or residues
+
+        Args:
+            prop  (str) property key
+            tag (str) key for Groups object in groups dict
+            particles_select  (list) list of particle keys to be included in groups
+                                     defaults to all particles.keys if none are specified
+        Returns:
+            None 
+        """
+        supported_group_props = ['mol','residue']
+        if( prop not in supported_group_props):
+            logger.warning(" Unsupported property selection for groups %s "%( prop))
+            sys.exit(2)        
+
+        if( len(particles_select) == 0 ):
+            particles_select = self.strucC.particles.keys()
+        # 
+        self.strucC.maxtags()
+        self.strucC.mol_mult()
+        #
+        # Group particles 
+        #
+        for pkey_i, particle_i  in self.strucC.particles.iteritems():
+            if( pkey_i in particles_select ):
+                # If in selected set of particles 
+                uniqueid_i = pkey_i
+                if( prop == "mol" ): 
+                    uniqueid_i =  int(particle_i.mol )
+                elif( prop == "residue" ): 
+                    uniqueid_i =  int( particle_i.mol*self.strucC.mol_multiplier + particle_i.residue )
+                    
+                if( uniqueid_i not in group_uniqueid.keys() ):
+                    gkey = len(self.groups)
+                    group_uniqueid[uniqueid_i] = gkey
+                    group_i = Group(self.strucC)
+                    group_i.gkey = gkey
+                    group_i.tag = "%s_%s"%(tag,gkey)
+                    group_i.mol  = particle_i.mol 
+                    group_i.residue = particle_i.residue 
+                    group_i.resname = particle_i.resname 
+                    self.groups[gkey] = group_i
+                    # 
+                    self.keys.append(group_i.gkey)
+                    self.tags.append(group_i.tag)
+                else:
+                    gkey = group_uniqueid[uniqueid_i]
+                    group_i =  self.groups[gkey]
+                group_i.pkeys.append(pkey_i)
+                
+        # Store set of groups in dict
+        self.strucC.groupsets[self.tag] = self
+        
+        return  
+
         
     def calc_cent_mass(self):
         '''
         Calculate center of mass of groups and store them in list
         '''
-        self.properties['cent_mass'] = []
+        self.cent_mass = []
         for gkey,group_i in self.groups.iteritems():
             group_i.centerofmass()
-            self.properties['cent_mass'].append(group_i.properties['cent_mass'])
+            self.cent_mass.append(group_i.cent_mass)
 
     def calc_dl(self):
         '''
         Calculate the maximum end to end distance of each group 
         '''
-        self.properties['dl_sq'] = []
+        self.dl_sq = []
         for gkey,group_i in self.groups.iteritems():
             group_i.calc_dl()
-            self.properties['dl_sq'].append(group_i.properties['dl_sq'])
+            self.dl_sq.append(group_i.dl_sq)
 
     def calc_radius(self):
         '''
         Calculate radius of groups and store them in list
         '''
-        self.properties['radius'] = []
-        self.properties['r_gy_sq'] = []
-        self.properties['Q_mn'] = []
-        self.properties['Rgy_eignval'] = []
-        self.properties['A_sphere'] = []
-        self.properties['A_sphere_num'] = []
-        self.properties['A_sphere_dem'] = []
+        self.radius = []
+        self.r_gy_sq = []
+        self.Q_mn = []
+        self.Rgy_eignval = []
+        self.A_sphere = []
+        self.A_sphere_num = []
+        self.A_sphere_dem = []
         for gkey,group_i in self.groups.iteritems():
             group_i.calc_radius()
             group_i.calc_asphericity()
-            self.properties['radius'].append(group_i.properties['radius'])
-            self.properties['r_gy_sq'].append(group_i.properties['r_gy_sq'])
-            self.properties['Q_mn'].append(group_i.properties['Q_mn'])
-            self.properties['Rgy_eignval'].append(group_i.properties['Rgy_eignval'])
-            self.properties['A_sphere'].append(group_i.properties['A_sphere'])
-            self.properties['A_sphere_num'].append(group_i.properties['A_sphere_num'])
-            self.properties['A_sphere_dem'].append(group_i.properties['A_sphere_dem'])
+            self.radius.append(group_i.radius)
+            self.r_gy_sq.append(group_i.r_gy_sq)
+            self.Q_mn.append(group_i.Q_mn)
+            self.Rgy_eignval.append(group_i.Rgy_eignval)
+            self.A_sphere.append(group_i.A_sphere)
+            self.A_sphere_num.append(group_i.A_sphere_num)
+            self.A_sphere_dem.append(group_i.A_sphere_dem)
 
     def calc_dl(self):
         '''
         Calculate radius of groups and store them in list
         '''
-        self.properties['dl_sq'] = []
+        self.radius = []
         for gkey,group_i in self.groups.iteritems():
-            group_i.calc_dl()
-            self.properties['dl_sq'].append(group_i.properties['dl_sq'])
+            group_i.calc_radius()
+            self.radius.append(group_i.radius)
             
     def write_cm_xyz(self,group_file=""):
         '''
@@ -542,7 +659,7 @@ class GroupSet(object):
         group_line += " \n"
         group_out.write(group_line)        
         for gkey,group_i in self.groups.iteritems():
-            cent_mass_i = group_i.properties['cent_mass']
+            cent_mass_i = group_i.cent_mass
             group_line = " Ar   {} {} {}  \n".format(cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
             group_out.write(group_line)
         group_out.close()
@@ -564,10 +681,9 @@ class GroupSet(object):
         for gkey,group_i in self.groups.iteritems():
             # Make sure group has particles 
             if( len( group_i.pkeys ) > 0 ):
-                strucC = group_i.strucC
                 # Get position of first particle in molecule
                 pid_o  = group_i.pkeys[0]
-                r_o = strucC.positions[pid_o]
+                r_o = self.strucC.positions[pid_o]
                 # 
                 part_shifted = [False]*strucC.n_particles 
                 # 
@@ -579,7 +695,7 @@ class GroupSet(object):
                 #
                 for pid_i in sorted(group_i.pkeys):
                     particle_i = strucC.particles[pid_i]
-                    a_mass_i = particle_i.properties['mass']
+                    a_mass_i = particle_i.mass
                     r_i = strucC.positions[pid_i]
                     r_io = strucC.lat.deltasq_pos(r_i,r_o)
                     # sum center of mass
@@ -664,8 +780,8 @@ class GroupSet(object):
                         dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
                         if( mag_dr_ij < mag_dr_pi_pj ):
                             #if( debug ):
-                            #    ff_i = group_i.strucC.particles[pkey_i].properties['fftype'],
-                            #    ff_j = group_i.strucC.particles[pkey_j].properties['fftype'],
+                            #    ff_i = group_i.strucC.particles[pkey_i].fftype,
+                            #    ff_j = group_i.strucC.particles[pkey_j].fftype,
                             #    print pkey_i,ff_i,pkey_j,ff_j,mag_dr_ij
                             mag_dr_pi_pj = mag_dr_ij
                             
