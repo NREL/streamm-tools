@@ -9,12 +9,9 @@ __email__ = "travis.kemper.w@gmail.com"
 __status__ = "Beta"
 
 
-class Group(object):
+class Member(object):
     """
-    Sets of particles within a structureContainer
-    
-    NoteTK should be called a member
-    
+    Sets of particles within a structureContainer 
     """
 
     def __init__(self,strucC,verbose=False):
@@ -491,7 +488,7 @@ class Group(object):
         return Htermed #original_ref_mod,sub_ref_mod 
 
 
-class GroupSet(object):
+class Group(object):
     """
     Set of groups within a structureContainer
     """
@@ -503,7 +500,7 @@ class GroupSet(object):
         self.strucC = strucC
         # 
         self.tag = tag 
-        self.groups = dict()
+        self.members = dict()
         self.group_nblist = NBlist()        # Creates nblist object for other groups
         self.keys = []
         self.tags = []
@@ -518,19 +515,21 @@ class GroupSet(object):
         self.A_sphere = []
         self.A_sphere_num = []
         self.A_sphere_dem = []
+        # 
+        self.dr_pi_pj = [] 
         
     def __del__(self):
         """
         Destructor
         """
         del self.tag 
-        del self.groups
+        del self.members
         del self.group_nblist
         del self.properties
         del self.keys
         del self.tags
         del self.uniqueids
-        #
+        # 
         del self.cent_mass
         del self.dl_sq
         del self.radius
@@ -540,6 +539,7 @@ class GroupSet(object):
         del self.A_sphere       
         del self.A_sphere_num
         del self.A_sphere_dem
+        del self.dr_pi_pj
         
     def group_prop(self,prop,tag,particles_select=[]):
         """
@@ -576,22 +576,22 @@ class GroupSet(object):
                     uniqueid_i =  int( particle_i.mol*self.strucC.mol_multiplier + particle_i.residue )
                     
                 if( uniqueid_i not in group_uniqueid.keys() ):
-                    gkey = len(self.groups)
+                    gkey = len(self.members)
                     group_uniqueid[uniqueid_i] = gkey
-                    group_i = Group(self.strucC)
-                    group_i.gkey = gkey
-                    group_i.tag = "%s_%s"%(tag,gkey)
-                    group_i.mol  = particle_i.mol 
-                    group_i.residue = particle_i.residue 
-                    group_i.resname = particle_i.resname 
-                    self.groups[gkey] = group_i
+                    member_i = Member(self.strucC)
+                    member_i.gkey = gkey
+                    member_i.tag = "%s_%s"%(tag,gkey)
+                    member_i.mol  = particle_i.mol 
+                    member_i.residue = particle_i.residue 
+                    member_i.resname = particle_i.resname 
+                    self.members[gkey] = member_i
                     # 
-                    self.keys.append(group_i.gkey)
-                    self.tags.append(group_i.tag)
+                    self.keys.append(member_i.gkey)
+                    self.tags.append(member_i.tag)
                 else:
                     gkey = group_uniqueid[uniqueid_i]
-                    group_i =  self.groups[gkey]
-                group_i.pkeys.append(pkey_i)
+                    member_i =  self.members[gkey]
+                member_i.pkeys.append(pkey_i)
                 
         # Store set of groups in dict
         self.strucC.groupsets[self.tag] = self
@@ -604,18 +604,18 @@ class GroupSet(object):
         Calculate center of mass of groups and store them in list
         '''
         self.cent_mass = []
-        for gkey,group_i in self.groups.iteritems():
-            group_i.centerofmass()
-            self.cent_mass.append(group_i.cent_mass)
+        for gkey,member_i in self.members.iteritems():
+            member_i.centerofmass()
+            self.cent_mass.append(member_i.cent_mass)
 
     def calc_dl(self):
         '''
         Calculate the maximum end to end distance of each group 
         '''
         self.dl_sq = []
-        for gkey,group_i in self.groups.iteritems():
-            group_i.calc_dl()
-            self.dl_sq.append(group_i.dl_sq)
+        for gkey,member_i in self.members.iteritems():
+            member_i.calc_dl()
+            self.dl_sq.append(member_i.dl_sq)
 
     def calc_radius(self):
         '''
@@ -628,25 +628,25 @@ class GroupSet(object):
         self.A_sphere = []
         self.A_sphere_num = []
         self.A_sphere_dem = []
-        for gkey,group_i in self.groups.iteritems():
-            group_i.calc_radius()
-            group_i.calc_asphericity()
-            self.radius.append(group_i.radius)
-            self.r_gy_sq.append(group_i.r_gy_sq)
-            self.Q_mn.append(group_i.Q_mn)
-            self.Rgy_eignval.append(group_i.Rgy_eignval)
-            self.A_sphere.append(group_i.A_sphere)
-            self.A_sphere_num.append(group_i.A_sphere_num)
-            self.A_sphere_dem.append(group_i.A_sphere_dem)
+        for gkey,member_i in self.members.iteritems():
+            member_i.calc_radius()
+            member_i.calc_asphericity()
+            self.radius.append(member_i.radius)
+            self.r_gy_sq.append(member_i.r_gy_sq)
+            self.Q_mn.append(member_i.Q_mn)
+            self.Rgy_eignval.append(member_i.Rgy_eignval)
+            self.A_sphere.append(member_i.A_sphere)
+            self.A_sphere_num.append(member_i.A_sphere_num)
+            self.A_sphere_dem.append(member_i.A_sphere_dem)
 
     def calc_dl(self):
         '''
         Calculate radius of groups and store them in list
         '''
         self.radius = []
-        for gkey,group_i in self.groups.iteritems():
-            group_i.calc_radius()
-            self.radius.append(group_i.radius)
+        for gkey,member_i in self.members.iteritems():
+            member_i.calc_radius()
+            self.radius.append(member_i.radius)
             
     def write_cm_xyz(self,group_file=""):
         '''
@@ -655,11 +655,11 @@ class GroupSet(object):
         if( len(group_file) == 0 ):
             group_file = "%s_cm.xyz"%(self.tag)
         group_out = open(group_file,"w")
-        group_line = " %d \n"%(len(self.groups.keys()))
+        group_line = " %d \n"%(len(self.members.keys()))
         group_line += " \n"
         group_out.write(group_line)        
-        for gkey,group_i in self.groups.iteritems():
-            cent_mass_i = group_i.cent_mass
+        for gkey,member_i in self.members.iteritems():
+            cent_mass_i = member_i.cent_mass
             group_line = " Ar   {} {} {}  \n".format(cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
             group_out.write(group_line)
         group_out.close()
@@ -668,8 +668,8 @@ class GroupSet(object):
         '''
         Write group coordinates into an xyz file
         '''
-        for gkey,group_i in self.groups.iteritems():
-            group_i.write_xyz()
+        for gkey,member_i in self.members.iteritems():
+            member_i.write_xyz()
 
     def group_pbcs(self):
         """
@@ -678,11 +678,11 @@ class GroupSet(object):
         Assumes group length is shorter than box length
 
         """
-        for gkey,group_i in self.groups.iteritems():
+        for gkey,member_i in self.members.iteritems():
             # Make sure group has particles 
-            if( len( group_i.pkeys ) > 0 ):
+            if( len( member_i.pkeys ) > 0 ):
                 # Get position of first particle in molecule
-                pid_o  = group_i.pkeys[0]
+                pid_o  = member_i.pkeys[0]
                 r_o = self.strucC.positions[pid_o]
                 # 
                 part_shifted = [False]*strucC.n_particles 
@@ -693,7 +693,7 @@ class GroupSet(object):
                 #
                 # shift all atoms to be conected 
                 #
-                for pid_i in sorted(group_i.pkeys):
+                for pid_i in sorted(member_i.pkeys):
                     particle_i = strucC.particles[pid_i]
                     a_mass_i = particle_i.mass
                     r_i = strucC.positions[pid_i]
@@ -709,7 +709,7 @@ class GroupSet(object):
                             shifted = True 
                         r_mol_mass[dim] = r_mol_mass[dim]  + a_mass_i*r_i[dim] 
 
-                    group_i.strucC.positions[pid_i] = r_i
+                    member_i.strucC.positions[pid_i] = r_i
                     r_o = r_i
                     pid_o = pid_i
 
@@ -719,7 +719,7 @@ class GroupSet(object):
                     shift[dim] = strucC.lat._matrix[dim][dim] * round( cent_mass_i /  strucC.lat._matrix[dim][dim] )
 
 
-                for pid_i in sorted(group_i.pkeys):
+                for pid_i in sorted(member_i.pkeys):
                     r_i = strucC.positions[pid_i]
                     for dim in range(strucC.lat.n_dim):
                         r_i[dim] = r_i[dim] - shift[dim] 
@@ -755,9 +755,9 @@ class GroupSet(object):
                 g_j = list_j[indx_j]
                 if( g_i != g_j ):
                     pairvalue_ij[indx_i][indx_j] = 1.0
-                    if( mol_inter and self.groups[g_i].properties["mol"] == self.groups[g_j].properties["mol"] ):
+                    if( mol_inter and self.members[g_i].properties["mol"] == self.members[g_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    elif( mol_intra and self.groups[g_i].properties["mol"] != self.groups[g_j].properties["mol"] ):
+                    elif( mol_intra and self.members[g_i].properties["mol"] != self.members[g_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
                     logger.debug(" keyi %d keyj %d has probility value of %f "%(g_i,g_j,pairvalue_ij[indx_i][indx_j]))
                         
@@ -765,27 +765,25 @@ class GroupSet(object):
         
         
     def dr_particles(self,g_i,g_j,r_cut,sub_list):
+        '''
+        Find a list of the distances between particles of two group members 
+        '''
         
-        mag_dr_pi_pj = r_cut 
+        self.dr_pi_pj = [] 
         
-        group_i = self.groups[g_i]
-        group_j = self.groups[g_j]
+        member_i = self.members[g_i]
+        member_j = self.members[g_j]
         #npart_pos_i = []
-        for pkey_i in group_i.pkeys:
+        for pkey_i in member_i.pkeys:
             if( pkey_i in sub_list ):
-                pos_i = group_i.strucC.positions[pkey_i]
-                for pkey_j in group_j.pkeys:
+                pos_i = member_i.strucC.positions[pkey_i]
+                for pkey_j in member_j.pkeys:
                     if( pkey_j in sub_list ):
-                        pos_j = group_i.strucC.positions[pkey_j]
-                        dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
-                        if( mag_dr_ij < mag_dr_pi_pj ):
-                            #if( debug ):
-                            #    ff_i = group_i.strucC.particles[pkey_i].fftype,
-                            #    ff_j = group_i.strucC.particles[pkey_j].fftype,
-                            #    print pkey_i,ff_i,pkey_j,ff_j,mag_dr_ij
-                            mag_dr_pi_pj = mag_dr_ij
-                            
-        return mag_dr_pi_pj
+                        pos_j = member_i.strucC.positions[pkey_j]
+                        dr_ij,mag_dr_ij = member_i.strucC.lat.delta_pos_c(pos_i,pos_j)
+                        dr_pi_pj.append(mag_dr_ij)
+                        
+        return mag_dr_ij
         
 
     def dump_json(self):
@@ -794,8 +792,8 @@ class GroupSet(object):
         '''
         json_data = dict()
                 
-        for gkey,group_i in self.groups.iteritems():
-            json_data[gkey] = group_i.pkeys
+        for gkey,member_i in self.members.iteritems():
+            json_data[gkey] = member_i.pkeys
 
         f = open("groupset_%s.json"%(self.tag), 'w')
         json.dump(json_data,f, indent=2)
