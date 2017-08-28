@@ -44,7 +44,6 @@ from streamm.structure.dihedrals import Dihedral
 from streamm.structure.impropers import Improper
 
 
-
         
 class Replication(object):
     '''
@@ -441,6 +440,38 @@ class Container(object):
         else:
             logger.debug(" Saving dr and dist matrix for groupset ")
         """
+
+    def getSubStructure(self,pkeys,tag="blank"):
+        """
+        Create new structure container from list of particle keys
+        """
+        new_strucC = Container(str(tag))
+        
+        key_update = dict()
+        # Set lattice 
+        new_strucC.lat = self.lat
+        # Set particles
+        for pkey_i in pkeys:
+            p_i = self.particles[pkey_i]
+            pos_i = self.positions[pkey_i]            
+            new_strucC.add_partpos(p_i,pos_i, deepcopy = True)
+            key_update[pkey_i]  = new_strucC.n_particles -1
+            
+        if( len(self.bonded_nblist.index) > 0 ):
+            # Update bonded nieghbor list
+            new_strucC.bonded_nblist = NBlist() 
+            for pkey_i in pkeys:
+                new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
+                for pkey_j in self.bonded_nblist.getnbs(pkey_i):
+                    if( pkey_j in pkeys ):
+                        new_strucC.bonded_nblist.cnt += 1 
+                        new_strucC.bonded_nblist.list.append(key_update[pkey_j])
+
+            new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
+            new_strucC.bonded_bonds()
+
+        return new_strucC
+        
         
         
     def write_coord(self):

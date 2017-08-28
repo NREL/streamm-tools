@@ -189,7 +189,7 @@ class TestGroupsHtermSp2(unittest.TestCase):
     def setUp(self):
         
         
-        self.th = containers.Container("thiophene")
+        self.struc_i = containers.Container("thiophene")
         
 
         symbols = ['C','C','C','C','S','H','H','H','H']
@@ -206,16 +206,16 @@ class TestGroupsHtermSp2(unittest.TestCase):
         for i in range(len(symbols)):
             pt_i = atoms.Atom(symbols[i])
             pos_i = positions[i]
-            self.th.add_partpos(pt_i,pos_i)
+            self.struc_i.add_partpos(pt_i,pos_i)
         
         
-        self.th.lat_cubic(100.0)
+        self.struc_i.lat_cubic(100.0)
         # If no bonds guess based on radii 
-        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
+        self.struc_i.bonded_nblist = self.struc_i.guess_nblist(0,radii_buffer=1.25)
         # Build bonds from nblist for reference 
-        self.th.bonded_bonds()
+        self.struc_i.bonded_bonds()
         #
-        for pkey_i, particle_i  in self.th.particles.iteritems():
+        for pkey_i, particle_i  in self.struc_i.particles.iteritems():
             if( particle_i.tag == 'C' ):
                 particle_i.resname = "ThSC"
                 particle_i.residue = 1
@@ -226,21 +226,21 @@ class TestGroupsHtermSp2(unittest.TestCase):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
         group_tag = 'residue'
-        groupContainer_i = groups.Container(group_tag,self.th )
-        groupContainer_i.group_prop('residue',group_tag)
+        self.groupContainer_i = groups.Container(group_tag,self.struc_i )
+        self.groupContainer_i.group_prop('residue',group_tag)
 
         self.assertEqual(len(self.groupContainer_i.groups),2)  
         
     def test_hterm(self):
 
-        os.chdir(os.path.dirname(__file__))
+        # NoteTK os.chdir(os.path.dirname(__file__))
         group_i =  self.groupContainer_i.groups[0]
         group_i.write_xyz('Th_SC.xyz')
         hterm_i = group_i.hterm_group()
         hterm_i.write_xyz('Th_SC_hterm.xyz')
         
     def tearDown(self):
-        del self.th         
+        del self.struc_i         
 
 class TestGroupsHtermSp3(unittest.TestCase):
     # 
@@ -281,10 +281,9 @@ class TestGroupsHtermSp3(unittest.TestCase):
         group_tag = 'residue'
         groupContainer_i = groups.Container(group_tag,self.struc_i )
         groupContainer_i.group_prop('residue',group_tag)
-        self.assertEqual(len(self.groupContainer_i.groups),2)  
+        self.assertEqual(len(groupContainer_i.groups),2)  
         
-        os.chdir(os.path.dirname(__file__))
-        group_i =  self.groupContainer_i.groups[0]
+        group_i =  groupContainer_i.groups[0]
         group_i.write_xyz('Eth_C.xyz')
         hterm_i = group_i.hterm_group()
 
@@ -310,10 +309,10 @@ class TestGroupsHtermSp3(unittest.TestCase):
         group_tag = 'residue'
         groupContainer_i = groups.Container(group_tag,self.struc_i )
         groupContainer_i.group_prop('residue',group_tag)
-        self.assertEqual(len(self.groupContainer_i.groups),2)  
+        self.assertEqual(len(groupContainer_i.groups),2)  
         
-        os.chdir(os.path.dirname(__file__))
-        group_i =  self.groupContainer_i.groups[0]
+        # NoteTK os.chdir(os.path.dirname(__file__))
+        group_i =  groupContainer_i.groups[0]
         group_i.write_xyz('Eth_C.xyz')
         hterm_i = group_i.hterm_group()
 
@@ -332,7 +331,7 @@ class TestGroupsHtermSp3(unittest.TestCase):
 class TestGroup_dr(unittest.TestCase):
     # 
     def setUp(self):
-        self.th = containers.Container("thiophene")
+        self.struc_i = containers.Container("thiophene")
 
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
@@ -348,12 +347,12 @@ class TestGroup_dr(unittest.TestCase):
         for i in range(len(symbols)):
             pt_i = atoms.Atom(symbols[i])
             pos_i = positions[i]
-            self.th.add_partpos(pt_i,pos_i)
+            self.struc_i.add_partpos(pt_i,pos_i)
         
 
-        self.th.lat_cubic(100.0)
+        self.struc_i.lat_cubic(100.0)
         #
-        for pkey_i, particle_i  in self.th.particles.iteritems():
+        for pkey_i, particle_i  in self.struc_i.particles.iteritems():
             if( particle_i.tag == 'C' ):
                 particle_i.resname = "SCP2"
                 particle_i.residue = 1
@@ -367,7 +366,7 @@ class TestGroup_dr(unittest.TestCase):
         self.strucC = containers.Container('th_x2')
         self.strucC.lat_cubic(30.0)
         seed = 82343
-        self.strucC = self.strucC.add_struc(self.th,3,seed)
+        self.strucC = self.strucC.add_struc(self.struc_i,3,seed)
         self.strucC.tag = 'th_x3'
         #
     def test_finddr(self):
@@ -377,15 +376,15 @@ class TestGroup_dr(unittest.TestCase):
         self.list_i = []
         for pkey,par_i in self.strucC.particles.iteritems():
             # print  pkey,par_i.mol,par_i.symbol 
-            if( par_i.symbol == 'C' or par_i.symbol == 'S' ):
+            if( par_i.tag == 'C' or par_i.tag == 'S' ):
                 self.list_i.append(pkey)
-                print pkey ,par_i.mol , par_i.symbol 
+                print pkey ,par_i.mol , par_i.tag 
                 
         # self.strucC.bonded_nblist.build_nblist(self.strucC.particles,self.strucC.bonds)
         self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
 
         group_tag = 'mol'
-        groupContainer_i = groups.Container(group_tag,self.struc_i )
+        groupContainer_i = groups.Container(group_tag,self.strucC )
         groupContainer_i.group_prop('mol',group_tag)
         
         groupContainer_i.calc_cent_mass()
@@ -424,7 +423,6 @@ class TestGroup_dr(unittest.TestCase):
         npos_j = groupContainer_i.cent_mass        
         npos_ij,nd_ij = self.strucC.lat.delta_npos(npos_i,npos_j)
         
-        
         for ref_i in range(N_i):
             a_i_hasnieghbor = False
             r_ij_nn = r_cut   # Nearest Neighbor distance  
@@ -457,7 +455,7 @@ class TestGroup_dr(unittest.TestCase):
                 bin_r_nn[bin_nn_index] += p_ij_nn  
      
     def tearDown(self):
-        del self.th         
+        del self.struc_i         
         del self.strucC         
 
 

@@ -1,4 +1,4 @@
-# coding: utf-8
+sys.exit(error_line)# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -17,9 +17,56 @@ This module defines the classes relating to groups of atoms within a container
 import logging
 logger = logging.getLogger(__name__)
 
+import numpy as np
+import sys
 
 from streamm.structure.nblists import NBlist 
-import numpy as np
+from streamm.structure.atoms import Atom
+from streamm.structure.bonds import Bond
+
+
+
+
+def hterm_Csp3(hb_length,r_i,r_ij_array):
+    """
+    Hydrogen terminate segment 
+     (j)     (l)
+        \   /
+         (i)   
+        /   \
+     (k)     (m)
+    """
+
+    add_jk = np.zeros(3)
+    for r_ij in r_ij_array:
+        add_jk +=  r_ij
+    add_jk  = -1.0*add_jk
+    add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
+
+    r_l = r_i + add_scale
+
+    return r_l 
+
+def hterm_Csp2(hb_length,r_i,r_ij_array):
+    """
+    Hydrogen terminate conjugated atom
+    (j)  
+        \  
+         (i)  - (l)
+        /  
+    (k)
+    
+    Hydrogens will be added to sp2 carbons in a plainer configuration
+    """
+    debug = False
+
+    add_jk = -1.0*( r_ij_array[0] + r_ij_array[1] )
+    add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
+    r_l = r_i + add_scale
+
+    return r_l
+
+
 
 class Group(object):
     """
@@ -276,9 +323,7 @@ class Group(object):
 
         """
 
-
         latticevec = self.strucC.lat._matrix
-
 
         hb_length = 1.09
         hb_angle =  109.5
@@ -294,11 +339,11 @@ class Group(object):
         scale_vadd = np.cos(tetrahedral_angle) * hb_length
 
         pt_H = Atom('H')
-        pt_H.properties = periodictable.element_number(1)
-        pt_H.properties["fftype"] = "HC"
-        pt_H.properties["resname"] = "TERM"
-        pt_H.properties["mol"] = self.properties["mol"] 
-        pt_H.properties["residue"] = self.properties["residue"] 
+        # pt_H.properties = periodictable.element_number(1)
+        # pt_H.properties["fftype"] = "HC"
+        pt_H.resname = "TERM"
+        pt_H.mol = self.mol 
+        pt_H.residue = self.residue
 
         original_ref_mod = []
         sub_ref_mod = []
@@ -332,7 +377,7 @@ class Group(object):
                 if( NNAB_o == 3 and dB == 1 ):
                     logger.debug("Adding hterm_conjugated sp2")
                     pos_j = hterm_Csp2(hb_length,r_i,r_ij_array)
-                    pt_H.properties["fftype"] = "HA"
+                    # pt_H.properties["fftype"] = "HA"
                     Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
                     p_j = Htermed.n_particles -1
 
@@ -343,7 +388,7 @@ class Group(object):
                     
                     logger.debug("Adding hterm_sp3 ")
                     pos_j = hterm_Csp3(hb_length,r_i,r_ij_array)
-                    pt_H.properties["fftype"] = "HC"
+                    # pt_H.properties["fftype"] = "HC"
                     Htermed.add_partpos(pt_H,pos_j,deepcopy = True)
                     p_j = Htermed.n_particles -1 
                     Bond_iH = Bond(pkey_i,p_j)
@@ -442,7 +487,7 @@ class Group(object):
                     hpos_1 = r_i + hbond_1
                     hpos_2 = r_i + hbond_2
 
-                    pt_H.properties["fftype"] = "HC"
+                    # NoteTK pt_H.properties["fftype"] = "HC"
                     Htermed.add_partpos(pt_H,hpos_0,deepcopy = True)
                     p_h0 = Htermed.n_particles -1 
                     Bond_iH = Bond(pkey_i,p_h0)
@@ -451,7 +496,7 @@ class Group(object):
                     a_i = Angle( pkey_j ,pkey_i, p_h0 )            
                     Htermed.add_angle(a_i)
                     
-                    pt_H.properties["fftype"] = "HC"
+                    # NoteTK pt_H.properties["fftype"] = "HC"
                     Htermed.add_partpos(pt_H,hpos_1,deepcopy = True)
                     p_h1 = Htermed.n_particles -1 
                     Bond_iH = Bond(pkey_i,p_h1)
@@ -465,7 +510,7 @@ class Group(object):
                     Htermed.add_angle(a_i)
                     
 
-                    pt_H.properties["fftype"] = "HC"
+                    # NoteTK pt_H.properties["fftype"] = "HC"
                     Htermed.add_partpos(pt_H,hpos_2,deepcopy = True)
                     p_h2 = Htermed.n_particles -1 
                     Bond_iH = Bond(pkey_i,p_h2)
@@ -494,8 +539,10 @@ class Group(object):
                     Htermed.write_xyz("hterm_failed.xyz")
                     logger.warning(error_line)
                     sys.exit(error_line)
+                    
                 # Redo neighbor list
-                Htermed.bonded_nblist.build_nblist(Htermed.particles,Htermed.bonds )
+                # Htermed.bonded_nblist.build_nblist(Htermed.particles,Htermed.bonds )
+                Htermed.bonded_nblist = Htermed.guess_nblist(0,radii_buffer=1.25)
             
         return Htermed #original_ref_mod,sub_ref_mod 
 
@@ -767,21 +814,26 @@ class Container(object):
                 g_j = list_j[indx_j]
                 if( g_i != g_j ):
                     pairvalue_ij[indx_i][indx_j] = 1.0
-                    if( mol_inter and self.groups[g_i].properties["mol"] == self.groups[g_j].properties["mol"] ):
+                    if( mol_inter and self.groups[g_i].mol == self.groups[g_j].mol ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    elif( mol_intra and self.groups[g_i].properties["mol"] != self.groups[g_j].properties["mol"] ):
+                    elif( mol_intra and self.groups[g_i].mol != self.groups[g_j].mol ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
                     logger.debug(" keyi %d keyj %d has probility value of %f "%(g_i,g_j,pairvalue_ij[indx_i][indx_j]))
                         
         return pairvalue_ij
         
         
-    def dr_particles(self,g_i,g_j,r_cut,sub_list):
+    def dr_particles(self,g_i,g_j,r_cut,sub_list=[]):
         '''
         Find a list of the distances between particles of two group members 
         '''
         
         self.dr_pi_pj = [] 
+        
+        
+        if( len(sub_list) == 0 ):
+            sub_list = self.strucC.particles.keys()
+
         
         member_i = self.groups[g_i]
         member_j = self.groups[g_j]
@@ -793,9 +845,9 @@ class Container(object):
                     if( pkey_j in sub_list ):
                         pos_j = member_i.strucC.positions[pkey_j]
                         dr_ij,mag_dr_ij = member_i.strucC.lat.delta_pos_c(pos_i,pos_j)
-                        dr_pi_pj.append(mag_dr_ij)
+                        self.dr_pi_pj.append(mag_dr_ij)
                         
-        return mag_dr_ij
+        return min(self.dr_pi_pj) 
         
 
     def dump_json(self):
