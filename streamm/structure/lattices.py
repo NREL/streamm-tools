@@ -49,7 +49,7 @@ class Lattice(pymatgen_lat):
         del self.pbcs 
         #
         
-    def set_percision(self):
+    def set_group_i(self):
         '''
         Set values to correct precision 
         '''
@@ -112,7 +112,7 @@ class Lattice(pymatgen_lat):
         self._matrix[2][2] = cz
         
         # Round values to correct precision     
-        self.set_percision()
+        self.set_group_i()
         
         return         
         
