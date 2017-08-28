@@ -22,6 +22,10 @@ import numpy as np
 import copy
 import os
 import pickle
+import csv
+import math 
+from decimal import Decimal
+
 
 try:
     # Import pymatgen Class 
@@ -48,7 +52,7 @@ class Container(object):
     Bond, Angle, Dihedral and Improper descriptions 
     """
 
-    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,100.0,0.0,0.0,100.0,0.0,0.0]):
+    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
         """
         Constructor for a composite structure. 
         """
@@ -549,12 +553,17 @@ class Container(object):
         
     def calc_mass(self):
         """
-        Calculate total mass of structure  
+        Calculate total mass of structure
+        
+        NoteTK should be calc atomic wieght
+        
         """
         self.mass = float(0.0)
         
         for pkey_i, particle_i  in self.particles.iteritems():
             self.mass += particle_i.mass
+        # Use Decimal Function to numerical errors
+        self.mass  = float(Decimal(str(self.mass)))
 
         return
 
@@ -566,7 +575,9 @@ class Container(object):
         
         for pkey_i, particle_i  in self.particles.iteritems():
             self.charge += particle_i.charge
-
+        # Use Decimal Function to numerical errors
+        self.charge  = float(Decimal(str(self.charge)))
+        
         return
 
 
@@ -582,6 +593,9 @@ class Container(object):
         v_ij = np.cross(v_i,v_j)
         self.volume = np.dot(v_ij,v_k)
         
+        # Use Decimal Function to numerical errors
+        self.volume  = float(Decimal(str(self.volume)))
+        
         return 
 
     def calc_density(self):
@@ -590,6 +604,9 @@ class Container(object):
         """
         self.density = self.mass/self.volume
 
+        # Use Decimal Function to numerical errors
+        self.density  = float(Decimal(str(self.density)))
+        
     def calc_composition(self):
         """
         Calculate composition
@@ -604,7 +621,7 @@ class Container(object):
 
         self.composition = np.zeros(len(pymatgen_pt._pt_data),dtype=np.int)    
         for pkey_i, particle_i  in self.particles.iteritems():
-            el_i = int( particle_i.properties["number"] )
+            el_i = int( particle_i.element.number )
             if( el_i >= 0 ):
                 self.composition[el_i] += 1
     
@@ -620,8 +637,8 @@ class Container(object):
         el_n_list += [ i for i in range(1,len(pymatgen_pt._pt_data)) if( i != 6 and i != 1 ) ]
         for n_i in el_n_list:
             if( self.composition[n_i] > 0 ):
-                el_i = periodictable.element_number(n_i)
-                self.chemicalformula += "%s%d"%(el_i["symbol"],self.composition[n_i])
+                el_i = pymatgen_pt.Element.from_Z(n_i)
+                self.chemicalformula += "%s%d"%(el_i.symbol,self.composition[n_i])
                             
     def calc_center_mass(self):
         """
@@ -633,9 +650,10 @@ class Container(object):
         for pkey_i, particle_i  in self.particles.iteritems():
             mass_i = particle_i.element.atomic_weight
             # print self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2],mass_i
-            self.center_mass += mass_i*np.array(self.positions[pkey_i])
-
-        self.center_mass = self.center_mass/self.mass
+            for dim in range(self.lat.n_dim):
+                self.center_mass[dim] += mass_i*np.array(self.positions[pkey_i][dim])
+        for dim in range(self.lat.n_dim):
+            self.center_mass[dim] = self.center_mass[dim]/self.mass
 
         return
 
@@ -645,14 +663,15 @@ class Container(object):
         
         NoteTK This should be changed to sum_charge 
         '''
-        try:
-            # Sum charges of particles to be removed into attachment points
-            logger.info(" Summing {} with charge {} ".format(self.particles[pkeyp_j].tag,self.particles[pkeyp_j].charge))
-            #print " into ",self.particles[pkey_i].tag,self.particles[pkey_i].charge
-            self.particles[pkey_i].charge += self.particles[pkey_j].charge
-            self.particles[pkey_j].charge = 0.0
-        except:
-            logger.warning("Container %s does not have particle charges"%(pkeyp_j.tag))
+        # Sum charges of particles to be removed into attachment points
+        logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].tag,self.particles[pkey_j].charge,pkey_i))
+        #print " into ",self.particles[pkey_i].tag,self.particles[pkey_i].charge
+        self.particles[pkey_i].charge += self.particles[pkey_j].charge
+        self.particles[pkey_j].charge = 0.0
+                 
+        # Use Decimal Function to numerical errors
+        self.particles[pkey_i].charge  = float(Decimal(str(self.particles[pkey_i].charge)))
+
                                  
     def maxtags(self):
         """
@@ -741,6 +760,8 @@ class Container(object):
     def n_molecules(self):
         """
         Number of molecules
+        
+        NoteTK this needs to be deprecated 
         """
         max_mol = 0
         for pkey_i, particle_i  in self.particles.iteritems():
@@ -771,12 +792,12 @@ class Container(object):
             v_j[2] = sinprefix21*sin_xz*v_i[0] + cos_xz*v_i[2] 
             return v_j
             
-        print(" Rotating particle {} around y-axis ".format(direction))
+        logger.info(" Rotating particle {} around y-axis ".format(direction))
             
         
         if( self.n_particles > 0 ):
-            cos_xz = math.cos(theta_xz)
-            sin_xz = math.sin(theta_xz)
+            cos_xz = np.cos(theta_xz)
+            sin_xz = np.sin(theta_xz)
             # info statments 
             logger.info("{}".format(direction))
             logger.info("cos_xz {}".format(cos_xz))
@@ -841,8 +862,8 @@ class Container(object):
         
         
         if( self.n_particles > 0 ):
-            cos_xy = math.cos(theta_xy)
-            sin_xy = math.sin(theta_xy)
+            cos_xy = np.cos(theta_xy)
+            sin_xy = np.sin(theta_xy)
             # info statments 
             logger.info("{}".format(direction))
             logger.info("cos_xy {}".format(cos_xy))
@@ -905,8 +926,8 @@ class Container(object):
         logger.info(" Rotating particle {} around x-axis ".format(direction))
         
         if( self.n_particles > 0 ):
-            cos_yz = math.cos(theta_yz)
-            sin_yz = math.sin(theta_yz)
+            cos_yz = np.cos(theta_yz)
+            sin_yz = np.sin(theta_yz)
             # info statments 
             logger.info("{}".format(direction))
             logger.info("cos_yz {}".format(cos_yz))
@@ -998,7 +1019,7 @@ class Container(object):
 
         # Remake neighbor list based on updated bonds 
         self.bonded_nblist = NBlist() 
-        self.bonded_nblist.build_nblist(self.particles,self.bonds )
+        self.bonded_nblist = self.build_nblist()
 
 
     def get_max(self):
@@ -1512,8 +1533,8 @@ class Container(object):
         '''
 
         for pkey_i, particle_i  in self.particles.iteritems():
-            if( particle_i.properties["symbol"] == symbol_o ):
-                particle_i.element.atomic_weight = mass_o
+            if( particle_i.tag == symbol_o ):
+                particle_i.mass = mass_o
 
             
     def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
@@ -1593,7 +1614,7 @@ class Container(object):
         
         if( len(keys) > 0 ):
             fout = open(particle_file,'wb')
-            writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            writer = csv.writer(fout,delimiter=str(','), quotechar=str('"'), quoting=csv.QUOTE_ALL)
             header = ['key']
             part_i = self.particles[0]
             for prop_key in part_i.properties.keys():
@@ -1699,17 +1720,13 @@ class Container(object):
         
         if( len(keys) > 0 ):
             fout = open(bonds_file,'wb')
-            writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            writer = csv.writer(fout,delimiter=str(','), quotechar=str('"'), quoting=csv.QUOTE_ALL)
             header = ['dkey','pkey_i','pkey_j']
             bond_i = self.bonds[0]
-            for prop_key in bond_i.properties.keys():
-                header.append(prop_key)
             writer.writerow(header)
             for key_i in keys:
                 bond_i = self.bonds[key_i]
                 row_i = [key_i,bond_i.pkey1,bond_i.pkey2]
-                for prop_key,prop_val in bond_i.properties.iteritems():
-                    row_i.append(prop_val)                    
                 writer.writerow(row_i)
             fout.close()
         else:
@@ -1805,17 +1822,13 @@ class Container(object):
         if( len(keys) > 0 ):
         
             fout = open(angles_file,'wb')
-            writer = csv.writer(fout,delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            writer = csv.writer(fout,delimiter=str(','), quotechar=str('"'), quoting=csv.QUOTE_ALL)
             header = ['dkey','pkey_k','pkey_i','pkey_j']
             angle_i = self.angles[0]
-            for prop_key in angle_i.properties.keys():
-                header.append(prop_key)
             writer.writerow(header)
             for key_i in keys:
                 angle_i = self.angles[key_i]
                 row_i = [key_i,angle_i.pkey1,angle_i.pkey2,angle_i.pkey3]
-                for prop_key,prop_val in angle_i.properties.iteritems():
-                    row_i.append(prop_val)                    
                 writer.writerow(row_i)
             fout.close()
         else:
@@ -1945,20 +1958,17 @@ class Container(object):
         
         if( len(keys) > 0 ):
             fout = open(dih_file,'wb')
-            writer = csv.writer(fout,delimiter=',')  #QUOTE_ALL)
-            header = ['dkey','pkey_k','pkey_i','pkey_j','pkey_l','mol_i','g_i','g_j','cosine']
+            writer = csv.writer(fout,delimiter=str(','), quotechar=str('"'), quoting=csv.QUOTE_ALL)
+            header = ['dkey','pkey_k','pkey_i','pkey_j','pkey_l','mol_i','cosine']
             dih_i = self.dihedrals[0]
-            for prop_key in dih_i.properties.keys():
-                header.append(prop_key)
             writer.writerow(header)
             for key_i in keys:
                 dih_i = self.dihedrals[key_i]
                 row_i = [key_i,dih_i.pkey1,dih_i.pkey2,dih_i.pkey3,dih_i.pkey4]
                 row_i.append(self.particles[dih_i.pkey2].mol)                    
-                row_i.append(self.particles[dih_i.pkey2].group)                    
-                row_i.append(self.particles[dih_i.pkey3].group)                    
-                for prop_key,prop_val in dih_i.properties.iteritems():
-                    row_i.append(prop_val)                    
+                #row_i.append(self.particles[dih_i.pkey2].group)                    
+                #row_i.append(self.particles[dih_i.pkey3].group)  
+                row_i.append(dih_i.cosine)  
                 writer.writerow(row_i)
             fout.close()
         else:

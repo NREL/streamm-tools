@@ -1,5 +1,134 @@
 
 
+class TestGroupsProps(unittest.TestCase):
+    # 
+    def setUp(self):
+        
+        self.th = containers.Container("thiophene")
+            
+        symbols = ['C','C','C','C','S','H','H','H','H']
+        positions = [ ]
+        positions.append([-1.55498576,-1.91131218,-0.00081000])
+        positions.append([-0.17775976,-1.91131218,-0.00081000])
+        positions.append([0.34761524,-0.57904218,-0.00081000])
+        positions.append([-0.65884476,0.36101082,0.00000000])
+        positions.append([-2.16948076,-0.35614618,-0.00000800])
+        positions.append([-2.18966076,-2.79526518,-0.00132100])
+        positions.append([0.45389024,-2.80145418,-0.00106400])
+        positions.append([1.41682424,-0.35961818,-0.00138200])
+        positions.append([-0.51943676,1.44024682,0.00064700])
+        for i in range(len(symbols)):
+            pt_i = atoms.Atom(symbols[i])
+            if( symbols[i] == 'C' ):
+                pt_i.charge = -0.75
+            elif(  symbols[i] == 'H' ):
+                pt_i.charge = 0.80
+            
+            pt_i.mol = 0
+            #pt_i.properties = periodictable.element_symbol()
+            pos_i = positions[i]
+            self.th.add_partpos(pt_i,pos_i)
+        
+        
+        self.th.lat_cubic(100.0)
+        #
+        for pkey_i, particle_i  in self.th.particles.iteritems():
+            if( particle_i.symbol == 'C' ):
+                particle_i.resname = "SCP2"
+                particle_i.residue = 1
+            if( particle_i.symbol == 'S' ):
+                particle_i.resname = "ThS"
+                particle_i.residue = 2
+            if( particle_i.symbol == 'H' ):
+                particle_i.resname = "HA"
+                particle_i.residue = 3
+        self.strucC = containers.Container()
+        self.strucC.lat_cubic(100.0)
+        seed = 82343
+        self.strucC = self.strucC.add_struc(self.th,10,seed,verbose=False)
+
+    def test_molnumbers(self):
+        for pkey_i, particle_i  in self.strucC.particles.iteritems():
+            mol_i = int(pkey_i/self.th.n_particles) 
+            self.assertEqual(str(particle_i.mol),str(mol_i))
+
+    def test_groupmol(self):
+        group_tag = 'mol'
+        self.strucC.group_prop('mol',group_tag)
+        groupset_i = self.strucC.groupsets[group_tag]
+        self.assertEqual(str(len(groupset_i.groups)),str(10))
+        groupset_i.calc_cent_mass()
+        groupset_i.calc_cent_mass()
+        
+        cm = []
+        cm.append('[ 61.022463  12.212374  55.579404]')
+        cm.append('[ 94.589545   0.548985  40.058567]')
+        cm.append('[ 13.025619  22.458819  96.090279]')
+        cm.append('[ 45.93974   30.752004  73.031331]')
+        cm.append('[ 28.945124  70.792119  10.476723]')
+        cm.append('[ 26.732501  56.981684  23.793239]')
+        cm.append('[ 48.205917  63.191955  94.038944]')
+        cm.append('[ 28.343741  95.032088  28.668735]')
+        cm.append('[ 83.906182   8.100332  26.885987]')
+        cm.append('[ 97.987557  38.078986  85.843074]')
+
+        groupset_i.calc_radius()
+        groupset_i.calc_radius()
+        groupset_i.calc_radius()
+        for gkey,group_i in groupset_i.groups.iteritems():
+            self.assertEqual(str(group_i.cent_mass),str(cm[gkey]))
+            self.assertEqual(str(group_i.radius),'2.57775210944')
+            self.assertEqual(str(group_i.r_gy_sq),'3.6041389371')
+            # print "r_gy.append(\'%s\')"%str(group_i.properties)
+        for gkey in groupset_i.keys:
+            self.assertEqual(str(groupset_i.cent_mass[gkey]),str(cm[gkey]))
+            self.assertEqual(str(groupset_i.radius[gkey]),'2.57775210944')
+            self.assertEqual(str(groupset_i.r_gy_sq[gkey]),'3.6041389371')
+            
+        groupset_i.group_pbcs()
+
+        os.chdir(os.path.dirname(__file__))
+        groupset_i.write_cm_xyz()
+        groupset_i.write_xyzs()
+        groupset_i.dump_json()
+
+        
+    def test_groupres(self):
+        group_tag = 'residue'
+        self.strucC.group_prop('residue',group_tag)
+        groupset_i = self.strucC.groupsets[group_tag]
+        self.assertEqual(str(len(groupset_i.groups)),str(30))
+        
+        groupset_i.calc_cent_mass()
+        groupset_i.calc_radius()
+
+        #for gkey,group_i in groupset_i.groups.iteritems():
+        self.assertEqual(round(groupset_i.radius[2],6),2.587885)
+        self.assertEqual(round(groupset_i.r_gy_sq[2],6),4.967159)
+        self.assertEqual(round(groupset_i.Q_mn[2][0][0],6),0.005067)
+        self.assertEqual(round(groupset_i.Rgy_eignval[0][0],6),1.002185)
+        self.assertEqual(round(groupset_i.Rgy_eignval[0][1],6),0.410354)
+        self.assertEqual(round(groupset_i.Rgy_eignval[0][2],6),0.0)
+        self.assertEqual(round(groupset_i.A_sphere[0],6),0.381661)
+        self.assertEqual(round(groupset_i.A_sphere_num[0],6),1.52303)
+        self.assertEqual(round(groupset_i.A_sphere_dem[0],6),1.995267)
+        
+        groupset_i.calc_dl()
+
+        self.assertEqual(round(groupset_i.dl_sq[0],6),5.966521)
+        self.assertEqual(round(groupset_i.dl_sq[2],6),20.729214)
+                
+        os.chdir(os.path.dirname(__file__))
+        groupset_i.write_cm_xyz()
+        groupset_i.write_xyzs()
+        groupset_i.dump_json()
+        
+
+                
+    def tearDown(self):
+        del self.th         
+        del self.strucC
+        
 class TestGroupsHtermSp2(unittest.TestCase):
     # 
     def setUp(self):

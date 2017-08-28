@@ -319,7 +319,6 @@ class Lattice(pymatgen_lat):
         for m in range(self.n_dim):
             for n in range(self.n_dim):
                 matrix_i[m][n] += matrix_i[m][n]*exlat_frac
-                print matrix_i[m][n]
                 
         self.set_matrix(matrix_i)
         
