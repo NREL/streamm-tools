@@ -36,7 +36,7 @@ class Container(object):
         self.angletypes = dict()                                # Creates empty dict struc
         self.dihtypes = dict()                                # Creates empty dict struc
         self.imptypes = dict()                                  # Creates empty dict struc
-
+        # 
         # Int count of the length of each dictionary
         #   mostly for internal use 
         self.n_ljtypes = 0    
@@ -77,9 +77,7 @@ class Container(object):
         """
 
         strucStr =  "\n"
-        strucStr += sperator_line
         strucStr += "    Parameters \n"
-        strucStr += sperator_line
         strucStr += "      LJ parameters %d \n"%(self.n_ljtypes)
         strucStr += "      Bond parameters %d \n"%(self.n_bondtypes)
         strucStr += "      Angle parameters %d \n"%(self.n_angletypes)
