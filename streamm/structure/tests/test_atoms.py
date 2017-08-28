@@ -38,8 +38,7 @@ class TestParticleAtom(unittest.TestCase):
         self.assertEqual(self.atom.type,"atom")
 
     def test_properties(self):
-        self.assertEqual(self.atom.symbol,"C")
-        
+        self.assertEqual(self.atom.tag,"C")
         
         self.assertEqual(self.atom.mol,112)
         self.assertEqual(self.atom.ring ,3)
