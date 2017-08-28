@@ -25,7 +25,7 @@ import pickle
 import csv
 import math 
 from decimal import Decimal
-
+from datetime import datetime
 
 try:
     # Import pymatgen Class 
@@ -44,6 +44,35 @@ from streamm.structure.dihedrals import Dihedral
 from streamm.structure.impropers import Improper
 
 
+
+        
+class Replication(object):
+    '''
+    Object to record the replication of structure 
+    '''
+    def __init__(self,name_i,name_j,name_ij,method,n):
+
+        self.name_i = name_i
+        self.name_j = name_j
+        self.name_ij = name_ij
+        self.method = method
+        self.n = n
+    
+    def __del__(self):
+        """
+        'Magic' method for deleting contents of container
+        """
+        del self.name_ij
+        del self.name_i
+        del self.name_j
+        del self.method
+        del self.n
+        
+    def __str__(self):
+        """
+        'Magic' method for printng contents of container 
+        """
+        return " %s +  %s x %d ( %s ) -> %s "%(self.name_i,self.name_j,self.n,self.method,self.name_ij)
 
 class Container(object):
     """
@@ -1261,7 +1290,11 @@ class Container(object):
     def add_struc(self,other,n_i,seed,p=None,tag="blank"):
         """
         Add structure other to self n times via random placement
+        
+        NoteTK needs to go into replication directory and be dependent on mpi
+        
         """
+        import random
         #
         # MPI setup
         #

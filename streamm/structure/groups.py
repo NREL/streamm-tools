@@ -1,15 +1,27 @@
-#! /usr/bin/env python
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
 """
 This module defines the classes relating to groups of atoms within a container
 """
 
-__author__ = "Travis W. Kemper"
-__version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
-__status__ = "Beta"
+import logging
+logger = logging.getLogger(__name__)
 
 
-class Member(object):
+from streamm.structure.nblists import NBlist 
+import numpy as np
+
+class Group(object):
     """
     Sets of particles within a structureContainer 
     """
@@ -32,7 +44,7 @@ class Member(object):
         self.bonded_nblist = NBlist()        # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()     # Creates nblist object for nonbonded particles
         # 
-        # Group properties
+        # Member properties
         # 
         self.cent_mass = np.zeros( self.n_dim)
         self.total_mass = 0.0  # NoteTK this should be .mass
@@ -138,8 +150,6 @@ class Member(object):
         Radius of math::`gyration^2` (r_gy_sq)
 
         r_gy_sq = \frac(\sum_i  (r_i - r_cmas )^2)( \sum_i)
-                     
-
 
         Gyration tensor
 
@@ -175,6 +185,7 @@ class Member(object):
                 
         for d_m in range(self.n_dim):
              self.r_gy_sq += self.Q_mn[d_m,d_m]
+        # 
         return
 
     def calc_asphericity(self):
@@ -207,6 +218,7 @@ class Member(object):
 
     def calc_dl(self ):
         """
+        
         Calculate the maximum end to end distance 
 
         """
@@ -488,9 +500,9 @@ class Member(object):
         return Htermed #original_ref_mod,sub_ref_mod 
 
 
-class Group(object):
+class Container(object):
     """
-    Set of groups within a structureContainer
+    Set of groups within a structure.containers.Container
     """
     def __init__(self,tag,strucC):
         """
@@ -500,7 +512,7 @@ class Group(object):
         self.strucC = strucC
         # 
         self.tag = tag 
-        self.members = dict()
+        self.groups = dict()
         self.group_nblist = NBlist()        # Creates nblist object for other groups
         self.keys = []
         self.tags = []
@@ -523,7 +535,7 @@ class Group(object):
         Destructor
         """
         del self.tag 
-        del self.members
+        del self.groups
         del self.group_nblist
         del self.properties
         del self.keys
@@ -575,22 +587,22 @@ class Group(object):
                 elif( prop == "residue" ): 
                     uniqueid_i =  int( particle_i.mol*self.strucC.mol_multiplier + particle_i.residue )
                     
-                if( uniqueid_i not in group_uniqueid.keys() ):
-                    gkey = len(self.members)
-                    group_uniqueid[uniqueid_i] = gkey
-                    member_i = Member(self.strucC)
+                if( uniqueid_i not in self.uniqueids.keys() ):
+                    gkey = len(self.groups)
+                    self.uniqueids[uniqueid_i] = gkey
+                    member_i = Group(self.strucC)
                     member_i.gkey = gkey
                     member_i.tag = "%s_%s"%(tag,gkey)
                     member_i.mol  = particle_i.mol 
                     member_i.residue = particle_i.residue 
                     member_i.resname = particle_i.resname 
-                    self.members[gkey] = member_i
-                    # 
+                    self.groups[gkey] = member_i
+                    # NoteTK this should be deprecated since dictionary has function keys()
                     self.keys.append(member_i.gkey)
                     self.tags.append(member_i.tag)
                 else:
-                    gkey = group_uniqueid[uniqueid_i]
-                    member_i =  self.members[gkey]
+                    gkey = self.uniqueids[uniqueid_i]
+                    member_i =  self.groups[gkey]
                 member_i.pkeys.append(pkey_i)
                 
         # Store set of groups in dict
@@ -604,7 +616,7 @@ class Group(object):
         Calculate center of mass of groups and store them in list
         '''
         self.cent_mass = []
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             member_i.centerofmass()
             self.cent_mass.append(member_i.cent_mass)
 
@@ -613,7 +625,7 @@ class Group(object):
         Calculate the maximum end to end distance of each group 
         '''
         self.dl_sq = []
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             member_i.calc_dl()
             self.dl_sq.append(member_i.dl_sq)
 
@@ -628,7 +640,7 @@ class Group(object):
         self.A_sphere = []
         self.A_sphere_num = []
         self.A_sphere_dem = []
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             member_i.calc_radius()
             member_i.calc_asphericity()
             self.radius.append(member_i.radius)
@@ -644,7 +656,7 @@ class Group(object):
         Calculate radius of groups and store them in list
         '''
         self.radius = []
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             member_i.calc_radius()
             self.radius.append(member_i.radius)
             
@@ -655,10 +667,10 @@ class Group(object):
         if( len(group_file) == 0 ):
             group_file = "%s_cm.xyz"%(self.tag)
         group_out = open(group_file,"w")
-        group_line = " %d \n"%(len(self.members.keys()))
+        group_line = " %d \n"%(len(self.groups.keys()))
         group_line += " \n"
         group_out.write(group_line)        
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             cent_mass_i = member_i.cent_mass
             group_line = " Ar   {} {} {}  \n".format(cent_mass_i[0],cent_mass_i[1],cent_mass_i[2])
             group_out.write(group_line)
@@ -668,7 +680,7 @@ class Group(object):
         '''
         Write group coordinates into an xyz file
         '''
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             member_i.write_xyz()
 
     def group_pbcs(self):
@@ -678,7 +690,7 @@ class Group(object):
         Assumes group length is shorter than box length
 
         """
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             # Make sure group has particles 
             if( len( member_i.pkeys ) > 0 ):
                 # Get position of first particle in molecule
@@ -755,9 +767,9 @@ class Group(object):
                 g_j = list_j[indx_j]
                 if( g_i != g_j ):
                     pairvalue_ij[indx_i][indx_j] = 1.0
-                    if( mol_inter and self.members[g_i].properties["mol"] == self.members[g_j].properties["mol"] ):
+                    if( mol_inter and self.groups[g_i].properties["mol"] == self.groups[g_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
-                    elif( mol_intra and self.members[g_i].properties["mol"] != self.members[g_j].properties["mol"] ):
+                    elif( mol_intra and self.groups[g_i].properties["mol"] != self.groups[g_j].properties["mol"] ):
                         pairvalue_ij[indx_i][indx_j] = 0.0
                     logger.debug(" keyi %d keyj %d has probility value of %f "%(g_i,g_j,pairvalue_ij[indx_i][indx_j]))
                         
@@ -771,8 +783,8 @@ class Group(object):
         
         self.dr_pi_pj = [] 
         
-        member_i = self.members[g_i]
-        member_j = self.members[g_j]
+        member_i = self.groups[g_i]
+        member_j = self.groups[g_j]
         #npart_pos_i = []
         for pkey_i in member_i.pkeys:
             if( pkey_i in sub_list ):
@@ -792,7 +804,7 @@ class Group(object):
         '''
         json_data = dict()
                 
-        for gkey,member_i in self.members.iteritems():
+        for gkey,member_i in self.groups.iteritems():
             json_data[gkey] = member_i.pkeys
 
         f = open("groupset_%s.json"%(self.tag), 'w')

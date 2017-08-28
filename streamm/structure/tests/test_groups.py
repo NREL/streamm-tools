@@ -87,19 +87,19 @@ class TestGroupsProps(unittest.TestCase):
         self.th.lat_cubic(100.0)
         #
         for pkey_i, particle_i  in self.th.particles.iteritems():
-            if( particle_i.symbol == 'C' ):
+            if( particle_i.tag == 'C' ):
                 particle_i.resname = "SCP2"
                 particle_i.residue = 1
-            if( particle_i.symbol == 'S' ):
+            if( particle_i.tag == 'S' ):
                 particle_i.resname = "ThS"
                 particle_i.residue = 2
-            if( particle_i.symbol == 'H' ):
+            if( particle_i.tag == 'H' ):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
         self.strucC = containers.Container()
         self.strucC.lat_cubic(100.0)
         seed = 82343
-        self.strucC = self.strucC.add_struc(self.th,10,seed,verbose=False)
+        self.strucC = self.strucC.add_struc(self.th,10,seed)
 
     def test_molnumbers(self):
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
@@ -109,12 +109,12 @@ class TestGroupsProps(unittest.TestCase):
     def test_groupmol(self):
         
         group_tag = 'mol'
-        groupset_i = groups.GroupSet(group_tag,self.strucC )
-        groupset_i.group_prop('mol',group_tag)
+        groupContainer_i = groups.Container(group_tag,self.strucC )
+        groupContainer_i.group_prop('mol',group_tag)
         
-        self.assertEqual(str(len(groupset_i.groups)),str(10))
-        groupset_i.calc_cent_mass()
-        groupset_i.calc_cent_mass()
+        self.assertEqual(str(len(groupContainer_i.groups)),str(10))
+        groupContainer_i.calc_cent_mass()
+        groupContainer_i.calc_cent_mass()
         
         cm = []
         cm.append('[ 61.022463  12.212374  55.579404]')
@@ -128,59 +128,58 @@ class TestGroupsProps(unittest.TestCase):
         cm.append('[ 83.906182   8.100332  26.885987]')
         cm.append('[ 97.987557  38.078986  85.843074]')
 
-        groupset_i.calc_radius()
-        groupset_i.calc_radius()
-        groupset_i.calc_radius()
-        for gkey,group_i in groupset_i.groups.iteritems():
+        groupContainer_i.calc_radius()
+        groupContainer_i.calc_radius()
+        groupContainer_i.calc_radius()
+        for gkey,group_i in groupContainer_i.groups.iteritems():
             self.assertEqual(str(group_i.cent_mass),str(cm[gkey]))
             self.assertEqual(str(group_i.radius),'2.57775210944')
             self.assertEqual(str(group_i.r_gy_sq),'3.6041389371')
             # print "r_gy.append(\'%s\')"%str(group_i.properties)
-        for gkey in groupset_i.keys:
-            self.assertEqual(str(groupset_i.cent_mass[gkey]),str(cm[gkey]))
-            self.assertEqual(str(groupset_i.radius[gkey]),'2.57775210944')
-            self.assertEqual(str(groupset_i.r_gy_sq[gkey]),'3.6041389371')
+        for gkey in groupContainer_i.groups.keys:
+            self.assertEqual(str(groupContainer_i.cent_mass[gkey]),str(cm[gkey]))
+            self.assertEqual(str(groupContainer_i.radius[gkey]),'2.57775210944')
+            self.assertEqual(str(groupContainer_i.r_gy_sq[gkey]),'3.6041389371')
             
-        groupset_i.group_pbcs()
+        groupContainer_i.group_pbcs()
 
         os.chdir(os.path.dirname(__file__))
-        groupset_i.write_cm_xyz()
-        groupset_i.write_xyzs()
-        groupset_i.dump_json()
+        groupContainer_i.write_cm_xyz()
+        groupContainer_i.write_xyzs()
+        groupContainer_i.dump_json()
 
         
     def test_groupres(self):
         group_tag = 'residue'
-        self.strucC.group_prop('residue',group_tag)
-        groupset_i = self.strucC.groupsets[group_tag]
-        self.assertEqual(str(len(groupset_i.groups)),str(30))
+        groupContainer_i = groups.Container(group_tag,self.strucC )
+        groupContainer_i.group_prop('residue',group_tag)
         
-        groupset_i.calc_cent_mass()
-        groupset_i.calc_radius()
-
-        #for gkey,group_i in groupset_i.groups.iteritems():
-        self.assertEqual(round(groupset_i.radius[2],6),2.587885)
-        self.assertEqual(round(groupset_i.r_gy_sq[2],6),4.967159)
-        self.assertEqual(round(groupset_i.Q_mn[2][0][0],6),0.005067)
-        self.assertEqual(round(groupset_i.Rgy_eignval[0][0],6),1.002185)
-        self.assertEqual(round(groupset_i.Rgy_eignval[0][1],6),0.410354)
-        self.assertEqual(round(groupset_i.Rgy_eignval[0][2],6),0.0)
-        self.assertEqual(round(groupset_i.A_sphere[0],6),0.381661)
-        self.assertEqual(round(groupset_i.A_sphere_num[0],6),1.52303)
-        self.assertEqual(round(groupset_i.A_sphere_dem[0],6),1.995267)
+        self.assertEqual(str(len(groupContainer_i.groups)),str(30))
         
-        groupset_i.calc_dl()
+        groupContainer_i.calc_cent_mass()
+        groupContainer_i.calc_radius()
 
-        self.assertEqual(round(groupset_i.dl_sq[0],6),5.966521)
-        self.assertEqual(round(groupset_i.dl_sq[2],6),20.729214)
+        #for gkey,group_i in groupContainer_i.groups.iteritems():
+        self.assertEqual(round(groupContainer_i.radius[2],6),2.587885)
+        self.assertEqual(round(groupContainer_i.r_gy_sq[2],6),4.967159)
+        self.assertEqual(round(groupContainer_i.Q_mn[2][0][0],6),0.005067)
+        self.assertEqual(round(groupContainer_i.Rgy_eignval[0][0],6),1.002185)
+        self.assertEqual(round(groupContainer_i.Rgy_eignval[0][1],6),0.410354)
+        self.assertEqual(round(groupContainer_i.Rgy_eignval[0][2],6),0.0)
+        self.assertEqual(round(groupContainer_i.A_sphere[0],6),0.381661)
+        self.assertEqual(round(groupContainer_i.A_sphere_num[0],6),1.52303)
+        self.assertEqual(round(groupContainer_i.A_sphere_dem[0],6),1.995267)
+        
+        groupContainer_i.calc_dl()
+
+        self.assertEqual(round(groupContainer_i.dl_sq[0],6),5.966521)
+        self.assertEqual(round(groupContainer_i.dl_sq[2],6),20.729214)
                 
         os.chdir(os.path.dirname(__file__))
-        groupset_i.write_cm_xyz()
-        groupset_i.write_xyzs()
-        groupset_i.dump_json()
+        groupContainer_i.write_cm_xyz()
+        groupContainer_i.write_xyzs()
+        groupContainer_i.dump_json()
         
-
-                
     def tearDown(self):
         del self.th         
         del self.strucC
@@ -188,34 +187,54 @@ class TestGroupsProps(unittest.TestCase):
 class TestGroupsHtermSp2(unittest.TestCase):
     # 
     def setUp(self):
-        self.th = structure.Container("thiophene")
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.th.tag)
-        self.th.read_xyz(file_i)
+        
+        
+        self.th = containers.Container("thiophene")
+        
+
+        symbols = ['C','C','C','C','S','H','H','H','H']
+        positions = [ ]
+        positions.append([-1.55498576,-1.91131218,-0.00081000])
+        positions.append([-0.17775976,-1.91131218,-0.00081000])
+        positions.append([0.34761524,-0.57904218,-0.00081000])
+        positions.append([-0.65884476,0.36101082,0.00000000])
+        positions.append([-2.16948076,-0.35614618,-0.00000800])
+        positions.append([-2.18966076,-2.79526518,-0.00132100])
+        positions.append([0.45389024,-2.80145418,-0.00106400])
+        positions.append([1.41682424,-0.35961818,-0.00138200])
+        positions.append([-0.51943676,1.44024682,0.00064700])
+        for i in range(len(symbols)):
+            pt_i = atoms.Atom(symbols[i])
+            pos_i = positions[i]
+            self.th.add_partpos(pt_i,pos_i)
+        
+        
         self.th.lat_cubic(100.0)
         # If no bonds guess based on radii 
-        self.th.bonded_nblist.guess_nblist(self.th.lat,self.th.particles,self.th.positions,"cov_radii",radii_buffer=1.25)
+        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         # Build bonds from nblist for reference 
         self.th.bonded_bonds()
         #
         for pkey_i, particle_i  in self.th.particles.iteritems():
-            if( particle_i.properties['symbol'] == 'C' ):
-                particle_i.properties['resname'] = "ThSC"
-                particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'S' ):
-                particle_i.properties['resname'] = "ThSC"
-                particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'H' ):
-                particle_i.properties['resname'] = "HA"
-                particle_i.properties['residue'] = 3
+            if( particle_i.tag == 'C' ):
+                particle_i.resname = "ThSC"
+                particle_i.residue = 1
+            if( particle_i.tag == 'S' ):
+                particle_i.resname = "ThSC"
+                particle_i.residue = 1
+            if( particle_i.tag == 'H' ):
+                particle_i.resname = "HA"
+                particle_i.residue = 3
         group_tag = 'residue'
-        self.th.group_prop('residue',group_tag)
-        self.groupset_i = self.th.groupsets[group_tag]
-        self.assertEqual(len(self.groupset_i.groups),2)  
+        groupContainer_i = groups.Container(group_tag,self.th )
+        groupContainer_i.group_prop('residue',group_tag)
+
+        self.assertEqual(len(self.groupContainer_i.groups),2)  
         
     def test_hterm(self):
 
         os.chdir(os.path.dirname(__file__))
-        group_i =  self.groupset_i.groups[0]
+        group_i =  self.groupContainer_i.groups[0]
         group_i.write_xyz('Th_SC.xyz')
         hterm_i = group_i.hterm_group()
         hterm_i.write_xyz('Th_SC_hterm.xyz')
@@ -226,12 +245,25 @@ class TestGroupsHtermSp2(unittest.TestCase):
 class TestGroupsHtermSp3(unittest.TestCase):
     # 
     def setUp(self):
-        self.struc_i = structure.Container("ethane")
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.struc_i.tag)
-        self.struc_i.read_xyz(file_i)
+        self.struc_i = containers.Container('ethane')
+        symbols = ['C','C','H','H','H','H','H','H']
+        positions = [ ]
+        positions.append([-3.29091,-1.65766,-0.00000])
+        positions.append([-2.35783,-0.47894,-0.00000])
+        positions.append([-4.16830,-1.39014,0.58763])
+        positions.append([-2.76492,-2.50106,0.44575])
+        positions.append([-3.56295,-1.86934,-1.03338])
+        positions.append([-2.08579,-0.26727,1.03338])
+        positions.append([-2.88382,0.36446,-0.44575])
+        positions.append([-1.48044,-0.74646,-0.58763])
+        for i in range(len(symbols)):
+            pt_i = atoms.Atom(symbols[i])
+            #pt_i.properties = periodictable.element_symbol()
+            pos_i = positions[i]
+            self.struc_i.add_partpos(pt_i,pos_i)
         self.struc_i.lat_cubic(100.0)
         # If no bonds guess based on radii 
-        self.struc_i.bonded_nblist.guess_nblist(self.struc_i.lat,self.struc_i.particles,self.struc_i.positions,"cov_radii",radii_buffer=1.25)
+        self.struc_i.bonded_nblist = self.struc_i.guess_nblist(0,radii_buffer=1.25)
         # Build bonds from nblist for reference 
         self.struc_i.bonded_bonds()
         #
@@ -239,27 +271,27 @@ class TestGroupsHtermSp3(unittest.TestCase):
 
         rmHcnt = 0 
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
-            particle_i.properties['resname'] = 'CRES'
-            particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'H' and rmHcnt < 1 ):
-                particle_i.properties['resname'] = 'HRES'
-                particle_i.properties['residue'] = 3
+            particle_i.resname = 'CRES'
+            particle_i.residue = 1
+            if( particle_i.tag == 'H' and rmHcnt < 1 ):
+                particle_i.resname = 'HRES'
+                particle_i.residue = 3
                 rmHcnt += 1
                 
         group_tag = 'residue'
-        self.struc_i.group_prop('residue',group_tag)
-        self.groupset_i = self.struc_i.groupsets[group_tag]
-        self.assertEqual(len(self.groupset_i.groups),2)  
+        groupContainer_i = groups.Container(group_tag,self.struc_i )
+        groupContainer_i.group_prop('residue',group_tag)
+        self.assertEqual(len(self.groupContainer_i.groups),2)  
         
         os.chdir(os.path.dirname(__file__))
-        group_i =  self.groupset_i.groups[0]
+        group_i =  self.groupContainer_i.groups[0]
         group_i.write_xyz('Eth_C.xyz')
         hterm_i = group_i.hterm_group()
 
         for pkey_i, particle_i  in hterm_i.particles.iteritems():
-            if( particle_i.properties['symbol'] == 'C' ):
+            if( particle_i.tag == 'C' ):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),4)  
-            if( particle_i.properties['symbol'] == 'H'):
+            if( particle_i.tag == 'H'):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),1)  
                         
         hterm_i.write_xyz('Eth_C_hterm1.xyz')
@@ -268,27 +300,27 @@ class TestGroupsHtermSp3(unittest.TestCase):
 
         rmHcnt = 0 
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
-            particle_i.properties['resname'] = 'CRES'
-            particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'H' and rmHcnt < 2 ):
-                particle_i.properties['resname'] = 'HRES'
-                particle_i.properties['residue'] = 3
+            particle_i.resname = 'CRES'
+            particle_i.residue = 1
+            if( particle_i.tag == 'H' and rmHcnt < 2 ):
+                particle_i.resname = 'HRES'
+                particle_i.residue = 3
                 rmHcnt += 1
             
         group_tag = 'residue'
-        self.struc_i.group_prop('residue',group_tag)
-        self.groupset_i = self.struc_i.groupsets[group_tag]
-        self.assertEqual(len(self.groupset_i.groups),2)  
+        groupContainer_i = groups.Container(group_tag,self.struc_i )
+        groupContainer_i.group_prop('residue',group_tag)
+        self.assertEqual(len(self.groupContainer_i.groups),2)  
         
         os.chdir(os.path.dirname(__file__))
-        group_i =  self.groupset_i.groups[0]
+        group_i =  self.groupContainer_i.groups[0]
         group_i.write_xyz('Eth_C.xyz')
         hterm_i = group_i.hterm_group()
 
         for pkey_i, particle_i  in hterm_i.particles.iteritems():
-            if( particle_i.properties['symbol'] == 'C' ):
+            if( particle_i.tag == 'C' ):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),4)  
-            if( particle_i.properties['symbol'] == 'H'):
+            if( particle_i.tag == 'H'):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),1)  
                         
         hterm_i.write_xyz('Eth_C_hterm2.xyz')
@@ -300,57 +332,74 @@ class TestGroupsHtermSp3(unittest.TestCase):
 class TestGroup_dr(unittest.TestCase):
     # 
     def setUp(self):
-        self.th = structure.Container("thiophene")
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.th.tag)
-        self.th.read_xyz(file_i)
+        self.th = containers.Container("thiophene")
+
+        symbols = ['C','C','C','C','S','H','H','H','H']
+        positions = [ ]
+        positions.append([-1.55498576,-1.91131218,-0.00081000])
+        positions.append([-0.17775976,-1.91131218,-0.00081000])
+        positions.append([0.34761524,-0.57904218,-0.00081000])
+        positions.append([-0.65884476,0.36101082,0.00000000])
+        positions.append([-2.16948076,-0.35614618,-0.00000800])
+        positions.append([-2.18966076,-2.79526518,-0.00132100])
+        positions.append([0.45389024,-2.80145418,-0.00106400])
+        positions.append([1.41682424,-0.35961818,-0.00138200])
+        positions.append([-0.51943676,1.44024682,0.00064700])
+        for i in range(len(symbols)):
+            pt_i = atoms.Atom(symbols[i])
+            pos_i = positions[i]
+            self.th.add_partpos(pt_i,pos_i)
+        
+
         self.th.lat_cubic(100.0)
         #
         for pkey_i, particle_i  in self.th.particles.iteritems():
-            if( particle_i.properties['symbol'] == 'C' ):
-                particle_i.properties['resname'] = "SCP2"
-                particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'S' ):
-                particle_i.properties['resname'] = "ThS"
-                particle_i.properties['residue'] = 1
-            if( particle_i.properties['symbol'] == 'H' ):
-                particle_i.properties['resname'] = "HA"
-                particle_i.properties['residue'] = 1
-        self.strucC = structure.Container('th_x2')
+            if( particle_i.tag == 'C' ):
+                particle_i.resname = "SCP2"
+                particle_i.residue = 1
+            if( particle_i.tag == 'S' ):
+                particle_i.resname = "ThS"
+                particle_i.residue = 1
+            if( particle_i.tag == 'H' ):
+                particle_i.resname = "HA"
+                particle_i.residue = 1
+                
+        self.strucC = containers.Container('th_x2')
         self.strucC.lat_cubic(30.0)
         seed = 82343
-        self.strucC = self.strucC.add_struc(self.th,3,seed,verbose=False)
+        self.strucC = self.strucC.add_struc(self.th,3,seed)
         self.strucC.tag = 'th_x3'
         #
     def test_finddr(self):
         self.strucC.lat_cubic(300.0)
-        os.chdir(os.path.dirname(__file__))
         self.strucC.write_xyz()
         #self.strucC.write_cply()
         self.list_i = []
         for pkey,par_i in self.strucC.particles.iteritems():
-            # print  pkey,par_i.properties['mol'],par_i.properties['symbol'] 
-            if( par_i.properties['symbol'] == 'C' or par_i.properties['symbol'] == 'S' ):
+            # print  pkey,par_i.mol,par_i.symbol 
+            if( par_i.symbol == 'C' or par_i.symbol == 'S' ):
                 self.list_i.append(pkey)
-                print pkey ,par_i.properties['mol'] , par_i.properties['symbol'] 
+                print pkey ,par_i.mol , par_i.symbol 
                 
         # self.strucC.bonded_nblist.build_nblist(self.strucC.particles,self.strucC.bonds)
-        self.strucC.bonded_nblist.guess_nblist(self.strucC.lat,self.strucC.particles,self.strucC.positions,"cov_radii",radii_buffer=1.25)
-        group_id = 'mol'
-        self.strucC.group_prop(group_id,group_id,particles_select=self.list_i)        
-        
-        groupset_i = self.strucC.groupsets[group_id]
-        groupset_i.calc_cent_mass()
-        groupset_i.write_cm_xyz()
-        groupset_i.calc_radius()     
+        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
 
-        list_i = groupset_i.groups.keys()
-        list_j = groupset_i.groups.keys()        
+        group_tag = 'mol'
+        groupContainer_i = groups.Container(group_tag,self.struc_i )
+        groupContainer_i.group_prop('mol',group_tag)
         
-        group_i = groupset_i.groups[0]
+        groupContainer_i.calc_cent_mass()
+        groupContainer_i.write_cm_xyz()
+        groupContainer_i.calc_radius()     
+
+        list_i = groupContainer_i.groups.keys()
+        list_j = groupContainer_i.groups.keys()        
+        
+        group_i = groupContainer_i.groups[0]
         group_i.write_xyz()
         
         #pairbuffer = 2.5        
-        pairs_ij = groupset_i.find_pairs(list_i,list_j,mol_inter=True,mol_intra=False)
+        pairs_ij = groupContainer_i.find_pairs(list_i,list_j,mol_inter=True,mol_intra=False)
         
         
         r_cut = 25.0
@@ -371,8 +420,8 @@ class TestGroup_dr(unittest.TestCase):
         self.strucC.calc_volume()
         volumes.append(self.strucC.volume)
         
-        npos_i = groupset_i.properties['cent_mass']
-        npos_j = groupset_i.properties['cent_mass']        
+        npos_i = groupContainer_i.cent_mass
+        npos_j = groupContainer_i.cent_mass        
         npos_ij,nd_ij = self.strucC.lat.delta_npos(npos_i,npos_j)
         
         
@@ -398,7 +447,7 @@ class TestGroup_dr(unittest.TestCase):
                             # 
                             if( close_contacts ):
                                 g_j = list_i[ref_j]
-                                dr_pi_pj = groupset_i.dr_particles(g_i,g_j,r_cut)
+                                dr_pi_pj = groupContainer_i.dr_particles(g_i,g_j,r_cut)
                                 bin_pp_index = int( round( dr_pi_pj / bin_size) )
                                 bin_r_pp[bin_pp_index] += probabilityperpair
 
@@ -406,87 +455,7 @@ class TestGroup_dr(unittest.TestCase):
             if( a_i_hasnieghbor ):
                 bin_nn_index = int( round( r_ij_nn /bin_size) )
                 bin_r_nn[bin_nn_index] += p_ij_nn  
-        # 
-        # print bin_r_nn
-        # print bin_r_pp
-        # 
-        from datetime import datetime
-        import math 
-        
-        n_frames = len(volumes)
-        n_bins = len(bin_r)
-        total_cnts = np.sum( bin_r )
-        total_nn_cnts = np.sum( bin_r_nn )
-        box_vol_ave = np.mean(volumes)
-        # 
-        cnt_sum_j = 0.0 
-        nn_cnt_sum_j = 0.0
-        pp_cnt_sum_j = 0.0 
-
-        rdf = dict()
-        rdf['index'] = []
-        for key in ['r_val','g_r_box','g_r_nn_box','g_r_pp_box','nb_cnt','cnt_sum_j','nn_nb_cnt','nn_cnt_sum_j','pp_nb_cnt','pp_cnt_sum_j']:
-            rdf[key] = []
-            
-
-        for bin_index in range(n_bins):
-            r_val = bin_size*float(bin_index)
-            dr_sq = r_val*r_val
-            r_in = r_val - bin_size*0.5
-            r_out = r_val + bin_size*0.5
-            dr_vol = 4.0*math.pi/3.0*( r_out**3 - r_in**3 )
-            cnt_r_frame = float( bin_r[bin_index] ) /float(n_frames) 
-            nn_cnt_r_frame = float( bin_r_nn[bin_index] ) /float(n_frames)
-            pp_cnt_r_frame = float( bin_r_pp[bin_index] ) /float(n_frames)
-            # n(r)  = 1/N_i  sum_j^{N_j} \gamma( r - r_{ij}) 
-            nb_cnt = cnt_r_frame/float( N_i )
-            cnt_sum_j += nb_cnt
-            nn_nb_cnt = nn_cnt_r_frame/float( N_i )
-            nn_cnt_sum_j += nn_nb_cnt
-            pp_nb_cnt = pp_cnt_r_frame/float( N_i )
-            pp_cnt_sum_j += pp_nb_cnt
-            # g(r) = <V> * n(r) / dV 
-            g_r_box = box_vol_ave*nb_cnt/dr_vol/float( N_j )
-            g_r_nn_box = box_vol_ave*nn_nb_cnt/dr_vol/float( N_j )
-            g_r_pp_box = box_vol_ave*pp_nb_cnt/dr_vol/float( N_j )
-            # 
-            rdf['index'].append(bin_index)
-            rdf['r_val'].append(r_val)
-            rdf['g_r_box'].append(g_r_box)
-            rdf['nb_cnt'].append(nb_cnt)
-            rdf['cnt_sum_j'].append(cnt_sum_j)
-            rdf['g_r_nn_box'].append(g_r_nn_box)
-            rdf['nn_nb_cnt'].append(nn_nb_cnt)
-            rdf['nn_cnt_sum_j'].append(nn_cnt_sum_j)
-            rdf['pp_nb_cnt'].append(pp_nb_cnt)
-            rdf['pp_cnt_sum_j'].append(pp_cnt_sum_j)
-            rdf['g_r_pp_box'].append(g_r_pp_box)
-            
-            
-        for i in rdf['index']:
-            r_val = rdf['r_val'][i]
-            g_r_box = rdf['g_r_pp_box'][i]
-            nb_cnt = rdf['pp_nb_cnt'][i]
-            cnt_sum_j = rdf['pp_cnt_sum_j'][i]
-            
-            if( nb_cnt > 0 ):
-                print "total",r_val,nb_cnt,cnt_sum_j
-
-        # 
-        # Write data file 
-        # 
-        rdf_tag = 'TestGroup_dr'
-        import json
-        with open('%s.json'%(rdf_tag), 'w') as fp:
-            json.dump(rdf, fp)
-            
-            
-        print "color Labels Bonds black"
-        print "color Display Background white"
-        print "mol addfile {/Users/tkemper/Development/streamm-tools/tests/th_x3.xyz} type {xyz} first 0 last -1 step 1 waitfor 1 1"
-        print "mol addfile {/Users/tkemper/Development/streamm-tools/tests/mol_0.xyz} type {xyz} first 0 last -1 step 1 waitfor 1 1"
-        print "mol addfile {/Users/tkemper/Development/streamm-tools/tests/mol_cm.xyz} type {xyz} first 0 last -1 step 1 waitfor 1 1"
-        
+     
     def tearDown(self):
         del self.th         
         del self.strucC         
