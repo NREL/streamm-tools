@@ -1,5 +1,3 @@
 include *.rst LICENSE.rst 
-recursive-include streamm/*/*.py
-prune streamm_dep/*py 
+recursive-include streamm */*.py
 prune */*/tests
-prune */*/*/tests

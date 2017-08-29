@@ -39,6 +39,8 @@ A developer version allowing changes in the source code can be installed using::
 To access the modules within the package without installing the package sett your `PYTHON_PATH` enviromental variable to include the package source directory `stream/stream`.
 
 The package is open-source and can be forked and modified from the Github repo `<github.com/NREL/streamm>`_.
-To merge forked versions of the please contact. 
+To merge forked versions of the please contact.
+
+
 
 

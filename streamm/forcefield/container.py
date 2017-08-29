@@ -102,32 +102,6 @@ class Container(object):
         strucStr += "      Imporper Dihedral parameters %d \n"%(self.n_imptypes)
         return strucStr
 
-    def __iadd__(self, other ):
-        """
-        'Magic' method to implement the '+=' operator 
-        
-        """
-
-        if isinstance(other, Container):
-            for ljtkey_i, ljtype_i  in other.ljtypes.iteritems():
-                self.add_LJtype(ljtype_i,deepcopy = True )
-            for btkey_i,bondtype_i  in other.bondtypes.iteritems():
-                self.add_bondtype(bondtype_i,deepcopy = True )
-            for atkey_i,angletype_i  in other.angletypes.iteritems():
-                self.add_angletype(angletype_i,deepcopy = True )
-            for dtkey_i, dihtype_i  in other.dihtypes.iteritems():    
-                self.add_dihtype(dihtype_i,deepcopy = True )
-            for itkey_i, imptype_i  in other.imptypes.iteritems():    
-                self.add_imptype(imptype_i,deepcopy = True )
-
-
-        else:
-            print "1st arg should be a Parameter.Container object"
-            raise TypeError
-        
-
-        return self
-
 
         
     def add_particletype(self, particletype_i, deepcopy = True ):
@@ -213,3 +187,30 @@ class Container(object):
         else:
             print "Attempting to add non-Imptype type to container"
             raise TypeError
+
+
+    def __iadd__(self, other ):
+        """
+        'Magic' method to implement the '+=' operator 
+        
+        """
+
+        if isinstance(other, Container):
+            for ljtkey_i, ljtype_i  in other.ljtypes.iteritems():
+                self.add_LJtype(ljtype_i,deepcopy = True )
+            for btkey_i,bondtype_i  in other.bondtypes.iteritems():
+                self.add_bondtype(bondtype_i,deepcopy = True )
+            for atkey_i,angletype_i  in other.angletypes.iteritems():
+                self.add_angletype(angletype_i,deepcopy = True )
+            for dtkey_i, dihtype_i  in other.dihtypes.iteritems():    
+                self.add_dihtype(dihtype_i,deepcopy = True )
+            for itkey_i, imptype_i  in other.imptypes.iteritems():    
+                self.add_imptype(imptype_i,deepcopy = True )
+
+
+        else:
+            print "1st arg should be a Parameter.Container object"
+            raise TypeError
+        
+
+        return self
