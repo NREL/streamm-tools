@@ -20,6 +20,23 @@ usually each interaction is set using these fftypes
 
 """
 
+import copy
+
+# Import streamm dependencies
+try:
+    from streamm.forcefield.particletype import Particletype
+    from streamm.forcefield.bondtype import Bondtype 
+    from streamm.forcefield.angletype import Angletype
+    from streamm.forcefield.dihtype import Dihtype
+    from streamm.forcefield.imptype import Imprtype
+
+except:
+    
+    from particletype import Particletype
+    from bondtype import Bondtype 
+    from angletype import Angletype
+    from dihtype import Dihtype
+    from imptype import Imptype
 
 class Container(object):
     """
@@ -31,7 +48,7 @@ class Container(object):
         Constructor for Parameter.Container
 
         """
-        self.ljtypes = dict()                           # Creates empty dict struc
+        self.particletypes = dict()                           # Creates empty dict struc
         self.bondtypes = dict()                                   # Creates empty dict struc
         self.angletypes = dict()                                # Creates empty dict struc
         self.dihtypes = dict()                                # Creates empty dict struc
@@ -39,7 +56,7 @@ class Container(object):
         # 
         # Int count of the length of each dictionary
         #   mostly for internal use 
-        self.n_ljtypes = 0    
+        self.n_particletypes = 0    
         self.n_bondtypes = 0    
         self.n_angletypes = 0    
         self.n_dihtypes = 0    
@@ -59,7 +76,7 @@ class Container(object):
         Destructor, clears object memory
         """
         # dictionary 
-        del self.ljtypes
+        del self.particletypes
         del self.bondtypes
         del self.angletypes
         del self.dihtypes
@@ -78,7 +95,7 @@ class Container(object):
 
         strucStr =  "\n"
         strucStr += "    Parameters \n"
-        strucStr += "      LJ parameters %d \n"%(self.n_ljtypes)
+        strucStr += "      LJ parameters %d \n"%(self.n_particletypes)
         strucStr += "      Bond parameters %d \n"%(self.n_bondtypes)
         strucStr += "      Angle parameters %d \n"%(self.n_angletypes)
         strucStr += "      Dihedral parameters %d \n"%(self.n_dihtypes)
@@ -113,21 +130,20 @@ class Container(object):
 
 
         
-    def add_LJtype(self, ljtype_i, deepcopy = True ):
+    def add_particletype(self, particletype_i, deepcopy = True ):
         """
         Add 'Ljtype' object to ljtypes dict in this container and update n_ljtypes accordingly
         """
-        if isinstance(ljtype_i, LJtype):
-            self.n_ljtypes = len(self.ljtypes)
+        if isinstance(particletype_i, Particletype):
+            self.n_particletypes = len(self.particletypes)
             if( deepcopy ):
-                self.ljtypes[self.n_ljtypes] = copy.deepcopy(ljtype_i) # index 0 -> (N-1)
+                self.particletypes[self.n_particletypes] = copy.deepcopy(particletype_i) # index 0 -> (N-1)
             else:
-                self.ljtypes[self.n_ljtypes] = ljtype_i # index 0 -> (N-1)
+                self.particletypes[self.n_particletypes] = particletype_i # index 0 -> (N-1)
                 
-            self.n_ljtypes = len(self.ljtypes)
+            self.n_particletypes = len(self.particletypes)
         else:
-            print "Attempting to add non-Ljtype type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Ljtype type to container")
 
 
 

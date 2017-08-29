@@ -30,29 +30,10 @@ class Angletype(object):
              type    (str)   Bond type 
         """
 
-        if isinstance(fftype1, str):
-            self.fftype1 = fftype1
-        else:
-            print "1st arg should be str"
-            raise TypeError
-
-        if isinstance(fftype2, str):
-            self.fftype2 = fftype2
-        else:
-            print "2nd arg should be str"
-            raise TypeError
-
-        if isinstance(fftype3, str):
-            self.fftype3 = fftype3
-        else:
-            print "3rd arg should be str"
-            raise TypeError
-
-        if isinstance(type, str):
-            self.type = type
-        else:
-            print "4th arg should be str"
-            raise TypeError
+        self.fftype1 = fftype1
+        self.fftype2 = fftype2
+        self.fftype3 = fftype3
+        self.type = type
 
         # Set default values for parameters
         self.theta0 = 0.0

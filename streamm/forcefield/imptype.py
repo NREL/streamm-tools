@@ -28,36 +28,11 @@ class Imptype(object):
              fftype4  (str)   Atom type 
              type    (str)   Improper type 
         """
-
-        if isinstance(fftype1, str):
-            self.fftype1 = fftype1
-        else:
-            print "1st arg should be str"
-            raise TypeError
-
-        if isinstance(fftype2, str):
-            self.fftype2 = fftype2
-        else:
-            print "2nd arg should be str"
-            raise TypeError
-
-        if isinstance(fftype3, str):
-            self.fftype3 = fftype3
-        else:
-            print "3rd arg should be str"
-            raise TypeError
-
-        if isinstance(fftype4, str):
-            self.fftype4 = fftype4
-        else:
-            print "4th arg should be str"
-            raise TypeError
-
-        if isinstance(type, str):
-            self.type = type
-        else:
-            print "5th arg should be str"
-            raise TypeError
+        self.fftype1 = fftype1
+        self.fftype2 = fftype2
+        self.fftype3 = fftype3
+        self.fftype4 = fftype4
+        self.type = type
 
         # Set default values for parameters
         self.e0 = 0.0
