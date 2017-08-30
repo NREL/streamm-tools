@@ -10,6 +10,7 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
+# NoteTK  This should be in structure.particles 
 
 class Particletype(object):
     '''

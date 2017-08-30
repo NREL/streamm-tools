@@ -46,8 +46,9 @@ except:
             self.covalent_radius = self.element.covalent_radius
             self.vdw_radius = self.element.vdw_radius
 '''    
-
+#
 # Then you have types particles
+#
 class Atom(Particle):
     """
     A derived type of particles for atoms in a simulation
@@ -77,6 +78,8 @@ class Atom(Particle):
         
         # Set particle mass according to element 
         self.mass = self.element.atomic_weight
+        
+        # NoteTK This should be moved to a function and all this should be in particles.py  
 
     def __del__(self):
         """

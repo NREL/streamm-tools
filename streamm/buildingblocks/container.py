@@ -1,4 +1,4 @@
-.bbid# coding: utf-8
+# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 try:
+    from streamm.buildingblock.bbatom import BBatom
     
     # Import streamm dependencies
     from streamm.structure.containers import Container as strucCont
@@ -41,17 +42,19 @@ try:
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
+    
+    rel_path = os.path.join(os.path.dirname(__file__),'..')
+    print("rel_path {}".format(rel_path))
+    sys.path.append(rel_path)
+    
+    from bbatom import BBatom
+ 
     rel_path = os.path.join(os.path.dirname(__file__),'..','structure')
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
     
     from containers import Container as strucCont
-    from particletype import Particletype
-    from bondtype import Bondtype 
-    from angletype import Angletype
-    from dihtype import Dihtype
-    from imptype import Imptype
-
+    
 
 class Attachment(object):
     '''
@@ -97,6 +100,7 @@ class Container(strucCont):
         strucCont.__init__(self)
         #super(structure.Container,self).__init__()
         self.tag = tag 
+        self.common_tag
         
         self.n_term = int(0)
         self.n_func = int(0)
@@ -192,18 +196,18 @@ class Container(strucCont):
          
         '''
 
-        self.properties['term_list'] = []
-        self.properties['func_list']  = []
-        self.properties['sub_list']  = []
-            
+        self.terms = []
+        self.funcs = []
+        self.subs = []
+                
         for pkey_i, particle_i  in self.particles.iteritems():
            
             if( particle_i.bbid == "T" ):                
-                self.properties['term_list'].append(pkey_i)
+                self.term_list.append(pkey_i)
             elif( particle_i.bbid == "R"  ):
-                self.properties['func_list'].append(pkey_i)
+                self.funcs.append(pkey_i)
             elif( particle_i.bbid == "S"):
-                self.properties['sub_list'].append(pkey_i)
+                self.subs.append(pkey_i)
                 
         return 
         
@@ -373,7 +377,7 @@ class Container(strucCont):
             tag_s1 = cply_file.split("/")   # split string based on dir 
             tag_s2 = tag_s1[-1]             # take last string 
             self.tag = tag_s2[:-5]          # remove .cply
-            self.properties['common_tag'] = tag_s2[:-5]         # remove .cply
+            self.common_tag = tag_s2[:-5]         # remove .cply
         #
         with open(cply_file) as f:
             for line in f:
@@ -395,37 +399,37 @@ class Container(strucCont):
                     pos_i = [ float(col[1]),float(col[2]),float(col[3]) ]
 
                     if (len(col) >= 14 ):
-                        BBatom_i.properties["label"] = str(col[4])
-                        BBatom_i.properties["fftype"] = str(col[5])
-                        BBatom_i.properties["mass"] = float(col[6])                        
-                        BBatom_i.properties["charge"]  = float(col[7])
-                        BBatom_i.properties["qgroup"] = int(col[8])                        
-                        BBatom_i.properties["ring"] = int(col[9])                        
-                        BBatom_i.properties["residue"] = int(col[10])
-                        BBatom_i.properties["resname"] = str(col[11])                       
-                        BBatom_i.properties["mol"] = int(col[12])                        
+                        BBatom_i.label = str(col[4])
+                        BBatom_i.fftype = str(col[5])
+                        BBatom_i.mass = float(col[6])                        
+                        BBatom_i.charge  = float(col[7])
+                        BBatom_i.qgroup = int(col[8])                        
+                        BBatom_i.ring = int(col[9])                        
+                        BBatom_i.residue = int(col[10])
+                        BBatom_i.resname = str(col[11])                       
+                        BBatom_i.mol = int(col[12])                        
                         BBatom_i.cplytag = str(col[13])
 
                     elif (len(col) == 13 ):
-                        BBatom_i.properties["label"] = str(col[4])
-                        BBatom_i.properties["fftype"] = str(col[5])
-                        BBatom_i.properties["mass"] = float(col[6])                        
-                        BBatom_i.properties["charge"] = float(col[7])
-                        BBatom_i.properties["qgroup"] = int(col[8])                        
-                        BBatom_i.properties["ring"] = int(col[9])                        
-                        BBatom_i.properties["residue"] = int(col[10])
-                        BBatom_i.properties["resname"] = str(col[11])                       
-                        BBatom_i.properties["mol"] = int(col[12])
+                        BBatom_i.label = str(col[4])
+                        BBatom_i.fftype = str(col[5])
+                        BBatom_i.mass = float(col[6])                        
+                        BBatom_i.charge = float(col[7])
+                        BBatom_i.qgroup = int(col[8])                        
+                        BBatom_i.ring = int(col[9])                        
+                        BBatom_i.residue = int(col[10])
+                        BBatom_i.resname = str(col[11])                       
+                        BBatom_i.mol = int(col[12])
 
                     elif (len(col) == 8 ):
-                        BBatom_i.properties["residue"] = int(col[5])
-                        BBatom_i.properties["resname"] = str(col[6])                        
+                        BBatom_i.residue = int(col[5])
+                        BBatom_i.resname = str(col[6])                        
                         BBatom_i.cplytag = str(col[7])
                         
                     elif (len(col) == 7 ):
-                        BBatom_i.properties["charge"] = float(col[4])
-                        BBatom_i.properties["residue"] = int(col[5])
-                        BBatom_i.properties["resname"] = str(col[6])
+                        BBatom_i.charge = float(col[4])
+                        BBatom_i.residue = int(col[5])
+                        BBatom_i.resname = str(col[6])
 
                     elif (len(col) == 5 ):
                         BBatom_i.cplytag = str(col[4])
@@ -443,16 +447,16 @@ class Container(strucCont):
                         self.add_bond(bond_i)
                     if( col[0] == "name"):
                         self.tag = str(col[1])
-                        self.properties['common_tag'] = str(col[1])
-                        self.properties['deptag'] = str(col[2])
-                        self.properties['ctag'] = str(col[2])
-                        self.properties['name'] = str(col[3])
-                        self.properties['IUPAC'] = ''
+                        self.common_tag = str(col[1])
+                        self.deptag = str(col[2])
+                        self.ctag = str(col[2])
+                        self.name = str(col[3])
+                        self.IUPAC = ''
                         for s in col[4:]:
-                            self.properties['IUPAC'] += str(s)
+                            self.IUPAC += str(s)
                     if( col[0] == "type"):
-                        self.properties['moltype'] = str(col[1])
-                        self.properties['backbone'] = str(col[2])
+                        self.moltype = str(col[1])
+                        self.backbone = str(col[2])
                         self.bblist = str(col[3:])
 
                 # Key word search 
@@ -465,8 +469,8 @@ class Container(strucCont):
         self.parse_cplytag()
         # Build neighbor list of bonded atoms 
         if( self.n_bonds == 0 ):
-            # If no bonds guess based on radii 
-            self.bonded_nblist.guess_nblist(self.lat,self.particles,self.positions,"cov_radii",radii_buffer=1.25)
+            # If no bonds guess based on radii
+            self.bonded_nblist = self.guess_nblist(0,radii_buffer=1.25)
             # Build bonds from nblist for reference 
             self.bonded_bonds()
         else:
@@ -480,8 +484,8 @@ class Container(strucCont):
             cply_file = "%s.cply"%(self.tag)
 
         F = open(cply_file,'w')
-        cply_line = "name %s %s %s %s \n"%(self.tag,self.properties['deptag'],self.properties['name'],self.properties['IUPAC'])
-        cply_line += "type %s %s %s \n"%(self.properties['moltype'],self.properties['backbone'],self.bblist)
+        cply_line = "name %s %s %s %s \n"%(self.tag,self.deptag,self.name,self.IUPAC)
+        cply_line += "type %s %s %s \n"%(self.moltype,self.backbone,self.bblist)
         
         if(write_ff ):
             cply_line += "# atomic_symb ,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]),label,fftype,ptclObj.mass,charge,qgroup,ring,residue,resname, mol, cplytag \n"
@@ -491,19 +495,19 @@ class Container(strucCont):
         F.write(cply_line)
         for pkey_i, particle_i  in self.particles.iteritems():
             pos_i = self.positions[pkey_i]
-            atomic_symb = particle_i.properties['symbol']
+            atomic_symb = particle_i.element.symbol
             bbid = particle_i.bbid
             cplytag = particle_i.cplytag
             if(write_ff ):
-                mass = particle_i.properties["mass"]
-                charge = particle_i.properties["charge"]
-                residue = particle_i.properties["residue"]
-                resname = particle_i.properties["resname"]
-                label = particle_i.properties["label"]
-                fftype = particle_i.properties["fftype"]
-                qgroup = particle_i.properties["qgroup"]
-                mol = particle_i.properties["mol"]
-                ring = particle_i.properties["ring"]
+                mass = particle_i.mass
+                charge = particle_i.charge
+                residue = particle_i.residue
+                resname = particle_i.resname
+                label = particle_i.label
+                fftype = particle_i.fftype
+                qgroup = particle_i.qgroup
+                mol = particle_i.mol
+                ring = particle_i.ring
                 cply_line =  " %5s %16.8f %16.8f %16.8f %s %s %12.8f %12.8f  %d %d %d %s  %d %s \n"%(atomic_symb ,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]),label,fftype,mass,charge,qgroup,ring,residue,resname, mol, bbid )
                 #cply_line =  "%d %5s %16.8f %16.8f %16.8f %s %s %12.8f %12.8f  %d %d %d %s  %d %s \n"%(pkey_i,atomic_symb ,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]),label,fftype,mass,charge,qgroup,ring,residue,resname, mol, cplytag )
             else:
@@ -524,7 +528,7 @@ class Container(strucCont):
                 for bkey_i, bond_i  in self.bonds.iteritems():
                     b_i = bond_i.pkey1 + 1 
                     b_j = bond_i.pkey2 + 1
-                    # F.write("  bond %d %d  %d \n"%(b_i,b_j,bond_i.properties['order']))
+                    # F.write("  bond %d %d  %d \n"%(b_i,b_j,bond_i.order']))
                     F.write("  bond %d %d  \n"%(b_i,b_j))
 
         if( write_attachments ):
@@ -612,7 +616,7 @@ class Container(strucCont):
             # align fist heavy neighbor with y axis
             for key_k in bb_prepped.bonded_nblist.getnbs(key_i):
                     particle_k = bb_prepped.particles[key_k]
-                    if( particle_k.properties['number'] != 1 ):                        
+                    if( particle_k.number != 1 ):                        
                             bb_prepped.align_yaxis(key_k,yangle,debug = debug)
                             break
 

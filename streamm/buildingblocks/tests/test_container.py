@@ -57,12 +57,12 @@ class TestBuildThiophene(unittest.TestCase):
             pos_i = positions[i]
             self.Th.add_partpos(pt_i,pos_i)
 
-        self.Th.particles[0].properties['cplytag'] = 'term_'
-        self.Th.particles[1].properties['cplytag'] = 'func_'
-        self.Th.particles[3].properties['cplytag'] = 'term_'
-        self.Th.particles[5].properties['cplytag'] = 'termcap_'
-        self.Th.particles[6].properties['cplytag'] = 'funccap_'
-        self.Th.particles[8].properties['cplytag'] = 'termcap_'
+        self.Th.particles[0].cplytag = 'term_'
+        self.Th.particles[1].cplytag = 'func_'
+        self.Th.particles[3].cplytag = 'term_'
+        self.Th.particles[5].cplytag = 'termcap_'
+        self.Th.particles[6].cplytag = 'funccap_'
+        self.Th.particles[8].cplytag = 'termcap_'
         self.Th.parse_cplytag()
             
     def test_tag(self):
@@ -70,18 +70,17 @@ class TestBuildThiophene(unittest.TestCase):
         #el_cnt = calc_elcnt
 
     def test_parsecplytag(self):
-        self.assertEqual(self.Th.particles[0].properties['bbid'],'X')
-        self.assertEqual(self.Th.particles[1].properties['bbid'],'X')
-        self.assertEqual(self.Th.particles[2].properties['bbid'],'')
-        self.assertEqual(self.Th.particles[3].properties['bbid'],'X')
-        self.assertEqual(self.Th.particles[4].properties['bbid'],'')
-        self.assertEqual(self.Th.particles[5].properties['bbid'],'T')
-        self.assertEqual(self.Th.particles[6].properties['bbid'],'R')
-        self.assertEqual(self.Th.particles[7].properties['bbid'],'')
-        self.assertEqual(self.Th.particles[8].properties['bbid'],'T')
+        self.assertEqual(self.Th.particles[0].bbid,'X')
+        self.assertEqual(self.Th.particles[1].bbid,'X')
+        self.assertEqual(self.Th.particles[2].bbid,'')
+        self.assertEqual(self.Th.particles[3].bbid,'X')
+        self.assertEqual(self.Th.particles[4].bbid,'')
+        self.assertEqual(self.Th.particles[5].bbid,'T')
+        self.assertEqual(self.Th.particles[6].bbid,'R')
+        self.assertEqual(self.Th.particles[7].bbid,'')
+        self.assertEqual(self.Th.particles[8].bbid,'T')
         
     def test_write_cply(self):
-        os.chdir(os.path.dirname(__file__))
         self.Th.write_cply(write_ff=False)
 
 
@@ -143,8 +142,8 @@ class TestBuildHexane(unittest.TestCase):
             pos_i = positions[i]
             self.Hx.add_partpos(pt_i,pos_i)
 
-        self.Hx.particles[0].properties['cplytag'] = 'rg_'
-        self.Hx.particles[1].properties['cplytag'] = 'rgcap_'
+        self.Hx.particles[0].cplytag = 'rg_'
+        self.Hx.particles[1].cplytag = 'rgcap_'
         self.Hx.parse_cplytag()
 
 
@@ -153,11 +152,10 @@ class TestBuildHexane(unittest.TestCase):
         #el_cnt = calc_elcnt
 
     def test_parsecplytag(self):
-        self.assertEqual(self.Hx.particles[0].properties['bbid'],'rg_')
-        self.assertEqual(self.Hx.particles[1].properties['bbid'],'R')
+        self.assertEqual(self.Hx.particles[0].bbid,'rg_')
+        self.assertEqual(self.Hx.particles[1].bbid,'R')
 
     def test_write_cply(self):
-        os.chdir(os.path.dirname(__file__))
         self.Hx.write_cply(write_ff=False)
                 
     def tearDown(self):
@@ -172,7 +170,7 @@ class TestContainer(unittest.TestCase):
     def test_read_cply(self):
         cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
         self.bblockC.read_cply(cply_file)
-        self.assertEqual(str(self.bblockC)," thiophene ")
+        self.assertEqual(str(self.bblockC)," thiophene")
         self.assertEqual(self.bblockC.n_term,2)
         self.assertEqual(self.bblockC.n_func,1)
 
@@ -305,11 +303,11 @@ class Testattachprep(unittest.TestCase):
         cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
         self.Th2.read_cply(cply_file)
 
-        self.bb_i = self.Th2.prepattach("T",0,0,dir=-1,debug = False)
+        self.bb_i = self.Th2.prepattach("T",0,0,dir=-1)
         self.bb_i.tag += "_"
 
         angle_rad = 90.0*math.pi/180.0
-        self.bb_j = self.Th.prepattach("T",1,0,dir=1,yangle=angle_rad,debug = False)
+        self.bb_j = self.Th.prepattach("T",1,0,dir=1,yangle=angle_rad)
         self.bb_j.tag += "_"
 
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_i.tag)
@@ -317,10 +315,10 @@ class Testattachprep(unittest.TestCase):
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_j.tag)
         self.bb_j.write_xyz(file_i)
 
-        self.bbC_i,self.bbC_j =  buildingblock.shiftprep(self.bb_i,self.bb_j,debug = False )
-        self.overlap_found =  buildingblock.checkprep(self.bb_i,self.bb_j,debug = False )
+        self.bbC_i,self.bbC_j =  buildingblock.shiftprep(self.bb_i,self.bb_j )
+        self.overlap_found =  buildingblock.checkprep(self.bb_i,self.bb_j )
 
-        self.Th2_Th =  buildingblock.attachprep(self.bbC_i,self.bbC_j,debug = False )
+        self.Th2_Th =  buildingblock.attachprep(self.bbC_i,self.bbC_j )
         self.Th2_Th.tag = self.bb_i.tag + self.bb_j.tag + "v2"
         self.Th2_Th.properties['deptag'] =  self.bb_i.properties['deptag'] + self.bb_j.properties['deptag'] + "v2"
         self.Th2_Th.lat_cubic(100.0)

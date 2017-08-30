@@ -36,6 +36,8 @@ except:
     sys.path.append(rel_path)
     from atoms import Atom
 
+logger.warning("The .cplytag attribute will be deprecated in v0.3.2 ")
+        
 class BBatom(Atom):
     """
     A derived type of particles for atoms in a building block
@@ -50,8 +52,6 @@ class BBatom(Atom):
         Atom.__init__(self,symbol=symbol, type=type)
         self.bbid= ""
         self.cplytag =  ""
-        
-        logger.warning("The .cplytag attribute will be deprecated in v0.3.2 ")
         
 
     def __del__(self):
