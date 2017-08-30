@@ -15,18 +15,18 @@ logger = logging.getLogger(__name__)
 import unittest
 
 try:
-    import streamm.structure.nblists as nblists
+    import streamm.structure.nblist as nblist
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
     rel_path = os.path.join(os.path.dirname(__file__),'..','')
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
-    import nblists
+    import nblist
     
 class Test_NBlist(unittest.TestCase):
     def setUp(self):
-        self.nblist = nblists.NBlist()
+        self.nblist = nblist.NBlist()
         
         # Structure of vanillin 
         self.particles = {}

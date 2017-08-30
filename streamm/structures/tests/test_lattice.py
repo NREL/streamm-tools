@@ -17,21 +17,21 @@ import numpy as np
 import numpy.testing.utils as nptu
 
 try:
-    import streamm.structure.lattices as lattices
+    import streamm.structure.lattice as lattice
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
     rel_path = os.path.join(os.path.dirname(__file__),'..','')
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
-    import lattices
+    import lattice
     
     
 class TestLattice(unittest.TestCase):
     def setUp(self):
         # fixture 
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
-        self.lat = lattices.Lattice()
+        self.lat = lattice.Lattice()
         self.lat.set_matrix(matrix)
         
         self.assertEqual(self.lat._lengths[0],100.0)

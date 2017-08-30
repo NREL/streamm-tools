@@ -21,17 +21,17 @@ logger = logging.getLogger(__name__)
 import unittest
 
 try:
-    import streamm.structure.impropers as impropers
+    import streamm.structures.improper as improper
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
     sys.path.append(os.path.join(os.path.dirname(__file__),'..',''))
-    import impropers
+    import improper
 
 
 class TestImproper(unittest.TestCase):
     def setUp(self):
-        self.imp_i = impropers.Improper(0,1,2,3)
+        self.imp_i = improper.Improper(0,1,2,3)
         
     def test_str(self):
         imp_str = ' 0 - 1 - 2 - 3'
