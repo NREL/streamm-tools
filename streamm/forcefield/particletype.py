@@ -16,29 +16,21 @@ class Particletype(object):
     '''
     Particle represented by a Force-field
     '''
-    def __init__(self, fftype='X',label='X1'):
+    def __init__(self,type='X'):
         """
         Constructor for a Force-field particle. 
         """
-        self.fftype = fftype
-        self.label = label
-        self.charge = 0.0     
-        self.mass  = 0.0
-        self.epsilon = 0.0
-        self.sigma = 0.0 
-        self.lammps_index = -1 
-        self.gromacs_index = -1
-        # Particle key in structure.containers.Container 
-        self.pkey = 0
+        self.type = str(type) 
+        self.epsilon = 1.0
+        self.sigma = 2.0 
+        self.lammps_index = None
+        self.gromacs_index = None 
     
     def __del__(self):
         """
         Destructor, clears structure memory and calls held container destructors
         """
-        del self.fftype
-        del self.label
-        del self.charge
-        del self.mass
+        del self.type
         del self.epsilon
         del self.sigma 
         del self.lammps_index
@@ -48,4 +40,4 @@ class Particletype(object):
         """
         'Magic' method for printng contents of container
         """
-        return " {} ({})".format(self.fftype,self.label)
+        return " {} epsilon:{} sigma:{}".format(self.type,self.epsilon,self.sigma)
