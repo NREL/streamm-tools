@@ -48,8 +48,8 @@ class BBatom(Atom):
 
     """
 
-    def __init__(self,symbol="X", type="bbatom"):
-        Atom.__init__(self,symbol=symbol, type=type)
+    def __init__(self,type="bbatom",symbol="X"):
+        Atom.__init__(self,type=type, symbol=symbol)
         self.bbid= ""
         self.cplytag =  ""
         

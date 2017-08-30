@@ -120,6 +120,8 @@ class Particle(object):
         #   
         # Force field 
         self.ff = None
+        # Reactive site type
+        self.rsite = '' 
         #
         # Atomic properties 
         self.symbol = symbol
@@ -158,7 +160,9 @@ class Particle(object):
         del self.symbol 
         del self.element 
         # Force field 
-        del self.ff 
+        del self.ff
+        #
+        del self.rsite
         
     def __str__(self):
         """
