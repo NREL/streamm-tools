@@ -24,11 +24,11 @@ import copy
 
 # Import streamm dependencies
 try:
-    from streamm.forcefield.particletype import Particletype
-    from streamm.forcefield.bondtype import Bondtype 
-    from streamm.forcefield.angletype import Angletype
-    from streamm.forcefield.dihtype import Dihtype
-    from streamm.forcefield.imptype import Imprtype
+    from streamm.forcefields.particletype import Particletype
+    from streamm.forcefields.bondtype import Bondtype 
+    from streamm.forcefields.angletype import Angletype
+    from streamm.forcefields.dihtype import Dihtype
+    from streamm.forcefields.imptype import Imprtype
 
 except:
     

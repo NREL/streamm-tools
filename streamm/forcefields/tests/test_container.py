@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
 import unittest
 
 try:
-    import streamm.forcefield.conatiner as conatiner
-    import streamm.forcefield.particletype as particletype
-    import streamm.forcefield.bondtype as bondtype
-    import streamm.forcefield.angletype as angletype
-    import streamm.forcefield.dihtype as dihtype
-    import streamm.forcefield.imptype as imptype
+    import streamm.forcefields.conatiner as conatiner
+    import streamm.forcefields.particletype as particletype
+    import streamm.forcefields.bondtype as bondtype
+    import streamm.forcefields.angletype as angletype
+    import streamm.forcefields.dihtype as dihtype
+    import streamm.forcefields.imptype as imptype
 except:
     print("streamm is not installed test will use relative path")
     import sys, os
@@ -57,17 +57,17 @@ class TestParameter(unittest.TestCase):
         self.particletype_i.epsilon = 2.35
         self.particletype_i.sigma = 4.15
         self.paramC.add_particletype(self.particletype_i)
-        particle_str.append(' Ir (X1)')
-    	self.particletype_i = particletype.Particletype("C")
+        particle_str.append(' Ir epsilon:2.35 sigma:4.15')
+    	self.particletype_i = particletype.Particletype('C*')
         self.particletype_i.epsilon = 1.05
         self.particletype_i.sigma = 3.25
         self.paramC.add_particletype(self.particletype_i)
-        particle_str.append(' C (X1)')
-    	self.particletype_i = particletype.Particletype("H")
+        particle_str.append(' C* epsilon:1.05 sigma:3.25')
+    	self.particletype_i = particletype.Particletype("HH")
         self.particletype_i.epsilon = 0.75
         self.particletype_i.sigma = 3.15
         self.paramC.add_particletype(self.particletype_i)
-        particle_str.append(' H (X1)')
+        particle_str.append(' HH epsilon:0.75 sigma:3.15')
         for particletkey_i, particletype_i  in self.paramC.particletypes.iteritems():
             self.assertEqual(str(particletype_i),particle_str[particletkey_i])
         

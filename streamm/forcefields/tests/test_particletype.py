@@ -35,23 +35,18 @@ except:
     
 class Test_FFparticle(unittest.TestCase):
     def setUp(self):
-        self.ff = particletype.Particletype("CC",'C31')
+        self.ff = particletype.Particletype("CC")
         self.ff.epsilon = 1.05
         self.ff.sigma = 3.25
-        self.ff.charge = 0.660     
-        self.ff.mass  = 13.0
         
         
 
     def test_str(self):        
-        self.assertEqual(str(self.ff) ,' CC (C31)')
+        self.assertEqual(str(self.ff) ,' CC epsilon:1.05 sigma:3.25')
         
     def test_properties(self):
         self.assertEqual(self.ff.epsilon,1.05)
         self.assertEqual(self.ff.sigma,3.25)
-        self.assertEqual(self.ff.charge,0.66)
-        self.assertEqual(self.ff.mass,13.0)
-        
         
     def tearDown(self):
         del self.ff 
