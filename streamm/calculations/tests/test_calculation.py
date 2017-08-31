@@ -25,8 +25,8 @@ import math
 import sys
 import os 
 
-import streamm.structures.particle as particle
 from streamm.buildingblocks.container import Container as BBCont
+import streamm.structures.particle as particle
 
 
 try:

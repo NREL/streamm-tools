@@ -25,24 +25,33 @@ import math
 import sys
 import os 
 
-import streamm.structures.particle as particle
+import streamm.calculations.calculation as calculation
+import streamm.calculations.resource as resource 
 from streamm.buildingblocks.container import Container as BBCont
-
-
-try:
-    import streamm.calculations.calculation as calculation
-            
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import calculation
-    
+import streamm.structures.particle as particle
     
 PRECISION = 4
+
+class TestResource(unittest.TestCase):
     
+    def setUp(self):
+        
+        self.res_tag = 'local'  # Change this to remote to run the calculations remotely 
+        self.res_i = resource.Resource(self.res_tag )
+        self.res_i.dump_json()
+        
+    def test_make_dir(self):
+        self.res_i.make_dir()
+
+    def test_json(self):
+        self.res_i.dump_json()
+        self.res_i.load_json()
+        
+
+    def tearDown(self):
+        del self.res_i
+        
+        
 class TestAddStruc(unittest.TestCase):
     
     def setUp(self):
@@ -76,8 +85,8 @@ class TestAddStruc(unittest.TestCase):
         
 
     def test_Thdist(self):
-        if( len(os.path.dirname(__file__)) ): os.chdir(os.path.dirname(__file__))
-        self.calc_i = calculation.CalculationRes("ThDist")
+
+        self.calc_i = resource.CalculationRes("ThDist")
         file_type = 'input'
         file_key = 'xyz'
         file_name = "thiophene.xyz"
@@ -101,8 +110,8 @@ class TestAddStruc(unittest.TestCase):
         input_file = self.calc_i.files['input']['xyz']
         self.struc_i.read_xyz(input_file)
         self.struc_i.lat_cubic(10.0)
-        self.struc_i.bonded_nblist.guess_nblist(self.struc_i.lat,self.struc_i.particles,self.struc_i.positions,"cov_radii",radii_buffer=1.25)
-
+        self.struc_i.bonded_nblist = self.struc_i.guess_nblist(0,radii_buffer=1.25)
+        
         # Set up log file 
         log_file = "%s.log"%self.calc_i.tag
         self.calc_i.add_file('output','log',log_file)

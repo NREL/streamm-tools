@@ -153,11 +153,11 @@ class Calculation(object):
         for fkey,file_i in self.files[file_type].iteritems():
             # if( fkey != self.properties['comp_key'] and file_test(file_i) ):
             if( fkey != self.properties['comp_key']  ):
-                print "Adding %s "%(file_i)
+                logger.info("Adding %s "%(file_i))
                 compress_files += ' %s'%(file_i)
         compressed_file = "%s_%s.%s"%(self.tag,file_type,self.properties['compress_sufix'] )
         #
-        print "> compressed_file ",compressed_file
+        logger.info(" compressed_file:{} ".format(compressed_file))
         #
         # Add compressed file to file dictionary 
         self.add_file(file_type,self.properties['comp_key'],compressed_file)
@@ -190,7 +190,7 @@ class Calculation(object):
                     self.str[file_key] += line
 
         except IOError:
-            print " File not found %s "%(file_name)
+            logger.info(" File not found %s "%(file_name))
 
     def replace_prop(self,str_key):
         '''
@@ -241,7 +241,7 @@ class Calculation(object):
         Load json file for reference 
         '''   
         json_file = "%s_%s.json"%(self.prefix,self.tag)
-        print "Reading %s"%(json_file)
+        logger.info("Reading %s"%(json_file))
         try:
             with open(json_file) as f:            
                 json_data = json.load(f)
@@ -256,7 +256,6 @@ class Calculation(object):
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
-            print " File not found %s in %s "%(json_file,os.getcwd())
 
     def set_strucC(self,strucC_i):
         '''
@@ -280,9 +279,9 @@ class Calculation(object):
         '''
         Run calculation script
         '''
-        print "Calculation with status %s "%(self.meta['status'])
+        logger.info("Calculation with status %s "%(self.meta['status']))
         if( self.meta['status'] == 'written' ):
-            print "Resource type %s "%(self.resource.meta['type'] )
+            logger.info("Resource type %s "%(self.resource.meta['type'] ))
             if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
             for fkey,file_i in self.files['scripts'].iteritems():
@@ -296,7 +295,7 @@ class Calculation(object):
                     bash_command = "%s%s"%(self.properties['exe_command'],file_i)
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                    print "Executing run command %s "%(bash_command) 
+                    logger.info("Executing run command %s "%(bash_command) )
                     os.system(bash_command)
 
             self.meta['status'] == 'submitted'
@@ -311,7 +310,7 @@ class Calculation(object):
             try:
                 output_file = self.files['output'][output_key]
             except KeyError:
-                print "Calculation %s no output_file file  with key %s found"%(self.tag,output_key)
+                logger.info("Calculation %s no output_file file  with key %s found"%(self.tag,output_key))
                 return
             
             if( self.resource.meta['type'] == "ssh" ):
@@ -339,10 +338,10 @@ class Calculation(object):
                                 #return 
 
             except IOError:
-                print "If ouput file missing leave status and return"
+                logger.info("If ouput file missing leave status and return")
                 return
         else:
-            print "Calculation %s has status %s and will not be checked "%(self.tag,self.meta['status'])
+            logger.info("Calculation %s has status %s and will not be checked "%(self.tag,self.meta['status']))
             
 
 
@@ -358,14 +357,14 @@ class Calculation(object):
         log_lines = f.readlines()
         f.close()
         for line in log_lines:
-            # print "line:",line
+            # logger.info("line:",line
             llow = line.lower()
             if( 'file:' in  llow):
                 col = line.split()
                 file_type = col[8]
                 file_key = col[9]
                 file_name = col[10]
-                print "Adding file type %s with key %s and name %s "%(file_type,file_key,file_name)
+                logger.info("Adding file type %s with key %s and name %s "%(file_type,file_key,file_name))
                 self.add_file(file_type,file_key,file_name)
         #
         #
@@ -378,7 +377,7 @@ class Calculation(object):
             output_file = self.files['output'][output_key]
         except KeyError:
             output_file = ''
-            print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+            logger.info("Calculation %s No output_file file  with key %s found"%(self.tag,output_key))
         if( len(output_file) > 0 ):
             if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                            
@@ -396,7 +395,7 @@ class Calculation(object):
         if( self.meta['status'] == 'finished' ):
             if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
-            print "runnning store function in %s "%(os.getcwd())
+            logger.info("runnning store function in %s "%(os.getcwd()))
             from_dirkey = 'scratch'
             fromdir = self.dir[from_dirkey]
             to_dirkey = 'storage'
@@ -405,21 +404,21 @@ class Calculation(object):
             # for file_type in ['input','scripts','output','data']:
             for file_type in file_type_list:
                 if( len(self.files[file_type]) ):
-                    print "Storing %s files "%(file_type)
+                    logger.info("Storing %s files "%(file_type))
                     bash_command = self.get_compress_str(file_type)
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                    print bash_command
+                    logger.info(bash_command)
                     os.system(bash_command)
                     file_name = self.files[file_type][file_key]
                     bash_command = self.get_cp_str(file_type,file_key,file_name,from_dirkey,to_dirkey)
                     if( self.resource.meta['type'] == "ssh" ):
                         bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                    print bash_command
+                    logger.info(bash_command)
                     os.system(bash_command)
                     self.add_file(file_type,file_key,file_name)
                 else:
-                    print "No files of type %s present"%(file_type)
+                    logger.info("No files of type %s present"%(file_type))
             self.meta['status'] = 'stored'
             
 
@@ -429,7 +428,7 @@ class Calculation(object):
         '''
         if( self.meta['status'] == 'stored' ):
             if( self.resource.meta['type'] == "local" ):
-                print "runnning pull function in %s "%(os.getcwd())
+                logger.info("runnning pull function in %s "%(os.getcwd()))
                 from_dirkey = 'storage'
                 to_dirkey = 'scratch'
                 file_key = self.properties['comp_key']
@@ -454,22 +453,21 @@ class Calculation(object):
                     try:
                         file_name = self.files[file_type][comp_key]
                         run_cp  = True 
-                        print file_type,self.files[file_type][comp_key]
+                        logger.info(file_type,self.files[file_type][comp_key])
                     except:
                         logging.warning("No commpressed files for file type %s with key %s "%(file_type,comp_key))
-                        print "No commpressed files for file type %s with key %s "%(file_type,comp_key)
                     if( run_cp ):
                         from_pathfile = os.path.join(fromdir,file_name)
                         to_pathfile = os.path.join(todir,file_name)
                         bash_command = "scp %s:%s%s %s "%(ssh_id,fromdir,file_name,todir)
-                        print "bash_command ",bash_command
+                        logger.debug("bash_command:{} ".format(bash_command))
                         os.system(bash_command)
                         # Uncompress file
                         os.chdir(todir)
                         bash_command = "%s %s "%(self.properties['uncompress'],file_name)
                         os.system(bash_command)
             else:
-                print " Resource type %s unknown "%(self.resource.meta['type'])
+                logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
             
 
     def set_ffparam(self):
@@ -509,7 +507,7 @@ class Calculation(object):
             lmptype_p = 0
 
             if( debug_lj ):
-                print " Checking type ",fftype_i
+                logger.info(" Checking type {}".format(fftype_i))
 
             for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems():
                 lmptype_p = lj_p + 1
@@ -518,12 +516,12 @@ class Calculation(object):
                     # particle_o.type = str(lj_p)
                     particle_o.properties["lmpindx"] = lmptype_p
                     if(debug_lj):
-                        print ' maches previous ',pkey_o, lj_p,ljObj_p.fftype1
+                        logger.info(' maches previous '.format(pkey_o, lj_p,ljObj_p.fftype1))
 
             if( new_type ):
                 lmptype_p += 1
                 if( debug_lj ):
-                    print " New type ",fftype_i,lmptype_p
+                    logger.info(" New type {} {}".format(fftype_i,lmptype_p))
                 # Find type in ljtypC_all
                 cnt_check = 0
                 type_found = False 
@@ -555,7 +553,7 @@ class Calculation(object):
         if( debug_lj ):
 
             for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems():
-                print ljObj_p
+                logger.info(ljObj_p)
             sys.exit("LJ debug 89798")
 
         #
@@ -618,7 +616,7 @@ class Calculation(object):
                 elif( cnt_check > 1 ):
                     logger.warning(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
                     for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                        print btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2                    
+                        logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2      )              
                     if( not use_last  ):
                         self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
@@ -632,7 +630,7 @@ class Calculation(object):
                         bondObj_temp.lmpindx = lmptype_p
                         self.paramC.add_bondtype(bondObj_temp)
                         if( debug ):
-                            print " %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j)
+                            logger.info(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
 
                         # log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_all.get_r0(),bond_len-btypObj_all.get_r0() )
                         log_line="Adding new lmptyp %d for bond atoms %s - %s numbers %d - %d "%(lmptype_p,fftype_i,fftype_j,pid_i,pid_j)
@@ -711,7 +709,7 @@ class Calculation(object):
                     # log_line=" %d Angles parameters were found for angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f  \n"%(cnt_check,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij )
                     logger.warning(" %d Angles parameters were found for angle atoms %s - %s - %s numbers %d - %d - %d   \n"%(cnt_check,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j ))
                     #param_out.write(log_line)
-                    print log_line
+                    logger.info(log_line)
                     # atypC_p.findtype(fftype_k,fftype_i,fftype_j)
 
                     if( not use_last  ):
@@ -724,7 +722,7 @@ class Calculation(object):
                         atypObj_temp.lmpindx = lmptype_p
                         self.paramC.add_angletype(atypObj_temp)
                         if( debug ):
-                            print " %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j)
+                            logger.info(" %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j))
                             #log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p+1,theta0_kij,delta_theta )
                         log_line=" Adding new lmptyp %d  angle atoms %s - %s - %s numbers %d - %d - %d "%(lmptype_p,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j)
                         param_out.write(log_line+'\n')
@@ -740,7 +738,7 @@ class Calculation(object):
                 all_i = dtypObj_all.fftype2 
                 all_j = dtypObj_all.fftype3
                 all_l = dtypObj_all.fftype4
-                print " all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.type
+                logger.info(" all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.type)
                 #sys.exit("  type check debug ")
 
         imp_cnt = 0 
@@ -757,7 +755,7 @@ class Calculation(object):
             fftype_l =  self.strucC.particles[pid_l].properties["fftype"]
 
             if( debug):
-                print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+                logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if dihedral type is already in parameter set for the structure container
             for dtyp_p, dtypObj_p  in self.paramC.dihtypes.iteritems():
                 lmptype_p = dtyp_p + 1
@@ -776,9 +774,9 @@ class Calculation(object):
                     dihObj_o.g_indx = dtypObj_p.g_indx
 
                     if( debug):
-                        print " dihObj_o.lmpindx  ",dihObj_o.lmpindx
-                        print " dihObj_o.g_indx  ",dihObj_o.g_indx
-                        print "  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.g_indx
+                        logger.info(" dihObj_o.lmpindx  ",dihObj_o.lmpindx)
+                        logger.info(" dihObj_o.g_indx  ",dihObj_o.g_indx)
+                        logger.info("  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.g_indx)
                     break
                     
 
@@ -793,7 +791,7 @@ class Calculation(object):
                 dihObj_o.lmpindx = lmptype_p
 
                 if( debug):
-                    print "  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes)
+                    logger.info("  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes))
 
                 copy_type = False 
                 for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
@@ -814,12 +812,12 @@ class Calculation(object):
                         type_found = True
                         copy_type = False 
                         if( debug ):
-                            print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                            print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                            logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
                     if(debug):
-                        print " checking  X - FF - FF - FF "
+                        logger.info(" checking  X - FF - FF - FF ")
                     copy_type = False 
                     for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
@@ -843,12 +841,12 @@ class Calculation(object):
                             type_found = True 
                             copy_type = False 
                             if( debug ):
-                                print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                                print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                                logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                                logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
                     if(debug):
-                        print " checking  X - FF - FF - X "
+                        logger.info(" checking  X - FF - FF - X ")
                     copy_type = False 
                     for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
@@ -868,15 +866,15 @@ class Calculation(object):
                             type_found = True 
                             copy_type = False 
                             if( debug ):
-                                print " %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                                print "     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l
+                                logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                                logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
                     raise TypeError(" No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l))
                 elif( cnt_check > 1 ):
-                    print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                    print dtypObj_temp
+                    logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                    logger.info(dtypObj_temp)
                     #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                     if( not use_last  ):
                         self.paramC = self.paramC_o
@@ -885,7 +883,7 @@ class Calculation(object):
                 if( type_found ):
                     if( debug ):
 
-                        print " adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.fftype1,dtypObj_temp.fftype2,dtypObj_temp.fftype3,dtypObj_temp.fftype4
+                        logger.info(" adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.fftype1,dtypObj_temp.fftype2,dtypObj_temp.fftype3,dtypObj_temp.fftype4)
 
                     # Set FF types to read in bond to remove X's 
                     dtypObj_temp.fftype1 = fftype_k
@@ -899,14 +897,14 @@ class Calculation(object):
                         # normalize by number of nieghbors
                         dihen_norm = 1.0
                         if( debug):
-                            print " Normalizing dihedral potential "
-                            print " finding types for ",pid_i,pid_j
+                            logger.info(" Normalizing dihedral potential "
+                            logger.info(" finding types for ",pid_i,pid_j
                         NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
                         NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
 
                         dihen_norm = float( NNAB_i + NNAB_j)/2.0
 
-                        if(debug): print " dihen_norm ",dihen_norm
+                        if(debug): logger.info(" dihen_norm ",dihen_norm
 
                         dtypObj_temp.normforceconstants(dihen_norm)
                     '''
@@ -915,10 +913,10 @@ class Calculation(object):
                     dtypObj_temp.lmpindx = lmptype_p
                     self.paramC.add_dihtype(dtypObj_temp)                
                     if( debug ):
-                        print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                        print " len(dtypC_p) ",len(self.paramC.dihtypes) 
-                        print " dtypObj_temp.lmpindx  ",dtypObj_temp.lmpindx
-                        print " dtypObj_temp.g_indx  ",dtypObj_temp.g_indx
+                        logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                        logger.info(" len(dtypC_p) ",len(self.paramC.dihtypes) )
+                        logger.info(" dtypObj_temp.lmpindx  ",dtypObj_temp.lmpindx)
+                        logger.info(" dtypObj_temp.g_indx  ",dtypObj_temp.g_indx)
         #
         # Examine improper dihedrals types
         #
@@ -929,7 +927,7 @@ class Calculation(object):
                 all_i = imptypObj_all.fftype2 
                 all_j = imptypObj_all.fftype3
                 all_l = imptypObj_all.fftype4
-                print " all types in parameters ",all_k,all_i,all_j,all_l,imptypObj_all.type
+                logger.info(" all types in parameters ",all_k,all_i,all_j,all_l,imptypObj_all.type)
                 #sys.exit("  type check debug ")
 
         imp_cnt = 0 
@@ -946,7 +944,7 @@ class Calculation(object):
             fftype_l =  self.strucC.particles[pid_l].properties["fftype"]
 
             if( debug):
-                print " checking ",fftype_k, fftype_i,  fftype_j , fftype_l
+                logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if impedral type is already in parameter set for the structure container
             for imptyp_p, imptypObj_p  in self.paramC.imptypes.iteritems():
                 lmptype_p = imptyp_p + 1
@@ -965,9 +963,9 @@ class Calculation(object):
                     impObj_o.g_indx = imptypObj_p.g_indx
 
                     if( debug):
-                        print " impObj_o.lmpindx  ",impObj_o.lmpindx
-                        print " impObj_o.g_indx  ",impObj_o.g_indx
-                        print "  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.g_indx
+                        logger.info(" impObj_o.lmpindx  ",impObj_o.lmpindx)
+                        logger.info(" impObj_o.g_indx  ",impObj_o.g_indx)
+                        logger.info("  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.g_indx)
                     break
                     
             # If it is not in the parameter set for the struture container
@@ -981,7 +979,7 @@ class Calculation(object):
                 impObj_o.lmpindx = lmptype_p
 
                 if( debug):
-                    print "  new type checking against %d read in parameters "%len(imptypC_all)
+                    logger.info("  new type checking against %d read in parameters "%len(imptypC_all))
 
                 copy_type = False 
                 for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
@@ -1002,12 +1000,12 @@ class Calculation(object):
                         type_found = True
                         copy_type = False 
                         if( debug ):
-                            print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                            print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                            logger.info(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
                     if(debug):
-                        print " checking  X - FF - FF - FF "
+                        logger.info(" checking  X - FF - FF - FF ")
                     copy_type = False 
                     for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
@@ -1031,12 +1029,12 @@ class Calculation(object):
                             type_found = True 
                             copy_type = False 
                             if( debug ):
-                                print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                                print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                                logger.info(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                                logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
                     if(debug):
-                        print " checking  X - FF - FF - X "
+                        logger.info(" checking  X - FF - FF - X ")
                     copy_type = False 
                     for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
@@ -1056,15 +1054,15 @@ class Calculation(object):
                             type_found = True 
                             copy_type = False 
                             if( debug ):
-                                print " %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                                print "     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l
+                                logger.info(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                                logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
                     raise TypeError(" No Dih parameters were found for dih type %s-%s-%s-%s "%(fftype_k,fftype_i,fftype_j,fftype_l))
                 elif( cnt_check > 1 ):
-                    print " %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                    print imptypObj_temp
+                    logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s please check parameter file  "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                    logger.info(imptypObj_temp)
                     #imptypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                     if( not use_last  ):
                         self.paramC = self.paramC_o
@@ -1073,7 +1071,7 @@ class Calculation(object):
                 if( type_found ):
                     if( debug ):
 
-                        print " adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.fftype1,imptypObj_temp.fftype2,imptypObj_temp.fftype3,imptypObj_temp.fftype4
+                        logger.info(" adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.fftype1,imptypObj_temp.fftype2,imptypObj_temp.fftype3,imptypObj_temp.fftype4)
 
                     # Set FF types to read in bond to remove X's 
                     imptypObj_temp.fftype1 = fftype_k
@@ -1087,15 +1085,15 @@ class Calculation(object):
                         # normalize by number of nieghbors
                         dihen_norm = 1.0
                         if( debug):
-                            print " Normalizing dihedral potential "
-                            print " finding types for ",pid_i,pid_j
+                            logger.info(" Normalizing dihedral potential "
+                            logger.info(" finding types for ",pid_i,pid_j
                         NNAB_i = calc_nnab(pid_i,cov_nbindx) - 1
                         NNAB_j = calc_nnab(pid_j,cov_nbindx) - 1
 
                         dihen_norm = float( NNAB_i + NNAB_j)/2.0
 
-                        if(debug): print " dihen_norm ",dihen_norm
-                        print " dihen_norm ",dihen_norm
+                        if(debug): logger.info(" dihen_norm ",dihen_norm
+                        logger.info(" dihen_norm ",dihen_norm
 
                         imptypObj_temp.normforceconstants(dihen_norm)
                     '''
@@ -1103,418 +1101,40 @@ class Calculation(object):
                     imptypObj_temp.lmpindx = lmptype_p
                     self.paramC.add_imptype(imptypObj_temp,deepcopy = True)
                     if( debug ):
-                        print " %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l)
-                        print " len(imptypC_p) ",len(imptypC_p) 
-                        print " imptypObj_temp.lmpindx  ",imptypObj_temp.lmpindx
-                        print " imptypObj_temp.g_indx  ",imptypObj_temp.g_indx
+                        logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                        logger.info(" len(imptypC_p) ",len(imptypC_p) )
+                        logger.info(" imptypObj_temp.lmpindx  ",imptypObj_temp.lmpindx)
+                        logger.info(" imptypObj_temp.g_indx  ",imptypObj_temp.g_indx)
 
         debug = False 
         if(debug):
-            print " LJ atom types found %d "%(self.n_ljtypes)
+            logger.info(" LJ atom types found %d "%(self.n_ljtypes))
             for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems(): 
-                print lj_p,ljObj_p.fftype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma
-            print " Bond types found %d "%(self.n_bondtypes)
+                logger.info(lj_p,ljObj_p.fftype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma)
+            logger.info(" Bond types found %d "%(self.n_bondtypes))
             for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                print btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2,btypObj_p.lmpindx,btypObj_p.g_indx
-            print " Angle types found %d "%(self.n_angletypes)
+                logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2,btypObj_p.lmpindx,btypObj_p.g_indx)
+            logger.info(" Angle types found %d "%(self.n_angletypes))
             for atyp_p, atypObj_p  in self.paramC.angletypes.iteritems():
-                print atyp_p ,atypObj_p.fftype1 ,atypObj_p.fftype2,atypObj_p.fftype3,atypObj_p.lmpindx,atypObj_p.g_indx
-            print " Dih types found %d "%(self.n_dihtypes)
+                logger.info(atyp_p ,atypObj_p.fftype1 ,atypObj_p.fftype2,atypObj_p.fftype3,atypObj_p.lmpindx,atypObj_p.g_indx)
+            logger.info(" Dih types found %d "%(self.n_dihtypes))
             for dtyp_p, dtypObj_p  in self.paramC.dihtypes.iteritems():
-                print dtyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx
-            print " imp Dih types found %d "%(self.n_imptypes)
+                logger.info(dtyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx)
+            logger.info(" imp Dih types found %d "%(self.n_imptypes))
             for imptyp_p, dtypObj_p  in self.paramC.imptypes.iteritems():
-                print imptyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx
+                logger.info(imptyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx)
             sys.exit('find_types')
 
         debug = False 
         if(debug):
-            print "  All particles should have new type labeled as interger stored as a string "
+            logger.info("  All particles should have new type labeled as interger stored as a string ")
             for pkey_o, particle_o  in self.strucC.particles.iteritems():
-                print particle_o.properties["fftype"],particle_o.type
+                logger.info(particle_o.properties["fftype"],particle_o.type)
             for d_o,dihObj_o in dihC_o:
-                print " lmpindx() g_indx()  ",d_o,dihObj_o.pkey1,dihObj_o.pkey2,dihObj_o.pkey3,dihObj_o.pkey4, dihObj_o.lmpindx ,dihObj_o.g_indx 
+                logger.info(" lmpindx() g_indx()  ",d_o,dihObj_o.pkey1,dihObj_o.pkey2,dihObj_o.pkey3,dihObj_o.pkey4, dihObj_o.lmpindx ,dihObj_o.g_indx )
 
         param_out.close()
 
         return           
-        
-class CalculationRes(Calculation):
-    '''
-    Derived type of Calculation for running a calculation on resource.
-    In that files will be compressed and moved to scratch directories to run,
-    then output files and output data will be compressed and moved to storage.
-
-    '''
-    def __init__(self, tag , verbose=False):
-        """
-        Constructor for derived class. The base class constructor is called
-        explicitly
-        """
-        # Base class constructor is called
-        Calculation.__init__(self, tag)
-        #super(Calculation,self).__init__()
-        # Computational Resource used for simulation/calculation  
-        self.resource = resource.Resource()
-        self.dir = dict()
-        #
-    def __del__(self):
-        """
-        Destructor, clears object memory
-        """
-        # Call base class destructor
-        Calculation.__del__(self)
-        del self.resource
-        del self.dir 
-        #
-
-
-    def dump_json(self):
-        '''
-        Dump json file for reference 
-        '''
-        json_data = dict()
-        json_data['meta'] = self.meta
-        json_data['units'] = self.units
-        json_data['files'] = self.files
-        json_data['data'] = self.data
-        json_data['properties'] = self.properties
-        json_data['properties']['run_list'] = ''
-        
-        json_data['references'] = dict()
-        for ref_key,ref_calc in self.references.iteritems(): 
-            json_data['references'][ref_key] = ref_calc.tag
-            
-        json_data['dir'] = self.dir
-
-        print json_data
-        
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
-        f = open(json_file, 'w')
-        json.dump(json_data,f, indent=2)
-        f.close()
-
-
-    def load_json(self):
-        '''
-        Load json file for reference 
-        '''        
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
-        try:
-            with open(json_file) as f:            
-                json_data = json.load(f)
-                f.close()
-                
-                self.meta = json_data['meta']
-                self.units = json_data['units']
-                self.files = json_data['files']
-                self.data = json_data['data'] 
-                self.properties = json_data['properties'] 
-                self.dir = json_data['dir']
-
-                # Load resource 
-                try:
-                    res_tag = json_data['meta']['resource']
-                except:
-                    res_tag = ''
-                    print "No resource found "
-                if( len(res_tag) > 0 ):
-                    print "Resource tag found %s "%(res_tag)
-                    resource_i = resource.Resource(str(res_tag))
-                    resource_i.load_json()
-                    self.resource = resource_i
-                                    
-                # Load references 
-                try:
-                    ref_tags = json_data['references']
-                    for rekey,ref_tag in ref_tags:
-                        ref_i = Calculation(ref_tag)
-                        ref_i.load_json()
-                        self.add_refcalc(ref_i)
-                        print " Need to set reference calculation type "
-                except:
-                    print "No references found "
-                    
-        except IOError:
-            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
-            print " File not found %s in %s "%(json_file,os.getcwd())
-
-        
-    def make_dir(self):
-        '''
-        Check that needed directories exist 
-        '''
-        logger.debug("Creating directories for resource %s "%(self.tag))
-        
-        if( self.resource.meta['type'] == "local" ):
-            os.chdir(self.dir['home'])
-            for dkey,dir_i in self.dir.iteritems():
-                if ( not os.path.isdir(dir_i) ):
-                    print "Making %s "%(dir_i)
-                    os.mkdir(dir_i)
-            os.chdir(self.dir['home'])
-        elif( self.resource.meta['type'] == "ssh" ):
-            # Create local directories 
-            os.chdir(self.dir['home'])
-            dkey = 'launch'
-            try:
-                dir_i = self.dir[dkey]
-                if ( not os.path.isdir(dir_i) ):
-                    print "Making %s "%(dir_i)
-                    os.mkdir(dir_i)                
-            except:
-                logger.warning("%s directory not set "%(dkey))
-            # Create remote directories 
-            ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])#
-            for dkey in ['storage','scratch']:
-                try:
-                    dir_i = self.dir[dkey]
-                    # Create  directory
-                    bash_command = ' mkdir -p %s  '%(dir_i)
-                    bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
-                    print "MAKEDIR ",bash_command
-                    os.system(bash_command)                       
-                except:
-                    logger.warning("%s directory not set "%(dkey))
-                    
-            
-                            
-    def set_resource(self,resource_i):
-        '''
-        Set resource for simulation 
-        '''
-        self.resource = resource_i
-        self.meta['resource'] = resource_i.tag
-        # Add resource properties to calculation properties
-        self.properties.update(resource_i.properties)
-        
-        # Set simulation directories based on resource
-        self.dir = copy.deepcopy(resource_i.dir)
-        # Set storage and scratch to have calculation directories 
-        self.dir['storage'] = '%s/%s/'%(resource_i.dir['storage'] ,self.tag)
-        self.dir['scratch'] = '%s/%s/'%(resource_i.dir['scratch'],self.tag)
-        self.dir['launch'] = '%s/%s/'%(resource_i.dir['launch'],self.tag)
-        self.properties['scratch'] = resource_i.dir['scratch'] 
-
-
-    def add_refcalc(self,ref_calc):
-        '''
-        Add reference calculation to current calculation
-        this will copy the output of the reference calculation
-        to the current calculation's scratch location to be used
-        by the current calculation
-        '''
-        self.references[ref_calc.tag] = ref_calc
-        
-    def get_cp_str(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
-        '''
-        Return bash command as string to copy a file
-        '''
-        cpfile = True
-        try:
-            fromdir = self.dir[from_dirkey]
-        except:
-            cpfile = False
-            print " dir dictionary key %s not set for calculation %s files "%(from_dirkey,self.tag)
-        try:
-            todir = self.dir[to_dirkey]
-        except:
-            cpfile = False
-            print " dir dictionary key %s not set for calculation %s files "%(to_dirkey,self.tag)
-        if( cpfile ):
-            from_pathfile = os.path.join(fromdir,file_name)
-            to_pathfile = os.path.join(todir,file_name)
-            return "cp %s %s "%(from_pathfile,to_pathfile)
-        else:
-            return ''
-        
-    def cp_file(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
-        '''
-        Add file to calculation with add_file and copy the file to a directory
-        '''
-        print "> in cp_file ",file_type,file_key,file_name,from_dirkey,to_dirkey
-        
-        cpfile = True
-        try:
-            fromdir = self.dir[from_dirkey]
-        except:
-            cpfile = False
-            print " dir dictionary key %s not set for calculation %s files "%(from_dirkey,self.tag)
-        try:
-            todir = self.dir[to_dirkey]
-        except:
-            cpfile = False
-            print " dir dictionary key %s not set for calculation %s files "%(to_dirkey,self.tag)
-        if( cpfile ):
-            from_pathfile = os.path.join(fromdir,file_name)
-            to_pathfile = os.path.join(todir,file_name)
-            print "copying %s to %s "%(from_pathfile,to_pathfile)
-            shutil.copyfile(from_pathfile,to_pathfile)
-             
-        self.add_file(file_type,file_key,file_name)
-        #
-    def compress_dirfiles(self,file_type,in_dirkey):
-        '''
-        Compress  files in directory
-        '''
-        os.chdir(self.dir[in_dirkey])
-        self.compress_files(file_type)
-        os.chdir(self.dir['home'])
-
-
-    def push(self,file_type_list=[ 'output', 'data']):
-        '''
-        Push input files to resource 
-        '''
-        #
-        print " Resource type %s "%(self.resource.meta['type'])
-
-        if( self.meta['status'] == 'written' ):
-            if( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
-                print "runnning push function in %s "%(os.getcwd())
-                #
-                # Scp compressed files over to resource 
-                #
-                from_dirkey = 'launch'
-                fromdir = self.dir[from_dirkey]
-                to_dirkey = 'scratch'
-                todir = self.dir[to_dirkey]
-                file_key = self.properties['comp_key']
-                for file_type in ['input','templates','scripts']:
-                    if( len(self.files[file_type]) ):
-                        
-                        print "Compressing and copying %s files to scratch directory "%(file_type)
-                        self.compress_files(file_type)
-                        file_name = self.files[file_type][file_key]
-                        # self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
-                        from_pathfile = os.path.join(fromdir,file_name)
-                        to_pathfile = os.path.join(todir,file_name)
-                        bash_command = "scp %s %s:%s"%(from_pathfile,ssh_id,todir)
-                        print "COPY ",bash_command
-                        os.system(bash_command)
-                        # Uncompress file 
-                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
-                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,todir,bash_command)
-                        os.system(bash_command)
-                    else:
-                        print "No files of type %s set"%(file_type)
-            else:
-                print " Resource type %s does not need to push files created locally "%(self.resource.meta['type'])
-            #
-            # Copy reference simulation output over to scratch directory
-            #
-            file_key = self.properties['comp_key']
-            if( self.resource.meta['type'] == "ssh"  ):
-                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
-            for ref_key,ref_calc in self.references.iteritems():
-                print "Copying output of reference calculations %s"%(ref_key)
-                # file_type = 'output'
-                for file_type in file_type_list:
-                    
-                    try:
-                        file_name = ref_calc.files[file_type][file_key]
-                    except:
-                        print "Fine type %s has no compressed files "%(file_type)
-                        file_name = ''
-                    if( len(file_name) > 0 ):
-                        # Copy compressed reference output to scratch directory 
-                        if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
-                            bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                            os.system(bash_command)
-                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
-                            if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
-                                # Copy on external resource 
-                                bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                                bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
-                                os.system(bash_command)                
-                            else:
-                                # Copy between resources 
-                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
-                                bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
-                                os.system(bash_command)
-
-                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "local" ):
-                                # Copy between resources 
-                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
-                                bash_command = "scp %s:%s/%s %s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,self.dir['scratch'])
-                                os.system(bash_command)                                            
-                        else:
-                            print " Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type'])
-                        # Uncompress reference output 
-                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
-                        if( self.resource.meta['type'] == "ssh" ):
-                            bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
-                        # Run bash command
-                        os.system(bash_command)
-
-                
-                
-            '''
-            # Copy over reference output
-            #for ref_tag in self.files['reference']:
-            for ref_sim in self.references:
-                #ref_sim = load_json(ref_tag)
-                ref_compressed_output = "%s_output.%s"%(ref_sim.tag,ref_sim.compress_sufix)
-                if( ref_sim.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
-                    bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
-                    os.system(bash_command)                
-                if( ref_sim.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh"):
-                    if( ref_sim.resource.meta['address'] == self.resource.meta['address'] ):
-                        bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
-                        bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
-                        os.system(bash_command)                
-                    else:
-                        logger.info("Can't transfer simulations between two extrernal resources :( ")
-                else:
-                    logger.info(" Resource type %s unknown "%(ref_sim.resource.meta['type']))
-                #
-                # Record compressedinputs
-                self.files['compressedinputs'].append(ref_compressed_output)            
-                         
-            os.chdir(self.meta['launch_dir'])
-            #
-            # Compress input files 
-            self.compress_input()
-            #
-            # Copy over input files 
-            if( self.resource.meta['type'] == "local" ):
-                bash_command = "cp %s %s"%(self.compressed_input,self.meta['scratch_dir'])
-                os.system(bash_command)                
-            elif( self.resource.meta['type'] == "ssh" ):
-                bash_command = "scp %s %s:%s"%(self.compressed_input,ssh_id,self.meta['scratch_dir'])
-                os.system(bash_command)
-            else:
-                logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
-            #
-            # Record compressedinputs
-            self.files['compressedinputs'].append(self.compressed_input)
-
-
-            if( self.resource.meta['type'] == "local" ):
-                # Change to scratch directory 
-                os.chdir(self.meta['scratch_dir'])
-                logger.debug("scratch_dir %s "%(self.meta['scratch_dir']))
-                # Uncompress input files
-
-                
-                
-                for file_i in self.files['compressedinputs']:
-                    bash_command = "%s %s "%(self.uncompress_method,file_i)
-                    # Run bash command
-                    os.system(bash_command)
-
-            elif( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])                              
-                for file_i in self.files['compressedinputs']:
-                    bash_command = "%s %s "%(self.uncompress_method,file_i)
-                    bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.meta['scratch_dir'],bash_command)
-                    # Run bash command
-                    os.system(bash_command)
-            '''
-        
-        
-        
-            
         
         
