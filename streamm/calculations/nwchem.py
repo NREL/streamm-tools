@@ -1,12 +1,18 @@
-"""
-Class data structures for Gaussian data
-"""
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
 
-__author__ = "Travis W. Kemper"
-__version__ = "0.1"
-__email__ = "travis.kemper.w@gmail.com"
-__status__ = "Alpha"
+from __future__ import division, unicode_literals
 
+__author__ = "Travis W. Kemper, Scott Sides, Ross Larsen"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
+"""
+Class data structures for NWChem data
+"""
 
 import copy, sys, os, shutil, math
 import time, datetime
@@ -15,12 +21,16 @@ import numpy as np
 from string import replace
 
 
-import structure, parameters, units, periodictable, project, resource, buildingblock
-from calculation import CalculationRes
+import streamm.structures.particle as particle
+import streamm.calculations.resource as resource 
+from resource import CalculationRes
 
+import streamm.calculations.calculation as calculation
+from streamm.buildingblocks.container import Container as BBCont
+    
+    
 import logging
 logger = logging.getLogger(__name__)
-
 
 
 def conv_float(fval_i):
