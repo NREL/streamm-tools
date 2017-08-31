@@ -485,23 +485,128 @@ class TestBuildThiophene(unittest.TestCase):
         self.assertEqual(round(self.strucC.bonds[4].length,6),1.091483)
         self.assertEqual(round(self.strucC.bonds[5].length,6),1.377194)
 
+
+    def test_listbondlengths(self):
+        PRECISION =4
+
+        self.strucC.bonded_bonds()
+        # Get C-C bond lengths
+        list_i = []
+        list_j = []
+        for k,p in self.strucC.particles.iteritems():
+            if( p.symbol == 'C' ):
+                list_i.append(k)
+                list_j.append(k)
+        CC_bondkeys = self.strucC.find_bonds(list_i,list_j)
+        self.strucC.calc_bonds(CC_bondkeys)
+        CC_bondlengths = self.strucC.get_list_bonds_lengths(CC_bondkeys)
+               
+        self.assertEqual(round(CC_bondlengths[0],PRECISION),1.3772)
+        self.assertEqual(round(CC_bondlengths[1],PRECISION),1.4321)
+        self.assertEqual(round(CC_bondlengths[2],PRECISION),1.3772)
+        outf = 'CCbonds.csv'
+        self.strucC.write_bonds(outf,CC_bondkeys)
+        # Get C-S bond lengths
+        list_i = []
+        list_j = []
+        #
+        for k,p in self.strucC.particles.iteritems():
+                if( p.symbol == 'C' ):
+                    list_i.append(k)
+                if( p.symbol == 'S' ):
+                    list_j.append(k)
+        # 
+        CS_bondkeys = self.strucC.find_bonds(list_i,list_j)
+        self.strucC.calc_bonds(CS_bondkeys)
+        CS_bondlengths = self.strucC.get_list_bonds_lengths(CS_bondkeys)
+        
+        self.assertEqual(round(CS_bondlengths[0],PRECISION),1.6722)
+        self.assertEqual(round(CS_bondlengths[0],PRECISION),1.6722)
+        outf = 'CSbonds.csv'
+        self.strucC.write_bonds(outf,CS_bondkeys)
+        
     def test_angles(self):
         self.strucC.bonded_angles()
         self.strucC.calc_angles()
         self.strucC.write_angles('angles_all.csv')
         self.assertEqual(round(self.strucC.angles[0].cosine,6),0.367484)
         self.assertEqual(round(self.strucC.angles[12].cosine,6),0.066883)
+        
+    def test_listbondangles(self):
+        PRECISION =4
 
+        self.strucC.bonded_angles()
+        # Get C-C-C angles
+        list_k = []
+        list_i = []
+        list_j = []
+        for k,p in self.strucC.particles.iteritems():
+                if( p.symbol == 'C' ):
+                        list_k.append(k)
+                        list_i.append(k)
+                        list_j.append(k)
+        CCC_keys = self.strucC.find_angles(list_k,list_i,list_j)
+        self.strucC.calc_angles(CCC_keys)
+        CCC_cos = self.strucC.get_list_angles_cosine(CCC_keys) # structure.prop_list('cosine',CCC_keys,self.strucC.angles)
+        self.assertEqual(round(CCC_cos[0],PRECISION),0.3669)
+        self.assertEqual(round(CCC_cos[1],PRECISION),0.3669)
+        outf = 'CCC_cos.csv'
+        self.strucC.write_angles(outf,CCC_keys)
+        # Get C-S bond lengths
+        list_k = []
+        list_i = []
+        list_j = []
+        for k,p in self.strucC.particles.iteritems():
+                if( p.symbol == 'C' ):
+                        list_k.append(k)
+                        list_j.append(k)
+                if( p.symbol == 'S' ):
+                        list_i.append(k)
+        CSC_keys = self.strucC.find_angles(list_k,list_i,list_j)
+        self.strucC.calc_angles(CSC_keys)
+        
+        CSC_cos = self.strucC.get_list_angles_cosine(CSC_keys) # structure.prop_list('cosine',CSC_keys,self.strucC.angles)
+        self.assertEqual(round(CSC_cos[0],PRECISION),0.0669)
+        outf = 'CSC_cos.csv'
+        self.strucC.write_angles(outf,CSC_keys)
+        
+        
     def test_dih(self):
         self.strucC.bonded_dih()
         self.strucC.calc_dihedrals()
         self.strucC.write_dihedrals('dih_all.csv')
         self.assertEqual(round(self.strucC.dihedrals[8].cosine,6),-1.0)
-
+        
     def test_calcdihc(self):
         dih_i = dihedral.Dihedral(3,2,1,0)
         self.strucC.calc_dihedral(dih_i)
         self.assertEqual(dih_i.cosine,0.99999980013324519)
+
+    def test_listdihangle(self):
+        PRECISION =4
+
+        self.strucC.bonded_dih()
+                     
+        # Select some particles 
+        list_k = []
+        list_i = []
+        list_j = []
+        list_l = []
+
+        for k,p in self.strucC.particles.iteritems():
+                if( p.symbol == 'C' ):
+                        list_k.append(k)
+                        list_i.append(k)
+                        list_j.append(k)
+                        list_l.append(k)
+
+        CCCC_keys = self.strucC.find_dihedrals(list_k,list_i,list_j,list_l)
+        self.strucC.calc_dihedrals(CCCC_keys)
+        CCCC_cos = self.strucC.get_list_dihedral_cosine(CCCC_keys) # structure.prop_list('cosine',CCCC_keys,self.strucC.dihedrals)
+        self.assertEqual(round(CCCC_cos[0],PRECISION),1.0)
+        outf = 'CCCC_cos.csv'
+        self.strucC.write_dihedrals(outf,CCCC_keys)
+        
 
     def test_expand_matrix(self):
         exlat_frac = 0.050  # 5%
@@ -617,7 +722,7 @@ class TestBuildThiophene(unittest.TestCase):
         npos_i = self.strucC.get_pos(list_i)
         nptu.assert_almost_equal(npos_i,npos_i_correct)
         
-
+    
     def test_writestruc(self):
         # print "self.strucC",self.strucC.n_particles
         part_xyz = []

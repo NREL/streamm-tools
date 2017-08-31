@@ -22,15 +22,12 @@ class Bond(object):
             pkey2   (int)   Index of Particle object in bond
         """
         
-        if isinstance(pkey1, int):
-            self.pkey1 = pkey1
-        else:
-            raise TypeError("1st arg should be int")
-
-        if isinstance(pkey2, int):
-            self.pkey2 = pkey2
-        else:
-            raise TypeError("2nd arg should be int type")
+        self.pkey1 = pkey1
+        self.pkey2 = pkey2
+        
+        self.length = None 
+        
+        
 
     def __del__(self):
         """
@@ -38,6 +35,7 @@ class Bond(object):
         """
         del self.pkey1
         del self.pkey2
+        del self.length 
 
     def __str__(self):
         """
@@ -45,22 +43,4 @@ class Bond(object):
         """
         return " %s - %s"%(self.pkey1,self.pkey2 )
 
-
-class ForceField(object):
-    '''
-    Particle represented by a Force-field
-    '''
-    def __init__(self, type='X',label='X1'):
-        """
-        Constructor for a Force-field particle. 
-        """
-        self.lammps_index = -1 
-        self.gromacs_index = -1 
-    
-    def __del__(self):
-        """
-        Destructor, clears structure memory and calls held container destructors
-        """
-        del self.lammps_index
-        del self.gromacs_index
         

@@ -29,20 +29,9 @@ class Angle(object):
             pkey3   (int)   Index of Particle object in angle
         """
         
-        if isinstance(pkey1, int):
-            self.pkey1 = pkey1
-        else:
-            raise TypeError("1st arg should be int")
-
-        if isinstance(pkey2, int):
-            self.pkey2 = pkey2
-        else:
-            raise TypeError("2nd arg should be int type")
-
-        if isinstance(pkey3, int):
-            self.pkey3 = pkey3
-        else:
-            raise TypeError("3rd arg should be int type")
+        self.pkey1 = pkey1
+        self.pkey2 = pkey2
+        self.pkey3 = pkey3
         
         #
         self.cosine = None 

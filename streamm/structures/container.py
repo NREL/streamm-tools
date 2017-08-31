@@ -777,7 +777,43 @@ class Container(object):
         for pkey_i, particle_i  in self.particles.iteritems():
             if( max_mol < particle_i.mol ): max_mol = particle_i.mol
         return max_mol
+    
+    
 
+    def get_list_bonds_lengths(self,keys=[]):
+        '''
+        Get list from bonds of the properties length
+        '''
+
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.bonds.keys()
+                
+        property_list = [] 
+        for bkey in keys:
+            bond = self.bonds[bkey]
+            property_list.append(bond.length )
+            
+        return property_list
+                       
+
+    def get_list_bonds_lengths(self,keys=[]):
+        '''
+        Get list from bonds of the properties length
+        '''
+
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.bonds.keys()
+                
+        property_list = [] 
+        for bkey in keys:
+            bond = self.bonds[bkey]
+            property_list.append(bond.length )
+            
+        return property_list
+                   
+                   
     def rotate_xz(self,theta_xz,direction="counterclockwise"):
         """
 
@@ -1665,6 +1701,7 @@ class Container(object):
         
         Args:
             bond_i (Bond) Bond object
+            
         """
         if isinstance(bond_i,Bond):
             r_i = self.positions[bond_i.pkey1]
@@ -1825,6 +1862,23 @@ class Container(object):
             angle_i = self.angles[key_i]
             self.calc_angle(angle_i)
             
+
+    def get_list_angles_cosine(self,keys=[]):
+        '''
+        Get list from bonds of the properties length
+        '''
+
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.angles.keys()
+                
+        property_list = [] 
+        for bkey in keys:
+            angle = self.angles[bkey]
+            property_list.append(angle.cosine )
+            
+        return property_list
+                               
     def write_angles(self,angles_file,keys=[]):
         '''
         Write out angles in csv file 
@@ -1947,6 +2001,7 @@ class Container(object):
             dihedral_i = self.dihedrals[key_i]
             cos_kijl = self.calc_dihedral(dihedral_i)
         
+        
     def proc_dihedrals(self,keys=[]):
         '''
         Calculate the dihedral angels from angle_list
@@ -1962,6 +2017,22 @@ class Container(object):
                 self.dih_dic['cosine'] .append(dih_i.cosine)
                 
 
+    def get_list_dihedral_cosine(self,keys=[]):
+        '''
+        Get list from bonds of the properties length
+        '''
+
+        if( len(keys) == 0 ):
+            # If list is not specified use all bonds
+            keys = self.dihedrals.keys()
+                
+        property_list = [] 
+        for bkey in keys:
+            dih_i = self.dihedrals[bkey]
+            property_list.append(dih_i.cosine )
+            
+        return property_list
+                    
     def write_dihedrals(self,dih_file,keys=[]):
         '''
         Calculate the dihedral angels from angle_list

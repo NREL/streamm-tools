@@ -17,8 +17,19 @@ import time, datetime
 import json
 import numpy as np
 from string import replace
+from datetime import datetime
 
-import periodictable, units, structure, parameters, buildingblock, resource
+try:
+    # Import pymatgen Class 
+    import pymatgen.core.periodic_table as pymatgen_pt
+    import pymatgen.core.units as units
+except:
+    logger.warning("pymatgen import error for periodic_table object")
+
+
+from streamm.buildingblocks.container import Container as BBCont
+from streamm.forcefields.container import Container as ParamCont
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -34,7 +45,6 @@ class Calculation(object):
     along with dictionaries of meta data and units.
         
     '''
-
     def __init__(self, tag):
         """
         Constructor for a general Calculation object.
@@ -53,18 +63,15 @@ class Calculation(object):
             self.files['data']   (dict) Data produced by calculation
         self.str['templates'] (dict) of template strings
         """
-        if isinstance(tag, str):
-            self.tag = tag
-        else:
-            raise TypeError("1st arg (tag) in %s Container initialization should be string"%(__name__))
+        self.tag = str(tag)
         
         self.prefix = 'calc'
         self.data = dict()
 
-        self.strucC = buildingblock.Container()
-        self.paramC = parameters.Container()
+        self.strucC = BBCont()
+        self.paramC = ParamCont()
         
-        dt = datetime.datetime.fromtimestamp(time.time())
+        dt = datetime.fromtimestamp(time.time())
         self.meta = dict()
         self.meta['date'] = dt.isoformat()
         self.meta['status'] = 'written'
