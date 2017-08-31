@@ -1,4 +1,10 @@
 
+def calc_cos(v_i,v_j):
+    """
+    Calculate the cos theta between two vectors 
+    """
+    return np.dot(v_i/np.linalg.norm(v_i),v_j/np.linalg.norm(v_j))
+
 def checkprep(bbC_i,bbC_j,covbuffer=1.5,debug=False):
     '''
     Check 
@@ -229,9 +235,3 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
         # 
         return bbC_i
 
-
-def calc_cos(v_i,v_j):
-    """
-    Calculate the cos theta between two vectors 
-    """
-    return np.dot(v_i/np.linalg.norm(v_i),v_j/np.linalg.norm(v_j))

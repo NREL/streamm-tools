@@ -1,4 +1,4 @@
-.rsite# coding: utf-8
+# coding: utf-8
 # Copyright (c) Alliance for Sustainable Energy, LLC
 # Distributed under the terms of the Apache License, Version 2.0
 
@@ -11,7 +11,7 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 """
-This module defines the classes relating to a molecular building block 
+This module defines the classes relating to a molecular building blocks 
 """
 
 import numpy as np 
@@ -26,16 +26,16 @@ logger = logging.getLogger(__name__)
 
 try:
     # Import streamm dependstructures.encies
-    from streamm.structures.containers import Container as strucCont
+    from streamm.structures.container import Container as strucCont
     # from streamm.structures.container import Container
-    from streamm.structures.lattices import Lattice 
-    from streamm.structures.nblists import NBlist 
+    from streamm.structures.lattice import Lattice 
+    from streamm.structures.nblist import NBlist 
     
     from streamm.structures.particle import Particle
-    from streamm.structures.bonds import Bond 
-    from streamm.structures.angles import Angle
-    from streamm.structures.dihedrals import Dihedral
-    from streamm.structures.impropers import Improper
+    from streamm.structures.bond import Bond 
+    from streamm.structures.angle import Angle
+    from streamm.structures.dihedral import Dihedral
+    from streamm.structures.improper import Improper
 
 except:
     print("streamm is not installed test will use relative path")
@@ -45,14 +45,16 @@ except:
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
     
-    from bbatom import BBatom
+    # from bbatom import BBatom
  
     rel_path = os.path.join(os.path.dirname(__file__),'..','structure')
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
     
-    from containers import Container as strucCont
-    
+    from container import Container as strucCont
+    from bond import Bond 
+    from nblist import NBlist 
+
 
 class Attachment(object):
     '''
@@ -91,83 +93,82 @@ class Container(strucCont):
     Data structure for describing a section of a molecule
        that can be joined together to make a new molecule 
     """    
-    def __init__(self,tag="blank"):    
+    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
         """
         Constructor for a composite structures. 
         """
-        strucCont.__init__(self)
-        #super(structures.Container,self).__init__()
-        self.tag = tag 
-        self.common_tag = tag 
+        strucCont.__init__(self, tag=tag, matrix=matrix)
         # Reactive sites 
-        self.n_term = int(0)
         self.n_func = int(0)
-        self.n_sub = int(0)
-        self.terms = []
-        self.funcs = []
-        self.subs = []        
+        self.funcs = {}   
         self.attachments = []
         
     def __del__(self):
-        del self.n_term
         del self.n_func
-        del self.n_sub
-        del self.terms
         del self.funcs
-        del self.subs
         del self.attachments
-        
-    def calc_attachments(self):
+        # 
+    def find_rsites(self):
         '''
-        Count number terminal and functional attachment points
+        Find dictionary of lists of particle indexes based on rsites type
         '''
-        #
-        self.n_term = 0 
-        self.n_func = 0
-        self.n_sub = 0
         #
         for pkey_i, particle_i  in self.particles.iteritems():
-            if( particle_i.rsite == "T" ):
-                self.n_term += 1 
-            elif( particle_i.rsite == "F" ):
-                self.n_func += 1 
-            elif( particle_i.rsite == "S" ):
-                self.n_sub += 1
-        #       
-        logger.info("Found {} terminal sites, {} functionalizable sites and {} substitutional sites ".format(self.n_term,self.n_func,self.n_sub ))
+            if( len(particle_i.rsite) > 0 ):
+                if( particle_i.rsite not in self.funcs.keys() ):
+                    self.funcs[particle_i.rsite] = []
+                self.funcs[particle_i.rsite].append(pkey_i)
         #
-        return 
- 
-
-    def find_rsite(self,rsite_i,n_i,Xn_i):
+        self.n_func = 0
+        for type,list in self.funcs.iteritems():
+            logger.info("Found  {} functionalizable sites with type {} ".format(len(list),type))
+            self.n_func += len(list)
+        #       
+        logger.info("Found  {} functionalizable sites ".format(self.n_func))
+        #
+        return
+    
+    def show_rsites(self):
         '''
-        Find keys of terminal atom X and it's cap R
+        Show the functional sites 
+        '''
+        out_line =''
+        for rsite_i,rsite_list in self.funcs.iteritems():
+            for pkey_i in rsite_list:
+                out_line += "rsite:{}[ paticle:{} index:{} n_bonds:{}] \n".format(rsite_i,str(self.particles[pkey_i]),pkey_i,self.bonded_nblist.calc_nnab(pkey_i))
+        return out_line 
+
+    def get_rsite(self,rsite_i,n_i=0,Xn_i=0):
+        '''
+        Get particle key of reactive site and the paricle key of it's Xn_i connected neighbor 
         
         Arguments:
-            rsite_i   (str) Reactive site name 
-            n_i       (int) number of connection to used in  container 1 
-            Xn_i      (int) nieghbor number of R atom
+            rsite_i   (str) Reactive site type 
+            n_i       (int) index of reactive site within in list of 
+            Xn_i      (int) nieghbor number of reactive site 
 
         Return:
             Rkey  - the particle to be replaced
-            XKey  - the nieghbor Xn_i of the particle to be replaced 
+            XKey  - the nieghbor Xn_i of the particle to be replaced
+            
         '''
         cnt_i = 0
 
-        # print " find_XR self.tag ",self.tag
-        
-        for pkey_i, particle_i  in self.particles.iteritems():
+        # print " get_rsite self.tag ",self.tag
+        if( rsite_i in self.funcs.keys() ):
             
-            if( particle_i.rsite == rsite_i ):
-                # print " debug self.bonded_nblist.getnbs(pkey_i) ",cnt_i,self.bonded_nblist.getnbs(pkey_i)[Xn_i]
-                if( cnt_i == n_i ):
-                    Rkey_i = pkey_i
-                    Xkey_i = self.bonded_nblist.getnbs(pkey_i)[Xn_i]
-                    # R - X - StrucC 
-                    return Rkey_i,Xkey_i
-                cnt_i += 1
-        error_line = "Particle key n=%d with bbid = %s and neighbor %d in building block %s not found "%(n_i,rsite_i,Xn_i,self.tag)
-        raise LookupError(error_line)
+            rsite_list =  self.funcs[rsite_i]
+            if( n_i < len(rsite_list) ):
+                Rkey_i = rsite_list[n_i]
+                Xkey_i = self.bonded_nblist.getnbs(Rkey_i)[Xn_i]
+                return Rkey_i,Xkey_i
+            else:
+                raise KeyError("rsite index {} not found in list funcs[{}]  ".format(n_i,rsite_i))
+                return None,None            
+        else:
+            raise KeyError("rsite {} not found in funcs dictionary make sure to run .find_rsites to polulate funcs ".format(rsite_i))
+            return None,None
+        
 
     def align_yaxis(self, key_k,yangle):
         '''
@@ -213,7 +214,7 @@ class Container(strucCont):
             # of if 180 rotation
             direction="counterclockwise"
         logger.debug("    direction:{}".format(direction))
-        self.rotate_yz(angle_yz,direction=direction,verbose=False)
+        self.rotate_yz(angle_yz,direction=direction)
         
         return
 
@@ -246,11 +247,11 @@ class Container(strucCont):
         # according to angle between position j and x-axis
         if( pos_xy[1] > 0.0 ):
             # if in the 1st or 2nd quadrents rotate  clockwise 
-            self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="clockwise",verbose=False)
+            self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="clockwise")
         elif( pos_xy[1] < 0.0 ):
             # if in the 3rd or 4th quadrents rotate counter clockwise 
             # of if 180 rotation 
-            self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="counterclockwise",verbose=False)
+            self.rotate_xy(np.arccos(calc_cos(unit_x,pos_xy)),direction="counterclockwise")
         else:
             logger.debug(" Bond already aligned skipping rotation")
         # if  pos_xy[1] == 0.0 no rotation is needed
@@ -268,11 +269,11 @@ class Container(strucCont):
         # according to angle between position j and x-axis
         if( pos_xz[2] > 0.0 ):
             # if in the 1st or 2nd quadrents rotate  clockwise 
-            self.rotate_xz(np.arccos(calc_cos(unit_x,pos_xz)),direction="clockwise",verbose=False)
+            self.rotate_xz(np.arccos(calc_cos(unit_x,pos_xz)),direction="clockwise")
         elif( pos_xz[2] <= 0.0 ):
             # if in the 3rd or 4th quadrents rotate counter clockwise 
             # of if 180 rotation 
-            self.rotate_xz(np.arccos(calc_cos(unit_x,pos_xz)),direction="counterclockwise",verbose=False)
+            self.rotate_xz(np.arccos(calc_cos(unit_x,pos_xz)),direction="counterclockwise")
         # if  pos_xy[1] == 0.0 no rotation is needed
 
         logger.debug("After xz rot self.positions[key_j]:{}".format(self.positions[key_j] ))
@@ -310,7 +311,7 @@ class Container(strucCont):
 
         return new_strucC
     
-    def prepattach(self,rsite_i="R",n_i=0,Xn_i=0,dir=1,yangle=0.0):
+    def prepattach(self,rsite_i,n_i=0,Xn_i=0,dir=1,yangle=0.0):
         '''
         Preppair a building block to be attached to another
 
@@ -327,21 +328,20 @@ class Container(strucCont):
             error_line = " dir is not 1 or -1 "
             raise  ValueError(error_line)
             
-        
         bb_prepped = copy.deepcopy(self)
         if( bb_prepped.n_particles > 1 ):
             
             # Find keys of attachment points
             #   j - i - Struc
             # Rkey_i,Xkey_i
-            key_j,key_i = bb_prepped.find_XR(rsite_i,n_i,Xn_i)
+            key_j,key_i = bb_prepped.get_rsite(rsite_i,n_i,Xn_i)
             # Align building blocks along bonds of attachment atoms
             if( dir == 1 ):
-                bb_prepped.align_bond(key_i,key_j,debug = debug)
+                bb_prepped.align_bond(key_i,key_j)
                 pos_i = bb_prepped.positions[key_i]
                 logger.debug("Direction:{} align_bond key:{} pos_i:{} ".format(dir,key_i,str(bb_prepped.positions[key_i])))
             elif( dir == -1 ):
-                bb_prepped.align_bond(key_j,key_i,debug = debug)
+                bb_prepped.align_bond(key_j,key_i)
                 # 
                 pos_i = bb_prepped.positions[key_i]
                 bb_prepped.shift_pos(-1.0*pos_i)
@@ -351,8 +351,8 @@ class Container(strucCont):
             # align fist heavy neighbor with y axis
             for key_k in bb_prepped.bonded_nblist.getnbs(key_i):
                     particle_k = bb_prepped.particles[key_k]
-                    if( particle_k.number != 1 ):                        
-                            bb_prepped.align_yaxis(key_k,yangle,debug = debug)
+                    if( particle_k.symbol != 'H' ):                        
+                            bb_prepped.align_yaxis(key_k,yangle)
                             break
 
             # Remove atoms at R in building block i
@@ -368,4 +368,233 @@ class Container(strucCont):
             
 
         return bb_prepped
+
+
+def calc_cos(v_i,v_j):
+    """
+    Calculate the cos theta between two vectors 
+    """
+    return np.dot(v_i/np.linalg.norm(v_i),v_j/np.linalg.norm(v_j))
+
+def checkprep(bbC_i,bbC_j,covbuffer=1.5):
+    '''
+    Check 
+    
+    Arguments:
+            bblockC_i (Container) Buildingblock container 1
+            Xo_i (int) key of attachment point particle container 1
+            bblockC_j (Container) Buildingblock container 2 
+            Xo_j (int) key of attachment point particle container 2
+    Retrun
+        True - if no overlap
+        False - if overlap is found 
+    '''
+    # Set attachment points 
+    Xo_i = bbC_i.attach_p
+    Xo_j = bbC_j.attach_p
+    
+    npos_i = bbC_i.positions
+    #npos_i.pop(Xo_i)
+    npos_j = bbC_j.positions 
+    #npos_j.pop(Xo_j)
+    lat_i = bbC_i.lat
+    npos_ij,nd_ij = lat_i.delta_npos(npos_i,npos_j)
+
+    for pkey_i, particle_i  in bbC_i.particles.iteritems():
+        if( pkey_i != Xo_i and particle_i.symbol != 'H' ):
+            for pkey_j, particle_j  in bbC_j.particles.iteritems():
+                if( pkey_j != Xo_j and particle_j.symbol != 'H' ):
+                    dij = nd_ij[pkey_i][pkey_j]
+                    radii_i = bbC_i.particles[pkey_i].bonded_radius
+                    radii_j = bbC_j.particles[pkey_j].bonded_radius
+                    cut_off = radii_i +radii_j
+                    cut_off = cut_off*covbuffer
+                    if( dij < cut_off ):
+                        log_line = "      >checkprep \n"
+                        log_line += "           particle i %s %d \n"%(particle_i.properties['symbol'],pkey_i)
+                        log_line += "           particle j %s %d \n"%(particle_j.properties['symbol'],pkey_j)
+                        log_line += "           radii_i %f \n"%(radii_i)
+                        log_line += "           radii_j %f \n"%(radii_j)
+                        log_line += "           dij %f \n"%(dij)
+                        logger.debug(log_line)
+                        return False 
+                    
+    return True 
+    
+def shiftprep(bblockC_i,bblockC_j,debug=False):
+    '''
+
+    Concatenate two building block containers that had prepattach already ran on them 
+
+        This is handy for batch attachments to not repeat the intial steps in the attach function
+    
+    Arguments:
+            bblockC_i (Container) Buildingblock container 1
+            Xo_i (int) key of attachment point particle container 1
+            bblockC_j (Container) Buildingblock container 2 
+            Xo_j (int) key of attachment point particle container 2
+            bbid_i   (str) Connecting atom bbid in container 1 
+            n_i      (int) number of connection to used in  container 1 
+            bbid_j   (str) Connecting atom bbid in container 2
+            n_j      (int) number of connection to used in  container 2
+
+        { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
+                          =>
+        { bblockC_i - X_i - X_j - bblockC_j }
+    '''
+
+    bbC_i = copy.deepcopy(bblockC_i)
+    bbC_j = copy.deepcopy(bblockC_j)
+    #
+    Xo_i = bbC_i.attach_p
+    Xo_j = bbC_j.attach_p
+    # Shift  building block j to correct bond length 
+    radii_i = bbC_i.particles[Xo_i].bonded_radius
+    radii_j = bbC_j.particles[Xo_j].bonded_radius
+    bond_vec = np.array([radii_i + radii_j,0.0,0.0])
+
+    if( debug ):
+        print " >attachprep Xo_i ",Xo_i
+        print " >attachprep bbC_i.position[Xo_i] ", bbC_i.positions[Xo_i]
+        print " >attachprep radii_i ",radii_i
+        print " >attachprep Xo_j ",Xo_j
+        print " >attachprep bbC_j.position[Xo_j] ", bbC_j.positions[Xo_j]
+        print " >attachprep radii_j ",radii_j
+    
+    bbC_j.shift_pos(-1.0*bond_vec)
+
+    return bbC_i,bbC_j
+    
+def attachprep(bbC_i,bbC_j):
+    '''
+
+    Concatenate two building block containers that had prepattach already ran on them 
+
+        This is handy for batch attachments to not repeat the intial steps in the attach function
+    
+    Arguments:
+            bblockC_i (Container) Buildingblock container 1
+            Xo_i (int) key of attachment point particle container 1
+            bblockC_j (Container) Buildingblock container 2 
+            Xo_j (int) key of attachment point particle container 2
+            bbid_i   (str) Connecting atom bbid in container 1 
+            n_i      (int) number of connection to used in  container 1 
+            bbid_j   (str) Connecting atom bbid in container 2
+            n_j      (int) number of connection to used in  container 2
+
+        { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
+                          =>
+        { bblockC_i - X_i - X_j - bblockC_j }
+    '''
+    # Set attachment points 
+    Xo_i = bbC_i.attach_p
+    Xo_j = bbC_j.attach_p
+    #
+    # Add j to i
+    bbC_i += bbC_j
+    #
+    # Get updated atom key to form bond 
+    Xp_j = bbC_i.keyupdate[Xo_j]
+    #
+    # Create bond between  X_i - X_j
+    bond_ij = Bond(Xo_i,Xp_j)
+    bbC_i.add_bond(bond_ij)
+    #
+    # Remake neighbor list based on updated bonds 
+    bbC_i.bonded_nblist = NBlist()
+    bbC_i.bonded_nblist = bbC_i.guess_nblist(0,radii_buffer=1.25)
+    # Update number of attachment points
+    bbC_i.find_rsites()                
+
+    return bbC_i
+    
+        
+def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
+        '''
+
+        Concatenate two building block containers
+
+        Arguments:
+            bblockC_i (Container) Buildingblock container 1 
+            bblockC_j (Container) Buildingblock container 2 
+            bbid_i   (str) Connecting atom bbid in container 1 
+            n_i      (int) number of connection to used in  container 1 
+            bbid_j   (str) Connecting atom bbid in container 2
+            n_j      (int) number of connection to used in  container 2
+
+        { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
+                          =>
+        { bblockC_i - X_i - X_j - bblockC_j }
+        '''
+        # Empty container checks
+        if bblockC_j.n_particles == 0:             # If struc2 is empty (has no particles)
+            return copy.deepcopy(bblockC_i)                 #   simply return unchanged current container
+        if bblockC_i.n_particles == 0:              # If struc1 (this struc) is empty (has no particles)
+            return copy.deepcopy(bblockC_j)                 #   simply return unchanged current container
+
+        # If no tag for the new structure is provided c
+        # ombine the tag of i and j
+        if( tag == "blank" ):
+            tag = bblockC_i.tag +  bblockC_j.tag
+        
+        Xn_i = 0  # Number of term atom in neighbor list of cap atom 
+        Xn_j = 0  # Number of term atom in neighbor list of cap atom
+        #
+        # Make copies of containers to modify 
+        bbC_i = copy.deepcopy(bblockC_i)
+        bbC_i.tag = tag
+        bbC_j = copy.deepcopy(bblockC_j)
+        #
+        # Record attachment 
+        attachment_i = Attachment(tag,bblockC_i.tag,bblockC_j.tag,bbid_i,n_i,bbid_j,n_j)
+        bbC_i.attachments.append(attachment_i)
+        #
+        # Find keys of attachment points 
+        Rkey_i,Xkey_i = bbC_i.get_rsite(bbid_i,n_i,Xn_i)
+        Rkey_j,Xkey_j = bbC_j.get_rsite(bbid_j,n_j,Xn_j)
+        #
+        # Sum charges of particles to be removed into attachment points
+        bbC_i.sum_charge(Xkey_i,Rkey_i)
+        bbC_j.sum_charge(Xkey_j,Rkey_j)
+        # Align building blocks along bonds of attachment atoms 
+        #
+        bbC_i.align_bond(Rkey_i,Xkey_i)
+        bbC_i.shift_pos(-1.0*bbC_i.positions[Xkey_i] )
+        bbC_j.align_bond(Xkey_j,Rkey_j)
+        #
+        # Shift  building block j to correct bond length 
+        radii_i = bbC_i.particles[Xkey_i].bonded_radius
+        radii_j = bbC_j.particles[Xkey_j].bonded_radius
+        bond_vec = np.array([radii_i + radii_j,0.0,0.0])
+        bbC_j.shift_pos(-1.0*bond_vec)
+        #
+        # Remove atoms at R in building block i
+        bbC_i.del_particle(Rkey_i)
+        Xo_i = bbC_i.keyupdate[Xkey_i]
+        bbC_j.del_particle(Rkey_j)
+        Xo_j = bbC_j.keyupdate[Xkey_j]
+        #
+        # Add j to i
+        bbC_i += bbC_j
+        #
+        # Get updated atom keys to form bond 
+        Xp_i = Xo_i                   
+        Xp_j = bbC_i.keyupdate[Xo_j]
+        #
+        # Create bond between  X_i - X_j
+        bond_ij = Bond(Xp_i,Xp_j)
+        bbC_i.add_bond(bond_ij)
+        #
+        # Remake neighbor list based on updated bonds 
+        bbC_i.bonded_nblist = NBlist()
+        bbC_i.bonded_nblist = bbC_i.guess_nblist(0,radii_buffer=1.25)
+        # Update number of attachment points
+        bbC_i.find_rsites()
+        # Set points of attachments
+        bbC_i.Xp_i = Xp_i
+        bbC_i.Xp_j = Xp_j
+        #
+        # Return final structure
+        # 
+        return bbC_i
 

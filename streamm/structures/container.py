@@ -717,6 +717,20 @@ class Container(object):
 
         return
 
+    def sum_charge(self,pkey_i,pkey_j):
+        '''
+        Sum charge of particle i into particle j
+        
+        '''
+        # Sum charges of particles to be removed into attachment points
+        logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
+        self.particles[pkey_i].charge += self.particles[pkey_j].charge
+        self.particles[pkey_j].charge = 0.0
+                 
+        # Use Decimal Function to numerical errors
+        self.particles[pkey_i].charge  = float(Decimal(str(self.particles[pkey_i].charge)))
+
+              
     def sum_prop(self,pkey_i,pkey_j):
         '''
         Sum property of particle i into particle j

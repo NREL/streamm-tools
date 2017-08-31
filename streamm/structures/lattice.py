@@ -29,7 +29,6 @@ import random
 
 PRECISION = 8
 
-
 class Lattice(pymatgen_lat):
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):

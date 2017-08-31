@@ -19,11 +19,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
+import copy 
+import math
+import sys
+import os 
 
+import streamm.structures.particle as particle
 
 try:
-    import streamm.buildingblock.container as container
-    import streamm.buildingblock.bbatom as bbatom
+    import streamm.buildingblocks.container as container
 
 except:
     print("streamm is not installed test will use relative path")
@@ -32,8 +36,8 @@ except:
     print("rel_path {}".format(rel_path))
     sys.path.append(rel_path)
     import container
-    import  bbatom
 
+import streamm.structures.particle  as particle
 
 class TestBuildThiophene(unittest.TestCase):
 
@@ -52,45 +56,18 @@ class TestBuildThiophene(unittest.TestCase):
         positions.append([1.41682424,-0.35961818,-0.00138200])
         positions.append([-0.51943676,1.44024682,0.00064700])
         for i in range(len(symbols)):
-            pt_i = bbatom.BBatom(symbols[i])
+            pt_i = particle.Particle(symbol=symbols[i])
             #pt_i.properties = periodictable.element_symbol()
             pos_i = positions[i]
             self.Th.add_partpos(pt_i,pos_i)
 
-        self.Th.particles[0].cplytag = 'term_'
-        self.Th.particles[1].cplytag = 'func_'
-        self.Th.particles[3].cplytag = 'term_'
-        self.Th.particles[5].cplytag = 'termcap_'
-        self.Th.particles[6].cplytag = 'funccap_'
-        self.Th.particles[8].cplytag = 'termcap_'
-        self.Th.parse_cplytag()
+        self.Th.particles[5].rsite = 'TH'
+        self.Th.particles[6].rsite = 'FH'
+        self.Th.particles[8].rsite = 'TH'
+        self.Th.find_rsites()
+        self.Th.bonded_nblist = self.Th.guess_nblist(0,radii_buffer=1.25)
             
-    def test_tag(self):
-        self.assertEqual(self.Th.tag,'thiophene')
-        #el_cnt = calc_elcnt
 
-    def test_parsecplytag(self):
-        self.assertEqual(self.Th.particles[0].bbid,'X')
-        self.assertEqual(self.Th.particles[1].bbid,'X')
-        self.assertEqual(self.Th.particles[2].bbid,'')
-        self.assertEqual(self.Th.particles[3].bbid,'X')
-        self.assertEqual(self.Th.particles[4].bbid,'')
-        self.assertEqual(self.Th.particles[5].bbid,'T')
-        self.assertEqual(self.Th.particles[6].bbid,'R')
-        self.assertEqual(self.Th.particles[7].bbid,'')
-        self.assertEqual(self.Th.particles[8].bbid,'T')
-        
-    def test_write_cply(self):
-        self.Th.write_cply(write_ff=False)
-
-
-    def tearDown(self):
-        del self.Th
-
-class TestBuildHexane(unittest.TestCase):
-
-    def setUp(self):
-        
         self.Hx = container.Container('hexane')
         
         symbols = []
@@ -137,161 +114,117 @@ class TestBuildHexane(unittest.TestCase):
         positions.append([0.02780957,1.08937798,-0.87463473])
 
         for i in range(len(symbols)):
-            pt_i = bbatom.BBatom(symbols[i])
+            pt_i = particle.Particle(symbol=symbols[i])
             #pt_i.properties = periodictable.element_symbol()
             pos_i = positions[i]
             self.Hx.add_partpos(pt_i,pos_i)
 
-        self.Hx.particles[0].cplytag = 'rg_'
-        self.Hx.particles[1].cplytag = 'rgcap_'
-        self.Hx.parse_cplytag()
-
-
+        self.Hx.particles[1].rsite = 'R'
+        self.Hx.bonded_nblist = self.Hx.guess_nblist(0,radii_buffer=1.25)
+        self.Hx.find_rsites()
+        
     def test_tag(self):
         self.assertEqual(self.Hx.tag,'hexane')
-        #el_cnt = calc_elcnt
+        self.assertEqual(self.Th.tag,'thiophene')
 
     def test_parsecplytag(self):
-        self.assertEqual(self.Hx.particles[0].bbid,'rg_')
-        self.assertEqual(self.Hx.particles[1].bbid,'R')
+        self.assertEqual(self.Th.particles[0].rsite,'')
+        self.assertEqual(self.Th.particles[1].rsite,'')
+        self.assertEqual(self.Th.particles[2].rsite,'')
+        self.assertEqual(self.Th.particles[3].rsite,'')
+        self.assertEqual(self.Th.particles[4].rsite,'')
+        self.assertEqual(self.Th.particles[5].rsite,'TH')
+        self.assertEqual(self.Th.particles[6].rsite,'FH')
+        self.assertEqual(self.Th.particles[7].rsite,'')
+        self.assertEqual(self.Th.particles[8].rsite,'TH')
+        
 
-    def test_write_cply(self):
-        self.Hx.write_cply(write_ff=False)
+        self.assertEqual(self.Hx.particles[1].rsite,'R')
+
+    def test_cnt(self):
+        
+        self.assertEqual(self.Hx.n_func,1)
+        self.assertEqual(self.Th.n_func,3)
+    
+    def test_show_rsites(self):
+        self.assertEqual(self.Hx.show_rsites(),'rsite:R[ paticle:atom:H index:1 n_bonds:1] \n')
+        self.assertEqual(self.Th.show_rsites(),'rsite:FH[ paticle:atom:H index:6 n_bonds:1] \nrsite:TH[ paticle:atom:H index:5 n_bonds:1] \nrsite:TH[ paticle:atom:H index:8 n_bonds:1] \n')
+        
+    def test_get_rsite(self):
+        Rkey_i,Xkey_i = self.Hx.get_rsite('R')
+        self.assertEqual(Rkey_i,1)
+        self.assertEqual(Xkey_i,0)
+        
+        Rkey_i,Xkey_i = self.Th.get_rsite('FH')
+        self.assertEqual(Rkey_i,6)
+        self.assertEqual(Xkey_i,1)
+        
+        Rkey_i,Xkey_i = self.Th.get_rsite('TH',n_i=0)
+        self.assertEqual(Rkey_i,5)
+        self.assertEqual(Xkey_i,0)
+        
+        Rkey_i,Xkey_i = self.Th.get_rsite('TH',n_i=1)
+        self.assertEqual(Rkey_i,8)
+        self.assertEqual(Xkey_i,3)
+        
+    def test_attachprpe(self):
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.Th.tag)
+        self.Th.write_xyz(file_i)
+        
+        self.Th2 = copy.deepcopy(self.Th)
+        
+        self.bb_i = self.Th2.prepattach("TH",0,0,dir=-1)
+        self.bb_i.tag += "_"
+
+        angle_rad = 90.0*math.pi/180.0
+        self.bb_j = self.Th.prepattach("TH",1,0,dir=1,yangle=angle_rad)
+        self.bb_j.tag += "_"
+        
+
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_i.tag)
+        self.bb_i.write_xyz(file_i)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_j.tag)
+        self.bb_j.write_xyz(file_i)
+
+        self.bbC_i,self.bbC_j =  container.shiftprep(self.bb_i,self.bb_j )
+        self.overlap_found =  container.checkprep(self.bb_i,self.bb_j )
+
+        self.Th2_Th =  container.attachprep(self.bbC_i,self.bbC_j )
+        self.Th2_Th.tag = self.bb_i.tag + self.bb_j.tag + "v2"
+        self.Th2_Th.lat_cubic(100.0)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.Th2_Th.tag)
+        self.Th2_Th.write_xyz(file_i)
                 
+                
+
+    def test_p3ht_nX(self):
+
+        self.p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.p3htn1.tag)
+        self.p3htn1.write_xyz(file_i)
+        
+        print self.p3htn1.show_rsites()
+        exit()
+        # Create a xN membered chain
+        xN = 2
+        #self.bb_p3ht_nX = container.Container()
+        #self.bb_p3ht_nX.tag = "p3ht_n%d"%(xN)
+        self.bb_p3ht_nX = copy.deepcopy(self.p3htn1)
+
+        for n in range(1,xN):
+            # print " Adding %d "%(n)
+            self.bb_p3ht_nX = container.attach(self.bb_p3ht_nX,self.p3htn1,"TH",0,"TH",1,tag="p3ht_n%d"%(n))
+
+        # Print xyz file and cply file 
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_p3ht_nX.tag)
+        self.bb_p3ht_nX.write_xyz(file_i)
+        
+        
     def tearDown(self):
+        del self.Th
         del self.Hx
 
-
-class TestContainer(unittest.TestCase):
-    def setUp(self):
-        self.bblockC = container.Container()
-        self.bblockC2 = container.Container()
-        
-    def test_read_cply(self):
-        cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
-        self.bblockC.read_cply(cply_file)
-        self.assertEqual(str(self.bblockC)," thiophene")
-        self.assertEqual(self.bblockC.n_term,2)
-        self.assertEqual(self.bblockC.n_func,1)
-
-        func_list = []
-        func_list.append(' term( H 5)-( C 0) ')
-        func_list.append(' term( H 8)-( C 3) ')
-        func_list.append(' func( H 6)-( C 1) ')
-
-        funcp_cnt = 0 
-        for pkey_i in self.bblockC.terms:
-            term_str = " term(%s%d)"%(str(self.bblockC.particles[pkey_i]),pkey_i)
-            for pkey_j in self.bblockC.bonded_nblist.getnbs(pkey_i):
-                term_str += "-(%s%d) "%(str(self.bblockC.particles[pkey_j]),pkey_j)
-            self.assertEqual(term_str,func_list[funcp_cnt])
-            funcp_cnt += 1 
-        
-        for pkey_i in self.bblockC.funcs:
-            term_str = " func(%s%d)"%(str(self.bblockC.particles[pkey_i]),pkey_i)
-            for pkey_j in self.bblockC.bonded_nblist.getnbs(pkey_i):
-                term_str += "-(%s%d) "%(str(self.bblockC.particles[pkey_j]),pkey_j)
-            self.assertEqual(term_str,func_list[funcp_cnt])
-            funcp_cnt += 1 
-            
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC.tag)
-        self.bblockC.write_xyz(file_i)
-
-
-    def test_write_cply(self):
-        cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
-        self.bblockC.read_cply(cply_file)
-        self.bblockC.tag = 'pt_n1'
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC.tag)
-        self.bblockC.write_cply(file_i)
-
-
-    def test_writeread_cply(self):
-        cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
-        self.bblockC.read_cply(cply_file)
-        self.bblockC.tag = 'pt_n1'
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC.tag)
-        self.bblockC.write_cply(file_i)
-        self.bblockC2.read_cply(file_i)
-        self.bblockC2.tag = 'pt_n1v2'
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC2.tag)
-        self.bblockC2.write_cply(file_i)
-
-        
-    def tearDown(self):
-        del self.bblockC 
-        self.bblockC = None
-
-
-class TestJoin(unittest.TestCase):
-    def setUp(self):
-        self.bblockC_i = container.Container()
-        self.bblockC_j = container.Container()
-        self.bblockC_p3htnX = container.Container()
-        cply_file = os.path.join(os.path.dirname(__file__), 'thiophene.cply')
-        self.bblockC_i.read_cply(cply_file)        
-        self.bblockC_i.write_cply('thiophene_v2.cply')        
-
-        cply_file = os.path.join(os.path.dirname(__file__), 'hexane.cply')
-        self.bblockC_j.read_cply(cply_file)
-        
-        self.th_v2 = container.Container()
-        self.th_v2.tag = "testthiov2"
-        cply_file = os.path.join(os.path.dirname(__file__), 'thiophene_v2.cply')
-        self.th_v2.read_cply(cply_file)        
-        
-    def test_cat1(self):
-        self.bblockC_p3htn1 = buildingblock.attach(self.bblockC_i,self.bblockC_j,"R",0,"R",0)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htn1.tag)
-        self.bblockC_p3htn1.write_xyz(file_i)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_p3htn1.tag)
-        self.bblockC_p3htn1.write_cply(file_i)
-
-    def test_cat2(self):
-
-        self.bblockC_ptn2 = buildingblock.attach(self.bblockC_i,self.bblockC_i,"T",0,"T",1,tag = "P3HT_n1")
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_ptn2.tag)
-        self.bblockC_ptn2.write_xyz(file_i)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_ptn2.tag)
-        self.bblockC_ptn2.write_cply(file_i)
-
-        
-    def test_cat3(self):
-        self.bblockC_p3htn1 = buildingblock.attach(self.bblockC_i,self.bblockC_j,"R",0,"R",0,tag = "P3HT_nX")
-        self.bblockC_p3htnX += self.bblockC_p3htn1 # Same as self.bblockC_p3htnX = copy.deepcopy( self.bblockC_p3htn1 )
-        # for n in range(1,xN):
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",1,"T",0)
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
-
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_j,"T",0,"R",0)
-        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_j,"T",0,"R",0)
-        
-        self.bblockC_p3htnX.tag = "P3HT_nX"
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htnX.tag)
-        self.bblockC_p3htnX.write_xyz(file_i)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_p3htnX.tag)
-        self.bblockC_p3htnX.write_cply(file_i)
-
-    def test_cat4(self):
-        self.th_v2.tag = "testthiov2"        
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.th_v2.tag)
-        self.th_v2.write_xyz(file_i)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.th_v2.tag)
-        self.th_v2.write_cply(file_i)
-        
-
-    def tearDown(self):
-        del self.bblockC_i 
-        del self.bblockC_j
-        del self.bblockC_p3htnX
-        self.bblockC_i = None
-        self.bblockC_j = None
-
-
-class Testattachprep(unittest.TestCase):
+class Test_attachprep(unittest.TestCase):
     def setUp(self):
 
         # Read in thiophene building block 
@@ -315,10 +248,10 @@ class Testattachprep(unittest.TestCase):
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_j.tag)
         self.bb_j.write_xyz(file_i)
 
-        self.bbC_i,self.bbC_j =  buildingblock.shiftprep(self.bb_i,self.bb_j )
-        self.overlap_found =  buildingblock.checkprep(self.bb_i,self.bb_j )
+        self.bbC_i,self.bbC_j =  container.shiftprep(self.bb_i,self.bb_j )
+        self.overlap_found =  container.checkprep(self.bb_i,self.bb_j )
 
-        self.Th2_Th =  buildingblock.attachprep(self.bbC_i,self.bbC_j )
+        self.Th2_Th =  container.attachprep(self.bbC_i,self.bbC_j )
         self.Th2_Th.tag = self.bb_i.tag + self.bb_j.tag + "v2"
         self.Th2_Th.properties['deptag'] =  self.bb_i.properties['deptag'] + self.bb_j.properties['deptag'] + "v2"
         self.Th2_Th.lat_cubic(100.0)
@@ -326,6 +259,50 @@ class Testattachprep(unittest.TestCase):
     def test_overlap_found(self):
         self.assertEqual(str(self.overlap_found),'False')
     
+    
+
+    def test_cat1(self):
+        self.bblockC_p3htn1 = container.attach(self.bblockC_i,self.bblockC_j,"R",0,"R",0)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htn1.tag)
+        self.bblockC_p3htn1.write_xyz(file_i)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_p3htn1.tag)
+        self.bblockC_p3htn1.write_cply(file_i)
+
+    def test_cat2(self):
+
+        self.bblockC_ptn2 = container.attach(self.bblockC_i,self.bblockC_i,"T",0,"T",1,tag = "P3HT_n1")
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_ptn2.tag)
+        self.bblockC_ptn2.write_xyz(file_i)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_ptn2.tag)
+        self.bblockC_ptn2.write_cply(file_i)
+
+        
+    def test_cat3(self):
+        self.bblockC_p3htn1 = container.attach(self.bblockC_i,self.bblockC_j,"R",0,"R",0,tag = "P3HT_nX")
+        self.bblockC_p3htnX += self.bblockC_p3htn1 # Same as self.bblockC_p3htnX = copy.deepcopy( self.bblockC_p3htn1 )
+        # for n in range(1,xN):
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",1,"T",0)
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"T",0,"T",1)
+
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_j,"T",0,"R",0)
+        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_j,"T",0,"R",0)
+        
+        self.bblockC_p3htnX.tag = "P3HT_nX"
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htnX.tag)
+        self.bblockC_p3htnX.write_xyz(file_i)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.bblockC_p3htnX.tag)
+        self.bblockC_p3htnX.write_cply(file_i)
+
+    def test_cat4(self):
+        self.th_v2.tag = "testthiov2"        
+        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.th_v2.tag)
+        self.th_v2.write_xyz(file_i)
+        file_i = os.path.join(os.path.dirname(__file__), "%s.cply"%self.th_v2.tag)
+        self.th_v2.write_cply(file_i)
+            
     def test_tag(self):
         self.assertEqual(str(self.Th2_Th.tag),'Th2_thiophene_v2')
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.Th2_Th.tag)
@@ -392,7 +369,7 @@ class TestP3HT(unittest.TestCase):
         self.bb_R_hexane.read_cply(cply_file)
 
         # Attach hexane to functional group point 0 on thiophene
-        self.bb_p3ht = buildingblock.attach(self.bb_thiophene,self.bb_R_hexane,"R",0,"R",0,tag = "p3ht")
+        self.bb_p3ht = container.attach(self.bb_thiophene,self.bb_R_hexane,"R",0,"R",0,tag = "p3ht")
 
         # Create a xN membered chain
         xN = 5
@@ -402,7 +379,7 @@ class TestP3HT(unittest.TestCase):
 
         for n in range(1,xN):
             # print " Adding %d "%(n)
-            self.bb_p3ht_nX = buildingblock.attach(self.bb_p3ht_nX,self.bb_p3ht,"T",1,"T",0,tag="p3ht_n%d"%(n))
+            self.bb_p3ht_nX = container.attach(self.bb_p3ht_nX,self.bb_p3ht,"T",1,"T",0,tag="p3ht_n%d"%(n))
 
         # Print xyz file and cply file 
         file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_p3ht_nX.tag)
