@@ -228,8 +228,7 @@ class Container(object):
                 
             self.n_bonds = len(self.bonds)
         else:
-            print "Attempting to add non-Bond type to container"
-            raise TypeError
+            raise TypeError("Attempting to add non-Bond type to container")
 
 
     def add_angle(self, angle_i, deepcopy = True ):

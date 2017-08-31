@@ -87,16 +87,16 @@ class TestGroupsProps(unittest.TestCase):
         self.th.lat_cubic(100.0)
         #
         for pkey_i, particle_i  in self.th.particles.iteritems():
-            if( particle_i.tag == 'C' ):
+            if( particle_i.symbol == 'C' ):
                 particle_i.resname = "SCP2"
                 particle_i.residue = 1
-            if( particle_i.tag == 'S' ):
+            if( particle_i.symbol == 'S' ):
                 particle_i.resname = "ThS"
                 particle_i.residue = 2
-            if( particle_i.tag == 'H' ):
+            if( particle_i.symbol == 'H' ):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
-        self.strucC = containers.Container()
+        self.strucC = container.Container()
         self.strucC.lat_cubic(100.0)
         seed = 82343
         self.strucC = self.strucC.add_struc(self.th,10,seed)
@@ -109,7 +109,7 @@ class TestGroupsProps(unittest.TestCase):
     def test_groupmol(self):
         
         group_tag = 'mol'
-        groupContainer_i = groups.Container(group_tag,self.strucC )
+        groupContainer_i = group.Container(group_tag,self.strucC )
         groupContainer_i.group_prop('mol',group_tag)
         
         self.assertEqual(str(len(groupContainer_i.groups)),str(10))
@@ -147,7 +147,7 @@ class TestGroupsProps(unittest.TestCase):
         
     def test_groupres(self):
         group_tag = 'residue'
-        groupContainer_i = groups.Container(group_tag,self.strucC )
+        groupContainer_i = group.Container(group_tag,self.strucC )
         groupContainer_i.group_prop('residue',group_tag)
         
         self.assertEqual(str(len(groupContainer_i.groups)),str(30))
@@ -215,17 +215,17 @@ class TestGroupsHtermSp2(unittest.TestCase):
         self.struc_i.bonded_bonds()
         #
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
-            if( particle_i.tag == 'C' ):
+            if( particle_i.symbol == 'C' ):
                 particle_i.resname = "ThSC"
                 particle_i.residue = 1
-            if( particle_i.tag == 'S' ):
+            if( particle_i.symbol == 'S' ):
                 particle_i.resname = "ThSC"
                 particle_i.residue = 1
-            if( particle_i.tag == 'H' ):
+            if( particle_i.symbol == 'H' ):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
         group_tag = 'residue'
-        self.groupContainer_i = groups.Container(group_tag,self.struc_i )
+        self.groupContainer_i = group.Container(group_tag,self.struc_i )
         self.groupContainer_i.group_prop('residue',group_tag)
 
         self.assertEqual(len(self.groupContainer_i.groups),2)  
@@ -272,13 +272,13 @@ class TestGroupsHtermSp3(unittest.TestCase):
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
             particle_i.resname = 'CRES'
             particle_i.residue = 1
-            if( particle_i.tag == 'H' and rmHcnt == 0 ):
+            if( particle_i.symbol == 'H' and rmHcnt == 0 ):
                 particle_i.resname = 'HRES'
                 particle_i.residue = 2
                 rmHcnt += 1
                 
         group_tag = 'residue'
-        groupContainer_i = groups.Container(group_tag,self.struc_i )
+        groupContainer_i = group.Container(group_tag,self.struc_i )
         groupContainer_i.group_prop('residue',group_tag)
         self.assertEqual(len(groupContainer_i.groups),2)  
         
@@ -287,9 +287,9 @@ class TestGroupsHtermSp3(unittest.TestCase):
         hterm_i = group_i.hterm_group()
 
         for pkey_i, particle_i  in hterm_i.particles.iteritems():
-            if( particle_i.tag == 'C' ):
+            if( particle_i.symbol == 'C' ):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),4)  
-            if( particle_i.tag == 'H'):
+            if( particle_i.symbol == 'H'):
                 self.assertEqual(hterm_i.bonded_nblist.calc_nnab(pkey_i),1)  
                         
         hterm_i.write_xyz('Eth_C_hterm1.xyz')
@@ -323,17 +323,17 @@ class TestGroup_dr(unittest.TestCase):
         self.struc_i.lat_cubic(100.0)
         #
         for pkey_i, particle_i  in self.struc_i.particles.iteritems():
-            if( particle_i.tag == 'C' ):
+            if( particle_i.symbol == 'C' ):
                 particle_i.resname = "SCP2"
                 particle_i.residue = 1
-            if( particle_i.tag == 'S' ):
+            if( particle_i.symbol == 'S' ):
                 particle_i.resname = "ThS"
                 particle_i.residue = 1
-            if( particle_i.tag == 'H' ):
+            if( particle_i.symbol == 'H' ):
                 particle_i.resname = "HA"
                 particle_i.residue = 1
                 
-        self.strucC = containers.Container('th_x2')
+        self.strucC = container.Container('th_x2')
         self.strucC.lat_cubic(30.0)
         seed = 82343
         self.strucC = self.strucC.add_struc(self.struc_i,3,seed)
@@ -346,15 +346,15 @@ class TestGroup_dr(unittest.TestCase):
         self.list_i = []
         for pkey,par_i in self.strucC.particles.iteritems():
             # print  pkey,par_i.mol,par_i.symbol 
-            if( par_i.tag == 'C' or par_i.tag == 'S' ):
+            if( par_i.symbol == 'C' or par_i.symbol == 'S' ):
                 self.list_i.append(pkey)
-                print pkey ,par_i.mol , par_i.tag 
+                print pkey ,par_i.mol , par_i.symbol 
                 
         # self.strucC.bonded_nblist.build_nblist(self.strucC.particles,self.strucC.bonds)
         self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
 
         group_tag = 'mol'
-        groupContainer_i = groups.Container(group_tag,self.strucC )
+        groupContainer_i = group.Container(group_tag,self.strucC )
         groupContainer_i.group_prop('mol',group_tag)
         
         groupContainer_i.calc_cent_mass()

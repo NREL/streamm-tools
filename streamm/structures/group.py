@@ -21,9 +21,9 @@ import numpy as np
 import sys
 import json 
 
-from streamm.structure.nblists import NBlist 
-from streamm.structure.atoms import Atom
-from streamm.structure.bonds import Bond
+from streamm.structures.nblist import NBlist 
+from streamm.structures.particle import Particle
+from streamm.structures.bond import Bond
 
 
 def hterm_Csp3(hb_length,r_i,r_ij_array):
@@ -151,7 +151,7 @@ class Group(object):
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
             pos_i = self.strucC.positions[pkey_i]
-            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (particle_i.tag ,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]) ) )
+            F.write( " %5s %16.8f %16.8f %16.8f \n"  % (particle_i.label,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]) ) )
         F.close()
 
         return
@@ -338,7 +338,7 @@ class Group(object):
         scale_vcross = np.sin(tetrahedral_angle) * hb_length
         scale_vadd = np.cos(tetrahedral_angle) * hb_length
 
-        pt_H = Atom('H')
+        pt_H = Particle(symbol='H')
         # pt_H.properties = periodictable.element_number(1)
         # pt_H.properties["fftype"] = "HC"
         pt_H.resname = "TERM"
