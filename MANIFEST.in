@@ -1,3 +1,0 @@
-include *.rst LICENSE.rst 
-recursive-include streamm */*.py
-prune */*/tests

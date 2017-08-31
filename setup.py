@@ -12,10 +12,15 @@ from setuptools import setup, find_packages, Extension
 # dep = ['os','sys','shutil','time','datetime','json','math','numpy','copy','scipy','random','json','optparse','logging','pickle']
 #  dep openbabel ( py27-openbabel )
 
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
 setup(
     name='streamm',
     version='0.3.1',
-    setup_requires=['numpy', 'setuptools>=18.0'],    
+    setup_requires=['numpy', 'setuptools>=18.0','pytest-runner'],    
     packages=find_packages(),
     # 
     url='http://streamm.nrel.gov',
@@ -24,7 +29,9 @@ setup(
     maintainer="Ross Larsen",
     maintainer_email="streamm@nrel.gov",
     #
-    test_suite = 'streamm.structure.tests',
+    tests_require=['pytest'],
+    
+    # test_suite = ['streamm.structures.tests','streamm.forcefields.tests'],
     # data_files=['streamm/periodic_table.json']
     # packages=['streamm'],    
     # package_dir={'streamm': 'streamm'},
