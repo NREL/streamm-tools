@@ -113,6 +113,8 @@ class Container(strucCont):
         Find dictionary of lists of particle indexes based on rsites type
         '''
         #
+        self.funcs = {}
+        #
         for pkey_i, particle_i  in self.particles.iteritems():
             if( len(particle_i.rsite) > 0 ):
                 if( particle_i.rsite not in self.funcs.keys() ):
@@ -136,6 +138,7 @@ class Container(strucCont):
         for rsite_i,rsite_list in self.funcs.iteritems():
             for pkey_i in rsite_list:
                 out_line += "rsite:{}[ paticle:{} index:{} n_bonds:{}] \n".format(rsite_i,str(self.particles[pkey_i]),pkey_i,self.bonded_nblist.calc_nnab(pkey_i))
+                
         return out_line 
 
     def get_rsite(self,rsite_i,n_i=0,Xn_i=0):
@@ -387,8 +390,13 @@ def checkprep(bbC_i,bbC_j,covbuffer=1.5):
             Xo_j (int) key of attachment point particle container 2
     Retrun
         True - if no overlap
-        False - if overlap is found 
+        False - if overlap is found
+        
+        
     '''
+    #
+    # NoteTK This seem backwards
+    #
     # Set attachment points 
     Xo_i = bbC_i.attach_p
     Xo_j = bbC_j.attach_p
@@ -409,6 +417,7 @@ def checkprep(bbC_i,bbC_j,covbuffer=1.5):
                     radii_j = bbC_j.particles[pkey_j].bonded_radius
                     cut_off = radii_i +radii_j
                     cut_off = cut_off*covbuffer
+                    logger.debug(" i:{}-j:{} dr_ij:{} with cut off:{} ".format(pkey_i,pkey_j,dij,cut_off))
                     if( dij < cut_off ):
                         log_line = "      >checkprep \n"
                         log_line += "           particle i %s %d \n"%(particle_i.properties['symbol'],pkey_i)

@@ -209,8 +209,7 @@ class Container(object):
 
 
         else:
-            print "1st arg should be a Parameter.Container object"
-            raise TypeError
+            raise TypeError("iadd object should be a Parameter.Container object")
         
 
         return self
