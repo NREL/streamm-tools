@@ -1,3 +1,15 @@
+# coding: utf-8
+# Copyright (c) Alliance for Sustainable Energy, LLC
+# Distributed under the terms of the Apache License, Version 2.0
+
+from __future__ import division, unicode_literals
+
+__author__ = "Travis W. Kemper, Scott Sides"
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3"
+__email__ = "streamm@nrel.gov"
+__status__ = "Beta"
+
 """
 Project is a set of calcultions
 
@@ -9,11 +21,6 @@ Projects track:
 Data for each action is stored in a json file
 
 """
-
-__author__ = "Travis W. Kemper"
-__version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
-__status__ = "Beta"
 
 import copy , os , json , sys
 import time, datetime
