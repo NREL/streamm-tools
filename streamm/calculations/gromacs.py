@@ -22,7 +22,6 @@ from string import replace
 
 import pymatgen.core.units as units
 
-
 import streamm.structures.particle as particle
 import streamm.calculations.resource as resource 
 from resource import CalculationRes
@@ -71,11 +70,11 @@ class GROMACS(CalculationRes):
             matrix = strucC_add.lat._matrix
             for m in range(strucC_add.lat.n_dim):
                 for n in range(strucC_add.lat.n_dim):
-                    matrix[m][n] = units.convert_angstroms_nm(matrix[m][n] )
+                    matrix[m][n] = matrix[m][n]/10.0
             strucC_add.lat.set_matrix(matrix)
             for pkey_i, particle_i  in strucC_add.particles.iteritems():
                 pos_i = strucC_add.positions[pkey_i]       
-                pos_i_nm = [units.convert_angstroms_nm(pos_i[0]) ,units.convert_angstroms_nm(pos_i[1]) ,units.convert_angstroms_nm(pos_i[2]) ]
+                pos_i_nm = [ units.convert_angstroms_nm(pos_i[0]) ,units.convert_angstroms_nm(pos_i[1]) ,units.convert_angstroms_nm(pos_i[2]) ]
                 strucC_add.positions[pkey_i]  = pos_i_nm
 
             self.strucC += strucC_add   
