@@ -20,6 +20,8 @@ import json
 import numpy as np
 from string import replace
 
+import pymatgen.core.units as units
+
 
 import streamm.structures.particle as particle
 import streamm.calculations.resource as resource 
@@ -27,7 +29,8 @@ from resource import CalculationRes
 
 import streamm.calculations.calculation as calculation
 from streamm.buildingblocks.container import Container as BBCont
-    
+from streamm.structures.container  import Container as strucC
+
     
 import logging
 logger = logging.getLogger(__name__)
@@ -61,7 +64,7 @@ class GROMACS(CalculationRes):
         Add a structure.Container to the simulation 
         '''
 
-        if isinstance(strucC_i, structure.Container):
+        if isinstance(strucC_i, strucC ):
             strucC_add = copy.deepcopy(strucC_i)
             # Convert structure from default units
             #   angstorms -> nm

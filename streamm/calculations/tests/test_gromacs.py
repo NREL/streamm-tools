@@ -25,16 +25,22 @@ import random
 import numpy.testing.utils as nptu
 
 
-from streamm.calculations.nwchem import NWChem
+from streamm.calculations.gromacs import GROMACS
 from streamm.buildingblocks.container import Container as BBCont
 import streamm.structures.particle as particle
 
+    
+from streamm.calculations.resource import Resource
+
+
+
+TEMPLATE_PATH = '../../../templates/'
     
 
 class Test_Gromacs(unittest.TestCase):
     # 
     def setUp(self):
-        self.calc_i = NWChem('nwchem_thiophene_SP')
+        self.calc_i = GROMACS('GROMACS_thiophene_SP')
         
 
         self.Th = BBCont('thiophene')
@@ -69,7 +75,7 @@ class Test_Gromacs(unittest.TestCase):
         self.calc_i.dump_json()
         tag_i = self.calc_i.tag
         del self.calc_i
-        self.calc_i = NWChem(tag_i)
+        self.calc_i = GROMACS(tag_i)
         self.calc_i.load_json()
         # Clean up files 
         os.remove(self.calc_i.files['data']['json'])
@@ -79,7 +85,7 @@ class Test_Gromacs(unittest.TestCase):
         # Clean up files 
         os.remove("%s.xyz"%(self.calc_i.tag))
 
-    def test_writexyz(self):
+    def test_writegro(self):
         self.calc_i.write_gro()
         # Clean up files 
         os.remove("%s.gro"%(self.calc_i.tag))
