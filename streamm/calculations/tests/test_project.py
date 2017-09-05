@@ -290,7 +290,6 @@ class TestProject(unittest.TestCase):
         os.chdir(self.calc_i.dir['home'])
         self.calc_i.dump_json()
     
-    
         #------------------------------------------------------------------------------------------------
         self.calc_i = self.proj_i.calculations['gaussian_thiophene_SP']
         
