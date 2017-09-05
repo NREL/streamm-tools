@@ -88,6 +88,7 @@ class Calculation(object):
         self.files['output'] = dict()
         self.files['data'] = dict()
         
+        
         self.str = dict()
 
         self.properties = dict()        
@@ -98,6 +99,8 @@ class Calculation(object):
         self.properties['comp_key'] = 'compressed'
         
         self.references = dict()        
+        
+        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
         
     def __del__(self):
         """
@@ -231,19 +234,25 @@ class Calculation(object):
         json_data['properties'] = self.properties
         json_data['references'] = self.references
         
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
-        f = open(json_file, 'w')
+        # Update file in case tag has changed 
+        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
+        
+        f = open(self.files['data']['json'], 'w')
         json.dump(json_data,f, indent=2)
         f.close()
 
     def load_json(self):
         '''
         Load json file for reference 
-        '''   
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
-        logger.info("Reading %s"%(json_file))
+        '''
+        #
+        # Update file in case tag has changed
+        #
+        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
+        #
+        logger.info("Reading %s"%(self.files['data']['json']))
         try:
-            with open(json_file) as f:            
+            with open(self.files['data']['json']) as f:            
                 json_data = json.load(f)
                 f.close()
                 
@@ -255,7 +264,7 @@ class Calculation(object):
                 self.references = json_data['references'] 
 
         except IOError:
-            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+            logger.warning(" File not found %s in %s "%(self.files['data']['json'],os.getcwd()))
 
     def set_strucC(self,strucC_i):
         '''
@@ -487,7 +496,7 @@ class Calculation(object):
         #
         self.paramC_o = copy.deepcopy( self.paramC)
         # Reset parameters container
-        self.paramC = parameters.Container()
+        self.paramC = ParamCont()
         #
         # Set general parameters 
         #
@@ -502,44 +511,45 @@ class Calculation(object):
         debug_lj = False
         for pkey_o, particle_o  in self.strucC.particles.iteritems():    
             new_type = True
-            fftype_i = particle_o.properties["fftype"]
+            fftype_i = particle_o.ffkey
             #mass_i = particle_o.mass
             lmptype_p = 0
 
             if( debug_lj ):
                 logger.info(" Checking type {}".format(fftype_i))
 
-            for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems():
-                lmptype_p = lj_p + 1
-                if( fftype_i == ljObj_p.fftype1 ):
+            for ptkey_i, ptype_i  in self.paramC.particletypes.iteritems():
+                lmptype_p = ptkey_i + 1
+                if( fftype_i == ptype_i.fftype1 ):
                     new_type = False
                     # particle_o.type = str(lj_p)
-                    particle_o.properties["lmpindx"] = lmptype_p
-                    if(debug_lj):
-                        logger.info(' maches previous '.format(pkey_o, lj_p,ljObj_p.fftype1))
+                    particle_o.ff = copy.deepcopy(ptype_i) 
+                    particle_o.ff.lammps_index =  lmptype_p
+                    logger.debug(' maches previous {} {} {} '.format(pkey_o, ptkey_i,ptype_i.fftype1))
 
             if( new_type ):
                 lmptype_p += 1
-                if( debug_lj ):
-                    logger.info(" New type {} {}".format(fftype_i,lmptype_p))
+                logger.debug(" New type {} {}".format(fftype_i,lmptype_p))
                 # Find type in ljtypC_all
                 cnt_check = 0
                 type_found = False 
                 # particle_o.type = str(lj_p+1)
-                particle_o.properties["lmpindx"] = lmptype_p
-                for lj_all, ljObj_all  in self.paramC_o.ljtypes.iteritems():
+                for lj_all, ljObj_all  in self.paramC_o.particletypes.iteritems():
                     all_i = ljObj_all.fftype1
                     if( fftype_i == all_i ):
                         type_found = True
 
                     if( type_found ):
                         cnt_check += 1
-                        ljObj_all.lmpindx = lmptype_p
+                        ljObj_all.lammps_index = lmptype_p
                         # set_obj.setpid( particle_o.properties["number"] )
                         #ljObj_all.setmass( mass_i )
-                        self.paramC.add_LJtype(ljObj_all,deepcopy = True)
-                        type_found = False 
+                        self.paramC.add_particletype(ljObj_all,deepcopy = True)
 
+                        particle_o.ff = copy.deepcopy(ljObj_all) 
+                        particle_o.ff.lammps_index = lmptype_p
+                        
+                        type_found = False 
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
@@ -565,14 +575,14 @@ class Calculation(object):
             lmptype_p = 0
             pid_i = bondObj_o.pkey1
             pid_j = bondObj_o.pkey2
-            fftype_i =  self.strucC.particles[ pid_i ].properties["fftype"]
-            fftype_j =  self.strucC.particles[ pid_j ].properties["fftype"]
+            fftype_i =  self.strucC.particles[ pid_i ].ffkey
+            fftype_j =  self.strucC.particles[ pid_j ].ffkey
             #r_i = np.array( self.strucC.particles[ bondObj_o.pkey1 ].position  )
             #r_j = np.array( self.strucC.particles[ bondObj_o.pkey2 ].position  )
             #bond_len = np.linalg.norm(delta_r_c(r_i,r_j,struc_o.getLatVec() ))
 
             for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                lmptype_p = btypObj_p.lmpindx
+                lmptype_p = btypObj_p.lammps_index
                 p_i = btypObj_p.fftype1 
                 p_j = btypObj_p.fftype2
                 match = False 
@@ -582,8 +592,8 @@ class Calculation(object):
                     match = True
                 if( match ):
                     new_type = False
-                    bondObj_o.lmpindx = btypObj_p.lmpindx
-                    bondObj_o.g_indx = btypObj_p.g_indx
+                    bondObj_o.lammps_index = btypObj_p.lammps_index
+                    bondObj_o.gromacs_index = btypObj_p.gromacs_index
                     # log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_p.get_r0(),bond_len-btypObj_p.get_r0() )
                     #log_line=" Setting to lmptyp %d bond atoms %s - %s numbers %d - %d "%(lmptype_p,fftype_i,fftype_j,pid_i,pid_j)
                     #param_out.write(log_line+'\n')
@@ -623,11 +633,11 @@ class Calculation(object):
                         
                 if( type_found ):
                         
-                        bondObj_o.g_indx = bondObj_temp.g_indx
+                        bondObj_o.gromacs_index = bondObj_temp.gromacs_index
                         # Set lammps type for bond and bond type
                         # These have to match!!! 
-                        bondObj_o.lmpindx = lmptype_p          # Set LAMMPS index for bond
-                        bondObj_temp.lmpindx = lmptype_p
+                        bondObj_o.lammps_index = lmptype_p          # Set LAMMPS index for bond
+                        bondObj_temp.lammps_index = lmptype_p
                         self.paramC.add_bondtype(bondObj_temp)
                         if( debug ):
                             logger.info(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
@@ -648,9 +658,9 @@ class Calculation(object):
             pid_k = angleObj_o.pkey1
             pid_i = angleObj_o.pkey2
             pid_j = angleObj_o.pkey3
-            fftype_k =  self.strucC.particles[ angleObj_o.pkey1 ].properties["fftype"]
-            fftype_i =  self.strucC.particles[ angleObj_o.pkey2 ].properties["fftype"]
-            fftype_j =  self.strucC.particles[ angleObj_o.pkey3 ].properties["fftype"]
+            fftype_k =  self.strucC.particles[ angleObj_o.pkey1 ].ffkey
+            fftype_i =  self.strucC.particles[ angleObj_o.pkey2 ].ffkey
+            fftype_j =  self.strucC.particles[ angleObj_o.pkey3 ].ffkey
             #r_k = np.array( self.strucC.particles[ pid_k ].position  )
             #r_i = np.array( self.strucC.particles[ pid_i ].position  )
             #r_j = np.array( self.strucC.particles[ pid_j ].position  )
@@ -671,8 +681,8 @@ class Calculation(object):
                     match = True
                 if( match ):
                     new_type = False
-                    angleObj_o.lmpindx = lmptype_p
-                    angleObj_o.g_indx = atypObj_p.g_indx
+                    angleObj_o.lammps_index = lmptype_p
+                    angleObj_o.gromacs_index = atypObj_p.gromacs_index
 
                     #log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p,theta0_kij,delta_theta )
                     log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d "%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j)
@@ -717,9 +727,9 @@ class Calculation(object):
                         raise TypeError("Last parameter will not be used")
                 if( type_found ):
                         
-                        angleObj_o.g_indx = atypObj_temp.g_indx
-                        angleObj_o.lmpindx = lmptype_p
-                        atypObj_temp.lmpindx = lmptype_p
+                        angleObj_o.gromacs_index = atypObj_temp.gromacs_index
+                        angleObj_o.lammps_index = lmptype_p
+                        atypObj_temp.lammps_index = lmptype_p
                         self.paramC.add_angletype(atypObj_temp)
                         if( debug ):
                             logger.info(" %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j))
@@ -749,10 +759,10 @@ class Calculation(object):
             pid_i = dihObj_o.pkey2 
             pid_j = dihObj_o.pkey3
             pid_l = dihObj_o.pkey4
-            fftype_k =  self.strucC.particles[pid_k].properties["fftype"]
-            fftype_i =  self.strucC.particles[pid_i].properties["fftype"]
-            fftype_j =  self.strucC.particles[pid_j].properties["fftype"]
-            fftype_l =  self.strucC.particles[pid_l].properties["fftype"]
+            fftype_k =  self.strucC.particles[pid_k].ffkey
+            fftype_i =  self.strucC.particles[pid_i].ffkey
+            fftype_j =  self.strucC.particles[pid_j].ffkey
+            fftype_l =  self.strucC.particles[pid_l].ffkey
 
             if( debug):
                 logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
@@ -770,13 +780,13 @@ class Calculation(object):
                     match = True
                 if( match ):
                     new_type = False
-                    dihObj_o.lmpindx = lmptype_p
-                    dihObj_o.g_indx = dtypObj_p.g_indx
+                    dihObj_o.lammps_index = lmptype_p
+                    dihObj_o.gromacs_index = dtypObj_p.gromacs_index
 
                     if( debug):
-                        logger.info(" dihObj_o.lmpindx  ",dihObj_o.lmpindx)
-                        logger.info(" dihObj_o.g_indx  ",dihObj_o.g_indx)
-                        logger.info("  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.g_indx)
+                        logger.info(" dihObj_o.lammps_index  ",dihObj_o.lammps_index)
+                        logger.info(" dihObj_o.gromacs_index  ",dihObj_o.gromacs_index)
+                        logger.info("  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.gromacs_index)
                     break
                     
 
@@ -788,7 +798,7 @@ class Calculation(object):
                 cnt_check = 0
                 type_found = False 
                 # Set type to new type = last type+1
-                dihObj_o.lmpindx = lmptype_p
+                dihObj_o.lammps_index = lmptype_p
 
                 if( debug):
                     logger.info("  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes))
@@ -808,7 +818,7 @@ class Calculation(object):
                     if( copy_type ):
                         cnt_check += 1
                         dtypObj_temp = copy.deepcopy(dtypObj_all)
-                        #dtypObj_temp.set_g_indx(dtypObj_all.g_indx)
+                        #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                         type_found = True
                         copy_type = False 
                         if( debug ):
@@ -837,7 +847,7 @@ class Calculation(object):
                         if( copy_type ):
                             cnt_check += 1
                             dtypObj_temp = copy.deepcopy(dtypObj_all)
-                            #dtypObj_temp.set_g_indx(dtypObj_all.g_indx)
+                            #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
                             if( debug ):
@@ -862,7 +872,7 @@ class Calculation(object):
                         if( copy_type ):
                             cnt_check += 1
                             dtypObj_temp = copy.deepcopy(dtypObj_all)
-                            #dtypObj_temp.set_g_indx(dtypObj_all.g_indx)
+                            #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
                             if( debug ):
@@ -909,14 +919,14 @@ class Calculation(object):
                         dtypObj_temp.normforceconstants(dihen_norm)
                     '''
 
-                    dihObj_o.g_indx = dtypObj_temp.g_indx
-                    dtypObj_temp.lmpindx = lmptype_p
+                    dihObj_o.gromacs_index = dtypObj_temp.gromacs_index
+                    dtypObj_temp.lammps_index = lmptype_p
                     self.paramC.add_dihtype(dtypObj_temp)                
                     if( debug ):
                         logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
                         logger.info(" len(dtypC_p) ",len(self.paramC.dihtypes) )
-                        logger.info(" dtypObj_temp.lmpindx  ",dtypObj_temp.lmpindx)
-                        logger.info(" dtypObj_temp.g_indx  ",dtypObj_temp.g_indx)
+                        logger.info(" dtypObj_temp.lammps_index  ",dtypObj_temp.lammps_index)
+                        logger.info(" dtypObj_temp.gromacs_index  ",dtypObj_temp.gromacs_index)
         #
         # Examine improper dihedrals types
         #
@@ -938,10 +948,10 @@ class Calculation(object):
             pid_i = impObj_o.pkey2 
             pid_j = impObj_o.pkey3
             pid_l = impObj_o.pkey4 
-            fftype_k =  self.strucC.particles[pid_k].properties["fftype"]
-            fftype_i =  self.strucC.particles[pid_i].properties["fftype"]
-            fftype_j =  self.strucC.particles[pid_j].properties["fftype"]
-            fftype_l =  self.strucC.particles[pid_l].properties["fftype"]
+            fftype_k =  self.strucC.particles[pid_k].ffkey
+            fftype_i =  self.strucC.particles[pid_i].ffkey
+            fftype_j =  self.strucC.particles[pid_j].ffkey
+            fftype_l =  self.strucC.particles[pid_l].ffkey
 
             if( debug):
                 logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
@@ -959,13 +969,13 @@ class Calculation(object):
                     match = True
                 if( match ):
                     new_type = False
-                    impObj_o.lmpindx = lmptype_p
-                    impObj_o.g_indx = imptypObj_p.g_indx
+                    impObj_o.lammps_index = lmptype_p
+                    impObj_o.gromacs_index = imptypObj_p.gromacs_index
 
                     if( debug):
-                        logger.info(" impObj_o.lmpindx  ",impObj_o.lmpindx)
-                        logger.info(" impObj_o.g_indx  ",impObj_o.g_indx)
-                        logger.info("  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.g_indx)
+                        logger.info(" impObj_o.lammps_index  ",impObj_o.lammps_index)
+                        logger.info(" impObj_o.gromacs_index  ",impObj_o.gromacs_index)
+                        logger.info("  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.gromacs_index)
                     break
                     
             # If it is not in the parameter set for the struture container
@@ -976,7 +986,7 @@ class Calculation(object):
                 cnt_check = 0
                 type_found = False 
                 # Set type to new type = last type+1
-                impObj_o.lmpindx = lmptype_p
+                impObj_o.lammps_index = lmptype_p
 
                 if( debug):
                     logger.info("  new type checking against %d read in parameters "%len(imptypC_all))
@@ -996,7 +1006,7 @@ class Calculation(object):
                     if( copy_type ):
                         cnt_check += 1
                         imptypObj_temp = copy.deepcopy(imptypObj_all)
-                        #imptypObj_temp.set_g_indx(imptypObj_all.g_indx)
+                        #imptypObj_temp.set_g_indx(imptypObj_all.gromacs_index)
                         type_found = True
                         copy_type = False 
                         if( debug ):
@@ -1025,7 +1035,7 @@ class Calculation(object):
                         if( copy_type ):
                             cnt_check += 1
                             imptypObj_temp = copy.deepcopy(imptypObj_all)
-                            #imptypObj_temp.set_g_indx(imptypObj_all.g_indx)
+                            #imptypObj_temp.set_g_indx(imptypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
                             if( debug ):
@@ -1050,7 +1060,7 @@ class Calculation(object):
                         if( copy_type ):
                             cnt_check += 1
                             imptypObj_temp = copy.deepcopy(imptypObj_all)
-                            #imptypObj_temp.set_g_indx(imptypObj_all.g_indx)
+                            #imptypObj_temp.set_g_indx(imptypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
                             if( debug ):
@@ -1097,14 +1107,14 @@ class Calculation(object):
 
                         imptypObj_temp.normforceconstants(dihen_norm)
                     '''
-                    impObj_o.g_indx = imptypObj_temp.g_indx
-                    imptypObj_temp.lmpindx = lmptype_p
+                    impObj_o.gromacs_index = imptypObj_temp.gromacs_index
+                    imptypObj_temp.lammps_index = lmptype_p
                     self.paramC.add_imptype(imptypObj_temp,deepcopy = True)
                     if( debug ):
                         logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
                         logger.info(" len(imptypC_p) ",len(imptypC_p) )
-                        logger.info(" imptypObj_temp.lmpindx  ",imptypObj_temp.lmpindx)
-                        logger.info(" imptypObj_temp.g_indx  ",imptypObj_temp.g_indx)
+                        logger.info(" imptypObj_temp.lammps_index  ",imptypObj_temp.lammps_index)
+                        logger.info(" imptypObj_temp.gromacs_index  ",imptypObj_temp.gromacs_index)
 
         debug = False 
         if(debug):
@@ -1113,25 +1123,25 @@ class Calculation(object):
                 logger.info(lj_p,ljObj_p.fftype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma)
             logger.info(" Bond types found %d "%(self.n_bondtypes))
             for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2,btypObj_p.lmpindx,btypObj_p.g_indx)
+                logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2,btypObj_p.lammps_index,btypObj_p.gromacs_index)
             logger.info(" Angle types found %d "%(self.n_angletypes))
             for atyp_p, atypObj_p  in self.paramC.angletypes.iteritems():
-                logger.info(atyp_p ,atypObj_p.fftype1 ,atypObj_p.fftype2,atypObj_p.fftype3,atypObj_p.lmpindx,atypObj_p.g_indx)
+                logger.info(atyp_p ,atypObj_p.fftype1 ,atypObj_p.fftype2,atypObj_p.fftype3,atypObj_p.lammps_index,atypObj_p.gromacs_index)
             logger.info(" Dih types found %d "%(self.n_dihtypes))
             for dtyp_p, dtypObj_p  in self.paramC.dihtypes.iteritems():
-                logger.info(dtyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx)
+                logger.info(dtyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lammps_index,dtypObj_p.gromacs_index)
             logger.info(" imp Dih types found %d "%(self.n_imptypes))
             for imptyp_p, dtypObj_p  in self.paramC.imptypes.iteritems():
-                logger.info(imptyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lmpindx,dtypObj_p.g_indx)
+                logger.info(imptyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lammps_index,dtypObj_p.gromacs_index)
             sys.exit('find_types')
 
         debug = False 
         if(debug):
             logger.info("  All particles should have new type labeled as interger stored as a string ")
             for pkey_o, particle_o  in self.strucC.particles.iteritems():
-                logger.info(particle_o.properties["fftype"],particle_o.type)
+                logger.info(particle_o.ffkey,particle_o.type)
             for d_o,dihObj_o in dihC_o:
-                logger.info(" lmpindx() g_indx()  ",d_o,dihObj_o.pkey1,dihObj_o.pkey2,dihObj_o.pkey3,dihObj_o.pkey4, dihObj_o.lmpindx ,dihObj_o.g_indx )
+                logger.info(" lmpindx() g_indx()  ",d_o,dihObj_o.pkey1,dihObj_o.pkey2,dihObj_o.pkey3,dihObj_o.pkey4, dihObj_o.lammps_index ,dihObj_o.gromacs_index )
 
         param_out.close()
 

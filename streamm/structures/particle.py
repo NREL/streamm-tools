@@ -118,7 +118,8 @@ class Particle(object):
         self.qgroup   = 0
         self.index    = None
         #   
-        # Force field 
+        # Force field
+        self.ffkey = None 
         self.ff = None
         # Reactive site type
         self.rsite = '' 

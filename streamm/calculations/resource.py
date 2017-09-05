@@ -222,7 +222,7 @@ class CalculationRes(Calculation):
                     logger.warning("No resource found ")
                 if( len(res_tag) > 0 ):
                     logger.debug("Resource tag found %s "%(res_tag))
-                    resource_i = resource.Resource(str(res_tag))
+                    resource_i = Resource(str(res_tag))
                     resource_i.load_json()
                     self.resource = resource_i
                                     

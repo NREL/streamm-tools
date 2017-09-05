@@ -352,11 +352,11 @@ class LAMMPS(CalculationRes):
                 el_i = periodictable.element_mass(mass_i)
                 fftype1 = str(el_i["symbol"]) + str(cnt_Masses)
                 ljtype_i = parameters.LJtype(fftype1)
-                ljtype_i.lmpindx = int(col[0])
+                ljtype_i.lammps_index = int(col[0])
                 ljtype_i.mass = mass_i
                 ljtype_i.atomic_symbol = el_i["symbol"]
 
-                #print ">read_data ljtype_i",ljkey_i,ljtype_i.mass,ljtype_i.lmpindx,cnt_Masses ,self.paramC.n_ljtypes 
+                #print ">read_data ljtype_i",ljkey_i,ljtype_i.mass,ljtype_i.lammps_index,cnt_Masses ,self.paramC.n_ljtypes 
                 
                 self.paramC.ljtypes[ljkey_i] = copy.deepcopy(ljtype_i)
                 #self.paramC.add_LJtype(ljtype_i,deepcopy = True )
@@ -389,7 +389,7 @@ class LAMMPS(CalculationRes):
                 bondtype_i = parameters.Bondtype(type=btype)
                 bondtype_i.kb = float(col[1]) 
                 bondtype_i.r0 = float(col[2])
-                bondtype_i.lmpindx = int( col[0])
+                bondtype_i.lammps_index = int( col[0])
                 self.paramC.bondtypes[bkey_i] = copy.deepcopy(bondtype_i)
                 
                 # btyp_i.setharmonic(r0,kb)
@@ -404,7 +404,7 @@ class LAMMPS(CalculationRes):
                 angletype_i = parameters.Angletype(type=atype)
                 angletype_i.kb = float(col[1]) 
                 angletype_i.theta0 = float(col[2])
-                angletype_i.lmpindx = int( col[0])
+                angletype_i.lammps_index = int( col[0])
                 self.paramC.angletypes[akey_i] = copy.deepcopy(angletype_i)
                                 
                 if( cnt_Angle_coeff >= self.paramC.n_angletypes ):
@@ -427,7 +427,7 @@ class LAMMPS(CalculationRes):
                 elif( dtype == "multiharmonic" ):
                     dihtype_i.setharmonic(float(col[2]),float(col[1]),float(col[3]))
                     dihtype_i.g_indx = int(1)
-                dihtype_i.lmpindx = int( col[0])
+                dihtype_i.lammps_index = int( col[0])
                 self.paramC.dihtypes[dkey_i] = copy.deepcopy(dihtype_i)
                 
                 if( cnt_Dihedral_coeff >= self.paramC.n_dihtypes ):
@@ -443,7 +443,7 @@ class LAMMPS(CalculationRes):
                 if( imptype == "improper" ):
                     imptype_i.setimp(float(col[2]),float(col[1]))
                     imptype_i.g_indx = int(2)
-                imptype_i.lmpindx = int( col[0])
+                imptype_i.lammps_index = int( col[0])
                 self.paramC.imptypes[ikey_i] = copy.deepcopy(imptype_i)
 
                 if( cnt_Improper_coeff >= self.paramC.n_imptypes ):
@@ -461,8 +461,8 @@ class LAMMPS(CalculationRes):
                 ljkey_i = int( col[2]) - 1
                 
                 ljtype_i = self.paramC.ljtypes[ljkey_i]
-                if( ljtype_i.lmpindx != ljkey_i +1 ):
-                    logger.warning("Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lmpindx))
+                if( ljtype_i.lammps_index != ljkey_i +1 ):
+                    logger.warning("Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lammps_index))
                     sys.exit(2)
                 # set particle and  properties
                 try:
@@ -476,9 +476,9 @@ class LAMMPS(CalculationRes):
                 particle_i.properties["mol"] = int(col[1])      
                 particle_i.properties["charge"] = float(col[3])
                 particle_i.properties["mass"] = ljtype_i.mass
-                particle_i.properties["lmpindx"] = ljtype_i.lmpindx
+                particle_i.properties["lmpindx"] = ljtype_i.lammps_index
 
-                #print ">read_data cnt_Atoms ",cnt_Atoms,pkey_i,ljkey_i,ljtype_i.mass,ljtype_i.lmpindx 
+                #print ">read_data cnt_Atoms ",cnt_Atoms,pkey_i,ljkey_i,ljtype_i.mass,ljtype_i.lammps_index 
                 #if( cnt_Atoms > 10 ):
                 #    sys.exit("9320ur092ur0298")
                 
@@ -498,9 +498,9 @@ class LAMMPS(CalculationRes):
                 pkey2 = int(col[3]) - 1
                 
                 bond_i = structure.Bond(pkey1,pkey2)
-                bond_i.lmpindx = int(col[1])
+                bond_i.lammps_index = int(col[1])
 
-                typekey =  bond_i.lmpindx  - 1
+                typekey =  bond_i.lammps_index  - 1
                 try:
                     bondtype_i = self.paramC.bondtypes[typekey]
                     try:
@@ -525,9 +525,9 @@ class LAMMPS(CalculationRes):
                 pkey2 = int(col[3]) - 1
                 pkey3 = int(col[4]) - 1
                 angle_i = structure.Angle(pkey1,pkey2,pkey3)
-                angle_i.lmpindx = int(col[1])
+                angle_i.lammps_index = int(col[1])
 
-                typekey =  angle_i.lmpindx  - 1
+                typekey =  angle_i.lammps_index  - 1
                 try:
                     angletype_i = self.paramC.angletypes[typekey]
                     try:
@@ -554,9 +554,9 @@ class LAMMPS(CalculationRes):
                 pkey3 = int(col[4]) - 1
                 pkey4 = int(col[5]) - 1
                 dihedral_i = structure.Dihedral(pkey1,pkey2,pkey3,pkey4)
-                dihedral_i.lmpindx = int(col[1])
+                dihedral_i.lammps_index = int(col[1])
                 # Set parameter types 
-                typekey =  dihedral_i.lmpindx  - 1
+                typekey =  dihedral_i.lammps_index  - 1
                 try:
                     dihtype_i = self.paramC.dihtypes[typekey]
                     try:
@@ -586,9 +586,9 @@ class LAMMPS(CalculationRes):
                 pkey3 = int(col[4]) - 1
                 pkey4 = int(col[5]) - 1
                 improper_i = structure.Improper(pkey1,pkey2,pkey3,pkey4)
-                improper_i.lmpindx = int(col[1])
+                improper_i.lammps_index = int(col[1])
                 # Set parameter types 
-                typekey =  improper_i.lmpindx  - 1
+                typekey =  improper_i.lammps_index  - 1
                 try:
                     improper_i = self.paramC.imptypes[typekey]
                     try:
@@ -620,7 +620,7 @@ class LAMMPS(CalculationRes):
                     logger.debug("Reading Atoms   ")
                     # 
                     # for ljtkey_i, ljtype_i  in self.paramC.ljtypes.iteritems():
-                    #    print ljtkey_i, ljtype_i.lmpindx , ljtype_i.mass ,  ljtype_i.fftype1,ljtype_i.epsilon,  ljtype_i.sigma 
+                    #    print ljtkey_i, ljtype_i.lammps_index , ljtype_i.mass ,  ljtype_i.fftype1,ljtype_i.epsilon,  ljtype_i.sigma 
                     # 
                 if( col[0] == "Bonds" ):
                     # 
@@ -785,7 +785,7 @@ class LAMMPS(CalculationRes):
         F.write( "%10d  dihedrals \n" %  self.strucC.n_dihedrals )
         F.write( "%10d  impropers \n" % self.strucC.n_impropers  )
         F.write('\n')
-        F.write( "%10d  atom types \n" % self.paramC.n_ljtypes  )
+        F.write( "%10d  atom types \n" % self.paramC.n_particletypes  )
         F.write( "%10d  bond types \n" % self.paramC.n_bondtypes )
         F.write( "%10d  angle types \n" % self.paramC.n_angletypes )
         F.write( "%10d  dihedral types \n" % self.paramC.n_dihtypes )
@@ -804,14 +804,14 @@ class LAMMPS(CalculationRes):
         F.write( ' Masses \n')
         F.write('\n')
         # Write LJtypes mass 
-        for ljtkey_i, ljtype_i  in self.paramC.ljtypes.iteritems():
-            F.write( "%10d %16.8f   # %5s \n" % ( ljtype_i.lmpindx, ljtype_i.mass , ljtype_i.fftype1  ) )
+        for ljtkey_i, ljtype_i  in self.paramC.particletypes.iteritems():
+            F.write( "%10d %16.8f   # %5s \n" % ( ljtype_i.lammps_index, ljtype_i.mass , ljtype_i.fftype1  ) )
         F.write('\n')
         F.write(' Pair Coeffs \n')
         F.write('\n')
         # Write LJtypes pair Coeffs 
-        for ljtkey_i, ljtype_i  in self.paramC.ljtypes.iteritems():
-            F.write( "%10d %12.6f %12.6f  \n" % (ljtype_i.lmpindx, ljtype_i.epsilon,  ljtype_i.sigma ) )
+        for ljtkey_i, ljtype_i  in self.paramC.particletypes.iteritems():
+            F.write( "%10d %12.6f %12.6f  \n" % (ljtype_i.lammps_index, ljtype_i.epsilon,  ljtype_i.sigma ) )
         F.write('\n')
         # Write Bond Coeffs
         if( self.paramC.n_bondtypes > 0 ):
@@ -819,7 +819,7 @@ class LAMMPS(CalculationRes):
             F.write('\n')
             for btkey_i,bondtype_i  in self.paramC.bondtypes.iteritems():
                 if( bondtype_i.type == "harmonic"):
-                    F.write( "%10d %12.6f %12.6f # %5s %5s  \n" % (bondtype_i.lmpindx,bondtype_i.kb,bondtype_i.r0, bondtype_i.fftype1, bondtype_i.fftype2 ) )
+                    F.write( "%10d %12.6f %12.6f # %5s %5s  \n" % (bondtype_i.lammps_index,bondtype_i.kb,bondtype_i.r0, bondtype_i.fftype1, bondtype_i.fftype2 ) )
             F.write('\n')
 
         # Write Angle Coeffs
@@ -828,7 +828,7 @@ class LAMMPS(CalculationRes):
             F.write('\n')
             for atkey_i,angletype_i  in self.paramC.angletypes.iteritems():
                 if( angletype_i.type == "harmonic"):
-                    F.write( "%10d %12.6f %12.6f # %5s %5s  %5s   \n" % (angletype_i.lmpindx,angletype_i.kb,angletype_i.theta0, angletype_i.fftype1,angletype_i.fftype2,angletype_i.fftype3 ) )
+                    F.write( "%10d %12.6f %12.6f # %5s %5s  %5s   \n" % (angletype_i.lammps_index,angletype_i.kb,angletype_i.theta0, angletype_i.fftype1,angletype_i.fftype2,angletype_i.fftype3 ) )
             F.write('\n')
 
         # Write Dihedral Coeffs
@@ -844,10 +844,10 @@ class LAMMPS(CalculationRes):
                     n = dihtype_i.mult
                     p = dihtype_i.paths
                     w = 0.0 # Weight 
-                    F.write( "%10d %12.6f %12.6f  %12.6f %12.6f # %d x %5s %5s  %5s  %5s   \n" % (dihtype_i.lmpindx,K,n,d,w, p, dihtype_i.fftype1,dihtype_i.fftype2,dihtype_i.fftype3,dihtype_i.fftype4  ) )
+                    F.write( "%10d %12.6f %12.6f  %12.6f %12.6f # %d x %5s %5s  %5s  %5s   \n" % (dihtype_i.lammps_index,K,n,d,w, p, dihtype_i.fftype1,dihtype_i.fftype2,dihtype_i.fftype3,dihtype_i.fftype4  ) )
                 elif( dihtype_i.type == "rb" or  dihtype_i.type == "opls"  ):
                     # Get opls parameters                    
-                    F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dihtype_i.lmpindx,dihtype_i.k1,dihtype_i.k2,dihtype_i.k3,dihtype_i.k4, dihtype_i.fftype1,dihtype_i.fftype2,dihtype_i.fftype3,dihtype_i.fftype4  ) )
+                    F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dihtype_i.lammps_index,dihtype_i.k1,dihtype_i.k2,dihtype_i.k3,dihtype_i.k4, dihtype_i.fftype1,dihtype_i.fftype2,dihtype_i.fftype3,dihtype_i.fftype4  ) )
                 else:
                     error_line = " Unknow dihedral type %s "%(dihtype_i.type )
                     sys.exit(error_line)
@@ -861,7 +861,7 @@ class LAMMPS(CalculationRes):
             if( self.paramC.n_imptypes > 0 ):
                 for itkey_i, imptype_i  in self.paramC.imptypes.iteritems():    
                     if( imptype_i.type == "improper"):
-                        F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (imptype_i.lmpindx,imptype_i.ke,imptype_i.e0, imptype_i.fftype1,imptype_i.fftype2,imptype_i.fftype3,imptype_i.fftype4  ) )
+                        F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (imptype_i.lammps_index,imptype_i.ke,imptype_i.e0, imptype_i.fftype1,imptype_i.fftype2,imptype_i.fftype3,imptype_i.fftype4  ) )
                     else:
                         error_line = " Unknow improper type %s "%(imptype_i.type )
                         sys.exit(error_line)
@@ -877,10 +877,10 @@ class LAMMPS(CalculationRes):
             F.write(' Atoms \n')
             F.write('\n')
             for pkey_i, particle_i  in self.strucC.particles.iteritems():
-                fftype_i = particle_i.properties["fftype"]
-                mol_i = particle_i.properties["mol"]
-                charge_i = particle_i.properties["charge"]
-                lmpindx_i = particle_i.properties["lmpindx"]
+                fftype_i = particle_i.ffkey
+                mol_i = particle_i.mol
+                charge_i = particle_i.charge
+                lmpindx_i = particle_i.ff.lammps_index
                 pos_i = self.strucC.positions[pkey_i]       
                 F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pkey_i+1,mol_i+1,lmpindx_i,charge_i,pos_i[0],pos_i[1],pos_i[2] ,fftype_i)  )
             F.write('\n')
@@ -893,10 +893,10 @@ class LAMMPS(CalculationRes):
                 b_i = bond_i.pkey1 + 1 
                 b_j = bond_i.pkey2 + 1
                 #
-                AT_i =  self.strucC.particles[ bond_i.pkey1 ].properties["fftype"]
-                AT_j =  self.strucC.particles[ bond_i.pkey2 ].properties["fftype"]
+                AT_i =  self.strucC.particles[ bond_i.pkey1 ].ffkey
+                AT_j =  self.strucC.particles[ bond_i.pkey2 ].ffkey
                 #
-                F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (bkey_i+1,bond_i.lmpindx,b_i,b_j, AT_i, AT_j ) )
+                F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (bkey_i+1,bond_i.lammps_index,b_i,b_j, AT_i, AT_j ) )
             F.write('\n')
 
         # Write Angles
@@ -908,11 +908,11 @@ class LAMMPS(CalculationRes):
                 a_k = angle_i.pkey1 + 1 
                 a_i = angle_i.pkey2 + 1 
                 a_j = angle_i.pkey3 + 1 
-                AT_k = self.strucC.particles[ angle_i.pkey1 ].properties["fftype"]
-                AT_i = self.strucC.particles[ angle_i.pkey2 ].properties["fftype"]
-                AT_j = self.strucC.particles[ angle_i.pkey3 ].properties["fftype"]
+                AT_k = self.strucC.particles[ angle_i.pkey1 ].ffkey
+                AT_i = self.strucC.particles[ angle_i.pkey2 ].ffkey
+                AT_j = self.strucC.particles[ angle_i.pkey3 ].ffkey
 
-                F.write(  '%9d %8d %9d %9d %9d  # %s %s %s \n' % (akey_i+1,angle_i.lmpindx,a_k,a_i,a_j,AT_k,AT_i,AT_j) )
+                F.write(  '%9d %8d %9d %9d %9d  # %s %s %s \n' % (akey_i+1,angle_i.lammps_index,a_k,a_i,a_j,AT_k,AT_i,AT_j) )
             F.write(  '\n' )
 
         # Write Dihedrals
@@ -927,16 +927,16 @@ class LAMMPS(CalculationRes):
                 d_j = dih_i.pkey3 + 1 
                 d_l = dih_i.pkey4 + 1 
 
-                AT_k = self.strucC.particles[ dih_i.pkey1 ].properties["fftype"]
-                AT_i = self.strucC.particles[ dih_i.pkey2 ].properties["fftype"]
-                AT_j = self.strucC.particles[ dih_i.pkey3 ].properties["fftype"]
-                AT_l = self.strucC.particles[ dih_i.pkey4 ].properties["fftype"]
+                AT_k = self.strucC.particles[ dih_i.pkey1 ].ffkey
+                AT_i = self.strucC.particles[ dih_i.pkey2 ].ffkey
+                AT_j = self.strucC.particles[ dih_i.pkey3 ].ffkey
+                AT_l = self.strucC.particles[ dih_i.pkey4 ].ffkey
 
                 #error_line = " dih index is not in bounds "
                 #error_line += " for atoms %d  %d  %d  %d  "%(d_k,d_i,d_j,d_l)
                 #error_line += " for type atoms %s %s %s %s "%(AT_k,AT_i,AT_j,AT_l)
                 #sys.exit(error_line)
-                F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dkey_i+1,dih_i.lmpindx,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
+                F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dkey_i+1,dih_i.lammps_index,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
 
             F.write( '\n' )
 
@@ -949,11 +949,11 @@ class LAMMPS(CalculationRes):
                 d_i = imp_i.pkey2 + 1 
                 d_j = imp_i.pkey3 + 1 
                 d_l = imp_i.pkey4 + 1 
-                AT_k = self.strucC.particles[ imp_i.pkey1 ].properties["fftype"]
-                AT_i = self.strucC.particles[ imp_i.pkey2 ].properties["fftype"]
-                AT_j = self.strucC.particles[ imp_i.pkey3 ].properties["fftype"]
-                AT_l = self.strucC.particles[ imp_i.pkey4 ].properties["fftype"]
-                F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (ikey_i+1,imp_i.lmpindx,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
+                AT_k = self.strucC.particles[ imp_i.pkey1 ].ffkey
+                AT_i = self.strucC.particles[ imp_i.pkey2 ].ffkey
+                AT_j = self.strucC.particles[ imp_i.pkey3 ].ffkey
+                AT_l = self.strucC.particles[ imp_i.pkey4 ].ffkey
+                F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (ikey_i+1,imp_i.lammps_index,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
 
             F.write( '\n' )            
 
@@ -1288,7 +1288,7 @@ class LAMMPS(CalculationRes):
                     ljtype_i = parameters.LJtype(fftype1)
                     ljtype_i.mass = mass_i
                     ljtype_i.atomic_symbol = el_i["symbol"]
-                    ljtype_i.lmpindx = self.paramC.n_ljtypes + 1 
+                    ljtype_i.lammps_index = self.paramC.n_ljtypes + 1 
                     self.paramC.add_LJtype(ljtype_i)
                     
                     if( debug ):
@@ -1329,7 +1329,7 @@ class LAMMPS(CalculationRes):
                         bondtype_i.g_indx = int(1)
                     else:
                         logger.warning(" Unknown bond type %s "%(bondtype_i.type))                    
-                    bondtype_i.lmpindx = self.paramC.n_bondtypes + 1 
+                    bondtype_i.lammps_index = self.paramC.n_bondtypes + 1 
                     self.paramC.add_bondtype(bondtype_i)                    
                     if( debug ):
                         print bondtype_i
@@ -1356,7 +1356,7 @@ class LAMMPS(CalculationRes):
                         angletype_i.g_indx = int(1)
                     else:
                         logger.warning(" Unknown ANGLE type %s "%(angletype_i.type))                    
-                    angletype_i.lmpindx = self.paramC.n_angletypes + 1 
+                    angletype_i.lammps_index = self.paramC.n_angletypes + 1 
                     self.paramC.add_angletype(angletype_i)
                     if( debug ):
                         print angletype_i
@@ -1384,7 +1384,7 @@ class LAMMPS(CalculationRes):
                         dihtype_i.g_indx = int(3)
                     else:
                         logger.warning(" Unknown DIHEDRAL type %s "%(dihtype_i.type))                    
-                    dihtype_i.lmpindx = self.paramC.n_dihtypes + 1 
+                    dihtype_i.lammps_index = self.paramC.n_dihtypes + 1 
                     self.paramC.add_dihtype(dihtype_i)
                     if( debug ):
                         print dihtype_i
@@ -1410,7 +1410,7 @@ class LAMMPS(CalculationRes):
                         imptype_i.e0 = float(col[6])
                     else:
                         logger.warning(" Unknown IMPROPER type %s "%(imptype_i.type))                    
-                    imptype_i.lmpindx = self.paramC.n_imptypes + 1 
+                    imptype_i.lammps_index = self.paramC.n_imptypes + 1 
                     self.paramC.add_imptype(imptype_i)
                     if( debug ):
                         print imptyp_i
