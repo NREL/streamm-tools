@@ -80,6 +80,8 @@ class Test_Thiophene(unittest.TestCase):
         self.Th.find_rsites()
         
         self.calc_i.add_strucC(self.Th)
+        
+        
         self.calc_i.strucC.lat_cubic(25.0)
         
         self.calc_i.strucC.bonded_bonds()

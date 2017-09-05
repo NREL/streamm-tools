@@ -30,10 +30,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 # streamm
-from resource import Resource 
-import resource, calculation, gaussian,lammps,nwchem,gromacs
-from calculation import CalculationRes
+from streamm.calculations.resource import Resource
+from streamm.calculations.nwchem import NWChem
+from streamm.calculations.gaussian import Gaussian
+from streamm.calculations.lammps import LAMMPS
 
+from streamm.calculations.resource import CalculationRes
 
 
 class Project(CalculationRes):
@@ -81,8 +83,8 @@ class Project(CalculationRes):
             json_data['calculations'][calc_key] = calc_i.meta['software']
         json_data['resources'] = self.resources.keys()
         
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
-        f = open(json_file, 'w')
+        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
+        f = open(self.files['data']['json'], 'w')
         json.dump(json_data,f, indent=2)
         f.close()
 
@@ -91,9 +93,10 @@ class Project(CalculationRes):
         '''
         Load json file for reference 
         '''        
-        json_file = "%s_%s.json"%(self.prefix,self.tag)
+        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
+        
         try:
-            with open(json_file) as f:            
+            with open(self.files['data']['json']) as f:            
                 json_data = json.load(f)
                 f.close()
 
@@ -109,13 +112,11 @@ class Project(CalculationRes):
                   calc_key = str(calc_key)
                   logger.debug("Loading calculation %s using %s module "%(calc_key,software_i))
                   if( software_i == 'nwchem' ):
-                    calc_i = nwchem.NWChem(calc_key)
+                    calc_i = NWChem(calc_key)
                   elif( software_i == 'lammps' ):
-                    calc_i = lammps.LAMMPS(calc_key)
+                    calc_i = LAMMPS(calc_key)
                   elif( software_i == 'gaussian' ):
-                    calc_i = gaussian.Gaussian(calc_key)
-                  elif( software_i == 'gromacs' ):
-                    calc_i = gromacs.GROMACS(calc_key)
+                    calc_i = Gaussian(calc_key)
                   elif( software_i == 'streamm_proj' ):
                     calc_i = Project(calc_key)
                   elif( software_i == 'streamm_calc' ):
@@ -128,7 +129,7 @@ class Project(CalculationRes):
                   self.calculations[calc_key] = calc_i
 
         except IOError:
-            logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
+            logger.warning(" File not found %s in %s "%(self.files['data']['json'],os.getcwd()))
 
 
     def check(self):
@@ -144,6 +145,19 @@ class Project(CalculationRes):
                 os.chdir(calc_i.dir['home'])
             print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
 
+    def make_dir(self):
+        '''
+        Run calculations in the project 
+        '''
+        
+        for calc_key,calc_i in self.calculations.iteritems():
+            if( calc_i.resource.meta['type'] == "local" ):
+                os.chdir(calc_i.dir['home'])
+            calc_i.make_dir()
+            if( calc_i.resource.meta['type'] == "local" ):
+                os.chdir(calc_i.dir['home'])
+                        
+                        
     def run(self):
         '''
         Run calculations in the project 
