@@ -30,6 +30,8 @@ rm temp.py
 for d in "buildingblocks" "forcefields" "mpi" "structures" "util";
 do
 echo $d;
+cp calculations/tests/streamm_testutil.py  ${d}/tests/
+git add ${d}/tests/*py
     
 done
-cp 
+
