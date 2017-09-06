@@ -27,12 +27,13 @@ import numpy.testing.utils as nptu
 
 import streamm.mpi.mpiBase as mpiBase 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+from streamm_testutil import *
+
 
 
 class TestMPIBase(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
 
         self.p = mpiBase.getMPIObject(False, localVerbose=False)
@@ -67,12 +68,13 @@ class TestMPIBase(unittest.TestCase):
             self.p.barrier()
         self.p.barrier()
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.p         
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
