@@ -508,15 +508,13 @@ class Calculation(object):
         #
         # Examine atom types
         #
-        debug_lj = False
         for pkey_o, particle_o  in self.strucC.particles.iteritems():    
             new_type = True
             fftype_i = particle_o.ffkey
             #mass_i = particle_o.mass
             lmptype_p = 0
 
-            if( debug_lj ):
-                logger.info(" Checking type {}".format(fftype_i))
+            logger.debug(" Checking type {}".format(fftype_i))
 
             for ptkey_i, ptype_i  in self.paramC.particletypes.iteritems():
                 lmptype_p = ptkey_i + 1
@@ -560,16 +558,10 @@ class Calculation(object):
                     if( not use_last  ):
                         self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
-        if( debug_lj ):
-
-            for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems():
-                logger.info(ljObj_p)
-            sys.exit("LJ debug 89798")
-
+                    
         #
         # Examine  bonds types
         #
-        debug = 0
         for bkey_o, bondObj_o  in self.strucC.bonds.iteritems():
             new_type = True
             lmptype_p = 0
@@ -639,8 +631,7 @@ class Calculation(object):
                         bondObj_o.lammps_index = lmptype_p          # Set LAMMPS index for bond
                         bondObj_temp.lammps_index = lmptype_p
                         self.paramC.add_bondtype(bondObj_temp)
-                        if( debug ):
-                            logger.info(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
+                        logger.debug(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
 
                         # log_line=" Setting bond atoms %s - %s numbers %d - %d wiht bond length %f to type %d with r_o %f  delta %f \n"%(fftype_i,fftype_j,pid_i,pid_j,bond_len,btyp_p,btypObj_all.get_r0(),bond_len-btypObj_all.get_r0() )
                         log_line="Adding new lmptyp %d for bond atoms %s - %s numbers %d - %d "%(lmptype_p,fftype_i,fftype_j,pid_i,pid_j)
@@ -650,7 +641,6 @@ class Calculation(object):
         #
         # Examine  angles types
         #
-        debug = 0
         # for akey_i, angle_i in self.strucC.angles.iteritems():
         for a_o,angleObj_o in self.strucC.angles.iteritems():
             new_type = True
@@ -724,32 +714,21 @@ class Calculation(object):
 
                     if( not use_last  ):
                         self.paramC = self.paramC_o
-                        raise TypeError("Last parameter will not be used")
+                        logger.warning("Last parameter will not be used")
                 if( type_found ):
                         
                         angleObj_o.gromacs_index = atypObj_temp.gromacs_index
                         angleObj_o.lammps_index = lmptype_p
                         atypObj_temp.lammps_index = lmptype_p
                         self.paramC.add_angletype(atypObj_temp)
-                        if( debug ):
-                            logger.info(" %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j))
-                            #log_line=" Setting angle atoms %s - %s - %s numbers %d - %d - %d  wiht angle %f to type %d with theta_o %f  delta %f \n"%(fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j,angle_kij,atyp_p+1,theta0_kij,delta_theta )
                         log_line=" Adding new lmptyp %d  angle atoms %s - %s - %s numbers %d - %d - %d "%(lmptype_p,fftype_k,fftype_i,fftype_j,pid_k,pid_i,pid_j)
+                        logger.debug(" %d Angles parameters were found for bond type %s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j))
                         param_out.write(log_line+'\n')
 
 
         #
         # Examine  dihedrals types
         #
-        debug = False
-        if( debug):
-            for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
-                all_k = dtypObj_all.fftype1 
-                all_i = dtypObj_all.fftype2 
-                all_j = dtypObj_all.fftype3
-                all_l = dtypObj_all.fftype4
-                logger.info(" all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.type)
-
         imp_cnt = 0 
         for d_o,dihObj_o in self.strucC.dihedrals.iteritems():
             new_type = True
@@ -763,8 +742,7 @@ class Calculation(object):
             fftype_j =  self.strucC.particles[pid_j].ffkey
             fftype_l =  self.strucC.particles[pid_l].ffkey
 
-            if( debug):
-                logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
+            logger.debug(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if dihedral type is already in parameter set for the structure container
             for dtyp_p, dtypObj_p  in self.paramC.dihtypes.iteritems():
                 lmptype_p = dtyp_p + 1
@@ -782,10 +760,9 @@ class Calculation(object):
                     dihObj_o.lammps_index = lmptype_p
                     dihObj_o.gromacs_index = dtypObj_p.gromacs_index
 
-                    if( debug):
-                        logger.info(" dihObj_o.lammps_index  ",dihObj_o.lammps_index)
-                        logger.info(" dihObj_o.gromacs_index  ",dihObj_o.gromacs_index)
-                        logger.info("  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.gromacs_index)
+                    logger.debug(" dihObj_o.lammps_index  ",dihObj_o.lammps_index)
+                    logger.debug(" dihObj_o.gromacs_index  ",dihObj_o.gromacs_index)
+                    logger.debug("  previous type ",dtyp_p,p_k,p_i,p_j,p_l,dihObj_o.gromacs_index)
                     break
                     
 
@@ -799,8 +776,7 @@ class Calculation(object):
                 # Set type to new type = last type+1
                 dihObj_o.lammps_index = lmptype_p
 
-                if( debug):
-                    logger.info("  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes))
+                logger.debug("  new type checking against %d read in parameters "%len(self.paramC_o.dihtypes))
 
                 copy_type = False 
                 for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
@@ -820,13 +796,11 @@ class Calculation(object):
                         #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                         type_found = True
                         copy_type = False 
-                        if( debug ):
-                            logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                            logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
+                        logger.debug(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                        logger.debug("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
-                    if(debug):
-                        logger.info(" checking  X - FF - FF - FF ")
+                    logger.debug(" checking  X - FF - FF - FF ")
                     copy_type = False 
                     for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
@@ -849,13 +823,11 @@ class Calculation(object):
                             #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
-                            if( debug ):
-                                logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                                logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
+                            logger.debug(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.debug("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
-                    if(debug):
-                        logger.info(" checking  X - FF - FF - X ")
+                    logger.debug(" checking  X - FF - FF - X ")
                     copy_type = False 
                     for d_all, dtypObj_all  in self.paramC_o.dihtypes.iteritems():
                         all_k = dtypObj_all.fftype1 
@@ -874,9 +846,8 @@ class Calculation(object):
                             #dtypObj_temp.set_g_indx(dtypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
-                            if( debug ):
-                                logger.info(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                                logger.info("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
+                            logger.debug(" %d Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.debug("     from  type to dtypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
@@ -887,12 +858,10 @@ class Calculation(object):
                     #dtypObj_temp_list.findtype(fftype_k,fftype_i,fftype_j,fftype_l)
                     if( not use_last  ):
                         self.paramC = self.paramC_o
-                        raise TypeError
+                        logger.warning('Last will not be used')
 
                 if( type_found ):
-                    if( debug ):
-
-                        logger.info(" adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.fftype1,dtypObj_temp.fftype2,dtypObj_temp.fftype3,dtypObj_temp.fftype4)
+                    logger.debug(" adding new type to dtypC_p  from ",dtypObj_temp.type, dtypObj_temp.fftype1,dtypObj_temp.fftype2,dtypObj_temp.fftype3,dtypObj_temp.fftype4)
 
                     # Set FF types to read in bond to remove X's 
                     dtypObj_temp.fftype1 = fftype_k
@@ -921,24 +890,13 @@ class Calculation(object):
                     dihObj_o.gromacs_index = dtypObj_temp.gromacs_index
                     dtypObj_temp.lammps_index = lmptype_p
                     self.paramC.add_dihtype(dtypObj_temp)                
-                    if( debug ):
-                        logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                        logger.info(" len(dtypC_p) ",len(self.paramC.dihtypes) )
-                        logger.info(" dtypObj_temp.lammps_index  ",dtypObj_temp.lammps_index)
-                        logger.info(" dtypObj_temp.gromacs_index  ",dtypObj_temp.gromacs_index)
+                    logger.debug(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                    logger.debug(" len(dtypC_p) ",len(self.paramC.dihtypes) )
+                    logger.debug(" dtypObj_temp.lammps_index  ",dtypObj_temp.lammps_index)
+                    logger.debug(" dtypObj_temp.gromacs_index  ",dtypObj_temp.gromacs_index)
         #
         # Examine improper dihedrals types
         #
-        debug = False
-        if( debug):
-            for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
-                all_k = imptypObj_all.fftype1 
-                all_i = imptypObj_all.fftype2 
-                all_j = imptypObj_all.fftype3
-                all_l = imptypObj_all.fftype4
-                logger.info(" all types in parameters ",all_k,all_i,all_j,all_l,imptypObj_all.type)
-                #sys.exit("  type check debug ")
-
         imp_cnt = 0 
         for imp_o,impObj_o in self.strucC.impropers.iteritems():
             new_type = True
@@ -952,8 +910,7 @@ class Calculation(object):
             fftype_j =  self.strucC.particles[pid_j].ffkey
             fftype_l =  self.strucC.particles[pid_l].ffkey
 
-            if( debug):
-                logger.info(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
+            logger.debug(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if impedral type is already in parameter set for the structure container
             for imptyp_p, imptypObj_p  in self.paramC.imptypes.iteritems():
                 lmptype_p = imptyp_p + 1
@@ -971,10 +928,9 @@ class Calculation(object):
                     impObj_o.lammps_index = lmptype_p
                     impObj_o.gromacs_index = imptypObj_p.gromacs_index
 
-                    if( debug):
-                        logger.info(" impObj_o.lammps_index  ",impObj_o.lammps_index)
-                        logger.info(" impObj_o.gromacs_index  ",impObj_o.gromacs_index)
-                        logger.info("  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.gromacs_index)
+                    logger.debug(" impObj_o.lammps_index  ",impObj_o.lammps_index)
+                    logger.debug(" impObj_o.gromacs_index  ",impObj_o.gromacs_index)
+                    logger.debug("  previous type ",imptyp_p,p_k,p_i,p_j,p_l,impObj_o.gromacs_index)
                     break
                     
             # If it is not in the parameter set for the struture container
@@ -987,8 +943,7 @@ class Calculation(object):
                 # Set type to new type = last type+1
                 impObj_o.lammps_index = lmptype_p
 
-                if( debug):
-                    logger.info("  new type checking against %d read in parameters "%len(imptypC_all))
+                logger.debug("  new type checking against %d read in parameters "%len(imptypC_all))
 
                 copy_type = False 
                 for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
@@ -1013,8 +968,7 @@ class Calculation(object):
                             logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
-                    if(debug):
-                        logger.info(" checking  X - FF - FF - FF ")
+                    logger.debug(" checking  X - FF - FF - FF ")
                     copy_type = False 
                     for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
@@ -1037,13 +991,11 @@ class Calculation(object):
                             #imptypObj_temp.set_g_indx(imptypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
-                            if( debug ):
-                                logger.info(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                                logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
+                            logger.debug(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.debug("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( not type_found ):
-                    if(debug):
-                        logger.info(" checking  X - FF - FF - X ")
+                    logger.debug(" checking  X - FF - FF - X ")
                     copy_type = False 
                     for d_all, imptypObj_all  in self.paramC_o.imptypes.iteritems():
                         all_k = imptypObj_all.fftype1 
@@ -1062,9 +1014,8 @@ class Calculation(object):
                             #imptypObj_temp.set_g_indx(imptypObj_all.gromacs_index)
                             type_found = True 
                             copy_type = False 
-                            if( debug ):
-                                logger.info(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                                logger.info("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
+                            logger.debug(" %d Imp Dih parameters were found for bond type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                            logger.debug("     from  type to imptypC_p  from ",all_k,all_i,all_j,all_l)
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
@@ -1078,9 +1029,7 @@ class Calculation(object):
                         raise TypeError
 
                 if( type_found ):
-                    if( debug ):
-
-                        logger.info(" adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.fftype1,imptypObj_temp.fftype2,imptypObj_temp.fftype3,imptypObj_temp.fftype4)
+                    logger.debug(" adding new type to imptypC_p  from ",imptypObj_temp.type, imptypObj_temp.fftype1,imptypObj_temp.fftype2,imptypObj_temp.fftype3,imptypObj_temp.fftype4)
 
                     # Set FF types to read in bond to remove X's 
                     imptypObj_temp.fftype1 = fftype_k
@@ -1109,38 +1058,11 @@ class Calculation(object):
                     impObj_o.gromacs_index = imptypObj_temp.gromacs_index
                     imptypObj_temp.lammps_index = lmptype_p
                     self.paramC.add_imptype(imptypObj_temp,deepcopy = True)
-                    if( debug ):
-                        logger.info(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
-                        logger.info(" len(imptypC_p) ",len(imptypC_p) )
-                        logger.info(" imptypObj_temp.lammps_index  ",imptypObj_temp.lammps_index)
-                        logger.info(" imptypObj_temp.gromacs_index  ",imptypObj_temp.gromacs_index)
+                    logger.debug(" %d Dih parameters were found for dih type %s-%s-%s-%s "%(cnt_check,fftype_k,fftype_i,fftype_j,fftype_l))
+                    logger.debug(" len(imptypC_p) ",len(imptypC_p) )
+                    logger.debug(" imptypObj_temp.lammps_index  ",imptypObj_temp.lammps_index)
+                    logger.debug(" imptypObj_temp.gromacs_index  ",imptypObj_temp.gromacs_index)
 
-        debug = False 
-        if(debug):
-            logger.info(" LJ atom types found %d "%(self.n_ljtypes))
-            for lj_p, ljObj_p  in self.paramC.ljtypes.iteritems(): 
-                logger.info(lj_p,ljObj_p.fftype1,ljObj_p.mass,ljObj_p.epsilon,ljObj_p.sigma)
-            logger.info(" Bond types found %d "%(self.n_bondtypes))
-            for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2,btypObj_p.lammps_index,btypObj_p.gromacs_index)
-            logger.info(" Angle types found %d "%(self.n_angletypes))
-            for atyp_p, atypObj_p  in self.paramC.angletypes.iteritems():
-                logger.info(atyp_p ,atypObj_p.fftype1 ,atypObj_p.fftype2,atypObj_p.fftype3,atypObj_p.lammps_index,atypObj_p.gromacs_index)
-            logger.info(" Dih types found %d "%(self.n_dihtypes))
-            for dtyp_p, dtypObj_p  in self.paramC.dihtypes.iteritems():
-                logger.info(dtyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lammps_index,dtypObj_p.gromacs_index)
-            logger.info(" imp Dih types found %d "%(self.n_imptypes))
-            for imptyp_p, dtypObj_p  in self.paramC.imptypes.iteritems():
-                logger.info(imptyp_p ,dtypObj_p.fftype1 ,dtypObj_p.fftype2,dtypObj_p.fftype3,dtypObj_p.fftype4,dtypObj_p.lammps_index,dtypObj_p.gromacs_index)
-            sys.exit('find_types')
-
-        debug = False 
-        if(debug):
-            logger.info("  All particles should have new type labeled as interger stored as a string ")
-            for pkey_o, particle_o  in self.strucC.particles.iteritems():
-                logger.info(particle_o.ffkey,particle_o.type)
-            for d_o,dihObj_o in dihC_o:
-                logger.info(" lmpindx() g_indx()  ",d_o,dihObj_o.pkey1,dihObj_o.pkey2,dihObj_o.pkey3,dihObj_o.pkey4, dihObj_o.lammps_index ,dihObj_o.gromacs_index )
 
         param_out.close()
 

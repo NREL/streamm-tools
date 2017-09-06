@@ -36,7 +36,7 @@ class TestMPIBase(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
 
-        self.p = mpiBase.getMPIObject(False, localVerbose=False)
+        self.p = mpiBase.getMPIObject()
         # p = mpiBase.getMPIObject(True, localVerbose=True)
     
     def test_bcast(self):

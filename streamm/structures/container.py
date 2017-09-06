@@ -855,9 +855,8 @@ class Container(object):
                 sinprefix12 = -1.0
                 sinprefix21 = 1.0
             else:
-                error_line = "!!! Error in structurContainer.rotate_xz() !!! \n"
-                error_line += "!!! Unknow direction selected {} please select counterclockwise or clockwise !!!".format(direction)
-                sys.exit(error_line)
+                error_line = "!!! Unknow direction selected {} in rotate_xz()  please select counterclockwise or clockwise !!!".format(direction)
+                raise ValueError(error_line)
             
             for pkey_i  in self.particles.keys():
                 self.positions[pkey_i] = Rxzdotv(self.positions[pkey_i],cos_xz,sin_xz,sinprefix12,sinprefix21)
@@ -921,9 +920,8 @@ class Container(object):
                 sinprefix12 = -1.0
                 sinprefix21 = 1.0
             else:
-                error_line = "!!! Error in structurContainer.rotate_xy() !!! \n"
-                error_line += "!!! Unknow direction selected {} please select counterclockwise or clockwise !!!".format(direction)
-                sys.exit(error_line)
+                error_line = "!!! Unknow direction selected {} in rotate_xy() please select counterclockwise or clockwise !!!".format(direction)
+                raise ValueError(error_line)
 
             for pkey_i  in self.particles.keys():
                 self.positions[pkey_i] = Rxydotv(self.positions[pkey_i],cos_xy,sin_xy,sinprefix12,sinprefix21)
@@ -985,9 +983,8 @@ class Container(object):
                 sinprefix12 = -1.0
                 sinprefix21 = 1.0
             else:
-                error_line = "!!! Error in structurContainer.rotate_yz() !!! \n"
-                error_line += "!!! Unknow direction selected {} please select counterclockwise or clockwise !!!".format(direction)
-                sys.exit(error_line)
+                error_line = "!!! Unknow direction selected {} in rotate_yz() please select counterclockwise or clockwise !!!".format(direction)
+                raise ValueError(error_line)
             
             for pkey_i  in self.particles.keys():
                 self.positions[pkey_i] = Ryzdotv(self.positions[pkey_i],cos_yz,sin_yz,sinprefix12,sinprefix21)
@@ -1533,7 +1530,7 @@ class Container(object):
             if( struc_add_cnt ==  n_i  ):
                 if(  rank == 0  ):
                     logging.info(" All structures added with %d particles "%(strucC_new.n_particles))
-                # If all the molecule have been added exit while loop and print system 
+                # If all the molecule have been added break while loop and print system 
                 add_strucC = False
 
 

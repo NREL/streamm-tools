@@ -23,39 +23,39 @@ NOTE: continue to end of this documentation to see short tutorial methods on use
 import os, sys, math, random, time
 
 
+import logging
+logger = logging.getLogger(__name__)
+
 class ParallelMsgr(object):
     """
     Base class defining the interface to parallel communication methods
     """
 
-    def __init__(self, rk, sz, verbose=False):
+    def __init__(self, rk, sz):
         """
         Constructor
 
         Args:
             rk: rank of processor
             sz: size of communicator
-            verbose: flag for printing output info
         """
 
-        # Flag for debug printing
-        self.verbose = verbose
         # Basic comm variables
         self.rank     = rk
         self.commSize = sz
 
-        if (self.verbose and self.rank == 0):
-            print " "
-            print "Base class ParallelMsgr constructor called"
+        if (self.rank == 0):
+            
+            logger.debug("Base class ParallelMsgr constructor called")
 
 
     def __del__(self):
         """
         Destructor
         """
-        if (self.verbose and self.rank == 0):
-            print "ParallelMsgr destructor called"
-            print " "
+        if (self.rank == 0):
+            logger.debug("ParallelMsgr destructor called")
+            
 
 
     def getRank(self):
@@ -82,16 +82,14 @@ class ParallelMsgr(object):
         Must be implemented in derived 
         """
 
-        print "Not implemented in base class"
-        sys.exit(3)
+        raise RuntimeError("Not implemented in base class")
 
     def gatherList(self, data, root=0):
         """
         Must be implemented in derived
         """
 
-        print "gatherList not implemented in base class"
-        sys.exit(3)
+        raise RuntimeError("gatherList not implemented in base class")
 
 
     def reduceSum(self, data, root=0):
@@ -99,8 +97,7 @@ class ParallelMsgr(object):
         Must be implemented in derived
         """
 
-        print "reduceSum not implemented in base class"
-        sys.exit(3)
+        raise RuntimeError("reduceSum not implemented in base class")
 
 
     def allReduceSum(self, data):
@@ -108,8 +105,7 @@ class ParallelMsgr(object):
         Must be implemented in derived
         """
 
-        print "allReduceSum not implemented in base class"
-        sys.exit(3)
+        raise RuntimeError("allReduceSum not implemented in base class")
 
 
     def tupleOfLists2List(self, tup):
@@ -161,11 +157,11 @@ class ParallelMsgr(object):
 
         # Error check or return results
         if len(plist) != parts:
-            print " " 
-            print "Partitioning failed, check data length and #-procs"
-            print "   len(plist) = ", len(plist), " on proc ", self.rank
-            print "        parts = ", parts, " on proc ", self.rank
-            sys.exit(0)
+             
+            error_msg = "Partitioning failed, check data length and #-procs"
+            error_msg += "   len(plist) = {} on proc {}".format(self.rank, len(plist))
+            error_msg += "        parts = {} on proc {}".format(parts, self.rank)
+            raise RuntimeError(error_msg)
         else:
             return plist[self.rank]
 
@@ -176,7 +172,7 @@ class MsgrBoost(ParallelMsgr):
     Boost MPI libraries
     """
 
-    def __init__(self, commObj, verbose=False):
+    def __init__(self, commObj):
         """
         Constructor
         """
@@ -188,19 +184,17 @@ class MsgrBoost(ParallelMsgr):
         self.world = commObj.world
 
         # Ensuring base class called
-        ParallelMsgr.__init__(self, self.rank, self.size, verbose)
+        ParallelMsgr.__init__(self, self.rank, self.size)
 
         # Flag for debug printing
-        self.verbose = verbose
-        if (self.verbose and self.rank == 0):
-            print "Derived class MsgrBoost constructor called"
+        if (self.rank == 0):
+            logger.debug("Derived class MsgrBoost constructor called")
 
-        if (self.verbose):
-            for proc in range(self.size):
-                if proc == self.rank:
-                    print "I am process %d of %d." % (self.rank, self.size)
-                self.barrier()
+        for proc in range(self.size):
+            if proc == self.rank:
+                logger.debug("I am process %d of %d." % (self.rank, self.size))
             self.barrier()
+        self.barrier()
 
 
     def bcast(self, data, root=0):
@@ -260,7 +254,7 @@ class MsgrMpi4py(ParallelMsgr):
     Mpi4py libraries
     """
 
-    def __init__(self, commObj, verbose=False):
+    def __init__(self, commObj):
         """
         Constructor
         """
@@ -272,19 +266,16 @@ class MsgrMpi4py(ParallelMsgr):
         self.size = self.comm.Get_size()
 
         # Ensuring base class called
-        ParallelMsgr.__init__(self, self.rank, self.size, verbose)
+        ParallelMsgr.__init__(self, self.rank, self.size)
 
-        # Flag for debug printing
-        self.verbose = verbose
-        if (self.verbose and self.rank == 0):
-            print "Derived class MsgrMPI4PY constructor called"
+        if (self.rank == 0):
+            logger.debug("Derived class MsgrMPI4PY constructor called")
             
-        if (self.verbose):
-            for proc in range(self.size):
-                if proc == self.rank:
-                    print "I am process %d of %d." % (self.rank, self.size)
-                self.barrier()
+        for proc in range(self.size):
+            if proc == self.rank:
+                logger.debug("I am process %d of %d." % (self.rank, self.size))
             self.barrier()
+        self.barrier()
 
 
     def bcast(self, localData, root=0):
@@ -341,7 +332,7 @@ class MsgrSerial(ParallelMsgr):
     no MPI (serial) libraries
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self):
         """
         Constructor
         """
@@ -349,12 +340,7 @@ class MsgrSerial(ParallelMsgr):
         self.size = 1
 
         # Ensuring base class called
-        ParallelMsgr.__init__(self, self.rank, self.size, verbose)
-
-        # Flag for debug printing
-        self.verbose = verbose
-        if (self.verbose and self.rank == 0):
-            print "Derived class MsgrSerial constructor called"
+        ParallelMsgr.__init__(self, self.rank, self.size)
 
 
     def bcast(self, data, root=0):
@@ -396,9 +382,17 @@ class MsgrSerial(ParallelMsgr):
 
 
 
+def getMPISerialObject():
+    """
+    Driver for comm classes.
+    Forces serial MPI-comm module
 
+    Returns: an mpi serial object
+    """
+    mpiObj = MsgrSerial()
+    return mpiObj
 
-def getMPIObject(verbose=False, localVerbose=False):
+def getMPIObject():
     """
     Driver for comm classes.
     Selects MPI-comm module if found and builds appropriate derived class
@@ -409,9 +403,9 @@ def getMPIObject(verbose=False, localVerbose=False):
     mpiObj=None
     try:
         from mpi4py import MPI as mpi
-        mpiObj = MsgrMpi4py(mpi, verbose)
-        if (mpiObj.getRank()==0 and localVerbose):
-            print "Found mpi4py module \n"
+        mpiObj = MsgrMpi4py(mpi)
+        if (mpiObj.getRank()==0 ):
+            logger.info("Found mpi4py module \n")
         mpiObj.barrier()
     except:
         pass
@@ -419,28 +413,18 @@ def getMPIObject(verbose=False, localVerbose=False):
     if (mpiObj == None):
         try:
             import boost.mpi as mpi
-            mpiObj = MsgrBoost(mpi, verbose)
-            if (mpiObj.getRank()==0 and localVerbose):
-                print "Found boost.mpi module \n"
+            mpiObj = MsgrBoost(mpi)
+            if (mpiObj.getRank()==0 ):
+                logger.info("Found boost.mpi module \n")
             mpiObj.barrier()
         except:
             pass
 
     if ( mpiObj == None):
-        mpiObj = MsgrSerial(verbose)
-        if( verbose ):
-            print "No mpi module found, will use serial. \n"
+        mpiObj = MsgrSerial()
+        logger.info("No mpi module found, will use serial. \n")
 
     return mpiObj
 
 
-def getMPISerialObject(verbose=True):
-    """
-    Driver for comm classes.
-    Forces serial MPI-comm module
-
-    Returns: an mpi serial object
-    """
-    mpiObj = MsgrSerial(verbose)
-    return mpiObj
 

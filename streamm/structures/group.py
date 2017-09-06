@@ -371,7 +371,8 @@ class Group(object):
                 
                 if( len(r_ij_array) != NNAB_i ):
                     error_line = " len(r_ij_array) {} != NNAB_i {} in groups.hterm() ".format(len(r_ij_array),NNAB_i)
-                    sys.exit(error_line)
+                    error_line += 'Number of neighbor in bonded_nblist does not match list of neighbor positions '
+                    raise RuntimeError(error_line)
                     
                 print ">hterm_group",NNAB_o,dB 
                 
@@ -538,8 +539,7 @@ class Group(object):
                     error_line =  " Nubmer of missing atoms %d has yet to be accounted for in groups.hterm \n"%(dB)
                     error_line +=  " {} -> {}".format(NNAB_o,NNAB_i)
                     Htermed.write_xyz("hterm_failed.xyz")
-                    logger.warning(error_line)
-                    sys.exit(error_line)
+                    raise RuntimeError(error_line)
                     
                 # Redo neighbor list
                 # Htermed.bonded_nblist.build_nblist(Htermed.particles,Htermed.bonds )
@@ -615,8 +615,7 @@ class Container(object):
         """
         supported_group_props = ['mol','residue']
         if( prop not in supported_group_props):
-            logger.warning(" Unsupported property selection for groups %s "%( prop))
-            sys.exit(2)        
+            raise ValueError(" Unsupported property selection for groups %s "%( prop))
 
         if( len(particles_select) == 0 ):
             particles_select = self.strucC.particles.keys()
