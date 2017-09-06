@@ -47,7 +47,7 @@ from streamm.calculations.resource import Resource
 
 import streamm.util.replicate as replicate
 
-from streamm_testutil import * 
+from streamm_testutil import *
 
 class TestReplicate(unittest.TestCase):
     # 
