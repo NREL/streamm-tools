@@ -48,6 +48,7 @@ from streamm.calculations.resource import Resource
 HOME_DIR = os.getcwd()
 RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
 TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+
 TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
     
 
