@@ -246,7 +246,7 @@ class Test_Thiophene(unittest.TestCase):
         self.calc_i = LAMMPS(tag_i)
         self.calc_i.load_json()
         # Clean up files 
-        os.remove(self.calc_i.files['data']['json'])
+
 
     @tearDown_streamm
     def tearDown(self):
@@ -257,6 +257,6 @@ class Test_Thiophene(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

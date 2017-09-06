@@ -45,15 +45,16 @@ import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
 
-TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
+
+
+
     
 
 class TestProject(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
 
 
@@ -345,18 +346,19 @@ class TestProject(unittest.TestCase):
         self.proj_i = Project(tag_i)
         self.proj_i.load_json()
         # Clean up files 
-        os.remove(self.proj_i.files['data']['json'])
+
     
     def test_check(self):
         self.proj_i.check()
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.proj_i
         
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                    
         

@@ -32,11 +32,10 @@ import streamm.structures.particle as particle
 import streamm.calculations.calculation as calculation
        
 from streamm_testutil import * 
-
-    
     
 class TestAddStruc(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
 
         self.Th = BBCont('thiophene')
@@ -64,12 +63,12 @@ class TestAddStruc(unittest.TestCase):
         self.Th.find_rsites()
     
     
-        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th.tag)
-        self.Th.write_xyz(file_i)
+
+        self.Th.write_xyz()
         
         self.calc = calculation.Calculation("calc001")
         
-        os.remove(file_i)
+
 
     def test_tag(self):
         
@@ -102,7 +101,7 @@ class TestAddStruc(unittest.TestCase):
         del self.calc
         self.calc = calculation.Calculation("calc001")
         self.calc.load_json()
-        os.remove('calc_calc001.json')
+
         
 
     def test_readxyz(self):
@@ -112,19 +111,19 @@ class TestAddStruc(unittest.TestCase):
         file_name = "thiophene.xyz"
         self.calc_i.add_file(file_type,file_key,file_name)
         # os.chdir(os.path.dirname(__file__))
-        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th.tag)
-        self.calc_i.strucC.write_xyz(file_i)
+
+        self.calc_i.strucC.write_xyz()
         
         self.struc_i = BBCont()
-        input_file = os.path.join(TEST_DIR,self.calc_i.files['input']['xyz'])
-        self.struc_i.read_xyz(input_file)
+        
+        self.struc_i.read_xyz(file_name)
         self.struc_i.lat_cubic(10.0)
         self.struc_i.bonded_nblist = self.struc_i.guess_nblist(0,radii_buffer=1.25)
         
         
 
         # Set up log file 
-        log_file = os.path.join(TEST_DIR, "%s.log"%self.calc_i.tag)
+        log_file = "calc_{}.log".format(self.struc_i.tag)
         self.calc_i.add_file('output','log',log_file)
         
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -136,9 +135,10 @@ class TestAddStruc(unittest.TestCase):
         units = 'Angstroms'
         self.calc_i.units[prop] = units
         logger.info(" Setting prop %s to units %s "%(prop,units))
-        os.remove(log_file)
-        os.remove(file_i)
 
+
+
+    @tearDown_streamm 
     def tearDown(self):
         del self.calc
         del self.Th

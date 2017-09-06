@@ -31,12 +31,13 @@ def setUp_streamm(func):
 def tearDown_streamm(func):
     @wraps(func)
     def wrapper_function(*args,**kwargs):
-        for calc_dir_name in ['materials','storage','scripts','scratch']:
+        os.chdir(TEST_DIR)
+        for calc_dir_name in ['materials','storage','scripts','scratch','templates']:
             dir_path = os.path.join(TEST_DIR,calc_dir_name)
-            if( os.path.isdir(dir_path) ):
+            if( os.path.isdir(calc_dir_name) ):
                 shutil.rmtree(dir_path)
 
-        for sufix in ["*.json","*.log",".*xyz","*.csv","*.pkl"]:
+        for sufix in ["*.json","*.log","*.xyz","*.csv","*.pkl"]:
             files = glob.glob(sufix)
             for fl_name in files:
                 os.remove(os.path.join(TEST_DIR,fl_name))

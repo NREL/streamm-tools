@@ -27,10 +27,31 @@ done
 
 rm temp.py
 
-for d in "buildingblocks" "forcefields" "mpi" "structures" "util";
+
+
+for t in test_*py
+do
+    echo $t
+
+    mv $t  temp.py
+    sed 's/file_i//'  temp.py > $t    
+done
+
+for t in test_*py
+do
+    echo $t
+
+    mv $t  temp.py
+    sed 's/.*os.remove.*//'  temp.py > $t    
+done
+
+
+
+
+for d in "buildingblocks" "forcefields" "mpi" "calculations" "util";
 do
 echo $d;
-cp calculations/tests/streamm_testutil.py  ${d}/tests/
+cp structures/tests/streamm_testutil.py  ${d}/tests/
 git add ${d}/tests/*py
     
 done

@@ -21,9 +21,6 @@ import streamm.structures.particle as particle
 
 from streamm_testutil import *
 
-
-
-    
 class TestParticle(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
@@ -57,7 +54,6 @@ class TestParticle(unittest.TestCase):
     @tearDown_streamm 
     def tearDown(self):
         del self.part 
-        self.part = None
 
 
 class TestParticleAtom(unittest.TestCase):
