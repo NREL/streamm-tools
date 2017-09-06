@@ -30,12 +30,12 @@ def setUp_streamm(func):
           
 def tearDown_streamm(func):
     @wraps(func)
-    def wrapper_function(*args,**kwargs):        
-        shutil.rmtree(os.path.join(TEST_DIR,'materials'))
-        shutil.rmtree(os.path.join(TEST_DIR,'storage'))
-        shutil.rmtree(os.path.join(TEST_DIR,'scripts'))
-        shutil.rmtree(os.path.join(TEST_DIR,'scratch'))
-        
+    def wrapper_function(*args,**kwargs):
+        for calc_dir_name in ['materials','storage','scripts','scratch']:
+            dir_path = os.path.join(TEST_DIR,calc_dir_name)
+            if( os.path.isdir(dir_path) ):
+                shutil.rmtree(dir_path)
+
         for sufix in ["*.json","*.log",".*xyz","*.csv","*.pkl"]:
             files = glob.glob(sufix)
             for fl_name in files:

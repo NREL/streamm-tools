@@ -26,3 +26,10 @@ sed 's/    def tearDown/    @tearDown_streamm \
 done
 
 rm temp.py
+
+for d in "buildingblocks" "forcefields" "mpi" "structures" "util";
+do
+echo $d;
+    
+done
+cp 
