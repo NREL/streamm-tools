@@ -29,17 +29,13 @@ from streamm.buildingblocks.container import Container as BBCont
 import streamm.structures.particle as particle
 
 
-try:
-    import streamm.calculations.calculation as calculation
-            
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import calculation
-    
+import streamm.calculations.calculation as calculation
+       
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+
     
 PRECISION = 4
     
@@ -71,9 +67,13 @@ class TestAddStruc(unittest.TestCase):
         self.Th.bonded_nblist = self.Th.guess_nblist(0,radii_buffer=1.25)
         self.Th.find_rsites()
     
-        self.Th.write_xyz()
+    
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th.tag)
+        self.Th.write_xyz(file_i)
+        
         self.calc = calculation.Calculation("calc001")
         
+        os.remove(file_i)
 
     def test_tag(self):
         
@@ -106,6 +106,7 @@ class TestAddStruc(unittest.TestCase):
         del self.calc
         self.calc = calculation.Calculation("calc001")
         self.calc.load_json()
+        os.remove('calc_calc001.json')
         
 
     def test_readxyz(self):
@@ -115,6 +116,9 @@ class TestAddStruc(unittest.TestCase):
         file_name = "thiophene.xyz"
         self.calc_i.add_file(file_type,file_key,file_name)
         # os.chdir(os.path.dirname(__file__))
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th.tag)
+        self.calc_i.strucC.write_xyz(file_i)
+        
         self.struc_i = BBCont()
         input_file = self.calc_i.files['input']['xyz']
         self.struc_i.read_xyz(input_file)
@@ -124,7 +128,7 @@ class TestAddStruc(unittest.TestCase):
         
 
         # Set up log file 
-        log_file = "%s.log"%self.calc_i.tag
+        log_file = os.path.join(TEST_DIR, "%s.log"%self.calc_i.tag)
         self.calc_i.add_file('output','log',log_file)
         
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -136,7 +140,8 @@ class TestAddStruc(unittest.TestCase):
         units = 'Angstroms'
         self.calc_i.units[prop] = units
         logger.info(" Setting prop %s to units %s "%(prop,units))
-        
+        os.remove(log_file)
+        os.remove(file_i)
 
     def tearDown(self):
         del self.calc
@@ -144,6 +149,7 @@ class TestAddStruc(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()        
-        
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         

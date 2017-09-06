@@ -15,17 +15,14 @@ logger = logging.getLogger(__name__)
 import unittest
 import numpy as np
 import numpy.testing.utils as nptu
+import os
 
-try:
-    import streamm.structure.lattice as lattice
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import lattice
-    
+import streamm.structures.lattice as lattice
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+
     
 class TestLattice(unittest.TestCase):
     def setUp(self):
@@ -355,6 +352,8 @@ class TestLattice(unittest.TestCase):
         self.lat = None
 
 if __name__ == '__main__':
-    unittest.main()
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
-        
+                

@@ -19,18 +19,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
+import os
 
-try:
-    import streamm.forcefield.angletype as angletype
+import streamm.forcefields.angletype as angletype
             
-    
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import angletype
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
 
 class Testangletype(unittest.TestCase):
     def setUp(self):
@@ -48,7 +44,8 @@ class Testangletype(unittest.TestCase):
 
     
 if __name__ == '__main__':
-    unittest.main()
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
                 
-

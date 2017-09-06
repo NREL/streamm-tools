@@ -12,7 +12,7 @@ __status__ = "Beta"
 
 
 '''
-Unit tests for the particles module
+Unit tests for the lammps module
 '''
 
 import logging
@@ -37,7 +37,14 @@ import streamm.forcefields.imptype as imptype
 
 from streamm.calculations.resource import Resource
 
-TEMPLATE_PATH = '../../../templates/'
+import shutil
+
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
+    
 
 class Test_Thiophene(unittest.TestCase):
     # 
@@ -252,7 +259,16 @@ class Test_Thiophene(unittest.TestCase):
         del self.calc_i         
         del self.Th         
 
+        shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
+
+
 
 if __name__ == '__main__':
-    unittest.main()        
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
+        
                 

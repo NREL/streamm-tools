@@ -12,7 +12,7 @@ __status__ = "Beta"
 
 
 '''
-Unit tests for the particles module
+Unit tests for the gaussian module
 '''
 
 import logging
@@ -23,7 +23,7 @@ import os
 import numpy as np
 import random
 import numpy.testing.utils as nptu
-
+import shutil
 
 from streamm.calculations.gaussian import Gaussian
 from streamm.buildingblocks.container import Container as BBCont
@@ -32,8 +32,10 @@ import streamm.structures.particle as particle
 from streamm.calculations.resource import Resource
 
 
-
-TEMPLATE_PATH = '../../../templates/'
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
     
 
 class Test_Gaussian(unittest.TestCase):
@@ -137,9 +139,17 @@ class Test_Gaussian(unittest.TestCase):
     def tearDown(self):
         del self.calc_i         
         del self.Th
+        
+        shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
+        shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
 
 
 
 if __name__ == '__main__':
-    unittest.main()        
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
+        
                 

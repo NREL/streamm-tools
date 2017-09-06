@@ -27,6 +27,10 @@ import numpy.testing.utils as nptu
 
 import streamm.mpi.mpiBase as mpiBase 
 
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+
+
 class TestMPIBase(unittest.TestCase):
     # 
     def setUp(self):
@@ -67,5 +71,8 @@ class TestMPIBase(unittest.TestCase):
         del self.p         
 
 if __name__ == '__main__':
-    unittest.main()        
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
+                

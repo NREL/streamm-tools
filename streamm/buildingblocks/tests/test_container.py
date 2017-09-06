@@ -27,22 +27,17 @@ import os
 import streamm.structures.particle as particle
 import streamm.structures.dihedral as dihedral
 
-try:
-    import streamm.buildingblocks.container as container
+import streamm.buildingblocks.container as container
 
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import container
-
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
 
 class Test_attach(unittest.TestCase):
 
     def setUp(self):
         
+                                            
         self.Th = container.Container('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
@@ -168,8 +163,9 @@ class Test_attach(unittest.TestCase):
         self.assertEqual(Xkey_i,3)
         
     def test_attachprpe(self):
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.Th.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th.tag)
         self.Th.write_xyz(file_i)
+        os.remove(file_i)
         
         self.Th2 = copy.deepcopy(self.Th)
         
@@ -181,10 +177,12 @@ class Test_attach(unittest.TestCase):
         self.bb_j.tag += "_"
         
 
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_i.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bb_i.tag)
         self.bb_i.write_xyz(file_i)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_j.tag)
+        os.remove(file_i)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bb_j.tag)
         self.bb_j.write_xyz(file_i)
+        os.remove(file_i)
 
         self.bbC_i,self.bbC_j =  container.shiftprep(self.bb_i,self.bb_j )
         self.overlap_found =  container.checkprep(self.bb_i,self.bb_j )
@@ -195,8 +193,9 @@ class Test_attach(unittest.TestCase):
         self.Th2_Th =  container.attachprep(self.bbC_i,self.bbC_j )
         self.Th2_Th.tag = self.bb_i.tag + self.bb_j.tag + "v2"
         self.Th2_Th.lat_cubic(100.0)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.Th2_Th.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th2_Th.tag)
         self.Th2_Th.write_xyz(file_i)
+        os.remove(file_i)
                 
                 
 
@@ -242,14 +241,16 @@ class Test_attach(unittest.TestCase):
 
     def test_cat1(self):
         self.bblockC_p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htn1.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_p3htn1.tag)
         self.bblockC_p3htn1.write_xyz(file_i)
+        os.remove(file_i)
 
     def test_cat2(self):
 
         self.bblockC_ptn2 = container.attach(self.Th,self.Th,"TH",0,"TH",1,tag = "P3HT_n1")
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_ptn2.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_ptn2.tag)
         self.bblockC_ptn2.write_xyz(file_i)
+        os.remove(file_i)
 
         
     def test_cat3(self):
@@ -267,14 +268,16 @@ class Test_attach(unittest.TestCase):
         self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.Hx,"TH",0,"R",0)
         
         self.bblockC_p3htnX.tag = "P3HT_nX"
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bblockC_p3htnX.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_p3htnX.tag)
         self.bblockC_p3htnX.write_xyz(file_i)
+        os.remove(file_i)
         
     def test_p3ht_nX(self):
 
         self.p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0)
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.p3htn1.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.p3htn1.tag)
         self.p3htn1.write_xyz(file_i)
+        os.remove(file_i)
         
         # Create a xN membered chain
         xN = 5
@@ -287,9 +290,9 @@ class Test_attach(unittest.TestCase):
             self.bb_p3ht_nX = container.attach(self.bb_p3ht_nX,self.p3htn1,"TH",0,"TH",1,tag="p3ht_n%d"%(n))
 
         # Print xyz file and cply file 
-        file_i = os.path.join(os.path.dirname(__file__), "%s.xyz"%self.bb_p3ht_nX.tag)
+        file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bb_p3ht_nX.tag)
         self.bb_p3ht_nX.write_xyz(file_i)
-        
+        os.remove(file_i)
 
     def tearDown(self):
         del self.Th
@@ -298,5 +301,7 @@ class Test_attach(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         

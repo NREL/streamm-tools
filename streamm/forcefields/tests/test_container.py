@@ -19,29 +19,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
+import os
 
-try:
-    import streamm.forcefields.conatiner as conatiner
-    import streamm.forcefields.particletype as particletype
-    import streamm.forcefields.bondtype as bondtype
-    import streamm.forcefields.angletype as angletype
-    import streamm.forcefields.dihtype as dihtype
-    import streamm.forcefields.imptype as imptype
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import container
-    import particletype
-    import bondtype
-    import angletype
-    import dihtype
-    import imptype
+import streamm.forcefields.container as container
+import streamm.forcefields.particletype as particletype
+import streamm.forcefields.bondtype as bondtype
+import streamm.forcefields.angletype as angletype
+import streamm.forcefields.dihtype as dihtype
+import streamm.forcefields.imptype as imptype
+                        
+                        
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
 
-
-                                  
 class TestParameter(unittest.TestCase):
     def setUp(self):
         self.paramC = container.Container()
@@ -58,7 +49,7 @@ class TestParameter(unittest.TestCase):
         self.particletype_i.sigma = 4.15
         self.paramC.add_particletype(self.particletype_i)
         particle_str.append(' Ir epsilon:2.35 sigma:4.15')
-    	self.particletype_i = particletype.Particletype('C*')
+        self.particletype_i = particletype.Particletype('C*')
         self.particletype_i.epsilon = 1.05
         self.particletype_i.sigma = 3.25
         self.paramC.add_particletype(self.particletype_i)
@@ -144,9 +135,9 @@ class TestParameter(unittest.TestCase):
         self.paramC = None
 
 
-
 if __name__ == '__main__':
-    unittest.main()
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
                 
-

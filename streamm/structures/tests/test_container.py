@@ -24,33 +24,23 @@ import numpy as np
 import random
 import numpy.testing.utils as nptu
 
-try:
-    import streamm.structures.container as container
-            
-    import streamm.structures.lattice as lattice
-    import streamm.structures.nblist as nblist
-    
-    import streamm.structures.particle as particle
-    import streamm.structures.bond as bond
-    import streamm.structures.angle as angle
-    import streamm.structures.dihedral as dihedral
-    import streamm.structures.improper as improper
-    
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    rel_path = os.path.join(os.path.dirname(__file__),'..','')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    import container
-    import lattice
-    import nblist
-    import particle
-    import bond 
-    import angle
-    import dihedral 
-    import improper
-    
+
+import streamm.structures.container as container
+        
+import streamm.structures.lattice as lattice
+import streamm.structures.nblist as nblist
+
+import streamm.structures.particle as particle
+import streamm.structures.bond as bond
+import streamm.structures.angle as angle
+import streamm.structures.dihedral as dihedral
+import streamm.structures.improper as improper
+   
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+
 
 class TestContainer(unittest.TestCase):
     def setUp(self):
@@ -936,7 +926,10 @@ class TestProximityCheck(unittest.TestCase):
         
         
 
+    
 if __name__ == '__main__':
-    unittest.main()
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
                 

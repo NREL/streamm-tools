@@ -30,6 +30,12 @@ import streamm.calculations.resource as resource
 from streamm.buildingblocks.container import Container as BBCont
 import streamm.structures.particle as particle
     
+
+
+HOME_DIR = os.getcwd()
+RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
+TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+
 PRECISION = 4
 
 class TestResource(unittest.TestCase):
@@ -151,6 +157,7 @@ class TestAddStruc(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()        
-        
+    os.chdir(TEST_DIR)
+    unittest.main()    
+    os.chdir(HOME_DIR)
         
