@@ -24,11 +24,12 @@ import os
 import streamm.forcefields.bondtype as bondtype
             
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
     
 class Testbondtype(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.bondtype_i = bondtype.Bondtype("C","H")
         self.bondtype_i.r0 = 0.56
@@ -45,11 +46,12 @@ class Testbondtype(unittest.TestCase):
         
         
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.bondtype_i 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         

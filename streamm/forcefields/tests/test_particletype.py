@@ -23,12 +23,13 @@ import os
 
 import streamm.forcefields.particletype as particletype
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
     
 class Test_FFparticle(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.ff = particletype.Particletype("CC")
         self.ff.epsilon = 1.05
@@ -43,14 +44,15 @@ class Test_FFparticle(unittest.TestCase):
         self.assertEqual(self.ff.epsilon,1.05)
         self.assertEqual(self.ff.sigma,3.25)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.ff 
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
 

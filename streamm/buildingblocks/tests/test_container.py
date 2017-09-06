@@ -33,6 +33,7 @@ from streamm_testutil import *
 
 class Test_attach(unittest.TestCase):
 
+    @setUp_streamm 
     def setUp(self):
         
                                             
@@ -292,6 +293,7 @@ class Test_attach(unittest.TestCase):
         self.bb_p3ht_nX.write_xyz(file_i)
         os.remove(file_i)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.Th
         del self.Hx

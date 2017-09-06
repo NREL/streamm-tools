@@ -23,13 +23,14 @@ import os
 
 import streamm.forcefields.dihtype as dihtype
             
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 
 class Testdihtypeharmonic(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="harmonic")
         self.dihtype_i.d = 4.0
@@ -42,12 +43,14 @@ class Testdihtypeharmonic(unittest.TestCase):
         dih_str = ' dihedral  HC - CH - CH - HC type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theat_s = 45.000000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.dihtype_i 
         self.dihtype_i = None
 
 
 class Testdihtypemultiharmonic(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="multiharmonic")
         self.dihtype_i.d = 4.0
@@ -60,12 +63,14 @@ class Testdihtypemultiharmonic(unittest.TestCase):
         dih_str = ' dihedral  HC - CH - CH - HC type multiharmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theat_s = 45.000000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.dihtype_i 
         self.dihtype_i = None
 
 
 class Testdihtypeopls(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="opls")
         self.dihtype_i.setopls(14.0,1.0,45.0,100.0)
@@ -79,11 +84,13 @@ class Testdihtypeopls(unittest.TestCase):
         dih_str = ' dihedral  HC - CH - CH - HC type rb \n  C0 = 30.500000  C1 = 60.500000 C2 = 179.000000 C3 = -90.000000 C4 = -400.000000  C5 = 0.000000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
                 
+    @tearDown_streamm 
     def tearDown(self):
         del self.dihtype_i 
         self.dihtype_i = None
 
 class Testdihtyperb(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="rb")        
         self.dihtype_i.setrb(0.1,23.4,73.1,32.5,66.7,55.0)        
@@ -98,15 +105,16 @@ class Testdihtyperb(unittest.TestCase):
         dih_str = ' dihedral  HC - CH - CH - HC type opls \n  k1 = -95.550000 k2 = -139.800000 k3 = -16.250000 k4 = -16.675000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.dihtype_i 
         self.dihtype_i = None
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
 

@@ -24,11 +24,12 @@ import os
 import streamm.forcefields.angletype as angletype
             
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 class Testangletype(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.angletype_i = angletype.Angletype("HC","CH","HC")
         self.angletype_i.theta0 = 120.0
@@ -38,14 +39,15 @@ class Testangletype(unittest.TestCase):
         angle_str = ' angle  HC - CH - HC type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromcas index 0  '
         self.assertEqual(str(self.angletype_i),angle_str)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.angletype_i 
         self.angletype_i = None
 
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
