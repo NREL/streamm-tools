@@ -3,7 +3,7 @@
 Installation Instructions
 *************************
 
-
+The streamm package is writen for python2.7 
 
 pip
 ===

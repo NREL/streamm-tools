@@ -19,8 +19,7 @@ try:
     # Import pymatgen Class 
     import pymatgen.core.periodic_table as periodictable
 except:
-    logger.warning("pymatgen import error for Lattice object")
-    exit()
+    raise ImportError("pymatgen import error for periodic_table object")
     
 ATOMIC_MASS_PRECISION = 0
 

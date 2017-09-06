@@ -24,7 +24,7 @@ try:
     import pymatgen.core.periodic_table as pymatgen_pt
     import pymatgen.core.units as units
 except:
-    logger.warning("pymatgen import error for periodic_table object")
+    raise ImportError("pymatgen import error for periodic_table object")
 
 
 from streamm.buildingblocks.container import Container as BBCont
@@ -749,7 +749,6 @@ class Calculation(object):
                 all_j = dtypObj_all.fftype3
                 all_l = dtypObj_all.fftype4
                 logger.info(" all types in parameters ",all_k,all_i,all_j,all_l,dtypObj_all.type)
-                #sys.exit("  type check debug ")
 
         imp_cnt = 0 
         for d_o,dihObj_o in self.strucC.dihedrals.iteritems():

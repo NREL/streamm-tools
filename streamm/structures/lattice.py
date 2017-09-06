@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 try:
     from pymatgen.core.lattice import Lattice as pymatgen_lat
 except:
-    logger.warning("pymatgen import error for Lattice object")
-    exit()
+    raise ImportError("pymatgen import error for periodic_table object")
     
 import numpy as np 
 import random

@@ -31,7 +31,7 @@ try:
     # Import pymatgen Class 
     import pymatgen.core.periodic_table as pymatgen_pt
 except:
-    logger.warning("pymatgen import error for periodic_table object")
+    raise ImportError("pymatgen import error for periodic_table object")
 
 # Import streamm dependencies 
 from streamm.structures.lattice import Lattice 

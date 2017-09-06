@@ -24,36 +24,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-try:
-    # Import streamm dependstructures.encies
-    from streamm.structures.container import Container as strucCont
-    # from streamm.structures.container import Container
-    from streamm.structures.lattice import Lattice 
-    from streamm.structures.nblist import NBlist 
-    
-    from streamm.structures.particle import Particle
-    from streamm.structures.bond import Bond 
-    from streamm.structures.angle import Angle
-    from streamm.structures.dihedral import Dihedral
-    from streamm.structures.improper import Improper
+# Import streamm dependstructures.encies
+from streamm.structures.container import Container as strucCont
+# from streamm.structures.container import Container
+from streamm.structures.lattice import Lattice 
+from streamm.structures.nblist import NBlist 
 
-except:
-    print("streamm is not installed test will use relative path")
-    import sys, os
-    
-    rel_path = os.path.join(os.path.dirname(__file__),'..')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    
-    # from bbatom import BBatom
- 
-    rel_path = os.path.join(os.path.dirname(__file__),'..','structure')
-    print("rel_path {}".format(rel_path))
-    sys.path.append(rel_path)
-    
-    from container import Container as strucCont
-    from bond import Bond 
-    from nblist import NBlist 
+from streamm.structures.particle import Particle
+from streamm.structures.bond import Bond 
+from streamm.structures.angle import Angle
+from streamm.structures.dihedral import Dihedral
+from streamm.structures.improper import Improper
+
 
 
 class Attachment(object):
