@@ -259,11 +259,6 @@ class Test_Thiophene(unittest.TestCase):
         del self.calc_i         
         del self.Th         
 
-        shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
-
 
 
 if __name__ == '__main__':

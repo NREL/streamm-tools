@@ -335,6 +335,8 @@ class TestProject(unittest.TestCase):
         del self.calc_i         
     
 
+
+
     def test_writejson(self):
         self.proj_i.dump_json()
         tag_i = self.proj_i.tag
@@ -350,13 +352,6 @@ class TestProject(unittest.TestCase):
     def tearDown(self):
         del self.proj_i
         
-        shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
-
-
-
 if __name__ == '__main__':
     os.chdir(TEST_DIR)
     unittest.main()    

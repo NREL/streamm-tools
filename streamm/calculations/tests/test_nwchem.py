@@ -145,16 +145,16 @@ class Test_nwcheminput(unittest.TestCase):
         del self.Th         
 
 
-        shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
-        shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
-
-
-
 if __name__ == '__main__':
     os.chdir(TEST_DIR)
-    unittest.main()    
+    unittest.main()
+    
+
+    shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
+    shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
+    shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
+    shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
+    
     os.chdir(HOME_DIR)
         
                 

@@ -23,7 +23,8 @@ import unittest
 import copy 
 import math
 import sys
-import os 
+import os
+import shutil
 
 import streamm.calculations.calculation as calculation
 import streamm.calculations.resource as resource 
@@ -149,6 +150,9 @@ class TestAddStruc(unittest.TestCase):
         self.calc_i.compress_dirfiles(file_type,from_dirkey)
         file_name = self.calc_i.files[file_type][self.calc_i.properties['comp_key']]
         self.calc_i.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
+        
+        os.chdir(self.calc_i.dir['home'])
+
         
 
     def tearDown(self):
