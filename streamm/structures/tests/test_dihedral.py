@@ -24,11 +24,12 @@ import os
 import streamm.structures.dihedral as dihedral
 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 class TestDihedral(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.dih_i = dihedral.Dihedral(2,0,1,5)
         
@@ -36,14 +37,15 @@ class TestDihedral(unittest.TestCase):
         dih_str = ' 2 - 0 - 1 - 5'
         self.assertEqual(str(self.dih_i),dih_str)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.dih_i 
 
 
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

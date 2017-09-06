@@ -17,12 +17,13 @@ import os
 
 import streamm.structures.nblist as nblist
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
     
 class Test_NBlist(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.nblist = nblist.NBlist()
         
@@ -109,13 +110,14 @@ class Test_NBlist(unittest.TestCase):
             self.assertEqual(len(nblist_i),self.nnab_check[pkey])
             
             
+    @tearDown_streamm 
     def tearDown(self):
         del self.nblist 
 
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

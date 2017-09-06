@@ -37,12 +37,13 @@ import streamm.structures.dihedral as dihedral
 import streamm.structures.improper as improper
    
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 
 class TestContainer(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.strucC = container.Container("Test_structure1")
         
@@ -339,6 +340,7 @@ class TestContainer(unittest.TestCase):
         self.assertEqual(pos_j[1],5.50)
         self.assertEqual(pos_j[2],5.50)
                 
+    @tearDown_streamm 
     def tearDown(self):
         del self.strucC 
         self.strucC = None
@@ -347,6 +349,7 @@ class TestContainer(unittest.TestCase):
 
 class Test_guessnbs(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
         
         self.strucC = container.Container()
@@ -383,12 +386,14 @@ class Test_guessnbs(unittest.TestCase):
                  self.assertEqual(str_nbs_list[cnt],' %d - %d'%(pkey_i,pkey_j) )
                  cnt += 1
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.strucC 
         self.strucC = None
 
 class TestBuildThiophene(unittest.TestCase):
 
+    @setUp_streamm 
     def setUp(self):
         
         self.strucC = container.Container('thiophene')
@@ -733,11 +738,13 @@ class TestBuildThiophene(unittest.TestCase):
             self.assertEqual(part_xyz[pkey_i],particle_line)
             # print " part_xyz.append(\'",particle_line,"\')"
         #                 
+    @tearDown_streamm 
     def tearDown(self):
         del self.strucC 
 
 class TestBuildEthane(unittest.TestCase):
 
+    @setUp_streamm 
     def setUp(self):
         
         self.Eth = container.Container('ethane')
@@ -761,11 +768,13 @@ class TestBuildEthane(unittest.TestCase):
         # NoteTK os.chdir(os.path.dirname(__file__))
         self.Eth.write_xyz()
                     
+    @tearDown_streamm 
     def tearDown(self):
         del self.Eth 
             
 class Testiadd(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
         self.strucC = container.Container()
         self.strucC_j = container.Container()
@@ -824,6 +833,7 @@ class Testiadd(unittest.TestCase):
                 self.assertEqual(str_nbs_list[cnt],' %d - %d '%(pkey_i,pkey_j) )
                 cnt += 1
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.strucC 
         del self.strucC_j
@@ -832,6 +842,7 @@ class Testiadd(unittest.TestCase):
 
 class TestProximityCheck(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
         self.strucC1 = container.Container()
         
@@ -920,6 +931,7 @@ class TestProximityCheck(unittest.TestCase):
     def test_del_particle(self): 
         self.strucC1.del_particle(4)
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.strucC1 
         del self.strucC2
@@ -928,8 +940,8 @@ class TestProximityCheck(unittest.TestCase):
 
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

@@ -19,12 +19,13 @@ import os
 
 import streamm.structures.lattice as lattice
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
     
 class TestLattice(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         # fixture 
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
@@ -347,13 +348,14 @@ class TestLattice(unittest.TestCase):
         nptu.assert_almost_equal(self.lat._matrix,matrix_correct)
         
                 
+    @tearDown_streamm 
     def tearDown(self):
         del self.lat 
         self.lat = None
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

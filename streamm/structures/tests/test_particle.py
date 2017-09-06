@@ -19,12 +19,13 @@ import streamm.structures.particle as particle
     
     
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
     
 class TestParticle(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.part = particle.Particle(label="C137")
         
@@ -53,6 +54,7 @@ class TestParticle(unittest.TestCase):
         self.assertEqual(self.part.nonbonded_radius,1.52)
         
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.part 
         self.part = None
@@ -61,6 +63,7 @@ class TestParticle(unittest.TestCase):
 class TestParticleAtom(unittest.TestCase):
     
     
+    @setUp_streamm 
     def setUp(self):
         self.atom = particle.Particle(symbol='Au')
             
@@ -94,13 +97,14 @@ class TestParticleAtom(unittest.TestCase):
     def test_str(self):
         self.assertEqual(str(self.atom),"atom:Au")
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.atom 
         
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
