@@ -25,12 +25,13 @@ import streamm.structures.improper as improper
 
     
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 
 class TestImproper(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.imp_i = improper.Improper(0,1,2,3)
         
@@ -38,14 +39,15 @@ class TestImproper(unittest.TestCase):
         imp_str = ' 0 - 1 - 2 - 3'
         self.assertEqual(str(self.imp_i),imp_str)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.imp_i 
         self.imp_i = None
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

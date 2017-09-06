@@ -32,16 +32,11 @@ import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
 
-
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
-TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
-    
-
+from streamm_testutil import * 
 
 class Test_nwcheminput(unittest.TestCase):
-    # 
+    #
+    @setUp_streamm
     def setUp(self):
         self.calc_i = NWChem('nwchem_thiophene_SP')
         
@@ -76,6 +71,7 @@ class Test_nwcheminput(unittest.TestCase):
         self.res_tag = 'local'  # Change this to remote to run the calculations remotely 
         self.res_i = Resource(self.res_tag )
         self.res_i.dir['templates'] = TEMPLATE_PATH
+        self.res_i.dump_json()
         self.res_i.make_dir()
 
         self.calc_i.set_resource(self.res_i)
@@ -136,25 +132,15 @@ class Test_nwcheminput(unittest.TestCase):
         del self.calc_i
         self.calc_i = NWChem(tag_i)
         self.calc_i.load_json()
-        # Clean up files 
-        os.remove(self.calc_i.files['data']['json'])
 
-
+    @tearDown_streamm
     def tearDown(self):
         del self.calc_i         
         del self.Th         
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
     unittest.main()
     
-
-    shutil.rmtree(os.path.join(TEST_DIR, 'materials'))
-    shutil.rmtree(os.path.join(TEST_DIR, 'scratch'))
-    shutil.rmtree(os.path.join(TEST_DIR, 'scripts'))
-    shutil.rmtree(os.path.join(TEST_DIR, 'storage'))
-    
-    os.chdir(HOME_DIR)
         
                 

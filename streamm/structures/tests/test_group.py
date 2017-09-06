@@ -39,12 +39,13 @@ import streamm.structures.improper  as improper
 
    
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 class TestGroupsProps(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
         
         self.th = container.Container("thiophene")
@@ -168,12 +169,14 @@ class TestGroupsProps(unittest.TestCase):
         groupContainer_i.write_xyzs()
         groupContainer_i.dump_json()
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.th         
         del self.strucC
         
 class TestGroupsHtermSp2(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
         
         
@@ -227,11 +230,13 @@ class TestGroupsHtermSp2(unittest.TestCase):
         hterm_i = group_i.hterm_group()
         hterm_i.write_xyz('Th_SC_hterm.xyz')
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.struc_i         
 
 class TestGroupsHtermSp3(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
         self.struc_i = container.Container('ethane')
         symbols = ['C','C','H','H','H','H','H','H']
@@ -283,12 +288,14 @@ class TestGroupsHtermSp3(unittest.TestCase):
                         
         hterm_i.write_xyz('Eth_C_hterm1.xyz')
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.struc_i         
 
 
 class TestGroup_dr(unittest.TestCase):
     # 
+    @setUp_streamm 
     def setUp(self):
         self.struc_i = container.Container("thiophene")
 
@@ -413,14 +420,15 @@ class TestGroup_dr(unittest.TestCase):
                 bin_nn_index = int( round( r_ij_nn /bin_size) )
                 bin_r_nn[bin_nn_index] += p_ij_nn  
      
+    @tearDown_streamm 
     def tearDown(self):
         del self.struc_i         
         del self.strucC         
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 
 

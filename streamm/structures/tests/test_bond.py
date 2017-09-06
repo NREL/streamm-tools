@@ -24,12 +24,13 @@ import os
 import streamm.structures.bond as bond
 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 
 class TestBond(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.bond_i = bond.Bond(0,1)
     
@@ -37,13 +38,14 @@ class TestBond(unittest.TestCase):
         bond_str = ' 0 - 1'
         self.assertEqual(str(self.bond_i),bond_str)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.bond_i 
         self.bond_i = None
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         

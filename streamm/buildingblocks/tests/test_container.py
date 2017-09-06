@@ -29,12 +29,11 @@ import streamm.structures.dihedral as dihedral
 
 import streamm.buildingblocks.container as container
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
 
 class Test_attach(unittest.TestCase):
 
+    @setUp_streamm 
     def setUp(self):
         
                                             
@@ -294,6 +293,7 @@ class Test_attach(unittest.TestCase):
         self.bb_p3ht_nX.write_xyz(file_i)
         os.remove(file_i)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.Th
         del self.Hx
@@ -301,7 +301,5 @@ class Test_attach(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
     unittest.main()    
-    os.chdir(HOME_DIR)
         

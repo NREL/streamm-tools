@@ -24,11 +24,12 @@ import os
 import streamm.structures.angle as angle
 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 class TestAngle(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.angle_i = angle.Angle(2,0,1)
         
@@ -36,14 +37,15 @@ class TestAngle(unittest.TestCase):
         angle_str = ' 2 - 0 - 1'
         self.assertEqual(str(self.angle_i),angle_str)
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.angle_i 
         self.angle_i = None
 
     
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

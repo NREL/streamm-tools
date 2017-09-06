@@ -29,11 +29,12 @@ import streamm.forcefields.dihtype as dihtype
 import streamm.forcefields.imptype as imptype
                         
                         
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 class TestParameter(unittest.TestCase):
+    @setUp_streamm 
     def setUp(self):
         self.paramC = container.Container()
 
@@ -130,14 +131,15 @@ class TestParameter(unittest.TestCase):
         for itkey_i, imptype_i  in self.paramC.imptypes.iteritems():    
             self.assertEqual(str(imptype_i),imp_str[itkey_i])
         
+    @tearDown_streamm 
     def tearDown(self):
         del self.paramC 
         self.paramC = None
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         
                 

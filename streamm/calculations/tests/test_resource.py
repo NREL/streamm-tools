@@ -33,14 +33,15 @@ import streamm.structures.particle as particle
     
 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
+
+
 
 PRECISION = 4
 
 class TestResource(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
         
         self.res_tag = 'local'  # Change this to remote to run the calculations remotely 
@@ -55,12 +56,14 @@ class TestResource(unittest.TestCase):
         self.res_i.load_json()
         
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.res_i
         
         
 class TestAddStruc(unittest.TestCase):
     
+    @setUp_streamm 
     def setUp(self):
 
         self.Th = BBCont('thiophene')
@@ -155,13 +158,14 @@ class TestAddStruc(unittest.TestCase):
 
         
 
+    @tearDown_streamm 
     def tearDown(self):
         del self.calc
         del self.Th
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
+
     unittest.main()    
-    os.chdir(HOME_DIR)
+
         

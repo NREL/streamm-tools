@@ -19,11 +19,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
-import os
 import numpy as np
 import random
 import numpy.testing.utils as nptu
-import shutil
 
 from streamm.calculations.gaussian import Gaussian
 from streamm.buildingblocks.container import Container as BBCont
@@ -31,15 +29,11 @@ import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
 
-
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
-TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
-    
+from streamm_testutil import * 
 
 class Test_Gaussian(unittest.TestCase):
-    # 
+    #
+    @setUp_streamm
     def setUp(self):
         
         self.calc_i = Gaussian('gaussian_thiophene_SP')
@@ -75,6 +69,7 @@ class Test_Gaussian(unittest.TestCase):
         self.res_i = Resource(self.res_tag )
         self.res_i.dir['templates'] = TEMPLATE_PATH
         self.res_i.make_dir()
+        self.res_i.dump_json()
 
         self.calc_i.set_resource(self.res_i)
         
@@ -134,16 +129,15 @@ class Test_Gaussian(unittest.TestCase):
         self.calc_i = Gaussian(tag_i)
         self.calc_i.load_json()
         
-        os.remove(self.calc_i.files['data']['json'])
-
+    @tearDown_streamm
     def tearDown(self):
         del self.calc_i         
         del self.Th
         
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
-    unittest.main()    
-    os.chdir(HOME_DIR)
+    unittest.main()
+    
         
+                
                 
