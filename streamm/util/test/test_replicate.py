@@ -45,6 +45,8 @@ import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
 
+import streamm.util.replicate as replicate
+
 HOME_DIR = os.getcwd()
 RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
 TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
@@ -95,9 +97,9 @@ class TestReplicate(unittest.TestCase):
 
         seed = 82343
         blank_strucC =  BBCont()
-        self.strucC = replicate.add_struc(blank_strucC,self.th,10,seed)
+        self.strucC = replicate.add_struc(blank_strucC,self.Th,10,seed)
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
-            mol_i = int(pkey_i/self.th.n_particles) 
+            mol_i = int(pkey_i/self.Th.n_particles) 
             self.assertEqual(str(particle_i.mol),str(mol_i))
 
         self.assertEqual(self.strucC.n_molecules(),9)
@@ -112,9 +114,9 @@ class TestReplicate(unittest.TestCase):
 
 
         blank_strucC =  BBCont()
-        self.strucC = replicate.add_struc_grid(blank_strucC,self.th,10)
+        self.strucC = replicate.add_struc_grid(blank_strucC,self.Th,10)
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
-            mol_i = int(pkey_i/self.th.n_particles) 
+            mol_i = int(pkey_i/self.Th.n_particles) 
             self.assertEqual(str(particle_i.mol),str(mol_i))
 
         self.assertEqual(self.strucC.n_molecules(),9)
