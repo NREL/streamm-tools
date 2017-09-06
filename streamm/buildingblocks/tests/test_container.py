@@ -29,9 +29,7 @@ import streamm.structures.dihedral as dihedral
 
 import streamm.buildingblocks.container as container
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import *
 
 class Test_attach(unittest.TestCase):
 
