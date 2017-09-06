@@ -8,10 +8,6 @@ import platform
 
 from setuptools import setup, find_packages, Extension
 
-#  packages=['streamm', 'streamm.jobs', 'streamm.jobs', 'streamm.mpi', 'streamm.simulation', 'streamm.structure'],
-# dep = ['os','sys','shutil','time','datetime','json','math','numpy','copy','scipy','random','json','optparse','logging','pickle']
-#  dep openbabel ( py27-openbabel )
-
 try:
     from setuptools import setup
 except ImportError:
@@ -19,7 +15,7 @@ except ImportError:
 
 setup(
     name='streamm',
-    version='0.3.1',
+    version='0.3.2',
     setup_requires=['numpy', 'setuptools>=18.0','pytest-runner'],    
     packages=find_packages(),
     # 
