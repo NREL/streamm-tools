@@ -261,8 +261,8 @@ class Gaussian(CalculationRes):
                         n_particles_i = int(col[4])
                         #if( pt_update ):
                         #    if( n_particles_i != len(strucC.ptclC) ):
-                        #        print " json file contains %d atoms and fchk file contains %d "%(len(strucC.ptclC),NA)
-                        #        sys.exit("inconsistent files ")
+                        #        error_msg =  " json file contains %d atoms and fchk file contains %d "%(len(strucC.ptclC),NA)
+                        #        raise ValueError(error_msg)
                         #else:
                         # Create particles to be updated
                         if( self.strucC.n_particles == 0 ):

@@ -415,8 +415,6 @@ class LAMMPS(CalculationRes):
                 cnt_Dihedral_coeff += 1
                 dkey_i = int(col[0]) - 1
 
-                #print "self.paramC.n_dihtypes ",self.paramC.n_dihtypes,cnt_Dihedral_coeff,dkey_i
-                
                 dihtype_i = parameters.Dihtype(type=dtype)
                 if( dtype == "opls" ):
                     dihtype_i.setopls(float(col[1]),float(col[2]),float(col[3]),float(col[4]))
@@ -462,8 +460,8 @@ class LAMMPS(CalculationRes):
                 
                 ljtype_i = self.paramC.ljtypes[ljkey_i]
                 if( ljtype_i.lammps_index != ljkey_i +1 ):
-                    logger.warning("Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lammps_index))
-                    sys.exit(2)
+                    lerror_msg = "Read in error for atom %s due to bad Pair type %d "%(cnt_Atoms,ljtype_i.lammps_index)
+                    raise ValueError(error_msg)
                 # set particle and  properties
                 try:
                     particle_i = self.strucC.particles[pkey_i]
@@ -478,10 +476,6 @@ class LAMMPS(CalculationRes):
                 particle_i.properties["mass"] = ljtype_i.mass
                 particle_i.properties["lmpindx"] = ljtype_i.lammps_index
 
-                #print ">read_data cnt_Atoms ",cnt_Atoms,pkey_i,ljkey_i,ljtype_i.mass,ljtype_i.lammps_index 
-                #if( cnt_Atoms > 10 ):
-                #    sys.exit("9320ur092ur0298")
-                
                 self.strucC.particles[pkey_i] = copy.deepcopy(particle_i)
                 # set position 
                 pos_i =  [ float(col[4]),float(col[5]),float(col[6])] 
@@ -849,8 +843,9 @@ class LAMMPS(CalculationRes):
                     # Get opls parameters                    
                     F.write( "%10d  %12.6f  %12.6f  %12.6f  %12.6f # %5s %5s  %5s %5s \n" % (dihtype_i.lammps_index,dihtype_i.k1,dihtype_i.k2,dihtype_i.k3,dihtype_i.k4, dihtype_i.fftype1,dihtype_i.fftype2,dihtype_i.fftype3,dihtype_i.fftype4  ) )
                 else:
-                    error_line = " Unknow dihedral type %s "%(dihtype_i.type )
-                    sys.exit(error_line)
+                    error_msg = " Unknow dihedral type {} ".format(dihtype_i.type )
+                    raise ValueError(error_msg)
+                    
             F.write('\n')
 
         # Write Dihedral Coeffs
@@ -863,8 +858,8 @@ class LAMMPS(CalculationRes):
                     if( imptype_i.type == "improper"):
                         F.write( "%10d %12.6f %12.6f # %5s %5s  %5s  %5s   \n" % (imptype_i.lammps_index,imptype_i.ke,imptype_i.e0, imptype_i.fftype1,imptype_i.fftype2,imptype_i.fftype3,imptype_i.fftype4  ) )
                     else:
-                        error_line = " Unknow improper type %s "%(imptype_i.type )
-                        sys.exit(error_line)
+                        error_msg = " Unknow improper type %s "%(imptype_i.type )
+                        raise ValueError(error_msg)
                     
         else:
             F.write(' Improper Coeffs \n')
@@ -932,10 +927,6 @@ class LAMMPS(CalculationRes):
                 AT_j = self.strucC.particles[ dih_i.pkey3 ].ffkey
                 AT_l = self.strucC.particles[ dih_i.pkey4 ].ffkey
 
-                #error_line = " dih index is not in bounds "
-                #error_line += " for atoms %d  %d  %d  %d  "%(d_k,d_i,d_j,d_l)
-                #error_line += " for type atoms %s %s %s %s "%(AT_k,AT_i,AT_j,AT_l)
-                #sys.exit(error_line)
                 F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dkey_i+1,dih_i.lammps_index,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
 
             F.write( '\n' )

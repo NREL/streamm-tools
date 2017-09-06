@@ -206,8 +206,9 @@ class NWChem(CalculationRes):
                             elif( len(col) == 5  ):
                                 en = conv_float(col[4]) #.replace("D","e"))
                             else:
-                                print " Bad MO read ",col,len(col)
-                                sys.exit(4)
+                                error_msg = " Bad MO read {} {}".format(col,len(col))
+                                raise IOError(error_msg)
+                                
                             self.properties['alpha_energies'].append(en)
                             
                             #print occ,en
@@ -225,8 +226,9 @@ class NWChem(CalculationRes):
                             elif( len(col) == 5  ):
                                 en = conv_float(col[4]) #.replace("D","e"))
                             else:
-                                print " Bad MO read ",col,len(col)
-                                sys.exit(4)
+                                error_msg = " Bad MO read {} {}".format(col,len(col))
+                                raise IOError(error_msg)
+                                
                             self.properties['beta_energies'].append(en)
                         
                             
