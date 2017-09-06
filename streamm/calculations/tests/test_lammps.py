@@ -19,11 +19,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 import unittest
-import os
 import numpy as np
 import random
 import numpy.testing.utils as nptu
-
 
 from streamm.calculations.lammps import LAMMPS
 from streamm.buildingblocks.container import Container as BBCont
@@ -37,17 +35,13 @@ import streamm.forcefields.imptype as imptype
 
 from streamm.calculations.resource import Resource
 
-import shutil
 
+from streamm_testutil import * 
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
-TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
-    
 
 class Test_Thiophene(unittest.TestCase):
     # 
+    @setUp_streamm
     def setUp(self):
         self.calc_i = LAMMPS('lmp_thiophene')
         
@@ -72,7 +66,6 @@ class Test_Thiophene(unittest.TestCase):
             
             
         for pkey,p in self.Th.particles.iteritems():
-            print  pkey,p
             if( p.symbol == 'C' ):
                 p.ffkey = 'CA'
             elif( p.symbol == 'H' ):
@@ -190,6 +183,7 @@ class Test_Thiophene(unittest.TestCase):
         self.res_tag = 'local'  # Change this to remote to run the calculations remotely 
         self.res_i = Resource(self.res_tag )
         self.res_i.dir['templates'] = TEMPLATE_PATH
+        self.res_i.dump_json()
         self.res_i.make_dir()
 
 
@@ -254,7 +248,7 @@ class Test_Thiophene(unittest.TestCase):
         # Clean up files 
         os.remove(self.calc_i.files['data']['json'])
 
-
+    @tearDown_streamm
     def tearDown(self):
         del self.calc_i         
         del self.Th         
@@ -262,7 +256,6 @@ class Test_Thiophene(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
     unittest.main()    
     os.chdir(HOME_DIR)
         

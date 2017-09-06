@@ -24,8 +24,6 @@ import shutil
 import logging
 logger = logging.getLogger(__name__)
 
-
-
 from streamm.calculations.calculation import Calculation
 
 class Resource(object):

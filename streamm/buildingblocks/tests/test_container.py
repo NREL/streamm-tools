@@ -301,7 +301,5 @@ class Test_attach(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
     unittest.main()    
-    os.chdir(HOME_DIR)
         

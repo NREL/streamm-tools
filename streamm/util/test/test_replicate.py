@@ -47,15 +47,11 @@ from streamm.calculations.resource import Resource
 
 import streamm.util.replicate as replicate
 
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
-
-TEMPLATE_PATH =  os.path.join(TEST_DIR,'..','..','..','templates')
-
+from streamm_testutil import * 
 
 class TestReplicate(unittest.TestCase):
     # 
+    @setUp_streamm
     def setUp(self):
 
         self.Th = BBCont('thiophene')
@@ -125,7 +121,7 @@ class TestReplicate(unittest.TestCase):
         self.strucC.write_xyz(file_i)
             
         
-                
+    @tearDown_streamm 
     def tearDown(self):
         del self.Th
         

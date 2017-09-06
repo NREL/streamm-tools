@@ -31,13 +31,9 @@ import streamm.structures.particle as particle
 
 import streamm.calculations.calculation as calculation
        
-
-HOME_DIR = os.getcwd()
-RELATIVE_TEST_DIR = os.path.join(os.path.dirname(__file__))
-TEST_DIR = os.path.join(HOME_DIR,RELATIVE_TEST_DIR)
+from streamm_testutil import * 
 
     
-PRECISION = 4
     
 class TestAddStruc(unittest.TestCase):
     
@@ -120,7 +116,7 @@ class TestAddStruc(unittest.TestCase):
         self.calc_i.strucC.write_xyz(file_i)
         
         self.struc_i = BBCont()
-        input_file = self.calc_i.files['input']['xyz']
+        input_file = os.path.join(TEST_DIR,self.calc_i.files['input']['xyz'])
         self.struc_i.read_xyz(input_file)
         self.struc_i.lat_cubic(10.0)
         self.struc_i.bonded_nblist = self.struc_i.guess_nblist(0,radii_buffer=1.25)
@@ -149,7 +145,5 @@ class TestAddStruc(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    os.chdir(TEST_DIR)
     unittest.main()    
-    os.chdir(HOME_DIR)
         
