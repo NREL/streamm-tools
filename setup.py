@@ -15,7 +15,7 @@ except ImportError:
 
 setup(
     name='streamm',
-    version='0.3.2',
+    version='0.3.1',
     setup_requires=['numpy', 'setuptools>=18.0','pytest-runner'],    
     packages=find_packages(),
     # 

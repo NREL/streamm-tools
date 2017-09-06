@@ -39,7 +39,16 @@ Contents
 Release Notes
 *************
 
-- v0.3.0 -- September 2017
+- v0.3.1 -- September 2017
+
+    -- Split up modules into directories
+    -- Create tests for each module in the directory tests/
+    -- Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
+    -- Remove gromacs module
+    -- Move functions dependent on mpi to util directory
+
+
+- v0.3.0 -- August 2017
 
     -- Major update to code structure allowing for `python setup.py` installation 
 

@@ -3,7 +3,7 @@
 Installation Instructions
 *************************
 
-`Do we want to specify Mac/PC/Linux?`
+
 
 pip
 ===
