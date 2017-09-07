@@ -19,38 +19,59 @@ try:
     # Import pymatgen Class 
     import pymatgen.core.periodic_table as periodictable
 except:
-    raise ImportError("pymatgen import error for periodic_table object")
+    raise ImportError("pymatgen import error for pymatgen.core.periodic_table module")
     
 ATOMIC_MASS_PRECISION = 0
 
-'''    
-# Notes to add mendeleev dependency 
-try:
-    import mendeleev.element
-    USE_MENDELEEV = True
-except:
-    USE_MENDELEEV = False
-
-        if( USE_MENDELEEV ):
-            self.element = mendeleev.element(symbol)
-            self.symbol = self.element.symbol
-            self.atomic_number = self.element.atomic_number
-            self.atomic_weight = self.element.atomic_weight
-            self.covalent_radius = self.element.covalent_radius
-            self.vdw_radius = self.element.vdw_radius
-'''        
 
 class Particle(object):
+    """Data structure for describing any localized object in QM/MD simulation, such as an atom.
+    
+    Particles have the fundmental properties of
+    
+    * mass
+    * charge
+    * bonded_radius
+    * nonbonded_radius
+    
+    which are used through out the streamm code.  Additional properties include:
+    
+    * mol
+    * ring
+    * residue
+    * resname
+    * qgroup
+    * index
+    * ffkey
+    
+    The ``element`` property can be set to an element object from the
+    ``periodic_table`` object in ``pymatgen``.
+    
+    The ``ff`` property can be set to a ``Particletype`` object. 
+    
+    Kwargs:
+        type   (str): Particle type.
+        label  (str): Identifier in output files.
+        symbol (str): Atomic symbol.
     """
     
-    Data structure for describing any localized object in QM/MD simulations
-    A 'Particle' has a type and dict of specifiers to it's property
-    
-    """
 
-    def set_element(self,symbol=None,number=None,mass=None):
+    def set_element(self,symbol=None,number=None,mass=None,mass_precision=0):
         '''
-        Set the element of particle 
+        Set the element of property of the particle
+        
+        Kwargs:
+            symbol (str): Atomic symbol.
+            number (int): Atomic number
+            mass   (float): Atomic mass (AMU)
+            mass_precision (int): precision to match the mass with value from
+            periodic table 
+            
+        This will set the ``symbol`` property of the particle to the Atomic symbol,
+        the ``mass`` property of the particle to the ``atomic_mass``,
+        the ``bonded_radius`` property of the particle to the ``atomic_radius_calculated`` and 
+        the ``nonbonded_radius`` property of the particle to the ``van_der_waals_radius``
+        
         '''
         if( symbol != None ):
             self.symbol = str(symbol)
@@ -67,7 +88,7 @@ class Particle(object):
             mass = float(mass)
             logger.info("Finding element by atomic mass {} ".format(mass))
             for symbol, data in periodictable._pt_data.items():
-                if round(data["Atomic mass"],ATOMIC_MASS_PRECISION) == round(mass,ATOMIC_MASS_PRECISION):
+                if round(data["Atomic mass"],mass_precision) == round(mass,mass_precision):
                     self.symbol = symbol
                     self.element = periodictable.Element(symbol)
                     break
@@ -94,9 +115,6 @@ class Particle(object):
         return
     
     def __init__(self,type='atom',label=None,symbol = None ):
-        """
-        Constructor for a general particle. 
-        """
         #
         self.type = type
         self.label = label
@@ -139,9 +157,6 @@ class Particle(object):
         
         
     def __del__(self):
-        """
-        Destructor, clears structure memory and calls held container destructors
-        """
         del self.type
         del self.label
         #
@@ -165,8 +180,5 @@ class Particle(object):
         del self.rsite
         
     def __str__(self):
-        """
-        'Magic' method for printng contents of container
-        """
         return "{}:{}".format(self.type,self.label)
     

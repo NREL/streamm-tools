@@ -11,7 +11,7 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 """
-This module defines the classes relating to groups of atoms within a container
+This module defines the classes relating to groups of particles within a container
 """
 
 import logging
@@ -26,45 +26,6 @@ from streamm.structures.particle import Particle
 from streamm.structures.bond import Bond
 
 
-def hterm_Csp3(hb_length,r_i,r_ij_array):
-    """
-    Hydrogen terminate segment 
-     (j)     (l)
-        \   /
-         (i)   
-        /   \
-     (k)     (m)
-    """
-
-    add_jk = np.zeros(3)
-    for r_ij in r_ij_array:
-        add_jk +=  r_ij
-    add_jk  = -1.0*add_jk
-    add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
-
-    r_l = r_i + add_scale
-
-    return r_l 
-
-def hterm_Csp2(hb_length,r_i,r_ij_array):
-    """
-    Hydrogen terminate conjugated atom
-    (j)  
-        \  
-         (i)  - (l)
-        /  
-    (k)
-    
-    Hydrogens will be added to sp2 carbons in a plainer configuration
-    """
-    debug = False
-
-    add_jk = -1.0*( r_ij_array[0] + r_ij_array[1] )
-    add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
-    r_l = r_i + add_scale
-
-    return r_l
-
 
 
 class Group(object):
@@ -73,9 +34,6 @@ class Group(object):
     """
 
     def __init__(self,strucC,verbose=False):
-        """
-        Constructor
-        """
         # Set pointer for easy reference 
         self.strucC = strucC
         self.n_dim = strucC.lat.n_dim
@@ -104,9 +62,7 @@ class Group(object):
         self.dl_sq = 0.0 #  np.zeros( self.n_dim)
         
     def __del__(self):
-        """
-        Destructor for Group object
-        """
+        
         del self.tag
         del self.mol
         del self.residue
@@ -184,7 +140,7 @@ class Group(object):
         for dim in range(self.n_dim):
             self.cent_mass[dim] = self.cent_mass[dim]/self.total_mass
         #
-        return
+        return 
 
     def calc_radius(self):
         """
@@ -235,14 +191,12 @@ class Group(object):
         return
 
     def calc_asphericity(self):
-        """
-        Calculate the eigen values of the Gyration tensor and the Asphericity
+        """Calculate the eigen values of the Gyration tensor and the Asphericity.
 
-         Soft Matter, 2013, 9, 3976-3984
+        .. math::
+            A_{sphere}= \\frac{ (\lambda_1 - \lambda_3)^2 + (\lambda_2 - \lambda_3)^2 - (\lambda_1 - \lambda_2)^2 }{ (\lambda_1 + \lambda_2+ \lambda_3)^2  }
          
-         
-         A_sphere = \frac{ (\lambda_1 - \lambda_3)^2 + (\lambda_2 - \lambda_3)^2 - (\lambda_1 - \lambda_2)^2 }{ (\lambda_1 + \lambda_2+ \lambda_3)^2  }
-         
+        Cite:``Soft Matter, 2013, 9, 3976-3984``
         """
 
         eign_raw = np.linalg.eigvals(self.Q_mn)
@@ -260,8 +214,10 @@ class Group(object):
         if( dem != 0.0 ):
             self.A_sphere = num/(2.0*dem)
         else:
-            self.A_sphere = 0.0 
-
+            self.A_sphere = 0.0
+            
+        return
+    
     def calc_dl(self ):
         """
         
@@ -284,44 +240,171 @@ class Group(object):
                     self.dl_sq = dot_dr_ij
                           
         
+        return
+    
 
     def hterm_group(self,debug=False):
         """
         Hydrogen terminate group  
-
-        (j)    (l)
-            \  /
-            (i)    - 109.5 deg
-            /  \
-          (k)   (m)
-          
+            
+        ::
+    
+            (j)    (l)
+                \  /          
+                (i)    - 109.5 deg
+                /  \              
+            (k)     (m)
+            
         Hydrogens will be added to sp3 carbons in a tetrahedral configuration
+    
+        ::
+            
+                 ^         (l)
+                 |        /  |
+            A    |   C  /    | 
+                 |    /      |
+                 |  /        |
+                 (i) -------->  
+                       B
 
-            ^         (l)
-            |        /  |
-       A    |   C  /    | 
-            |    /      |
-            |  /        |
-            (i) -------->  
-                B
+        If particle i is bonded to two other particles j and k
+        
+        .. math::
+            r_{ij} = position_i - position_j
 
-        If atom i is bonded to two other atoms j and k
-        r_ij = position_i - position_j
-        r_ik = position_i - position_k
-            A = r_ij x r_ik
+        .. math::
+            r_{ik} = position_i - position_k
+
+        .. math::
+            A = r_{ij} x r_{ik}
+            
+        .. math::
             B = r_ij + r_ik
 
-        For the angle (l)(i)(m) to be 109.5
+        For the angle l - i - m to be 109.5
 
-        |A| = sin(  109.5/2 ) |C|
-        |B| = cos(  109.5/2 ) |C|
+        .. math::
+            |A| = sin(  109.5/2 ) |C|
+            
+        .. math::
+            |B| = cos(  109.5/2 ) |C|
 
         By scaling A and B they can be added to get the bonds between i and l and m
 
-        r_il = A + B
-        r_im = -A + B
+        .. math::
+            r_{il} = A + B
+            
+        .. math::
+            r_{im} = -A + B
 
-        """
+
+
+        
+        Choose vector cros_ik normal to plane of i,j and one nieghbor of j 
+        
+        ::
+            
+                 cros_ik    H0
+                  |        / 
+                  |       /
+                  j ---- i 
+                / 
+               / 
+            jk
+            
+        Scale vectore cros_ik by sin(109.5)
+        
+        ::
+            
+                     H1
+                    /  
+                   /    
+            j----i  ----  dr_CC_s                        
+            
+            
+        
+        add to vector dr_CC between i-j scaled by cos(109.5) 
+        to get a vector hbond_0 which has an angle jiH0 of 109.5  
+           
+
+        ::
+            
+                          H1    
+             theta=109.5 /      
+                        /       
+                 j----i ---- H0 
+                        \       
+                         \       
+                          \       
+                           H2      
+                           
+         so dr_CC_s is the same as H0 
+        
+        ::
+            
+                 H0(cros_ik_n)         
+                 |                   
+                 |    theta2 = 120.0 
+                 |                   
+                 i  -------cros_jk  
+                /  \                 
+               /    \                 
+              /      \              
+             H2       H1             
+             
+         H1 is at  2pi/3 from cros_ik_n and cros_jk
+         H2 is at -2pi/3 from cros_ik_n and cros_jk
+
+         and cros_ijk_n is again scaled by sin(109.5)
+                       
+         """
+        
+        def hterm_Csp3(hb_length,r_i,r_ij_array):
+            """
+            Hydrogen terminate segment
+            
+            ::
+                
+                 (j)     (l)
+                    \   /
+                     (i)   
+                    /   \
+                 (k)     (m)
+                    
+            """
+        
+            add_jk = np.zeros(3)
+            for r_ij in r_ij_array:
+                add_jk +=  r_ij
+            add_jk  = -1.0*add_jk
+            add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
+        
+            r_l = r_i + add_scale
+        
+            return r_l 
+        
+        def hterm_Csp2(hb_length,r_i,r_ij_array):
+            """
+            Hydrogen terminate conjugated atom
+            
+            ::
+                
+                (j)  
+                    \  
+                     (i)  - (l)
+                    /  
+                (k)
+                
+            Hydrogens will be added to sp2 carbons in a plainer configuration
+            """
+            debug = False
+        
+            add_jk = -1.0*( r_ij_array[0] + r_ij_array[1] )
+            add_scale = hb_length*add_jk/np.linalg.norm(add_jk)
+            r_l = r_i + add_scale
+        
+            return r_l
+        
 
         latticevec = self.strucC.lat._matrix
 
@@ -389,32 +472,7 @@ class Group(object):
                 elif( NNAB_o == 3 and dB == 2 ):
 
                     logger.debug("Adding 2 H to hterm_sp3 ")
-                    '''
-                    Choose vector cros_ik normal to plane of i,j and one nieghbor of j 
                     
-                    
-                    
-                         cros_ik    H0
-                          |        / 
-                          |       /
-                          j ---- i 
-                        / 
-                       / 
-                    jk
-                    
-                    Scale vectore cros_ik by sin(109.5)
-                    
-
-                             H1
-                            /  
-                           /    
-                    j----i  ----  dr_CC_s                        
-                    
-                    
-                    
-                    add to vector dr_CC between i-j scaled by cos(109.5) 
-                    to get a vector hbond_0 which has an angle jiH0 of 109.5  
-                    '''
                     pkey_j = Htermed.bonded_nblist.getnbs(pkey_i)[0]
                     r_j =  Htermed.positions[pkey_j]
                     for pkey_jk in Htermed.bonded_nblist.getnbs(pkey_j):
@@ -434,34 +492,6 @@ class Group(object):
                     
                     r_i0 = Htermed.lat.deltasq_pos(r_i,hpos_0)
                     
-                    '''
-                                 H1
-                    theta=109.5 /   
-                               /    
-                        j----i ---- H0
-                               \
-                                \  
-                                 \
-                                  H2
-                                  
-                    so dr_CC_s is the same as H0 
-
-                        H0(cros_ik_n)
-                        | 
-                        |    theta2 = 120.0
-                        |
-                        i  -------cros_jk
-                       /  \
-                      /    \
-                     /      \
-                    H2       H1 
-                    
-                    H1 is at  2pi/3 from cros_ik_n and cros_jk
-                    H2 is at -2pi/3 from cros_ik_n and cros_jk
-
-                    and cros_ijk_n is again scaled by sin(109.5)
-                    
-                    '''
 
                     cros_jk = np.cross(dr_CC,r_i0)
                     cros_jk_n = cros_jk/np.linalg.norm(cros_jk)
