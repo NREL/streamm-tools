@@ -616,7 +616,6 @@ class Container(object):
         del self.tag 
         del self.groups
         del self.group_nblist
-        del self.properties
         del self.keys
         del self.tags
         del self.uniqueids
@@ -651,9 +650,14 @@ class Container(object):
 
         if( len(particles_select) == 0 ):
             particles_select = self.strucC.particles.keys()
-        # 
+        #
+        self.groups = {}
+        self.keys = []
+        self.tags = []
+        self.uniqueids = {}
         self.strucC.maxtags()
         self.strucC.mol_mult()
+        
         #
         # Group particles 
         #
@@ -665,7 +669,6 @@ class Container(object):
                     uniqueid_i =  int(particle_i.mol )
                 elif( prop == "residue" ): 
                     uniqueid_i =  int( particle_i.mol*self.strucC.mol_multiplier + particle_i.residue )
-                    
                 if( uniqueid_i not in self.uniqueids.keys() ):
                     gkey = len(self.groups)
                     self.uniqueids[uniqueid_i] = gkey
