@@ -30,10 +30,15 @@ from streamm.structures.bond import Bond
 
 class Group(object):
     """
-    Sets of particles within a structureContainer 
+    Sets of particles within a structureContainer
+    
+    Args:
+        strucC (structures.container.Container): Reference structure Container
+        
+        
     """
 
-    def __init__(self,strucC,verbose=False):
+    def __init__(self,strucC):
         # Set pointer for easy reference 
         self.strucC = strucC
         self.n_dim = strucC.lat.n_dim
@@ -87,14 +92,10 @@ class Group(object):
 
     def write_xyz(self, xyz_file=''):
         '''
-        Write a structure  to an xyz file
+        Write the particles of the group to an xyz file
 
-        Args:
-            xyz_file    (str) xyz file tag
-            
-        Reutrns:
-            null
-            
+        Kwargs:
+            xyz_file    (str): xyz file tag
         '''
         if( len(xyz_file) == 0 ):
             xyz_file = "%s.xyz"%(self.tag)
@@ -119,9 +120,10 @@ class Group(object):
 
         Center of mass of the molecule
         
-        math:: r_{cmas} = \frac(\sum_i r_i*mass_i)(\sum_i mass_i) 
+        .. math::
+            r_{cmas} = \\frac(\sum_i r_i*mass_i)(\sum_i mass_i) 
 
-        where math::`r_i` is the position of particle math::`i` and math::`mass_i` is it's mass 
+        where ``r_i`` is the position of particle i and ``mass_i`` is it's mass 
 
         """
         #
@@ -144,22 +146,19 @@ class Group(object):
 
     def calc_radius(self):
         """
-        Calculate the maximum radius
+        Calculate the maximum radius and Radius of gyration (``r_gy_sq``)
 
-        and
-
-
-        Radius of math::`gyration^2` (r_gy_sq)
-
-        r_gy_sq = \frac(\sum_i  (r_i - r_cmas )^2)( \sum_i)
+         .. math::
+            r_{gy}^2 = \\frac{ \sum_i  (r_i - r_{cmas} )^2}{ \sum_i}
 
         Gyration tensor
 
-        Q(m,n) = \frac( \sum_i  (r_i_m - r_cmas_m ) (r_i_n - r_cmas_n ) )( \sum_i )
+         .. math::
+            Q(m,n) = \\frac{ \sum_i  (r_i^m - r_{cmas}^m ) (r_i^n - r_{cmas}^n ) }{ \sum_i }
 
         where m amd n are component of the r vector
-
-        https://arxiv.org/pdf/1009.4358.pdf
+        
+        Cite:``Blavatska, Shape anisotropy of polymers in disordered environment, 2010``
         
         """
         # Initialize sums 
@@ -219,10 +218,10 @@ class Group(object):
         return
     
     def calc_dl(self ):
-        """
+        """Calculate the maximum end to end distance.
         
-        Calculate the maximum end to end distance 
-
+        .. math::
+            dl = \max( \sum_i \sum_j( r_i -  r_j ) )
         """
 
         # Intialize center of mass list 
@@ -581,6 +580,11 @@ class Group(object):
 class Container(object):
     """
     Set of groups within a structure.containers.Container
+    
+    Args:
+        tag (str): Identifyer of colection of groups
+        strucC (structures.container.Container): Reference structure Container
+        
     """
     def __init__(self,tag,strucC):
         """
@@ -609,9 +613,6 @@ class Container(object):
         self.dr_pi_pj = [] 
         
     def __del__(self):
-        """
-        Destructor
-        """
         del self.tag 
         del self.groups
         del self.group_nblist
@@ -636,12 +637,13 @@ class Container(object):
         Create groups of mols or residues
 
         Args:
-            prop  (str) property key
-            tag (str) key for Groups object in groups dict
-            particles_select  (list) list of particle keys to be included in groups
+            prop  (str): property key
+            tag (str): key for Groups object in groups dict
+            
+        Kwargs:
+            particles_select  (list): list of particle keys to be included in groups
                                      defaults to all particles.keys if none are specified
-        Returns:
-            None 
+                                     
         """
         supported_group_props = ['mol','residue']
         if( prop not in supported_group_props):

@@ -9,26 +9,23 @@ __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
 __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
+
 """
 This module defines the classes relating to the improper dihedral angles between atoms
 """
 
 class Improper(object):
     """
-    Data structure for describing any 4-point associatiaon of Particle/s
+    Data structure for describing any 4-point associatiaon of Particles
+    
+    Args:
+        pkey1   (int)   Dictionary key of Particle object in improper
+        pkey2   (int)   Dictionary key of Particle object in improper
+        pkey3   (int)   Dictionary key of Particle object in improper
+        pkey4   (int)   Dictionary key of Particle object in improper    
     """
 
     def __init__(self, pkey1, pkey2, pkey3, pkey4):
-        """
-        Constructor for a general improper. Checks for types in arguments
-        and throws a TypeError when appropriate
-
-        Args:
-            pkey1   (int)   Dictionary key of Particle object in improper
-            pkey2   (int)   Dictionary key of Particle object in improper
-            pkey3   (int)   Dictionary key of Particle object in improper
-            pkey4   (int)   Dictionary key of Particle object in improper
-        """
 
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
@@ -51,17 +48,11 @@ class Improper(object):
             raise TypeError("4rd arg should be int type")
         #
     def __del__(self):
-        """
-        Destructor, clears object memory
-        """
         del self.pkey1
         del self.pkey2 
         del self.pkey3 
         del self.pkey4
 
     def __str__(self):
-        """
-        'Magic' method for printng contents
-        """
         return " %s - %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3,self.pkey4 )
         

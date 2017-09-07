@@ -47,7 +47,15 @@ from streamm.structures.improper import Improper
         
 class Replication(object):
     '''
-    Object to record the replication of structure 
+    Object to record the replication of structure
+    
+    Args:
+        name_i (str): Name of structure i
+        name_j (str): Name of structure j
+        name_ij (str): Name of new structure
+        method (str): Method used to join structures 
+        n (int): Number of times replicated 
+        
     '''
     def __init__(self,name_i,name_j,name_ij,method,n):
 
@@ -58,9 +66,6 @@ class Replication(object):
         self.n = n
     
     def __del__(self):
-        """
-        'Magic' method for deleting contents of container
-        """
         del self.name_ij
         del self.name_i
         del self.name_j
@@ -68,9 +73,6 @@ class Replication(object):
         del self.n
         
     def __str__(self):
-        """
-        'Magic' method for printng contents of container 
-        """
         return " %s +  %s x %d ( %s ) -> %s "%(self.name_i,self.name_j,self.n,self.method,self.name_ij)
 
 class Container(object):

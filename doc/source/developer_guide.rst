@@ -31,9 +31,23 @@ Structure Classes
    :members:
    :show-inheritance:   
 
+.. index:: group
+
 .. autoclass:: streamm.structures.group.Group
    :members:
    :show-inheritance:   
+   
+
+.. autoclass:: streamm.structures.group.Container
+   :members:
+   :show-inheritance:   
+   
+.. index:: nblist
+
+.. autoclass:: streamm.structures.nblist.NBlist
+   :members:
+   :show-inheritance:   
+   
    
 
 .. index:: buildingblocks

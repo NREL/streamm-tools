@@ -15,21 +15,16 @@ This module defines the classes relating to the dihedral angles between atoms
 """
 
 class Dihedral(object):
-    """
-    Data structure for describing any 4-point associatiaon of Particle/s
+    """Data structure for describing any 4-point associatiaon of Particles
+
+    Args:
+        pkey1   (int)   Index of Particle object in dihedral
+        pkey2   (int)   Index of Particle object in dihedral
+        pkey3   (int)   Index of Particle object in dihedral
+        pkey4   (int)   Index of Particle object in dihedral    
     """
 
     def __init__(self, pkey1, pkey2, pkey3, pkey4):
-        """
-        Constructor for a general dihedral. Checks for types in arguments
-        and throws a TypeError when appropriate
-
-        Args:
-            pkey1   (int)   Index of Particle object in dihedral
-            pkey2   (int)   Index of Particle object in dihedral
-            pkey3   (int)   Index of Particle object in dihedral
-            pkey4   (int)   Index of Particle object in dihedral
-        """
         
         if isinstance(pkey1, int):
             self.pkey1 = pkey1
@@ -53,9 +48,6 @@ class Dihedral(object):
         self.cosine = None 
 
     def __del__(self):
-        """
-        Destructor, clears dihedral object memory
-        """
         del self.pkey1
         del self.pkey2 
         del self.pkey3 
@@ -63,8 +55,5 @@ class Dihedral(object):
         del self.cosine 
 
     def __str__(self):
-        """
-        'Magic' method for printng contents
-        """
         return " %s - %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3,self.pkey4 )
 
