@@ -10,7 +10,7 @@ Once the package is installed on the system, see :ref:`installation_instructions
 Molecular Structure
 ===================
 
-First lets create some structure objects and make some molecules. 
+First lets create some Buildingblock objects and make some molecules. To create a 
 
 Quantum Chemistry
 ==================

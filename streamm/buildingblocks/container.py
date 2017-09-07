@@ -204,16 +204,14 @@ class Container(strucCont):
         return
 
     def align_bond(self, key_i, key_j):
-        '''
-        Align bond along the x-axis
-
+        '''Align bond along the x-axis
+        ::
                          y
                          ^
                          |    
                          |     
         x <--- key_j - key_i - Struc
-                              
-   
+        ::
         '''
         # Get position of i and j 
         pos_i = self.positions[key_i]

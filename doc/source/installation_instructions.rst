@@ -3,10 +3,10 @@
 Installation Instructions
 *************************
 
-The streamm package is writen for python2.7 
+The streamm package is writen for python2.7. 
 
-pip
-===
+pip intall
+==========
 
 The pip command is the standard method for installing python packages, and is included in most distributions of python. 
 To install the streamm package with pip run::
@@ -29,7 +29,7 @@ By navigating to the package directory::
     
 and running::
 
-    $ python setup.py
+    $ python setup.py install 
     
 dependencies will be downloaded and installed and the egg file will placed in your packages directory.
 A developer version allowing changes in the source code can be installed using::

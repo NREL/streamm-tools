@@ -20,13 +20,16 @@ setup(
     packages=find_packages(),
     # 
     url='http://streamm.nrel.gov',
-    author='Travis W. Kemper, Ross Larsen and Scott W. Sides',
-    author_email='travis.kemper.w@gmail.com',
+    author='Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf',
+    author_email='streamm@nrel.gov',
     maintainer="Ross Larsen",
     maintainer_email="streamm@nrel.gov",
-    #
+    license="Apache License, Version 2.0",
+    description="The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM)",
+    long_description="",
+    classifiers="",
+    # 
     tests_require=['pytest'],
-    
     # test_suite = ['streamm.structures.tests','streamm.forcefields.tests'],
     # data_files=['streamm/periodic_table.json']
     # packages=['streamm'],    

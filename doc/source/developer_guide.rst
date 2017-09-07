@@ -1,12 +1,16 @@
 .. _developer_guide:
 
-Developer Guide
-***************
+streamm API
+************
 
-Structure
-=========
+.. index:: particle
 
-Building
+Particle Class API
+-----------------------------
 
-Cacluation
-
+.. autoclass:: streamm.structures.particle.Particle
+   :members:
+   :show-inheritance:
+   
+   
+   

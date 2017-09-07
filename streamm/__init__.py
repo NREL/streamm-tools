@@ -10,4 +10,4 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-__all__ = ['buildingblocks','calculations','forcefield','mpi,projects','structure','util']
+__all__ = ['buildingblocks','calculations','forcefields','mpi','util']
