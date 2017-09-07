@@ -345,10 +345,9 @@ class Container(object):
         elif( radius_type == 1 ):
             logger.info("Guessing nieghbor list using the Van der Waals radius of the particles element ")
         else:
-            error_string = 'Argument "radius_type" needs to be an integer of 0 or 1'
-            error_string += "\n Returning Empty NBlist object "
-            print(error_string)
-            logger.warning(error_string)
+            error_msg = 'Argument "radius_type" needs to be an integer of 0 or 1'
+            error_msg += "\n Returning Empty NBlist object "
+            raise ValueError(error_string)
             return nblist_i
             
             

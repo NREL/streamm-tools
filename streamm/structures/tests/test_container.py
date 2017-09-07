@@ -39,9 +39,6 @@ import streamm.structures.improper as improper
 
 from streamm_testutil import *
 
-
-
-
 class TestContainer(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):

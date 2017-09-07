@@ -52,9 +52,24 @@ class NBlist(object):
         del self.cnt
         
     def __str__(self):
-        return " NBlist of {} particle with {} connections".format(len(self.index),len(self.list))
+        return " NBlist of {} particle with {} connections".format(len(self.index)-1,len(self.list))
     
 
+    def calc_nnab(self,key_i):
+        '''
+        Calculate the number of neighbors for particle key_i
+        
+        Args:
+            key_i (int): Index of item in neighbor list
+        Returns:
+            (int): number of neighbors of key_i        
+        '''
+        try:
+            return self.index[key_i+1] - self.index[key_i]
+        except:
+            raise KeyError(" Neighbor list not set ")
+            return []
+            
     def getnbs(self,key_i):
         '''
         Return list of in of neighbors of key_i
@@ -71,19 +86,4 @@ class NBlist(object):
             return []
             
 
-    def calc_nnab(self,key_i):
-        '''
-        Calculate the number of neighbors for particle key_i
-        
-        Args:
-            key_i (int): Index of item in neighbor list
-        Returns:
-            (int): number of neighbors of key_i        
-        '''
-        try:
-            nnab_i = self.index[key_i+1] - self.index[key_i]
-        except:
-            raise KeyError(" Neighbor list not set ")
-            return []
-            
 

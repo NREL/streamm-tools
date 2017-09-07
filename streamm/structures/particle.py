@@ -53,6 +53,11 @@ class Particle(object):
         type   (str): Particle type.
         label  (str): Identifier in output files.
         symbol (str): Atomic symbol.
+        
+    .. todo:
+        * create function p_i.get_properties()
+        * set position in particle object 
+
     """
     
 
