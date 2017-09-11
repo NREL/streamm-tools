@@ -36,12 +36,12 @@ class Testbondtype(unittest.TestCase):
         self.bondtype_i.kb = 24.023
 
     def test_bondstr(self):
-        bond_str = ' bond  C - H type harmonic \n  harmonic r_0 = 0.560000 K = 24.023000 lammps index 0  gromcas index 0  '
+        bond_str = ' bond  C - H type harmonic \n  harmonic r_0 = 0.560000 K = 24.023000 lammps index 0  gromacs index 0  '
         self.assertEqual(str(self.bondtype_i),bond_str)
         
     def test_setharmonic(self):
         self.bondtype_i.setharmonic(0.76,33.33)
-        bond_str = ' bond  C - H type harmonic \n  harmonic r_0 = 0.760000 K = 33.330000 lammps index 0  gromcas index 0  '
+        bond_str = ' bond  C - H type harmonic \n  harmonic r_0 = 0.760000 K = 33.330000 lammps index 0  gromacs index 0  '
         self.assertEqual(str(self.bondtype_i),bond_str)
         
         

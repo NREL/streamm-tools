@@ -71,19 +71,19 @@ class TestParameter(unittest.TestCase):
         self.bondtype_i.r0 = 1.02
         self.bondtype_i.kb = 13.563
         self.paramC.add_bondtype(self.bondtype_i)
-        bond_str.append(' bond  Ir - C type harmonic \n  harmonic r_0 = 1.020000 K = 13.563000 lammps index 0  gromcas index 0  ')
+        bond_str.append(' bond  Ir - C type harmonic \n  harmonic r_0 = 1.020000 K = 13.563000 lammps index 0  gromacs index 0  ')
 
         self.bondtype_i = bondtype.Bondtype("C","C")
         self.bondtype_i.r0 = 0.56
         self.bondtype_i.kb = 24.023
         self.paramC.add_bondtype(self.bondtype_i)
-        bond_str.append(' bond  C - C type harmonic \n  harmonic r_0 = 0.560000 K = 24.023000 lammps index 0  gromcas index 0  ')
+        bond_str.append(' bond  C - C type harmonic \n  harmonic r_0 = 0.560000 K = 24.023000 lammps index 0  gromacs index 0  ')
 
         self.bondtype_i = bondtype.Bondtype("C","H")
         self.bondtype_i.r0 = 0.43
         self.bondtype_i.kb = 65.123
         self.paramC.add_bondtype(self.bondtype_i)
-        bond_str.append(' bond  C - H type harmonic \n  harmonic r_0 = 0.430000 K = 65.123000 lammps index 0  gromcas index 0  ')
+        bond_str.append(' bond  C - H type harmonic \n  harmonic r_0 = 0.430000 K = 65.123000 lammps index 0  gromacs index 0  ')
         for btkey_i,bondtype_i  in self.paramC.bondtypes.iteritems():
             self.assertEqual(str(bondtype_i),bond_str[btkey_i])
 

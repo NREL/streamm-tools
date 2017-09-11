@@ -36,7 +36,7 @@ class Testangletype(unittest.TestCase):
         self.angletype_i.kb = 4.56
 
     def test_anglestr(self):
-        angle_str = ' angle  HC - CH - HC type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromcas index 0  '
+        angle_str = ' angle  HC - CH - HC type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromacs index 0  '
         self.assertEqual(str(self.angletype_i),angle_str)
         
     @tearDown_streamm 
