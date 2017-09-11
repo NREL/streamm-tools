@@ -513,7 +513,11 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
 
         { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
                           =>
-        { bblockC_i - X_i - X_j - bblockC_j }
+        { bblockC_i - X_i - X_j - bblockC_j 
+        
+        .. ToDo::
+            * change bbid_i to rsite_i
+            
         '''
         # Empty container checks
         if bblockC_j.n_particles == 0:             # If struc2 is empty (has no particles)
