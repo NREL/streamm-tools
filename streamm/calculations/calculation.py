@@ -551,10 +551,10 @@ class Calculation(object):
 
                 if( cnt_check < 1 ):
                     self.paramC = self.paramC_o
-                    raise TypeError(" No LJ parameters were found for atom type %s "%fftype_i)
+                    raise TypeError(" No particle parameters were found for atom type %s "%fftype_i)
                      
                 elif( cnt_check > 1 ):
-                    logger.warning(" Multiple LJ parameters (%d) were found for atom type %s "%(cnt_check,fftype_i))
+                    logger.warning(" Multiple particle parameters (%d) were found for atom type %s "%(cnt_check,fftype_i))
                     if( not use_last  ):
                         self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")

@@ -62,7 +62,7 @@ class Bondtype(object):
         strucStr =  " bond  %s - %s type %s "%(self.fftype1,self.fftype2,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic r_0 = %f K = %f lammps index %d  gromcas index %d  " %(self.r0 ,self.kb,self.lammps_index ,self.gromacs_index )
+            strucStr += "\n  harmonic r_0 = %f K = %f lammps index %d  gromacs index %d  " %(self.r0 ,self.kb,self.lammps_index ,self.gromacs_index )
                 
         return strucStr
 

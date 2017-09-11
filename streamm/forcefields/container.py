@@ -19,7 +19,7 @@ Most molecular dynamics codes set each particle to certain type (fftype)
 usually each interaction is set using these fftypes
 
 """
-
+import pickle
 import copy
 
 # Import streamm dependencies
@@ -38,16 +38,29 @@ except:
     from dihtype import Dihtype
     from imptype import Imptype
 
+
+
+def read_pickle(tag):
+    '''    
+    Pickle object
+    '''
+    with open("%s.pkl"%(tag),'rb') as fl:
+        return pickle.load( fl )
+                
+    
+
 class Container(object):
     """
     Container for force-field parameters
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self,tag='blank'):
         """
         Constructor for Parameter.Container
 
         """
+        self.tag = tag
+        # 
         self.particletypes = dict()                           # Creates empty dict struc
         self.bondtypes = dict()                                   # Creates empty dict struc
         self.angletypes = dict()                                # Creates empty dict struc
@@ -75,7 +88,8 @@ class Container(object):
         """
         Destructor, clears object memory
         """
-        # dictionary 
+        #
+        del self.tag 
         del self.particletypes
         del self.bondtypes
         del self.angletypes
@@ -102,6 +116,15 @@ class Container(object):
         strucStr += "      Imporper Dihedral parameters %d \n"%(self.n_imptypes)
         return strucStr
 
+
+    def dump_pickle(self):
+        '''    
+        Pickle object
+        '''
+        file_i = open("%s.pkl"%(self.tag),'w')
+        pickle.dump(self,file_i)
+        file_i.close()
+        
 
         
     def add_particletype(self, particletype_i, deepcopy = True ):

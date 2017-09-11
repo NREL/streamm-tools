@@ -181,11 +181,19 @@ class Container(object):
 
     def dump_pickle(self):
         '''    
-        Pickle object
+        Write Pickle object 
         '''
         file_i = open("%s.pkl"%(self.tag),'w')
         pickle.dump(self,file_i)
         file_i.flush()
+        
+    def read_pickle(self):
+        '''    
+        Pickle object
+        '''
+        with open("%s.pkl"%(self.tag),'rb') as fl:
+            self = pickle.load( fl )
+            
         
 
     def add_particle(self, particle_i, deepcopy = False ):

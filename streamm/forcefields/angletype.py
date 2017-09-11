@@ -66,7 +66,7 @@ class Angletype(object):
         strucStr =  " angle  %s - %s - %s type %s "%(self.fftype1,self.fftype2,self.fftype3,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic theta_0 = %f K = %f lammps index %d  gromcas index %d  " %(self.theta0 ,self.kb,self.lammps_index ,self.gromacs_index )
+            strucStr += "\n  harmonic theta_0 = %f K = %f lammps index %d  gromacs index %d  " %(self.theta0 ,self.kb,self.lammps_index ,self.gromacs_index )
 
         return strucStr
 

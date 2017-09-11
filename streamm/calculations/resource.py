@@ -30,6 +30,19 @@ class Resource(object):
     '''
     Data structure for a compute resource  
     '''
+
+    def set_home(self,home_dir):
+        '''
+        Set the home/root directory of a resource 
+        '''
+        self.dir['home'] = home_dir
+        self.dir['templates'] = '%s/templates'%(self.dir['home'])
+        self.dir['scripts'] = '%s/scripts'%(self.dir['home'])
+        self.dir['launch'] = '%s/scratch'%(self.dir['home'])
+        self.dir['scratch'] = '%s/scratch'%(self.dir['home'])
+        self.dir['storage'] = '%s/storage'%(self.dir['home'])
+        self.dir['materials'] = '%s/materials'%(self.dir['home'])
+        
     def __init__(self,tag="blank",home_dir='',res_type = 'local'):
         '''
         Constructor for a general Resource object.
@@ -51,13 +64,7 @@ class Resource(object):
         if( len(home_dir) == 0 ):
             home_dir = os.getcwd()            
         self.dir = dict()
-        self.dir['home'] = home_dir
-        self.dir['templates'] = '%s/templates'%(self.dir['home'])
-        self.dir['scripts'] = '%s/scripts'%(self.dir['home'])
-        self.dir['launch'] = '%s/scratch'%(self.dir['home'])
-        self.dir['scratch'] = '%s/scratch'%(self.dir['home'])
-        self.dir['storage'] = '%s/storage'%(self.dir['home'])
-        self.dir['materials'] = '%s/materials'%(self.dir['home'])
+        self.set_home(home_dir)
         # These will be used for defaults for the simulation specs
         self.properties = dict()
         self.properties['walltime'] = 24
@@ -90,12 +97,16 @@ class Resource(object):
         return str(self.meta)
         
 
+        
+        
     def make_dir(self):
         '''
         Check that needed directories exist 
         '''
         logger.debug("Creating directories for resource %s "%(self.tag))
         if( self.meta['type'] == "local" ):
+            if ( not os.path.isdir(self.dir['home']) ):
+                os.mkdir(self.dir['home'])                
             os.chdir(self.dir['home'])
             for dkey,dir_i in self.dir.iteritems():
                 if ( not os.path.isdir(dir_i) ):

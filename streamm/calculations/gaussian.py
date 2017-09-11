@@ -38,7 +38,7 @@ class Gaussian(CalculationRes):
     """
     Derived class implementing input/output methods Gaussian
     """
-    def __init__(self, tag , verbose=False):
+    def __init__(self, tag):
         """
         Constructor for derived class. The base class constructor is called
         explicitly
