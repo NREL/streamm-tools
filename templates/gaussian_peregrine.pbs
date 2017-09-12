@@ -11,7 +11,7 @@
 
 NPROC=<nproc>
 
-scratch_dir=<scratch_dir>
+scratch_dir=<scratch>
 cd $scratch_dir
 
 module purge;
@@ -21,7 +21,7 @@ module load openmpi-gcc/1.7.3-4.8.2 python/2.7.8
 # Load Gaussian module to set environment
 module load gaussian/g09_D.01
 
-SCRATCH=<scratch_dir>/GAUSSIAN-<tag>.$PBS_JOBID.src
+SCRATCH=<scratch>/GAUSSIAN-<tag>.$PBS_JOBID.src
 SCRATCH2=/dev/shm
 
 if [ -d $SCRATCH ]

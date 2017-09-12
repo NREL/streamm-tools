@@ -181,6 +181,11 @@ class Calculation(object):
     def load_str(self,file_type,file_key):
         '''
         Read in a file as string and store in dictionary
+        
+        Args:
+           file_type (str): dictionary key for files dictionary
+           file_key (str): dictionary key for files[file_type] dictionary
+        
         '''
         
         file_name = self.files[file_type][file_key]

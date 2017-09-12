@@ -9,6 +9,8 @@
 #PBS -q <queue>
 #PBS -l feature=<feature>
 
+NPROC=<nproc>
+INPUT_FILE=<input_nw>
 
 scratch_dir=<scratch>
 cd $scratch_dir
@@ -20,6 +22,7 @@ module load nwchem
 
 export NWCHEM_BASIS_LIBRARY=/home/tkemper/nwchem/basis/libraries/
 
-<streamm_command>
+
+mpirun -np $NPROC  nwchem   $INPUT_FILE    >& <tag>.log 
 
 

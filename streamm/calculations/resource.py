@@ -306,7 +306,8 @@ class CalculationRes(Calculation):
         self.dir['storage'] = '%s/%s/'%(resource_i.dir['storage'] ,self.tag)
         self.dir['scratch'] = '%s/%s/'%(resource_i.dir['scratch'],self.tag)
         self.dir['launch'] = '%s/%s/'%(resource_i.dir['launch'],self.tag)
-        self.properties['scratch'] = resource_i.dir['scratch'] 
+        
+        self.properties['scratch'] = self.dir['scratch'] 
 
 
     def add_refcalc(self,ref_calc):

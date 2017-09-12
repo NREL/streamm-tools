@@ -1,16 +1,18 @@
 start test
  geometry GEOM units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+<coord>end
+
 
  BASIS 
- * LIBRARY 6-31g 
+ * LIBRARY <basis>
  end 
  SET geometry  GEOM 
- CHARGE  0 
+ CHARGE  <charge>
  SCF 
  NOPEN 0
- UHF 
+ <method> 
  SINGLET
  maxiter 100
  end 
- TASK SCF 
+ TASK <task>
 

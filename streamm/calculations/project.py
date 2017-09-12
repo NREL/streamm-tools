@@ -88,7 +88,9 @@ class Project(CalculationRes):
         json.dump(json_data,f, indent=2)
         f.close()
 
-
+        for calc_key,calc_i in self.calculations.iteritems():
+            calc_i.dump_json()
+            
     def load_json(self):
         '''
         Load json file for reference 
@@ -131,7 +133,25 @@ class Project(CalculationRes):
         except IOError:
             logger.warning(" File not found %s in %s "%(self.files['data']['json'],os.getcwd()))
 
+    def add_calc(self,calc_i,deepcopy = False ):
+        '''
+        Add Calculation to the project
+        
+        Args:
+            calc_i (resource.CalculationRes): calculation object
+            
+        Kwargs:
+            deepcopy (boolean): whether to make a deepcopy of the calculation
+            
+        '''
+        if( deepcopy ):
+            self.calculations[calc_i.tag] = copy.deepcopy(calc_i)
+        else:
+            self.calculations[calc_i.tag] = calc_i
+            
+        return 
 
+        
     def check(self):
         '''
         Check if calculations in the project have finished
@@ -157,7 +177,7 @@ class Project(CalculationRes):
             if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['home'])
                         
-                        
+                  
     def run(self):
         '''
         Run calculations in the project 
@@ -170,7 +190,22 @@ class Project(CalculationRes):
             calc_i.run()
             if( calc_i.resource.meta['type'] == "local" ):
                 os.chdir(calc_i.dir['home'])
-                        
+                    
+              
+    def pull(self):
+        '''
+        Run calculations in the project 
+        '''
+        
+        for calc_key,calc_i in self.calculations.iteritems():
+            if( calc_i.resource.meta['type'] == "local" ):
+                os.chdir(calc_i.dir['scratch'])
+            print os.getcwd()
+            calc_i.pull()
+            if( calc_i.resource.meta['type'] == "local" ):
+                os.chdir(calc_i.dir['home'])
+            print "Calculation %s has status %s"%(calc_i.tag,calc_i.meta['status'])
+                                            
 
     def store(self):
         '''

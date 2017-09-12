@@ -11,7 +11,7 @@
 
 NPROC=<nproc>
 
-scratch_dir=<scratch_dir>
+scratch_dir=<scratch>
 cd $scratch_dir
 
 module purge;
