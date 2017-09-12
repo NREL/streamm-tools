@@ -29,11 +29,17 @@ import random
 PRECISION = 8
 
 class Lattice(pymatgen_lat):
+    '''
+    Derived type of `pymatgen.core.lattice <http://pymatgen.org/pymatgen.core.lattice.html>`_  Lattice object
+    
+    Kwargs:
+        matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
+        with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        
+        
+    '''
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
-        """        
-        Create a lattice 
-        """
         pymatgen_lat.__init__(self, matrix=matrix)
         #
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
@@ -61,24 +67,16 @@ class Lattice(pymatgen_lat):
         return 
 
     def set_consts(self,a, b, c, alpha, beta, gamma):
-        """
-        Convert lattice constants  to lattice  vectors.  
+        """Set lattice with lattice constants.  
         
         Args:
-            math:: box = (list) [a,b,c,\alpha (degree),\beta (degree),\gamma (degree)]
-        
-        math::
-        
-        matrix_{0,0} = a
-        matrix_{1,0} = cos(\gamma) x b
-        matrix_{1,1} = sin(\gamma) x b
-        matrix_{2,0} = 
-        matrix_{2,1} = 
-        matrix_{2,2} = 
-        matrix_{0,0} = 
-        
-        Need to double check from materials book
-        
+            a     (float): lattice constant a
+            b     (float): lattice constant b
+            c     (float): lattice constant c
+            alpha (float): lattice angle alpha
+            beta  (float): lattice angle beta
+            gamma (float): lattice angle gamma
+            
         """
         alpha_rad = np.deg2rad(alpha)
         beta_rad  = np.deg2rad(beta )
@@ -116,7 +114,10 @@ class Lattice(pymatgen_lat):
         
     def set_box(self,box):
         '''
-        Set lattice constants based on box list
+        Set lattice constants based on box list.
+        
+        Args:
+            box (list): List of lattice constants (a, b, c, alpha, beta, gamma)
         '''
         if( len(box) != 6 ):
             logger.warning("box variable does not length 6 for values a, b, c, alpha, beta, gamma. The Lattice will not be set ")
@@ -135,7 +136,15 @@ class Lattice(pymatgen_lat):
         
     def deltasq_pos(self,pos_i,pos_j):
         """
-        Difference between two positions 
+        Difference between two positions
+        
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j
+
+        Returns:
+            dr_ij (list): cartesian vector [x,y,z] between position i and j
+            
         """
         
         dr_ij  = np.array(pos_j) -  np.array(pos_i)
@@ -144,7 +153,13 @@ class Lattice(pymatgen_lat):
 
     def deltasq_pos_c(self,pos_i,pos_j):
         """
-        Difference between two positions in cubic lattice  
+        Difference between two positions in cubic lattice
+
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j
+        Returns:
+            dr_ij (list): cartesian vector [x,y,z] between position i and j
         """
         dr_ij = self.deltasq_pos(pos_i,pos_j)
         
@@ -156,7 +171,16 @@ class Lattice(pymatgen_lat):
 
     def norm_delta_pos_c(self,pos_i,pos_j):
         '''
-        Normalized difference between two positions in cubic lattice 
+        Normalized difference between two positions in cubic lattice
+        
+
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j
+            
+        Returns:
+            dr_ij (list): normalized cartesian vector [x,y,z] between position i and j
+            
         '''
         dr_ij = self.deltasq_pos_c(pos_i, pos_j)
         return (dr_ij)/np.linalg.norm(dr_ij)
@@ -165,7 +189,15 @@ class Lattice(pymatgen_lat):
 
     def delta_pos_c(self,pos_i,pos_j):
         """
-        Difference between two positions in cubic lattice  
+        Difference between two positions in cubic lattice
+
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j
+
+        Returns:
+            dr_ij (list): cartesian vector [x,y,z] between position i and j
+            mag_dr_ij (float): magnitude of vector dr_ij    
         """
         dr_ij = self.deltasq_pos_c(pos_i,pos_j)
         mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
@@ -175,8 +207,15 @@ class Lattice(pymatgen_lat):
 
     def delta_pos(self,pos_i,pos_j):
         """
-        Difference between two positions 
-        """
+        Difference between two positions
+
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j        
+
+        Returns:
+            dr_ij (list): cartesian vector [x,y,z] between position i and j
+            mag_dr_ij (float): magnitude of vector dr_ij        """
         
         dr_ij  = self.deltasq_pos(pos_i,pos_j)
         mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
@@ -185,7 +224,17 @@ class Lattice(pymatgen_lat):
             
     def delta_npos(self,npos_i,npos_j):
         """
-        Difference between two position lists in  cubic lattice  
+        Difference between two position lists in  cubic lattice
+        
+        Args:
+            pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
+            pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j        
+
+        Returns:
+            npos_ij (m x n numpy array): array of cartesian vector [x,y,z] between position i and j
+            where the npos_ij[i][j] value is the difference between pos_i[i] and pos_j[j] 
+            mag_dr_ij (m x n numpy array): array of the magnitudes of vector dr_ij      
+            where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j] 
         """
         n_i = len(npos_i)
         n_j = len(npos_j)
@@ -227,7 +276,19 @@ class Lattice(pymatgen_lat):
 
     def proximitycheck(self,npos_i,npos_j,pos_cut,p=None):
         """
-        Difference between two position lists in  cubic lattice  
+        Difference between two position lists in  cubic lattice
+
+        Args:
+            pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
+            pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j
+            
+        Returns:
+            True: if no overlap between particles was found
+            False: if overlap between particles was found
+            
+        .. Todo::
+            move to utilities 
+        
         """
         n_i = len(npos_i)
         n_j = len(npos_j)
@@ -289,9 +350,9 @@ class Lattice(pymatgen_lat):
                 
     def random_pos(self):
         '''
-        Generate random position in lattice
-
-        random.seed(seed) needs to be initialized
+        Generate random position in lattice.
+        
+        Assume random.seed(seed) has been initialized
         
         '''
         
@@ -310,8 +371,9 @@ class Lattice(pymatgen_lat):
         '''
         Increase size of lattice by certain fraction
 
-        Arguments:
-        exlat_frac (float) fraction to increase lattice by
+        Args:
+            exlat_frac (float): fraction to increase lattice by
+            
         '''
         matrix_i = self._matrix
         for m in range(self.n_dim):
@@ -325,9 +387,14 @@ class Lattice(pymatgen_lat):
 
     def fractoreal(self,frac_o):
         '''
-        Translate fractional coordinates to real 
-        Arguments:
-            frac_o (np.array) fraction coordinates
+        Translate fractional coordinates to real
+        
+        Args:
+            frac_o (numpy array): fraction coordinates
+            
+        Returns:
+            pos_o (numpy array): real cartesian coordinates
+            
         '''
         pos_o = np.zeros(self.n_dim)
         for m in range(self.n_dim):
@@ -339,7 +406,10 @@ class Lattice(pymatgen_lat):
 
     def set_cubic(self,len_o):
         '''
-        Set lattice to cubic with lattice constant len
+        Set lattice to cubic with lattice constant
+        
+        Args:
+            len_o (float): Length of cubic lattice constant a
         
         '''
         matrix = np.zeros((self.n_dim, self.n_dim))

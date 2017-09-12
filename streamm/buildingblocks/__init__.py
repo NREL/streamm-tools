@@ -11,3 +11,7 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 __all__ = ['container']
+
+
+import container as buildingblock
+

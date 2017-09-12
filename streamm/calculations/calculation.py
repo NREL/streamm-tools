@@ -354,9 +354,9 @@ class Calculation(object):
             
 
 
-    def proc_log(self,log_file,verbose=False,debug=False):
+    def proc_log(self,log_file):
         """
-        Read in new files created by script recorded in the log file
+        Read in new files created by script recorded in the log file.
 
         Args:
             log_file (str) script log file
@@ -379,7 +379,12 @@ class Calculation(object):
         #
     def analysis(self,output_key='log'):
         """
-        Read in results from streamm script 
+        Read in results from streamm script
+        
+
+        Args:
+            output_key (str): dictionary key for files['output'][output_key]
+        
         """
         # Find output_key file 
         try:
@@ -398,8 +403,10 @@ class Calculation(object):
         
     def store(self,file_type_list=['input','scripts','output','data']):
         '''
-        Copy input, output and data of simulation to storage 
-        # This assumes storage is accesable by cp from ssh resource 
+        Copy input, output and data of simulation to storage. 
+        
+        This assumes storage is accesable by cp from ssh resource
+        
         '''
         if( self.meta['status'] == 'finished' ):
             if( self.resource.meta['type'] == "ssh" ):
@@ -433,7 +440,8 @@ class Calculation(object):
 
     def pull(self,file_type_list=['output','data']):
         '''
-        Copy output and data of simulation from storage 
+        Copy output and data of simulation from storage
+        
         '''
         if( self.meta['status'] == 'stored' ):
             if( self.resource.meta['type'] == "local" ):
@@ -481,10 +489,11 @@ class Calculation(object):
 
     def set_ffparam(self):
         '''
-         Create new parameter container to hold each unique type
-           which exsists in the structure container strucC
-           this is necessary for parameter outputs to no have
-           redundent values
+        Create new parameter container to hold each unique type.
+        
+        This is necessary for parameter outputs to no have
+        redundent values.
+        
            
         '''
         use_last = True 

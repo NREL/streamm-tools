@@ -72,13 +72,14 @@ class Attachment(object):
     
 class Container(strucCont):
     """
-    Data structure for describing a section of a molecule
-       that can be joined together to make a new molecule 
+    Data structure for describing a structure with particle that act as attachment points
+    
+    Args:
+        tag (str): Identifier for structure
+        matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
+        with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
     """    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
-        """
-        Constructor for a composite structures. 
-        """
         strucCont.__init__(self, tag=tag, matrix=matrix)
         # Reactive sites 
         self.n_func = int(0)
@@ -92,7 +93,7 @@ class Container(strucCont):
         # 
     def find_rsites(self):
         '''
-        Find dictionary of lists of particle indexes based on rsites type
+        Find dictionary of lists of particle indexes based on the rsites type
         '''
         #
         self.funcs = {}
@@ -114,7 +115,8 @@ class Container(strucCont):
     
     def show_rsites(self):
         '''
-        Show the functional sites 
+        Returns:
+            out_line (str): of all the rsites and the particles in them
         '''
         out_line =''
         for rsite_i,rsite_list in self.funcs.iteritems():
@@ -127,8 +129,10 @@ class Container(strucCont):
         '''
         Get particle key of reactive site and the paricle key of it's Xn_i connected neighbor 
         
-        Arguments:
-            rsite_i   (str) Reactive site type 
+        Args:
+            rsite_i   (str) Reactive site type
+            
+        Kwargs:
             n_i       (int) index of reactive site within in list of 
             Xn_i      (int) nieghbor number of reactive site 
 
@@ -158,14 +162,18 @@ class Container(strucCont):
     def align_yaxis(self, key_k,yangle):
         '''
         Align position of particle k along the y-axis
-
-                         y
-                         ^
-                         |      key_k (First non H nieghbor of i)
-                         |    / 
-        x <---  R    - key_i
-
-        yangle (float) angle in radians
+        
+        ::
+            
+                             y
+                             ^
+                             |      key_k (First non H nieghbor of i)
+                             |    / 
+            x <---  R    - key_i
+            
+        Args:
+            key_k (int): particle index 
+            yangle (float) angle in radians
    
         '''
         # Get position of i and j 
@@ -205,13 +213,20 @@ class Container(strucCont):
 
     def align_bond(self, key_i, key_j):
         '''Align bond along the x-axis
+        
         ::
-                         y
-                         ^
-                         |    
-                         |     
-        x <--- key_j - key_i - Struc
-        ::
+        
+                            y
+                            ^
+                            |    
+                            |     
+            x <--- key_j - key_i - StrucC
+           
+
+        Args:
+            key_i (int): particle index i
+            key_j (int): particle index j
+            
         '''
         # Get position of i and j 
         pos_i = self.positions[key_i]
@@ -265,7 +280,8 @@ class Container(strucCont):
     
     def getSubStructure(self,pkeys,tag="blank"):
         """
-        This is redundant to getSubStructure in structures.py
+        This is redundant to getSubStructure in structures.py will be deprecated 
+
         """
         new_strucC = Container(str(tag))
         
@@ -300,8 +316,12 @@ class Container(strucCont):
 
         This is handy for batch attachments to not repeat the intial steps in the attach function
 
-        Arguments:
-            yangle (float) angle in radians
+        Args:
+            rsite_i (str): string identifier for reactive particle to be removed during join
+            n_i (int): nth reactive particle in list funcs[rsite_i]
+            Xn_i (int): nth bonded neighbor in bonded_nblist
+            dir (int): 1 to align along the positive x-axis, -1 to align along the negative x-axis
+            yangle (float): angle in radians
             
         '''
     
@@ -360,19 +380,18 @@ def calc_cos(v_i,v_j):
     return np.dot(v_i/np.linalg.norm(v_i),v_j/np.linalg.norm(v_j))
 
 def checkprep(bbC_i,bbC_j,covbuffer=1.5):
-    '''
-    Check 
+    '''Check if there are any close contacts between particles
+    in two buildingblocks based on bonded_radius.
     
-    Arguments:
-            bblockC_i (Container) Buildingblock container 1
-            Xo_i (int) key of attachment point particle container 1
-            bblockC_j (Container) Buildingblock container 2 
-            Xo_j (int) key of attachment point particle container 2
+    
+    Args:
+        bblockC_i (Container) Buildingblock container 1
+        Xo_i (int) key of attachment point particle container 1
+        bblockC_j (Container) Buildingblock container 2 
+        Xo_j (int) key of attachment point particle container 2
     Retrun
         True - if no overlap
         False - if overlap is found
-        
-        
     '''
     #
     # NoteTK This seem backwards
@@ -410,26 +429,12 @@ def checkprep(bbC_i,bbC_j,covbuffer=1.5):
                     
     return True 
     
-def shiftprep(bblockC_i,bblockC_j,debug=False):
-    '''
-
-    Concatenate two building block containers that had prepattach already ran on them 
-
-        This is handy for batch attachments to not repeat the intial steps in the attach function
+def shiftprep(bblockC_i,bblockC_j):
+    '''Shift preattached buildingblocks away from eachother a bond length based on their bonded_radius.
     
-    Arguments:
+    Args:
             bblockC_i (Container) Buildingblock container 1
-            Xo_i (int) key of attachment point particle container 1
             bblockC_j (Container) Buildingblock container 2 
-            Xo_j (int) key of attachment point particle container 2
-            bbid_i   (str) Connecting atom bbid in container 1 
-            n_i      (int) number of connection to used in  container 1 
-            bbid_j   (str) Connecting atom bbid in container 2
-            n_j      (int) number of connection to used in  container 2
-
-        { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
-                          =>
-        { bblockC_i - X_i - X_j - bblockC_j }
     '''
 
     bbC_i = copy.deepcopy(bblockC_i)
@@ -442,24 +447,23 @@ def shiftprep(bblockC_i,bblockC_j,debug=False):
     radii_j = bbC_j.particles[Xo_j].bonded_radius
     bond_vec = np.array([radii_i + radii_j,0.0,0.0])
 
-    if( debug ):
-        print " >attachprep Xo_i ",Xo_i
-        print " >attachprep bbC_i.position[Xo_i] ", bbC_i.positions[Xo_i]
-        print " >attachprep radii_i ",radii_i
-        print " >attachprep Xo_j ",Xo_j
-        print " >attachprep bbC_j.position[Xo_j] ", bbC_j.positions[Xo_j]
-        print " >attachprep radii_j ",radii_j
+    log_msg  = " >attachprep Xo_i ",Xo_i
+    log_msg += " >attachprep bbC_i.position[Xo_i] ", bbC_i.positions[Xo_i]
+    log_msg += " >attachprep radii_i ",radii_i
+    log_msg += " >attachprep Xo_j ",Xo_j
+    log_msg += " >attachprep bbC_j.position[Xo_j] ", bbC_j.positions[Xo_j]
+    log_msg += " >attachprep radii_j ",radii_j
+    logger.debug(log_msg)
     
+
     bbC_j.shift_pos(-1.0*bond_vec)
 
     return bbC_i,bbC_j
     
 def attachprep(bbC_i,bbC_j):
-    '''
+    '''Concatenate two building block containers that had prepattach already ran on them.
 
-    Concatenate two building block containers that had prepattach already ran on them 
-
-        This is handy for batch attachments to not repeat the intial steps in the attach function
+    This is handy for batch attachments to not repeat the intial steps in the attach function
     
     Arguments:
             bblockC_i (Container) Buildingblock container 1
@@ -470,10 +474,13 @@ def attachprep(bbC_i,bbC_j):
             n_i      (int) number of connection to used in  container 1 
             bbid_j   (str) Connecting atom bbid in container 2
             n_j      (int) number of connection to used in  container 2
-
+            
+    ::
+    
         { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
-                          =>
+                      =>
         { bblockC_i - X_i - X_j - bblockC_j }
+        
     '''
     # Set attachment points 
     Xo_i = bbC_i.attach_p

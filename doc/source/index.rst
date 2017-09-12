@@ -1,11 +1,22 @@
 .. highlight:: rst
 
+
+.. ::
+    
+    # with overline, for parts
+    * with overline, for chapters
+    =, for sections
+    -, for subsections
+    ^, for subsubsections
+    ", for paragraphs
+
+
 STREAMM
 #######
 
 The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python module that generates structures,
-input files for quantum chemical and molcular dynamics codes, monitors jobs running locally or on an external resource,
-and analyizes output data.  STREAMM does not directly conduct simulations, rather it is ment to drive and connect
+input files for quantum chemical and molcular dynamics codes and analyizes output data.
+STREAMM does not directly conduct simulations, rather it is ment to drive and connect
 quantum chemical and molecular dynamics codes to allow for high-throughput compulational analysis of materials. 
 
 :STREAMM: Copyright (C) 2015, Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf.
@@ -46,7 +57,6 @@ Release Notes
     -- Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
     -- Remove gromacs module
     -- Move functions dependent on mpi to util directory
-
 
 - v0.3.0 -- August 2017
 

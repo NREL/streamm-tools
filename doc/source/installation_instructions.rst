@@ -3,7 +3,7 @@
 Installation Instructions
 *************************
 
-The streamm package is writen for python2.7. 
+The streamm package is writen for python2.7 and is dependent on some core modules from the pymatgen code. 
 
 pip intall
 ==========
@@ -32,9 +32,9 @@ and running::
     $ python setup.py install 
     
 dependencies will be downloaded and installed and the egg file will placed in your packages directory.
-A developer version allowing changes in the source code can be installed using::
+The tests can be ran using ::
 
-    $ python setup.py develop
+    $ python setup.py test
 
 To access the modules within the package without installing the package sett your `PYTHON_PATH` enviromental variable to include the package source directory `stream/stream`.
 
