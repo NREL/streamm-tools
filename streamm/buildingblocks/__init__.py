@@ -12,6 +12,5 @@ __status__ = "Beta"
 
 __all__ = ['container']
 
-
-import container as buildingblock
+from container import Container as Buildingblock
 

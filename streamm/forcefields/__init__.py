@@ -9,3 +9,12 @@ __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
 __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
+
+__all__ = ['particletype','bondtype','angletype','dihtype','container']
+
+from particletype import Particletype
+from bondtype import Bondtype
+from angletype import Angletype
+from dihtype import Dihtype
+from imptype import Imptype
+from container import Container as Parameters

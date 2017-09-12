@@ -21,12 +21,12 @@ import numpy as np
 from string import replace
 
 
-import streamm.structures.particle as particle
-import streamm.calculations.resource as resource 
+import streamm.structures #.particle as particle
+from streamm.buildingblocks.container import Container as BBCont
+#import streamm.calculations.resource as resource 
+from resource import Resource 
 from resource import CalculationRes
 
-import streamm.calculations.calculation as calculation
-from streamm.buildingblocks.container import Container as BBCont
 
 import logging
 logger = logging.getLogger(__name__)

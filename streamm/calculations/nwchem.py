@@ -21,13 +21,14 @@ import numpy as np
 from string import replace
 
 
-import streamm.structures.particle as particle
-import streamm.calculations.resource as resource 
+import streamm.structures 
+#import streamm.calculations.resource as resource 
+from resource import Resource 
 from resource import CalculationRes
 
-import streamm.calculations.calculation as calculation
+#import streamm.calculations.calculation 
+#from streamm.buildingblocks.container import Container as BBCont   
 from streamm.buildingblocks.container import Container as BBCont
-    
     
 import logging
 logger = logging.getLogger(__name__)
@@ -302,7 +303,7 @@ class NWChem(CalculationRes):
                     print "No resource found "
                 if( len(res_tag) > 0 ):
                     print "Resource tag found %s "%(res_tag)
-                    resource_i = resource.Resource(str(res_tag))
+                    resource_i = Resource(str(res_tag))
                     resource_i.load_json()
                     self.resource = resource_i
                                     

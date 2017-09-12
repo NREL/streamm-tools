@@ -10,7 +10,10 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-__all__ = ['calculation','resource','project']
+__all__ = ['calculation','resource','project','gaussian','lammps','nwchem']
 
-
-
+from resource import Resource
+from project import Project
+from gaussian import Gaussian
+from lammps import LAMMPS
+from nwchem import NWChem

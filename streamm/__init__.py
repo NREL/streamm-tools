@@ -10,4 +10,32 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-__all__ = ['buildingblocks','calculations','forcefields','mpi','util']
+#__all__ = ['buildingblocks','calculations','forcefields','mpi','util']
+__all__ = []
+
+from buildingblocks import Buildingblock
+from structures import Particle
+from structures import Bond 
+from structures import Angle 
+from structures import Dihedral 
+from structures import Improper 
+from structures import Group 
+from structures import Groups
+from structures import Lattice
+from structures import NBlist
+from structures import Structure
+
+
+from forcefields import Particletype
+from forcefields import Bondtype
+from forcefields import Angletype
+from forcefields import Dihtype
+from forcefields import Imptype
+from forcefields import Parameters
+
+
+from calculations import Resource
+from calculations import Project
+from calculations import Gaussian
+from calculations import LAMMPS
+from calculations import NWChem

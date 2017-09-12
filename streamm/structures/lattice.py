@@ -36,7 +36,6 @@ class Lattice(pymatgen_lat):
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
         
-        
     '''
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
@@ -46,9 +45,6 @@ class Lattice(pymatgen_lat):
 
 
     def __del__(self):
-        """
-        Destructor, clears structure memory and calls held container destructors
-        """
         del self.n_dim
         del self.pbcs 
         #
