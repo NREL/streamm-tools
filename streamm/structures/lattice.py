@@ -28,6 +28,7 @@ import random
 
 import streamm.util.units as units 
  
+ 
 
 DIMENSIONS=3 
 
@@ -38,13 +39,18 @@ class Lattice(pymatgen_lat):
     Kwargs:
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        units_conf (dict): Dictionary of units for each attribute type
         
     Copyright (c) Pymatgen Development Team.
     Distributed under the terms of the MIT License.
     '''
     
-    def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
+    def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
+        # Store the units of each attribute type 
+        self.unit_conf = unit_conf
+        # 
         self.n_dim = DIMENSIONS
+        
         pymatgen_lat.__init__(self, matrix=matrix)
         #
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off

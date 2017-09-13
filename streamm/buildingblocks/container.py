@@ -24,7 +24,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# Import streamm dependstructures.encies
+# Import streamm dependencies 
+import streamm.util.units as units
 from streamm.structures.container import Container as strucCont
 # from streamm.structures.container import Container
 from streamm.structures.lattice import Lattice 
@@ -78,9 +79,10 @@ class Container(strucCont):
         tag (str): Identifier for structure
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        units_conf (dict): Dictionary of units for each attribute type
     """    
-    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
-        strucCont.__init__(self, tag=tag, matrix=matrix)
+    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf):
+        strucCont.__init__(self, tag=tag, matrix=matrix,unit_conf=unit_conf )
         # Reactive sites 
         self.n_func = int(0)
         self.funcs = {}   

@@ -435,22 +435,22 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.calc_mass()
         self.strucC.calc_center_mass()
         self.strucC.shift_pos(-1.0*self.strucC.center_mass)  # Place center of mass at origin
-        file_i = os.path.join(os.path.dirname(__file__), "rot_0.xyz")
-        self.strucC.write_xyz(file_i)
+        file_i = "rot_0.xyz" # os.path.join(os.path.dirname(__file__), "rot_0.xyz")
+        self.strucC.write_xyz("rot_0.xyz")
         
         rot_angle = 1.5707963267949  # Angle in radians
         self.strucC.rotate_xy(rot_angle)
-        file_i = os.path.join(os.path.dirname(__file__), "rot_1.xyz")
+        file_i = "rot_1.xyz" # os.path.join(os.path.dirname(__file__), "rot_1.xyz")
         self.strucC.write_xyz(file_i)
         
         rot_angle = -1.5707963267949  # Angle in radians
         self.strucC.rotate_xz(rot_angle)
-        file_i = os.path.join(os.path.dirname(__file__), "rot_2.xyz")
+        file_i = "rot_2.xyz" # os.path.join(os.path.dirname(__file__), "rot_2.xyz")
         self.strucC.write_xyz(file_i)
         
         rot_angle = 1.5707963267949  # Angle in radians
         self.strucC.rotate_yz(rot_angle)
-        file_i = os.path.join(os.path.dirname(__file__), "rot_3.xyz")
+        file_i = "rot_3.xyz" #os.path.join(os.path.dirname(__file__), "rot_3.xyz")
         self.strucC.write_xyz(file_i)
 
     def test_calcel(self):

@@ -80,16 +80,26 @@ class Container(object):
     """
     Data structure for describing a collection of Particles that have associated
     positions within a Lattice, and consistent set keys corresponding to
-    Bond, Angle, Dihedral and Improper descriptions 
+    Bond, Angle, Dihedral and Improper descriptions
+    
+
+    Kwargs:
+        tag (str): Identifier for structure container 
+        matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
+        with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        units_conf (dict): Dictionary of units for each attribute type
+            
     """
 
-    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
+    def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
         """
         Constructor for a composite structures. 
         """
         self.tag = tag
+        # Store the units of each attribute type 
+        self.unit_conf = unit_conf  
         
-        self.lat = Lattice(matrix)                             # Creates lattice object for structure
+        self.lat = Lattice(matrix,unit_conf=unit_conf )                             # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
@@ -109,10 +119,10 @@ class Container(object):
         # NoteTK this should be n_mol 
         self.mol_max = 0 
 
-        self.mass = units.Mass(0.0,'amu')
-        self.volume = units.Volume(0.0,'ang^3')
-        self.density = units.Density(0.0,'amu_ang^3')
-        self.center_mass = units.LengthArray([0.0 for d in range(self.lat.n_dim)],'ang')
+        self.mass = 0.0 
+        self.volume = 0.0 
+        self.density = 0.0 
+        self.center_mass = np.zeros(self.lat.n_dim)
         self.dipole = np.zeros(self.lat.n_dim)
         # Reference information 
         self.name = ""   # Tag of structure to be set by file read in 

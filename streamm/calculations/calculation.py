@@ -22,11 +22,12 @@ from datetime import datetime
 try:
     # Import pymatgen Class 
     import pymatgen.core.periodic_table as pymatgen_pt
-    import pymatgen.core.units as units
 except:
     raise ImportError("pymatgen import error for periodic_table object")
 
 
+# Import streamm dependencies 
+import streamm.util.units as units
 from streamm.buildingblocks.container import Container as BBCont
 from streamm.forcefields.container import Container as ParamCont
 
@@ -44,31 +45,65 @@ class Calculation(object):
     These input, output and data files are tracked within a dictionary
     along with dictionaries of meta data and units.
         
-    '''
-    def __init__(self, tag):
-        """
-        Constructor for a general Calculation object.
         
-        Args:
-            tag (str): String identifier for object
+    Args:
+        tag (str): String identifier for object
+    
+    Kwargs:
+        units_conf (dict): Dictionary of units for each attribute type
+        
 
-        self.data (dict) Calculation data 
-        self.units (dict) Track the units used in calculation
-        self.meta (dict) Track Calculation data 
-        self.files (dict) Files needed and produced by calculation
-            self.files['input']  (dict) Input files for calculation
-            self.files['templates']  (dict) Templates files for calculation
-            self.files['scripts']  (dict) Scripts files for calculation
-            self.files['output'] (dict) Output files 
-            self.files['data']   (dict) Data produced by calculation
-        self.str['templates'] (dict) of template strings
-        """
+    .. attribute:: data (dict)
+    
+        Calculation data
+        
+    .. attribute:: units (dict)
+    
+        Track the units used in calculation
+        
+    .. attribute:: meta (dict)
+        
+        Track Calculation data
+        
+    .. attribute:: files (dict)
+        
+        Files needed and produced by calculation
+    
+    .. attribute:: files['input']  (dict)
+    
+        Input files for calculation
+        
+    .. attribute:: files['templates']  (dict)
+        
+        Templates files for calculation
+        
+    .. attribute:: files['scripts']  (dict)
+        
+        Scripts files for calculation
+        
+    .. attribute:: files['output'] (dict)
+        
+        Output files
+        
+    .. attribute:: files['data']   (dict)
+    
+        Data produced by calculation
+    
+    .. attribute:: str['templates'] (dict)
+    
+        Template files
+        
+    '''
+    def __init__(self, tag,unit_conf=units.unit_conf ):
+        
         self.tag = str(tag)
+        # Store the units of each attribute type 
+        self.unit_conf = unit_conf  
         
         self.prefix = 'calc'
         self.data = dict()
 
-        self.strucC = BBCont()
+        self.strucC = BBCont(unit_conf=unit_conf )
         self.paramC = ParamCont()
         
         dt = datetime.fromtimestamp(time.time())
