@@ -12,8 +12,14 @@ class Bond(object):
     """Data structure for describing any 2-point association of Particles
 
     Args:
-        pkey1 (int): Index of Particle 1.
-        pkey2 (int): Index of Particle 2.
+        pkey1 (int): Index of Particle i.
+        pkey2 (int): Index of Particle i.
+        
+
+    .. attribute:: length (float)
+
+        length of the bond 
+                
     """
     def __init__(self, pkey1, pkey2):
         self.pkey1 = pkey1

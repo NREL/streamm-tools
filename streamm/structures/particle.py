@@ -38,7 +38,7 @@ class Particle(object):
     
     .. attribute:: mass (float)
 
-        Mass of the particle in AMU 
+        Mass of the particle 
     
     .. attribute:: charge (float)
     
