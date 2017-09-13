@@ -29,34 +29,67 @@ from streamm.structures.lattice import Lattice
 class Particle(object):
     """Data structure for describing any localized object in QM/MD simulation, such as an atom.
     
-    Particles have the fundmental properties of
+
+    Kwargs:
+        * type   (str): Particle type
+        * label  (str): Identifier in output files
+        * symbol (str): Atomic symbol
+            
+    Particles have the fundmental attributes of
     
-    * mass
-    * charge
-    * bonded_radius
-    * nonbonded_radius
+    .. attribute:: mass (float)
+
+        Mass of the particle 
     
-    which are used through out the streamm code.  Additional properties include:
+    .. attribute:: charge (float)
     
-    * mol
-    * ring
-    * residue
-    * resname
-    * qgroup
-    * index
-    * ffkey
+        Charge of the particle in e 
+
+    .. attribute:: bonded_radius (float)
     
-    The ``element`` property can be set to an element object from the
+        Radius in (angstroms) used in determining if two particles are bonded 
+
+    .. attribute:: nonbonded_radius (float)
+
+        Radius in (angstroms) used in determining if two particles are interacting
+    
+    which are used through out the streamm code.  Additional attributes include:
+    
+    .. attribute:: mol (int)
+        
+        Molecule index
+    
+    .. attribute:: ring (int)
+        
+        Ring index
+    
+    .. attribute:: residue (int)
+
+        Residue index 
+    
+    .. attribute:: resname (str)
+
+        Residue name 
+    
+    .. attribute:: qgroup (int)
+
+        Charge group index 
+    
+    .. attribute:: index (int)
+
+        Index of particle in particle dictionary 
+    
+    .. attribute:: ffkey (str)
+
+        Particletype key
+        
+    
+    The ``element`` attribute can be set to an element object from the
     ``periodic_table`` object in ``pymatgen``.
     
-    The ``ff`` property can be set to a ``Particletype`` object. 
+    The ``ff`` attribute can be set to a ``Particletype`` object. 
     
-    Kwargs:
-        type   (str): Particle type.
-        label  (str): Identifier in output files.
-        symbol (str): Atomic symbol.
-        
-    .. todo:
+    .. TODO:
         * create function p_i.get_properties()
         * set position in particle object 
 
@@ -68,10 +101,10 @@ class Particle(object):
         Set the element of property of the particle
         
         Kwargs:
-            symbol (str): Atomic symbol.
-            number (int): Atomic number
-            mass   (float): Atomic mass (AMU)
-            mass_precision (int): precision to match the mass with value from
+            * symbol (str): Atomic symbol.
+            * number (int): Atomic number
+            * mass   (float): Atomic mass (AMU)
+            * mass_precision (int): precision to match the mass with value from
             periodic table 
             
         This will set the ``symbol`` property of the particle to the Atomic symbol,
@@ -82,18 +115,18 @@ class Particle(object):
         '''
         if( symbol != None ):
             self.symbol = str(symbol)
-            logger.info("Finding element by atomic symbol {}".format(self.symbol))
+            logger.debug("Finding element by atomic symbol {}".format(self.symbol))
             self.element = periodictable.Element(self.symbol)
             
         elif( number != None ):
             number = int(number)
-            logger.info("Finding element by atomic number {}".format(number))
+            logger.debug("Finding element by atomic number {}".format(number))
             self.element = periodictable.Element.from_Z(number)
             self.symbol = self.element.symbol
             
         elif( mass != None ):
             mass = float(mass)
-            logger.info("Finding element by atomic mass {} ".format(mass))
+            logger.debug("Finding element by atomic mass {} ".format(mass))
             for symbol, data in periodictable._pt_data.items():
                 if round(data["Atomic mass"],mass_precision) == round(mass,mass_precision):
                     self.symbol = symbol
@@ -112,7 +145,7 @@ class Particle(object):
         self.mass = self.element.atomic_mass
         self.bonded_radius = self.element.atomic_radius_calculated
         self.nonbonded_radius = self.element.van_der_waals_radius
-
+        logger.info("Particle[{}] has been set to C with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
         self.element.atomic_weight = self.element.atomic_mass
@@ -123,6 +156,7 @@ class Particle(object):
     
     def __init__(self,type='atom',label=None,symbol = None ):
         #
+        logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
         self.type = type
         self.label = label
         self.symbol = symbol
@@ -154,12 +188,12 @@ class Particle(object):
         #
         if( symbol != None ):
             self.set_element(symbol=symbol)
-            logger.info("No label is given using symbol as label")
+            logger.debug("No label is given using symbol as label")
             if( label == None  ):
                 self.label  = symbol
             
         elif( label != None ):
-            logger.info("No symbol is given using label as symbol")
+            logger.debug("No symbol is given using label as symbol")
             self.symbol = label
         
         
@@ -187,5 +221,5 @@ class Particle(object):
         del self.rsite
         
     def __str__(self):
-        return "{}:{}".format(self.type,self.label)
+        return "{}[{}] {} ({})".format(self.type,self.index,self.label,self.symbol,)
     

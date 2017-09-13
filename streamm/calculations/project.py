@@ -10,17 +10,6 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-"""
-Project is a set of calcultions
-
-Projects track:
-  file IO
-  simulations ran
-  computational resources used for each simulation
-
-Data for each action is stored in a json file
-
-"""
 
 import copy , os , json , sys
 import time, datetime
@@ -28,6 +17,7 @@ from string import replace
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 # streamm
 from streamm.calculations.resource import Resource
@@ -40,15 +30,23 @@ from streamm.calculations.resource import CalculationRes
 
 class Project(CalculationRes):
     '''
-    Data structure for a project 
+    Data structure for a project
+    
+    
+    Project is a set of calcultions
+    
+    Projects track:
+      file IO
+      simulations ran
+      computational resources used for each simulation
+    
+    Data for each action is stored in a json file
+
+    Args:
+        tag (str): String identifier for object
+        
     '''
     def __init__(self,tag):
-        """
-        Constructor for a general project object.
-        
-        Args:
-            tag (str): String identifier for object
-        """
         # Base class constructor is called
         CalculationRes.__init__(self,tag)
         self.meta['software'] = 'streamm_proj'
@@ -57,9 +55,6 @@ class Project(CalculationRes):
         self.resources = dict()
         
     def __del__(self):
-        """
-        Delete Calculation object
-        """
         # Call base class destructor
         CalculationRes.__del__(self)        
         del self.calculations
@@ -68,7 +63,8 @@ class Project(CalculationRes):
 
     def dump_json(self):
         '''
-        Dump json file for reference 
+        Dump json file for reference
+        
         '''
         json_data = dict()
         json_data['meta'] = self.meta

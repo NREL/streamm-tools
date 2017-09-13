@@ -36,9 +36,12 @@ class Lattice(pymatgen_lat):
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
         
+    Copyright (c) Pymatgen Development Team.
+    Distributed under the terms of the MIT License.
     '''
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
+        self.n_dim = 3
         pymatgen_lat.__init__(self, matrix=matrix)
         #
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
@@ -48,6 +51,50 @@ class Lattice(pymatgen_lat):
         del self.n_dim
         del self.pbcs 
         #
+
+    def set_matrix(self,matrix):
+        '''
+        Set the matrix values and reset lengths and angles accordingly
+        
+        Args:
+            matrix (list) of length n_dim x n_dim
+        
+        
+        '''
+        
+        def abs_cap(val, max_abs_val=1):
+            """
+            Returns the value with its absolute value capped at max_abs_val.
+            Particularly useful in passing values to trignometric functions where
+            numerical errors may result in an argument > 1 being passed in.
+        
+            Args:
+                val (float): Input value.
+                max_abs_val (float): The maximum absolute value for val. Defaults to 1.
+        
+            Returns:
+                val if abs(val) < 1 else sign of val * max_abs_val.
+            """
+            return max(min(val, max_abs_val), -max_abs_val)
+        
+        m = np.array(matrix, dtype=np.float64).reshape((self.n_dim, self.n_dim))
+        lengths = np.sqrt(np.sum(m ** 2, axis=1))
+        angles = np.zeros(self.n_dim)
+        for i in range(self.n_dim):
+            j = (i + 1) % self.n_dim
+            k = (i + 2) % self.n_dim
+            angles[i] = abs_cap(np.dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+
+        self._angles = np.arccos(angles) * 180. / np.pi
+        self._lengths = lengths
+        self._matrix = m
+        self._inv_matrix = None
+        self._metric_tensor = None
+        self._diags = None
+        self._lll_matrix_mappings = {}
+        self._lll_inverse = None
+        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
+        
         
     def set_group_i(self):
         '''

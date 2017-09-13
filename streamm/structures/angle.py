@@ -18,9 +18,15 @@ class Angle(object):
     """Data structure for describing any 3-point associatiaon of Particles
 
     Args:
-        pkey1   (int):   Index of Particle object in angle
-        pkey2   (int):   Index of Particle object in angle
-        pkey3   (int):   Index of Particle object in angle    
+        * pkey1   (int):   Index of Particle object in angle
+        * pkey2   (int):   Index of Particle object in angle
+        * pkey3   (int):   Index of Particle object in angle
+        
+
+    .. attribute:: cosine (float)
+
+        Cosine of the bond angle
+        
     """
     def __init__(self, pkey1, pkey2, pkey3):
         self.pkey1 = pkey1
