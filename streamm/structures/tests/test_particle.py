@@ -30,7 +30,7 @@ class TestParticle(unittest.TestCase):
         self.assertEqual(self.part.type,"atom")
         
     def test_str(self):
-        self.assertEqual(str(self.part),"atom:C137")
+        self.assertEqual(str(self.part),"atom[None] C137 (C137)")
         
     def test_element_symbol(self):
         self.part.set_element(symbol='S')
@@ -91,7 +91,7 @@ class TestParticleAtom(unittest.TestCase):
         self.assertEqual(self.atom.element.vdw_radius,1.66)
     
     def test_str(self):
-        self.assertEqual(str(self.atom),"atom:Au")
+        self.assertEqual(str(self.atom),"atom[None] Au (Au)")
 
     @tearDown_streamm 
     def tearDown(self):
