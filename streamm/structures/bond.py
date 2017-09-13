@@ -8,6 +8,10 @@ __version__ = "0.3"
 __email__ = "travis.kemper.w@gmail.com"
 __status__ = "Beta"
 
+# Import streamm dependencies 
+import streamm.util.units as units
+
+
 class Bond(object):
     """Data structure for describing any 2-point association of Particles
 

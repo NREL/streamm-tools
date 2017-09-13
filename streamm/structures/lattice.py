@@ -45,8 +45,7 @@ class Lattice(pymatgen_lat):
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
         self.n_dim = DIMENSIONS
-        m = units.LengthArray(matrix,'ang')
-        pymatgen_lat.__init__(self, matrix=m)
+        pymatgen_lat.__init__(self, matrix=matrix)
         #
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
 

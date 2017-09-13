@@ -159,7 +159,7 @@ class Particle(object):
         
         return
     
-    def __init__(self,type='atom',label=None,symbol = None ):
+    def __init__(self,type='atom',label=None,symbol = None,units_conf=units.unit_conf ):
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
         self.type = type
@@ -168,11 +168,11 @@ class Particle(object):
         #
         # Default Physical properties
         #
-        self.mass             = units.Mass(1.0,'amu')  # Choose reasonable values for initialization 
-        self.charge           = units.Charge(0.0,'e')  # Choose reasonable values for initialization     
-        #
-        self.bonded_radius    = units.Length(1.0,'ang')   # Choose reasonable values for initialization 
-        self.nonbonded_radius = units.Length(2.0,'ang')  # Choose reasonable values for initialization 
+        self.mass             = units.Mass(1.0,units_conf['mass'])  # Choose reasonable values for initialization 
+        self.charge           = units.Charge(0.0,units_conf['charge'])  # Choose reasonable values for initialization     
+        # 
+        self.bonded_radius    = units.Length(1.0,units_conf['length'])   # Choose reasonable values for initialization 
+        self.nonbonded_radius = units.Length(2.0,units_conf['length'])  # Choose reasonable values for initialization 
         # 
         self.mol      = 0
         self.ring     = 0

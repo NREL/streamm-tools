@@ -45,19 +45,19 @@ class TestContainer(unittest.TestCase):
         self.strucC = container.Container("Test_structure1")
         
     def test_str(self):
-        self.assertEqual(str(self.strucC)," Test_structure1")
+        self.assertAlmostEqual(str(self.strucC)," Test_structure1")
 
     def test_Lattice(self):
         matrix = [ 132,0,0,0,127,0,0,0,150 ]
         self.strucC.lat.set_matrix(matrix)
         
-        self.assertEqual(self.strucC.lat._lengths[0],132.0)
-        self.assertEqual(self.strucC.lat._lengths[1],127.0)
-        self.assertEqual(self.strucC.lat._lengths[2],150.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[0],132.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[1],127.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[2],150.0)
 
-        self.assertEqual(self.strucC.lat._angles[0],90.0)
-        self.assertEqual(self.strucC.lat._angles[1],90.0)
-        self.assertEqual(self.strucC.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.strucC.lat._angles[0],90.0)
+        self.assertAlmostEqual(self.strucC.lat._angles[1],90.0)
+        self.assertAlmostEqual(self.strucC.lat._angles[2],90.0)
 
     def test_particles(self):
         self.part = particle.Particle(symbol="Ir")
@@ -66,72 +66,72 @@ class TestContainer(unittest.TestCase):
         pos_i = [ 0.0,0.0,0.0]
         pos_add.append(pos_i)
         self.strucC.add_position(pos_i)        
-        self.assertEqual(self.strucC.n_particles,1)
+        self.assertAlmostEqual(self.strucC.n_particles,1)
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,0.0,1.5]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,2)
+        self.assertAlmostEqual(self.strucC.n_particles,2)
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,1.50,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,3)
+        self.assertAlmostEqual(self.strucC.n_particles,3)
 
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 1.50,0.0,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,0.0,-1.5]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,-1.50,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ -1.50,0.0,0.0]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
 
         self.part = particle.Particle(symbol="H")
         pos_i = [ 0.0,0.750,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
         
         self.part = particle.Particle(symbol="H")
         pos_i = [ 0.750,0.0,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
         self.part = particle.Particle(symbol="H")
         pos_i = [- 0.53,-0.53,1.75]   
         pos_add.append(pos_i)
         self.strucC.add_partpos(self.part,pos_i)
-        self.assertEqual(self.strucC.n_particles,len(pos_add))
+        self.assertAlmostEqual(self.strucC.n_particles,len(pos_add))
 
         p_cnt = 0
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
             pos_i = self.strucC.positions[pkey_i]
             
-            self.assertEqual(pkey_i,p_cnt,"Particle keys are non sequential" )
-            self.assertEqual(pos_i[0],pos_add[pkey_i][0])
-            self.assertEqual(pos_i[1],pos_add[pkey_i][1])
-            self.assertEqual(pos_i[2],pos_add[pkey_i][2])
+            self.assertAlmostEqual(pkey_i,p_cnt,"Particle keys are non sequential" )
+            self.assertAlmostEqual(pos_i[0],pos_add[pkey_i][0])
+            self.assertAlmostEqual(pos_i[1],pos_add[pkey_i][1])
+            self.assertAlmostEqual(pos_i[2],pos_add[pkey_i][2])
 
             p_cnt +=1
 
@@ -165,7 +165,7 @@ class TestContainer(unittest.TestCase):
         bond_str.append(' 1 - 9')
         self.strucC.add_bond(self.bond_i)
         for bkey_i, bond_i  in self.strucC.bonds.iteritems():
-            self.assertEqual(str(bond_i),bond_str[bkey_i])
+            self.assertAlmostEqual(str(bond_i),bond_str[bkey_i])
 
     def test_nblist(self):
 
@@ -256,7 +256,7 @@ class TestContainer(unittest.TestCase):
         nb_cnt = 0 
         for pkey_i  in self.strucC.particles.keys():
             for pkey_j in self.strucC.bonded_nblist.getnbs(pkey_i):
-                self.assertEqual(str(pkey_i)+"  -  "+str(pkey_j),nb_str[nb_cnt])
+                self.assertAlmostEqual(str(pkey_i)+"  -  "+str(pkey_j),nb_str[nb_cnt])
                 nb_cnt += 1
 
     def test_angles(self):
@@ -271,7 +271,7 @@ class TestContainer(unittest.TestCase):
         angle_str.append(' 5 - 0 - 6')
         self.strucC.add_angle(self.angle_i)
         for akey_i, angle_i  in self.strucC.angles.iteritems():
-            self.assertEqual(str(angle_i),angle_str[akey_i])
+            self.assertAlmostEqual(str(angle_i),angle_str[akey_i])
 
 
     def test_dihedrals(self):
@@ -286,7 +286,7 @@ class TestContainer(unittest.TestCase):
         dihedral_str.append(' 2 - 0 - 1 - 9')
         self.strucC.add_dihedral(self.dihedral_i)
         for dkey_i, dihedral_i  in self.strucC.dihedrals.iteritems():
-            self.assertEqual(str(dihedral_i),dihedral_str[dkey_i])
+            self.assertAlmostEqual(str(dihedral_i),dihedral_str[dkey_i])
 
 
     def test_impropers(self):
@@ -298,7 +298,7 @@ class TestContainer(unittest.TestCase):
         improper_str.append(' 0 - 4 - 5 - 6')
         self.strucC.add_improper(self.improper_i)
         for ikey_i, improper_i  in self.strucC.impropers.iteritems():
-            self.assertEqual(str(improper_i),improper_str[ikey_i])
+            self.assertAlmostEqual(str(improper_i),improper_str[ikey_i])
         
         
 
@@ -309,9 +309,9 @@ class TestContainer(unittest.TestCase):
         self.strucC.shift( 0, np.array([-0.5,-1.5,-1.0]) )
 
         pos_j = self.strucC.positions[0]
-        self.assertEqual(pos_j[0],0.50)
-        self.assertEqual(pos_j[1],0.50)
-        self.assertEqual(pos_j[2],0.50)
+        self.assertAlmostEqual(pos_j[0],0.50)
+        self.assertAlmostEqual(pos_j[1],0.50)
+        self.assertAlmostEqual(pos_j[2],0.50)
 
 
     def test_shift_pos(self):
@@ -328,14 +328,14 @@ class TestContainer(unittest.TestCase):
         self.strucC.shift_pos( np.array([-0.5,-1.5,-1.0]) )
 
         pos_j = self.strucC.positions[0]
-        self.assertEqual(pos_j[0],0.50)
-        self.assertEqual(pos_j[1],0.50)
-        self.assertEqual(pos_j[2],0.50)
+        self.assertAlmostEqual(pos_j[0],0.50)
+        self.assertAlmostEqual(pos_j[1],0.50)
+        self.assertAlmostEqual(pos_j[2],0.50)
 
         pos_j = self.strucC.positions[1]
-        self.assertEqual(pos_j[0],5.50)
-        self.assertEqual(pos_j[1],5.50)
-        self.assertEqual(pos_j[2],5.50)
+        self.assertAlmostEqual(pos_j[0],5.50)
+        self.assertAlmostEqual(pos_j[1],5.50)
+        self.assertAlmostEqual(pos_j[2],5.50)
                 
     @tearDown_streamm 
     def tearDown(self):
@@ -380,7 +380,7 @@ class Test_guessnbs(unittest.TestCase):
         for pkey_i, particle_i in self.strucC.particles.iteritems():
              for pkey_j in   self.strucC.bonded_nblist.getnbs(pkey_i):
                  # print " str_nbs_list.append(\' %d - %d \')"%(pkey_i,pkey_j)
-                 self.assertEqual(str_nbs_list[cnt],' %d - %d'%(pkey_i,pkey_j) )
+                 self.assertAlmostEqual(str_nbs_list[cnt],' %d - %d'%(pkey_i,pkey_j) )
                  cnt += 1
         
     @tearDown_streamm 
@@ -456,26 +456,26 @@ class TestBuildThiophene(unittest.TestCase):
     def test_calcel(self):
 
         n_el = self.strucC.calc_elcnt(0,self.strucC.bonded_nblist)
-        self.assertEqual(n_el[1],1)
-        self.assertEqual(n_el[6],1)
-        self.assertEqual(n_el[16],1)
+        self.assertAlmostEqual(n_el[1],1)
+        self.assertAlmostEqual(n_el[6],1)
+        self.assertAlmostEqual(n_el[16],1)
         n_el = self.strucC.calc_elcnt(1,self.strucC.bonded_nblist)
-        self.assertEqual(n_el[1],1)
-        self.assertEqual(n_el[6],2)
+        self.assertAlmostEqual(n_el[1],1)
+        self.assertAlmostEqual(n_el[6],2)
         n_el = self.strucC.calc_elcnt(4,self.strucC.bonded_nblist)
-        self.assertEqual(n_el[6],2)
+        self.assertAlmostEqual(n_el[6],2)
         
 
     def test_bonds(self):
         self.strucC.bonded_bonds()
         self.strucC.calc_bonds()
         self.strucC.write_bonds('bonds_all.csv')
-        self.assertEqual(round(self.strucC.bonds[0].length,6),1.377226)
-        self.assertEqual(round(self.strucC.bonds[1].length,6),1.672168)
-        self.assertEqual(round(self.strucC.bonds[2].length,6),1.088203)
-        self.assertEqual(round(self.strucC.bonds[3].length,6),1.432118)
-        self.assertEqual(round(self.strucC.bonds[4].length,6),1.091483)
-        self.assertEqual(round(self.strucC.bonds[5].length,6),1.377194)
+        self.assertAlmostEqual(round(self.strucC.bonds[0].length,6),1.377226)
+        self.assertAlmostEqual(round(self.strucC.bonds[1].length,6),1.672168)
+        self.assertAlmostEqual(round(self.strucC.bonds[2].length,6),1.088203)
+        self.assertAlmostEqual(round(self.strucC.bonds[3].length,6),1.432118)
+        self.assertAlmostEqual(round(self.strucC.bonds[4].length,6),1.091483)
+        self.assertAlmostEqual(round(self.strucC.bonds[5].length,6),1.377194)
 
 
     def test_listbondlengths(self):
@@ -493,9 +493,9 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.calc_bonds(CC_bondkeys)
         CC_bondlengths = self.strucC.get_list_bonds_lengths(CC_bondkeys)
                
-        self.assertEqual(round(CC_bondlengths[0],PRECISION),1.3772)
-        self.assertEqual(round(CC_bondlengths[1],PRECISION),1.4321)
-        self.assertEqual(round(CC_bondlengths[2],PRECISION),1.3772)
+        self.assertAlmostEqual(round(CC_bondlengths[0],PRECISION),1.3772)
+        self.assertAlmostEqual(round(CC_bondlengths[1],PRECISION),1.4321)
+        self.assertAlmostEqual(round(CC_bondlengths[2],PRECISION),1.3772)
         outf = 'CCbonds.csv'
         self.strucC.write_bonds(outf,CC_bondkeys)
         # Get C-S bond lengths
@@ -512,8 +512,8 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.calc_bonds(CS_bondkeys)
         CS_bondlengths = self.strucC.get_list_bonds_lengths(CS_bondkeys)
         
-        self.assertEqual(round(CS_bondlengths[0],PRECISION),1.6722)
-        self.assertEqual(round(CS_bondlengths[0],PRECISION),1.6722)
+        self.assertAlmostEqual(round(CS_bondlengths[0],PRECISION),1.6722)
+        self.assertAlmostEqual(round(CS_bondlengths[0],PRECISION),1.6722)
         outf = 'CSbonds.csv'
         self.strucC.write_bonds(outf,CS_bondkeys)
         
@@ -521,8 +521,8 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.bonded_angles()
         self.strucC.calc_angles()
         self.strucC.write_angles('angles_all.csv')
-        self.assertEqual(round(self.strucC.angles[0].cosine,6),0.367484)
-        self.assertEqual(round(self.strucC.angles[12].cosine,6),0.066883)
+        self.assertAlmostEqual(round(self.strucC.angles[0].cosine,6),0.367484)
+        self.assertAlmostEqual(round(self.strucC.angles[12].cosine,6),0.066883)
         
     def test_listbondangles(self):
         PRECISION =4
@@ -540,8 +540,8 @@ class TestBuildThiophene(unittest.TestCase):
         CCC_keys = self.strucC.find_angles(list_k,list_i,list_j)
         self.strucC.calc_angles(CCC_keys)
         CCC_cos = self.strucC.get_list_angles_cosine(CCC_keys) # structure.prop_list('cosine',CCC_keys,self.strucC.angles)
-        self.assertEqual(round(CCC_cos[0],PRECISION),0.3669)
-        self.assertEqual(round(CCC_cos[1],PRECISION),0.3669)
+        self.assertAlmostEqual(round(CCC_cos[0],PRECISION),0.3669)
+        self.assertAlmostEqual(round(CCC_cos[1],PRECISION),0.3669)
         outf = 'CCC_cos.csv'
         self.strucC.write_angles(outf,CCC_keys)
         # Get C-S bond lengths
@@ -558,7 +558,7 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.calc_angles(CSC_keys)
         
         CSC_cos = self.strucC.get_list_angles_cosine(CSC_keys) # structure.prop_list('cosine',CSC_keys,self.strucC.angles)
-        self.assertEqual(round(CSC_cos[0],PRECISION),0.0669)
+        self.assertAlmostEqual(round(CSC_cos[0],PRECISION),0.0669)
         outf = 'CSC_cos.csv'
         self.strucC.write_angles(outf,CSC_keys)
         
@@ -567,12 +567,12 @@ class TestBuildThiophene(unittest.TestCase):
         self.strucC.bonded_dih()
         self.strucC.calc_dihedrals()
         self.strucC.write_dihedrals('dih_all.csv')
-        self.assertEqual(round(self.strucC.dihedrals[8].cosine,6),-1.0)
+        self.assertAlmostEqual(round(self.strucC.dihedrals[8].cosine,6),-1.0)
         
     def test_calcdihc(self):
         dih_i = dihedral.Dihedral(3,2,1,0)
         self.strucC.calc_dihedral(dih_i)
-        self.assertEqual(dih_i.cosine,0.99999980013324519)
+        self.assertAlmostEqual(dih_i.cosine,0.99999980013324519)
 
     def test_listdihangle(self):
         PRECISION =4
@@ -595,7 +595,7 @@ class TestBuildThiophene(unittest.TestCase):
         CCCC_keys = self.strucC.find_dihedrals(list_k,list_i,list_j,list_l)
         self.strucC.calc_dihedrals(CCCC_keys)
         CCCC_cos = self.strucC.get_list_dihedral_cosine(CCCC_keys) # structure.prop_list('cosine',CCCC_keys,self.strucC.dihedrals)
-        self.assertEqual(round(CCCC_cos[0],PRECISION),1.0)
+        self.assertAlmostEqual(round(CCCC_cos[0],PRECISION),1.0)
         outf = 'CCCC_cos.csv'
         self.strucC.write_dihedrals(outf,CCCC_keys)
         
@@ -603,25 +603,25 @@ class TestBuildThiophene(unittest.TestCase):
     def test_expand_matrix(self):
         exlat_frac = 0.050  # 5%
         self.strucC.lat.expand_matrix(exlat_frac)
-        self.assertEqual(self.strucC.lat._lengths[0],105.0)
-        self.assertEqual(self.strucC.lat._lengths[1],105.0)
-        self.assertEqual(self.strucC.lat._lengths[2],105.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[0],105.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[1],105.0)
+        self.assertAlmostEqual(self.strucC.lat._lengths[2],105.0)
             
     def test_tag(self):
-        self.assertEqual(self.strucC.tag,'thiophene')
+        self.assertAlmostEqual(self.strucC.tag,'thiophene')
         #el_cnt = calc_elcnt
         
     def test_n_molecules(self):
-        self.assertEqual(self.strucC.n_molecules(),0)
+        self.assertAlmostEqual(self.strucC.n_molecules(),0)
 
     def test_mol_mult(self): 
         self.strucC.mol_mult()
-        self.assertEqual(self.strucC.mol_multiplier,100.0)
+        self.assertAlmostEqual(self.strucC.mol_multiplier,100.0)
         
 
     def test_maxtags(self): 
         self.strucC.maxtags()
-        self.assertEqual(self.strucC.mol_max,0)
+        self.assertAlmostEqual(self.strucC.mol_max,0)
 
     def test_dump_pickle(self):
         self.strucC.dump_pickle()
@@ -629,7 +629,7 @@ class TestBuildThiophene(unittest.TestCase):
 
     def test_write_xyz_str(self):
         xyz_str = self.strucC.write_xyz_str()
-        self.assertEqual(xyz_str,' 9 \n thiophene \n     C      -1.55498576      -1.91131218      -0.00081000 \n     C      -0.17775976      -1.91131218      -0.00081000 \n     C       0.34761524      -0.57904218      -0.00081000 \n     C      -0.65884476       0.36101082       0.00000000 \n     S      -2.16948076      -0.35614618      -0.00000800 \n     H      -2.18966076      -2.79526518      -0.00132100 \n     H       0.45389024      -2.80145418      -0.00106400 \n     H       1.41682424      -0.35961818      -0.00138200 \n     H      -0.51943676       1.44024682       0.00064700 \n')
+        self.assertAlmostEqual(xyz_str,' 9 \n thiophene \n     C      -1.55498576      -1.91131218      -0.00081000 \n     C      -0.17775976      -1.91131218      -0.00081000 \n     C       0.34761524      -0.57904218      -0.00081000 \n     C      -0.65884476       0.36101082       0.00000000 \n     S      -2.16948076      -0.35614618      -0.00000800 \n     H      -2.18966076      -2.79526518      -0.00132100 \n     H       0.45389024      -2.80145418      -0.00106400 \n     H       1.41682424      -0.35961818      -0.00138200 \n     H      -0.51943676       1.44024682       0.00064700 \n')
         
 
     def test_write_xyz_list(self):
@@ -667,44 +667,44 @@ class TestBuildThiophene(unittest.TestCase):
 
     def test_calc_properties(self): 
         self.strucC.calc_mass()
-        self.assertEqual(self.strucC.mass,84.13956)
+        self.assertAlmostEqual(self.strucC.mass,84.13956)
  
         self.strucC.calc_charge()
-        self.assertEqual(self.strucC.charge,0.2)
+        self.assertAlmostEqual(self.strucC.charge,0.2)
         self.strucC.lat_cubic(12.0)
         self.strucC.calc_volume()
-        self.assertEqual(self.strucC.volume,1728.0)
+        self.assertAlmostEqual(self.strucC.volume,1728.0)
         
         self.strucC.calc_density()
-        self.assertEqual(self.strucC.density,0.048691875)
+        self.assertAlmostEqual(self.strucC.density,0.048691875)
         self.strucC.calc_center_mass()
         
         nptu.assert_almost_equal(self.strucC.center_mass,[ -1.12858935e+00  , -7.66617741e-01 , -3.87300502e-04])
         
     def test_calc_composition(self): 
         self.strucC.calc_composition()
-        self.assertEqual(self.strucC.composition[1],4)
-        self.assertEqual(self.strucC.composition[6],4)
-        self.assertEqual(self.strucC.composition[16],1)
+        self.assertAlmostEqual(self.strucC.composition[1],4)
+        self.assertAlmostEqual(self.strucC.composition[6],4)
+        self.assertAlmostEqual(self.strucC.composition[16],1)
         
         
     def test_calc_formula(self): 
         self.strucC.calc_formula()
-        self.assertEqual(self.strucC.chemicalformula,'C4H4S1')
+        self.assertAlmostEqual(self.strucC.chemicalformula,'C4H4S1')
         
     def test_sum_prop(self):
         pkey_i = 5
         pkeyp_j = 0
         self.strucC.sum_prop(pkey_i,pkeyp_j)
-        self.assertEqual(self.strucC.particles[pkey_i].charge,0.05)
+        self.assertAlmostEqual(self.strucC.particles[pkey_i].charge,0.05)
                      
 
     def test_change_mass(self): 
         self.strucC.change_mass('C',13.02)
-        self.assertEqual(self.strucC.particles[0].mass,13.02)
-        self.assertEqual(self.strucC.particles[1].mass,13.02)
-        self.assertEqual(self.strucC.particles[2].mass,13.02)
-        self.assertEqual(self.strucC.particles[3].mass,13.02)
+        self.assertAlmostEqual(self.strucC.particles[0].mass,13.02)
+        self.assertAlmostEqual(self.strucC.particles[1].mass,13.02)
+        self.assertAlmostEqual(self.strucC.particles[2].mass,13.02)
+        self.assertAlmostEqual(self.strucC.particles[3].mass,13.02)
 
         
     def test_get_pos(self): 
@@ -732,7 +732,7 @@ class TestBuildThiophene(unittest.TestCase):
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
             pos_i = self.strucC.positions[pkey_i]
             particle_line = "  %s %f %f %f  "%(particle_i.symbol,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]))
-            self.assertEqual(part_xyz[pkey_i],particle_line)
+            self.assertAlmostEqual(part_xyz[pkey_i],particle_line)
             # print " part_xyz.append(\'",particle_line,"\')"
         #                 
     @tearDown_streamm 
@@ -824,10 +824,10 @@ class Testiadd(unittest.TestCase):
 
         cnt = 0
         for pkey_i, particle_i in self.strucC.particles.iteritems():
-            self.assertEqual(pos_str_list[pkey_i],' %d - %s %f %f %f '%(pkey_i,particle_i.symbol,self.strucC.positions[pkey_i][0],self.strucC.positions[pkey_i][1],self.strucC.positions[pkey_i][2]))
+            self.assertAlmostEqual(pos_str_list[pkey_i],' %d - %s %f %f %f '%(pkey_i,particle_i.symbol,self.strucC.positions[pkey_i][0],self.strucC.positions[pkey_i][1],self.strucC.positions[pkey_i][2]))
             for pkey_j in   self.strucC.bonded_nblist.getnbs(pkey_i):
                 #print " str_nbs_list.append(\' %d - %d \')"%(pkey_i,pkey_j)
-                self.assertEqual(str_nbs_list[cnt],' %d - %d '%(pkey_i,pkey_j) )
+                self.assertAlmostEqual(str_nbs_list[cnt],' %d - %d '%(pkey_i,pkey_j) )
                 cnt += 1
 
     @tearDown_streamm 
