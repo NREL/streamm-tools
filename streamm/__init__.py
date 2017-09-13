@@ -10,6 +10,12 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
+import logging
+# logging.getLogger(__name__).addHandler(logging.NullHandler())
+formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s-%(message)s')
+logging.basicConfig(filename='streamm.log',level=logging.INFO)
+
+
 #__all__ = ['buildingblocks','calculations','forcefields','mpi','util']
 __all__ = []
 
