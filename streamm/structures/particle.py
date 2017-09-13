@@ -165,11 +165,11 @@ class Particle(object):
         #
         # Default Physical properties
         #
-        self.mass             = 1.0  # Choose reasonable values for initialization 
+        self.mass             = units.Mass(1.0,'amu')  # Choose reasonable values for initialization 
         self.charge           = 0.0  # Choose reasonable values for initialization     
         #
-        self.bonded_radius    = 1.0  # Choose reasonable values for initialization 
-        self.nonbonded_radius = 2.0  # Choose reasonable values for initialization 
+        self.bonded_radius    = units.Length(1.0,'ang')   # Choose reasonable values for initialization 
+        self.nonbonded_radius = units.Length(2.0,'ang')  # Choose reasonable values for initialization 
         # 
         self.mol      = 0
         self.ring     = 0
