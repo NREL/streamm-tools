@@ -20,8 +20,10 @@ try:
     import pymatgen.core.periodic_table as periodictable
 except:
     raise ImportError("pymatgen import error for pymatgen.core.periodic_table module")
-    
-ATOMIC_MASS_PRECISION = 0
+
+
+# Import streamm dependencies 
+from streamm.structures.lattice import Lattice
 
 
 class Particle(object):
