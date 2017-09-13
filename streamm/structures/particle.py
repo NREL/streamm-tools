@@ -24,7 +24,10 @@ except:
 
 # Import streamm dependencies 
 import streamm.util.units as units
+# import streamm.structures.lattice as lattice
+# import streamm.structures.lattice as lattice
 
+DIMENSIONS = 3
 
 class Particle(object):
     """Data structure for describing any localized object in QM/MD simulation, such as an atom.
@@ -166,7 +169,7 @@ class Particle(object):
         # Default Physical properties
         #
         self.mass             = units.Mass(1.0,'amu')  # Choose reasonable values for initialization 
-        self.charge           = 0.0  # Choose reasonable values for initialization     
+        self.charge           = units.Charge(0.0,'e')  # Choose reasonable values for initialization     
         #
         self.bonded_radius    = units.Length(1.0,'ang')   # Choose reasonable values for initialization 
         self.nonbonded_radius = units.Length(2.0,'ang')  # Choose reasonable values for initialization 
@@ -197,7 +200,6 @@ class Particle(object):
         elif( label != None ):
             logger.debug("No symbol is given using label as symbol")
             self.symbol = label
-        
         
     def __del__(self):
         del self.type

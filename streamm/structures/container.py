@@ -34,6 +34,7 @@ except:
     raise ImportError("pymatgen import error for periodic_table object")
 
 # Import streamm dependencies 
+import streamm.util.units as units 
 from streamm.structures.lattice import Lattice 
 from streamm.structures.nblist import NBlist 
 
@@ -108,10 +109,10 @@ class Container(object):
         # NoteTK this should be n_mol 
         self.mol_max = 0 
 
-        self.mass = 0.0 
-        self.volume = 0.0 
-        self.density = 0.0 
-        self.center_mass = np.zeros(self.lat.n_dim)
+        self.mass = units.Mass(0.0,'amu')
+        self.volume = units.Volume(0.0,'ang^3')
+        self.density = units.Density(0.0,'amu_ang^3')
+        self.center_mass = units.LengthArray([0.0 for d in range(self.lat.n_dim)],'ang')
         self.dipole = np.zeros(self.lat.n_dim)
         # Reference information 
         self.name = ""   # Tag of structure to be set by file read in 
@@ -630,8 +631,6 @@ class Container(object):
         
         for pkey_i, particle_i  in self.particles.iteritems():
             self.mass += particle_i.mass
-        # Use Decimal Function to numerical errors
-        self.mass  = float(Decimal(str(self.mass)))
 
         return
 
@@ -639,12 +638,10 @@ class Container(object):
         """
         Calculate total charge of structure  
         """
-        self.charge = float(0.0)
+        self.charge = units.Charge(0.0,'e')
         
         for pkey_i, particle_i  in self.particles.iteritems():
             self.charge += particle_i.charge
-        # Use Decimal Function to numerical errors
-        self.charge  = float(Decimal(str(self.charge)))
         
         return
 
@@ -661,9 +658,6 @@ class Container(object):
         v_ij = np.cross(v_i,v_j)
         self.volume = np.dot(v_ij,v_k)
         
-        # Use Decimal Function to numerical errors
-        self.volume  = float(Decimal(str(self.volume)))
-        
         return 
 
     def calc_density(self):
@@ -672,9 +666,6 @@ class Container(object):
         """
         self.density = self.mass/self.volume
 
-        # Use Decimal Function to numerical errors
-        self.density  = float(Decimal(str(self.density)))
-        
     def calc_composition(self):
         """
         Calculate composition
@@ -735,10 +726,6 @@ class Container(object):
         self.particles[pkey_i].charge += self.particles[pkey_j].charge
         self.particles[pkey_j].charge = 0.0
                  
-        # Use Decimal Function to numerical errors
-        self.particles[pkey_i].charge  = float(Decimal(str(self.particles[pkey_i].charge)))
-
-              
     def sum_prop(self,pkey_i,pkey_j):
         '''
         Sum property of particle i into particle j
@@ -751,9 +738,6 @@ class Container(object):
         self.particles[pkey_i].charge += self.particles[pkey_j].charge
         self.particles[pkey_j].charge = 0.0
                  
-        # Use Decimal Function to numerical errors
-        self.particles[pkey_i].charge  = float(Decimal(str(self.particles[pkey_i].charge)))
-
                                  
     def maxtags(self):
         """

@@ -10,7 +10,7 @@ import unittest
 import numpy.testing.utils as nptu
 
 # from pymatgen.util.testing import unittest.TestCase
-from streamm.util.units import (Energy, Time, Length, unitized, Mass, Memory,
+from streamm.util.units import (Energy, Time, Volume,Length, unitized, Mass, Memory,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 
@@ -33,6 +33,12 @@ class UnitTest(unittest.TestCase):
 
 
 class FloatWithUnitTest(unittest.TestCase):
+    
+    def test_volum(self):
+        vol = Volume(1.0,'ang^3')
+        vol2 = Volume(1.0,'nm^3')
+        self.assertAlmostEqual(vol.to('m^3'),1e-30)
+        self.assertAlmostEqual(vol2.to('m^3'),1e-27)
 
     def test_energy(self):
         a = Energy(1.1, "eV")

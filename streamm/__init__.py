@@ -16,8 +16,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s-%(message)s
 logging.basicConfig(filename='streamm.log',level=logging.INFO)
 
 
-#__all__ = ['buildingblocks','calculations','forcefields','mpi','util']
-__all__ = []
+__all__ = ['buildingblocks','calculations','structures','forcefields','mpi','util']
+#__all__ = []
 
 from buildingblocks import Buildingblock
 from structures import Particle

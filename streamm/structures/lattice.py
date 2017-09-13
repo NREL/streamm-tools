@@ -26,7 +26,10 @@ except:
 import numpy as np 
 import random
 
-PRECISION = 8
+import streamm.util.units as units 
+ 
+
+DIMENSIONS=3 
 
 class Lattice(pymatgen_lat):
     '''
@@ -41,8 +44,9 @@ class Lattice(pymatgen_lat):
     '''
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
-        self.n_dim = 3
-        pymatgen_lat.__init__(self, matrix=matrix)
+        self.n_dim = DIMENSIONS
+        m = units.LengthArray(matrix,'ang')
+        pymatgen_lat.__init__(self, matrix=m)
         #
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
 
@@ -102,10 +106,10 @@ class Lattice(pymatgen_lat):
         '''
         logger.info("Setting all values to {} decimal places ")
         for i in range(self.n_dim):
-            self._lengths[i] = round(self._lengths[i],PRECISION)
-            self._angles[i] = round(self._angles[i],PRECISION)
+            self._lengths[i] = self._lengths[i] 
+            self._angles[i] = self._angles[i]
             for j in range(self.n_dim):
-                self._matrix[i][j]  = round(self._matrix[i][j] ,PRECISION)
+                self._matrix[i][j]  = self._matrix[i][j] 
 
         return 
 
