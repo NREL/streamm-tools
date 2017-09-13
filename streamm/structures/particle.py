@@ -23,7 +23,7 @@ except:
 
 
 # Import streamm dependencies 
-from streamm.structures.lattice import Lattice
+import streamm.util.units as units
 
 
 class Particle(object):
@@ -143,8 +143,10 @@ class Particle(object):
         # Set properties based on element properties 
         #
         self.mass = self.element.atomic_mass
-        self.bonded_radius = self.element.atomic_radius_calculated
-        self.nonbonded_radius = self.element.van_der_waals_radius
+        if( self.element.atomic_radius_calculated != None ):
+            self.bonded_radius = units.Length(self.element.atomic_radius_calculated,'ang')                        
+        if( self.element.van_der_waals_radius != None ):
+            self.nonbonded_radius = units.Length(self.element.van_der_waals_radius,'ang')
         logger.info("Particle[{}] has been set to C with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
