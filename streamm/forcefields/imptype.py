@@ -11,23 +11,26 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 
+# Import streamm dependencies 
+import streamm.util.units as units
+
 
 class Imptype(object):
     """
     Set of improper dihedral angle parameters
+
+    Args:
+         fftype1  (str)   Atom type 
+         fftype2  (str)   Atom type 
+         fftype3  (str)   Atom type 
+         fftype4  (str)   Atom type 
+         type    (str)   Bond type
+         
     """
 
-    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="improper" ):
-        """
-        Constructor for a angle parameter.
-        
-        Args:
-             fftype1  (str)   Atom type 
-             fftype2  (str)   Atom type 
-             fftype3  (str)   Atom type 
-             fftype4  (str)   Atom type 
-             type    (str)   Improper type 
-        """
+    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="improper" ,unit_conf=units.unit_conf):
+        self.unit_conf = unit_conf
+     
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.fftype3 = fftype3

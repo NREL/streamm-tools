@@ -19,7 +19,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# streamm
+
+# Import streamm dependencies 
+import streamm.util.units as units
 from streamm.calculations.resource import Resource
 from streamm.calculations.nwchem import NWChem
 from streamm.calculations.gaussian import Gaussian
@@ -45,10 +47,16 @@ class Project(CalculationRes):
     Args:
         tag (str): String identifier for object
         
+    Kwargs:
+        units_conf (dict): Dictionary of units for each attribute type
+        
     '''
-    def __init__(self,tag):
+    def __init__(self,tag,unit_conf=units.unit_conf ):
         # Base class constructor is called
-        CalculationRes.__init__(self,tag)
+                # Store the units of each attribute type 
+        self.unit_conf = unit_conf
+
+        CalculationRes.__init__(self,tag,unit_conf = unit_conf)
         self.meta['software'] = 'streamm_proj'
         self.prefix = 'proj'        
         self.calculations = dict()

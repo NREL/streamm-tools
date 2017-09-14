@@ -261,5 +261,5 @@ class ArrayWithFloatWithUnitTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    import unittest2 as unittest
+    import unittest # 2 as unittest
     unittest.main()

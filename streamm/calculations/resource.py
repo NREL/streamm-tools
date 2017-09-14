@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 
 from streamm.calculations.calculation import Calculation
 
+# Import streamm dependencies 
+import streamm.util.units as units
+
 class Resource(object):
     '''
     Data structure for a compute resource  
@@ -158,14 +161,19 @@ class CalculationRes(Calculation):
     In that files will be compressed and moved to scratch directories to run,
     then output files and output data will be compressed and moved to storage.
 
+    Kwargs:
+        units_conf (dict): Dictionary of units for each attribute type
+
     '''
-    def __init__(self, tag ):
+    def __init__(self, tag ,unit_conf=units.unit_conf):
         """
         Constructor for derived class. The base class constructor is called
         explicitly
         """
+        # Store the units of each attribute type 
+        self.unit_conf = unit_conf  
         # Base class constructor is called
-        Calculation.__init__(self, tag)
+        Calculation.__init__(self, tag,unit_conf = unit_conf )
         #super(Calculation,self).__init__()
         # Computational Resource used for simulation/calculation  
         self.resource = Resource()

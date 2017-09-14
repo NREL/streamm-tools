@@ -97,7 +97,41 @@ class Particle(object):
         * set position in particle object 
 
     """
+
+    @property
+    def mass(self):
+        return self._properties['mass'] 
     
+    @mass.setter
+    def mass(self,value):
+        self._properties['mass']  = value
+    '''
+    @property
+    def charge(self):
+        return self.charge
+    
+    @charge.setter
+    def charge(self,value):
+        self.charge = value
+
+
+    @property
+    def bonded_radius(self):
+        return self.bonded_radius
+    
+    @bonded_radius.setter
+    def bonded_radius(self,value):
+        self._bonded_radius = value
+
+    @property
+    def nonbonded_radius(self):
+        return self.nonbonded_radius
+    
+    @nonbonded_radius.setter
+    def nonbonded_radius(self,value):
+        self.nonbonded_radius = value
+
+    '''    
 
     def set_element(self,symbol=None,number=None,mass=None,mass_precision=0):
         '''
@@ -145,11 +179,11 @@ class Particle(object):
         #
         # Set properties based on element properties 
         #
-        self.mass = self.element.atomic_mass
+        self.mass = float(self.element.atomic_mass) # amu 
         if( self.element.atomic_radius_calculated != None ):
-            self.bonded_radius = units.Length(self.element.atomic_radius_calculated,'ang')                        
+            self.bonded_radius = self.element.atomic_radius_calculated
         if( self.element.van_der_waals_radius != None ):
-            self.nonbonded_radius = units.Length(self.element.van_der_waals_radius,'ang')
+            self.nonbonded_radius = self.element.van_der_waals_radius 
         logger.info("Particle[{}] has been set to C with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
@@ -159,6 +193,7 @@ class Particle(object):
         
         return
     
+
     def __init__(self,type='atom',label=None,symbol = None,unit_conf=units.unit_conf ):
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
@@ -166,15 +201,17 @@ class Particle(object):
         self.label = label
         self.symbol = symbol
         # Store the units of each attribute type 
-        self.unit_conf = unit_conf  
+        self.unit_conf = unit_conf
         #
         # Default Physical properties
         #
-        self.mass             = 1.0  # Choose reasonable values for initialization 
+        self._properties = {}
+        self._properties['mass']             = 1.0  # Choose reasonable values for initialization
         self.charge           = 0.0  # Choose reasonable values for initialization     
         # 
         self.bonded_radius    = 1.0   # Choose reasonable values for initialization 
-        self.nonbonded_radius = 2.0   # Choose reasonable values for initialization 
+        self.nonbonded_radius = 2.0   # Choose reasonable values for initialization
+        #
         # 
         self.mol      = 0
         self.ring     = 0
@@ -202,16 +239,19 @@ class Particle(object):
         elif( label != None ):
             logger.debug("No symbol is given using label as symbol")
             self.symbol = label
-        
+            
+            
     def __del__(self):
         del self.type
         del self.label
         #
-        del self.mass
+        del self._mass
         del self.charge
         #
         del self.bonded_radius
-        del self.nonbonded_radius 
+        del self.nonbonded_radius
+        #
+        del self._properties
         # 
         del self.mol
         del self.ring
@@ -226,6 +266,71 @@ class Particle(object):
         #
         del self.rsite
         
+    
     def __str__(self):
         return "{}[{}] {} ({})".format(self.type,self.index,self.label,self.symbol,)
     
+    def show_attributes(self):
+        '''
+        Like __str__ but with all the values of the instance's attributes 
+        '''
+        property_msg = " type:{} ".format(self.type)
+        property_msg += "\n label:{}".format(self.label)
+        property_msg += "\n symbol:{}".format(self.symbol)
+        property_msg += "\n mass:{} ({})".format(self.mass,self.unit_conf['mass'])
+        property_msg += "\n charge:{} ({})".format(self.charge,self.unit_conf['charge'])
+        property_msg += "\n bonded_radius:{} ({})".format(self.bonded_radius,self.unit_conf['length'])
+        property_msg += "\n nonbonded_radius:{} ({})".format(self.nonbonded_radius,self.unit_conf['length'])
+        
+        return property_msg
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        unit_type = 'mass'
+        if( unit_type in new_unit_conf.keys() ):
+                
+            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
+                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
+                logger.debug("Changing {} ".format(self.mass))
+                self.mass = Unit_instance(self.mass,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
+                logger.debug("to {}".format(self.mass))
+            
+                self.unit_conf[unit_type] = new_unit_conf[unit_type]
+            
+        unit_type = 'length'
+        if( unit_type in new_unit_conf.keys() ):
+            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
+                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
+                logger.debug("Changing {} ".format(self.bonded_radius))
+                self.bonded_radius = Unit_instance(self.bonded_radius,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
+                logger.debug("to {}".format(self.bonded_radius))
+                            
+                logger.debug("Changing {} ".format(self.nonbonded_radius))
+                self.nonbonded_radius = Unit_instance(self.nonbonded_radius,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
+                logger.debug("to {}".format(self.nonbonded_radius))
+                    
+                self.unit_conf[unit_type] = new_unit_conf[unit_type]
+                 
+
+        unit_type = 'charge'
+        if( unit_type in new_unit_conf.keys() ):
+                
+            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
+                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
+                logger.debug("Changing {} ".format(self.charge))
+                self.charge = Unit_instance(self.charge,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
+                logger.debug("to {}".format(self.charge))
+            
+                self.unit_conf[unit_type] = new_unit_conf[unit_type]
+                            
+                    
+                            
+                        
+                        
+                        

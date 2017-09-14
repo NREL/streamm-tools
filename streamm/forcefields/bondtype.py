@@ -11,22 +11,26 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 
-
-
+# Import streamm dependencies 
+import streamm.util.units as units
 
 class Bondtype(object):
     """
-    Set of bond parameters 
+    Set of bond parameters
+
+    Args:
+         fftype1  (str):   Atom type 
+         fftype2  (str):   Atom type 
+         type    (str):   Bond type
+         
     """
 
-    def __init__(self, fftype1='blank', fftype2='blank', type="harmonic" ):
+    def __init__(self, fftype1='blank', fftype2='blank', type="harmonic",unit_conf=units.unit_conf):
+        self.unit_conf = unit_conf
+        
         """
         Constructor for a bond parameter.
         
-        Args:
-             fftype1  (str)   Atom type 
-             fftype2  (str)   Atom type 
-             type    (str)   Bond type 
         """
 
         self.fftype1 = fftype1

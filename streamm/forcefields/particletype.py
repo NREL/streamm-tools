@@ -12,14 +12,20 @@ __status__ = "Beta"
 
 # NoteTK  This should be in structure.particles 
 
+# Import streamm dependencies 
+import streamm.util.units as units
+
 class Particletype(object):
     '''
     Particle represented by a Force-field
+    
+    .. TODO ::
+        change fftype1 to fftype_i
+        
     '''
-    def __init__(self,fftype1='X'):
-        """
-        Constructor for a Force-field particle. 
-        """
+    def __init__(self,fftype1='X',unit_conf=units.unit_conf):
+        self.unit_conf = unit_conf
+        
         self.fftype1 = str(fftype1) 
         self.epsilon = 1.0
         self.sigma = 2.0 

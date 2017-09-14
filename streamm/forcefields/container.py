@@ -22,22 +22,14 @@ usually each interaction is set using these fftypes
 import pickle
 import copy
 
-# Import streamm dependencies
-try:
-    from streamm.forcefields.particletype import Particletype
-    from streamm.forcefields.bondtype import Bondtype 
-    from streamm.forcefields.angletype import Angletype
-    from streamm.forcefields.dihtype import Dihtype
-    from streamm.forcefields.imptype import Imprtype
 
-except:
-    
-    from particletype import Particletype
-    from bondtype import Bondtype 
-    from angletype import Angletype
-    from dihtype import Dihtype
-    from imptype import Imptype
-
+# Import streamm dependencies 
+import streamm.util.units as units
+from streamm.forcefields.particletype import Particletype
+from streamm.forcefields.bondtype import Bondtype 
+from streamm.forcefields.angletype import Angletype
+from streamm.forcefields.dihtype import Dihtype
+from streamm.forcefields.imptype import Imptype
 
 
 def read_pickle(tag):
@@ -54,11 +46,9 @@ class Container(object):
     Container for force-field parameters
     """
 
-    def __init__(self,tag='blank'):
-        """
-        Constructor for Parameter.Container
-
-        """
+    def __init__(self,tag='blank',unit_conf=units.unit_conf):
+        self.unit_conf = unit_conf
+        
         self.tag = tag
         # 
         self.particletypes = dict()                           # Creates empty dict struc

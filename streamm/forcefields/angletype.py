@@ -13,22 +13,25 @@ __status__ = "Beta"
 
 
 
+# Import streamm dependencies 
+import streamm.util.units as units
+
    
 class Angletype(object):
     """
-    Set of Angle parameters 
+    Set of Angle parameters
+
+
+    Args:
+         fftype1  (str):   Atom type 
+         fftype2  (str):   Atom type 
+         fftype3  (str):   Atom type 
+         type    (str):  Bond type
+         
     """
 
-    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank" , type="harmonic" ):
-        """
-        Constructor for a angle parameter.
-        
-        Args:
-             fftype1  (str)   Atom type 
-             fftype2  (str)   Atom type 
-             fftype3  (str)   Atom type 
-             type    (str)   Bond type 
-        """
+    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank" , type="harmonic" ,unit_conf=units.unit_conf):
+        self.unit_conf = unit_conf
 
         self.fftype1 = fftype1
         self.fftype2 = fftype2
@@ -45,9 +48,7 @@ class Angletype(object):
 
 
     def __del__(self):
-        """
-        Destructor, clears object memory
-        """
+        
         del self.fftype1
         del self.fftype2 
         del self.fftype3
@@ -59,10 +60,6 @@ class Angletype(object):
 
 
     def __str__(self):
-        """
-        'Magic' method for printng contents
-        Delegates to __str__ method for contained objects
-        """
         strucStr =  " angle  %s - %s - %s type %s "%(self.fftype1,self.fftype2,self.fftype3,self.type)
         
         if( self.type ==  "harmonic" ):
@@ -75,11 +72,13 @@ class Angletype(object):
         """
         set Harmonic angle parameters
 
-        E = kb( theta - theta_0 )^2 
-
         Args:
-            theta0 (float) angle             deg  
-            kb     (float) force constant    kcal/mol
+            theta0 (float): angle           
+            kb     (float): force constant  
+            
+        .. math ::
+            E = kb( theta - theta_0 )^2 
+
         """
 
         if isinstance(theta0, float):
