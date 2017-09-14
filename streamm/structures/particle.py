@@ -93,45 +93,45 @@ class Particle(object):
     The ``ff`` attribute can be set to a ``Particletype`` object. 
     
     .. TODO:
-        * create function p_i.get_properties()
-        * set position in particle object 
 
     """
 
     @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property
     def mass(self):
-        return self._properties['mass'] 
+        return self._property['mass'] 
     
     @mass.setter
     def mass(self,value):
-        self._properties['mass']  = value
-    '''
+        self._property['mass']  = value
+        
     @property
     def charge(self):
-        return self.charge
+        return self._property['charge']
     
     @charge.setter
     def charge(self,value):
-        self.charge = value
+        self._property['charge'] = value
 
 
     @property
     def bonded_radius(self):
-        return self.bonded_radius
+        return self._property['bonded_radius']
     
     @bonded_radius.setter
     def bonded_radius(self,value):
-        self._bonded_radius = value
+        self._property['bonded_radius'] = value
 
     @property
     def nonbonded_radius(self):
-        return self.nonbonded_radius
+        return self._property['nonbonded_radius']
     
     @nonbonded_radius.setter
     def nonbonded_radius(self,value):
-        self.nonbonded_radius = value
-
-    '''    
+        self._property['nonbonded_radius'] = value
 
     def set_element(self,symbol=None,number=None,mass=None,mass_precision=0):
         '''
@@ -201,17 +201,25 @@ class Particle(object):
         self.label = label
         self.symbol = symbol
         # Store the units of each attribute type 
-        self.unit_conf = unit_conf
+        self._unit_conf = unit_conf
         #
         # Default Physical properties
         #
-        self._properties = {}
-        self._properties['mass']             = 1.0  # Choose reasonable values for initialization
-        self.charge           = 0.0  # Choose reasonable values for initialization     
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
         # 
-        self.bonded_radius    = 1.0   # Choose reasonable values for initialization 
-        self.nonbonded_radius = 2.0   # Choose reasonable values for initialization
+        self._property['mass']             = 1.0  # Choose reasonable values for initialization
+        self._property['charge']           = 0.0  # Choose reasonable values for initialization     
+        # 
+        self._property['bonded_radius']    = 1.0   # Choose reasonable values for initialization 
+        self._property['nonbonded_radius'] = 2.0   # Choose reasonable values for initialization
         #
+        self._property_units['mass'].append('mass')
+        self._property_units['charge'].append('charge')
+        self._property_units['length'].append('bonded_radius')
+        self._property_units['length'].append('nonbonded_radius')
         # 
         self.mol      = 0
         self.ring     = 0
@@ -245,13 +253,10 @@ class Particle(object):
         del self.type
         del self.label
         #
-        del self._mass
-        del self.charge
+        del self._unit_conf
+        del self._property
+        del self._property_units
         #
-        del self.bonded_radius
-        del self.nonbonded_radius
-        #
-        del self._properties
         # 
         del self.mol
         del self.ring
@@ -277,10 +282,10 @@ class Particle(object):
         property_msg = " type:{} ".format(self.type)
         property_msg += "\n label:{}".format(self.label)
         property_msg += "\n symbol:{}".format(self.symbol)
-        property_msg += "\n mass:{} ({})".format(self.mass,self.unit_conf['mass'])
-        property_msg += "\n charge:{} ({})".format(self.charge,self.unit_conf['charge'])
-        property_msg += "\n bonded_radius:{} ({})".format(self.bonded_radius,self.unit_conf['length'])
-        property_msg += "\n nonbonded_radius:{} ({})".format(self.nonbonded_radius,self.unit_conf['length'])
+        property_msg += "\n mass:{} ({})".format(self.mass,self._unit_conf['mass'])
+        property_msg += "\n charge:{} ({})".format(self.charge,self._unit_conf['charge'])
+        property_msg += "\n bonded_radius:{} ({})".format(self.bonded_radius,self._unit_conf['length'])
+        property_msg += "\n nonbonded_radius:{} ({})".format(self.nonbonded_radius,self._unit_conf['length'])
         
         return property_msg
 
@@ -291,6 +296,11 @@ class Particle(object):
         Args:
             new_unit_conf (dict): with unit type as the key and the new unit as the value
             
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        
+        
         '''
         unit_type = 'mass'
         if( unit_type in new_unit_conf.keys() ):
@@ -330,7 +340,7 @@ class Particle(object):
                 self.unit_conf[unit_type] = new_unit_conf[unit_type]
                             
                     
-                            
+        '''
                         
                         
                         

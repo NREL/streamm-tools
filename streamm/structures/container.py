@@ -45,6 +45,14 @@ from streamm.structures.dihedral import Dihedral
 from streamm.structures.improper import Improper
 
 
+def read_pickle(self,tag):
+    '''    
+    Pickle object
+    '''
+    with open("%s.pkl"%(tag),'rb') as fl:
+        return pickle.load( fl )
+        
+    
         
 class Replication(object):
     '''
@@ -91,20 +99,52 @@ class Container(object):
             
     """
 
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+
+    @property
+    def mass(self):
+        return self._property['mass'] 
+    
+    @property
+    def charge(self):
+        return self._property['charge']
+    
+    @property
+    def volume(self):
+        return self._property['volume']
+    
+    @property
+    def density(self):
+        return self._property['density']
+    
+    @property
+    def center_mass(self):
+        return self._property['center_mass']
+    
+    @property
+    def dipole(self):
+        return self._property['dipole_moment']
+    
+    @property
+    def positions(self):
+        return self._property['positions']
+    
+    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
         """
         Constructor for a composite structures. 
         """
         self.tag = tag
         # Store the units of each attribute type 
-        self.unit_conf = unit_conf  
-        
+        self._unit_conf = unit_conf  
+        #
         self.lat = Lattice(matrix,unit_conf=unit_conf )                             # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
         self.nonbonded_nblist = NBlist()                      # Creates nblist object for nonbonded particles
         self.particles = dict()                               # Creates empty dict struc
         self.prop_particles =  dict() 
-        self.positions = []                                   # Creates empty array
         self.bonds = dict()                                   # Creates empty dict struc
         self.angles = dict()                                  # Creates empty dict struc
         self.dihedrals = dict()                                # Creates empty dict struc
@@ -119,11 +159,31 @@ class Container(object):
         # NoteTK this should be n_mol 
         self.mol_max = 0 
 
-        self.mass = 0.0 
-        self.volume = 0.0 
-        self.density = 0.0 
-        self.center_mass = np.zeros(self.lat.n_dim)
-        self.dipole = np.zeros(self.lat.n_dim)
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._propertyUnits = {}
+        for unit_type in self._unit_conf.keys():
+            self._propertyUnits[unit_type] = []
+        #   
+        self._property['mass']  = 0.0 
+        self._property['charge'] = 0.0 
+        self._property['volume'] = 0.0 
+        self._property['density'] = 0.0 
+        self._property['center_mass'] = np.zeros(self.lat.n_dim)
+        self._property['dipole_moment'] = np.zeros(self.lat.n_dim)
+        self._property['positions'] = []                                   # Creates empty array
+        # 
+        self._propertyUnits['mass'].append('mass')
+        self._propertyUnits['charge'].append('charge')
+        self._propertyUnits['volume'].append('volume')
+        self._propertyUnits['density'].append('density')
+
+        self._propertyUnits['length'].append('center_mass')
+        self._propertyUnits['electric_dipole_moment'].append('dipole_moment')
+        self._propertyUnits['length'].append('positions')
+        #                          
         # Reference information 
         self.name = ""   # Tag of structure to be set by file read in 
         self.chemicalformula = ""
@@ -148,7 +208,6 @@ class Container(object):
         """
         del self.lat 
         del self.particles
-        del self.positions
         del self.bonds
         del self.angles
         del self.dihedrals
@@ -161,12 +220,9 @@ class Container(object):
         del self.n_impropers
         del self.mol_max
         # Del properties
-
-        del self.mass 
-        del self.volume
-        del self.density
-        del self.center_mass 
-        del self.dipole 
+        del self._unit_conf
+        del self._property
+        del self._propertyUnits
         # Reference information 
         del self.name 
         del self.chemicalformula 
@@ -198,14 +254,6 @@ class Container(object):
         pickle.dump(self,file_i)
         file_i.flush()
         
-    def read_pickle(self):
-        '''    
-        Pickle object
-        '''
-        with open("%s.pkl"%(self.tag),'rb') as fl:
-            self = pickle.load( fl )
-            
-        
 
     def add_particle(self, particle_i, deepcopy = False ):
         """
@@ -216,6 +264,7 @@ class Container(object):
         else:
             self.particles[self.n_particles] = particle_i # index 0 -> (N-1)
                 
+        particle_i.index = self.n_particles 
         self.n_particles = len(self.particles)
 
     def add_position(self, pos_i):
@@ -247,6 +296,7 @@ class Container(object):
             else:
                 self.bonds[self.n_bonds] = bond_i # index 0 -> (N-1)
                 
+            bond_i.index = self.n_bonds 
             self.n_bonds = len(self.bonds)
         else:
             raise TypeError("Attempting to add non-Bond type to container")
@@ -263,6 +313,7 @@ class Container(object):
             else:
                 self.angles[self.n_angles] = angle_i # index 0 -> (N-1)
                 
+            angle_i.index = self.n_angles  
             self.n_angles = len(self.angles)
         else:
             print "Attempting to add non-Angle type to container"
@@ -279,7 +330,7 @@ class Container(object):
                 self.dihedrals[self.n_dihedrals] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
             else:
                 self.dihedrals[self.n_dihedrals] = dihedral_i # index 0 -> (N-1)
-                
+            dihedral_i.index = self.n_dihedrals 
             self.n_dihedrals = len(self.dihedrals)
         else:
             print "Attempting to add non-Dihedral type to container"
@@ -297,6 +348,7 @@ class Container(object):
             else:
                 self.impropers[self.n_impropers] = improper_i # index 0 -> (N-1)
                 
+            improper_i.index = self.n_impropers 
             self.n_impropers = len(self.impropers)
         else:
             print "Attempting to add non-Improper type to container"
@@ -604,7 +656,7 @@ class Container(object):
             pkey (int) particle key
             vec  (np.array) vector 
         """
-        self.positions[pkey] += vec
+        self._property['positions'][pkey] += vec
 
     def shift_pos(self,vec):
         '''
@@ -619,7 +671,7 @@ class Container(object):
         '''
         Apply periodic boundry conditions to 
         '''
-        for r_i in self.positions:
+        for r_i in self._property['positions']:
             for d in range(self.lat.n_dim ):
                 r_i[d] = r_i[d] - self.lat._matrix[d][d] * round( r_i[d]/  self.lat._matrix[d][d] )
                     
@@ -637,10 +689,10 @@ class Container(object):
         NoteTK should be calc atomic wieght
         
         """
-        self.mass = float(0.0)
+        self._property['mass'] = float(0.0)
         
         for pkey_i, particle_i  in self.particles.iteritems():
-            self.mass += particle_i.mass
+            self._property['mass']  += particle_i.mass
 
         return
 
@@ -648,10 +700,10 @@ class Container(object):
         """
         Calculate total charge of structure  
         """
-        self.charge = units.Charge(0.0,'e')
+        self._property['charge']  = 0.0 
         
         for pkey_i, particle_i  in self.particles.iteritems():
-            self.charge += particle_i.charge
+            self._property['charge']  += particle_i.charge
         
         return
 
@@ -666,7 +718,7 @@ class Container(object):
         v_k = self.lat._matrix[2]
         
         v_ij = np.cross(v_i,v_j)
-        self.volume = np.dot(v_ij,v_k)
+        self._property['volume'] = np.dot(v_ij,v_k)
         
         return 
 
@@ -674,7 +726,24 @@ class Container(object):
         """
         Calculate density of structure  
         """
-        self.density = self.mass/self.volume
+        self._property['density'] = self.mass/self.volume
+     
+    def calc_center_mass(self):
+        """
+        Find center of mass of a structure
+        """
+
+        self._property['center_mass'] = np.zeros(self.lat.n_dim)
+
+        for pkey_i, particle_i  in self.particles.iteritems():
+            mass_i = particle_i.mass
+            # print self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2],mass_i
+            for dim in range(self.lat.n_dim):
+                self._property['center_mass'][dim] += mass_i*np.array(self.positions[pkey_i][dim])
+        for dim in range(self.lat.n_dim):
+            self._property['center_mass'][dim] = self._property['center_mass'][dim]/self.mass
+
+        return
 
     def calc_composition(self):
         """
@@ -708,24 +777,7 @@ class Container(object):
             if( self.composition[n_i] > 0 ):
                 el_i = pymatgen_pt.Element.from_Z(n_i)
                 self.chemicalformula += "%s%d"%(el_i.symbol,self.composition[n_i])
-                            
-    def calc_center_mass(self):
-        """
-        Find center of mass of a structure
-        """
-
-        self.center_mass = np.zeros(self.lat.n_dim)
-
-        for pkey_i, particle_i  in self.particles.iteritems():
-            mass_i = particle_i.element.atomic_weight
-            # print self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2],mass_i
-            for dim in range(self.lat.n_dim):
-                self.center_mass[dim] += mass_i*np.array(self.positions[pkey_i][dim])
-        for dim in range(self.lat.n_dim):
-            self.center_mass[dim] = self.center_mass[dim]/self.mass
-
-        return
-
+                       
     def sum_charge(self,pkey_i,pkey_j):
         '''
         Sum charge of particle i into particle j
@@ -745,8 +797,8 @@ class Container(object):
         # Sum charges of particles to be removed into attachment points
         logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
         #print " into ",self.particles[pkey_i].symbol,self.particles[pkey_i].charge
-        self.particles[pkey_i].charge += self.particles[pkey_j].charge
-        self.particles[pkey_j].charge = 0.0
+        self.particles[pkey_i]._property['charge']  += self.particles[pkey_j].charge
+        self.particles[pkey_j]._property['charge']  = 0.0
                  
                                  
     def maxtags(self):
@@ -1012,7 +1064,7 @@ class Container(object):
         del particles_i[pkey]
         # Re initialized container list's and counts 
         self.particles = dict()                               # Creates empty dict struc
-        self.positions = []                                   # Creates empty array
+        self._property['positions'] = []                                   # Creates empty array
         self.n_particles = 0    
         self.bonds = dict()                               # Creates empty dict struc
         self.angles = dict()                                  # Creates empty dict struc

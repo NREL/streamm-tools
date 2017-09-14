@@ -230,11 +230,9 @@ class Test_Thiophene(unittest.TestCase):
         
         os.chdir(self.calc_i.dir['scratch'])
         self.calc_i.check()
-                
-        self.calc_i.strucC.charge = 0.0 
-        for p,pt in self.calc_i.strucC.particles.iteritems(): # properties["charge"] 
-            self.calc_i.strucC.charge  += pt.charge
-            
+        
+        self.calc_i.strucC.calc_charge()
+
         self.assertEqual(self.calc_i.strucC.charge,0.0)
         
         os.chdir(self.calc_i.dir['home'])
