@@ -10,7 +10,7 @@ import unittest
 import numpy.testing.utils as nptu
 
 # from pymatgen.util.testing import unittest.TestCase
-from streamm.util.units import (Energy, Time, Volume,Length, unitized, Mass, Memory,
+from pymatgen_core.core.units import (Energy, Time, Volume,Length, unitized, Mass, Memory,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 

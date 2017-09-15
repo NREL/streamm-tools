@@ -6,11 +6,11 @@
 
 from __future__ import division, unicode_literals
 
-import unittest2 as unittest
+import unittest #2 as unittest
 import pickle
 from copy import deepcopy
 
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
+from pymatgen_core.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
 
 class ElementTestCase(unittest.TestCase):
 
