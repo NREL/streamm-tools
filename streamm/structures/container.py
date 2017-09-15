@@ -429,16 +429,16 @@ class Container(object):
         # Loop over all particles
         for pkey_i,particle_i  in self.particles.iteritems():
             if( radius_type == 0 ):
-                radii_i = particle_i.element.covalent_radius
+                radii_i = particle_i.bonded_radius
             elif( radius_type == 1 ):
-                radii_i = particle_i.element.vdw_radius
+                radii_i = particle_i.nonbonded_radius
             nblist_i.index.append(nblist_i.cnt + 1)
             for pkey_j,particle_j in self.particles.iteritems():
                 if( pkey_i != pkey_j):
                     if( radius_type == 0 ):
-                        radii_j = particle_j.element.covalent_radius
+                        radii_j = particle_j.bonded_radius
                     elif( radius_type == 1 ):
-                        radii_j = particle_j.element.vdw_radius
+                        radii_j = particle_j.nonbonded_radius
                     dr_cut = radii_i + radii_j
                     dr_cut = dr_cut*radii_buffer
                     logger.info("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
@@ -1142,6 +1142,20 @@ class Container(object):
             # if( ptclObj.properties[tag] > 0 ):
             particle_i.properties[tag] += tag_min
 
+
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        
+        
         """
     def getSubStructure(self,pkeys,tag="blank"):
         

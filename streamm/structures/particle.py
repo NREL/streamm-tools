@@ -182,8 +182,13 @@ class Particle(object):
         self.mass = float(self.element.atomic_mass) # amu 
         if( self.element.atomic_radius_calculated != None ):
             self.bonded_radius = self.element.atomic_radius_calculated
+        else:
+            self.nonbonded_radius = 1.5
         if( self.element.van_der_waals_radius != None ):
-            self.nonbonded_radius = self.element.van_der_waals_radius 
+            self.nonbonded_radius = self.element.van_der_waals_radius
+        else:
+            self.nonbonded_radius = 2.5
+            
         logger.info("Particle[{}] has been set to C with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
@@ -301,46 +306,6 @@ class Particle(object):
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         
         
-        '''
-        unit_type = 'mass'
-        if( unit_type in new_unit_conf.keys() ):
-                
-            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
-                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
-                logger.debug("Changing {} ".format(self.mass))
-                self.mass = Unit_instance(self.mass,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
-                logger.debug("to {}".format(self.mass))
-            
-                self.unit_conf[unit_type] = new_unit_conf[unit_type]
-            
-        unit_type = 'length'
-        if( unit_type in new_unit_conf.keys() ):
-            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
-                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
-                logger.debug("Changing {} ".format(self.bonded_radius))
-                self.bonded_radius = Unit_instance(self.bonded_radius,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
-                logger.debug("to {}".format(self.bonded_radius))
-                            
-                logger.debug("Changing {} ".format(self.nonbonded_radius))
-                self.nonbonded_radius = Unit_instance(self.nonbonded_radius,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
-                logger.debug("to {}".format(self.nonbonded_radius))
-                    
-                self.unit_conf[unit_type] = new_unit_conf[unit_type]
-                 
-
-        unit_type = 'charge'
-        if( unit_type in new_unit_conf.keys() ):
-                
-            if( new_unit_conf[unit_type] != self.unit_conf[unit_type] ):
-                Unit_instance = units.partial(units.FloatWithUnit, unit_type=unit_type)
-                logger.debug("Changing {} ".format(self.charge))
-                self.charge = Unit_instance(self.charge,self.unit_conf[unit_type]).to(new_unit_conf[unit_type]).real
-                logger.debug("to {}".format(self.charge))
-            
-                self.unit_conf[unit_type] = new_unit_conf[unit_type]
-                            
-                    
-        '''
                         
                         
                         
