@@ -1,5 +1,12 @@
 include *.rst LICENSE.rst 
 recursive-include streamm/ *.py
+include templates/*.sh
+include templates/*.pbs
+include templates/*.com
+include templates/*.nw
+include templates/*.in
+include templates/*.in
+include templates/*.template 
 recursive-include pymatgen_core/ *.py
 include pymatgen_core/core/*.json
 prune streamm/dep/*py 
