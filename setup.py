@@ -35,6 +35,6 @@ setup(
     # packages=['streamm'],    
     # package_dir={'streamm': 'streamm'},
     # package_data={'streamm': ['periodic_table.json']},
-    install_requires=['pymatgen'],
+    # install_requires=['pymatgen'],
     ) 
 
