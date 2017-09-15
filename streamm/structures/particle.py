@@ -15,15 +15,15 @@ __status__ = "Beta"
 import logging
 logger = logging.getLogger(__name__)
 
-try:
+#try:
     # Import pymatgen Class 
-    import pymatgen.core.periodic_table as periodictable
-except:
-    raise ImportError("pymatgen import error for pymatgen.core.periodic_table module")
+import pymatgen_core.core.periodic_table as periodictable
+import pymatgen_core.core.units as units
+#except:
+#    raise ImportError("pymatgen import error for pymatgen.core.periodic_table module")
 
 
 # Import streamm dependencies 
-import streamm.util.units as units
 # import streamm.structures.lattice as lattice
 # import streamm.structures.lattice as lattice
 

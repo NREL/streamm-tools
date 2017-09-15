@@ -16,8 +16,8 @@ from numpy import pi, dot, transpose, radians
 from monty.json import MSONable
 from monty.dev import deprecated
 
-from pymatgen.util.coord_utils import pbc_shortest_vectors
-from pymatgen.util.num import abs_cap
+from pymatgen_core.util.coord_utils import pbc_shortest_vectors
+from pymatgen_core.util.num import abs_cap
 
 """
 This module defines the classes relating to 3D lattices.
@@ -323,7 +323,7 @@ class Lattice(MSONable):
             Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
-            from pymatgen.io.abinit.abiobjects import lattice_from_abivars
+            from pymatgen_core.io.abinit.abiobjects import lattice_from_abivars
             kwargs.update(d)
             return lattice_from_abivars(cls=cls, **kwargs)
 

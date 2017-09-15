@@ -12,5 +12,4 @@ __status__ = "Beta"
 
 __all__ = ['replicate','units']
 
-from units import *
 from replicate import *

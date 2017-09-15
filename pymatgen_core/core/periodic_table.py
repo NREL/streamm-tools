@@ -11,9 +11,9 @@ import warnings
 from io import open
 from enum import Enum
 
-from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
+from pymatgen_core.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
-from pymatgen.util.string import formula_double_format
+from pymatgen_core.util.string import formula_double_format
 from monty.json import MSONable
 
 """

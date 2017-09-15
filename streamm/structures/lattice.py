@@ -18,15 +18,11 @@ This module defines the classes relating to a periodic lattice
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    from pymatgen.core.lattice import Lattice as pymatgen_lat
-except:
-    raise ImportError("pymatgen import error for periodic_table object")
+from pymatgen_core.core.lattice import Lattice as pymatgen_lat
+import pymatgen_core.core.units as units 
     
 import numpy as np 
 import random
-
-import streamm.util.units as units 
  
  
 

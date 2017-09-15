@@ -29,12 +29,12 @@ from datetime import datetime
 
 try:
     # Import pymatgen Class 
-    import pymatgen.core.periodic_table as pymatgen_pt
+    import pymatgen_core.core.periodic_table as pymatgen_pt
+    import pymatgen_core.core.units as units 
 except:
     raise ImportError("pymatgen import error for periodic_table object")
 
 # Import streamm dependencies 
-import streamm.util.units as units 
 from streamm.structures.lattice import Lattice 
 from streamm.structures.nblist import NBlist 
 

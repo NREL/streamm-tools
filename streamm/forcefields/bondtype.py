@@ -11,8 +11,11 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 
-# Import streamm dependencies 
-import streamm.util.units as units
+try:
+    # Import pymatgen Class 
+    import pymatgen_core.core.units as units 
+except:
+    raise ImportError("pymatgen import error for units object")
 
 class Bondtype(object):
     """
