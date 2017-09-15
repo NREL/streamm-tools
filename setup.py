@@ -31,10 +31,11 @@ setup(
     # 
     tests_require=['pytest'],
     # test_suite = ['streamm.structures.tests','streamm.forcefields.tests'],
-    data_files=['pymatgen_core/core/periodic_table.json'],
+    # data_files=['pymatgen_core/core/periodic_table.json'],
     # packages=['streamm'],    
     # package_dir={'streamm': 'streamm'},
-    package_data={'pymatgen_core': ['pymatgen_core/core/periodic_table.json']},
+    package_data={'pymatgen_core/core': ['pymatgen_core/core/periodic_table.json']},
+    include_package_data=True,
     # install_requires=['pymatgen'],
     ) 
 

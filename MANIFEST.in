@@ -1,5 +1,6 @@
 include *.rst LICENSE.rst 
 recursive-include streamm/ *.py
 recursive-include pymatgen_core/ *.py
+include pymatgen_core/core/*.json
 prune streamm/dep/*py 
 prune streamm/future/*py 
