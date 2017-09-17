@@ -27,7 +27,7 @@ import os
 import streamm.structures.particle as particle
 import streamm.structures.dihedral as dihedral
 
-import streamm.structures.buildingblocks as buildingblocks
+import streamm.structures.buildingblock as buildingblock
 
 from streamm_testutil import *
 
@@ -37,7 +37,7 @@ class Test_attach(unittest.TestCase):
     def setUp(self):
         
                                             
-        self.Th = buildingblocks.Buildingblock('thiophene')
+        self.Th = buildingblock.Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])
@@ -62,7 +62,7 @@ class Test_attach(unittest.TestCase):
         self.Th.find_rsites()
             
 
-        self.Hx = container.Container('hexane')
+        self.Hx = buildingblock.Buildingblock('hexane')
         
         symbols = []
         symbols.append('C')
@@ -183,13 +183,13 @@ class Test_attach(unittest.TestCase):
         self.bb_j.write_xyz(file_i)
         os.remove(file_i)
 
-        self.bbC_i,self.bbC_j =  container.shiftprep(self.bb_i,self.bb_j )
-        self.overlap_found =  container.checkprep(self.bb_i,self.bb_j )
+        self.bbC_i,self.bbC_j =  buildingblock.shiftprep(self.bb_i,self.bb_j )
+        self.overlap_found =  buildingblock.checkprep(self.bb_i,self.bb_j )
 
         self.assertTrue(self.overlap_found)
 
 
-        self.Th2_Th =  container.attachprep(self.bbC_i,self.bbC_j )
+        self.Th2_Th =  buildingblock.attachprep(self.bbC_i,self.bbC_j )
         self.Th2_Th.tag = self.bb_i.tag + self.bb_j.tag + "v2"
         self.Th2_Th.lat_cubic(100.0)
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.Th2_Th.tag)
@@ -239,32 +239,32 @@ class Test_attach(unittest.TestCase):
         
 
     def test_cat1(self):
-        self.bblockC_p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0)
+        self.bblockC_p3htn1 = buildingblock.attach(self.Th,self.Hx,"FH",0,"R",0)
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_p3htn1.tag)
         self.bblockC_p3htn1.write_xyz(file_i)
         os.remove(file_i)
 
     def test_cat2(self):
 
-        self.bblockC_ptn2 = container.attach(self.Th,self.Th,"TH",0,"TH",1,tag = "P3HT_n1")
+        self.bblockC_ptn2 = buildingblock.attach(self.Th,self.Th,"TH",0,"TH",1,tag = "P3HT_n1")
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_ptn2.tag)
         self.bblockC_ptn2.write_xyz(file_i)
         os.remove(file_i)
 
         
     def test_cat3(self):
-        self.bblockC_p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0,tag = "P3HT_nX")
-        self.bblockC_p3htnX = container.Container()
+        self.bblockC_p3htn1 = buildingblock.attach(self.Th,self.Hx,"FH",0,"R",0,tag = "P3HT_nX")
+        self.bblockC_p3htnX = buildingblock.Buildingblock()
         self.bblockC_p3htnX += self.bblockC_p3htn1 # Same as self.bblockC_p3htnX = copy.deepcopy( self.bblockC_p3htn1 )
         # for n in range(1,xN):
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",1,"TH",0)
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",1,"TH",0)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.bblockC_p3htn1,"TH",0,"TH",1)
 
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.Hx,"TH",0,"R",0)
-        self.bblockC_p3htnX = container.attach(self.bblockC_p3htnX,self.Hx,"TH",0,"R",0)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.Hx,"TH",0,"R",0)
+        self.bblockC_p3htnX = buildingblock.attach(self.bblockC_p3htnX,self.Hx,"TH",0,"R",0)
         
         self.bblockC_p3htnX.tag = "P3HT_nX"
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bblockC_p3htnX.tag)
@@ -273,20 +273,20 @@ class Test_attach(unittest.TestCase):
         
     def test_p3ht_nX(self):
 
-        self.p3htn1 = container.attach(self.Th,self.Hx,"FH",0,"R",0)
+        self.p3htn1 = buildingblock.attach(self.Th,self.Hx,"FH",0,"R",0)
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.p3htn1.tag)
         self.p3htn1.write_xyz(file_i)
         os.remove(file_i)
         
         # Create a xN membered chain
         xN = 5
-        #self.bb_p3ht_nX = container.Container()
+        #self.bb_p3ht_nX = buildingblock.Buildingblock()
         #self.bb_p3ht_nX.tag = "p3ht_n%d"%(xN)
         self.bb_p3ht_nX = copy.deepcopy(self.p3htn1)
 
         for n in range(1,xN):
             # print " Adding %d "%(n)
-            self.bb_p3ht_nX = container.attach(self.bb_p3ht_nX,self.p3htn1,"TH",0,"TH",1,tag="p3ht_n%d"%(n))
+            self.bb_p3ht_nX = buildingblock.attach(self.bb_p3ht_nX,self.p3htn1,"TH",0,"TH",1,tag="p3ht_n%d"%(n))
 
         # Print xyz file and cply file 
         file_i = os.path.join(TEST_DIR, "%s.xyz"%self.bb_p3ht_nX.tag)

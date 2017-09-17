@@ -40,7 +40,7 @@ import streamm.forcefields.dihtype as dihtype
 import streamm.forcefields.imptype as imptype
 
 
-from streamm.buildingblocks.container import Container as BBCont
+from streamm.structures.buildingblock import Buildingblock 
 import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
@@ -54,7 +54,7 @@ class TestReplicate(unittest.TestCase):
     @setUp_streamm
     def setUp(self):
 
-        self.Th = BBCont('thiophene')
+        self.Th = Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])
@@ -92,7 +92,7 @@ class TestReplicate(unittest.TestCase):
         
 
         seed = 82343
-        blank_strucC =  BBCont()
+        blank_strucC =  Buildingblock()
         self.strucC = replicate.add_struc(blank_strucC,self.Th,10,seed)
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
             mol_i = int(pkey_i/self.Th.n_particles) 
@@ -109,7 +109,7 @@ class TestReplicate(unittest.TestCase):
     def test_add_struct_on_grid(self):
 
 
-        blank_strucC =  BBCont()
+        blank_strucC =  Buildingblock()
         self.strucC = replicate.add_struc_grid(blank_strucC,self.Th,10)
         for pkey_i, particle_i  in self.strucC.particles.iteritems():
             mol_i = int(pkey_i/self.Th.n_particles) 

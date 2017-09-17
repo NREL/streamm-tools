@@ -19,7 +19,7 @@ logging.basicConfig(filename='streamm.log',level=logging.INFO)
 __all__ = ['buildingblocks','calculations','structures','forcefields','mpi','util']
 #__all__ = []
 
-from buildingblocks import Buildingblock
+from structures import Buildingblock
 from structures import Particle
 from structures import Bond 
 from structures import Angle 
@@ -27,7 +27,6 @@ from structures import Dihedral
 from structures import Improper 
 from structures import Group 
 from structures import Groups
-from structures import Lattice
 from structures import NBlist
 from structures import Structure
 

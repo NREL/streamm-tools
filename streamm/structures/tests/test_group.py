@@ -48,7 +48,7 @@ class TestGroupsProps(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         
-        self.th = container.Container("thiophene")
+        self.th = structure.Structure("thiophene")
             
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
@@ -86,7 +86,7 @@ class TestGroupsProps(unittest.TestCase):
             if( particle_i.symbol == 'H' ):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
-        self.strucC = container.Container()
+        self.strucC = structure.Structure()
         self.strucC.lat_cubic(100.0)
         seed = 82343
         self.strucC = self.strucC.add_struc(self.th,10,seed)
@@ -99,7 +99,7 @@ class TestGroupsProps(unittest.TestCase):
     def test_groupmol(self):
         
         group_tag = 'mol'
-        groupContainer_i = group.Container(group_tag,self.strucC )
+        groupContainer_i = group.Groups(group_tag,self.strucC )
         groupContainer_i.group_prop('mol',group_tag)
         
         self.assertEqual(str(len(groupContainer_i.groups)),str(10))
@@ -137,7 +137,7 @@ class TestGroupsProps(unittest.TestCase):
         
     def test_groupres(self):
         group_tag = 'residue'
-        groupContainer_i = group.Container(group_tag,self.strucC )
+        groupContainer_i = group.Groups(group_tag,self.strucC )
         groupContainer_i.group_prop('residue',group_tag)
         
         self.assertEqual(str(len(groupContainer_i.groups)),str(30))
@@ -180,7 +180,7 @@ class TestGroupsHtermSp2(unittest.TestCase):
     def setUp(self):
         
         
-        self.struc_i = container.Container("thiophene")
+        self.struc_i = structure.Structure("thiophene")
         
 
         symbols = ['C','C','C','C','S','H','H','H','H']
@@ -217,7 +217,7 @@ class TestGroupsHtermSp2(unittest.TestCase):
                 particle_i.resname = "HA"
                 particle_i.residue = 3
         group_tag = 'residue'
-        self.groupContainer_i = group.Container(group_tag,self.struc_i )
+        self.groupContainer_i = group.Groups(group_tag,self.struc_i )
         self.groupContainer_i.group_prop('residue',group_tag)
 
         self.assertEqual(len(self.groupContainer_i.groups),2)  
@@ -238,7 +238,7 @@ class TestGroupsHtermSp3(unittest.TestCase):
     # 
     @setUp_streamm 
     def setUp(self):
-        self.struc_i = container.Container('ethane')
+        self.struc_i = structure.Structure('ethane')
         symbols = ['C','C','H','H','H','H','H','H']
         positions = [ ]
         positions.append([-3.29091,-1.65766,-0.00000])
@@ -272,7 +272,7 @@ class TestGroupsHtermSp3(unittest.TestCase):
                 rmHcnt += 1
                 
         group_tag = 'residue'
-        groupContainer_i = group.Container(group_tag,self.struc_i )
+        groupContainer_i = group.Groups(group_tag,self.struc_i )
         groupContainer_i.group_prop('residue',group_tag)
         self.assertEqual(len(groupContainer_i.groups),2)  
         
@@ -297,7 +297,7 @@ class TestGroup_dr(unittest.TestCase):
     # 
     @setUp_streamm 
     def setUp(self):
-        self.struc_i = container.Container("thiophene")
+        self.struc_i = structure.Structure("thiophene")
 
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
@@ -329,7 +329,7 @@ class TestGroup_dr(unittest.TestCase):
                 particle_i.resname = "HA"
                 particle_i.residue = 1
                 
-        self.strucC = container.Container('th_x2')
+        self.strucC = structure.Structure('th_x2')
         self.strucC.lat_cubic(30.0)
         seed = 82343
         self.strucC = self.strucC.add_struc(self.struc_i,3,seed)
@@ -350,7 +350,7 @@ class TestGroup_dr(unittest.TestCase):
         self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
 
         group_tag = 'mol'
-        groupContainer_i = group.Container(group_tag,self.strucC )
+        groupContainer_i = group.Groups(group_tag,self.strucC )
         groupContainer_i.group_prop('mol',group_tag)
         
         groupContainer_i.calc_cent_mass()

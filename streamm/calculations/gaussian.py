@@ -21,15 +21,8 @@ import json
 import numpy as np
 from string import replace
 
-
-import streamm.structures 
-# import streamm.calculations.resource as resource 
 from resource import Resource 
 from resource import CalculationRes
-
-#import streamm.calculations.calculation as calculation
-from streamm.buildingblocks.container import Container as BBCont
-    
 
 try:
     # Import pymatgen Class 

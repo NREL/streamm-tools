@@ -24,7 +24,7 @@ import random
 import numpy.testing.utils as nptu
 
 from streamm.calculations.lammps import LAMMPS
-from streamm.buildingblocks.container import Container as BBCont
+from streamm.structures.buildingblock import Buildingblock 
 import streamm.structures.particle as particle
 
 import streamm.forcefields.particletype as particletype
@@ -46,7 +46,7 @@ class Test_Thiophene(unittest.TestCase):
         self.calc_i = LAMMPS('lmp_thiophene')
         
 
-        self.Th = BBCont('thiophene')
+        self.Th = Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])

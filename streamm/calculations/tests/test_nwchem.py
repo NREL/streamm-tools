@@ -27,7 +27,7 @@ import shutil
 
 
 from streamm.calculations.nwchem import NWChem
-from streamm.buildingblocks.container import Container as BBCont
+from streamm.structures.buildingblock import Buildingblock 
 import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
@@ -41,7 +41,7 @@ class Test_nwcheminput(unittest.TestCase):
         self.calc_i = NWChem('nwchem_thiophene_SP')
         
 
-        self.Th = BBCont('thiophene')
+        self.Th = Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])

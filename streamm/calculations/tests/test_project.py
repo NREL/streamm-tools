@@ -40,7 +40,7 @@ import streamm.forcefields.dihtype as dihtype
 import streamm.forcefields.imptype as imptype
 
 
-from streamm.buildingblocks.container import Container as BBCont
+from streamm.structures.buildingblock import Buildingblock 
 import streamm.structures.particle as particle
 
 from streamm.calculations.resource import Resource
@@ -65,7 +65,7 @@ class TestProject(unittest.TestCase):
         
         self.proj_i = Project('TestProject')
 
-        self.Th = BBCont('thiophene')
+        self.Th = Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])

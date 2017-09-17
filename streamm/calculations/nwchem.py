@@ -25,10 +25,6 @@ import streamm.structures
 #import streamm.calculations.resource as resource 
 from resource import Resource 
 from resource import CalculationRes
-
-#import streamm.calculations.calculation 
-#from streamm.buildingblocks.container import Container as BBCont   
-from streamm.buildingblocks.container import Container as BBCont
     
 import logging
 logger = logging.getLogger(__name__)

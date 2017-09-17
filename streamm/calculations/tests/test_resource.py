@@ -28,7 +28,7 @@ import shutil
 
 import streamm.calculations.calculation as calculation
 import streamm.calculations.resource as resource 
-from streamm.buildingblocks.container import Container as BBCont
+from streamm.structures.buildingblock import Buildingblock 
 import streamm.structures.particle as particle
     
 
@@ -66,7 +66,7 @@ class TestAddStruc(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
 
-        self.Th = BBCont('thiophene')
+        self.Th = Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])
@@ -103,7 +103,7 @@ class TestAddStruc(unittest.TestCase):
         self.calc_i.add_file(file_type,file_key,file_name)
         self.res_i = resource.Resource('res1',res_type = 'local')
         self.res_i.make_dir()
-        self.struc_i = BBCont()
+        self.struc_i = Buildingblock()
         self.calc_i.set_resource(self.res_i)
         self.calc_i.make_dir()
         

@@ -516,7 +516,7 @@ class Structure(object):
         """
         Create new structure container from list of particle keys
         """
-        new_strucC = Container(str(tag))
+        new_strucC = Structure(str(tag))
         
         key_update = dict()
         # Set lattice 
