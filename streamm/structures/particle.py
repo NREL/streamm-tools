@@ -15,17 +15,9 @@ __status__ = "Beta"
 import logging
 logger = logging.getLogger(__name__)
 
-#try:
-    # Import pymatgen Class 
 import pymatgen_core.core.periodic_table as periodictable
 import pymatgen_core.core.units as units
-#except:
-#    raise ImportError("pymatgen import error for pymatgen.core.periodic_table module")
 
-
-# Import streamm dependencies 
-# import streamm.structures.lattice as lattice
-# import streamm.structures.lattice as lattice
 
 DIMENSIONS = 3
 
@@ -199,7 +191,7 @@ class Particle(object):
         return
     
 
-    def __init__(self,type='atom',label=None,symbol = None,unit_conf=units.unit_conf ):
+    def __init__(self,type='atom',label=None,symbol = None,unit_conf=units.unit_conf):
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
         self.type = type

@@ -30,9 +30,42 @@ class Imptype(object):
          
     """
 
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+        
+    @property 
+    def e0(self): 
+        return self._property['e0']
+    @e0.setter 
+    def e0(self,value): 
+        self._property['e0'] = value
+    @property 
+    def ke(self): 
+        return self._property['ke']
+    @ke.setter 
+    def ke(self,value): 
+        self._property['ke'] = value
+    @property 
+    def pn(self): 
+        return self._property['pn']
+    @pn.setter 
+    def pn(self,value): 
+        self._property['pn'] = value
+    
+    
     def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="improper" ,unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
-     
+
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
+        # 
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.fftype3 = fftype3
@@ -40,10 +73,14 @@ class Imptype(object):
         self.type = type
 
         # Set default values for parameters
-        self.e0 = 0.0
-        self.ke = 1.0
-        self.pn = 0.0    # For periodicimproper
 
+        self._property['e0']  = 1
+        self._property['ke']  = 1.0
+        self._property['pn']  = 0.0
+        
+        self._property_units['energy'].append('ke')
+        self._property_units['angle'].append('e0')
+        #         
         # Lammps and gromacs index
         self.lammps_index = 0 
         self.gromacs_index = 0 
@@ -56,9 +93,9 @@ class Imptype(object):
         del self.fftype2 
         del self.fftype3
         del self.fftype4
-        del self.ke
-        del self.e0
-        del self.pn
+        del self.type
+        del self._property
+        del self._property_units
         del self.lammps_index
         del self.gromacs_index 
 
@@ -90,12 +127,10 @@ class Imptype(object):
         if isinstance(e0, float):
             self.e0 = e0
         else:
-            print "1st arg should be float"
-            raise TypeError
+            raise TypeError("1st arg should be float")
 
         if isinstance(ke, float):
             self.ke = ke
         else:
-            print "2nd arg should be float"
-            raise TypeError
+            raise TypeError("2nd arg should be float")
 

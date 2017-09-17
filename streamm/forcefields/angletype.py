@@ -33,18 +33,51 @@ class Angletype(object):
          
     """
 
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property
+    def kb(self):
+        return self._property['kb'] 
+    
+    @kb.setter
+    def kb(self,value):
+        self._property['kb']  = value
+        
+    @property
+    def theta0(self):
+        return self._property['theta0'] 
+    
+    @theta0.setter
+    def theta0(self,value):
+        self._property['theta0']  = value
+        
     def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank" , type="harmonic" ,unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
-
+        #
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
+        #
+        
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.fftype3 = fftype3
         self.type = type
 
         # Set default values for parameters
-        self.theta0 = 0.0
-        self.kb = 0.0 
+        self._property['kb']  = 0.0 
+        self._property['theta0']  = 0.0
 
+        self._property_units['energy'].append('kb')
+        self._property_units['length'].append('r0')
+        
         # Lammps and gromacs index
         self.lammps_index = 0 
         self.gromacs_index = 0 
@@ -56,8 +89,8 @@ class Angletype(object):
         del self.fftype2 
         del self.fftype3
         del self.type
-        del self.theta0
-        del self.kb 
+        del self._property
+        del self._property_units 
         del self.lammps_index
         del self.gromacs_index 
 
@@ -96,3 +129,15 @@ class Angletype(object):
             print "2nd arg should be float"
             raise TypeError
 
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        

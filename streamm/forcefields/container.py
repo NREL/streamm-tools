@@ -135,9 +135,7 @@ class Container(object):
                 
             self.n_particletypes = len(self.particletypes)
         else:
-            raise TypeError("Attempting to add non-Ljtype type to container")
-
-
+            raise TypeError("Attempting to add non-paticletype type to container")
 
 
     def add_bondtype(self, bondtype_i, deepcopy = True ):

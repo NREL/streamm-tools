@@ -42,8 +42,6 @@ class Lattice(pymatgen_lat):
     '''
     
     def __init__(self,matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
-        # Store the units of each attribute type 
-        self.unit_conf = unit_conf
         # 
         self.n_dim = DIMENSIONS
         
@@ -465,3 +463,15 @@ class Lattice(pymatgen_lat):
             matrix[d][d] = len_o
         self.set_matrix(matrix)        
                     
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        

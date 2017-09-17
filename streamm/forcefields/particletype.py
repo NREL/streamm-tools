@@ -26,12 +26,51 @@ class Particletype(object):
         change fftype1 to fftype_i
         
     '''
+
+
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property
+    def epsilon(self):
+        return self._property['epsilon'] 
+
+
+    @epsilon.setter
+    def epsilon(self,value):
+        self._property['epsilon'] = value
+
+    @property
+    def sigma(self):
+        return self._property['sigma'] 
+
+    @sigma.setter
+    def sigma(self,value):
+        self._property['sigma'] = value
+
+
     def __init__(self,fftype1='X',unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
+         
+        self.fftype1 = str(fftype1)
+
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
+        #         
+        self._property['epsilon'] = 1.0
+        self._property['sigma']  = 2.0
         
-        self.fftype1 = str(fftype1) 
-        self.epsilon = 1.0
-        self.sigma = 2.0 
+        self._property_units['energy'].append('epsilon')
+        self._property_units['length'].append('sigma')
+        
+        
         self.lammps_index = None
         self.gromacs_index = None 
     
@@ -40,8 +79,8 @@ class Particletype(object):
         Destructor, clears structure memory and calls held container destructors
         """
         del self.fftype1
-        del self.epsilon
-        del self.sigma 
+        del self._property
+        del self._property_units 
         del self.lammps_index
         del self.gromacs_index
         
@@ -50,3 +89,16 @@ class Particletype(object):
         'Magic' method for printng contents of container
         """
         return " {} epsilon:{} sigma:{}".format(self.fftype1,self.epsilon,self.sigma)
+
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        

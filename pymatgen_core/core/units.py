@@ -80,6 +80,10 @@ BASE_UNITS = {
         "g": 1e-3,
         "amu": amu_to_kg,
     },
+    "angle":{
+        'radian':1,
+        'degree':np.pi,
+    },
     "time": {
         "s": 1,
         "ns": 1e-9,
@@ -143,7 +147,10 @@ DERIVED_UNITS = {
         "Ha": {"kg": 1, "m": 2, "s": -2, const.e * Ha_to_eV: 1},
         "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
-        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
+        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
+        "wavenumber": {"kg": 1, "m": 2, "s": -2, 100.0*const.c*const.h: 1},
+        "kJmol": {"kg": 1, "m": 2, "s": -2, 1000.0/const.N_A : 1},
+        "kCalmol": {"kg": 1, "m": 2, "s": -2,  1000.0*const.calorie/const.N_A : 1}
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
@@ -184,9 +191,12 @@ DERIVED_UNITS = {
     },
     "magnetic_flux": {
         "Wb": {"m": 2, "kg": 1, "s": -2, "C": -1,'s':1}
+    },
+    "harm_bond_coeff": {
+        "kCalmolsqang": {"kg": 1, "m": 2, "s": -2,'ang':-2,  1000.0*const.calorie/const.N_A : 1}, # kCal/mol/ang^2
+        'kJmolsqnm':{"kg": 1, "m": 2, "s": -2,'nm':-2, 1000.0/const.N_A : 1 }, # kJmol/nm^2  
     }
 }
-
 
 ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
 SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
@@ -945,7 +955,9 @@ unit_conf = {
     'length': 'ang',
     'capacitance': 'F',
     'electric_dipole_moment':'D',
-    'conductance': 'S'
+    'conductance': 'S',
+    'harm_bond_coeff':'kCalmolsqang',
+    'angle':'radian'
     
 }
 
@@ -975,12 +987,11 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
         new_unit_type = new_unit_conf[unit_type]
         old_unit_type = old_unit_conf[unit_type]
         logger.debug("The units of {} have been set to change and will be updated ".format(unit_type))
-        logger.debug("from {} to {}".format(old_unit_type,new_unit_type))
         Unit_instance = partial(FloatWithUnit, unit_type=unit_type)
+        Unit_conversion = Unit_instance(1.0,old_unit_type).to(new_unit_type).real
+        logger.debug("from {} to {} with conversion factor of {}".format(old_unit_type,new_unit_type,Unit_conversion))
         for proptery_key in property_units[unit_type]:
-            logger.debug("Changing {} ".format(properties[proptery_key]))
-            properties[proptery_key] = Unit_instance(properties[proptery_key],old_unit_type).to(new_unit_type).real
-            logger.debug("to {}".format(properties[proptery_key]))
+            properties[proptery_key] = properties[proptery_key]*Unit_conversion
     
         unit_conf[unit_type] = new_unit_conf[unit_type]
         

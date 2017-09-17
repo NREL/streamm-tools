@@ -32,39 +32,174 @@ class Dihtype(object):
          
     """
 
-    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="multiharmonic" ,unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property 
+    def paths(self): 
+        return self._property['paths']
+    @paths.setter 
+    def paths(self,value): 
+        self._property['paths'] = value
+    @property 
+    def kb(self): 
+        return self._property['kb']
+    @kb.setter 
+    def kb(self,value): 
+        self._property['kb'] = value
+    @property 
+    def d(self): 
+        return self._property['d']
+    @d.setter 
+    def d(self,value): 
+        self._property['d'] = value
+    @property 
+    def mult(self): 
+        return self._property['mult']
+    @mult.setter 
+    def mult(self,value): 
+        self._property['mult'] = value
+    @property 
+    def theat_s(self): 
+        return self._property['theat_s']
+    @theat_s.setter 
+    def theat_s(self,value): 
+        self._property['theat_s'] = value
+    @property 
+    def k1(self): 
+        return self._property['k1']
+    @k1.setter 
+    def k1(self,value): 
+        self._property['k1'] = value
+    @property 
+    def k2(self): 
+        return self._property['k2']
+    @k2.setter 
+    def k2(self,value): 
+        self._property['k2'] = value
+    @property 
+    def k3(self): 
+        return self._property['k3']
+    @k3.setter 
+    def k3(self,value): 
+        self._property['k3'] = value
+    @property 
+    def k4(self): 
+        return self._property['k4']
+    @k4.setter 
+    def k4(self,value): 
+        self._property['k4'] = value
+    @property 
+    def C0(self): 
+        return self._property['C0']
+    @C0.setter 
+    def C0(self,value): 
+        self._property['C0'] = value
+    @property 
+    def C1(self): 
+        return self._property['C1']
+    @C1.setter 
+    def C1(self,value): 
+        self._property['C1'] = value
+    @property 
+    def C2(self): 
+        return self._property['C2']
+    @C2.setter 
+    def C2(self,value): 
+        self._property['C2'] = value
+    @property 
+    def C3(self): 
+        return self._property['C3']
+    @C3.setter 
+    def C3(self,value): 
+        self._property['C3'] = value
+    @property 
+    def C4(self): 
+        return self._property['C4']
+    @C4.setter 
+    def C4(self,value): 
+        self._property['C4'] = value
+    @property 
+    def C5(self): 
+        return self._property['C5']
+    @C5.setter 
+    def C5(self,value): 
+        self._property['C5'] = value
+    @property 
+    def e0(self): 
+        return self._property['e0']
+    @e0.setter 
+    def e0(self,value): 
+        self._property['e0'] = value
+    @property 
+    def ke(self): 
+        return self._property['ke']
+    @ke.setter 
+    def ke(self,value): 
+        self._property['ke'] = value
         
+    
+
+    def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="multiharmonic" ,unit_conf=units.unit_conf):
+        #
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
+        #        
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.fftype3 = fftype3
         self.fftype4 = fftype4
         self.type = type
-
+        #
         # Set default values for parameters
-        self.paths = 1 
-        self.d = 1.0    # gamma 
-        self.mult = 0.0 # n 
-        self.kb = 0.0
-        self.theat_s = 0.0
-
+        self._property['paths']  = 1
+        self._property['d']  = 1.0
+        self._property['mult']  = 0.0 
+        self._property['kb']  = 0.0
+        self._property['theat_s']  = 0.0 
+        #
+        self._property_units['energy'].append('kb')
+        self._property_units['angle'].append('theat_s')
+        #         
         # Fourier opls coefficients 
-        self.k1 = 0.0 
-        self.k2 = 0.0 
-        self.k3 = 0.0 
-        self.k4 = 0.0 
+        self._property['k1']  = 0.0
+        self._property['k2']  = 0.0
+        self._property['k3']  = 0.0
+        self._property['k4']  = 0.0
+
+        self._property_units['energy'].append('k1')
+        self._property_units['energy'].append('k2')
+        self._property_units['energy'].append('k3')
+        self._property_units['energy'].append('k4')
 
         # Ryckaert-Bellemans function coefficients 
-        self.C0 = 0.0 
-        self.C1 = 0.0 
-        self.C2 = 0.0 
-        self.C3 = 0.0 
-        self.C4 = 0.0 
-        self.C5 = 0.0
-
-
-        self.e0 = 0.0
-        self.ke = 1.0 
+        self._property['C0']  = 0.0
+        self._property['C1']  = 0.0
+        self._property['C2']  = 0.0
+        self._property['C3']  = 0.0
+        self._property['C4']  = 0.0
+        self._property['C5']  = 0.0
+        
+        self._property_units['energy'].append('C0')
+        self._property_units['energy'].append('C1')
+        self._property_units['energy'].append('C2')
+        self._property_units['energy'].append('C3')
+        self._property_units['energy'].append('C4')
+        self._property_units['energy'].append('C5')
+        
+        self._property['e0']  = 0.0
+        self._property['ke']  = 0.0
+        #
+        self._property_units['angle'].append('e0')
+        self._property_units['energy'].append('ke')
 
         # Lammps and gromacs index
         self.lammps_index = 0 
@@ -79,22 +214,8 @@ class Dihtype(object):
         del self.fftype3
         del self.fftype4
         del self.type
-        del self.d
-        del self.mult
-        del self.kb
-        del self.theat_s
-        del self.k1
-        del self.k2
-        del self.k3
-        del self.k4
-        del self.C0
-        del self.C1
-        del self.C2
-        del self.C3
-        del self.C4
-        del self.C5
-        del self.e0
-        del self.ke
+        del self._property
+        del self._property_units
         del self.lammps_index
         del self.gromacs_index 
 
@@ -134,57 +255,52 @@ class Dihtype(object):
         if isinstance(kb, float):
             self.kb = kb
         else:
-            print "1nd arg kb should be float"
-            raise TypeError
+            raise TypeError("1nd arg kb should be float")
 
         if isinstance(mult, float):
             self.mult = mult
         else:
-            print "2rd arg mult should be float"
-            raise TypeError
+            raise TypeError("2rd arg mult should be float")
 
         if isinstance(theat_s, float):
             self.theat_s = theat_s
         else:
-            print "3th arg theat_s should be float"
-            raise TypeError
+            raise TypeError("3th arg theat_s should be float")
 
     def setopls(self,k1,k2,k3,k4):
         """
         set opls parameters
-
-        E = 1/2 k1[1+cos(theta)]+1/2 k2[1-cos(2 theta)]+1/2 k3[1+cos(3 theta)]+1/2 k4[1-cos(4 theta)]
-
+        
         Args:
             k1     (float) force constant    kcal/mol
             k2     (float) force constant    kcal/mol
             k3     (float) force constant    kcal/mol
             k4     (float) force constant    kcal/mol
+
+        .. math::
+            E = 1/2 k1[1+cos(theta)]+1/2 k2[1-cos(2 theta)]+1/2 k3[1+cos(3 theta)]+1/2 k4[1-cos(4 theta)]
+
         """
 
         if isinstance(k1, float):
             self.k1 = k1
         else:
-            print "1st arg should be float"
-            raise TypeError
+            raise TypeError("1st arg should be float")
 
         if isinstance(k2, float):
             self.k2 = k2
         else:
-            print "2nd arg should be float"
-            raise TypeError
+            raise TypeError("2nd arg should be float")
 
         if isinstance(k3, float):
             self.k3 = k3
         else:
-            print "3rd arg should be float"
-            raise TypeError
+            raise TypeError("3rd arg should be float")
 
         if isinstance(k4, float):
             self.k4 = k4
         else:
-            print "4th arg should be float"
-            raise TypeError
+            raise TypeError("4th arg should be float")
 
         # Translate to Ryckaert-Bellemans function
         self.C0 = k2 + 0.5*(k1+k3)
@@ -199,8 +315,6 @@ class Dihtype(object):
         """
         set Ryckaert-Bellemans parameters
 
-        V_{rb}(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
-
         Args:
             C0     (float) force constant    kcal/mol
             C1     (float) force constant    kcal/mol
@@ -208,43 +322,42 @@ class Dihtype(object):
             C3     (float) force constant    kcal/mol
             C4     (float) force constant    kcal/mol
             C5     (float) force constant    kcal/mol
+            
+        .. math::
+            V_{rb}(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
+
         """
 
         if isinstance(C0, float):
             self.C0 = C0
         else:
-            print "1st arg should be float"
-            raise TypeError
+            raise TypeError("1st arg should be float")
 
         if isinstance(C1, float):
             self.C1 = C1
         else:
-            print "2nd arg should be float"
-            raise TypeError
+            raise TypeError("2nd arg should be float")
 
         if isinstance(C2, float):
             self.C2 = C2
         else:
-            print "3rd arg should be float"
-            raise TypeError
+            raise TypeError("3rd arg should be float")
 
         if isinstance(C3, float):
             self.C3 = C3
         else:
-            print "4th arg should be float"
-            raise TypeError
+            raise TypeError("4th arg should be float")
 
         if isinstance(C4, float):
             self.C4 = C4
         else:
-            print "5th arg should be float"
-            raise TypeError
+            raise TypeError("5th arg should be float")
 
         if isinstance(C5, float):
             self.C5 = C5
         else:
-            print "6th arg should be float"
-            raise TypeError
+            raise TypeError("6th arg should be float")
+        
         # Translate to opls 
         self.k1 = -1.0*( 2.0*C1 + 3.0*C3/2.0)
         self.k2 = -1.0*( C2 + C4)
@@ -252,3 +365,15 @@ class Dihtype(object):
         self.k4 = -0.25*C4
 
         
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+                

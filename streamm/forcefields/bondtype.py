@@ -17,6 +17,7 @@ try:
 except:
     raise ImportError("pymatgen import error for units object")
 
+
 class Bondtype(object):
     """
     Set of bond parameters
@@ -28,22 +29,48 @@ class Bondtype(object):
          
     """
 
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property
+    def r0(self):
+        return self._property['r0'] 
+    
+    @r0.setter
+    def r0(self,value):
+        self._property['r0']  = value
+        
+    @property
+    def kb(self):
+        return self._property['kb'] 
+    
+    @kb.setter
+    def kb(self,value):
+        self._property['kb']  = value
+        
     def __init__(self, fftype1='blank', fftype2='blank', type="harmonic",unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
-        
-        """
-        Constructor for a bond parameter.
-        
-        """
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        #
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []        
 
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.type = type
 
         # Set default values for parameters
-        self.r0 = 0.0
-        self.kb = 0.0 
-
+        self._property['kb'] = 1.0
+        self._property['r0'] = 1.0
+        # 
+        self._property_units['harm_bond_coeff'].append('kb')
+        self._property_units['length'].append('r0')
+        
         # Lammps and gromacs index
         self.lammps_index = 0 
         self.gromacs_index = 0 
@@ -89,12 +116,22 @@ class Bondtype(object):
         if isinstance(r0, float):
             self.r0 = r0
         else:
-            print "1st arg should be float"
-            raise TypeError
+            raise TypeError("1st arg should be float")
 
         if isinstance(kb, float):
             self.kb = kb
         else:
-            print "2nd arg should be float"
-            raise TypeError
+            raise TypeError("2nd arg should be float")
     
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+            
