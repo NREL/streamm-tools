@@ -17,4 +17,4 @@ from bondtype import Bondtype
 from angletype import Angletype
 from dihtype import Dihtype
 from imptype import Imptype
-from container import Container as Parameters
+from parameters import Parameters

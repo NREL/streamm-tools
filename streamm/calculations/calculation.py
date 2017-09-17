@@ -28,8 +28,8 @@ except:
 
 
 # Import streamm dependencies 
-from streamm.buildingblocks.container import Container as BBCont
-from streamm.forcefields.container import Container as ParamCont
+from streamm.structure.buildingblock import Buildingblock
+from streamm.forcefields.parameters import Parameter 
 
 
 import logging
@@ -103,8 +103,8 @@ class Calculation(object):
         self.prefix = 'calc'
         self.data = dict()
 
-        self.strucC = BBCont(unit_conf=unit_conf )
-        self.paramC = ParamCont()
+        self.strucC = Buildingblock(unit_conf=unit_conf)
+        self.paramC = Parameter(unit_conf=unit_conf)
         
         dt = datetime.fromtimestamp(time.time())
         self.meta = dict()
