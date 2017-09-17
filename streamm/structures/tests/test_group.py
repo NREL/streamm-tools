@@ -25,7 +25,7 @@ import random
 import numpy.testing.utils as nptu
 
 
-import streamm.structures.container as container
+import streamm.structures.structure as structure
 import streamm.structures.group as group
         
 import streamm.structures.lattice as lattice

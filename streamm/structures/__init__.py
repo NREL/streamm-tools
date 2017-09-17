@@ -10,7 +10,7 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-__all__ = ['particle','bond','angle','dihedral','improper','group','lattice','nblist']
+__all__ = ['particle','bond','angle','dihedral','improper','group','nblist','structure','buildingblock']
 
 from particle import Particle 
 from bond import Bond 
@@ -18,8 +18,10 @@ from angle import Angle
 from dihedral import Dihedral 
 from improper import Improper 
 from group import Group 
-from group import Container as Groups
-from lattice import Lattice
+from group import Groups
 from nblist import NBlist
-from container import Container as Structure  
+from structure import Structure
+from buildingblock import Buildingblock
+
+
 

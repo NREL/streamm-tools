@@ -42,7 +42,7 @@ from streamm_testutil import *
 class TestContainer(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
-        self.strucC = container.Container("Test_structure1")
+        self.strucC = structure.Structure("Test_structure1")
         
     def test_str(self):
         self.assertAlmostEqual(str(self.strucC)," Test_structure1")
@@ -349,7 +349,7 @@ class Test_guessnbs(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         
-        self.strucC = container.Container()
+        self.strucC = structure.Structure()
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
@@ -393,7 +393,7 @@ class TestBuildThiophene(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         
-        self.strucC = container.Container('thiophene')
+        self.strucC = structure.Structure('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])
@@ -744,7 +744,7 @@ class TestBuildEthane(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         
-        self.Eth = container.Container('ethane')
+        self.Eth = structure.Structure('ethane')
         symbols = ['C','C','H','H','H','H','H','H']
         positions = [ ]
         positions.append([-3.29091,-1.65766,-0.00000])
@@ -773,8 +773,8 @@ class Testiadd(unittest.TestCase):
     
     @setUp_streamm 
     def setUp(self):
-        self.strucC = container.Container()
-        self.strucC_j = container.Container()
+        self.strucC = structure.Structure()
+        self.strucC_j = structure.Structure()
 
         self.part = particle.Particle(symbol="C")
         pos_i = [ 0.0,0.0,0.0]   
@@ -841,7 +841,7 @@ class TestProximityCheck(unittest.TestCase):
     # 
     @setUp_streamm 
     def setUp(self):
-        self.strucC1 = container.Container()
+        self.strucC1 = structure.Structure()
         
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
@@ -873,7 +873,7 @@ class TestProximityCheck(unittest.TestCase):
         matrix_i[2][2] = 1000.0 
         self.strucC1.lat.set_matrix(matrix_i)
         
-        self.strucC2 = container.Container()
+        self.strucC2 = structure.Structure()
 
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]

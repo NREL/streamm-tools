@@ -27,7 +27,7 @@ import os
 import streamm.structures.particle as particle
 import streamm.structures.dihedral as dihedral
 
-import streamm.buildingblocks.container as container
+import streamm.structures.buildingblocks as buildingblocks
 
 from streamm_testutil import *
 
@@ -37,7 +37,7 @@ class Test_attach(unittest.TestCase):
     def setUp(self):
         
                                             
-        self.Th = container.Container('thiophene')
+        self.Th = buildingblocks.Buildingblock('thiophene')
         symbols = ['C','C','C','C','S','H','H','H','H']
         positions = [ ]
         positions.append([-1.55498576,-1.91131218,-0.00081000])

@@ -32,7 +32,7 @@ except:
 
 # Import streamm dependencies 
 
-from streamm.structures.container import Container as strucCont
+from streamm.structures.structure import Structure 
 # from streamm.structures.container import Container
 from streamm.structures.lattice import Lattice 
 from streamm.structures.nblist import NBlist 
@@ -77,7 +77,7 @@ class Attachment(object):
         """
         return " %s ( %s %d ) +  %s ( %s %d ) -> %s "%(self.tag_i,self.rsite_i,self.n_i,self.tag_j,self.rsite_j,self.n_j,self.tag_ij)
     
-class Container(strucCont):
+class Buildingblock(Structure):
     """
     Data structure for describing a structure with particle that act as attachment points
     
@@ -88,7 +88,7 @@ class Container(strucCont):
         units_conf (dict): Dictionary of units for each attribute type
     """    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf):
-        strucCont.__init__(self, tag=tag, matrix=matrix,unit_conf=unit_conf )
+        Structure.__init__(self, tag=tag, matrix=matrix,unit_conf=unit_conf )
         # Reactive sites 
         self.n_func = int(0)
         self.funcs = {}   
