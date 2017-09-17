@@ -201,7 +201,7 @@ class Particle(object):
         self._unit_conf = unit_conf
         #
         # Default Physical properties
-        #
+        # 
         self._property = {}
         self._property_units = {}
         for unit_type in self._unit_conf.keys():
