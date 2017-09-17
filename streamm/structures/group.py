@@ -577,7 +577,7 @@ class Group(object):
         return Htermed #original_ref_mod,sub_ref_mod 
 
 
-class Container(object):
+class Groups(object):
     """
     Set of groups within a structure.containers.Container
     
