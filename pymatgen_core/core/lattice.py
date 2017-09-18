@@ -69,7 +69,7 @@ class Lattice(MSONable):
         
     @property
     def angles(self):
-        return self._property['angles'][3:6]
+        return self._property['constants'][3:6]
     
     
     @property
@@ -87,13 +87,15 @@ class Lattice(MSONable):
             j = (i + 1) % self.n_dim
             k = (i + 2) % self.n_dim
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-
-        self._property['angles'] = np.arccos(angles) * 180. / pi
-        self._property['lengths'] = lengths
+            
+        self._property['constants'] = np.zeros(6)
+        
+        self._property['constants'][0:3] = lengths 
+        self._property['constants'][3:6] = np.arccos(angles) * 180. / pi
+        
         self._property['matrix'] = m
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self.angles])
     
-
     
     @constants.setter
     def constants(self,constants):
@@ -111,30 +113,26 @@ class Lattice(MSONable):
         
         self._property['constants'] = constants
         
-    
-        alpha_rad = np.deg2rad(constants[3] )
-        beta_rad  = np.deg2rad(constants[4]  )
-        gamma_rad = np.deg2rad(constants[5] )
+        a = constants[0] 
+        b = constants[1] 
+        c = constants[2] 
 
+        alpha_r = np.deg2rad(constants[3] )
+        beta_r  = np.deg2rad(constants[4]  )
+        gamma_r = np.deg2rad(constants[5] )
+        # 
+        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+            / (np.sin(alpha_r) * np.sin(beta_r))
+        # Sometimes rounding errors result in values slightly > 1.
+        val = abs_cap(val)
+        gamma_star = np.arccos(val)
+        self._property['matrix'][0] = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+        self._property['matrix'][1] = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                    b * np.sin(alpha_r) * np.sin(gamma_star),
+                    b * np.cos(alpha_r)]
+        self._property['matrix'][2] = [0.0, 0.0, float(c)]
         
-        ax = constants[0]
-        bx = np.cos( gamma_rad )* constants[1]
-        by = np.sin( gamma_rad )* constants[1]
-        cx =  constants[2]*np.cos(beta_rad)
-        cy =  constants[2]*(np.cos(alpha_rad)- np.cos(beta)*np.cos(gamma_rad))/np.sin(gamma_rad)
-        cz = np.sqrt(  constants[2]*constants[2]- cx*cx - cy*cy )
-
         
-        # Set lattice vectors
-        self._property['matrix']  =  np.array([ np.zeros(self.n_dim) for dim in range(self.n_dim) ])
-        self._property['matrix'][0][0] = ax
-        self._property['matrix'][1][0] = bx
-        self._property['matrix'][1][1] = by
-        self._property['matrix'][2][0] = cx
-        self._property['matrix'][2][1] = cy
-        self._property['matrix'][2][2] = cz
-        
-    
     def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf = units.unit_conf):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
@@ -163,11 +161,9 @@ class Lattice(MSONable):
             self._property_units[unit_type] = []
         # 
         self.n_dim = int(3) # Number of spatial dimensions
-        self._property['constants'] = np.zeros(6)
-        
+        # 
         self.matrix = matrix
         
-
         self._inv_matrix = None
         self._metric_tensor = None
         self._diags = None
@@ -242,9 +238,9 @@ class Lattice(MSONable):
         """
         dr_ij = self.deltasq_pos(pos_i,pos_j)
         
-        dr_ij[0] = dr_ij[0] - self._matrix[0][0] * round( dr_ij[0]/  self._matrix[0][0] )
-        dr_ij[1] = dr_ij[1] - self._matrix[1][1] * round( dr_ij[1]/  self._matrix[1][1] )
-        dr_ij[2] = dr_ij[2] - self._matrix[2][2] * round( dr_ij[2]/  self._matrix[2][2] )
+        dr_ij[0] = dr_ij[0] - self.matrix[0][0] * round( dr_ij[0]/  self.matrix[0][0] )
+        dr_ij[1] = dr_ij[1] - self.matrix[1][1] * round( dr_ij[1]/  self.matrix[1][1] )
+        dr_ij[2] = dr_ij[2] - self.matrix[2][2] * round( dr_ij[2]/  self.matrix[2][2] )
         
         return dr_ij
 
@@ -440,8 +436,8 @@ class Lattice(MSONable):
         pos_o = np.zeros(self.n_dim)
         for m in range(self.n_dim):
             for n in range(self.n_dim):
-                if( self._matrix[m][n] > 0.0 ):
-                    pos_o[m] += float(random.randrange(0,int(int_mult*self._matrix[m][n]) ))/float(int_mult)
+                if( self.matrix[m][n] > 0.0 ):
+                    pos_o[m] += float(random.randrange(0,int(int_mult*self.matrix[m][n]) ))/float(int_mult)
                     
         return pos_o
 
@@ -454,12 +450,12 @@ class Lattice(MSONable):
             exlat_frac (float): fraction to increase lattice by
             
         '''
-        matrix_i = self._matrix
+        matrix_i = self.matrix
         for m in range(self.n_dim):
             for n in range(self.n_dim):
                 matrix_i[m][n] += matrix_i[m][n]*exlat_frac
                 
-        self.set_matrix(matrix_i)
+        self.matrix = matrix_i
         
         return 
         
@@ -478,7 +474,7 @@ class Lattice(MSONable):
         pos_o = np.zeros(self.n_dim)
         for m in range(self.n_dim):
             for n in range(self.n_dim):
-                pos_o[m] += self._matrix[n][m]*frac_o[n]
+                pos_o[m] += self.matrix[n][m]*frac_o[n]
                         
         return pos_o
     
@@ -494,7 +490,7 @@ class Lattice(MSONable):
         matrix = np.zeros((self.n_dim, self.n_dim))
         for d in range(self.n_dim):
             matrix[d][d] = len_o
-        self.set_matrix(matrix)        
+        self.matrix = matrix        
                     
 
     def update_units(self,new_unit_conf):

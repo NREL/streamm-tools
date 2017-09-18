@@ -134,17 +134,17 @@ class TestLattice(unittest.TestCase):
         self.assertAlmostEqual(self.lat.angles[1],120.0)
         self.assertAlmostEqual(self.lat.angles[2],40.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],10.392304845413266 )
         self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],-6.00000)
         # 
-        self.assertAlmostEqual(self.lat.matrix[1][0],9.19253332)
-        self.assertAlmostEqual(self.lat.matrix[1][1],7.71345132)
-        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0], 1.03923048e+01 )
+        self.assertAlmostEqual(self.lat.matrix[1][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][2],6.0)
         # 
-        self.assertAlmostEqual(self.lat.matrix[2][0],-6.0)
-        self.assertAlmostEqual(self.lat.matrix[2][1],-2.3092942)
-        self.assertAlmostEqual(self.lat.matrix[2][2],10.13248046)        
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],12.0)        
         #
         # Orthorhombic  
         #
@@ -182,17 +182,17 @@ class TestLattice(unittest.TestCase):
         self.assertAlmostEqual(self.lat.angles[1],60.0)
         self.assertAlmostEqual(self.lat.angles[2],90.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],10.3923048)
         self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],6.0)
         # 
         self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
         self.assertAlmostEqual(self.lat.matrix[1][1],8.0)
         self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat.matrix[2][0],7.5)
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
         self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat.matrix[2][2],12.99038106)        
+        self.assertAlmostEqual(self.lat.matrix[2][2],15.0)        
         #
         # Triclinic   
         #
@@ -206,17 +206,17 @@ class TestLattice(unittest.TestCase):
         self.assertAlmostEqual(self.lat.angles[1],120.0)
         self.assertAlmostEqual(self.lat.angles[2],80.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],10.3923048)
         self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],-6.0)
         # 
-        self.assertAlmostEqual(self.lat.matrix[1][0], 1.38918542)
-        self.assertAlmostEqual(self.lat.matrix[1][1],7.87846202)
-        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],3.91349423)
+        self.assertAlmostEqual(self.lat.matrix[1][1],5.71704145)
+        self.assertAlmostEqual(self.lat.matrix[1][2],4.0)
         # 
-        self.assertAlmostEqual(self.lat.matrix[2][0],-7.5)
-        self.assertAlmostEqual(self.lat.matrix[2][1],5.4622685)
-        self.assertAlmostEqual(self.lat.matrix[2][2],11.78616234)        
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],15.0)      
     
     def test_deltasq_pos(self):
         pos_i  = [123.9,1298.0,93.762]
@@ -305,10 +305,10 @@ class TestLattice(unittest.TestCase):
     def test_expandmatrix(self):
         
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
-        self.lat.setmatrix(matrix)
+        self.lat.matrix = matrix
         
         exlat_frac = 0.0233
-        self.lat.expandmatrix(exlat_frac)
+        self.lat.expand_matrix(exlat_frac)
         #
         # Check matrix
         # 

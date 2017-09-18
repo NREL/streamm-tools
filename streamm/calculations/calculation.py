@@ -1129,3 +1129,5 @@ class Calculation(object):
         
         self.strucC.update_units(new_unit_conf)
         self.paramC.update_units(new_unit_conf)
+
+
