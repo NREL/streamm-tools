@@ -87,13 +87,14 @@ class Lattice(MSONable):
             j = (i + 1) % self.n_dim
             k = (i + 2) % self.n_dim
             angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-            
-        self._property['constants'] = np.zeros(6)
-        
+                    
         self._property['lengths'] = lengths
-        self._property['constants'][0:3] = lengths 
         self._property['angles'] = np.arccos(angles) * 180. / pi
-        self._property['constants'][3:6] = self._property['angles'] 
+        self._property['constants'] = np.zeros(6)
+        self._property['constants'][0:3] = self._property['lengths']
+        self._property['constants'][3:6] = self._property['angles']
+        
+        print self._property['constants']
         
         self._property['matrix'] = m
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self.angles])
@@ -142,6 +143,47 @@ class Lattice(MSONable):
         self._property['matrix'][2] = [0.0, 0.0, float(c)]
             
     
+    @angles.setter
+    def angles(self,angles):
+
+        self._property['angles'][0] = angles[0] 
+        self._property['angles'][1] = angles[1] 
+        self._property['angles'][2] = angles[2] 
+
+        
+        a = self._property['lengths'][0] 
+        b = self._property['lengths'][1] 
+        c = self._property['lengths'][2] 
+        
+        alpha_r,beta_r,gamma_r = self.get_rad_angles()
+        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
+
+
+        
+    @lengths.setter
+    def lengths(self,lengths):
+
+        
+        self._property['lengths'][0] = lengths[0] 
+        self._property['lengths'][1] = lengths[1] 
+        self._property['lengths'][2] = lengths[2] 
+
+        a = lengths[0] 
+        b = lengths[1] 
+        c = lengths[2]
+        
+        alpha_r,beta_r,gamma_r = self.get_rad_angles()       
+        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
+
+
+    @property
+    def constants(self):
+
+        self._property['constants'][0:3] = self._property['lengths']
+        self._property['constants'][3:6] = self._property['angles']
+        
+        return self._property['constants']
+    
     @constants.setter
     def constants(self,constants):
         """Set lattice with lattice constants.  
@@ -172,48 +214,7 @@ class Lattice(MSONable):
         
         alpha_r,beta_r,gamma_r = self.get_rad_angles()        
         self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
-        
-    @angles.setter
-    def angles(self,angles):
-
-        self._property['angles'][0] = angles[0] 
-        self._property['angles'][1] = angles[1] 
-        self._property['angles'][2] = angles[2] 
-
-        
-        a = self._property['constants'][0] 
-        b = self._property['constants'][1] 
-        c = self._property['constants'][2] 
-        
-        alpha_r,beta_r,gamma_r = self.get_rad_angles()
-        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
-
-        self._property['constants'][3] = angles[0] 
-        self._property['constants'][4] = angles[1] 
-        self._property['constants'][5] = angles[2] 
-        
-
-        
-    @lengths.setter
-    def lengths(self,lengths):
-
-        
-        self._property['lengths'][0] = lengths[0] 
-        self._property['lengths'][1] = lengths[1] 
-        self._property['lengths'][2] = lengths[2] 
-
-        a = lengths[0] 
-        b = lengths[1] 
-        c = lengths[2]
-        
-        alpha_r,beta_r,gamma_r = self.get_rad_angles()       
-        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
-
-        self._property['constants'][0] = lengths[0] 
-        self._property['constants'][1] = lengths[1] 
-        self._property['constants'][2] = lengths[2] 
-        
-        
+                
         
         
         
@@ -252,8 +253,8 @@ class Lattice(MSONable):
         # When we update units we just need to change the matrix
         # then use the setter to update the constants,angles and lengths
         self._property_units['length'].append('matrix')
-        # self._property_units['length'].append('lengths')
-        # self._property_units['angle'].append('angles')
+        self._property_units['length'].append('lengths')
+        self._property_units['angle'].append('angles')
          
         
         self._inv_matrix = None
