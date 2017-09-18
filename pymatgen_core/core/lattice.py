@@ -44,9 +44,10 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
+import pymatgen_core.core.units as units
 
 
-class Lattice(MSONable):
+class Lattice(units.ObjectUnits):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -214,10 +215,6 @@ class Lattice(MSONable):
         self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
                 
         
-        
-        
-        
-        
     def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf = units.unit_conf):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
@@ -235,15 +232,8 @@ class Lattice(MSONable):
                 E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        # 
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         # 
         self.n_dim = int(3) # Number of spatial dimensions
         # 

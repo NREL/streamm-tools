@@ -13,8 +13,9 @@ __status__ = "Beta"
 """
 This module defines the classes relating to angles between atoms
 """
+import pymatgen_core.core.units as units
 #
-class Angle(object):
+class Angle(units.ObjectUnits):
     """Data structure for describing any 3-point associatiaon of Particles
 
     Args:
@@ -22,13 +23,21 @@ class Angle(object):
         * pkey2   (int):   Index of Particle object in angle
         * pkey3   (int):   Index of Particle object in angle
         
-
+    Kwargs:
+        * unit_conf (dict): Unit types with units used by this object
+        
     .. attribute:: cosine (float)
 
         Cosine of the bond angle
         
     """
-    def __init__(self, pkey1, pkey2, pkey3):
+
+                
+                    
+    def __init__(self, pkey1, pkey2, pkey3,unit_conf=units.unit_conf):
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+            
         self.pkey1 = pkey1
         self.pkey2 = pkey2
         self.pkey3 = pkey3
@@ -42,6 +51,6 @@ class Angle(object):
         del self.pkey3
         del self.cosine 
 
-
     def __str__(self):
         return " %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3)
+

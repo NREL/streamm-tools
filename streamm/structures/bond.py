@@ -16,14 +16,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-try:
-    # Import pymatgen Class 
-    import pymatgen_core.core.units as units 
-except:
-    raise ImportError("pymatgen import error for units object")
+# Import pymatgen module 
+import pymatgen_core.core.units as units 
 
 
-class Bond(object):
+class Bond(units.ObjectUnits):
     """Data structure for describing any 2-point association of Particles
 
     Args:
@@ -39,21 +36,31 @@ class Bond(object):
         unit type (length)
                 
     """
+
+    @property
+    def length(self):
+        return self._property['length']
+
+    @length.setter
+    def length(self,value):
+        self._property['length'] = value
+        
+          
     def __init__(self, pkey1, pkey2,unit_conf=units.unit_conf ):
-        # Store the units of each attribute type 
-        self.unit_conf = unit_conf  
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         
         self.pkey1 = pkey1
         self.pkey2 = pkey2
         
-        self.length = 0.0 
+        self._property['length'] = 0.0 
+        self._property_units['length'].append('length')
 
     def __del__(self):
         del self.pkey1
         del self.pkey2
-        del self.length 
+        del self.length
+        
 
     def __str__(self):
         return " %s - %s"%(self.pkey1,self.pkey2 )
-
-        

@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Travis W. Kemper"
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
 __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
@@ -27,18 +27,64 @@ from streamm.structures.bond import Bond
 
 
 
+# Import pymatgen module 
+import pymatgen_core.core.units as units 
 
-class Group(object):
+
+
+class Group(units.ObjectUnits):
     """
     Sets of particles within a structureContainer
     
     Args:
         strucC (structures.container.Container): Reference structure Container
-        
+
+    Kwargs:
+        units_conf (dict): Dictionary of units for each attribute type
+                
         
     """
+    
+    @property 
+    def total_mass(self): 
+        return self._property['total_mass']
+    @property 
+    def total_charge(self): 
+        return self._property['total_charge']
+    @property 
+    def cent_mass(self): 
+        return self._property['cent_mass']
+    @property 
+    def radius(self): 
+        return self._property['radius']
+    @property 
+    def r_gy_sq(self): 
+        return self._property['r_gy_sq']
+    @property 
+    def Q_mn(self): 
+        return self._property['Q_mn']
+    @property 
+    def Rgy_eignval(self): 
+        return self._property['Rgy_eignval']
+    @property 
+    def A_sphere_num(self): 
+        return self._property['A_sphere_num']
+    @property 
+    def A_sphere_dem(self): 
+        return self._property['A_sphere_dem']
+    @property 
+    def A_sphere(self): 
+        return self._property['A_sphere']
+    @property 
+    def dl_sq(self): 
+        return self._property['dl_sq']
 
-    def __init__(self,strucC):
+
+
+    def __init__(self,strucC,unit_conf=units.unit_conf ):
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+        
         # Set pointer for easy reference 
         self.strucC = strucC
         self.n_dim = strucC.lat.n_dim
@@ -55,16 +101,22 @@ class Group(object):
         # 
         # Member properties
         # 
-        self.cent_mass = np.zeros( self.n_dim)
-        self.total_mass = 0.0  # NoteTK this should be .mass
-        self.radius = 0.0
-        self.r_gy_sq = 0.0
-        self.Q_mn = np.zeros([self.n_dim,self.n_dim])
-        self.Rgy_eignval = np.zeros( self.n_dim)
-        self.A_sphere_num = 0.0
-        self.A_sphere_dem = 0.0
-        self.A_sphere = 0.0
-        self.dl_sq = 0.0 #  np.zeros( self.n_dim)
+        self._property['total_mass'] = 0.0  # NoteTK this should be .mass
+        self._property['total_charge'] = 0.0  # NoteTK this should be .mass
+        self._property['cent_mass'] = np.zeros( self.n_dim)
+        self._property['radius'] = 0.0
+        self._property['r_gy_sq'] = 0.0
+        self._property['Q_mn'] = np.zeros([self.n_dim,self.n_dim])
+        self._property['Rgy_eignval'] = np.zeros( self.n_dim)
+        self._property['A_sphere_num'] = 0.0
+        self._property['A_sphere_dem'] = 0.0
+        self._property['A_sphere'] = 0.0
+        self._property['dl_sq'] = 0.0 #  np.zeros( self.n_dim)
+
+        self._property_units['mass'].append('total_mass')
+        self._property_units['charge'].append('total_charge')        
+        self._property_units['length'].append('cent_mass')        
+        self._property_units['length'].append('radius')        
         
     def __del__(self):
         
@@ -78,17 +130,7 @@ class Group(object):
         del self.gkey
         del self.bonded_nblist
         del self.nonbonded_nblist
-        del self.cent_mass
-        del self.total_mass
-        del self.radius
-        del self.r_gy_sq
-        del self.Q_mn
-        del self.Rgy_eignval
-        del self.A_sphere_num
-        del self.A_sphere_dem
-        del self.A_sphere
-        del self.dl_sq
-
+        
 
     def write_xyz(self, xyz_file=''):
         '''
@@ -128,20 +170,23 @@ class Group(object):
         """
         #
         # Intialize center of mass list 
-        self.cent_mass = np.zeros( self.n_dim)
-        self.total_mass = 0.0
+        cent_mass = np.zeros( self.n_dim)
+        total_mass = 0.0
         #
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
             r_i = self.strucC.positions[pkey_i]
             mass_i = particle_i.mass
-            self.total_mass += mass_i
+            total_mass += mass_i
             for dim in range(self.n_dim):
-                self.cent_mass[dim] += mass_i*r_i[dim]
+                cent_mass[dim] += mass_i*r_i[dim]
         # Normalize
         for dim in range(self.n_dim):
-            self.cent_mass[dim] = self.cent_mass[dim]/self.total_mass
+            cent_mass[dim] = cent_mass[dim]/total_mass
         #
+        self._property['cent_mass'] = cent_mass
+        self._property['total_mass'] = total_mass
+
         return 
 
     def calc_radius(self):
@@ -162,9 +207,9 @@ class Group(object):
         
         """
         # Initialize sums 
-        self.radius = 0.0
-        self.r_gy_sq = 0.0
-        self.Q_mn = np.zeros([self.n_dim,self.n_dim])
+        radius = 0.0
+        r_gy_sq = 0.0
+        Q_mn = np.zeros([self.n_dim,self.n_dim])
         
         
         for pkey_i in self.pkeys:
@@ -172,21 +217,25 @@ class Group(object):
             r_i = self.strucC.positions[pkey_i]
             dr_cmass = self.strucC.lat.deltasq_pos_c(r_i,self.cent_mass)
             dot_dr_ij = dr_cmass.dot(dr_cmass)
-            if( dot_dr_ij > self.radius  ):
-                self.radius = dot_dr_ij
+            if( dot_dr_ij > radius  ):
+                radius = dot_dr_ij
             # \sum_i  (r_i_n - r_cmas_n ) (r_i_m - r_cmas_m )
             for d_m in range(self.n_dim):
                 for d_n in range(self.n_dim):
-                    self.Q_mn[d_m,d_n] += dr_cmass[d_m]*dr_cmass[d_n]
+                    Q_mn[d_m,d_n] += dr_cmass[d_m]*dr_cmass[d_n]
         # Normalize
-        self.radius = np.sqrt(self.radius)
+        radius = np.sqrt(radius)
         for d_m in range(self.n_dim):
             for d_n in range(self.n_dim):
-                self.Q_mn[d_m,d_n]  = self.Q_mn[d_m,d_n]  /float( len(self.pkeys))
+                Q_mn[d_m,d_n]  = Q_mn[d_m,d_n]  /float( len(self.pkeys))
                 
         for d_m in range(self.n_dim):
-             self.r_gy_sq += self.Q_mn[d_m,d_m]
-        # 
+             r_gy_sq += Q_mn[d_m,d_m]
+        #
+        self._property['radius'] = radius
+        self._property['r_gy_sq'] = r_gy_sq
+        self._property['Q_mn'] = Q_mn
+        
         return
 
     def calc_asphericity(self):
@@ -207,13 +256,13 @@ class Group(object):
         # 
         # Add properties to property dictionary
         # 
-        self.Rgy_eignval = Rgy_eignval
-        self.A_sphere_num = num
-        self.A_sphere_dem = dem
+        self._property['Rgy_eignval'] = Rgy_eignval
+        self._property['A_sphere_num'] = num
+        self._property['A_sphere_dem'] = dem
         if( dem != 0.0 ):
-            self.A_sphere = num/(2.0*dem)
+            self._property['A_sphere'] = num/(2.0*dem)
         else:
-            self.A_sphere = 0.0
+            self._property['A_sphere'] = 0.0
             
         return
     
@@ -225,7 +274,7 @@ class Group(object):
         """
 
         # Intialize center of mass list 
-        self.dl_sq = 0.0 #  np.zeros( self.n_dim)
+        dl_sq = 0.0 #  np.zeros( self.n_dim)
         
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
@@ -235,9 +284,10 @@ class Group(object):
                 r_j = self.strucC.positions[pkey_j]
                 dr_ij = self.strucC.lat.deltasq_pos_c(r_i,r_j)
                 dot_dr_ij = dr_ij.dot(dr_ij)
-                if( dot_dr_ij > self.dl_sq ):
-                    self.dl_sq = dot_dr_ij
+                if( dot_dr_ij > dl_sq ):
+                    dl_sq = dot_dr_ij
                           
+        self._property['dl_sq'] = dl_sq
         
         return
     
@@ -577,7 +627,7 @@ class Group(object):
         return Htermed #original_ref_mod,sub_ref_mod 
 
 
-class Groups(object):
+class Groups(units.ObjectUnits):
     """
     Set of groups within a structure.containers.Container
     
@@ -586,10 +636,11 @@ class Groups(object):
         strucC (structures.container.Container): Reference structure Container
         
     """
-    def __init__(self,tag,strucC):
-        """
-        Constructor
-        """
+    def __init__(self,tag,strucC,unit_conf=units.unit_conf):
+
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+                
         # Set pointer for easy reference
         self.strucC = strucC
         # 
@@ -899,3 +950,17 @@ class Groups(object):
         json.dump(json_data,f, indent=2)
         f.close()
                
+               
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        for gkey,group_i in self.groups.iteritems():
+            group_i.update_units(new_unit_conf)
+        
+            

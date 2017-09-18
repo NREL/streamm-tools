@@ -84,7 +84,7 @@ class Replication(object):
     def __str__(self):
         return " %s +  %s x %d ( %s ) -> %s "%(self.name_i,self.name_j,self.n,self.method,self.name_ij)
 
-class Structure(object):
+class Structure(units.ObjectUnits):
     """
     Data structure for describing a collection of Particles that have associated
     positions within a Lattice, and consistent set keys corresponding to
@@ -98,10 +98,6 @@ class Structure(object):
         units_conf (dict): Dictionary of units for each attribute type
             
     """
-
-    @property
-    def unit_conf(self):
-        return self._unit_conf
 
     @property
     def mass(self):
@@ -133,12 +129,11 @@ class Structure(object):
     
     
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
-        """
-        Constructor for a composite structures. 
-        """
+
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+        
         self.tag = tag
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf  
         #
         self.lat = Lattice(matrix,unit_conf=unit_conf )                             # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
@@ -158,14 +153,6 @@ class Structure(object):
         self.n_impropers = 0
         # NoteTK this should be n_mol 
         self.mol_max = 0 
-
-        #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._propertyUnits = {}
-        for unit_type in self._unit_conf.keys():
-            self._propertyUnits[unit_type] = []
         #   
         self._property['mass']  = 0.0 
         self._property['charge'] = 0.0 
@@ -175,14 +162,14 @@ class Structure(object):
         self._property['dipole_moment'] = np.zeros(self.lat.n_dim)
         self._property['positions'] = []                                   # Creates empty array
         # 
-        self._propertyUnits['mass'].append('mass')
-        self._propertyUnits['charge'].append('charge')
-        self._propertyUnits['volume'].append('volume')
-        self._propertyUnits['density'].append('density')
+        self._property_units['mass'].append('mass')
+        self._property_units['charge'].append('charge')
+        self._property_units['volume'].append('volume')
+        self._property_units['density'].append('density')
 
-        self._propertyUnits['length'].append('center_mass')
-        self._propertyUnits['electric_dipole_moment'].append('dipole_moment')
-        self._propertyUnits['length'].append('positions')
+        self._property_units['length'].append('center_mass')
+        self._property_units['electric_dipole_moment'].append('dipole_moment')
+        self._property_units['length'].append('positions')
         #                          
         # Reference information 
         self.name = ""   # Tag of structure to be set by file read in 
@@ -219,10 +206,6 @@ class Structure(object):
         del self.n_dihedrals
         del self.n_impropers
         del self.mol_max
-        # Del properties
-        del self._unit_conf
-        del self._property
-        del self._propertyUnits
         # Reference information 
         del self.name 
         del self.chemicalformula 

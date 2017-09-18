@@ -18,10 +18,7 @@ logger = logging.getLogger(__name__)
 import pymatgen_core.core.periodic_table as periodictable
 import pymatgen_core.core.units as units
 
-
-DIMENSIONS = 3
-
-class Particle(object):
+class Particle(units.ObjectUnits):
     """Data structure for describing any localized object in QM/MD simulation, such as an atom.
     
 
@@ -29,6 +26,7 @@ class Particle(object):
         * type   (str): Particle type
         * label  (str): Identifier in output files
         * symbol (str): Atomic symbol
+        * unit_conf (dict): Unit types with units used by this object
             
     Particles have the fundmental attributes of
     
@@ -87,11 +85,7 @@ class Particle(object):
     .. TODO:
 
     """
-
-    @property
-    def unit_conf(self):
-        return self._unit_conf
-    
+ 
     @property
     def mass(self):
         return self._property['mass'] 
@@ -192,20 +186,13 @@ class Particle(object):
     
 
     def __init__(self,type='atom',label=None,symbol = None,unit_conf=units.unit_conf):
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
         self.type = type
         self.label = label
         self.symbol = symbol
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        # 
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
         # 
         self._property['mass']             = 1.0  # Choose reasonable values for initialization
         self._property['charge']           = 0.0  # Choose reasonable values for initialization     
@@ -249,11 +236,6 @@ class Particle(object):
     def __del__(self):
         del self.type
         del self.label
-        #
-        del self._unit_conf
-        del self._property
-        del self._property_units
-        #
         # 
         del self.mol
         del self.ring
@@ -286,18 +268,6 @@ class Particle(object):
         
         return property_msg
 
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
-        
-        Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
-            
-        '''
-        
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-        
-        
                         
                         
                         

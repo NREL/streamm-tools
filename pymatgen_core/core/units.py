@@ -14,6 +14,8 @@ import numbers
 from functools import partial
 import copy
 
+from monty.json import MSONable
+
 import scipy.constants as const
 
 """
@@ -930,38 +932,6 @@ def unitized(unit):
         return wrapped_f
     return wrap
 
-'''
-Create default unit_conf 
-'''
-unit_conf = {
-    'current': 'A',
-    'emf': 'V',
-    'force': 'GN',
-    'temperature': 'K',
-    'power': 'GW',
-    'density': 'amu_nm^3',
-    'magnetic_flux': 'Wb',
-    'energy': 'Ha',
-    'time': 'ns',
-    'charge': 'e',
-    'resistance': 'ohm',
-    'volume': 'nm^3',
-    'pressure': 'KPa',
-    'amount': 'atom',
-    'frequency': 'Hz',
-    'mass': 'amu',
-    'intensity': 'cd',
-    'memory': 'Kb',
-    'length': 'ang',
-    'capacitance': 'F',
-    'electric_dipole_moment':'D',
-    'conductance': 'S',
-    'harm_bond_coeff':'kCalmolsqang',
-    'angle':'degree'
-    
-}
-
-
 def change_properties_units(old_unit_conf,new_unit_conf,property_units,properties):
     '''
     Update instance values with new units
@@ -997,6 +967,81 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
         
     return properties,unit_conf
 
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+
+'''
+Create default unit_conf 
+'''
+unit_conf = {
+    'current': 'A',
+    'emf': 'V',
+    'force': 'GN',
+    'temperature': 'K',
+    'power': 'GW',
+    'density': 'amu_nm^3',
+    'magnetic_flux': 'Wb',
+    'energy': 'Ha',
+    'time': 'ns',
+    'charge': 'e',
+    'resistance': 'ohm',
+    'volume': 'nm^3',
+    'pressure': 'KPa',
+    'amount': 'atom',
+    'frequency': 'Hz',
+    'mass': 'amu',
+    'intensity': 'cd',
+    'memory': 'Kb',
+    'length': 'ang',
+    'capacitance': 'F',
+    'electric_dipole_moment':'D',
+    'conductance': 'S',
+    'harm_bond_coeff':'kCalmolsqang',
+    'angle':'degree'
+    
+}
+
+class ObjectUnits(MSONable):
+    '''Object with properties that have units
+    
+    The value of the properties with units are stored in the
+    _property dictionary with a key that is the name of the property.
+    The unit type of the property is stored in the _property_units dictionary
+    where each unit type has a list of the property keys of that type. 
+
+    Kwargs:
+        * unit_conf (dict): Unit types with units used by this object
+            
+    '''
+    
+
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    def __init__(self,unit_conf=unit_conf):
+
+        self._unit_conf = unit_conf
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []    
+
+    def __del__(self):
+        del self._unit_conf
+        del self._property
+        del self._property_units
+
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        
+        
+            
+            

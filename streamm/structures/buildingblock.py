@@ -42,7 +42,7 @@ from streamm.structures.structure import Structure
 
 
 
-class Attachment(object):
+class Attachment(units.ObjectUnits):
     '''
     Object to recode the attachment of two building block objects
     '''
