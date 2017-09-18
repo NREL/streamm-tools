@@ -939,9 +939,13 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
     Args:
         old_unit_conf (dict): with unit type as the key and the new unit as the value
         new_unit_conf (dict): with unit type as the key and the new unit as the value
+        property_units (dict): 
         properties (dict): with unit type as the key and the new unit as the value
         
     '''
+    print "2 new_unit_conf",new_unit_conf
+    
+    unit_conf = copy.deepcopy(old_unit_conf)
     unit_conf = copy.deepcopy(old_unit_conf)
     logger.debug("Removing unit_types that don't need to be changed ")
     for unit_type in new_unit_conf.keys():
@@ -964,6 +968,8 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
             properties[proptery_key] = properties[proptery_key]*Unit_conversion
     
         unit_conf[unit_type] = new_unit_conf[unit_type]
+        
+    print "3 new_unit_conf",new_unit_conf
         
     return properties,unit_conf
 
@@ -1039,6 +1045,7 @@ class ObjectUnits(MSONable):
             new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
+        print "1 new_unit_conf",new_unit_conf
         
         self._property,self._unit_conf = change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         

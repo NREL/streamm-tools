@@ -59,8 +59,6 @@ class Bond(units.ObjectUnits):
     def __del__(self):
         del self.pkey1
         del self.pkey2
-        del self.length
         
-
     def __str__(self):
         return " %s - %s"%(self.pkey1,self.pkey2 )

@@ -127,7 +127,6 @@ class Structure(units.ObjectUnits):
     def positions(self):
         return self._property['positions']
     
-    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
 
         # init object's units dictionaries 
@@ -160,7 +159,7 @@ class Structure(units.ObjectUnits):
         self._property['density'] = 0.0 
         self._property['center_mass'] = np.zeros(self.lat.n_dim)
         self._property['dipole_moment'] = np.zeros(self.lat.n_dim)
-        self._property['positions'] = []                                   # Creates empty array
+        self._property['positions'] =  np.array([])
         # 
         self._property_units['mass'].append('mass')
         self._property_units['charge'].append('charge')
@@ -238,24 +237,34 @@ class Structure(units.ObjectUnits):
         file_i.flush()
         
 
-    def add_particle(self, particle_i, deepcopy = False ):
+    def add_particle(self, particle_i, deepcopy = True ):
         """
         Add 'Particle' object to this container and update n_particles accordingly 
         """
-        if( deepcopy ):
-            self.particles[self.n_particles] = copy.deepcopy(particle_i) # index 0 -> (N-1)
-        else:
-            self.particles[self.n_particles] = particle_i # index 0 -> (N-1)
+        if isinstance(particle_i,Particle):
+            self.n_particles = len(self.particles)
+            particle_i.index = self.n_particles 
+            if( deepcopy ):
+                self.particles[self.n_particles] = copy.deepcopy(particle_i) # index 0 -> (N-1)
+            else:
+                self.particles[self.n_particles] = particle_i # index 0 -> (N-1)
                 
-        particle_i.index = self.n_particles 
-        self.n_particles = len(self.particles)
+            self.n_particles = len(self.particles)
+        else:
+            raise TypeError("Attempting to add non-Particle type to container")
+
 
     def add_position(self, pos_i):
         """
         Append 'position' as numpy array to this container. 
         """
         if( len(pos_i) == self.lat.n_dim ):
-            self.positions.append(np.array(pos_i))
+            pos_o = self._property['positions']
+            if( len(pos_o) > 0 ):
+                self._property['positions'] = np.append(pos_o,[pos_i],axis=0)
+            else:
+                self._property['positions'] =  np.array([pos_i])
+
         else:
             print "Attempting to add non-%d-dimension position to container"%(n_dim)
             raise TypeError
@@ -274,12 +283,12 @@ class Structure(units.ObjectUnits):
         """
         if isinstance(bond_i,Bond):
             self.n_bonds = len(self.bonds)
+            bond_i.index = self.n_bonds 
             if( deepcopy ):
                 self.bonds[self.n_bonds] = copy.deepcopy(bond_i) # index 0 -> (N-1)
             else:
                 self.bonds[self.n_bonds] = bond_i # index 0 -> (N-1)
                 
-            bond_i.index = self.n_bonds 
             self.n_bonds = len(self.bonds)
         else:
             raise TypeError("Attempting to add non-Bond type to container")
@@ -291,12 +300,12 @@ class Structure(units.ObjectUnits):
         """
         if isinstance(angle_i, Angle):
             self.n_angles = len(self.angles)
+            angle_i.index = self.n_angles  
             if( deepcopy ):
                 self.angles[self.n_angles] = copy.deepcopy(angle_i) # index 0 -> (N-1)
             else:
                 self.angles[self.n_angles] = angle_i # index 0 -> (N-1)
                 
-            angle_i.index = self.n_angles  
             self.n_angles = len(self.angles)
         else:
             print "Attempting to add non-Angle type to container"
@@ -309,11 +318,11 @@ class Structure(units.ObjectUnits):
         """
         if isinstance(dihedral_i, Dihedral):
             self.n_dihedrals = len(self.dihedrals)
+            dihedral_i.index = self.n_dihedrals 
             if( deepcopy ):
                 self.dihedrals[self.n_dihedrals] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
             else:
                 self.dihedrals[self.n_dihedrals] = dihedral_i # index 0 -> (N-1)
-            dihedral_i.index = self.n_dihedrals 
             self.n_dihedrals = len(self.dihedrals)
         else:
             print "Attempting to add non-Dihedral type to container"
@@ -326,12 +335,12 @@ class Structure(units.ObjectUnits):
         """
         if isinstance(improper_i, Improper):
             self.n_impropers = len(self.impropers)
+            improper_i.index = self.n_impropers 
             if( deepcopy ):
                 self.impropers[self.n_impropers] = copy.deepcopy(improper_i) # index 0 -> (N-1)
             else:
                 self.impropers[self.n_impropers] = improper_i # index 0 -> (N-1)
                 
-            improper_i.index = self.n_impropers 
             self.n_impropers = len(self.impropers)
         else:
             print "Attempting to add non-Improper type to container"
@@ -2180,19 +2189,19 @@ class Structure(units.ObjectUnits):
         
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         # 
-        for pkey_i, particle_i  in other.particles.iteritems():
+        for pkey_i, particle_i  in self.particles.iteritems():
             particle_i.update_units(new_unit_conf)
         
-        for btkey_i,bond_i  in other.bonds.iteritems():
+        for btkey_i,bond_i  in self.bonds.iteritems():
             bond_i.update_units(new_unit_conf)
             
-        for atkey_i,angle_i  in other.angles.iteritems():
+        for atkey_i,angle_i  in self.angles.iteritems():
             angle_i.update_units(new_unit_conf)
             
-        for dtkey_i, dih_i  in other.dihs.iteritems():    
+        for dtkey_i, dih_i  in self.dihedrals.iteritems():    
             dih_i.update_units(new_unit_conf)
             
-        for itkey_i, imp_i  in other.imps.iteritems():    
+        for itkey_i, imp_i  in self.impropers.iteritems():    
             imp_i.update_units(new_unit_conf)
         
             
