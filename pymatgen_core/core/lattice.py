@@ -69,12 +69,12 @@ class Lattice(MSONable):
         
     @property
     def angles(self):
-        return self._property['constants'][3:6]
+        return self._property['angles'] 
     
     
     @property
     def lengths(self):
-        return self._property['constants'][0:3]
+        return self._property['lengths'] 
     
     
     @matrix.setter
@@ -90,12 +90,57 @@ class Lattice(MSONable):
             
         self._property['constants'] = np.zeros(6)
         
+        self._property['lengths'] = lengths
         self._property['constants'][0:3] = lengths 
-        self._property['constants'][3:6] = np.arccos(angles) * 180. / pi
+        self._property['angles'] = np.arccos(angles) * 180. / pi
+        self._property['constants'][3:6] = self._property['angles'] 
         
         self._property['matrix'] = m
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self.angles])
     
+
+    def get_rad_angles(self):
+        '''Return angles in radians
+        
+        '''
+
+        if( self._unit_conf['angle'] == 'degree'):
+            alpha_r = np.deg2rad(self._property['angles'][0] )
+            beta_r  = np.deg2rad(self._property['angles'][1]  )
+            gamma_r = np.deg2rad(self._property['angles'][2] )
+        elif( self._unit_conf['angle'] == 'radian'):
+            alpha_r = self._property['angles'][0]
+            beta_r  = self._property['angles'][1]
+            gamma_r = self._property['angles'][2]
+        else:
+            raise KeyError('angle unit {} not supported '.format( self._unit_conf['angle'] ))
+                    
+        return alpha_r,beta_r,gamma_r
+        
+    def constants2matrix(self,a,b,c,alpha_r,beta_r,gamma_r):
+        '''Calculate the matrix based on the lattice constants
+        
+        Args:
+            * a  (float): lattice constant a
+            * b   (float): lattice constant b
+            * c   (float): lattice constant c
+            * alpha   (float): lattice angle alpha in radians
+            * beta    (float): lattice angle beta in radians
+            * gamma   (float): lattice angle gamma in radians
+            
+        '''
+        # 
+        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+            / (np.sin(alpha_r) * np.sin(beta_r))
+        # Sometimes rounding errors result in values slightly > 1.
+        val = abs_cap(val)
+        gamma_star = np.arccos(val)
+        self._property['matrix'][0] = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+        self._property['matrix'][1] = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                    b * np.sin(alpha_r) * np.sin(gamma_star),
+                    b * np.cos(alpha_r)]
+        self._property['matrix'][2] = [0.0, 0.0, float(c)]
+            
     
     @constants.setter
     def constants(self,constants):
@@ -112,25 +157,66 @@ class Lattice(MSONable):
         """
         
         self._property['constants'] = constants
+
+        self._property['lengths'][0] = constants[0] 
+        self._property['lengths'][1] = constants[1] 
+        self._property['lengths'][2] = constants[2] 
+
+        self._property['angles'][0] = constants[3] 
+        self._property['angles'][1] = constants[4] 
+        self._property['angles'][2] = constants[5] 
         
         a = constants[0] 
         b = constants[1] 
-        c = constants[2] 
+        c = constants[2]
+        
+        alpha_r,beta_r,gamma_r = self.get_rad_angles()        
+        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
+        
+    @angles.setter
+    def angles(self,angles):
 
-        alpha_r = np.deg2rad(constants[3] )
-        beta_r  = np.deg2rad(constants[4]  )
-        gamma_r = np.deg2rad(constants[5] )
-        # 
-        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
-            / (np.sin(alpha_r) * np.sin(beta_r))
-        # Sometimes rounding errors result in values slightly > 1.
-        val = abs_cap(val)
-        gamma_star = np.arccos(val)
-        self._property['matrix'][0] = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
-        self._property['matrix'][1] = [-b * np.sin(alpha_r) * np.cos(gamma_star),
-                    b * np.sin(alpha_r) * np.sin(gamma_star),
-                    b * np.cos(alpha_r)]
-        self._property['matrix'][2] = [0.0, 0.0, float(c)]
+        self._property['angles'][0] = angles[0] 
+        self._property['angles'][1] = angles[1] 
+        self._property['angles'][2] = angles[2] 
+
+        
+        a = self._property['constants'][0] 
+        b = self._property['constants'][1] 
+        c = self._property['constants'][2] 
+        
+        alpha_r,beta_r,gamma_r = self.get_rad_angles()
+        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
+
+        self._property['constants'][3] = angles[0] 
+        self._property['constants'][4] = angles[1] 
+        self._property['constants'][5] = angles[2] 
+        
+
+        
+    @lengths.setter
+    def lengths(self,lengths):
+
+        
+        self._property['lengths'][0] = lengths[0] 
+        self._property['lengths'][1] = lengths[1] 
+        self._property['lengths'][2] = lengths[2] 
+
+        a = lengths[0] 
+        b = lengths[1] 
+        c = lengths[2]
+        
+        alpha_r,beta_r,gamma_r = self.get_rad_angles()       
+        self.constants2matrix(a,b,c,alpha_r,beta_r,gamma_r)
+
+        self._property['constants'][0] = lengths[0] 
+        self._property['constants'][1] = lengths[1] 
+        self._property['constants'][2] = lengths[2] 
+        
+        
+        
+        
+        
         
         
     def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf = units.unit_conf):
@@ -163,6 +249,12 @@ class Lattice(MSONable):
         self.n_dim = int(3) # Number of spatial dimensions
         # 
         self.matrix = matrix
+        # When we update units we just need to change the matrix
+        # then use the setter to update the constants,angles and lengths
+        self._property_units['length'].append('matrix')
+        # self._property_units['length'].append('lengths')
+        # self._property_units['angle'].append('angles')
+         
         
         self._inv_matrix = None
         self._metric_tensor = None
@@ -176,6 +268,7 @@ class Lattice(MSONable):
     def __del__(self):
         del self.n_dim
         del self.pbcs
+        
         
         
     def __format__(self, fmt_spec=''):
@@ -204,6 +297,12 @@ class Lattice(MSONable):
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
         return fmt.format(*[format(c, fmt_spec) for row in m
                             for c in row])
+
+
+    def __str__(self):
+        return "\n".join([" ".join(["%.6f" % i for i in row])
+                          for row in self.matrix])
+
 
     def copy(self):
         """Deep copy of self."""

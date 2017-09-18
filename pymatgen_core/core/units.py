@@ -957,7 +957,7 @@ unit_conf = {
     'electric_dipole_moment':'D',
     'conductance': 'S',
     'harm_bond_coeff':'kCalmolsqang',
-    'angle':'degrees'
+    'angle':'degree'
     
 }
 
