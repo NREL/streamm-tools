@@ -405,7 +405,7 @@ class Group(object):
             return r_l
         
 
-        latticevec = self.strucC.lat._matrix
+        latticevec = self.strucC.lat.matrix
 
         hb_length = 1.09
         hb_angle =  109.5
@@ -798,8 +798,8 @@ class Groups(object):
                     
                     shifted = False 
                     for dim in range(self.strucC.lat.n_dim):
-                        shift_dim = round( r_io[dim]/  self.strucC.lat._matrix[dim][dim] )
-                        r_i[dim] = r_i[dim]  + self.strucC.lat._matrix[dim][dim] * shift_dim
+                        shift_dim = round( r_io[dim]/  self.strucC.lat.matrix[dim][dim] )
+                        r_i[dim] = r_i[dim]  + self.strucC.lat.matrix[dim][dim] * shift_dim
                         if( shift_dim != 0 ):
                             shifted = True 
                         r_mol_mass[dim] = r_mol_mass[dim]  + a_mass_i*r_i[dim] 
@@ -811,7 +811,7 @@ class Groups(object):
                 # Shift molecular center of mass into box 
                 for dim in range(self.strucC.lat.n_dim):
                     cent_mass_i = r_mol_mass[dim] /total_mass
-                    shift[dim] = self.strucC.lat._matrix[dim][dim] * round( cent_mass_i /  self.strucC.lat._matrix[dim][dim] )
+                    shift[dim] = self.strucC.lat.matrix[dim][dim] * round( cent_mass_i /  self.strucC.lat.matrix[dim][dim] )
 
 
                 for pid_i in sorted(group_i.pkeys):

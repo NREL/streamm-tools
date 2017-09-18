@@ -95,8 +95,8 @@ class LAMMPS(CalculationRes):
             #
             if( calc_gaussian.strucC.n_particles > 0):            
                 # Add lattice to GROMACS object
-                matrix_o = calc_gaussian.strucC.lat._matrix 
-                matrix_i = self.strucC.lat._matrix 
+                matrix_o = calc_gaussian.strucC.lat.matrix 
+                matrix_i = self.strucC.lat.matrix 
                 for m in range(calc_gaussian.strucC.lat.n_dim):
                     for n in range(calc_gaussian.strucC.lat.n_dim):
                         matrix_i[m][n] = units.convert_bohr_ang(matrix_o[m][n] )
@@ -147,8 +147,8 @@ class LAMMPS(CalculationRes):
             #
             if( sim_gro.strucC.n_particles > 0):
                 # Add lattice to LAMMPS object
-                matrix_o = sim_gro.strucC.lat._matrix 
-                matrix_i = self.strucC.lat._matrix 
+                matrix_o = sim_gro.strucC.lat.matrix 
+                matrix_i = self.strucC.lat.matrix 
                 for m in range(sim_gro.strucC.lat.n_dim):
                     for n in range(sim_gro.strucC.lat.n_dim):
                         matrix_i[m][n] = units.convert_nm_angstroms(matrix_o[m][n] )
@@ -266,7 +266,7 @@ class LAMMPS(CalculationRes):
         #
         # Read in data header with number of parameters 
         #
-        matrix = self.strucC.lat._matrix 
+        matrix = self.strucC.lat.matrix 
         for line in lines:
             col = line.split()
 
@@ -694,7 +694,7 @@ class LAMMPS(CalculationRes):
         #
         # Read in data header with number of parameters 
         #
-        matrix = self.strucC.lat._matrix 
+        matrix = self.strucC.lat.matrix 
         for line in lines:
             col = line.split()
 
@@ -787,7 +787,7 @@ class LAMMPS(CalculationRes):
             F.write( "%10d  improper types \n" % n )
             
         F.write('\n')
-        matrix = self.strucC.lat._matrix
+        matrix = self.strucC.lat.matrix
         F.write( "%16.8f %16.8f   xlo xhi \n" %  (matrix[0][0]/-2.0 , matrix[0][0]/2.0) )
         F.write( "%16.8f %16.8f   ylo yhi \n" %  (matrix[1][1]/-2.0 , matrix[1][1]/2.0 ) )
         F.write( "%16.8f %16.8f   zlo zhi \n" %  (matrix[2][2]/-2.0 , matrix[2][2]/2.0) )

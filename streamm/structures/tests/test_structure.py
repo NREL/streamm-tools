@@ -47,15 +47,15 @@ class TestContainer(unittest.TestCase):
 
     def test_Lattice(self):
         matrix = [ 132,0,0,0,127,0,0,0,150 ]
-        self.strucC.lat.set_matrix(matrix)
+        self.strucC.lat.matrix = matrix
         
-        self.assertAlmostEqual(self.strucC.lat._lengths[0],132.0)
-        self.assertAlmostEqual(self.strucC.lat._lengths[1],127.0)
-        self.assertAlmostEqual(self.strucC.lat._lengths[2],150.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[0],132.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[1],127.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[2],150.0)
 
-        self.assertAlmostEqual(self.strucC.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.strucC.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.strucC.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.strucC.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.strucC.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.strucC.lat.angles[2],90.0)
 
     def test_particles(self):
         self.part = particle.Particle(symbol="Ir")
@@ -416,11 +416,11 @@ class TestBuildThiophene(unittest.TestCase):
             self.strucC.add_partpos(pt_i,pos_i)
         
 
-        matrix_i = self.strucC.lat._matrix
+        matrix_i = self.strucC.lat.matrix
         matrix_i[0][0] = 100.0 
         matrix_i[1][1] = 100.0 
         matrix_i[2][2] = 100.0 
-        self.strucC.lat.set_matrix(matrix_i)
+        self.strucC.lat.matrix = matrix_i
         self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.25)
         #
         #
@@ -601,9 +601,9 @@ class TestBuildThiophene(unittest.TestCase):
     def test_expand_matrix(self):
         exlat_frac = 0.050  # 5%
         self.strucC.lat.expand_matrix(exlat_frac)
-        self.assertAlmostEqual(self.strucC.lat._lengths[0],105.0)
-        self.assertAlmostEqual(self.strucC.lat._lengths[1],105.0)
-        self.assertAlmostEqual(self.strucC.lat._lengths[2],105.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[0],105.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[1],105.0)
+        self.assertAlmostEqual(self.strucC.lat.lengths[2],105.0)
             
     def test_tag(self):
         self.assertAlmostEqual(self.strucC.tag,'thiophene')
@@ -865,11 +865,11 @@ class TestProximityCheck(unittest.TestCase):
             self.strucC1.add_partpos(pt_i,pos_i)
         
         
-        matrix_i = self.strucC1.lat._matrix
+        matrix_i = self.strucC1.lat.matrix
         matrix_i[0][0] = 1000.0 
         matrix_i[1][1] = 1000.0 
         matrix_i[2][2] = 1000.0 
-        self.strucC1.lat.set_matrix(matrix_i)
+        self.strucC1.lat.matrix = matrix_i
         
         self.strucC2 = structure.Structure()
 
@@ -896,11 +896,11 @@ class TestProximityCheck(unittest.TestCase):
             pos_i = positions[i]
             self.strucC2.add_partpos(pt_i,pos_i)
         
-        matrix_i = self.strucC2.lat._matrix
+        matrix_i = self.strucC2.lat.matrix
         matrix_i[0][0] = 100.0 
         matrix_i[1][1] = 100.0 
         matrix_i[2][2] = 100.0 
-        self.strucC2.lat.set_matrix(matrix_i)
+        self.strucC2.lat.matrix = matrix_i
         
         
 

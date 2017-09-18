@@ -67,7 +67,7 @@ class GROMACS(CalculationRes):
             strucC_add = copy.deepcopy(strucC_i)
             # Convert structure from default units
             #   angstorms -> nm
-            matrix = strucC_add.lat._matrix
+            matrix = strucC_add.lat.matrix
             for m in range(strucC_add.lat.n_dim):
                 for n in range(strucC_add.lat.n_dim):
                     matrix[m][n] = matrix[m][n]/10.0
@@ -116,7 +116,7 @@ class GROMACS(CalculationRes):
         if( len(gro_file) == 0 ):
             gro_file = "%s.gro"%(self.tag)
         
-        matrix = self.strucC.lat._matrix 
+        matrix = self.strucC.lat.matrix 
 
         gro_lines =  " com2gro \n"
         gro_lines += " %-2i \n"  %( self.strucC.n_particles )

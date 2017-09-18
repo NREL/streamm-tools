@@ -18,8 +18,8 @@
             #
             if( calc_gaussian.strucC.n_particles > 0):
                 # Add lattice to GROMACS object
-                matrix_o = calc_gaussian.strucC.lat._matrix 
-                matrix_i = self.lat._matrix 
+                matrix_o = calc_gaussian.strucC.lat.matrix 
+                matrix_i = self.lat.matrix 
                 for m in range(calc_gaussian.strucC.lat.n_dim):
                     for n in range(calc_gaussian.strucC.lat.n_dim):
                         matrix_i[m][n] = units.convert_bohr_ang(matrix_o[m][n] )

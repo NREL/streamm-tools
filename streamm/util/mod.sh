@@ -62,7 +62,6 @@ rm temp.py
 for t in test_*py
 do
     echo $t
-
     mv $t  temp.py
     sed 's/._matrix//'  temp.py > $t    
     sed 's/set_matrix(matrix_i)/matrix = matrix_i/g'  temp.py > $t    

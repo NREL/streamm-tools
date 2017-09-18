@@ -65,7 +65,7 @@ def parse_cplytag(self):
             for line in f:
                 col = line.split()
                 if( read_lattice ):
-                    matrix = self.lat._matrix
+                    matrix = self.lat.matrix
                     matrix[lv_cnt][0] = float( col[0] )
                     matrix[lv_cnt][1] = float( col[1] )
                     matrix[lv_cnt][2] = float( col[2] )
@@ -196,12 +196,12 @@ def parse_cplytag(self):
                 cply_line =  " %5s %16.8f %16.8f %16.8f %s \n"%(atomic_symb ,float(pos_i[0]), float(pos_i[1]),float(pos_i[2]), cplytag )
             F.write(cply_line)
 
-        if( self.lat._matrix[0][0] == 0.0 ):
+        if( self.lat.matrix[0][0] == 0.0 ):
             write_latvec = False 
         if( write_latvec ):
             F.write(" lattice \n")
             for d in range(3):
-                cply_line = " %16.8f %16.8f %16.8f \n"%( self.lat._matrix[d][0],self.lat._matrix[d][1],self.lat._matrix[d][2])
+                cply_line = " %16.8f %16.8f %16.8f \n"%( self.lat.matrix[d][0],self.lat.matrix[d][1],self.lat.matrix[d][2])
                 F.write(cply_line)
             
 

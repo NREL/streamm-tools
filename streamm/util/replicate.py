@@ -186,7 +186,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
                 reset_cnt += 1                 # Number of times the new structure  has been reset
                 struc_add_cnt = 0                    # Number of structures add to the new structure 
                 placement_cnt = 0
-                matrix_i = copy.deepcopy(strucC_new.lat._matrix) # Save state of lattice
+                matrix_i = copy.deepcopy(strucC_new.lat.matrix) # Save state of lattice
                 # Reset new structure to original state 
                 strucC_new = copy.deepcopy(strucC_i) # Create copy to add new structures to 
                 strucC_new.lat.set_matrix(matrix_i)  # Set lattice to saved state 
@@ -198,7 +198,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
 
                 exlat_cnt += 1
                 # If the new structure has been reset over max_sys times expand the box size by lc_expand
-                matrix_i = copy.deepcopy(strucC_new.lat._matrix) # Save state of lattice
+                matrix_i = copy.deepcopy(strucC_new.lat.matrix) # Save state of lattice
                 # Reset new structure to original state 
                 strucC_new = copy.deepcopy(strucC_i) # Create copy to add new structures to 
                 strucC_new.lat.set_matrix(matrix_i)  # Set lattice to saved state
@@ -272,7 +272,7 @@ def add_struc_grid(strucC_i,other,n_i,p=None,tag="blank",calc_overlap = True ):
     l_n = n_vol**(1.0/3.0)
     n_lat = [] #np.zeros(strucC_new.lat.n_dim)
     for d in range(strucC_new.lat.n_dim):
-        n_lat.append(int(math.ceil( strucC_new.lat._lengths[d]/l_n)))
+        n_lat.append(int(math.ceil( strucC_new.lat.lengths[d]/l_n)))
     if(  rank == 0 ):
         log_line = " Adding %d into volume %f \n"%(n_i,strucC_new.volume)
         log_line += "  %d along v_1 \n"%(n_lat[0])
@@ -367,7 +367,7 @@ def add_struc_grid(strucC_i,other,n_i,p=None,tag="blank",calc_overlap = True ):
         exlat_cnt += 1
         #
         # If the new structure has been reset over max_sys times expand the box size by lc_expand
-        matrix_i = copy.deepcopy(strucC_new.lat._matrix) # Save state of lattice
+        matrix_i = copy.deepcopy(strucC_new.lat.matrix) # Save state of lattice
         # Reset new structure to original state 
         strucC_new = copy.deepcopy(strucC_i) # Create copy to add new structures to 
         strucC_new.lat.set_matrix(matrix_i)  # Set lattice to saved state
