@@ -44,15 +44,24 @@ def read_pickle(tag):
     with open("%s.pkl"%(tag),'rb') as fl:
         return pickle.load( fl )
                 
-    
 
-class Parameters(object):
+class Parameters(units.ObjectUnits):
     """
     Container for force-field parameters
+    
+
+    Kwargs:
+        * fftype1 (str): Forcefield key 
+        * units_conf (dict): Dictionary of units for each attribute type
+                
+    .. TODO ::
+        change fftype1 to fftype_i
+            
     """
 
     def __init__(self,tag='blank',unit_conf=units.unit_conf):
-        self.unit_conf = unit_conf
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         
         self.tag = tag
         # 

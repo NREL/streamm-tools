@@ -21,6 +21,13 @@ import numpy as np
 from string import replace
 
 
+try:
+    # Import pymatgen Class 
+    import pymatgen_core.core.units as units 
+except:
+    raise ImportError("pymatgen import error for units object")
+    
+
 from resource import Resource 
 from resource import CalculationRes
 
@@ -51,18 +58,22 @@ class LAMMPS(CalculationRes):
     """
 
 
-    def __init__(self, tag , verbose=False):
+    def __init__(self, tag ):
         """
         Constructor for derived class. The base class constructor is called
         explicitly
         """
+        # Set units for LAMMPS 
+        unit_conf = units.unit_conf
+        unit_conf['engry'] = 'kCalmol'
+        unit_conf['length'] = 'ang'
+        unit_conf['charge'] = 'e'
+        unit_conf['time'] = 'ns'
+        
         # Base class constructor is called
-        CalculationRes.__init__(self, tag)
+        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'lammps'
-        self.units['distance'] = 'angstroms'
-        self.units['energy'] = 'kcal/mol'
-        self.units['time'] = 'ns'
         self.properties['finish_str'] = 'Loop time of'
         #
     def __del__(self):

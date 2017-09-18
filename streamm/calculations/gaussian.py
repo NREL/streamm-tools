@@ -44,12 +44,16 @@ class Gaussian(CalculationRes):
         Constructor for derived class. The base class constructor is called
         explicitly
         """
+        # Set units for Gaussian 
+        unit_conf = units.unit_conf
+        unit_conf['engry'] = 'Ha'
+        unit_conf['length'] = 'ang'
+        unit_conf['charge'] = 'e'
+        
         # Base class constructor is called
-        CalculationRes.__init__(self, tag)
+        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'gaussian'
-        self.units['distance'] = 'bohr'
-        self.units['energy'] = 'hartree'
         # String found in log file when simulation finishes
         self.properties['finish_str'] = 'Normal termination of Gaussian'
         #

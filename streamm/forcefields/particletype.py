@@ -18,19 +18,18 @@ try:
 except:
     raise ImportError("pymatgen import error for units object")
 
-class Particletype(object):
+class Particletype(units.ObjectUnits):
     '''
     Particle represented by a Force-field
     
+    Kwargs:
+        * fftype1 (str): Forcefield key 
+        * units_conf (dict): Dictionary of units for each attribute type
+                
     .. TODO ::
         change fftype1 to fftype_i
         
     '''
-
-
-    @property
-    def unit_conf(self):
-        return self._unit_conf
     
     @property
     def epsilon(self):
@@ -51,18 +50,11 @@ class Particletype(object):
 
 
     def __init__(self,fftype1='X',unit_conf=units.unit_conf):
-         
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+        #
         self.fftype1 = str(fftype1)
 
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
         #         
         self._property['epsilon'] = 1.0
         self._property['sigma']  = 2.0
@@ -79,8 +71,6 @@ class Particletype(object):
         Destructor, clears structure memory and calls held container destructors
         """
         del self.fftype1
-        del self._property
-        del self._property_units 
         del self.lammps_index
         del self.gromacs_index
         
@@ -90,15 +80,3 @@ class Particletype(object):
         """
         return " {} epsilon:{} sigma:{}".format(self.fftype1,self.epsilon,self.sigma)
 
-
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
-        
-        Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
-            
-        '''
-        
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-        

@@ -17,7 +17,7 @@ try:
 except:
     raise ImportError("pymatgen import error for units object")
 
-class Imptype(object):
+class Imptype(units.ObjectUnits):
     """
     Set of improper dihedral angle parameters
 
@@ -30,10 +30,6 @@ class Imptype(object):
          
     """
 
-    @property
-    def unit_conf(self):
-        return self._unit_conf
-        
     @property 
     def e0(self): 
         return self._property['e0']
@@ -55,16 +51,9 @@ class Imptype(object):
     
     
     def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="improper" ,unit_conf=units.unit_conf):
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
 
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
         # 
         self.fftype1 = fftype1
         self.fftype2 = fftype2
@@ -94,9 +83,6 @@ class Imptype(object):
         del self.fftype3
         del self.fftype4
         del self.type
-        del self._property
-        del self._property_units
-        del self.lammps_index
         del self.gromacs_index 
 
         

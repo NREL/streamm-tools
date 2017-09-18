@@ -21,6 +21,13 @@ import numpy as np
 from string import replace
 
 
+try:
+    # Import pymatgen Class 
+    import pymatgen_core.core.units as units 
+except:
+    raise ImportError("pymatgen import error for units object")
+    
+
 import streamm.structures 
 #import streamm.calculations.resource as resource 
 from resource import Resource 
@@ -80,12 +87,17 @@ class NWChem(CalculationRes):
         Constructor for derived class. The base class constructor is called
         explicitly
         """
+        # Set units for LAMMPS 
+        unit_conf = units.unit_conf
+        unit_conf['engry'] = 'Ha'
+        unit_conf['length'] = 'ang'
+        unit_conf['charge'] = 'e'
+        unit_conf['time'] = 'ns'
+        
         # Base class constructor is called
-        CalculationRes.__init__(self, tag)
+        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'nwchem'
-        self.units['distance'] = 'bohr'
-        self.units['energy'] = 'hartree'
         # String found in log file when simulation finishes
         self.properties['finish_str'] = 'Total times  cpu:'
         #

@@ -19,7 +19,7 @@ except:
     raise ImportError("pymatgen import error for units object")
 
 
-class Dihtype(object):
+class Dihtype(units.ObjectUnits):
     """
     Set of Dihedral angle parameters
 
@@ -32,10 +32,6 @@ class Dihtype(object):
          
     """
 
-    @property
-    def unit_conf(self):
-        return self._unit_conf
-    
     @property 
     def paths(self): 
         return self._property['paths']
@@ -142,16 +138,9 @@ class Dihtype(object):
     
 
     def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank", fftype4="blank" , type="multiharmonic" ,unit_conf=units.unit_conf):
-        #
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
+
         #        
         self.fftype1 = fftype1
         self.fftype2 = fftype2

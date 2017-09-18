@@ -95,10 +95,10 @@ class Calculation(object):
         
     '''
     def __init__(self, tag,unit_conf=units.unit_conf ):
-        
-        self.tag = str(tag)
         # Store the units of each attribute type 
-        self.unit_conf = unit_conf  
+        self._unit_conf = unit_conf  
+        #         
+        self.tag = str(tag)
         
         self.prefix = 'calc'
         self.data = dict()
@@ -112,9 +112,7 @@ class Calculation(object):
         self.meta['status'] = 'written'
         self.meta['software'] = 'streamm_calc'
         
-        self.units = dict()
-        self.units['distance'] = 'angstroms'
-        self.units['angle'] = 'radians'
+        self.units = unit_conf
         
         self.files = dict()
         self.files['input'] = dict()     

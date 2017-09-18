@@ -18,21 +18,18 @@ except:
     raise ImportError("pymatgen import error for units object")
 
 
-class Bondtype(object):
+class Bondtype(units.ObjectUnits):
     """
     Set of bond parameters
 
-    Args:
-         fftype1  (str):   Atom type 
-         fftype2  (str):   Atom type 
-         type    (str):   Bond type
-         
+    Kwargs:
+        * fftype1  (str):   Atom type 
+        * fftype2  (str):   Atom type 
+        * type    (str):   Bond type
+        * units_conf (dict): Dictionary of units for each attribute type
+                
     """
 
-    @property
-    def unit_conf(self):
-        return self._unit_conf
-    
     @property
     def r0(self):
         return self._property['r0'] 
@@ -50,16 +47,9 @@ class Bondtype(object):
         self._property['kb']  = value
         
     def __init__(self, fftype1='blank', fftype2='blank', type="harmonic",unit_conf=units.unit_conf):
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []        
-
         self.fftype1 = fftype1
         self.fftype2 = fftype2
         self.type = type
@@ -83,8 +73,6 @@ class Bondtype(object):
         del self.fftype1 
         del self.fftype2
         del self.type 
-        del self.r0
-        del self.kb 
         del self.lammps_index 
         del self.gromacs_index 
         
@@ -123,15 +111,3 @@ class Bondtype(object):
         else:
             raise TypeError("2nd arg should be float")
     
-
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
-        
-        Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
-            
-        '''
-        
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-            

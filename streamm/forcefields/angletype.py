@@ -20,23 +20,20 @@ except:
     raise ImportError("pymatgen import error for units object")
 
    
-class Angletype(object):
+class Angletype(units.ObjectUnits):
     """
     Set of Angle parameters
 
 
-    Args:
-         fftype1  (str):   Atom type 
-         fftype2  (str):   Atom type 
-         fftype3  (str):   Atom type 
-         type    (str):  Bond type
-         
+    Kwargs:
+        * fftype1  (str):   Atom type 
+        * fftype2  (str):   Atom type 
+        * fftype3  (str):   Atom type 
+        * type    (str):  Bond type
+        * units_conf (dict): Dictionary of units for each attribute type
+
     """
 
-    @property
-    def unit_conf(self):
-        return self._unit_conf
-    
     @property
     def kb(self):
         return self._property['kb'] 
@@ -54,16 +51,8 @@ class Angletype(object):
         self._property['theta0']  = value
         
     def __init__(self, fftype1="blank", fftype2="blank", fftype3="blank" , type="harmonic" ,unit_conf=units.unit_conf):
-        #
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf
-        #
-        # Default Physical properties
-        #
-        self._property = {}
-        self._property_units = {}
-        for unit_type in self._unit_conf.keys():
-            self._property_units[unit_type] = []
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #
         
         self.fftype1 = fftype1
@@ -89,8 +78,6 @@ class Angletype(object):
         del self.fftype2 
         del self.fftype3
         del self.type
-        del self._property
-        del self._property_units 
         del self.lammps_index
         del self.gromacs_index 
 
@@ -129,15 +116,3 @@ class Angletype(object):
             print "2nd arg should be float"
             raise TypeError
 
-
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
-        
-        Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
-            
-        '''
-        
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-        

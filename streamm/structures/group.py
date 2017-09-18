@@ -949,8 +949,8 @@ class Groups(units.ObjectUnits):
         f = open("groupset_%s.json"%(self.tag), 'w')
         json.dump(json_data,f, indent=2)
         f.close()
-               
-               
+        
+        
     def update_units(self,new_unit_conf):
         '''
         Update instance values with new units
