@@ -26,9 +26,6 @@ sed 's/    def tearDown/    @tearDown_streamm \
 done
 
 rm temp.py
-
-
-
 for t in test_*py
 do
     echo $t
@@ -36,6 +33,7 @@ do
     mv $t  temp.py
     sed 's/file_i//'  temp.py > $t    
 done
+
 
 for t in test_*py
 do
@@ -57,4 +55,16 @@ git add ${d}/tests/*py
 done
 
 
+
+
+
+rm temp.py
+for t in test_*py
+do
+    echo $t
+
+    mv $t  temp.py
+    sed 's/._matrix//'  temp.py > $t    
+    sed 's/set_matrix(matrix_i)/matrix = matrix_i/g'  temp.py > $t    
+done
 
