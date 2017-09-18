@@ -31,11 +31,11 @@ try:
     # Import pymatgen Class 
     import pymatgen_core.core.periodic_table as pymatgen_pt
     import pymatgen_core.core.units as units 
+    from pymatgen_core.core.lattice import Lattice 
 except:
     raise ImportError("pymatgen import error for periodic_table object")
 
 # Import streamm dependencies 
-from streamm.structures.lattice import Lattice 
 from streamm.structures.nblist import NBlist 
 
 from streamm.structures.particle import Particle
@@ -2185,4 +2185,31 @@ class Structure(object):
 
         return bin_r,bin_r_nn,volumes
 
-    
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        # 
+        for pkey_i, particle_i  in other.particles.iteritems():
+            particle_i.update_units(new_unit_conf)
+        
+        for btkey_i,bond_i  in other.bonds.iteritems():
+            bond_i.update_units(new_unit_conf)
+            
+        for atkey_i,angle_i  in other.angles.iteritems():
+            angle_i.update_units(new_unit_conf)
+            
+        for dtkey_i, dih_i  in other.dihs.iteritems():    
+            dih_i.update_units(new_unit_conf)
+            
+        for itkey_i, imp_i  in other.imps.iteritems():    
+            imp_i.update_units(new_unit_conf)
+        
+            

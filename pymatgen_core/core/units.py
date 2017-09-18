@@ -82,7 +82,7 @@ BASE_UNITS = {
     },
     "angle":{
         'radian':1,
-        'degree':np.pi,
+        'degree':np.pi/180,
     },
     "time": {
         "s": 1,
@@ -957,7 +957,7 @@ unit_conf = {
     'electric_dipole_moment':'D',
     'conductance': 'S',
     'harm_bond_coeff':'kCalmolsqang',
-    'angle':'radian'
+    'angle':'degrees'
     
 }
 

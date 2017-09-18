@@ -31,17 +31,14 @@ except:
 
 
 # Import streamm dependencies 
-
-from streamm.structures.structure import Structure 
-# from streamm.structures.container import Container
-from streamm.structures.lattice import Lattice 
-from streamm.structures.nblist import NBlist 
-
 from streamm.structures.particle import Particle
 from streamm.structures.bond import Bond 
 from streamm.structures.angle import Angle
 from streamm.structures.dihedral import Dihedral
 from streamm.structures.improper import Improper
+from streamm.structures.nblist import NBlist 
+from streamm.structures.structure import Structure 
+
 
 
 

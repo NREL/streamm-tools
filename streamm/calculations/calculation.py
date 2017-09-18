@@ -1117,4 +1117,15 @@ class Calculation(object):
 
         return           
         
+
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
         
+        Args:
+            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        
+        self.strucC.update_units(new_unit_conf)
+        self.paramC.update_units(new_unit_conf)

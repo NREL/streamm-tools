@@ -22,24 +22,24 @@ class TestLattice(unittest.TestCase):
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
         self.lat = Lattice(matrix)
         
-        self.assertEqual(self.lat._lengths[0],100.0)
-        self.assertEqual(self.lat._lengths[1],100.0)
-        self.assertEqual(self.lat._lengths[2],100.0)
+        self.assertEqual(self.lat.lengths[0],100.0)
+        self.assertEqual(self.lat.lengths[1],100.0)
+        self.assertEqual(self.lat.lengths[2],100.0)
 
-        self.assertEqual(self.lat._angles[0],90.0)
-        self.assertEqual(self.lat._angles[1],90.0)
-        self.assertEqual(self.lat._angles[2],90.0)
+        self.assertEqual(self.lat.angles[0],90.0)
+        self.assertEqual(self.lat.angles[1],90.0)
+        self.assertEqual(self.lat.angles[2],90.0)
         
     def test_changematrix(self):
-        matrix = [ 132,0,0,0,127,0,0,0,150 ]
-        self.lat.set_matrix(matrix)
-        self.assertEqual(self.lat._lengths[0],132.0)
-        self.assertEqual(self.lat._lengths[1],127.0)
-        self.assertEqual(self.lat._lengths[2],150.0)
+        self.lat.matrix = [ 132,0,0,0,127,0,0,0,150 ]
 
-        self.assertEqual(self.lat._angles[0],90.0)
-        self.assertEqual(self.lat._angles[1],90.0)
-        self.assertEqual(self.lat._angles[2],90.0)
+        self.assertEqual(self.lat.lengths[0],132.0)
+        self.assertEqual(self.lat.lengths[1],127.0)
+        self.assertEqual(self.lat.lengths[2],150.0)
+
+        self.assertEqual(self.lat.angles[0],90.0)
+        self.assertEqual(self.lat.angles[1],90.0)
+        self.assertEqual(self.lat.angles[2],90.0)
         
 
     def tearDown(self):
@@ -52,177 +52,171 @@ class TestLattice(unittest.TestCase):
         # fixture 
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
         self.lat = Lattice()
-        self.lat.set_matrix(matrix)
+        self.lat.matrix = matrix
         
-        self.assertAlmostEqual(self.lat._lengths[0],100.0)
-        self.assertAlmostEqual(self.lat._lengths[1],100.0)
-        self.assertAlmostEqual(self.lat._lengths[2],100.0)
+        self.assertAlmostEqual(self.lat.lengths[0],100.0)
+        self.assertAlmostEqual(self.lat.lengths[1],100.0)
+        self.assertAlmostEqual(self.lat.lengths[2],100.0)
 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
         
     def test_changematrix(self):
-        matrix = [ 132,0,0,0,127,0,0,0,150 ]
-        self.lat.set_matrix(matrix)
-        self.assertAlmostEqual(self.lat._lengths[0],132.0)
-        self.assertAlmostEqual(self.lat._lengths[1],127.0)
-        self.assertAlmostEqual(self.lat._lengths[2],150.0)
+        self.lat.matrix =  [ 132,0,0,0,127,0,0,0,150 ]
+        self.assertAlmostEqual(self.lat.lengths[0],132.0)
+        self.assertAlmostEqual(self.lat.lengths[1],127.0)
+        self.assertAlmostEqual(self.lat.lengths[2],150.0)
 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
                 
 
     def test_set_box(self):
         # Cubic 
         box = [ 12,12,12,90.0,90.0,90.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = box
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],12.0)
-        self.assertAlmostEqual(self.lat._lengths[2],12.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],12.0)
+        self.assertAlmostEqual(self.lat.lengths[2],12.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[1][1],12.0)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][1],12.0)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][2],12.0)
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],12.0)
         #
         # Tetragonal
         #
-        box = [ 12,12,15,90.0,90.0,90.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = [ 12,12,15,90.0,90.0,90.0 ]
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],12.0)
-        self.assertAlmostEqual(self.lat._lengths[2],15.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],12.0)
+        self.assertAlmostEqual(self.lat.lengths[2],15.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[1][1],12.0)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][1],12.0)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][2],15.0)
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],15.0)
         #
         # Rhombodedral
         #
-        box = [ 12,12,12,60.0,120.0,40.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = [ 12,12,12,60.0,120.0,40.0 ]
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],12.0)
-        self.assertAlmostEqual(self.lat._lengths[2],12.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],12.0)
+        self.assertAlmostEqual(self.lat.lengths[2],12.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],60.0)
-        self.assertAlmostEqual(self.lat._angles[1],120.0)
-        self.assertAlmostEqual(self.lat._angles[2],40.0)
+        self.assertAlmostEqual(self.lat.angles[0],60.0)
+        self.assertAlmostEqual(self.lat.angles[1],120.0)
+        self.assertAlmostEqual(self.lat.angles[2],40.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],9.19253332)
-        self.assertAlmostEqual(self.lat._matrix[1][1],7.71345132)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],9.19253332)
+        self.assertAlmostEqual(self.lat.matrix[1][1],7.71345132)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],-6.0)
-        self.assertAlmostEqual(self.lat._matrix[2][1],-2.3092942)
-        self.assertAlmostEqual(self.lat._matrix[2][2],10.13248046)        
+        self.assertAlmostEqual(self.lat.matrix[2][0],-6.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],-2.3092942)
+        self.assertAlmostEqual(self.lat.matrix[2][2],10.13248046)        
         #
         # Orthorhombic  
         #
-        box = [ 12,8,15,90.0,90.0,90.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = [ 12,8,15,90.0,90.0,90.0 ]
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],8.0)
-        self.assertAlmostEqual(self.lat._lengths[2],15.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],8.0)
+        self.assertAlmostEqual(self.lat.lengths[2],15.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],90.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],90.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[1][1],8.0)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][1],8.0)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][2],15.0)           
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],15.0)           
         #
         # Monoclinic  
         #
-        box = [ 12,8,15,90.0,60.0,90.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = [ 12,8,15,90.0,60.0,90.0 ]
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],8.0)
-        self.assertAlmostEqual(self.lat._lengths[2],15.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],8.0)
+        self.assertAlmostEqual(self.lat.lengths[2],15.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],90.0)
-        self.assertAlmostEqual(self.lat._angles[1],60.0)
-        self.assertAlmostEqual(self.lat._angles[2],90.0)
+        self.assertAlmostEqual(self.lat.angles[0],90.0)
+        self.assertAlmostEqual(self.lat.angles[1],60.0)
+        self.assertAlmostEqual(self.lat.angles[2],90.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[1][1],8.0)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][1],8.0)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],7.5)
-        self.assertAlmostEqual(self.lat._matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][2],12.99038106)        
+        self.assertAlmostEqual(self.lat.matrix[2][0],7.5)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],12.99038106)        
         #
         # Triclinic   
         #
-        box = [ 12,8,15,60.0,120.0,80.0 ]
-        self.lat.set_box(box)
+        self.lat.constants = [ 12,8,15,60.0,120.0,80.0 ]
         # Check length
-        self.assertAlmostEqual(self.lat._lengths[0],12.0)
-        self.assertAlmostEqual(self.lat._lengths[1],8.0)
-        self.assertAlmostEqual(self.lat._lengths[2],15.0)
+        self.assertAlmostEqual(self.lat.lengths[0],12.0)
+        self.assertAlmostEqual(self.lat.lengths[1],8.0)
+        self.assertAlmostEqual(self.lat.lengths[2],15.0)
         # Check angles 
-        self.assertAlmostEqual(self.lat._angles[0],60.0)
-        self.assertAlmostEqual(self.lat._angles[1],120.0)
-        self.assertAlmostEqual(self.lat._angles[2],80.0)
+        self.assertAlmostEqual(self.lat.angles[0],60.0)
+        self.assertAlmostEqual(self.lat.angles[1],120.0)
+        self.assertAlmostEqual(self.lat.angles[2],80.0)
         # Check matrix
-        self.assertAlmostEqual(self.lat._matrix[0][0],12.0)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],12.0)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0], 1.38918542)
-        self.assertAlmostEqual(self.lat._matrix[1][1],7.87846202)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0], 1.38918542)
+        self.assertAlmostEqual(self.lat.matrix[1][1],7.87846202)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],-7.5)
-        self.assertAlmostEqual(self.lat._matrix[2][1],5.4622685)
-        self.assertAlmostEqual(self.lat._matrix[2][2],11.78616234)        
+        self.assertAlmostEqual(self.lat.matrix[2][0],-7.5)
+        self.assertAlmostEqual(self.lat.matrix[2][1],5.4622685)
+        self.assertAlmostEqual(self.lat.matrix[2][2],11.78616234)        
     
     def test_deltasq_pos(self):
         pos_i  = [123.9,1298.0,93.762]
@@ -308,27 +302,27 @@ class TestLattice(unittest.TestCase):
         overlap = self.lat.proximitycheck(npos_i,npos_j,pos_cut)
         self.assertFalse(overlap)
         
-    def test_expand_matrix(self):
+    def test_expandmatrix(self):
         
         matrix = [ 100,0,0,0,100,0,0,0,100 ]
-        self.lat.set_matrix(matrix)
+        self.lat.setmatrix(matrix)
         
         exlat_frac = 0.0233
-        self.lat.expand_matrix(exlat_frac)
+        self.lat.expandmatrix(exlat_frac)
         #
         # Check matrix
         # 
-        self.assertAlmostEqual(self.lat._matrix[0][0],102.33)
-        self.assertAlmostEqual(self.lat._matrix[0][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[0][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][0],102.33)
+        self.assertAlmostEqual(self.lat.matrix[0][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[0][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[1][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[1][1],102.33)
-        self.assertAlmostEqual(self.lat._matrix[1][2],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[1][1],102.33)
+        self.assertAlmostEqual(self.lat.matrix[1][2],0.0)
         # 
-        self.assertAlmostEqual(self.lat._matrix[2][0],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][1],0.0)
-        self.assertAlmostEqual(self.lat._matrix[2][2],102.33)
+        self.assertAlmostEqual(self.lat.matrix[2][0],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
+        self.assertAlmostEqual(self.lat.matrix[2][2],102.33)
         
     def test_random_pos(self):
         
@@ -337,7 +331,7 @@ class TestLattice(unittest.TestCase):
 
     def test_fractional(self):
         
-        matrix_i = self.lat._matrix
+        matrix_i = self.lat.matrix
         matrix_i[0][0] = 50.0 
         matrix_i[0][1] = 50.0 
         matrix_i[1][0] = 50.0 
@@ -345,7 +339,7 @@ class TestLattice(unittest.TestCase):
         matrix_i[2][0] = 10.0 
         matrix_i[2][1] = 0.0 
         matrix_i[2][2] = 60.0 
-        self.lat.set_matrix(matrix_i)
+        self.lat.matrix = matrix_i
         
         frac_o = np.array([0.5,0.5,0.5])
         pos_o = self.lat.fractoreal(frac_o)
@@ -366,7 +360,7 @@ class TestLattice(unittest.TestCase):
         matrix_correct.append([0.0,len_o,0.0])
         matrix_correct.append([0.0,0.0,len_o])
         self.lat.set_cubic(len_o)
-        nptu.assert_almost_equal(self.lat._matrix,matrix_correct)
+        nptu.assert_almost_equal(self.lat.matrix,matrix_correct)
         
     def tearDown(self):
         del self.lat 

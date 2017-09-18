@@ -27,7 +27,6 @@ import numpy.testing.utils as nptu
 
 import streamm.structures.structure as structure
         
-import streamm.structures.lattice as lattice
 import streamm.structures.nblist as nblist
 
 import streamm.structures.particle as particle
@@ -36,7 +35,6 @@ import streamm.structures.angle as angle
 import streamm.structures.dihedral as dihedral
 import streamm.structures.improper as improper
    
-
 from streamm_testutil import *
 
 class TestContainer(unittest.TestCase):

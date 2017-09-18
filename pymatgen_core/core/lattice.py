@@ -19,7 +19,7 @@ from monty.json import MSONable
 from monty.dev import deprecated
 
 from pymatgen_core.util.num import abs_cap
-
+import pymatgen_core.core.units as units 
 
 import logging
 logger = logging.getLogger(__name__)
@@ -55,8 +55,90 @@ class Lattice(MSONable):
 
     # Properties lazily generated for efficiency.
 
+    @property
+    def unit_conf(self):
+        return self._unit_conf
+    
+    @property
+    def matrix(self):
+        return self._property['matrix'] 
 
-    def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0]):
+    @property
+    def constants(self):
+        return self._property['constants']
+        
+    @property
+    def angles(self):
+        return self._property['angles'][3:6]
+    
+    
+    @property
+    def lengths(self):
+        return self._property['constants'][0:3]
+    
+    
+    @matrix.setter
+    def matrix(self,matrix):
+        
+
+
+
+        m = np.array(matrix, dtype=np.float64).reshape((self.n_dim, self.n_dim))
+        lengths = np.sqrt(np.sum(m ** 2, axis=1))
+        angles = np.zeros(self.n_dim)
+        for i in range(self.n_dim):
+            j = (i + 1) % self.n_dim
+            k = (i + 2) % self.n_dim
+            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+
+        self._property['angles'] = np.arccos(angles) * 180. / pi
+        self._property['lengths'] = lengths
+        self._property['matrix'] = m
+        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self.angles])
+    
+
+    
+    @constants.setter
+    def constants(self,constants):
+        """Set lattice with lattice constants.  
+        
+        Args:
+            constants[0]     (float): lattice constant a
+            constants[1]     (float): lattice constant b
+            constants[2]     (float): lattice constant c
+            constants[3]     (float): lattice angle alpha 
+            constants[4]     (float): lattice angle beta
+            constants[5]     (float): lattice angle gamma
+            
+        """
+        
+        self._property['constants'] = constants
+        
+    
+        alpha_rad = np.deg2rad(constants[3] )
+        beta_rad  = np.deg2rad(constants[4]  )
+        gamma_rad = np.deg2rad(constants[5] )
+
+        
+        ax = constants[0]
+        bx = np.cos( gamma_rad )* constants[1]
+        by = np.sin( gamma_rad )* constants[1]
+        cx =  constants[2]*np.cos(beta_rad)
+        cy =  constants[2]*(np.cos(alpha_rad)- np.cos(beta)*np.cos(gamma_rad))/np.sin(gamma_rad)
+        cz = np.sqrt(  constants[2]*constants[2]- cx*cx - cy*cy )
+
+        
+        # Set lattice vectors
+        self._matrix =  np.array([ np.zeros(self.n_dim) for dim in range(self.n_dim) ])
+        self._matrix[0][0] = ax
+        self._matrix[1][0] = bx
+        self._matrix[1][1] = by
+        self._matrix[2][0] = cx
+        self._matrix[2][1] = cy
+        self._matrix[2][2] = cz
+        
+    
+    def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf = units.unit_conf):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
@@ -73,8 +155,28 @@ class Lattice(MSONable):
                 E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
+        # Store the units of each attribute type 
+        self._unit_conf = unit_conf
+        #
+        # Default Physical properties
+        # 
+        self._property = {}
+        self._property_units = {}
+        for unit_type in self._unit_conf.keys():
+            self._property_units[unit_type] = []
+        # 
         self.n_dim = int(3) # Number of spatial dimensions
-        self.set_matrix(matrix)
+        self._property['constants'] = np.zeros(6)
+        
+        self.matrix = matrix
+        
+
+        self._inv_matrix = None
+        self._metric_tensor = None
+        self._diags = None
+        self._lll_matrix_mappings = {}
+        self._lll_inverse = None
+        
         self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
 
 
@@ -82,34 +184,7 @@ class Lattice(MSONable):
         del self.n_dim
         del self.pbcs
         
-    def set_matrix(self,matrix):
-        '''
-        Set the values of the matrix of lattice vectors
-        and reset lengths and angles accordingly
         
-        Args:
-            matrix (list) of length n_dim x n_dim
-        
-        
-        '''        
-        m = np.array(matrix, dtype=np.float64).reshape((self.n_dim, self.n_dim))
-        lengths = np.sqrt(np.sum(m ** 2, axis=1))
-        angles = np.zeros(self.n_dim)
-        for i in range(self.n_dim):
-            j = (i + 1) % self.n_dim
-            k = (i + 2) % self.n_dim
-            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
-
-        self._angles = np.arccos(angles) * 180. / pi
-        self._lengths = lengths
-        self._matrix = m
-        self._inv_matrix = None
-        self._metric_tensor = None
-        self._diags = None
-        self._lll_matrix_mappings = {}
-        self._lll_inverse = None
-        self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self._angles])
-
     def __format__(self, fmt_spec=''):
         """
         Support format printing. Supported formats are:
@@ -140,73 +215,6 @@ class Lattice(MSONable):
     def copy(self):
         """Deep copy of self."""
         return self.__class__(self.matrix.copy())
-
-
-
-    def set_consts(self,a, b, c, alpha, beta, gamma):
-        """Set lattice with lattice constants.  
-        
-        Args:
-            a     (float): lattice constant a
-            b     (float): lattice constant b
-            c     (float): lattice constant c
-            alpha (float): lattice angle alpha
-            beta  (float): lattice angle beta
-            gamma (float): lattice angle gamma
-            
-        """
-        alpha_rad = np.deg2rad(alpha)
-        beta_rad  = np.deg2rad(beta )
-        gamma_rad = np.deg2rad(gamma)
-
-        ax = a
-        bx = np.cos( gamma_rad )* b
-        by = np.sin( gamma_rad )* b
-        cx = c*np.cos(beta_rad)
-        cy = c*(np.cos(alpha_rad)- np.cos(beta)*np.cos(gamma_rad))/np.sin(gamma_rad)
-        cz = np.sqrt( c*c - cx*cx - cy*cy )
-
-        self._lengths[0] = a
-        self._lengths[1] = b
-        self._lengths[2] = c
-
-        self._angles[0] = alpha
-        self._angles[1] = beta
-        self._angles[2] = gamma
-        
-        
-        # Set lattice vectors
-        self._matrix =  np.array([ np.zeros(self.n_dim) for dim in range(self.n_dim) ])
-        self._matrix[0][0] = ax
-        self._matrix[1][0] = bx
-        self._matrix[1][1] = by
-        self._matrix[2][0] = cx
-        self._matrix[2][1] = cy
-        self._matrix[2][2] = cz
-        
-        return         
-        
-    def set_box(self,box):
-        '''
-        Set lattice constants based on box list.
-        
-        Args:
-            box (list): List of lattice constants (a, b, c, alpha, beta, gamma)
-        '''
-        if( len(box) != 6 ):
-            logger.warning("box variable does not length 6 for values a, b, c, alpha, beta, gamma. The Lattice will not be set ")
-            return
-        
-        a      = box[0]
-        b      = box[1]
-        c      = box[2]
-        alpha  = box[3]
-        beta   = box[4]
-        gamma  = box[5]
-        
-        self.set_consts(a, b, c, alpha, beta, gamma)
-        
-        return 
         
     def deltasq_pos(self,pos_i,pos_j):
         """
@@ -502,4 +510,5 @@ class Lattice(MSONable):
         '''
         
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        
         
