@@ -94,8 +94,6 @@ class Lattice(MSONable):
         self._property['constants'][0:3] = self._property['lengths']
         self._property['constants'][3:6] = self._property['angles']
         
-        print self._property['constants']
-        
         self._property['matrix'] = m
         self.is_orthogonal = all([abs(a - 90) < 1e-5 for a in self.angles])
     
@@ -250,8 +248,7 @@ class Lattice(MSONable):
         self.n_dim = int(3) # Number of spatial dimensions
         # 
         self.matrix = matrix
-        # When we update units we just need to change the matrix
-        # then use the setter to update the constants,angles and lengths
+        # Set the unit types for each property with units 
         self._property_units['length'].append('matrix')
         self._property_units['length'].append('lengths')
         self._property_units['angle'].append('angles')
