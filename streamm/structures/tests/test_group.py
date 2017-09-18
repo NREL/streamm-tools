@@ -24,11 +24,13 @@ import numpy as np
 import random
 import numpy.testing.utils as nptu
 
+import pymatgen_core.core.lattice as lattice
+
 
 import streamm.structures.structure as structure
 import streamm.structures.group as group
         
-import streamm.structures.lattice as lattice
+
 import streamm.structures.nblist as nblist
 
 import streamm.structures.particle as particle

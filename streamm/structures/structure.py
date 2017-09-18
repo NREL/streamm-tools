@@ -713,9 +713,9 @@ class Structure(object):
         Calculate volume of structure  
         Volume = ( v_i x v_j ) . v_k 
         """
-        v_i = self.lat._matrix[0] 
-        v_j = self.lat._matrix[1] 
-        v_k = self.lat._matrix[2]
+        v_i = self.lat.matrix[0] 
+        v_j = self.lat.matrix[1] 
+        v_k = self.lat.matrix[2]
         
         v_ij = np.cross(v_i,v_j)
         self._property['volume'] = np.dot(v_ij,v_k)
