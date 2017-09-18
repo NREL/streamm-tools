@@ -79,9 +79,6 @@ class Lattice(MSONable):
     
     @matrix.setter
     def matrix(self,matrix):
-        
-
-
 
         m = np.array(matrix, dtype=np.float64).reshape((self.n_dim, self.n_dim))
         lengths = np.sqrt(np.sum(m ** 2, axis=1))
@@ -129,13 +126,13 @@ class Lattice(MSONable):
 
         
         # Set lattice vectors
-        self._matrix =  np.array([ np.zeros(self.n_dim) for dim in range(self.n_dim) ])
-        self._matrix[0][0] = ax
-        self._matrix[1][0] = bx
-        self._matrix[1][1] = by
-        self._matrix[2][0] = cx
-        self._matrix[2][1] = cy
-        self._matrix[2][2] = cz
+        self._property['matrix']  =  np.array([ np.zeros(self.n_dim) for dim in range(self.n_dim) ])
+        self._property['matrix'][0][0] = ax
+        self._property['matrix'][1][0] = bx
+        self._property['matrix'][1][1] = by
+        self._property['matrix'][2][0] = cx
+        self._property['matrix'][2][1] = cy
+        self._property['matrix'][2][2] = cz
         
     
     def __init__(self, matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf = units.unit_conf):
