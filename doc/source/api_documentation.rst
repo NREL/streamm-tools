@@ -1,12 +1,29 @@
 .. _api_documentation:
 
+
+.. ::
+    
+    # with overline, for parts
+    * with overline, for chapters
+    =, for sections
+    -, for subsections
+    ^, for subsubsections
+    ", for paragraphs
+
+
+
 API documentation
 ******************
+
+
+pymatgen Modules
+================
+
 
 .. index:: units
 
 Units   
-=====
+-----
 
 .. automodule:: pymatgen_core.core.units
    :members:
@@ -16,7 +33,7 @@ Units
 .. index:: lattice
 
 Lattice   
-=======
+-------
 
 .. autoclass:: pymatgen_core.core.lattice.Lattice
    :members:
@@ -26,12 +43,12 @@ Lattice
 .. index:: structures
 
 Structures Module
------------------
+=================
 
-.. index:: strucC
+.. index:: Structure
 
 Structure Container
-===================
+-------------------
 
 .. autoclass:: streamm.structures.particle.Particle
    :members:
@@ -59,7 +76,7 @@ Structure Container
 .. index:: group
 
 Group
-=====
+-----
 
 .. autoclass:: streamm.structures.group.Group
    :members:
@@ -73,7 +90,7 @@ Group
 .. index:: nblist
 
 Neighbor List
-=============
+---------------
 
 .. autoclass:: streamm.structures.nblist.NBlist
    :members:
@@ -83,8 +100,8 @@ Neighbor List
       
 .. index:: buildingblocks
 
-Buildingblock Module
------------------------
+Buildingblock
+-------------
 
 .. autoclass:: streamm.structures.buildingblock.Buildingblock
    :members:
@@ -97,7 +114,7 @@ Buildingblock Module
 .. index:: forcefields
 
 Forcefields Module
------------------------
+==================
 
 .. index:: particletype
 
@@ -134,7 +151,7 @@ Forcefields Module
 
 
 Parameter Container
-===================
+-------------------
 
 .. index:: paramC
 
@@ -146,7 +163,7 @@ Parameter Container
 .. index:: calculations
 
 Calculations Module
------------------------
+===================
 
 .. autoclass:: streamm.calculations.calculation.Calculation
    :members:
@@ -156,7 +173,7 @@ Calculations Module
 .. index:: resource
 
 Resource
-========
+--------
 
 .. autoclass:: streamm.calculations.resource.Resource
    :members:
@@ -168,7 +185,7 @@ Resource
    :show-inheritance:   
 
 Project
-=======
+--------
 
 .. autoclass:: streamm.calculations.project.Project
    :members:
@@ -178,7 +195,7 @@ Project
 .. index:: gaussian
 
 Gaussian
-========
+--------
 
 .. autoclass:: streamm.calculations.gaussian.Gaussian
    :members:
@@ -188,7 +205,7 @@ Gaussian
 .. index:: nwchem
 
 NWChem
-======
+--------
 
 .. autoclass:: streamm.calculations.nwchem.NWChem
    :members:
@@ -197,7 +214,7 @@ NWChem
 .. index:: lammps
 
 LAMMPS
-======
+--------
 
 .. autoclass:: streamm.calculations.lammps.LAMMPS
    :members:
@@ -210,7 +227,7 @@ LAMMPS
 .. index:: mpi
 
 MPI Module
------------------------
+===========
 
 .. automodule:: streamm.mpi.mpiBase
    :members:
@@ -220,7 +237,7 @@ MPI Module
 .. index:: util
 
 util Module
------------------------
+===========
 
 .. index:: replicate
 

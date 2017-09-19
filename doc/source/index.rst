@@ -49,24 +49,32 @@ Contents
 Release Notes
 *************
 
-- v0.3.1 -- September 2017
+v0.3.1 -- September 2017
+========================
 
-    -- Split up modules into directories
-    -- Create tests for each module in the directory tests/
-    -- Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
-    -- Move functions dependent on mpi to util directory
+* Split up modules into directories
+* Create tests for each module in the directory tests/
+* Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
+* Move functions dependent on mpi to util directory
 
-- v0.3.0 -- August 2017
+v0.3.0 -- August 2017
+======================
 
-    -- Major update to code structure allowing for `python setup.py` installation 
+* Major update to code structure allowing for `python setup.py` installation 
 
 
-- v0.2.0 -- August 28 2015 -- Initial release
+v0.2.0 -- August 28 2015 
+========================
 
-- `NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
-  Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
+* Initial release
 
-- Licensed under the Apache License, Version 2.0
+`NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
+Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
+
+License
+=======
+
+Licensed under the Apache License, Version 2.0
 
 
 Referencing STREAMM
@@ -76,4 +84,6 @@ When referencing the STREAMM toolkit in publications, this website can be cited 
 
   Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf. "STREAMM (Simulation Toolkit for
   Renewable Energy and Advanced Materials Modeling)," National Renewable Energy Lab, 21 Sept. 2015. <http://github.com/NREL/streamm-tools>.
+
+Also reference the Materials genome project code pymatgen.
 
