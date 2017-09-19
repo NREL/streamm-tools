@@ -141,8 +141,8 @@ class Test_attach(unittest.TestCase):
         self.assertEqual(self.Th.n_func,3)
     
     def test_show_rsites(self):
-        self.assertEqual(self.Hx.show_rsites(),'rsite:R[ paticle:atom[None] H (H) index:1 n_bonds:1] \n')
-        self.assertEqual(self.Th.show_rsites(),'rsite:FH[ paticle:atom[None] H (H) index:6 n_bonds:1] \nrsite:TH[ paticle:atom[None] H (H) index:5 n_bonds:1] \nrsite:TH[ paticle:atom[None] H (H) index:8 n_bonds:1] \n')
+        self.assertEqual(self.Hx.show_rsites(),'rsite:R[ paticle:atom[1] H (H) index:1 n_bonds:1] \n')
+        self.assertEqual(self.Th.show_rsites(),'rsite:FH[ paticle:atom[6] H (H) index:6 n_bonds:1] \nrsite:TH[ paticle:atom[5] H (H) index:5 n_bonds:1] \nrsite:TH[ paticle:atom[8] H (H) index:8 n_bonds:1] \n')
         
     def test_get_rsite(self):
         Rkey_i,Xkey_i = self.Hx.get_rsite('R')

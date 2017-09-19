@@ -943,21 +943,22 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
         properties (dict): with unit type as the key and the new unit as the value
         
     '''
-    print "2 new_unit_conf",new_unit_conf
-    
     unit_conf = copy.deepcopy(old_unit_conf)
-    unit_conf = copy.deepcopy(old_unit_conf)
+    update_keys = [] #new_unit_conf.keys()
     logger.debug("Removing unit_types that don't need to be changed ")
     for unit_type in new_unit_conf.keys():
-        if( unit_type not in old_unit_conf.keys() ):
+        if( unit_type in old_unit_conf.keys() and  new_unit_conf[unit_type] != old_unit_conf[unit_type]  ):
+            update_keys.append(unit_type)
+            if( new_unit_conf[unit_type] != old_unit_conf[unit_type]  ):
+                update_keys.append(unit_type)
+            else:
+                logger.debug("unit_type {} has not changed ".format(unit_type))
+                    
+        else:
             logger.warning("unit_type {} not in new_unit_conf passed to update_units() not in instance unit_conf  ".format(unit_type))
-            del new_unit_conf[unit_type]
-        elif( new_unit_conf[unit_type] == old_unit_conf[unit_type] ):
-            logger.debug("unit_type {} has not changed ".format(unit_type))
-            del new_unit_conf[unit_type]
-    
+            
     logger.debug("Looping over {} unit_types that have changed".format(new_unit_conf.keys()))
-    for unit_type in new_unit_conf.keys():
+    for unit_type in update_keys:
         new_unit_type = new_unit_conf[unit_type]
         old_unit_type = old_unit_conf[unit_type]
         logger.debug("The units of {} have been set to change and will be updated ".format(unit_type))
@@ -968,8 +969,6 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
             properties[proptery_key] = properties[proptery_key]*Unit_conversion
     
         unit_conf[unit_type] = new_unit_conf[unit_type]
-        
-    print "3 new_unit_conf",new_unit_conf
         
     return properties,unit_conf
 
@@ -1045,8 +1044,6 @@ class ObjectUnits(MSONable):
             new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
-        print "1 new_unit_conf",new_unit_conf
-        
         self._property,self._unit_conf = change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         
         

@@ -55,10 +55,22 @@ class Bond(units.ObjectUnits):
         
         self._property['length'] = 0.0 
         self._property_units['length'].append('length')
+        
+        # Force field
+        self.param = None
+        # Lammps and gromacs index
+        self.param_index = 0 
+        self.lammps_index = 0 
+        self.gromacs_index = 0 
+
 
     def __del__(self):
         del self.pkey1
         del self.pkey2
+        del self.param
+        del self.param_index
+        del self.lammps_index
+        del self.gromacs_index
         
     def __str__(self):
         return " %s - %s"%(self.pkey1,self.pkey2 )

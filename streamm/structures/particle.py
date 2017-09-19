@@ -212,9 +212,6 @@ class Particle(units.ObjectUnits):
         self.qgroup   = 0
         self.index    = None
         #   
-        # Force field
-        self.ffkey = None 
-        self.ff = None
         # Reactive site type
         self.rsite = '' 
         #
@@ -232,6 +229,14 @@ class Particle(units.ObjectUnits):
             logger.debug("No symbol is given using label as symbol")
             self.symbol = label
             
+
+        # Force field
+        self.paramkey = None 
+        self.param = None
+        # Lammps and gromacs index
+        self.param_index = 0 
+        self.lammps_index = 0 
+        self.gromacs_index = 0             
             
     def __del__(self):
         del self.type
@@ -245,8 +250,12 @@ class Particle(units.ObjectUnits):
         # Atomic properties 
         del self.symbol 
         del self.element 
-        # Force field 
-        del self.ff
+        # Force field
+        del self.paramkey
+        del self.param
+        del self.param_index
+        del self.lammps_index
+        del self.gromacs_index
         #
         del self.rsite
         
