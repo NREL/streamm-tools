@@ -781,6 +781,7 @@ A float with an volue unit.
 Args:
     val (float): Value
     unit (Unit): E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+    
 """
 
 Density = partial(FloatWithUnit, unit_type="density")
@@ -790,6 +791,7 @@ A float with an density unit.
 Args:
     val (float): Value
     unit (Unit): E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+    
 """
 Energy = partial(FloatWithUnit, unit_type="energy")
 """
@@ -798,6 +800,7 @@ A float with an energy unit.
 Args:
     val (float): Value
     unit (Unit): E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+    
 """
 EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
@@ -807,8 +810,8 @@ A float with a length unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
-        raised.
+    unit (Unit): E.g., m, ang, bohr, etc. Must be valid unit or UnitError is raised.
+        
 """
 LengthArray = partial(ArrayWithUnit, unit_type="length")
 
@@ -818,8 +821,7 @@ A float with a mass unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., amu, kg, etc. Must be valid unit or UnitError is
-        raised.
+    unit (Unit): E.g., amu, kg, etc. Must be valid unit or UnitError is raised.
 """
 MassArray = partial(ArrayWithUnit, unit_type="mass")
 
@@ -839,8 +841,8 @@ A float with a time unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., s, min, h. Must be valid unit or UnitError is
-        raised.
+    unit (Unit): E.g., s, min, h. Must be valid unit or UnitError is raised.
+    
 """
 TimeArray = partial(ArrayWithUnit, unit_type="time")
 
@@ -850,8 +852,8 @@ A float with a charge unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError
-        is raised.
+    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError is raised.
+    
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
@@ -862,8 +864,8 @@ A float with a memory unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
-        is raised.
+    unit (Unit): E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError is raised.
+    
 """
 
 
@@ -875,6 +877,7 @@ def obj_with_unit(obj, unit):
 
     Args:
         unit: Specific units (eV, Ha, m, ang, etc.).
+        
     """
     unit_type = _UNAME2UTYPE[unit]
 

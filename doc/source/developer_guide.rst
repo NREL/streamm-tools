@@ -3,6 +3,26 @@
 API documentation
 ******************
 
+.. index:: units
+
+Units   
+=====
+
+.. automodule:: pymatgen_core.core.units
+   :members:
+   :show-inheritance:   
+   
+
+.. index:: lattice
+
+Lattice   
+=======
+
+.. autoclass:: pymatgen_core.core.lattice.Lattice
+   :members:
+   :show-inheritance:   
+   
+
 .. index:: structures
 
 Structures Module
@@ -46,7 +66,7 @@ Group
    :show-inheritance:   
    
 
-.. autoclass:: streamm.structures.group.Container
+.. autoclass:: streamm.structures.group.Groups
    :members:
    :show-inheritance:   
    
@@ -60,22 +80,13 @@ Neighbor List
    :show-inheritance:   
    
    
-.. index:: lattice
-
-Lattice   
-=======
-
-.. autoclass:: streamm.structures.lattice.Lattice
-   :members:
-   :show-inheritance:   
-   
       
 .. index:: buildingblocks
 
-Buildingblocks Module
+Buildingblock Module
 -----------------------
 
-.. autoclass:: streamm.buildingblocks.container.Container
+.. autoclass:: streamm.structures.buildingblock.Buildingblock
    :members:
    :show-inheritance:   
 
@@ -127,7 +138,7 @@ Parameter Container
 
 .. index:: paramC
 
-.. autoclass:: streamm.forcefields.container.Container
+.. autoclass:: streamm.forcefields.parameters.Parameters
    :members:
    :show-inheritance: 
 

@@ -127,8 +127,7 @@ class Particle(units.ObjectUnits):
             * symbol (str): Atomic symbol.
             * number (int): Atomic number
             * mass   (float): Atomic mass (AMU)
-            * mass_precision (int): precision to match the mass with value from
-            periodic table 
+            * mass_precision (int): precision to match the mass with value from periodic table 
             
         This will set the ``symbol`` property of the particle to the Atomic symbol,
         the ``mass`` property of the particle to the ``atomic_mass``,
