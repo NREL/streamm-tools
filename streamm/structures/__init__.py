@@ -22,6 +22,7 @@ from group import Groups
 from nblist import NBlist
 from structure import Structure
 from buildingblock import Buildingblock
+from buildingblock import attach 
 
 
 

@@ -227,6 +227,19 @@ class Structure(units.ObjectUnits):
         'Magic' method for printng contents of container
         """
         return " %s"%(self.tag)
+    
+    def print_properties(self):
+        '''Print the structure properties
+        
+        '''
+        property_msg = " n_particles:{} ".format(self.n_particles)
+        property_msg += "\n n_bonds:{}".format(self.n_bonds)
+        property_msg += "\n n_angles:{}".format(self.n_angles)
+        property_msg += "\n n_dihedrals:{}".format(self.n_dihedrals)
+        property_msg += "\n n_impropers:{}".format(self.n_impropers)
+        
+        return property_msg
+    
 
     def dump_pickle(self):
         '''    
@@ -235,7 +248,6 @@ class Structure(units.ObjectUnits):
         file_i = open("%s.pkl"%(self.tag),'w')
         pickle.dump(self,file_i)
         file_i.flush()
-        
 
     def add_particle(self, particle_i, deepcopy = True ):
         """
@@ -1135,53 +1147,6 @@ class Structure(units.ObjectUnits):
             particle_i.properties[tag] += tag_min
 
 
-
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
-        
-        Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
-            
-        '''
-        
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-        
-        
-        """
-    def getSubStructure(self,pkeys,tag="blank"):
-        
-        NoteTK This should be depricated and groups should be used
-        
-        Create new structure container from list of particle keys
-        new_strucC = Container(str(tag))
-        
-        key_update = dict()
-        # Set lattice 
-        new_strucC.lat = self.lat
-        # Set particles
-        for pkey_i in pkeys:
-            p_i = self.particles[pkey_i]
-            pos_i = self.positions[pkey_i]            
-            new_strucC.add_partpos(p_i,pos_i, deepcopy = True)
-            key_update[pkey_i]  = new_strucC.n_particles -1
-            
-        if( len(self.bonded_nblist.index) > 0 ):
-            # Update bonded nieghbor list
-            new_strucC.bonded_nblist = NBlist() 
-            for pkey_i in pkeys:
-                new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
-                for pkey_j in self.bonded_nblist.getnbs(pkey_i):
-                    if( pkey_j in pkeys ):
-                        new_strucC.bonded_nblist.cnt += 1 
-                        new_strucC.bonded_nblist.list.append(key_update[pkey_j])
-
-            new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
-            new_strucC.bonded_bonds()
-
-        return new_strucC
-        """
-        
 
     def __iadd__(self, other):
         """
