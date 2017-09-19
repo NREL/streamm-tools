@@ -880,10 +880,10 @@ class LAMMPS(CalculationRes):
             F.write(' Atoms \n')
             F.write('\n')
             for pkey_i, particle_i  in self.strucC.particles.iteritems():
-                fftype_i = particle_i.ffkey
+                fftype_i = particle_i.paramkey
                 mol_i = particle_i.mol
                 charge_i = particle_i.charge
-                lmpindx_i = particle_i.ff.lammps_index
+                lmpindx_i = particle_i.param.lammps_index
                 pos_i = self.strucC.positions[pkey_i]       
                 F.write( "%9d %9d %8d %12.8f %12.6f %12.6f %12.6f # %5s \n" % (pkey_i+1,mol_i+1,lmpindx_i,charge_i,pos_i[0],pos_i[1],pos_i[2] ,fftype_i)  )
             F.write('\n')
@@ -896,8 +896,8 @@ class LAMMPS(CalculationRes):
                 b_i = bond_i.pkey1 + 1 
                 b_j = bond_i.pkey2 + 1
                 #
-                AT_i =  self.strucC.particles[ bond_i.pkey1 ].ffkey
-                AT_j =  self.strucC.particles[ bond_i.pkey2 ].ffkey
+                AT_i =  self.strucC.particles[ bond_i.pkey1 ].paramkey
+                AT_j =  self.strucC.particles[ bond_i.pkey2 ].paramkey
                 #
                 F.write(  '%9d %8d %9d %9d # %5s %5s \n' % (bkey_i+1,bond_i.lammps_index,b_i,b_j, AT_i, AT_j ) )
             F.write('\n')
@@ -911,9 +911,9 @@ class LAMMPS(CalculationRes):
                 a_k = angle_i.pkey1 + 1 
                 a_i = angle_i.pkey2 + 1 
                 a_j = angle_i.pkey3 + 1 
-                AT_k = self.strucC.particles[ angle_i.pkey1 ].ffkey
-                AT_i = self.strucC.particles[ angle_i.pkey2 ].ffkey
-                AT_j = self.strucC.particles[ angle_i.pkey3 ].ffkey
+                AT_k = self.strucC.particles[ angle_i.pkey1 ].paramkey
+                AT_i = self.strucC.particles[ angle_i.pkey2 ].paramkey
+                AT_j = self.strucC.particles[ angle_i.pkey3 ].paramkey
 
                 F.write(  '%9d %8d %9d %9d %9d  # %s %s %s \n' % (akey_i+1,angle_i.lammps_index,a_k,a_i,a_j,AT_k,AT_i,AT_j) )
             F.write(  '\n' )
@@ -930,10 +930,10 @@ class LAMMPS(CalculationRes):
                 d_j = dih_i.pkey3 + 1 
                 d_l = dih_i.pkey4 + 1 
 
-                AT_k = self.strucC.particles[ dih_i.pkey1 ].ffkey
-                AT_i = self.strucC.particles[ dih_i.pkey2 ].ffkey
-                AT_j = self.strucC.particles[ dih_i.pkey3 ].ffkey
-                AT_l = self.strucC.particles[ dih_i.pkey4 ].ffkey
+                AT_k = self.strucC.particles[ dih_i.pkey1 ].paramkey
+                AT_i = self.strucC.particles[ dih_i.pkey2 ].paramkey
+                AT_j = self.strucC.particles[ dih_i.pkey3 ].paramkey
+                AT_l = self.strucC.particles[ dih_i.pkey4 ].paramkey
 
                 F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (dkey_i+1,dih_i.lammps_index,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
 
@@ -948,10 +948,10 @@ class LAMMPS(CalculationRes):
                 d_i = imp_i.pkey2 + 1 
                 d_j = imp_i.pkey3 + 1 
                 d_l = imp_i.pkey4 + 1 
-                AT_k = self.strucC.particles[ imp_i.pkey1 ].ffkey
-                AT_i = self.strucC.particles[ imp_i.pkey2 ].ffkey
-                AT_j = self.strucC.particles[ imp_i.pkey3 ].ffkey
-                AT_l = self.strucC.particles[ imp_i.pkey4 ].ffkey
+                AT_k = self.strucC.particles[ imp_i.pkey1 ].paramkey
+                AT_i = self.strucC.particles[ imp_i.pkey2 ].paramkey
+                AT_j = self.strucC.particles[ imp_i.pkey3 ].paramkey
+                AT_l = self.strucC.particles[ imp_i.pkey4 ].paramkey
                 F.write(  '%9d %8d %9d %9d %9d %9d # %s %s %s %s \n' % (ikey_i+1,imp_i.lammps_index,d_k,d_i,d_j,d_l,AT_k,AT_i,AT_j,AT_l) )
 
             F.write( '\n' )            
