@@ -86,11 +86,11 @@ class TestProject(unittest.TestCase):
         for pkey,p in self.Th.particles.iteritems():
             print  pkey,p
             if( p.symbol == 'C' ):
-                p.ffkey = 'CA'
+                p.paramkey = 'CA'
             elif( p.symbol == 'H' ):
-                p.ffkey = 'HA'
+                p.paramkey = 'HA'
             elif( p.symbol == 'S' ):
-                p.ffkey = 'S'
+                p.paramkey = 'S'
                 
         self.Th.particles[5].rsite = 'TH'
         self.Th.particles[6].rsite = 'FH'
