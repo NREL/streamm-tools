@@ -43,7 +43,6 @@ Contents
      
     installation_instructions.rst 
     getting_started.rst
-    examples.rst
     developer_guide.rst
     publication_highlights.rst
     
