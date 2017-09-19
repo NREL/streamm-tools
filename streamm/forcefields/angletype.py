@@ -65,7 +65,7 @@ class Angletype(units.ObjectUnits):
         self._property['theta0']  = 0.0
 
         self._property_units['energy'].append('kb')
-        self._property_units['length'].append('r0')
+        self._property_units['angle'].append('theta0')
         
         # Lammps and gromacs index
         self.lammps_index = 0 

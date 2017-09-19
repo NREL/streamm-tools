@@ -32,6 +32,15 @@ class Particletype(units.ObjectUnits):
     '''
     
     @property
+    def mass(self):
+        return self._property['mass'] 
+
+
+    @mass.setter
+    def mass(self,value):
+        self._property['mass'] = value
+
+    @property
     def epsilon(self):
         return self._property['epsilon'] 
 
@@ -56,9 +65,11 @@ class Particletype(units.ObjectUnits):
         self.fftype1 = str(fftype1)
 
         #         
+        self._property['mass'] = 1.0
         self._property['epsilon'] = 1.0
         self._property['sigma']  = 2.0
         
+        self._property_units['mass'].append('mass')
         self._property_units['energy'].append('epsilon')
         self._property_units['length'].append('sigma')
         

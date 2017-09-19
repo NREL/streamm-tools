@@ -249,19 +249,19 @@ class Parameters(units.ObjectUnits):
             
         '''
         # 
-        for ptkey_i, particletypes_i  in other.particletypes.iteritems():
+        for ptkey_i, particletypes_i  in self.particletypes.iteritems():
             particletypes_i.update_units(new_unit_conf)
         
-        for btkey_i,bondtype_i  in other.bondtypes.iteritems():
+        for btkey_i,bondtype_i  in self.bondtypes.iteritems():
             bondtype_i.update_units(new_unit_conf)
             
-        for atkey_i,angletype_i  in other.angletypes.iteritems():
+        for atkey_i,angletype_i  in self.angletypes.iteritems():
             angletype_i.update_units(new_unit_conf)
             
-        for dtkey_i, dihtype_i  in other.dihtypes.iteritems():    
+        for dtkey_i, dihtype_i  in self.dihtypes.iteritems():    
             dihtype_i.update_units(new_unit_conf)
             
-        for itkey_i, imptype_i  in other.imptypes.iteritems():    
+        for itkey_i, imptype_i  in self.imptypes.iteritems():    
             imptype_i.update_units(new_unit_conf)
         
         

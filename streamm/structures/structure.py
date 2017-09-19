@@ -2188,20 +2188,35 @@ class Structure(units.ObjectUnits):
         '''
         
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-        # 
+        #
+        logger.info("Running update_units on particles ")
         for pkey_i, particle_i  in self.particles.iteritems():
             particle_i.update_units(new_unit_conf)
+            if( particle_i.param != None ):
+                particle_i.param.update_units(new_unit_conf)
         
+        logger.info("Running update_units on particles ")
         for btkey_i,bond_i  in self.bonds.iteritems():
             bond_i.update_units(new_unit_conf)
+            if( bond_i.param != None ):
+                bond_i.param.update_units(new_unit_conf)
             
+        logger.info("Running update_units on angles ")
         for atkey_i,angle_i  in self.angles.iteritems():
             angle_i.update_units(new_unit_conf)
+            if( angle_i.param != None ):
+                angle_i.param.update_units(new_unit_conf)
             
+        logger.info("Running update_units on dihedrals ")
         for dtkey_i, dih_i  in self.dihedrals.iteritems():    
             dih_i.update_units(new_unit_conf)
+            if( dih_i.param != None ):
+                dih_i.param.update_units(new_unit_conf)
             
+        logger.info("Running update_units on impropers ")
         for itkey_i, imp_i  in self.impropers.iteritems():    
             imp_i.update_units(new_unit_conf)
+            if( imp_i.param != None ):
+                imp_i.param.update_units(new_unit_conf)
         
             

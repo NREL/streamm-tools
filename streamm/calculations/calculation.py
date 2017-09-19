@@ -557,7 +557,7 @@ class Calculation(object):
         #
         for pkey_o, particle_o  in self.strucC.particles.iteritems():    
             new_type = True
-            fftype_i = particle_o.ffkey
+            fftype_i = particle_o.paramkey
             #mass_i = particle_o.mass
             lmptype_p = 0
 
@@ -568,8 +568,8 @@ class Calculation(object):
                 if( fftype_i == ptype_i.fftype1 ):
                     new_type = False
                     # particle_o.type = str(lj_p)
-                    particle_o.ff = copy.deepcopy(ptype_i) 
-                    particle_o.ff.lammps_index =  lmptype_p
+                    particle_o.param = copy.deepcopy(ptype_i) 
+                    particle_o.param.lammps_index =  lmptype_p
                     logger.debug(' maches previous {} {} {} '.format(pkey_o, ptkey_i,ptype_i.fftype1))
 
             if( new_type ):
@@ -591,8 +591,8 @@ class Calculation(object):
                         #ljObj_all.setmass( mass_i )
                         self.paramC.add_particletype(ljObj_all,deepcopy = True)
 
-                        particle_o.ff = copy.deepcopy(ljObj_all) 
-                        particle_o.ff.lammps_index = lmptype_p
+                        particle_o.param = copy.deepcopy(ljObj_all) 
+                        particle_o.param.lammps_index = lmptype_p
                         
                         type_found = False 
 
@@ -614,8 +614,8 @@ class Calculation(object):
             lmptype_p = 0
             pid_i = bondObj_o.pkey1
             pid_j = bondObj_o.pkey2
-            fftype_i =  self.strucC.particles[ pid_i ].ffkey
-            fftype_j =  self.strucC.particles[ pid_j ].ffkey
+            fftype_i =  self.strucC.particles[ pid_i ].paramkey
+            fftype_j =  self.strucC.particles[ pid_j ].paramkey
             #r_i = np.array( self.strucC.particles[ bondObj_o.pkey1 ].position  )
             #r_j = np.array( self.strucC.particles[ bondObj_o.pkey2 ].position  )
             #bond_len = np.linalg.norm(delta_r_c(r_i,r_j,struc_o.getLatVec() ))
@@ -695,9 +695,9 @@ class Calculation(object):
             pid_k = angleObj_o.pkey1
             pid_i = angleObj_o.pkey2
             pid_j = angleObj_o.pkey3
-            fftype_k =  self.strucC.particles[ angleObj_o.pkey1 ].ffkey
-            fftype_i =  self.strucC.particles[ angleObj_o.pkey2 ].ffkey
-            fftype_j =  self.strucC.particles[ angleObj_o.pkey3 ].ffkey
+            fftype_k =  self.strucC.particles[ angleObj_o.pkey1 ].paramkey
+            fftype_i =  self.strucC.particles[ angleObj_o.pkey2 ].paramkey
+            fftype_j =  self.strucC.particles[ angleObj_o.pkey3 ].paramkey
             #r_k = np.array( self.strucC.particles[ pid_k ].position  )
             #r_i = np.array( self.strucC.particles[ pid_i ].position  )
             #r_j = np.array( self.strucC.particles[ pid_j ].position  )
@@ -784,10 +784,10 @@ class Calculation(object):
             pid_i = dihObj_o.pkey2 
             pid_j = dihObj_o.pkey3
             pid_l = dihObj_o.pkey4
-            fftype_k =  self.strucC.particles[pid_k].ffkey
-            fftype_i =  self.strucC.particles[pid_i].ffkey
-            fftype_j =  self.strucC.particles[pid_j].ffkey
-            fftype_l =  self.strucC.particles[pid_l].ffkey
+            fftype_k =  self.strucC.particles[pid_k].paramkey
+            fftype_i =  self.strucC.particles[pid_i].paramkey
+            fftype_j =  self.strucC.particles[pid_j].paramkey
+            fftype_l =  self.strucC.particles[pid_l].paramkey
 
             logger.debug(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if dihedral type is already in parameter set for the structure container
@@ -952,10 +952,10 @@ class Calculation(object):
             pid_i = impObj_o.pkey2 
             pid_j = impObj_o.pkey3
             pid_l = impObj_o.pkey4 
-            fftype_k =  self.strucC.particles[pid_k].ffkey
-            fftype_i =  self.strucC.particles[pid_i].ffkey
-            fftype_j =  self.strucC.particles[pid_j].ffkey
-            fftype_l =  self.strucC.particles[pid_l].ffkey
+            fftype_k =  self.strucC.particles[pid_k].paramkey
+            fftype_i =  self.strucC.particles[pid_i].paramkey
+            fftype_j =  self.strucC.particles[pid_j].paramkey
+            fftype_l =  self.strucC.particles[pid_l].paramkey
 
             logger.debug(" checking ",fftype_k, fftype_i,  fftype_j , fftype_l)
             # Check to see if impedral type is already in parameter set for the structure container

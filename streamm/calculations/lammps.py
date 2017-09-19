@@ -806,14 +806,14 @@ class LAMMPS(CalculationRes):
         F.write( ' Masses \n')
         F.write('\n')
         # Write LJtypes mass 
-        for ljtkey_i, ljtype_i  in self.paramC.particletypes.iteritems():
-            F.write( "%10d %16.8f   # %5s \n" % ( ljtype_i.lammps_index, ljtype_i.mass , ljtype_i.fftype1  ) )
+        for ptk, pt  in self.paramC.particletypes.iteritems():
+            F.write( "%10d %16.8f   # %5s \n" % ( pt.lammps_index, pt.mass , pt.fftype1  ) )
         F.write('\n')
         F.write(' Pair Coeffs \n')
         F.write('\n')
         # Write LJtypes pair Coeffs 
-        for ljtkey_i, ljtype_i  in self.paramC.particletypes.iteritems():
-            F.write( "%10d %12.6f %12.6f  \n" % (ljtype_i.lammps_index, ljtype_i.epsilon,  ljtype_i.sigma ) )
+        for ptk, pt  in self.paramC.particletypes.iteritems():
+            F.write( "%10d %12.6f %12.6f  \n" % (pt.lammps_index, pt.epsilon,  pt.sigma ) )
         F.write('\n')
         # Write Bond Coeffs
         if( self.paramC.n_bondtypes > 0 ):

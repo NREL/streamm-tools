@@ -947,8 +947,7 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
     update_keys = [] #new_unit_conf.keys()
     logger.debug("Removing unit_types that don't need to be changed ")
     for unit_type in new_unit_conf.keys():
-        if( unit_type in old_unit_conf.keys() and  new_unit_conf[unit_type] != old_unit_conf[unit_type]  ):
-            update_keys.append(unit_type)
+        if( unit_type in old_unit_conf.keys()  ):
             if( new_unit_conf[unit_type] != old_unit_conf[unit_type]  ):
                 update_keys.append(unit_type)
             else:
@@ -957,7 +956,7 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
         else:
             logger.warning("unit_type {} not in new_unit_conf passed to update_units() not in instance unit_conf  ".format(unit_type))
             
-    logger.debug("Looping over {} unit_types that have changed".format(new_unit_conf.keys()))
+    logger.debug("Looping over {} unit_types that have changed".format(len(update_keys)))
     for unit_type in update_keys:
         new_unit_type = new_unit_conf[unit_type]
         old_unit_type = old_unit_conf[unit_type]
@@ -966,6 +965,7 @@ def change_properties_units(old_unit_conf,new_unit_conf,property_units,propertie
         Unit_conversion = Unit_instance(1.0,old_unit_type).to(new_unit_type).real
         logger.debug("from {} to {} with conversion factor of {}".format(old_unit_type,new_unit_type,Unit_conversion))
         for proptery_key in property_units[unit_type]:
+            logger.debug("{} with value {} {} being converted to {} ".format(proptery_key,properties[proptery_key],old_unit_type,new_unit_type))
             properties[proptery_key] = properties[proptery_key]*Unit_conversion
     
         unit_conf[unit_type] = new_unit_conf[unit_type]
