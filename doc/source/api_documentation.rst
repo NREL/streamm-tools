@@ -1,4 +1,4 @@
-.. _developer_guide:
+.. _api_documentation:
 
 API documentation
 ******************

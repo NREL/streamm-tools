@@ -43,7 +43,7 @@ Contents
      
     installation_instructions.rst 
     getting_started.rst
-    developer_guide.rst
+    api_documentation.rst
     publication_highlights.rst
     
 Release Notes
