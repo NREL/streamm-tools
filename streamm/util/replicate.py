@@ -205,7 +205,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
                 matrix_i = copy.deepcopy(strucC_new.lat.matrix) # Save state of lattice
                 # Reset new structure to original state 
                 strucC_new = copy.deepcopy(strucC_i) # Create copy to add new structures to 
-                strucC_new.lat.set_matrix(matrix_i)  # Set lattice to saved state
+                strucC_new.lat.matrix  = matrix_i  # Set lattice to saved state
                 strucC_new.lat.expand_matrix(exlat_frac)
 
                 reset_cnt = 0
