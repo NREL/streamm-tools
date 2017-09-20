@@ -761,7 +761,6 @@ class Groups(units.ObjectUnits):
         for gkey,group_i in self.groups.iteritems():
             group_i.calc_dl()
             self.dl_sq.append(group_i.dl_sq)
-            print gkey,group_i.dl_sq
 
     def calc_radius_asphericity(self):
         '''

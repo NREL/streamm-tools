@@ -94,6 +94,10 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
     # Set lattice to be recoppied over the strucC_new during initial add
     other.lat = strucC_i.lat         
     other.calc_mass()
+    n_mol_o = strucC_i.n_molecules()
+    if( n_mol_o > 0 ):
+        # Add one here since we count from zero when adding new structures  
+        n_mol_o +=  1
     # 
     # Create a list of atomic indices for each processor 
     # particle_keys = strucC_i.particles.keys()  
@@ -109,7 +113,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
         #
         add_strucC = True
         poxpass  = False 
-        placement_cnt = 0 
+        placement_cnt = 0
         # 
         # For each structure add to 
         # while ( overlap_sum != 0  ):
@@ -171,7 +175,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
                 structoadd= copy.deepcopy(other)
                 # Update mol number
                 for pkey_i, particle_i  in structoadd.particles.iteritems():
-                    particle_i.mol = struc_add_cnt
+                    particle_i.mol = n_mol_o + struc_add_cnt
                 struc_add_cnt += 1
                 strucC_new += structoadd
                 
@@ -260,6 +264,11 @@ def add_struc_grid(strucC_i,other,n_i,p=None,tag="blank",calc_overlap = True ):
     strucC_new.lat = strucC_i.lat 
     # Set lattice to be recoppied over the strucC_new during initial add
     other.lat = strucC_new.lat
+    n_mol_o = strucC_i.n_molecules()
+    if( n_mol_o > 0 ):
+        # Add one here since we count from zero when adding new structures  
+        n_mol_o +=  1
+        
     # 
     # Create a list of atomic indices for each processor 
     # particle_keys = strucC_i.particles.keys()  
@@ -349,7 +358,7 @@ def add_struc_grid(strucC_i,other,n_i,p=None,tag="blank",calc_overlap = True ):
                         structoadd= copy.deepcopy(other)
                         # Update mol number
                         for pkey_i, particle_i  in structoadd.particles.iteritems():
-                            particle_i.mol = struc_add_cnt
+                            particle_i.mol = n_mol_o + struc_add_cnt
                         struc_add_cnt += 1
                         strucC_new += structoadd
                         logger.info( "Molecule %d/%d added "%(struc_add_cnt,n_i))
