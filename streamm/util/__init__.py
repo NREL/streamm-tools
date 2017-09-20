@@ -10,6 +10,14 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
+
+'''
+.. TODO ::
+    add readwrite.py
+    add read/write xyz,mol,pdb,cply, 
+    
+'''
+
 __all__ = ['replicate']
 
 from replicate import *

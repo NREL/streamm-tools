@@ -42,6 +42,8 @@ class Group(units.ObjectUnits):
     Kwargs:
         units_conf (dict): Dictionary of units for each attribute type
                 
+    .. TODO ::
+        * Check unit conversion of all properties
         
     """
     
@@ -934,6 +936,69 @@ class Groups(units.ObjectUnits):
                         self.dr_pi_pj.append(mag_dr_ij)
                         
         return min(self.dr_pi_pj) 
+        
+
+    def guess_nblist(self,radius_type,radii_buffer=1.25):
+        """
+        Create neighbor list of particles based on distance and element.covalent_radius  of each particle 
+        
+        Args:
+            radius_type (int)
+                    0 - element.covalent_radius
+                    1 - element.vdw_radius
+                    
+            radii_buffer (float) to multiply radii cut off
+            
+        Return:
+            NBlist (object) 
+        """
+
+        nblist_i = NBlist()
+        nblist_i.list = []
+        nblist_i.index = []
+        nblist_i.cnt = -1
+        
+        if( radius_type == 0 ):
+            logger.info("Guessing nieghbor list using the covalent radius of the particles element ")
+        elif( radius_type == 1 ):
+            logger.info("Guessing nieghbor list using the Van der Waals radius of the particles element ")
+        else:
+            error_msg = 'Argument "radius_type" needs to be an integer of 0 or 1'
+            error_msg += "\n Returning Empty NBlist object "
+            raise ValueError(error_string)
+            return nblist_i
+            
+            
+        # Create 2D list of lists of inter particle distances
+        npos_i = self.positions
+        npos_j = self.positions
+        dr_matrix, dist_matrix  = self.lat.delta_npos(npos_i,npos_j)
+        # Loop over all particles
+        for pkey_i,particle_i  in self.particles.iteritems():
+            if( radius_type == 0 ):
+                radii_i = particle_i.bonded_radius
+            elif( radius_type == 1 ):
+                radii_i = particle_i.nonbonded_radius
+            nblist_i.index.append(nblist_i.cnt + 1)
+            for pkey_j,particle_j in self.particles.iteritems():
+                if( pkey_i != pkey_j):
+                    if( radius_type == 0 ):
+                        radii_j = particle_j.bonded_radius
+                    elif( radius_type == 1 ):
+                        radii_j = particle_j.nonbonded_radius
+                    dr_cut = radii_i + radii_j
+                    dr_cut = dr_cut*radii_buffer
+                    logger.info("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
+                    if( dist_matrix[pkey_i,pkey_j] <= dr_cut ):
+                        nblist_i.cnt += 1
+                        nblist_i.list.append(pkey_j)
+                    
+        # Add extra index positions for key+1 call made by final key 
+        nblist_i.index.append(nblist_i.cnt + 1)
+        # Clear list from memory 
+        del dr_matrix
+        del dist_matrix
+        return nblist_i
         
 
     def dump_json(self):

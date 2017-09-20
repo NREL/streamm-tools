@@ -1018,6 +1018,9 @@ class ObjectUnits(MSONable):
     Kwargs:
         * unit_conf (dict): Unit types with units used by this object
             
+    .. TODO ::
+        Add length squared to DERIVED_UNITS
+        
     '''
     
 

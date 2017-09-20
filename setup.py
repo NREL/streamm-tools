@@ -46,6 +46,6 @@ setup(
         '': ['templates/*.template'],
         'pymatgen_core/core': ['pymatgen_core/core/periodic_table.json']},
     include_package_data=True,
-    # install_requires=['pymatgen'],
+    # install_requires=['pymatgen'], ruamel.yaml, monty.json
     ) 
 

@@ -86,4 +86,67 @@ class NBlist(object):
             return []
             
 
+    def radii_nblist(self,lat,positions,radii,radii_buffer=1.25,write_dr=True,del_drmatrix=False):
+        '''Create neighbor list of positions based on distance and radius of each particle 
+        
+        Args:
+            * lat (Lattice) object 
+            * positions (list) of  particle position numpy arrays
+            * radii (list) of  radius of particle
+            
+        Kwargs:
+            * radii_buffer (float) to multiply radii cut off
+            * write_dr (boolean) 
+            * del_drmatrix (boolean) 
+            
+        '''
+        
+        self.lat.index = []
+        self.lat.list = []
+        self.lat.cnt = -1
+
+        # Record rd
+        if( write_dr ):
+            dr_file = 'dr.csv'
+            fout = open(dr_file,'wb')
+            pair_writer = csv.writer(fout,delimiter=',')
+            header = ['key_i','key_j','dr']
+            #if( rank == 0 ):
+            pair_writer.writerow(header)            
+        
+        # Create 2D list of lists of inter particle distances
+        npos_i = positions
+        npos_j = positions
+        self.lat.dr_matrix, self.lat.dist_matrix  = lat.delta_npos(npos_i,npos_j)
+        # Loop over all particles
+        for key_i  in range(len(npos_i)):
+            self.index.append(self.cnt + 1)
+            radi_i = radii[key_i]
+            for key_j  in range(len(npos_j)):
+                radi_j = radii[key_j]
+                if( key_i != key_j):
+                    dr_cut = radi_i + radi_j
+                    dr_cut = dr_cut*radii_buffer
+                    dr = self.dist_matrix[key_i,key_j] 
+                    if( dr <= dr_cut ):
+                        self.cnt += 1
+                        self.list.append(key_j)
+                        if( write_dr  ):
+                            row_i = [key_i,key_j,dr]
+                            pair_writer.writerow(row_i)
+
+
+        # Record rd
+        if( write_dr ):
+            fout.close()
+                        
+        # Add extra index positions for key+1 call made by final key 
+        self.index.append(self.cnt + 1)
+        if( del_drmatrix ):
+            # Clear list from memory
+            del self.dr_matrix
+            del self.dist_matrix
+        else:
+            logger.debug(" Saving dr and dist matrix for groupset ")
+        
 
