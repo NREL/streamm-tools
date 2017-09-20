@@ -10,6 +10,6 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-__all__ = ['replicate','units']
+__all__ = ['replicate']
 
 from replicate import *

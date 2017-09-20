@@ -44,3 +44,5 @@ from calculations import Project
 from calculations import Gaussian
 from calculations import LAMMPS
 from calculations import NWChem
+
+from util.replicate import *
