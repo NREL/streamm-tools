@@ -217,7 +217,7 @@ class Group(units.ObjectUnits):
         for pkey_i in self.pkeys:
             particle_i = self.strucC.particles[pkey_i]
             r_i = self.strucC.positions[pkey_i]
-            dr_cmass = self.strucC.lat.deltasq_pos_c(r_i,self.cent_mass)
+            dr_cmass = self.strucC.lat.d_pos(r_i,self.cent_mass)
             dot_dr_ij = dr_cmass.dot(dr_cmass)
             if( dot_dr_ij > radius  ):
                 radius = dot_dr_ij
@@ -284,7 +284,7 @@ class Group(units.ObjectUnits):
             for pkey_j in self.pkeys:
                 particle_j = self.strucC.particles[pkey_j]
                 r_j = self.strucC.positions[pkey_j]
-                dr_ij = self.strucC.lat.deltasq_pos_c(r_i,r_j)
+                dr_ij = self.strucC.lat.d_pos(r_i,r_j)
                 dot_dr_ij = dr_ij.dot(dr_ij)
                 if( dot_dr_ij > dl_sq ):
                     dl_sq = dot_dr_ij
@@ -498,7 +498,7 @@ class Group(units.ObjectUnits):
                 r_ij_array = []
                 for pkey_j in Htermed.bonded_nblist.getnbs(pkey_i):
                     r_j =  Htermed.positions[pkey_j]
-                    r_ij = Htermed.lat.deltasq_pos(r_i,r_j)
+                    r_ij = Htermed.lat.d_pos(r_i,r_j)
                     r_ij_array.append(r_ij)
 
                     # print r_i,r_j,r_ij
@@ -533,7 +533,7 @@ class Group(units.ObjectUnits):
                     dr_CC_n = dr_CC/np.linalg.norm(dr_CC)
                     dr_CC_s = dr_CC_n*tet_cos
 
-                    dr_jk = Htermed.lat.deltasq_pos(r_j,r_jk)                    
+                    dr_jk = Htermed.lat.d_pos(r_j,r_jk)                    
                     cros_ik = np.cross(dr_CC,dr_jk)
                     cros_ik_n = cros_ik/np.linalg.norm(cros_ik)
                     cros_ik_s = cros_ik/np.linalg.norm(cros_ik)*tet_sin
@@ -541,7 +541,7 @@ class Group(units.ObjectUnits):
                     hbond_0 = cros_ik_s    + dr_CC_s
                     hpos_0 = r_i + hbond_0
                     
-                    r_i0 = Htermed.lat.deltasq_pos(r_i,hpos_0)
+                    r_i0 = Htermed.lat.d_pos(r_i,hpos_0)
                     
 
                     cros_jk = np.cross(dr_CC,r_i0)
@@ -636,6 +636,9 @@ class Groups(units.ObjectUnits):
     Args:
         tag (str): Identifyer of colection of groups
         strucC (structures.container.Container): Reference structure Container
+        
+    .. TODO ::
+        Chage Groups to GroupSet
         
     """
     def __init__(self,tag,strucC,unit_conf=units.unit_conf):
@@ -844,7 +847,7 @@ class Groups(units.ObjectUnits):
                     particle_i = self.strucC.particles[pid_i]
                     a_mass_i = particle_i.mass
                     r_i = self.strucC.positions[pid_i]
-                    r_io = self.strucC.lat.deltasq_pos(r_i,r_o)
+                    r_io = self.strucC.lat.d_pos(r_i,r_o)
                     # sum center of mass
                     total_mass += a_mass_i
                     
@@ -932,7 +935,7 @@ class Groups(units.ObjectUnits):
                 for pkey_j in group_j.pkeys:
                     if( pkey_j in sub_list ):
                         pos_j = group_i.strucC.positions[pkey_j]
-                        dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos_c(pos_i,pos_j)
+                        dr_ij,mag_dr_ij = group_i.strucC.lat.delta_pos(pos_i,pos_j)
                         self.dr_pi_pj.append(mag_dr_ij)
                         
         return min(self.dr_pi_pj) 

@@ -1673,7 +1673,7 @@ class Structure(units.ObjectUnits):
         if isinstance(bond_i,Bond):
             r_i = self.positions[bond_i.pkey1]
             r_j = self.positions[bond_i.pkey2]
-            r_ij,bond_l = self.lat.delta_pos_c(r_i, r_j)
+            r_ij,bond_l = self.lat.delta_pos(r_i, r_j)
             bond_i.length = bond_l
             
             return bond_l
@@ -1776,8 +1776,8 @@ class Structure(units.ObjectUnits):
             r_k = self.positions[angle_i.pkey1]
             r_i = self.positions[angle_i.pkey2]
             r_j = self.positions[angle_i.pkey3]
-            r_ki = self.lat.norm_delta_pos_c(r_k, r_i)
-            r_ij = self.lat.norm_delta_pos_c(r_i, r_j)
+            r_ki = self.lat.norm_d_pos(r_k, r_i)
+            r_ij = self.lat.norm_d_pos(r_i, r_j)
             
             r_i_norm = r_ki/np.linalg.norm(r_ki)
             r_j_norm = r_ij/np.linalg.norm(r_ij) 
@@ -1900,9 +1900,9 @@ class Structure(units.ObjectUnits):
             r_j = self.positions[dihedral_i.pkey3]
             r_l = self.positions[dihedral_i.pkey4]
 
-            r_ki = self.lat.norm_delta_pos_c(r_k, r_i)
-            r_ij = self.lat.norm_delta_pos_c(r_i, r_j)
-            r_jl = self.lat.norm_delta_pos_c(r_j, r_l)
+            r_ki = self.lat.norm_d_pos(r_k, r_i)
+            r_ij = self.lat.norm_d_pos(r_i, r_j)
+            r_jl = self.lat.norm_d_pos(r_j, r_l)
 
             v1v2 = np.cross(r_ki,r_ij)
             v2v3 = np.cross(r_ij,r_jl)

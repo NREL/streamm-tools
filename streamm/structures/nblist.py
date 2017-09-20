@@ -16,6 +16,8 @@ This module defines the classes relating to neighbor lists
 
 import logging
 logger = logging.getLogger(__name__)
+     
+import csv
               
 class NBlist(object):
     """
@@ -101,15 +103,16 @@ class NBlist(object):
             
         '''
         
-        self.lat.index = []
-        self.lat.list = []
-        self.lat.cnt = -1
+        self.index = []
+        self.list = []
+        self.cnt = -1
 
         # Record rd
         if( write_dr ):
+            
             dr_file = 'dr.csv'
             fout = open(dr_file,'wb')
-            pair_writer = csv.writer(fout,delimiter=',')
+            pair_writer = csv.writer(fout,delimiter=str(","))
             header = ['key_i','key_j','dr']
             #if( rank == 0 ):
             pair_writer.writerow(header)            
@@ -117,7 +120,7 @@ class NBlist(object):
         # Create 2D list of lists of inter particle distances
         npos_i = positions
         npos_j = positions
-        self.lat.dr_matrix, self.lat.dist_matrix  = lat.delta_npos(npos_i,npos_j)
+        self.dr_matrix, self.dist_matrix  = lat.delta_npos(npos_i,npos_j)
         # Loop over all particles
         for key_i  in range(len(npos_i)):
             self.index.append(self.cnt + 1)

@@ -560,7 +560,7 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
         #
         # Sum charges of particles to be removed into attachment points
         bbC_i.sum_charge(Xkey_i,Rkey_i)
-        bbC_j.sum_charge(Xkey_j,Rkey_j)
+        bbC_j.sum_charge(Xkey_j,Rkey_j)        
         # Align building blocks along bonds of attachment atoms 
         #
         bbC_i.align_bond(Rkey_i,Xkey_i)

@@ -250,9 +250,8 @@ class Lattice(units.ObjectUnits):
         self._lll_matrix_mappings = {}
         self._lll_inverse = None
         
-        self.pbcs = [ False for d in range(self.n_dim) ] # Initialize periodic boundries as off
-
-
+        self.pbcs = [ False for d in range(self.n_dim) ] # Initialize Periodic boundary conditions as off
+ 
     def __del__(self):
         del self.n_dim
         del self.pbcs
@@ -296,7 +295,27 @@ class Lattice(units.ObjectUnits):
         """Deep copy of self."""
         return self.__class__(self.matrix.copy())
         
-    def deltasq_pos(self,pos_i,pos_j):
+
+    def fractoreal(self,frac_o):
+        '''
+        Translate fractional coordinates to real
+        
+        Args:
+            frac_o (numpy array): fraction coordinates
+            
+        Returns:
+            pos_o (numpy array): real cartesian coordinates
+            
+        '''
+        pos_o = np.zeros(self.n_dim)
+        for m in range(self.n_dim):
+            for n in range(self.n_dim):
+                pos_o[m] += self.matrix[n][m]*frac_o[n]
+                        
+        return pos_o
+            
+        
+    def d_pos(self,pos_i,pos_j):
         """
         Difference between two positions
         
@@ -307,64 +326,66 @@ class Lattice(units.ObjectUnits):
         Returns:
             dr_ij (list): cartesian vector [x,y,z] between position i and j
             
-        """
+        If pbcs are set to true this calculates the fractional coordinates according to the
+        inverse of the matrix multipled by the postion 
         
-        dr_ij  = np.array(pos_j) -  np.array(pos_i)
-
-        return  dr_ij
-
-    def deltasq_pos_c(self,pos_i,pos_j):
-        """
-        Difference between two positions in cubic lattice
-
-        Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j
-        Returns:
-            dr_ij (list): cartesian vector [x,y,z] between position i and j
-        """
-        dr_ij = self.deltasq_pos(pos_i,pos_j)
+        .. math ::
         
-        dr_ij[0] = dr_ij[0] - self.matrix[0][0] * round( dr_ij[0]/  self.matrix[0][0] )
-        dr_ij[1] = dr_ij[1] - self.matrix[1][1] * round( dr_ij[1]/  self.matrix[1][1] )
-        dr_ij[2] = dr_ij[2] - self.matrix[2][2] * round( dr_ij[2]/  self.matrix[2][2] )
+            F = P M^{-1}
         
-        return dr_ij
-
-    def norm_delta_pos_c(self,pos_i,pos_j):
-        '''
-        Normalized difference between two positions in cubic lattice
+        Then subtractions the fractional coordinates and rounds them to be within the lattice box.
+        Then translates the fractional coordinates back to real coordinates to get the separation vector
         
-
-        Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j
+        .. TODO ::
             
-        Returns:
-            dr_ij (list): normalized cartesian vector [x,y,z] between position i and j
+            Create a ctypes extension 
+    
+        """
+        if( any ( pbcs_i for pbcs_i in self.pbcs ) ):
+            frac_i = np.zeros(self.n_dim)
+            frac_j = np.zeros(self.n_dim)
+            frac_ij = np.zeros(self.n_dim)
+            d_pos = np.zeros(self.n_dim)
+    
+            AA = self.matrix[0][0]
+            AB = self.matrix[0][1]
+            AC = self.matrix[0][2]
+            BA = self.matrix[1][0]
+            BB = self.matrix[1][1]
+            BC = self.matrix[1][2]
+            CA = self.matrix[2][0]
+            CB = self.matrix[2][1]
+            CC = self.matrix[2][2]
             
-        '''
-        dr_ij = self.deltasq_pos_c(pos_i, pos_j)
-        return (dr_ij)/np.linalg.norm(dr_ij)
-        
-        
-
-    def delta_pos_c(self,pos_i,pos_j):
-        """
-        Difference between two positions in cubic lattice
-
-        Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j
-
-        Returns:
-            dr_ij (list): cartesian vector [x,y,z] between position i and j
-            mag_dr_ij (float): magnitude of vector dr_ij    
-        """
-        dr_ij = self.deltasq_pos_c(pos_i,pos_j)
-        mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
-
-        return dr_ij,mag_dr_ij
+            X = pos_i[0]
+            Y = pos_i[1]
+            Z = pos_i[2]
+            frac_i[0] = -((-BC*CB*X+BB*CC*X+BC*CA*Y-BA*CC*Y-BB*CA*Z+BA*CB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            frac_i[1] = -((AC*CB*X-AB*CC*X-AC*CA*Y+AA*CC*Y+AB*CA*Z-AA*CB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            frac_i[2] = -((-AC*BB*X+AB*BC*X+AC*BA*Y-AA*BC*Y-AB*BA*Z+AA*BB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            X = pos_j[0]
+            Y = pos_j[1]
+            Z = pos_j[2]
+            frac_j[0] = -((-BC*CB*X+BB*CC*X+BC*CA*Y-BA*CC*Y-BB*CA*Z+BA*CB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            frac_j[1] = -((AC*CB*X-AB*CC*X-AC*CA*Y+AA*CC*Y+AB*CA*Z-AA*CB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            frac_j[2] = -((-AC*BB*X+AB*BC*X+AC*BA*Y-AA*BC*Y-AB*BA*Z+AA*BB*Z)/(AC*BB*CA-AB*BC*CA-AC*BA*CB+AA*BC*CB+AB*BA*CC-AA*BB*CC))
+            
+            frac_ij[0] = frac_j[0] - frac_i[0]
+            frac_ij[1] = frac_j[1] - frac_i[1]
+            frac_ij[2] = frac_j[2] - frac_i[2]
+            
+            if( self.pbcs[0] ): frac_ij[0] = frac_ij[0] - round(frac_ij[0])
+            if( self.pbcs[1] ): frac_ij[1] = frac_ij[1] - round(frac_ij[1])
+            if( self.pbcs[2] ): frac_ij[2] = frac_ij[2] - round(frac_ij[2])
+                    
+            d_pos[0] = AA*frac_ij[0] + BA*frac_ij[1] + CA*frac_ij[2]
+            d_pos[1] = AB*frac_ij[0] + BB*frac_ij[1] + CB*frac_ij[2]
+            d_pos[2] = AC*frac_ij[0] + BC*frac_ij[1] + CC*frac_ij[2]
+            
+        else:
+            d_pos  = np.array(pos_j) -  np.array(pos_i)
+            
+        return  d_pos
 
 
     def delta_pos(self,pos_i,pos_j):
@@ -379,10 +400,28 @@ class Lattice(units.ObjectUnits):
             dr_ij (list): cartesian vector [x,y,z] between position i and j
             mag_dr_ij (float): magnitude of vector dr_ij        """
         
-        dr_ij  = self.deltasq_pos(pos_i,pos_j)
+        dr_ij  = self.d_pos(pos_i,pos_j)
         mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
 
         return dr_ij,mag_dr_ij
+            
+
+    def norm_d_pos(self,pos_i,pos_j):
+        '''
+        Normalized difference between two positions in cubic lattice
+        
+        Args:
+            pos_i (list): cartesian coordinates [x,y,z] for position i
+            pos_j (list): cartesian coordinates [x,y,z] for position j
+            
+        Returns:
+            dr_ij (list): normalized cartesian vector [x,y,z] between position i and j
+            
+        '''
+        dr_ij = self.d_pos(pos_i, pos_j)
+        return (dr_ij)/np.linalg.norm(dr_ij)
+        
+
             
     def delta_npos(self,npos_i,npos_j):
         """
@@ -396,7 +435,13 @@ class Lattice(units.ObjectUnits):
             npos_ij (m x n numpy array): array of cartesian vector [x,y,z] between position i and j
             where the npos_ij[i][j] value is the difference between pos_i[i] and pos_j[j] 
             mag_dr_ij (m x n numpy array): array of the magnitudes of vector dr_ij      
-            where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j] 
+            where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j]
+            
+
+        .. TODO ::
+            
+            Create a ctypes extension
+            
         """
         n_i = len(npos_i)
         n_j = len(npos_j)
@@ -418,7 +463,7 @@ class Lattice(units.ObjectUnits):
                 pos_i = npos_i[m]
                 for n in key_list_j:
                     pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos_c(pos_i,pos_j)
+                    dr_ij = self.d_pos(pos_i,pos_j)
                     dot_dr_ij = dr_ij.dot(dr_ij)
                     #npos_ij[m][n] = dr_ij
                     nd_ij[m][n] = np.sqrt(dot_dr_ij)
@@ -428,7 +473,7 @@ class Lattice(units.ObjectUnits):
                 pos_i = npos_i[m]
                 for n in key_list_j:
                     pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos(pos_i,pos_j)
+                    dr_ij = self.d_pos(pos_i,pos_j)
                     dot_dr_ij = dr_ij.dot(dr_ij)
                     #npos_ij[m][n] = dr_ij
                     nd_ij[m][n] = np.sqrt(dot_dr_ij)
@@ -469,33 +514,18 @@ class Lattice(units.ObjectUnits):
             size = p.getCommSize()
             key_list_i_p =  p.splitListOnProcs(key_list_i)
             
-        overlap_p = 0 
+        overlap_p = 0
+        
         # if any pbc's are on 
-        if( any ( pbcs_i for pbcs_i in self.pbcs ) ):
-            logging.debug(" Using cubic pbcs")
-            for m in key_list_i_p:
-                pos_i = npos_i[m]
-                for n in key_list_j:
-                    pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos_c(pos_i,pos_j)
-                    dot_dr_ij = dr_ij.dot(dr_ij)
-                    if( dot_dr_ij < pos_cut_sq ):
-                        overlap_p += 1 
-        else:
-            logging.debug(" Using no pbcs")
-            for m in key_list_i_p:
-                pos_i = npos_i[m]
-                for n in key_list_j:
-                    pos_j = npos_j[n]
-                    dr_ij = self.deltasq_pos(pos_i,pos_j)
-                    dot_dr_ij = dr_ij.dot(dr_ij)
-                    logger.debug(pos_i)
-                    logger.debug(pos_j)
-                    logger.debug(pos_cut_sq)
-                    logger.debug(" {} - {} : {} ".format(m,n,dot_dr_ij))
-                    if( dot_dr_ij < pos_cut_sq ):
-                        overlap_p += 1
-                        
+        for m in key_list_i_p:
+            pos_i = npos_i[m]
+            for n in key_list_j:
+                pos_j = npos_j[n]
+                dr_ij = self.d_pos(pos_i,pos_j)
+                dot_dr_ij = dr_ij.dot(dr_ij)
+                if( dot_dr_ij < pos_cut_sq ):
+                    overlap_p += 1
+                    
         logger.debug(overlap_p)
         if( p == None ):
             if( overlap_p == 0 ):
@@ -547,24 +577,6 @@ class Lattice(units.ObjectUnits):
         return 
         
 
-    def fractoreal(self,frac_o):
-        '''
-        Translate fractional coordinates to real
-        
-        Args:
-            frac_o (numpy array): fraction coordinates
-            
-        Returns:
-            pos_o (numpy array): real cartesian coordinates
-            
-        '''
-        pos_o = np.zeros(self.n_dim)
-        for m in range(self.n_dim):
-            for n in range(self.n_dim):
-                pos_o[m] += self.matrix[n][m]*frac_o[n]
-                        
-        return pos_o
-    
 
     def set_cubic(self,len_o):
         '''

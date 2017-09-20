@@ -218,36 +218,41 @@ class TestLattice(unittest.TestCase):
         self.assertAlmostEqual(self.lat.matrix[2][1],0.0)
         self.assertAlmostEqual(self.lat.matrix[2][2],15.0)      
     
-    def test_deltasq_pos(self):
+    def test_d_pos(self):
+        
+        
         pos_i  = [123.9,1298.0,93.762]
         pos_j = [832.123,112.127398,9374.9123]
         
         dr_ij_correct = np.array([708.223   , -1185.872602,  9281.1503 ])
-        dr_ij = self.lat.deltasq_pos(pos_i,pos_j)
+        dr_ij = self.lat.d_pos(pos_i,pos_j)
         
         nptu.assert_almost_equal(dr_ij,dr_ij_correct)
         
-    def test_deltasq_pos_c(self):
+    def test_d_pos(self):
         pos_i  = [123.9,1298.0,93.762]
         pos_j = [832.123,112.127398,9374.9123]
         
         dr_ij_correct = np.array([708.223   , -1185.872602,  9281.1503 ])
-        dr_ij = self.lat.deltasq_pos(pos_i,pos_j)
+        dr_ij = self.lat.d_pos(pos_i,pos_j)
         
         nptu.assert_almost_equal(dr_ij,dr_ij_correct)
         
-    def test_norm_delta_pos_c(self):
+    def test_norm_d_pos(self):
+        
+        self.lat.pbcs = [True,True,True]
+        
         pos_i  = [123.9,1298.0,93.762]
         pos_j = [832.123,112.127398,9374.9123]
         
         dr_ij_correct = np.array([0.3295766,  0.5662239, -0.7554931])
-        dr_ij = self.lat.norm_delta_pos_c(pos_i,pos_j)
+        dr_ij = self.lat.norm_d_pos(pos_i,pos_j)
         
         nptu.assert_almost_equal(dr_ij,dr_ij_correct)
         
         
         
-    def test_delta_pos_c(self):
+    def test_delta_pos(self):
         pos_i  = [123.9,1298.0,93.762]
         pos_j = [832.123,112.127398,9374.9123]
         
@@ -281,6 +286,11 @@ class TestLattice(unittest.TestCase):
         
         # nptu.assert_almost_equal(npos_ij,npos_ij_correct)
         nptu.assert_almost_equal(nd_ij,nd_ij_correct)
+        
+    def test_pbcs(self):
+        self.lat.constants = [ 100.0,100.0,100.0,90.0,90.0,90.0 ]
+        
+        
         
     def test_proximitycheck(self):
         
