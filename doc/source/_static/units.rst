@@ -1,3 +1,8 @@
+.. _units:
+
+
+Units
+=====
 
 .. code:: python
 

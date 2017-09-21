@@ -1,3 +1,7 @@
+.. _lattice:
+
+Lattice
+=======
 
 .. code:: python
 

@@ -107,7 +107,10 @@ Add some :class:`Bondtype <streamm.forcefields.bondtype.Bondtype>`,
 
 Now we need to set the `paramkeys` of each particle in
 are :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
-to have a key matching a :class:`Particletype <streamm.forcefields.particletype.Particletype>` key.    
+to have a key matching a :class:`Particletype <streamm.forcefields.particletype.Particletype>` key.
+
+.. code:: python
+
     for pk,p in ethane.particles.iteritems():
         if( p.symbol == 'C' ):
             p.paramkey = 'CT'
@@ -115,7 +118,10 @@ to have a key matching a :class:`Particletype <streamm.forcefields.particletype.
             p.paramkey = 'HC' 
 
 If want to run a `LAMMPS <http://lammps.sandia.gov/>` simulation we can create
-a :class:`Calculation <streamm.calculations.calculation.Calculation>` object. ::
+a :class:`Calculation <streamm.calculations.calculation.Calculation>` object. 
+
+.. code:: python
+
 
     md_calc = streamm.LAMMPS('ethane_md')
     

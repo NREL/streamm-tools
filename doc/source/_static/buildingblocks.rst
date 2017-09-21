@@ -1,3 +1,8 @@
+.. buildingblocks:
+
+buildingblocks
+==============
+
 
 This notebook imports the fundamental objects of the
 streamm.buildingblocks module and goes through the functionality of each
