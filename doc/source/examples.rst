@@ -3,7 +3,7 @@
 Examples
 ********
 
-The follow examples are included in the `github repo <github.com/NREL/streamm-tools`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
+The follow examples are included in the `github repo <github.com/NREL/streamm-tools>`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
 
 The lower case examples go through the basic functionality of each module.
 
