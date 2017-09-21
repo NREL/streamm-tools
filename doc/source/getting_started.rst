@@ -20,6 +20,8 @@ First, let us create a
 streamm :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
 of methane from scratch.
 
+.. code :: python 
+
     import streamm
     methane = streamm.Buildingblock('methane')
     C = streamm.Particle(symbol='C')
@@ -40,20 +42,26 @@ of each `Particle <streamm.structures.particle.Particle>`,
 and find all the :class:`Bonds <streamm.structures.bond.Bond>`,
 :class:`bond angles <streamm.structures.angle.Angle>` and
 `dihedrals <streamm.structures.dihedral.Dihedral>` of
-the :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`.  ::
+the :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`. 
     
+.. code :: python 
+ 
     methane.bonded_nblist = methane.guess_nblist(0,radii_buffer=1.25)
     methane.bonded_bonds()
     methane.bonded_angles()
     methane.bonded_dih()
     
-Now we can label some hydrogens as particles as substitutable sites `rsite`. ::
+Now we can label some hydrogens as particles as substitutable sites `rsite`.
+
+.. code :: python 
 
     methane.particles[1].rsite = 'RH'
     methane.particles[2].rsite = 'RH'
     methane.find_rsites()
 
-We labeled these sites as 'RH', but it does not really matter, as long as you pass these labels to the attach function. ::
+We labeled these sites as 'RH', but it does not really matter, as long as you pass these labels to the attach function.
+
+.. code :: python 
 
     import streamm.structures.buildingblock as bb
     ethane = bb.attach(methane,methane,'RH',0,'RH',1,tag='ethane')
@@ -62,17 +70,23 @@ We labeled these sites as 'RH', but it does not really matter, as long as you pa
 MD setup
 ********
 
-If we want to run some MD using force fields, we need to set up a :class:`Parameters <streamm.forcefields.parameters.Parameters>` container. ::
+If we want to run some MD using force fields, we need to set up a :class:`Parameters <streamm.forcefields.parameters.Parameters>` container.
+
+.. code :: python 
 
     oplsaa = streamm.Parameters('oplsaa')
 
-Let's set the energy and legnth units we will input from the literature. ::
+Let's set the energy and legnth units we will input from the literature.
+
+.. code :: python 
 
     oplsaa.update_units({'energy':'kCalmol','length':'ang'})
     
 Add some :class:`Particletype <streamm.forcefields.particletype.Particletype>` objects
 to our :class:`Parameters <streamm.forcefields.parameters.Parameters>`
-container and pass in the `units_conf` we are using. ::
+container and pass in the `units_conf` we are using.
+
+.. code :: python 
     
     CT = streamm.Particletype('CT',unit_conf=oplsaa.unit_conf)
     CT.epsilon = 0.066 # kcal/mol
@@ -87,7 +101,9 @@ container and pass in the `units_conf` we are using. ::
 
 Add some :class:`Bondtype <streamm.forcefields.bondtype.Bondtype>`,
 :class:`Angletype <streamm.forcefields.angletype.Angletype>`, and 
-:class:`Dihedraltype <streamm.forcefields.dihedraltype.Dihedraltype>` objects. ::
+:class:`Dihedraltype <streamm.forcefields.dihedraltype.Dihedraltype>` objects.
+
+.. code :: python 
     
     C_H = streamm.Bondtype('CT','HC',unit_conf=oplsaa.unit_conf)
     C_H.setharmonic(1.080,367.0)
@@ -127,7 +143,9 @@ a :class:`Calculation <streamm.calculations.calculation.Calculation>` object.
     
 Set our Buildingblock and :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
 objects to have the correct units for a `LAMMPS <http://lammps.sandia.gov/>`_
-simulation and add the class:`Calculation <streamm.calculations.calculation.Calculation>` object. ::
+simulation and add the class:`Calculation <streamm.calculations.calculation.Calculation>` object.
+
+.. code :: python 
     
     ethane.update_units(md_calc.unit_conf)
     oplsaa.update_units(md_calc.unit_conf)
@@ -135,11 +153,15 @@ simulation and add the class:`Calculation <streamm.calculations.calculation.Calc
     md_calc.paramC = oplsaa
 
 Then we can use the :func:`set_ffparam <streamm.calculations.calculation.Calculation.set_ffparam>` function to match all the force field
-parameters to the :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`  based on their `paramkeys`. ::
+parameters to the :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`  based on their `paramkeys`.
+
+.. code :: python 
 
     md_calc.set_ffparam()
         
-Finally, we can output a LAMMPS `.data` input file for our calculation. ::
+Finally, we can output a LAMMPS `.data` input file for our calculation.
+
+.. code :: python 
 
     md_calc.write_data()
     
