@@ -19,7 +19,7 @@ setup(
     setup_requires=['setuptools>=18.0','pytest-runner',
                     "numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
-                      "tabulate", "spglib>=1.9.9.44",
+                      "tabulate", "spglib>=1.9.9.44","pandoc","jupyter",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy"],        
     packages=find_packages(),
     # 
@@ -46,6 +46,6 @@ setup(
         '': ['templates/*.template'],
         'pymatgen_core/core': ['pymatgen_core/core/periodic_table.json']},
     include_package_data=True,
-    # install_requires=['pymatgen'], ruamel.yaml, monty.json
+    install_requiers=["ruamel.yaml>=0.15.6","monty>=0.9.6","numpy>=1.9","scipy>=0.14"]
     ) 
 
