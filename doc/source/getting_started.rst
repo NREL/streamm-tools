@@ -34,7 +34,7 @@ You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_
 
 
 Next, we need to define the connectivity of structure by guessing a
-:claass:`neighbor list <streamm.structures.nblist.NBlist>` based on the
+:class:`neighbor list <streamm.structures.nblist.NBlist>` based on the
 `bonded_radius <streamm.structures.particle.Particle.bonded_radius>` of each :class:`Particle <streamm.structures.particle.Particle>`. 
     
 .. code :: python 
