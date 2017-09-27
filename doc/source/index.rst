@@ -14,10 +14,10 @@
 STREAMM
 #######
 
-The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python module that generates structures,
-input files for quantum chemical and molcular dynamics codes.
-STREAMM does not directly conduct simulations, rather it is ment to drive and connect
-quantum chemical and molecular dynamics codes to allow for high-throughput compulational analysis of materials. 
+ The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python package that generates structures, input files for quantum chemical and molecular dynamics codes.
+ STREAMM does not directly conduct simulations rather it is meant to drive quantum chemical and molecular dynamics codes to allow for high-throughput computational analysis of materials.
+ The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_ and was written using the core modules of the `pymatgen <http://pymatgen.org/>`_ code as the initial core modules.
+
 
 :STREAMM: Copyright (C) 2015, Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf.
 :Website: `<http://github.com/NREL/streamm-tools>`_
@@ -29,9 +29,11 @@ Install the python package with pip::
 
     $ pip install streamm
 
-Access the streamm modules with::
+Access the streamm modules with
 
-    $ import streamm
+.. code:: python
+
+    import streamm
     
 This will allow access to the streamm modules.
 
@@ -43,6 +45,7 @@ Contents
      
     installation_instructions.rst 
     getting_started.rst
+    how_to.rst
     examples.rst
     api_documentation.rst
     publication_highlights.rst
@@ -53,15 +56,15 @@ Release Notes
 v0.3.1 -- September 2017
 ========================
 
-* Split up modules into directories
-* Create tests for each module in the directory tests/
 * Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
+* Create tests for each module in the directory tests/
+* Split up modules into directories
 * Move functions dependent on mpi to util directory
 
 v0.3.0 -- August 2017
 ======================
 
-* Major update to code structure allowing for `python setup.py` installation 
+* Update the structure of the code to allow `setup.py` installation 
 
 
 v0.2.0 -- August 28 2015 

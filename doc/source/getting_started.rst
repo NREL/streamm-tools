@@ -10,15 +10,17 @@ Getting started
 
 The streamm package includes modules to manipulate atomic structures,
 keep track of force field parameters and write input
-files for Quantum chemistry codes such as
+files for Quantum chemistry codes, such as
 `NWChem <http://www.nwchem-sw.org/index.php/Main_Page>`_
 and `Gaussian <http://gaussian.com/>`_ molecular dynamics codes
 such as `LAMMPS <http://lammps.sandia.gov/>`_.
 
+To get started we will first build ethane out of two methanes using the :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` object.
+While this is a simple example, it is meant to illustrate the functionality of the streamm code to construct organic structures form building block units.
+In practice, this functionality allows for the combinatorial creation and analysis millions of variations of organic structures.
 
-First, let us create a
-streamm :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
-of methane from scratch.
+To create a :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>`
+object representing methane, we will create carbon and hydrogen particles objects and add them to the methane object with the correct positions.
 
 .. code :: python 
 
@@ -32,10 +34,10 @@ of methane from scratch.
     methane.add_partpos(H,[-0.69,0.69,-0.69])
     methane.add_partpos(H,[0.69,-0.69,-0.69])
 
-You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_
-and export a `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_ file,
-then read the `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_
-file into a streamm :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`  object.
+
+You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_ to create an organic structure, see the :ref:`read_xyz` for more information. 
+
+
 Next, build a neighbor list based on
 the `bonded_radius <pymatgen_core.core.units.Particle.bonded_radius>`
 of each `Particle <streamm.structures.particle.Particle>`,
