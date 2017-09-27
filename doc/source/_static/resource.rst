@@ -1,25 +1,9 @@
-.. _resource:
-
-resource
-========
-
-.. code:: python
-
-    %load_ext autoreload
-    %autoreload 2
-
-
-.. parsed-literal::
-
-    The autoreload extension is already loaded. To reload it, use:
-      %reload_ext autoreload
-
 
 .. code:: python
 
     from pprint import pprint
 
-In this example we will use the resouce object to keep track of file
+In this example, we will use the resource object to keep track of file
 locations
 
 .. code:: python
@@ -39,13 +23,13 @@ This reads in the current directory as the root directory for a project
 
 .. parsed-literal::
 
-    {u'home': '/Users/tkemper/Development/streamm-tools/examples',
-     u'launch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
-     u'materials': u'/Users/tkemper/Development/streamm-tools/examples/materials',
-     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
-     u'scripts': u'/Users/tkemper/Development/streamm-tools/examples/scripts',
-     u'storage': u'/Users/tkemper/Development/streamm-tools/examples/storage',
-     u'templates': u'/Users/tkemper/Development/streamm-tools/examples/templates'}
+    {u'home': '/Users/tkemper/Development/STREAMM/streamm-tools/examples',
+     u'launch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch',
+     u'materials': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/materials',
+     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch',
+     u'scripts': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scripts',
+     u'storage': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/storage',
+     u'templates': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/templates'}
 
 
 These directories can be created using the make\_dir() function
@@ -57,5 +41,4 @@ These directories can be created using the make\_dir() function
 Then the ``Calculation`` object can use the location of these
 directories and files within them to copy files to the correct locations
 
-Meh, whatever..
-
+Meh, whatever.

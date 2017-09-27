@@ -1,8 +1,3 @@
-.. _units:
-
-
-units
-=====
 
 .. code:: python
 
@@ -109,7 +104,24 @@ To convert units of energy
     Conversion of 37.5 kCalmol to kJmol is 156.9 kJmol
 
 
-We have special units for bond streaching of energy/length^2
+.. code:: python
+
+    value = 1.0 
+    old_unit = 'eV'
+    for new_unit in ['Ha','J','wavenumber','kJmol','kCalmol']:
+        print "Conversion of {} {} to {} is {}".format(value,old_unit,new_unit,Unit_instance(value,old_unit).to(new_unit))
+
+
+.. parsed-literal::
+
+    Conversion of 1.0 eV to Ha is 0.03674932248 Ha
+    Conversion of 1.0 eV to J is 1.6021766208e-19 J
+    Conversion of 1.0 eV to wavenumber is 8065.5440048 wavenumber
+    Conversion of 1.0 eV to kJmol is 96.4853328825 kJmol
+    Conversion of 1.0 eV to kCalmol is 23.0605480121 kCalmol
+
+
+We have special units for bond stretching of energy/length^2
 
 .. code:: python
 
@@ -128,22 +140,4 @@ We have special units for bond streaching of energy/length^2
     Conversion of 367.0 kCalmolsqang to kJmolsqnm is 153552.8 kJmolsqnm
 
 
-.. code:: python
-
-    value = 1.0 
-    old_unit = 'eV'
-    for new_unit in ['Ha','J','wavenumber','kJmol','kCalmol']:
-        print "Conversion of {} {} to {} is {}".format(value,old_unit,new_unit,Unit_instance(value,old_unit).to(new_unit))
-
-
-.. parsed-literal::
-
-    Conversion of 1.0 eV to Ha is 0.03674932248 Ha
-    Conversion of 1.0 eV to J is 1.6021766208e-19 J
-    Conversion of 1.0 eV to wavenumber is 8065.5440048 wavenumber
-    Conversion of 1.0 eV to kJmol is 96.4853328825 kJmol
-    Conversion of 1.0 eV to kCalmol is 23.0605480121 kCalmol
-
-
-Well that's handy
-
+Well, that's handy!

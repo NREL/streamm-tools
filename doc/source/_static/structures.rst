@@ -1,20 +1,14 @@
-.. _structures:
-
-structures
-==========
 
 This notebook imports the fundamental objects of the streamm.structure
 module and goes through the functionality of each
 
 .. code:: python
 
-    %load_ext autoreload
-    %autoreload 2
-
-.. code:: python
-
     from pprint import pprint 
     import copy
+
+Set up a log file for this example so we can read what exactly streamm
+is doing, if we feel like it.
 
 .. code:: python
 
@@ -49,13 +43,13 @@ Assign the carbon element to the particle
 
     p_i.set_element('C')
 
-Check that the element properties were set to the particle
-
 Let's oxidize the carbon just to make the charge non-zero
 
 .. code:: python
 
     p_i.charge = -1.0
+
+Check that the element properties were set to the particle
 
 .. code:: python
 
@@ -73,7 +67,7 @@ Let's oxidize the carbon just to make the charge non-zero
      nonbonded_radius:1.7 (ang)
 
 
-Say we want to chage the units to SI
+Say we want to change the units to SI
 
 Let's look at the current units of the particle instance
 
@@ -131,13 +125,13 @@ Create a dictionary with new units
      type:atom 
      label:C1
      symbol:C
-     mass:3.31181829123e-53 (kg)
-     charge:-2.56696992424e-38 (C)
-     bonded_radius:6.7e-21 (m)
-     nonbonded_radius:1.7e-20 (m)
+     mass:1.99442362477e-26 (kg)
+     charge:-1.6021766208e-19 (C)
+     bonded_radius:6.7e-11 (m)
+     nonbonded_radius:1.7e-10 (m)
 
 
-That's cool but we should stick with the default units values, so let's
+That's cool, but we should stick with the default units values, so let's
 change them back
 
 .. code:: python
@@ -381,7 +375,7 @@ Looks good, you should have the geometry of a methane molecule with a
 C-H bond length of 1.2 Angstroms
 
 However, we have not told streamm about the bonds. There are a few ways
-to do this, let's do it explictly with the Bond object fist.
+to do this, let's do it explicitly with the Bond object fist.
 
 .. code:: python
 
@@ -412,7 +406,7 @@ Now add the bond to the bonds dictionary in the structure container
 Neat, but adding all the bonds, bond angles and dihedrals explicitly
 would be pretty tedious, so let's use some functions to do that.
 
-First let's guess the ``bonded_nblist`` of the molecule based on the
+First, let's guess the ``bonded_nblist`` of the molecule based on the
 ``bonded_radius`` of each particle (atom)
 
 .. code:: python
@@ -445,8 +439,8 @@ variables
 
 
 Looking at the ``index`` for particle 0, we get that it has neighbors in
-the ``list`` from 0:3 (index[0]:index[0+1]-1). There for we know
-particle 0 has [1, 2, 3, 4] for nieghbors.
+the ``list`` from 0:3 (index[0]:index[0+1]-1). Therefore we know
+particle 0 has [1, 2, 3, 4] for neighbors.
 
 .. code:: python
 
@@ -458,7 +452,7 @@ particle 0 has [1, 2, 3, 4] for nieghbors.
     4
 
 
-Now we can used the bonded neighbor list to construct the bonds,bond
+Now we can use the bonded neighbor list to construct the bonds, bond
 angles and dihedrals
 
 .. code:: python
@@ -543,7 +537,7 @@ Find groups based on residue variable
 Looks good. We have two groups in the group container, the first with
 the carbon particle index 0 and the rest are the hyrdogens.
 
-Now lets change the units
+Now let's change the units
 
 .. code:: python
 
@@ -558,14 +552,14 @@ Check the positions
 
 .. parsed-literal::
 
-    [[    0.             0.             0.        ]
-     [ 6928.20323028  6928.20323028  6928.20323028]
-     [-6928.20323028 -6928.20323028  6928.20323028]
-     [-6928.20323028  6928.20323028 -6928.20323028]
-     [ 6928.20323028 -6928.20323028 -6928.20323028]]
+    [[  0.          0.          0.       ]
+     [ 69.2820323  69.2820323  69.2820323]
+     [-69.2820323 -69.2820323  69.2820323]
+     [-69.2820323  69.2820323 -69.2820323]
+     [ 69.2820323 -69.2820323 -69.2820323]]
 
 
-Check the particle bond radi
+Check the particle bond radii
 
 .. code:: python
 
@@ -575,12 +569,11 @@ Check the particle bond radi
 
 .. parsed-literal::
 
-    atom[0] C1 (C) 6700.0
-    atom[1] H1 (H) 5300.0
-    atom[2] H2 (H) 5300.0
-    atom[3] H3 (H) 5300.0
-    atom[4] H4 (H) 5300.0
+    atom[0] C1 (C) 67.0
+    atom[1] H1 (H) 53.0
+    atom[2] H2 (H) 53.0
+    atom[3] H3 (H) 53.0
+    atom[4] H4 (H) 53.0
 
 
 Cool beans bro!
-

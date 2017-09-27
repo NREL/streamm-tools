@@ -1,8 +1,3 @@
-.. buildingblocks:
-
-buildingblocks
-==============
-
 
 This notebook imports the fundamental objects of the
 streamm.buildingblocks module and goes through the functionality of each
@@ -27,6 +22,12 @@ Create a particle object with tag methane
 
     print(mol_i)
 
+
+.. parsed-literal::
+
+     methane
+
+
 You can read in the .xyz file from the structures example or create a
 methane geometry using a molecular viewer such as Avogadro
 (https://avogadro.cc/)
@@ -45,16 +46,28 @@ Check that all the particles have been read in
 
     print mol_i.n_particles
 
+
+.. parsed-literal::
+
+    5
+
+
 Check that the neighbor list was set correctly
 
 .. code:: python
 
     print mol_i.bonded_nblist
 
+
+.. parsed-literal::
+
+     NBlist of 5 particle with 8 connections
+
+
 Looks good, you should have the geometry of a methane molecule with a
 C-H bond length of 1.2 Angstroms
 
-We want to use the functionality of the buildingblock object to join
+We want to use the functionality of the buildingblock object to join two
 methane's together to create alkyl chains of any length
 
 So let's set two of the hydrogens to be reactive sites (rsites).
@@ -66,7 +79,7 @@ uses 0 - N-1
 We will choose the first two hydrogens and set their rsite variable to
 'RH'. It does not matter what this identifier is, as long as the same
 identifier is passed to the attach() function later. Also, if the
-identifiers are not unique the order in which it appears in the
+identifiers are not unique, the order in which it appears in the
 particles list will also be used.
 
 .. code:: python
@@ -87,6 +100,14 @@ be used by the attach() function
 .. code:: python
 
     print mol_i.show_rsites()
+
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom[1] H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom[2] H (H) index:2 n_bonds:1] 
+    
+
 
 Pass the molecule to the attach function and set the rsite id's and the
 list positions of the rsites
@@ -118,9 +139,9 @@ Then apply a shift to set the bond length
     CC_bl = mol_i.particles[0].bonded_radius*2.0
     mol_k.shift_pos([CC_bl,0.0,0.0])
 
-Then apply a rotation to set the conformermation to staggered. Use a
-180.0 degree rotation to place the reactive site in the correct
-orientation for subsequent attachments.
+Then apply a rotation to set the conformation to staggered. Use a 180.0
+degree rotation to place the reactive site in the correct orientation
+for subsequent attachments.
 
 .. code:: python
 
@@ -147,7 +168,15 @@ orientation for subsequent attachments.
 
     print mol_m.show_rsites()
 
-Attachements can also be done in a loop
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom[1] H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom[5] H (H) index:5 n_bonds:1] 
+    
+
+
+Attachments can also be done in a loop
 
 .. code:: python
 
@@ -156,6 +185,12 @@ Attachements can also be done in a loop
 .. code:: python
 
     print alkly_n
+
+
+.. parsed-literal::
+
+    5
+
 
 .. code:: python
 
@@ -168,6 +203,14 @@ Attachements can also be done in a loop
 .. code:: python
 
     print mol_n.show_rsites()
+
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom[1] H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom[5] H (H) index:5 n_bonds:1] 
+    
+
 
 .. code:: python
 
@@ -182,4 +225,4 @@ Attachements can also be done in a loop
 
     mol_n.write_xyz()
 
-Oh so alkyl!
+Oh, so alkyl!

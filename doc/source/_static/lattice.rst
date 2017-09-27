@@ -1,7 +1,3 @@
-.. _lattice:
-
-Lattice
-=======
 
 .. code:: python
 
@@ -60,9 +56,9 @@ The lattice also has lattice constants
 
 Which are returned as [a,b,c,alpha,beta,gamma]
 
-We can calculate the distance between to points in the lattice
+We can calculate the distance between two points in the lattice
 
-Let's turn Periodic boundary conditions
+Let's turn on periodic boundary conditions
 
 .. code:: python
 
@@ -148,14 +144,41 @@ To set to a triclinic lattice
     print lat.constants
     print lat.unit_conf['length']
 
+
+.. parsed-literal::
+
+    [[ 10.39230485   0.          -6.        ]
+     [  3.91349423   5.71704145   4.        ]
+     [  0.           0.          15.        ]]
+    [12.0, 8.0, 15.0, 60.0, 120.0, 80.0]
+    ang
+
+
+Let's turn pbcs's back on and calculate the distance
+
+.. code:: python
+
+    lat.pbcs = [True,True,True]
+
 .. code:: python
 
     print pos_i,pos_j
+
+
+.. parsed-literal::
+
+    [25.0, 25.0, 25.0] [-50.0, 25.0, 25.0]
+
 
 .. code:: python
 
     dr_ij,mag_dr_ij =  lat.delta_pos(pos_i,pos_j)
     print dr_ij,mag_dr_ij
+
+
+.. parsed-literal::
+
+    [-2.25386608  0.          3.        ] 3.75232092392
 
 
 Change the units to ``nm``
@@ -170,6 +193,16 @@ Change the units to ``nm``
     print lat.constants
     print lat.unit_conf['length']
 
+
+.. parsed-literal::
+
+    [[ 1.03923048  0.         -0.6       ]
+     [ 0.39134942  0.57170414  0.4       ]
+     [ 0.          0.          1.5       ]]
+    [1.2, 0.79999999999999993, 1.4999999999999998, 60.0, 120.0, 80.0]
+    nm
+
+
 If you need your angles in radians
 
 .. code:: python
@@ -182,8 +215,14 @@ If you need your angles in radians
     print lat.constants
     print lat.unit_conf['length'],lat.unit_conf['angle']
 
+
+.. parsed-literal::
+
+    [[ 1.03923048  0.         -0.6       ]
+     [ 0.39134942  0.57170414  0.4       ]
+     [ 0.          0.          1.5       ]]
+    [1.2, 0.79999999999999993, 1.4999999999999998, 1.0471975511965976, 2.0943951023931953, 1.3962634015954636]
+    nm radian
+
+
 Cool, aye!
-
-.. code:: python
-
-    lat = 

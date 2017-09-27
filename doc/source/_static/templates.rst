@@ -1,9 +1,5 @@
-..  _templates:
 
-Templates
-==========
-
-In this example we will write out a NWChem input file based on a
+In this example, we will write out a NWChem input file based on a
 template
 
 .. code:: python
@@ -19,7 +15,7 @@ template
     import os 
     from pprint import pprint
 
-First we need to set the location of them templates directory cloned
+First, we need to set the location of the templates directory cloned
 from http://github.com/NREL/streamm-tools
 
 If you are running this example in the examples directory in the
@@ -34,6 +30,13 @@ streamm-tools repo, the TEMPLATE\_DIR should look like this
     TEMPLATE_DIR =  os.path.join(EXAMPLE_DIR,'..','templates','')
     
     print(TEMPLATE_DIR)
+
+
+.. parsed-literal::
+
+    /Users/tkemper/Development/STREAMM/streamm-tools/examples
+    /Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/
+
 
 If not please set the ``TEMPLATE_DIR`` variable to the location of the
 templates
@@ -50,11 +53,13 @@ Create a NWChem calculation object
 
     nwchem = streamm.NWChem('ethane_nw_sp')
 
-Read in the ethane strcuture we creating in the buildingblocks example.
+Read in the ethane structure we creating in the buildingblocks example.
 
 .. Note::
 
-    If you have not ran the buildingblocks.ipynb example please do so the create a `.xyz` file.
+::
+
+    If you have not run the buildingblocks.ipynb example, please do so the create a `.xyz` file
 
 .. code:: python
 
@@ -65,7 +70,7 @@ Read in the ethane strcuture we creating in the buildingblocks example.
 
 .. parsed-literal::
 
-    16
+    8
 
 
 Get the location of the template file
@@ -140,14 +145,14 @@ Do a string replace of the dictionary keys to create an input string
 
     start test
      geometry GEOM units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+         C       1.34000000      -0.00000000       0.00000000 
+         H       1.74000000      -0.00000000      -1.13137084 
+         H       1.74000000       0.97979589       0.56568542 
+         H       1.74000000      -0.97979589       0.56568542 
          C       0.00000000       0.00000000       0.00000000 
-         H       0.40000000      -0.00000000       1.13137084 
-         H       0.40000000      -0.97979589      -0.56568542 
-         H       0.40000000       0.97979589      -0.56568542 
-         C      -1.34000000       0.00000000       0.00000000 
-         H      -1.74000000       0.00000000       1.13137084 
-         H      -1.74000000      -0.97979589      -0.56568542 
-         H      -1.74000000       0.97979589      -0.56568542 
+         H      -0.40000000       0.00000000       1.13137084 
+         H      -0.40000000      -0.97979589      -0.56568542 
+         H      -0.40000000       0.97979589      -0.56568542 
     end
     
     
@@ -174,5 +179,4 @@ Do a string replace of the dictionary keys to create an input string
         F.write(input_str)
 
 
-Easy peasy
-
+Easy peasy!
