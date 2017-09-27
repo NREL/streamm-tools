@@ -1,3 +1,8 @@
+.. _templates:
+
+templates
+==========
+
 
 In this example, we will write out a NWChem input file based on a
 template
@@ -56,8 +61,6 @@ Create a NWChem calculation object
 Read in the ethane structure we creating in the buildingblocks example.
 
 .. Note::
-
-::
 
     If you have not run the buildingblocks.ipynb example, please do so the create a `.xyz` file
 

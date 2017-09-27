@@ -24,5 +24,5 @@ The upper case examples go through more advanced workflows.
 .. toctree::
     :maxdepth: 2
      
-    _static/Project_alkyl.rst
+    _static/Project_alkyls.rst
 
