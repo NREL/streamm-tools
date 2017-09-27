@@ -220,11 +220,13 @@ class Calculation(object):
             with open(file_name) as F:
                 lines = F.readlines()
                 F.close()
-                
+            
+            return ''.join(lines)
+        
         except IOError:
             logger.info(" File not found %s "%(file_name))
         
-        return '\n'.join(lines)
+        return ''
     
         
     def load_str(self,file_type,file_key):
