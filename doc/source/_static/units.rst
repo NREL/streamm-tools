@@ -1,7 +1,7 @@
 .. _units:
 
 
-Units
+units
 =====
 
 .. code:: python

@@ -3,7 +3,7 @@
 Examples
 ********
 
-The follow examples are included in the `github repo <github.com/NREL/streamm-tools>`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
+The following examples are included in the `github repo <github.com/NREL/streamm-tools>`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
 
 The lower case examples go through the basic functionality of each module.
 
@@ -15,10 +15,11 @@ The lower case examples go through the basic functionality of each module.
     _static/structures.rst
     _static/buildingblocks.rst
     _static/forcefields.rst
+    _static/templates.rst
     _static/calculations.rst
     _static/resource.rst    
 
-The upper case examples go through more adanced workflows.
+The upper case examples go through more advanced workflows.
 
 .. toctree::
     :maxdepth: 2

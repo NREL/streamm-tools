@@ -16,8 +16,8 @@ You can generate a :class:`streamm.Buildingblock <streamm.structures.buildingblo
     If you use Avogadro there are fragments in `Build>Insert>Fragment`
 
 
-Once you have created your structure export it in the `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_  format.
-Either place the `.xyz` file in the working directory of your project, or navigate to its location using the `os.chdir()` command.
+Once you have created your structure export it in the `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_  format,
+either place the `.xyz` file in the working directory of your project or navigate to its location using the `os.chdir()` command.
 The structure can be read in with the :func:`read_xyz() <streamm.structures.structure.Structure.read_xyz>`
 by creating an empty object and either setting the `tag` of the object to the same name as prefix of the `.xyz` file
 
@@ -39,7 +39,7 @@ or using the keyword `xyz_file` can be used to set the file name.
 Change units
 ============
 
-The units of object properties can be changed with the :func:`update_units() <pymatgen_core.core.units.ObjectUnits.update_units>`.
+You can change the units of object properties with the :func:`update_units() <pymatgen_core.core.units.ObjectUnits.update_units>` function.
 This function takes a dictionary with the unit type as the key and the new unit to be used as the value.
 For example, the units of a Buildingblock can be changed to `nm` by running
 
