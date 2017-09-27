@@ -83,6 +83,10 @@ class Buildingblock(Structure):
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
         units_conf (dict): Dictionary of units for each attribute type
+
+    .. TODO ..
+	* Run the find_rsites() function in the attach() function
+
     """    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf):
         Structure.__init__(self, tag=tag, matrix=matrix,unit_conf=unit_conf )

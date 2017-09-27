@@ -45,6 +45,7 @@ Contents
      
     installation_instructions.rst 
     getting_started.rst
+    functionality.rst
     how_to.rst
     examples.rst
     api_documentation.rst

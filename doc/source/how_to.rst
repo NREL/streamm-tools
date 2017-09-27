@@ -10,9 +10,10 @@ Read `.xyz`
 
 The easiest way to create an organic structure to read into streamm is to use a molecular viewer,such as `Avogadro <https://avogadro.cc/>`_
 You can generate a :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` structure by inserting and connecting atoms or importing fragments.
+
 .. Note::
 
-If you use Avogadro there are fragments in Build>Insert>Fragment 
+    If you use Avogadro there are fragments in `Build>Insert>Fragment`
 
 
 Once you have created your structure export it in the `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_  format.
@@ -31,7 +32,6 @@ or using the keyword `xyz_file` can be used to set the file name.
 .. code:: python
 
     mol101.read_xyz(xyz_file='mol101.xyz')
-
 
 
 .. _change_units:
