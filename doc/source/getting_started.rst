@@ -3,11 +3,6 @@
 Getting started
 ***************
 
-.. TODO ::
-    
-    Add unit_conf
-    
-
 The streamm package includes modules to manipulate atomic structures,
 keep track of force field parameters and write input
 files for Quantum chemistry codes, such as

@@ -211,6 +211,22 @@ class Calculation(object):
         os.system(bash_command)
 
 
+    def read_lines(self,file_name):
+        '''
+        Read in file 
+        '''
+
+        try:
+            with open(file_name) as F:
+                lines = F.readlines()
+                F.close()
+                
+        except IOError:
+            logger.info(" File not found %s "%(file_name))
+        
+        return '\n'.join(lines)
+    
+        
     def load_str(self,file_type,file_key):
         '''
         Read in a file as string and store in dictionary
@@ -222,28 +238,32 @@ class Calculation(object):
         '''
         
         file_name = self.files[file_type][file_key]
-        try:
-            with open(file_name) as F:
-                self.str[file_key] = ''
-                lines = F.readlines()
-                F.close()
-                for line in lines:
-                    self.str[file_key] += line
+        
+        self.str[file_key] = self.read_lines(file_name)
+        
+    def replace_keys(self,input_str,input_dic):
+        '''
+        Replace <key> in string with key value from dictionary
+        
+        '''
+        
+        new_str = copy.deepcopy(input_str)
+        # Replace some special values 
+        
+        for propkey,prop_i in input_dic.iteritems():
+                prop_replace = "<%s>"%(propkey)
+                new_str = replace(new_str,prop_replace,str(prop_i))
 
-        except IOError:
-            logger.info(" File not found %s "%(file_name))
-
+        return new_str
+            
     def replace_prop(self,str_key):
         '''
         Replace properties in string with values from properties dictionary 
         '''
-        new_str = copy.deepcopy(self.str[str_key])
-        # Replace some special values 
-        new_str = replace(new_str,"<tag>",self.tag)
         
-        for propkey,prop_i in self.properties.iteritems():
-                prop_replace = "<%s>"%(propkey)
-                new_str = replace(new_str,prop_replace,str(prop_i))
+        new_str = self.replace_keys(self.str[str_key],self.properties)
+        # Replace tag too
+        new_str = replace(new_str,"<tag>",self.tag)
 
         return new_str
 
