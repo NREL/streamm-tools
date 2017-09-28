@@ -327,7 +327,7 @@ class Lattice(units.ObjectUnits):
             dr_ij (list): cartesian vector [x,y,z] between position i and j
             
         If pbcs are set to true this calculates the fractional coordinates according to the
-        inverse of the matrix multipled by the postion 
+        inverse of the matrix multiplied by the position 
         
         .. math ::
         

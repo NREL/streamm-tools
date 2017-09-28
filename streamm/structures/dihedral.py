@@ -19,7 +19,7 @@ This module defines the classes relating to the dihedral angles between atoms
 import pymatgen_core.core.units as units 
 
 class Dihedral(units.ObjectUnits):
-    """Data structure for describing any 4-point associatiaon of Particles
+    """Data structure for describing any 4-point associations of Particles
 
     Args:
         pkey1   (int)   Index of Particle object in dihedral

@@ -165,7 +165,7 @@ class Group(units.ObjectUnits):
         Center of mass of the molecule
         
         .. math::
-            r_{cmas} = \\frac(\sum_i r_i*mass_i)(\sum_i mass_i) 
+            r_{cmas} = \\frac{ \sum_i r_i*mass_i }{ \sum_i mass_i }
 
         where ``r_i`` is the position of particle i and ``mass_i`` is it's mass 
 
@@ -203,7 +203,7 @@ class Group(units.ObjectUnits):
          .. math::
             Q(m,n) = \\frac{ \sum_i  (r_i^m - r_{cmas}^m ) (r_i^n - r_{cmas}^n ) }{ \sum_i }
 
-        where m amd n are component of the r vector
+        where m and n are component of the r vector
         
         Cite:``Blavatska, Shape anisotropy of polymers in disordered environment, 2010``
         
@@ -351,7 +351,7 @@ class Group(units.ObjectUnits):
 
 
         
-        Choose vector cros_ik normal to plane of i,j and one nieghbor of j 
+        Choose vector cros_ik normal to plane of i,j and one neighbor of j 
         
         ::
             
@@ -634,7 +634,7 @@ class Groups(units.ObjectUnits):
     Set of groups within a structure.containers.Container
     
     Args:
-        tag (str): Identifyer of colection of groups
+        tag (str): Identifier  of collection  of groups
         strucC (structures.container.Container): Reference structure Container
         
     .. TODO ::
@@ -962,9 +962,9 @@ class Groups(units.ObjectUnits):
         nblist_i.cnt = -1
         
         if( radius_type == 0 ):
-            logger.info("Guessing nieghbor list using the covalent radius of the particles element ")
+            logger.info("Guessing neighbor list using the covalent radius of the particles element ")
         elif( radius_type == 1 ):
-            logger.info("Guessing nieghbor list using the Van der Waals radius of the particles element ")
+            logger.info("Guessing neighbor list using the Van der Waals radius of the particles element ")
         else:
             error_msg = 'Argument "radius_type" needs to be an integer of 0 or 1'
             error_msg += "\n Returning Empty NBlist object "

@@ -4,7 +4,7 @@
 Tasks
 =====
 
-* 0.3.3 functionality
+* 0.3.2 functionality
     * Read NWChem output file
         * Get NWChem ESP calculation working on peregrine	4
         * Write parser for outputfile	8
@@ -33,7 +33,7 @@ Tasks
 +------------------------+------------+
 | Taks                   | Time/hrs   |
 +========================+============+
-| 0.3.3 functionality    | 60         |
+| 0.3.2 functionality    | 60         |
 +------------------------+------------+
 | Examples               | 104        |
 +------------------------+------------+

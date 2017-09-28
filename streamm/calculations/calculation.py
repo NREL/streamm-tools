@@ -465,7 +465,7 @@ class Calculation(object):
         '''
         Copy input, output and data of simulation to storage. 
         
-        This assumes storage is accesable by cp from ssh resource
+        This assumes storage is accessible by cp from ssh resource
         
         '''
         if( self.meta['status'] == 'finished' ):
@@ -552,7 +552,7 @@ class Calculation(object):
         Create new parameter container to hold each unique type.
         
         This is necessary for parameter outputs to no have
-        redundent values.
+        redundant values.
         
            
         '''
@@ -941,7 +941,7 @@ class Calculation(object):
                     '''
                     Remove for now 
                     if( norm_dihparam ):
-                        # normalize by number of nieghbors
+                        # normalize by number of neighbors
                         dihen_norm = 1.0
                         if( debug):
                             logger.info(" Normalizing dihedral potential "
@@ -1109,7 +1109,7 @@ class Calculation(object):
                     '''
                     norm_impdihparam = False 
                     if( norm_impdihparam ):
-                        # normalize by number of nieghbors
+                        # normalize by number of neighbors
                         dihen_norm = 1.0
                         if( debug):
                             logger.info(" Normalizing dihedral potential "

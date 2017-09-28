@@ -40,7 +40,7 @@ class NBlist(object):
     
     The ``list`` would be ``[1,0,2,1,3,4,2,2]`` and the ``index`` would be ``[0,1,3,6,7,8]``.
     So if we want the neighbor indexes of particle ``2``,
-    we get the beginning position in ``list`` from ``index[2]`` to be 3 and the ending positin in ``list``
+    we get the beginning position in ``list`` from ``index[2]`` to be 3 and the ending position in ``list``
     for  ``index[2+1]-1`` to be 5. This gives us the neighbor list of particle ``1`` to be ``[1,3,4]``.
     """
     def __init__(self):

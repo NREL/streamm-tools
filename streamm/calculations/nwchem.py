@@ -80,7 +80,7 @@ class electrontransfer(object):
                             
 class NWChem(CalculationRes):
     """
-    Dervied class implementing input/output methods Gaussian
+    Derived class implementing input/output methods Gaussian
     """
     def __init__(self, tag , verbose=False):
         """

@@ -420,9 +420,9 @@ class Structure(units.ObjectUnits):
         nblist_i.cnt = -1
         
         if( radius_type == 0 ):
-            logger.info("Guessing nieghbor list using the covalent radius of the particles element ")
+            logger.info("Guessing neighbor list using the covalent radius of the particles element ")
         elif( radius_type == 1 ):
-            logger.info("Guessing nieghbor list using the Van der Waals radius of the particles element ")
+            logger.info("Guessing neighbor list using the Van der Waals radius of the particles element ")
         else:
             error_msg = 'Argument "radius_type" needs to be an integer of 0 or 1'
             error_msg += "\n Returning Empty NBlist object "
@@ -478,7 +478,7 @@ class Structure(units.ObjectUnits):
             key_update[pkey_i]  = new_strucC.n_particles -1
             
         if( len(self.bonded_nblist.index) > 0 ):
-            # Update bonded nieghbor list
+            # Update bonded neighbor list
             new_strucC.bonded_nblist = NBlist() 
             for pkey_i in pkeys:
                 new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
@@ -2061,7 +2061,7 @@ class Structure(units.ObjectUnits):
         volumes.append(self.volume)
         
         for ref_i in range(N_i):
-            a_i_hasnieghbor = False
+            a_i_hasneighbor = False
             r_ij_nn = r_cut   # Nearest Neighbor distance  
             for ref_j in range(N_j):
                 logger.debug(" Checking pair %d - %d dr %f  pp %f "%(ref_i,ref_j,dist[ref_i,ref_j],pairvalue_ij[ref_i][ref_j] ))
@@ -2075,13 +2075,13 @@ class Structure(units.ObjectUnits):
 
                         logger.debug(" %f %f "%(bin_r[bin_index] , pairvalue_ij[ref_i][ref_j]))
                         # Find nearest neighbor distance 
-                        a_i_hasnieghbor = True
+                        a_i_hasneighbor = True
                         if( dist[ref_i,ref_j] < r_ij_nn ):
                             r_ij_nn = dist[ref_i,ref_j]
                             p_ij_nn = pairvalue_ij[ref_i][ref_j]
                             
             # Record nearest neighbor distance 
-            if( a_i_hasnieghbor ):
+            if( a_i_hasneighbor ):
                 bin_nn_index = int( round( r_ij_nn /bin_size) )
                 bin_r_nn[bin_nn_index] += p_ij_nn
 

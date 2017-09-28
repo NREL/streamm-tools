@@ -136,18 +136,18 @@ class Buildingblock(Structure):
 
     def get_rsite(self,rsite_i,n_i=0,Xn_i=0):
         '''
-        Get particle key of reactive site and the paricle key of it's Xn_i connected neighbor 
+        Get particle key of reactive site and the particle key of it's Xn_i connected neighbor 
         
         Args:
             rsite_i   (str) Reactive site type
             
         Kwargs:
             n_i       (int) index of reactive site within in list of 
-            Xn_i      (int) nieghbor number of reactive site 
+            Xn_i      (int) neighbor number of reactive site 
 
         Return:
             Rkey  - the particle to be replaced
-            XKey  - the nieghbor Xn_i of the particle to be replaced
+            XKey  - the neighbor Xn_i of the particle to be replaced
             
         '''
         cnt_i = 0
@@ -176,7 +176,7 @@ class Buildingblock(Structure):
             
                              y
                              ^
-                             |      key_k (First non H nieghbor of i)
+                             |      key_k (First non H neighbor of i)
                              |    / 
             x <---  R    - key_i
             
@@ -305,7 +305,7 @@ class Buildingblock(Structure):
             key_update[pkey_i]  = new_strucC.n_particles -1
             
         if( len(self.bonded_nblist.index) > 0 ):
-            # Update bonded nieghbor list
+            # Update bonded neighbor list
             new_strucC.bonded_nblist = structures.NBlist() 
             for pkey_i in pkeys:
                 new_strucC.bonded_nblist.index.append(new_strucC.bonded_nblist.cnt + 1)
@@ -321,7 +321,7 @@ class Buildingblock(Structure):
     
     def prepattach(self,rsite_i,n_i=0,Xn_i=0,dir=1,yangle=0.0):
         '''
-        Preppair a building block to be attached to another
+        Prepare a building block to be attached to another
 
         This is handy for batch attachments to not repeat the intial steps in the attach function
 

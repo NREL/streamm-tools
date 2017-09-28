@@ -40,7 +40,7 @@ class Project(CalculationRes):
     Data structure for a project
     
     
-    Project is a set of calcultions
+    Project is a set of calculations
     
     Projects track:
       file IO

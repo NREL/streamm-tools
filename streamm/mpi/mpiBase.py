@@ -63,7 +63,7 @@ class ParallelMsgr(object):
         ID of current processor
 
         Returns:
-            integerr rank of current processor
+            integer rank of current processor
         """
 
         return self.rank

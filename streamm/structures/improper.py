@@ -19,7 +19,7 @@ import pymatgen_core.core.units as units
 
 class Improper(units.ObjectUnits):
     """
-    Data structure for describing any 4-point associatiaon of Particles
+    Data structure for describing any 4-point association of Particles
     
     Args:
         pkey1   (int)   Dictionary key of Particle object in improper

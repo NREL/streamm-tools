@@ -66,7 +66,7 @@ class Gaussian(CalculationRes):
 
     def proc_log(self,log_file):
         '''
-        Read data from gaussian log file
+        Read data from Gaussian log file
         '''
         def ns_get(fline):
             """

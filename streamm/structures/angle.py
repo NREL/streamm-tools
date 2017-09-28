@@ -16,7 +16,7 @@ This module defines the classes relating to angles between atoms
 import pymatgen_core.core.units as units
 #
 class Angle(units.ObjectUnits):
-    """Data structure for describing any 3-point associatiaon of Particles
+    """Data structure for describing any 3-point associations of Particles
 
     Args:
         * pkey1   (int):   Index of Particle object in angle
