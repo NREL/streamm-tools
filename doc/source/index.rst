@@ -76,10 +76,16 @@ v0.2.0 -- August 28 2015
 `NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
 Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
 
-License
-=======
+Licenses
+=======+
 
 Licensed under the Apache License, Version 2.0
+
+.. toctree::
+    :maxdepth: 2
+     
+    license.rst 
+
 
 
 Referencing STREAMM
@@ -89,6 +95,8 @@ When referencing the STREAMM toolkit in publications, this website can be cited 
 
   Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf. "STREAMM (Simulation Toolkit for
   Renewable Energy and Advanced Materials Modeling)," National Renewable Energy Lab, 21 Sept. 2015. <http://github.com/NREL/streamm-tools>.
-
-Also reference the Materials genome project code pymatgen.
-
+  
+  
+Also reference the Materials genome project code pymatgen::
+    
+    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier, Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A. Persson, Gerbrand Ceder. Python Materials Genomics (pymatgen) : A Robust, Open-Source Python Library for Materials Analysis. Computational Materials Science, 2013, 68, 314–319. doi:10.1016/j.commatsci.2012.10.028
