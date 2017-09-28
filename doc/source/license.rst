@@ -1,9 +1,11 @@
 .. _license::
 
+Licenses
+========
 
 .. _streamm_license::
 
-License::
+streamm license::
     
     Copyright 2015 Alliance for Sustainable Energy, LLC
      
@@ -11,7 +13,7 @@ License::
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
     
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
     
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +22,6 @@ License::
     limitations under the License.
     
 pymatgen license::
-    
-The pymatgen license can also be found at http://pymatgen.org/#license.    
     
     The MIT License (MIT)
     Copyright (c) 2011-2012 MIT & LBNL
@@ -43,4 +43,5 @@ The pymatgen license can also be found at http://pymatgen.org/#license.
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
+The pymatgen license can also be found at `/pymatgen license <http://pymatgen.org/#license>`_
 

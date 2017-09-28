@@ -50,6 +50,7 @@ Contents
     examples.rst
     api_documentation.rst
     publication_highlights.rst
+    license.rst 
     
 Release Notes
 *************
@@ -77,7 +78,7 @@ v0.2.0 -- August 28 2015
 Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
 
 Licenses
-=======+
+========
 
 Licensed under the Apache License, Version 2.0
 
