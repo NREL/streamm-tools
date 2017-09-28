@@ -193,12 +193,12 @@ class Group(units.ObjectUnits):
 
     def calc_radius(self):
         """
-        Calculate the maximum radius and Radius of gyration (``r_gy_sq``)
+        Calculate the maximum radius and radius of gyration (``r_gy_sq``)
 
          .. math::
             r_{gy}^2 = \\frac{ \sum_i  (r_i - r_{cmas} )^2}{ \sum_i}
 
-        Gyration tensor
+        gyration tensor
 
          .. math::
             Q(m,n) = \\frac{ \sum_i  (r_i^m - r_{cmas}^m ) (r_i^n - r_{cmas}^n ) }{ \sum_i }
@@ -241,7 +241,7 @@ class Group(units.ObjectUnits):
         return
 
     def calc_asphericity(self):
-        """Calculate the eigen values of the Gyration tensor and the Asphericity.
+        """Calculate the eigen values of the gyration tensor and the asphericity,
 
         .. math::
             A_{sphere}= \\frac{ (\lambda_1 - \lambda_3)^2 + (\lambda_2 - \lambda_3)^2 - (\lambda_1 - \lambda_2)^2 }{ (\lambda_1 + \lambda_2+ \lambda_3)^2  }

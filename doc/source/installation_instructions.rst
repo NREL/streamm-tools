@@ -6,8 +6,8 @@ Installation Instructions
 The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_.
 You can install python on most systems using `Anaconda <https://www.anaconda.com/>`_.
 
-pip intall
-==========
+pip install
+===========
 
 To install the streamm package with pip run::
 
@@ -20,18 +20,18 @@ Github
 
 You can also install the streamm package from souce by cloning the `Github <https://github.com/>`_ repo::
 
-    $ git clone https://github.com/NREL/streamm
+    $ git clone https://github.com/NREL/streamm-tools
     
 By navigating to the package directory::
     
-    $ cd streamm
+    $ cd streamm-tools
     
 and running::
 
     $ python setup.py install 
 
-The tests can be ran using ::
+The tests can be run using ::
 
     $ python setup.py test
 
-The package is open-source and can be forked and modified from the repository `<github.com/NREL/streamm>`_.
+The package is open-source and can be forked and modified from the repository: `streamm-tools <https://github.com/NREL/streamm-tools>`_.

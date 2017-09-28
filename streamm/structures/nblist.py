@@ -28,7 +28,7 @@ class NBlist(object):
     * index (list):
     
     Where the ``list`` is a list of all neighboring indexes in sequence.
-    The ``index`` is list of the beginning of the neighbors sequence based on index.
+    The ``index`` is list of the location in ``list`` of the beginning of the neighbors sequence, such that index[2] tells us where in ``list`` the neighbors of particle 2 begin.
     
     Example:
     You have particles with indexes 0, 1, 2, 3 and 4. And the following bonds:

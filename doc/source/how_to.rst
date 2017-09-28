@@ -8,17 +8,17 @@ How To
 Read `.xyz`
 ===========
 
-The easiest way to create an organic structure to read into streamm is to use a molecular viewer,such as `Avogadro <https://avogadro.cc/>`_
+The easiest way to create an organic structure to read into streamm is to use a molecular viewer, such as `Avogadro <https://avogadro.cc/>`_.
 You can generate a :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` structure by inserting and connecting atoms or importing fragments.
 
 .. Note::
 
-    If you use Avogadro there are fragments in `Build>Insert>Fragment`
+    If you use Avogadro there are fragments available in `Build>Insert>Fragment`
 
 
 Once you have created your structure export it in the `.xyz <https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/xyz.html>`_  format,
 either place the `.xyz` file in the working directory of your project or navigate to its location using the `os.chdir()` command.
-The structure can be read in with the :func:`read_xyz() <streamm.structures.structure.Structure.read_xyz>`
+The structure can be read in with the :func:`read_xyz() <streamm.structures.structure.Structure.read_xyz>` function
 by creating an empty object and either setting the `tag` of the object to the same name as prefix of the `.xyz` file
 
 .. code:: python

@@ -493,8 +493,6 @@ class Lattice(units.ObjectUnits):
             True: if no overlap between particles was found
             False: if overlap between particles was found
             
-        .. Todo::
-            move to utilities 
         
         """
         n_i = len(npos_i)
