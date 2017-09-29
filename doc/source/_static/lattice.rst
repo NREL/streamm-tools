@@ -97,7 +97,7 @@ If we want a tuple of the vector and the magnitude we can use
     [ 25.   0.   0.] 25.0
 
 
-We can also turn pbcs off and calculated the distance
+We can also turn pbcs off and calculate the distance
 
 .. code:: python
 

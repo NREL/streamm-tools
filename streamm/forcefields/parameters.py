@@ -114,7 +114,7 @@ class Parameters(units.ObjectUnits):
         strucStr += "      Bond parameters %d \n"%(self.n_bondtypes)
         strucStr += "      Angle parameters %d \n"%(self.n_angletypes)
         strucStr += "      Dihedral parameters %d \n"%(self.n_dihtypes)
-        strucStr += "      Imporper Dihedral parameters %d \n"%(self.n_imptypes)
+        strucStr += "      Improper Dihedral parameters %d \n"%(self.n_imptypes)
         return strucStr
 
 

@@ -489,7 +489,7 @@ angles and dihedrals
 A little easier than adding everything by hand
 
 Now let's set some groups. This is a little unnecessary for methane, but
-it will come in super helpful if you a large simulation of thousands of
+it will come in super handy if you have a large simulation of thousands of
 molecules.
 
 To do this we will set the residue variable for each particle.

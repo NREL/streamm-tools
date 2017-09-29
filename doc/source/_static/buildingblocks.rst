@@ -73,13 +73,13 @@ Looks good, you should have the geometry of a methane molecule with a
 C-H bond length of 1.2 Angstroms
 
 We want to use the functionality of the buildingblock object to join two
-methane's together to create alkyl chains of any length
+methanes together to create alkyl chains of any length
 
 So let's set two of the hydrogens to be reactive sites (rsites).
 
 You can view the numerical order of the atoms in Avogadro by setting the
-label to "atom number," however, avogadro labels for 1-N, while stream
-uses 0 - N-1
+label to "atom number," however, Avogadro labels atoms from 1 to N, while
+streamm uses 0 to N-1
 
 We will choose the first two hydrogens and set their rsite variable to
 'RH'. It does not matter what this identifier is, as long as the same

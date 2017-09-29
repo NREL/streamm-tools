@@ -23,8 +23,8 @@ Let's start with a ethane molecule from the buildingblocks.ipynb example
 
 We have an sp3 carbon bonded to hydrogens
 
-Let's create the force field parameters object for a 'CT' carbon and a
-HC hydrogen
+Let's create the force field parameters object for a 'CT' carbon and an
+'HC' hydrogen
 
 .. code:: python
 
