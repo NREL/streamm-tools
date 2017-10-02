@@ -50,7 +50,6 @@ Contents
     examples.rst
     api_documentation.rst
     publication_highlights.rst
-    license.rst 
     
 Release Notes
 *************
