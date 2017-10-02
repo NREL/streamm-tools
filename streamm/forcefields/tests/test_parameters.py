@@ -39,7 +39,7 @@ class TestParameter(unittest.TestCase):
         self.paramC = parameters.Parameters()
 
     def test_str(self):
-        empty_paramC_str = '\n    Parameters \n      LJ parameters 0 \n      Bond parameters 0 \n      Angle parameters 0 \n      Dihedral parameters 0 \n      Imporper Dihedral parameters 0 \n'
+        empty_paramC_str = '\n    Parameters \n      LJ parameters 0 \n      Bond parameters 0 \n      Angle parameters 0 \n      Dihedral parameters 0 \n      Improper Dihedral parameters 0 \n'
         self.assertEqual(str(self.paramC) ,empty_paramC_str)
 
 
