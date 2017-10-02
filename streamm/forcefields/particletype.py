@@ -23,7 +23,7 @@ class Particletype(units.ObjectUnits):
     Particle represented by a Force-field
     
     Kwargs:
-        *  (str): Forcefield key 
+        * fftype1 (str): Forcefield key 
         * units_conf (dict): Dictionary of units for each attribute type
                 
     '''
@@ -55,11 +55,11 @@ class Particletype(units.ObjectUnits):
         self._property['sigma'] = value
 
 
-    def __init__(self,='X',unit_conf=units.unit_conf):
+    def __init__(self,fftype1='X',unit_conf=units.unit_conf):
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #
-        self. = str(fftype1)
+        self.fftype1 = str(fftype1)
 
         #         
         self._property['mass'] = 1.0
@@ -78,7 +78,7 @@ class Particletype(units.ObjectUnits):
         """
         Destructor, clears structure memory and calls held container destructors
         """
-        del self.
+        del self.fftype1
         del self.lammps_index
         del self.gromacs_index
         
@@ -86,5 +86,5 @@ class Particletype(units.ObjectUnits):
         """
         'Magic' method for printng contents of container
         """
-        return " {} epsilon:{} sigma:{}".format(self.,self.epsilon,self.sigma)
+        return " {} epsilon:{} sigma:{}".format(self.fftype1,self.epsilon,self.sigma)
 
