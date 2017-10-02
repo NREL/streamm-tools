@@ -3,7 +3,7 @@
 
  The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python package that generates structures, input files for quantum chemical and molecular dynamics codes.
  STREAMM does not directly conduct simulations rather it is meant to drive quantum chemical and molecular dynamics codes to allow for high-throughput computational analysis of materials.
- The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_ and was written using the core modules of the `pymatgen <http://pymatgen.org/>`_ code as the initial core modules.
+ The streamm package is written for python2.7 (https://www.python.org/download/releases/2.7/) and was written using the core modules of the pymatgen (http://pymatgen.org/)_ code as the initial core modules.
 
 
 INSTALL
@@ -13,7 +13,7 @@ INSTALL
 pip intall
 --------------
 
-To install the streamm package with pip run::
+To install the streamm package with pip run
 
     $ pip install streamm
 
@@ -22,23 +22,23 @@ This will create an egg file and place it in your package managment directory of
 Github
 --------------
 
-You can also install the streamm package from souce by cloning the `Github <https://github.com/>`_ repo::
+You can also install the streamm package from souce by cloning the `Github <https://github.com/>`_ repo
 
     $ git clone https://github.com/NREL/streamm
     
-By navigating to the package directory::
+By navigating to the package directory
     
     $ cd streamm
     
-and running::
+and running
 
     $ python setup.py install 
 
-The tests can be ran using ::
+The tests can be ran using 
 
     $ python setup.py test
 
-The package is open-source and can be forked and modified from the repository `<github.com/NREL/streamm>`_.
+The package is open-source and can be forked and modified from the repository (github.com/NREL/streamm)
 
 
 Release Notes
@@ -63,19 +63,19 @@ v0.2.0 -- August 28 2015
 
 * Initial release
 
-`NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
+NREL (http://www.nrel.gov/) is a National Laboratory of the U.S. Department of Energy,
 Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
 
 Licenses
 ======================
 
-Streamm license::
+Streamm license
     
     Copyright 2015 Alliance for Sustainable Energy, LLC
      
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at::
+    You may obtain a copy of the License at
     
         http://www.apache.org/licenses/LICENSE-2.0
     
@@ -85,7 +85,7 @@ Streamm license::
     See the License for the specific language governing permissions and
     limitations under the License.
     
-Pymatgen license::
+Pymatgen license
     
     The MIT License (MIT)
     Copyright (c) 2011-2012 MIT & LBNL
