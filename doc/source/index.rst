@@ -16,7 +16,7 @@ STREAMM
 
  The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python package that generates structures and input files for quantum chemical and molecular dynamics codes.
  STREAMM does not directly conduct simulations rather it is meant to drive quantum chemical and molecular dynamics codes to allow for high-throughput computational analysis of materials.
- The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_ and was written using the core modules of the `pymatgen <http://pymatgen.org/>`_ code as the initial core modules.
+ The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_ and incorporates some of the core modules from the `pymatgen <http://pymatgen.org/>`_ code.
 
 
 :STREAMM: Copyright (C) 2015, Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf.
