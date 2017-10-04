@@ -89,17 +89,48 @@ class Structure(units.ObjectUnits):
     Data structure for describing a collection of Particles that have associated
     positions within a Lattice, and consistent set keys corresponding to
     Bond, Angle, Dihedral and Improper descriptions
-    
 
     Kwargs:
         tag (str): Identifier for structure container 
         matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
         with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
         units_conf (dict): Dictionary of units for each attribute type
-       
+        
+
+    .. attribute:: mass (float)
+        
+        Sum of the mass of particles in the structure
+        
+    .. attribute:: charge (charge)
+        
+        Sum of the charge of particles in the structure
+        
+        
+    .. attribute:: volume (float)
+        
+        Volume of the structure based on the lattice 
+        
+        
+    .. attribute:: density (float)
+        
+        Density of the structure  
+        
+        
+    .. attribute:: center_mass (numpy array)
+        
+        Center of mass of the structure 
+        
+        
+    .. attribute:: dipole (numpy array)
+        
+        Electric dipole moment
+        
+    .. attribute:: positions (numpy array)
+        
+        Positions of particles in structure 
+        
     .. TODO ::
         Update max_mol to n_mol
-        Move write_xyz() to streamm.util.readwrite.py
 
     """
 
@@ -193,9 +224,6 @@ class Structure(units.ObjectUnits):
         self.replications = []
         
     def __del__(self):
-        """
-        Constructor for a composite structures. 
-        """
         del self.lat 
         del self.particles
         del self.bonds
@@ -227,9 +255,6 @@ class Structure(units.ObjectUnits):
         del self.replications
         
     def __str__(self):
-        """
-        'Magic' method for printng contents of container
-        """
         return " %s"%(self.tag)
     
     def print_properties(self):
@@ -367,7 +392,7 @@ class Structure(units.ObjectUnits):
         Create neighbor list of bonded particles based on bonds in the container 
 
         Return:
-            NBlist (object) 
+            * NBlist (object) 
         """
         nblist_i = NBlist()
         nblist_i.list = []
@@ -404,14 +429,14 @@ class Structure(units.ObjectUnits):
         Create neighbor list of particles based on distance and element.covalent_radius  of each particle 
         
         Args:
-            radius_type (int)
+            * radius_type (int)
                     0 - element.covalent_radius
                     1 - element.vdw_radius
                     
-            radii_buffer (float) to multiply radii cut off
+            * radii_buffer (float) to multiply radii cut off
             
         Return:
-            NBlist (object) 
+            * NBlist (object) 
         """
 
         nblist_i = NBlist()
@@ -516,11 +541,8 @@ class Structure(units.ObjectUnits):
         '''
         Write a structure  to an xyz file
 
-        Args:
-            xyz_file (str) xyz file tag
-            
-        Reutrns:
-            null
+        Kwargs:
+            * xyz_file (str) xyz file to write data to
             
         '''
         if( len(xyz_file) == 0 ):
@@ -536,12 +558,12 @@ class Structure(units.ObjectUnits):
     def write_xyz_list(self, list_i,xyz_file=''):
         '''
         Write a list of certain particles of the structure  to an xyz file
-
+        
         Args:
-            xyz_file    (str) xyz file tag
-            
-        Reutrns:
-            null
+            * list_i (list) list of particle indexes 
+        
+        Kwargs:
+            * xyz_file (str) xyz file to write data to
             
         '''
         if( len(xyz_file) == 0 ):
@@ -562,6 +584,10 @@ class Structure(units.ObjectUnits):
     def read_xyz(self, xyz_file=''):
         '''
         Read a structure  to an xmol file
+        
+        Kwargs:
+            * xyz_file (str) xyz file to read data from
+            
         '''
         if( len(xyz_file) == 0 ):
             xyz_file = "%s.xyz"%(self.tag)
@@ -588,6 +614,11 @@ class Structure(units.ObjectUnits):
     def write_list(self,list_i,tag_i):
         '''
         Write list of particle keys to  file to use in remote analysis
+        
+        Args:
+            * list_i (list): list of particle indexes
+            * tag_i (str): string to be used as file name ``tag``.list
+            
         '''
         list_str = [str(pkey) for pkey in list_i]
         list_file = '%s.list'%(tag_i)
@@ -602,8 +633,8 @@ class Structure(units.ObjectUnits):
         Shift position of pkey by vector
 
         Arguments:
-            pkey (int) particle key
-            vec  (np.array) vector 
+            * pkey (int) particle key
+            * vec  (numpy array) vector 
         """
         self._property['positions'][pkey] += vec
 
@@ -634,9 +665,7 @@ class Structure(units.ObjectUnits):
     def calc_mass(self):
         """
         Calculate total mass of structure
-        
-        NoteTK should be calc atomic wieght
-        
+                
         """
         self._property['mass'] = float(0.0)
         
@@ -659,8 +688,11 @@ class Structure(units.ObjectUnits):
 
     def calc_volume(self):
         """
-        Calculate volume of structure  
-        Volume = ( v_i x v_j ) . v_k 
+        Calculate volume of structure
+        
+        .. math::
+            Volume = ( v_i X v_j ) \dot v_k
+            
         """
         v_i = self.lat.matrix[0] 
         v_j = self.lat.matrix[1] 
@@ -731,6 +763,10 @@ class Structure(units.ObjectUnits):
         '''
         Sum charge of particle i into particle j
         
+        Args:
+            * pkey_i (int) Particle key
+            * pkey_j (int) Particle key
+            
         '''
         # Sum charges of particles to be removed into attachment points
         logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
@@ -740,8 +776,14 @@ class Structure(units.ObjectUnits):
     def sum_prop(self,pkey_i,pkey_j):
         '''
         Sum property of particle i into particle j
-        
-        NoteTK This should be changed to sum_charge 
+
+        Args:
+            * pkey_i (int) Particle key
+            * pkey_j (int) Particle key
+                    
+        .. TODO::
+            This should be changed to sum_charge
+            
         '''
         # Sum charges of particles to be removed into attachment points
         logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
@@ -774,7 +816,9 @@ class Structure(units.ObjectUnits):
         """
         Number of molecules
         
-        NoteTK this needs to be deprecated 
+        .. TODO::
+            deprecate
+            
         """
         max_mol = 0
         for pkey_i, particle_i  in self.particles.iteritems():
@@ -786,6 +830,10 @@ class Structure(units.ObjectUnits):
     def get_list_bonds_lengths(self,keys=[]):
         '''
         Get list from bonds of the properties length
+        
+        Kwargs:
+            * keys (list) list of particle indexes
+            
         '''
 
         if( len(keys) == 0 ):
@@ -803,6 +851,10 @@ class Structure(units.ObjectUnits):
     def get_list_bonds_lengths(self,keys=[]):
         '''
         Get list from bonds of the properties length
+
+        Kwargs:
+            * keys (list) list of particle indexes
+                    
         '''
 
         if( len(keys) == 0 ):
@@ -822,13 +874,16 @@ class Structure(units.ObjectUnits):
 
         Rotate around the y-axis in the xz plane
         
-             |   cos theta_xz 0 -sin theta_xz   |
-        Ry = |           0    1      0         |
-             |_  sin theta_xz 0  cos theta_xz _|
-
-        Arguments:
+        Args:
             theta_xz (float) angle in radians
             direction (str)  counterclockwise or clockwise around y axis 
+        
+        ::
+            
+                 |   cos theta_xz 0 -sin theta_xz   |
+            Ry = |           0    1      0         |
+                 |_  sin theta_xz 0  cos theta_xz _|
+
 
         """
         
@@ -872,6 +927,8 @@ class Structure(units.ObjectUnits):
 
         Rotate around the z-axis in the xy plane
         
+        ::
+        
             z        v_i 
             |       /
             |      /
@@ -884,12 +941,15 @@ class Structure(units.ObjectUnits):
                 \
                  \
                   x
-              _                                _
-             |   cos theta_xy  sin theta_xy  0  |
-        Rz = |   -sin theta_xy  cos theta_xy  0  |
-             |_         0           0        1 _|
+             
+        ::
+           
+                 _                                _
+                |   cos theta_xy  sin theta_xy  0  |
+           Rz = |   -sin theta_xy  cos theta_xy  0  |
+                |_         0           0        1 _|
 
-        Arguments:
+        Args:
             theta_xy (float) angle in radians
             direction (str)  counterclockwise or clockwise around z axis 
         """
@@ -937,6 +997,8 @@ class Structure(units.ObjectUnits):
 
         Rotate around the x-axis in the yz plane
         
+        ::
+        
             z        v_i 
             |       /
             |      /
@@ -949,6 +1011,10 @@ class Structure(units.ObjectUnits):
                 \
                  \
                   x
+             
+             
+        ::
+        
                _                                    _
               |      1        0           0          |
         Rx =  |      0  cos theta_xy  sin theta_xy   |
@@ -1522,7 +1588,7 @@ class Structure(units.ObjectUnits):
         Calculate the number of each element type in the neighbors of particle key_i
 
         Return:
-            el_cnt (list) count of each element at it's atomic number index
+            * el_cnt (list) count of each element at it's atomic number index
 
         Example: el_cnt[6] is the number of carbon neighbors
         
@@ -1541,8 +1607,8 @@ class Structure(units.ObjectUnits):
         Change the mass of the particles with a certain symbol to a certain number
         
         Args:
-            symbol_o (str) symbol of particle to be changed 
-            mass_o (float) new mass of particle with symbol symbol_o
+            * symbol_o (str) symbol of particle to be changed 
+            * mass_o (float) new mass of particle with symbol symbol_o
         
         Reutrns:
             null
@@ -1557,9 +1623,7 @@ class Structure(units.ObjectUnits):
     def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
         '''
         Find pairs based on criteria
-        
-        NoteTK This should be moved into analysis
-        
+                
         '''
         N_i = len(list_i)
         N_j = len(list_j)
@@ -2034,7 +2098,11 @@ class Structure(units.ObjectUnits):
         Bin distances between particle pairs
         
         Add size to cutoff
-        Assumes cut off is evenly divisible by bin_size 
+        Assumes cut off is evenly divisible by bin_size
+        
+        
+        ::
+        
                  |                      |
             -bin_size/2.0   r_cut   +bin_size/2.0
         
@@ -2093,7 +2161,7 @@ class Structure(units.ObjectUnits):
         Update instance values with new units
         
         Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
         
