@@ -47,8 +47,8 @@ Structures Module
 
 .. index:: Structure
 
-Structure Container
--------------------
+Structure
+---------
 
 .. autoclass:: streamm.structures.particle.Particle
    :members:
@@ -100,15 +100,20 @@ Neighbor List
       
 .. index:: buildingblocks
 
+Structure Container
+-------------------
+
+.. automodule:: streamm.structures.structure 
+   :members:
+   :show-inheritance:   
+
+
 Buildingblock
 -------------
 
 .. automodule:: streamm.structures.buildingblock 
    :members:
    :show-inheritance:   
-
-
-
 
 
 .. index:: forcefields

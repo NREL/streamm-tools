@@ -40,11 +40,11 @@ class Particle(units.ObjectUnits):
 
     .. attribute:: bonded_radius (float)
     
-        Radius in (angstroms) used in determining if two particles are bonded 
+        Radius in used in determining if two particles are bonded 
 
     .. attribute:: nonbonded_radius (float)
 
-        Radius in (angstroms) used in determining if two particles are interacting
+        Radius in used in determining if two particles are interacting
     
     Additional attributes include:
     

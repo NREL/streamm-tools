@@ -59,11 +59,11 @@ class Replication(object):
     Object to record the replication of structure
     
     Args:
-        name_i (str): Name of structure i
-        name_j (str): Name of structure j
-        name_ij (str): Name of new structure
-        method (str): Method used to join structures 
-        n (int): Number of times replicated 
+        * name_i (str): Name of structure i
+        * name_j (str): Name of structure j
+        * name_ij (str): Name of new structure
+        * method (str): Method used to join structures 
+        * n (int): Number of times replicated 
         
     '''
     def __init__(self,name_i,name_j,name_ij,method,n):
@@ -91,10 +91,9 @@ class Structure(units.ObjectUnits):
     Bond, Angle, Dihedral and Improper descriptions
 
     Kwargs:
-        tag (str): Identifier for structure container 
-        matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
-        with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
-        units_conf (dict): Dictionary of units for each attribute type
+        * tag (str): Identifier for structure container 
+        * matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3 with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        * units_conf (dict): Dictionary of units for each attribute type
         
 
     .. attribute:: mass (float)
@@ -430,9 +429,8 @@ class Structure(units.ObjectUnits):
         
         Args:
             * radius_type (int)
-                    0 - element.covalent_radius
-                    1 - element.vdw_radius
-                    
+                * 0 - element.covalent_radius
+                * 1 - element.vdw_radius
             * radii_buffer (float) to multiply radii cut off
             
         Return:
@@ -521,7 +519,7 @@ class Structure(units.ObjectUnits):
         
     def write_coord(self):
         """
-        Write a coordinates into string 
+        Write coordinates into string 
         """
         coord = ''.join([" %5s %16.8f %16.8f %16.8f \n"%(particle_i.symbol,self.positions[pkey_i][0],self.positions[pkey_i][1],self.positions[pkey_i][2] ) for pkey_i,particle_i in self.particles.iteritems()])
 
@@ -649,7 +647,7 @@ class Structure(units.ObjectUnits):
 
     def pbc_pos(self):
         '''
-        Apply periodic boundry conditions to 
+        Apply periodic boundary conditions to 
         '''
         for r_i in self._property['positions']:
             for d in range(self.lat.n_dim ):
@@ -691,7 +689,7 @@ class Structure(units.ObjectUnits):
         Calculate volume of structure
         
         .. math::
-            Volume = ( v_i X v_j ) \dot v_k
+            Volume = ( v_i x v_j ) * v_k
             
         """
         v_i = self.lat.matrix[0] 
@@ -805,7 +803,7 @@ class Structure(units.ObjectUnits):
     def mol_mult(self):
         """
         Find value to multiply mol index by
-        so reisude index can be added to get a unique group value
+        so residue index can be added to get a unique group value
         """
         
         self.mol_multiplier =  float( len( str( abs( round(self.mol_max,0) )))*10.0/len( str( abs( round(self.mol_max,0) ))) )*10.0
@@ -876,7 +874,7 @@ class Structure(units.ObjectUnits):
         
         Args:
             theta_xz (float) angle in radians
-            direction (str)  counterclockwise or clockwise around y axis 
+            direction (str)  counterclockwise or clockwise around y-axis 
         
         ::
             
@@ -951,7 +949,7 @@ class Structure(units.ObjectUnits):
 
         Args:
             theta_xy (float) angle in radians
-            direction (str)  counterclockwise or clockwise around z axis 
+            direction (str)  counterclockwise or clockwise around z-axis 
         """
 
         
@@ -1011,18 +1009,17 @@ class Structure(units.ObjectUnits):
                 \
                  \
                   x
-             
-             
+
         ::
         
-               _                                    _
-              |      1        0           0          |
-        Rx =  |      0  cos theta_xy  sin theta_xy   |
-              |_     0  -sin theta_xy  cos theta_xy _|
-              
-        Arguments:
-            theta_yz (float) angle in radians
-            direction (str)  counterclockwise or clockwise around x axis 
+                   _                                    _
+                  |      1        0           0          |
+            Rx =  |      0  cos theta_xy  sin theta_xy   |
+                  |_     0  -sin theta_xy  cos theta_xy _|
+
+        Args:
+            * theta_yz (float) angle in radians
+            * direction (str)  counterclockwise or clockwise around x-axis 
         
         """
 
@@ -1151,7 +1148,7 @@ class Structure(units.ObjectUnits):
 
     def shift_tag(self,tag,tag_min):
         """
-        shift tag by an number  
+        shift tag by a number  
         """
         for pid, particle_i  in self.particles.iteritems():
             # if( ptclObj.properties[tag] > 0 ):
@@ -1253,7 +1250,7 @@ class Structure(units.ObjectUnits):
         Add structure other to self n times on a grid
         
         Args:
-            n_i  (int) number of times to replicate 
+            * n_i  (int) number of times to replicate 
             
         """
         #
@@ -1404,9 +1401,7 @@ class Structure(units.ObjectUnits):
     def add_struc(self,other,n_i,seed,p=None,tag="blank"):
         """
         Add structure other to self n times via random placement
-        
-        NoteTK needs to go into replication directory and be dependent on mpi
-        
+                
         """
         import random
         #
@@ -1588,7 +1583,7 @@ class Structure(units.ObjectUnits):
         Calculate the number of each element type in the neighbors of particle key_i
 
         Return:
-            * el_cnt (list) count of each element at it's atomic number index
+            * el_cnt (list) count of each element at its atomic number index
 
         Example: el_cnt[6] is the number of carbon neighbors
         
@@ -1610,9 +1605,6 @@ class Structure(units.ObjectUnits):
             * symbol_o (str) symbol of particle to be changed 
             * mass_o (float) new mass of particle with symbol symbol_o
         
-        Reutrns:
-            null
-            
         '''
 
         for pkey_i, particle_i  in self.particles.iteritems():
@@ -1728,7 +1720,7 @@ class Structure(units.ObjectUnits):
 
     def calc_bond(self,bond_i):
         """
-        Calculate the distacne between two vectors
+        Calculate the distance between two vectors
         
         Args:
             bond_i (Bond) Bond object
@@ -1851,8 +1843,7 @@ class Structure(units.ObjectUnits):
         
             return cos_kij
         else:
-            print "Attempting to calculate non-Angle type"
-            raise TypeError
+            raise TypeError("Attempting to calculate non-Angle type")
         
         return None 
 
@@ -1985,8 +1976,7 @@ class Structure(units.ObjectUnits):
             logger.debug(" Cosine %f angle %f (deg) "%(cos_kijl,ang_deg))
 
         else:
-            print "Attempting to calculate non-dihedral type"
-            raise TypeError
+            raise TypeError("Attempting to calculate non-dihedral type")
         
         return None
 
