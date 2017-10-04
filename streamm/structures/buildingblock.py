@@ -79,13 +79,13 @@ class Buildingblock(Structure):
     Data structure for describing a structure with particle that act as attachment points
     
     Args:
-        tag (str): Identifier for structure
-        matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
-        with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
-        units_conf (dict): Dictionary of units for each attribute type
+        * tag (str): Identifier for structure
+        * matrix (list): list of lattice vectors (v1,v2,v3) in order 1-3
+        * with format: [v1(x),v1(y),v1(z),v2(x),v2(y),v2(z),v3(x),v3(y),v3(z)]
+        * units_conf (dict): Dictionary of units for each attribute type
 
     .. TODO ..
-	* Run the find_rsites() function in the attach() function
+        * Run the find_rsites() function in the attach() function
 
     """    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf):
@@ -125,7 +125,7 @@ class Buildingblock(Structure):
     def show_rsites(self):
         '''
         Returns:
-            out_line (str): of all the rsites and the particles in them
+            * out_line (str): of all the rsites and the particles in them
         '''
         out_line =''
         for rsite_i,rsite_list in self.funcs.iteritems():
@@ -139,15 +139,15 @@ class Buildingblock(Structure):
         Get particle key of reactive site and the particle key of it's Xn_i connected neighbor 
         
         Args:
-            rsite_i   (str) Reactive site type
+            * rsite_i   (str) Reactive site type
             
         Kwargs:
-            n_i       (int) index of reactive site within in list of 
-            Xn_i      (int) neighbor number of reactive site 
+            * n_i       (int) index of reactive site within in list of 
+            * Xn_i      (int) neighbor number of reactive site 
 
         Return:
-            Rkey  - the particle to be replaced
-            XKey  - the neighbor Xn_i of the particle to be replaced
+            * Rkey  - the particle to be replaced
+            * XKey  - the neighbor Xn_i of the particle to be replaced
             
         '''
         cnt_i = 0
@@ -181,8 +181,8 @@ class Buildingblock(Structure):
             x <---  R    - key_i
             
         Args:
-            key_k (int): particle index 
-            yangle (float) angle in radians
+            * key_k (int): particle index 
+            * yangle (float) angle in radians
    
         '''
         # Get position of i and j 
@@ -233,8 +233,8 @@ class Buildingblock(Structure):
            
 
         Args:
-            key_i (int): particle index i
-            key_j (int): particle index j
+            * key_i (int): particle index i
+            * key_j (int): particle index j
             
         '''
         # Get position of i and j 
@@ -326,11 +326,11 @@ class Buildingblock(Structure):
         This is handy for batch attachments to not repeat the intial steps in the attach function
 
         Args:
-            rsite_i (str): string identifier for reactive particle to be removed during join
-            n_i (int): nth reactive particle in list funcs[rsite_i]
-            Xn_i (int): nth bonded neighbor in bonded_nblist
-            dir (int): 1 to align along the positive x-axis, -1 to align along the negative x-axis
-            yangle (float): angle in radians
+            * rsite_i (str): string identifier for reactive particle to be removed during join
+            * n_i (int): nth reactive particle in list funcs[rsite_i]
+            * Xn_i (int): nth bonded neighbor in bonded_nblist
+            * dir (int): 1 to align along the positive x-axis, -1 to align along the negative x-axis
+            * yangle (float): angle in radians
             
         '''
     
@@ -394,13 +394,13 @@ def checkprep(bbC_i,bbC_j,covbuffer=1.5):
     
     
     Args:
-        bblockC_i (Container) Buildingblock container 1
-        Xo_i (int) key of attachment point particle container 1
-        bblockC_j (Container) Buildingblock container 2 
-        Xo_j (int) key of attachment point particle container 2
+        * bblockC_i (Container) Buildingblock container 1
+        * Xo_i (int) key of attachment point particle container 1
+        * bblockC_j (Container) Buildingblock container 2 
+        * Xo_j (int) key of attachment point particle container 2
     Retrun
-        True - if no overlap
-        False - if overlap is found
+        * True - if no overlap
+        * False - if overlap is found
     '''
     #
     # NoteTK This seem backwards
@@ -442,8 +442,8 @@ def shiftprep(bblockC_i,bblockC_j):
     '''Shift preattached buildingblocks away from eachother a bond length based on their bonded_radius.
     
     Args:
-            bblockC_i (Container) Buildingblock container 1
-            bblockC_j (Container) Buildingblock container 2 
+        * bblockC_i (Container) Buildingblock container 1
+        * bblockC_j (Container) Buildingblock container 2 
     '''
 
     bbC_i = copy.deepcopy(bblockC_i)
