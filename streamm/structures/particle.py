@@ -28,7 +28,7 @@ class Particle(units.ObjectUnits):
         * symbol (str): Atomic symbol
         * unit_conf (dict): Unit types with units used by this object
             
-    Particles have the fundamental attributes of
+    Particles have fundamental attributes which are used throughout the streamm code:
     
     .. attribute:: mass (float)
 
@@ -46,7 +46,7 @@ class Particle(units.ObjectUnits):
 
         Radius in (angstroms) used in determining if two particles are interacting
     
-    which are used throughout the streamm code.  Additional attributes include:
+    Additional attributes include:
     
     .. attribute:: mol (int)
         

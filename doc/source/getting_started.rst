@@ -15,7 +15,7 @@ While this is a simple example, it is meant to illustrate the functionality of t
 In practice, this functionality allows for the combinatorial creation and analysis millions of variations of organic structures.
 
 To create a :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>`
-object representing methane, we will create carbon and hydrogen particles objects and add them to the methane object with the correct positions.
+object representing methane, we will create carbon and hydrogen particle objects and add them to the methane object with the correct positions.
 
 .. code :: python 
 
@@ -30,7 +30,7 @@ object representing methane, we will create carbon and hydrogen particles object
     methane.add_partpos(H,[0.69,-0.69,-0.69])
 
 
-You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_ to create an organic structure, see the :ref:`read_xyz` for more information. 
+You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_ to create an organic structure, see the :ref:`read_xyz` :ref:`how_to` for more information. 
 
 
 Next, we need to define the connectivity of structure by guessing a
@@ -58,7 +58,7 @@ We labeled these sites as 'RH', but it does not really matter, as long as you pa
     ethane = bb.attach(methane,methane,'RH',0,'RH',1,tag='ethane')
 
 
-Then you can write an `.xyz` file to visualize your new Buildingblock using your favorite molecular view.
+Then you can write an `.xyz` file to visualize your new Buildingblock using your favorite molecular viewing software.
 
 .. code :: python
 

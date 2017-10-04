@@ -28,7 +28,7 @@ We will use the basic nwchem.nw example template
 
 .. code:: python
 
-    temlate_file = 'nwchem.nw'
+    template_file = 'nwchem.nw'
 
 Create a NWChem calculation object
 
@@ -47,7 +47,7 @@ Get the location of the template file
 
 .. code:: python
 
-    template_path =  os.path.join(TEMPLATE_DIR,temlate_file)
+    template_path =  os.path.join(TEMPLATE_DIR,template_file)
     
     print template_path
 

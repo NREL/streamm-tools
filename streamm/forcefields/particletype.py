@@ -26,9 +26,6 @@ class Particletype(units.ObjectUnits):
         * fftype1 (str): Forcefield key 
         * units_conf (dict): Dictionary of units for each attribute type
                 
-    .. TODO ::
-        change fftype1 to fftype_i
-        
     '''
     
     @property

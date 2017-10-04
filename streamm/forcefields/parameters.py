@@ -54,9 +54,6 @@ class Parameters(units.ObjectUnits):
         * fftype1 (str): Forcefield key 
         * units_conf (dict): Dictionary of units for each attribute type
                 
-    .. TODO ::
-        change fftype1 to fftype_i
-            
     """
 
     def __init__(self,tag='blank',unit_conf=units.unit_conf):
@@ -117,7 +114,7 @@ class Parameters(units.ObjectUnits):
         strucStr += "      Bond parameters %d \n"%(self.n_bondtypes)
         strucStr += "      Angle parameters %d \n"%(self.n_angletypes)
         strucStr += "      Dihedral parameters %d \n"%(self.n_dihtypes)
-        strucStr += "      Imporper Dihedral parameters %d \n"%(self.n_imptypes)
+        strucStr += "      Improper Dihedral parameters %d \n"%(self.n_imptypes)
         return strucStr
 
 

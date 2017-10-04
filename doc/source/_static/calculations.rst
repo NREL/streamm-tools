@@ -13,11 +13,11 @@ calculations
     from pprint import pprint
 
 The aim of the streamm package is to design a project with numerous
-calculations run them on local and remote resources and collect the
+calculations, run them on local and remote resources and collect the
 output for analysis, thus facilitating high-throughput computational
 material design.
 
-To accomplish, the directory structure is contained within a resource as
+To accomplish this, the directory structure is contained within a resource as
 a dictionary. Resources, structures, and forcefields are contained
 within a calculation object. Sets of calculations are contained within a
 project

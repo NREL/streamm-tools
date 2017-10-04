@@ -124,3 +124,9 @@ Also reference the Materials genome project code pymatgen.
     Open-Source Python Library for Materials Analysis.* Computational
     Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
     <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    
+
+Contact us
+===========
+
+Email: organicelectronics@nrel.gov
