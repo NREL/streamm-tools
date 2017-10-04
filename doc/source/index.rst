@@ -1,16 +1,5 @@
 .. highlight:: rst
 
-
-.. ::
-    
-    # with overline, for parts
-    * with overline, for chapters
-    =, for sections
-    -, for subsections
-    ^, for subsubsections
-    ", for paragraphs
-
-
 STREAMM
 #######
 
@@ -29,14 +18,12 @@ Install the python package with pip::
 
     $ pip install streamm
 
-Access the streamm modules with
+Access the streamm modules within python 
 
 .. code:: python
 
     import streamm
     
-This will allow access to the streamm modules.
-
 Contents
 ********
 
@@ -57,10 +44,10 @@ Release Notes
 v0.3.1 -- September 2017
 ========================
 
-* Add pymatgen (https://github.com/materialsproject/pymatgen) dependency 
-* Create tests for each module in the directory tests/
+* Add pymatgen (https://github.com/materialsproject/pymatgen) core modules 
 * Split up modules into directories
 * Move functions dependent on mpi to util directory
+* Create tests for each module
 
 v0.3.0 -- August 2017
 ======================

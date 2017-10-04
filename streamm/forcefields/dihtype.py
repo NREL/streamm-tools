@@ -57,11 +57,11 @@ class Dihtype(units.ObjectUnits):
     def mult(self,value): 
         self._property['mult'] = value
     @property 
-    def theat_s(self): 
-        return self._property['theat_s']
-    @theat_s.setter 
-    def theat_s(self,value): 
-        self._property['theat_s'] = value
+    def theta_s(self): 
+        return self._property['theta_s']
+    @theta_s.setter 
+    def theta_s(self,value): 
+        self._property['theta_s'] = value
     @property 
     def k1(self): 
         return self._property['k1']
@@ -153,10 +153,10 @@ class Dihtype(units.ObjectUnits):
         self._property['d']  = 1.0
         self._property['mult']  = 0.0 
         self._property['kb']  = 0.0
-        self._property['theat_s']  = 0.0 
+        self._property['theta_s']  = 0.0 
         #
         self._property_units['energy'].append('kb')
-        self._property_units['angle'].append('theat_s')
+        self._property_units['angle'].append('theta_s')
         #         
         # Fourier opls coefficients 
         self._property['k1']  = 0.0
@@ -209,9 +209,9 @@ class Dihtype(units.ObjectUnits):
         strucStr =  " dihedral  %s - %s - %s - %s type %s "%(self.fftype1,self.fftype2,self.fftype3,self.fftype4,self.type)
         
         if( self.type ==  "harmonic" ):
-            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theat_s,self.lammps_index ,self.gromacs_index )
+            strucStr += "\n  harmonic d = %f mult = %f K = %f theta_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theta_s,self.lammps_index ,self.gromacs_index )
         if( self.type ==  "multiharmonic" ):
-            strucStr += "\n  harmonic d = %f mult = %f K = %f theat_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theat_s,self.lammps_index ,self.gromacs_index )
+            strucStr += "\n  harmonic d = %f mult = %f K = %f theta_s = %f lammps index %d  gromcas index %d " %(self.d,self.mult ,self.kb,self.theta_s,self.lammps_index ,self.gromacs_index )
         if( self.type ==  "opls" ):
             strucStr += "\n  k1 = %f k2 = %f k3 = %f k4 = %f lammps index %d  gromcas index %d " %(self.k1,self.k2,self.k3,self.k4,self.lammps_index ,self.gromacs_index )
         if( self.type ==  "rb" ):
@@ -220,7 +220,7 @@ class Dihtype(units.ObjectUnits):
         return strucStr
 
 
-    def setharmonic(self, mult, kb,theat_s):
+    def setharmonic(self, mult, kb,theta_s):
         """
         set MultiHarmonic parameters
         dihedral_style charmm
@@ -228,13 +228,15 @@ class Dihtype(units.ObjectUnits):
         Args:
             * mult     (float) 
             * kb     (float) force constant    kcal/mol
-            * theat_s     (float) angle degrees
+            * theta_s     (float) angle degrees
             
-        gromacs:
+        gromacs
+        
         .. math::
-            E = kb[ 1 - cos( mult theta - theat_s ) ]  
+            E = kb[ 1 - cos( mult theta - theta_s ) ]  
 
-        lammps:
+        lammps
+        
         .. math::
             E = kb[ 1 - cos( n theta - d ) ]            
             
@@ -250,10 +252,10 @@ class Dihtype(units.ObjectUnits):
         else:
             raise TypeError("2rd arg mult should be float")
 
-        if isinstance(theat_s, float):
-            self.theat_s = theat_s
+        if isinstance(theta_s, float):
+            self.theta_s = theta_s
         else:
-            raise TypeError("3th arg theat_s should be float")
+            raise TypeError("3th arg theta_s should be float")
 
     def setopls(self,k1,k2,k3,k4):
         """

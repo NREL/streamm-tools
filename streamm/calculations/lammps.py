@@ -668,7 +668,7 @@ class LAMMPS(CalculationRes):
                 if( dihtype_i.type == "multiharmonic"):
                     # K = K[1+d cons(n theta)]
             
-                    d = dihtype_i.theat_s
+                    d = dihtype_i.theta_s
                     K = dihtype_i.kb
                     n = dihtype_i.mult
                     p = dihtype_i.paths
@@ -1047,7 +1047,7 @@ class LAMMPS(CalculationRes):
                 if( dihtype_i.type == "multiharmonic"):
                     K = dihtype_i.kb
                     n = dihtype_i.mult
-                    d = dihtype_i.theat_s
+                    d = dihtype_i.theta_s
                     w = 0.0 # Weight
                     p = dihtype_i.paths
                     param_lines += " %f %d %f %d %f \n"%(K,n,d,w,p)

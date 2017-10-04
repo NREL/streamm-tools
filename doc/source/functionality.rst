@@ -6,12 +6,13 @@ Functionality
 NWChem input file
 ==================
 
-
-First, we need to set the location of the templates directory cloned
-from http://github.com/NREL/streamm-tools
-
+STREAMM creates input files by replacing ``keys`` in a template with the
+values of the same ``keys`` of the ``properties`` dictionary
+of the :class:`Calculation <streamm.calculations.calculation.Calculation>`. 
+Accordingly, we first need some basic templates provided in the Gitbub
+repository http://github.com/NREL/streamm-tools.
 If you are running this example in the examples directory in the
-streamm-tools repo, the TEMPLATE_DIR should look like this
+streamm-tools repository, the ``TEMPLATE_DIR`` should look like this
 
 .. code:: python
 
@@ -24,19 +25,19 @@ streamm-tools repo, the TEMPLATE_DIR should look like this
 If not please set the ``TEMPLATE_DIR`` variable to the location of the
 templates
 
-We will use the basic nwchem.nw example template
+We will use the basic ``nwchem.nw`` example template
 
 .. code:: python
 
     template_file = 'nwchem.nw'
 
-Create a NWChem calculation object
+Create a :class:`NWChem <streamm.calculations.nwchem.NWChem>` :class:`Calculation <streamm.calculations.calculation.Calculation>` object
 
 .. code:: python
 
     nwchem = streamm.NWChem('ethane_nw_sp')
 
-Set the structure of the calculation to the ethane object.
+Set the structure of the calculation to the ethane object from :ref:`getting_started`.
 
 .. code:: python
 
@@ -57,8 +58,8 @@ Read in the template
 
     template_line = nwchem.read_lines(template_path)
 
-Set the properties dictionary to contain the information for our
-calculation
+Set the ``properties`` dictionary to contain the information for our
+:class:`Calculation <streamm.calculations.calculation.Calculation>` 
 
 .. code:: python
 
@@ -74,6 +75,8 @@ Do a string replace of the dictionary keys to create an input string
 .. code:: python
 
     input_str = nwchem.replace_keys(template_line,nwchem.properties)
+
+Finally, write out the file.
 
 .. code:: python
 
@@ -143,7 +146,7 @@ Setting `paramkeys`
 -------------------
 
 Now we need to set the `paramkeys` of each particle in
-are :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
+the ethane :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>` we created in the :ref:`getting_started` section
 to have a key matching a :class:`Particletype <streamm.forcefields.particletype.Particletype>` key.
 
 .. code:: python
@@ -157,16 +160,16 @@ to have a key matching a :class:`Particletype <streamm.forcefields.particletype.
 Create LAMMPS Calculation
 -------------------------------------
 
-If we want to run a `LAMMPS <http://lammps.sandia.gov/>` simulation, we can create
+If we want to run a `LAMMPS <http://lammps.sandia.gov/>`_ simulation, we can create
 a :class:`Calculation <streamm.calculations.calculation.Calculation>` object. 
 
 .. code:: python
 
     md_calc = streamm.LAMMPS('ethane_md')
     
-Set our Buildingblock and :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`
+Set our :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>` and :class:`Parameters <streamm.forcefields.parameters.Parameters>`
 objects to have the correct units for a `LAMMPS <http://lammps.sandia.gov/>`_
-simulation and add the class:`Calculation <streamm.calculations.calculation.Calculation>` object.
+simulation and add them to the :class:`Calculation <streamm.calculations.calculation.Calculation>` object.
 
 .. code :: python 
     
@@ -180,7 +183,7 @@ Find Molecular Connections
 
 Next, we need to find all the :class:`Bonds <streamm.structures.bond.Bond>`,
 :class:`bond angles <streamm.structures.angle.Angle>` and
-`dihedrals <streamm.structures.dihedral.Dihedral>` of
+:class:`dihedrals <streamm.structures.dihedral.Dihedral>` of
 the :class:`Buildingblock <streamm.structures.buildingblock.Buildingblock>`, using the bonded :class:`neighbor list <streamm.structures.nblist.NBlist>`.
 
 .. code :: python 
@@ -196,12 +199,10 @@ parameters to the :class:`Buildingblock <streamm.structures.buildingblock.Buildi
 
     md_calc.set_ffparam()
         
-Finally, we can output a LAMMPS `.data` input file for our calculation.
+Finally, we can output a `LAMMPS <http://lammps.sandia.gov/>`_  `.data <http://lammps.sandia.gov/doc/2001/data_format.html>`_ input file for our calculation.
 
 .. code :: python 
 
     md_calc.write_data()
     
-
-
-
+You could also write out input files for our `LAMMPS <http://lammps.sandia.gov/>`_ simulation using templates if you wished.

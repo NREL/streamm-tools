@@ -32,16 +32,15 @@ object representing methane, we will create carbon and hydrogen particle objects
 
 You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_ to create an organic structure, see the :ref:`read_xyz` :ref:`how_to` for more information. 
 
-
 Next, we need to define the connectivity of structure by guessing a
 :class:`neighbor list <streamm.structures.nblist.NBlist>` based on the
-`bonded_radius <streamm.structures.particle.Particle.bonded_radius>` of each :class:`Particle <streamm.structures.particle.Particle>`. 
+`bonded_radius` of each :class:`Particle <streamm.structures.particle.Particle>` using the :func:`guess_nblist() <streamm.structures.structure.Structure.guess_nblist>` function. 
     
 .. code :: python 
  
     methane.bonded_nblist = methane.guess_nblist(0,radii_buffer=1.25)
     
-Then we can label some hydrogens as substitutable sites (rsite), and run the find_rsite function to update the `funcs` list of the
+Then we can label some hydrogens as substitutable sites (rsite), and run the :func:`find_rsites() <streamm.structures.buildingblock.Buildingblock.find_rsites>` function to update the `funcs` list of the
 :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` object.
 
 .. code :: python 
@@ -50,7 +49,7 @@ Then we can label some hydrogens as substitutable sites (rsite), and run the fin
     methane.particles[2].rsite = 'RH'
     methane.find_rsites()
 
-We labeled these sites as 'RH', but it does not really matter, as long as you pass these labels to the attach function. 
+We labeled these sites as `RH`, but it does not really matter, as long as you pass these labels to the :func:`attach() <streamm.structures.buildingblock.attach>` function. 
 
 .. code :: python 
 
@@ -58,7 +57,7 @@ We labeled these sites as 'RH', but it does not really matter, as long as you pa
     ethane = bb.attach(methane,methane,'RH',0,'RH',1,tag='ethane')
 
 
-Then you can write an `.xyz` file to visualize your new Buildingblock using your favorite molecular viewing software.
+Then you can write an `.xyz` file to visualize your new :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` using your favorite molecular viewing software.
 
 .. code :: python
 
