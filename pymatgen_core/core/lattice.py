@@ -336,10 +336,6 @@ class Lattice(units.ObjectUnits):
         Then subtractions the fractional coordinates and rounds them to be within the lattice box.
         Then translates the fractional coordinates back to real coordinates to get the separation vector
         
-        .. TODO ::
-            
-            Create a ctypes extension 
-    
         """
         if( any ( pbcs_i for pbcs_i in self.pbcs ) ):
             frac_i = np.zeros(self.n_dim)
@@ -398,7 +394,9 @@ class Lattice(units.ObjectUnits):
 
         Returns:
             dr_ij (list): cartesian vector [x,y,z] between position i and j
-            mag_dr_ij (float): magnitude of vector dr_ij        """
+            mag_dr_ij (float): magnitude of vector dr_ij
+            
+        """
         
         dr_ij  = self.d_pos(pos_i,pos_j)
         mag_dr_ij = np.sqrt(dr_ij.dot(dr_ij))
@@ -436,11 +434,6 @@ class Lattice(units.ObjectUnits):
             where the npos_ij[i][j] value is the difference between pos_i[i] and pos_j[j] 
             mag_dr_ij (m x n numpy array): array of the magnitudes of vector dr_ij      
             where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j]
-            
-
-        .. TODO ::
-            
-            Create a ctypes extension
             
         """
         n_i = len(npos_i)

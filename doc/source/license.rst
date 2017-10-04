@@ -43,5 +43,5 @@ pymatgen license::
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
-The pymatgen license can also be found at `/pymatgen license <http://pymatgen.org/#license>`_
+The pymatgen license can also be found at `pymatgen license <http://pymatgen.org/#license>`_
 

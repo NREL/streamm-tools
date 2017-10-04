@@ -22,7 +22,7 @@ This will create an egg file and place it in your package managment directory of
 Github
 --------------
 
-You can also install the streamm package from souce by cloning the `Github <https://github.com/>`_ repo
+You can also install the streamm package from souce by cloning the Github (<https://github.com/>) repo
 
     $ git clone https://github.com/NREL/streamm
     
