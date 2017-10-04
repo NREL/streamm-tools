@@ -178,7 +178,7 @@ class Gaussian(CalculationRes):
         Read in structure information from gaussian fchk file
 
         Args:
-            fchk_file (str) gaussian fchk file
+            * fchk_file (str) gaussian fchk file
 
         """
         n_dim = self.strucC.lat.n_dim 

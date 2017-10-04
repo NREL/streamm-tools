@@ -47,10 +47,10 @@ class Calculation(object):
         
         
     Args:
-        tag (str): String identifier for object
+        * tag (str): String identifier for object
     
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
         
 
     .. attribute:: data (dict)
@@ -234,8 +234,8 @@ class Calculation(object):
         Read in a file as string and store in dictionary
         
         Args:
-           file_type (str): dictionary key for files dictionary
-           file_key (str): dictionary key for files[file_type] dictionary
+           * file_type (str): dictionary key for files dictionary
+           * file_key (str): dictionary key for files[file_type] dictionary
         
         '''
         
@@ -419,7 +419,7 @@ class Calculation(object):
         Read in new files created by script recorded in the log file.
 
         Args:
-            log_file (str) script log file
+            * log_file (str) script log file
 
         """
         f = open(log_file,'r')
@@ -443,7 +443,7 @@ class Calculation(object):
         
 
         Args:
-            output_key (str): dictionary key for files['output'][output_key]
+            * output_key (str): dictionary key for files['output'][output_key]
         
         """
         # Find output_key file 
@@ -1143,7 +1143,7 @@ class Calculation(object):
         Update instance values with new units
         
         Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
         
