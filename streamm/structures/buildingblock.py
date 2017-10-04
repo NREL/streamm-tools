@@ -474,15 +474,15 @@ def attachprep(bbC_i,bbC_j):
 
     This is handy for batch attachments to not repeat the intial steps in the attach function
     
-    Arguments:
-            bblockC_i (Container) Buildingblock container 1
-            Xo_i (int) key of attachment point particle container 1
-            bblockC_j (Container) Buildingblock container 2 
-            Xo_j (int) key of attachment point particle container 2
-            bbid_i   (str) Connecting atom bbid in container 1 
-            n_i      (int) number of connection to used in  container 1 
-            bbid_j   (str) Connecting atom bbid in container 2
-            n_j      (int) number of connection to used in  container 2
+    Args:
+        * bblockC_i (Container) Buildingblock container 1
+        * Xo_i (int) key of attachment point particle container 1
+        * bblockC_j (Container) Buildingblock container 2 
+        * Xo_j (int) key of attachment point particle container 2
+        * bbid_i   (str) Connecting atom bbid in container 1 
+        * n_i      (int) number of connection to used in  container 1 
+        * bbid_j   (str) Connecting atom bbid in container 2
+        * n_j      (int) number of connection to used in  container 2
             
     ::
     
@@ -515,24 +515,24 @@ def attachprep(bbC_i,bbC_j):
     
         
 def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
-        '''
+        '''Concatenate two building block containers
 
-        Concatenate two building block containers
-
-        Arguments:
-            bblockC_i (Container) Buildingblock container 1 
-            bblockC_j (Container) Buildingblock container 2 
-            bbid_i   (str) Connecting atom bbid in container 1 
-            n_i      (int) number of connection to used in  container 1 
-            bbid_j   (str) Connecting atom bbid in container 2
-            n_j      (int) number of connection to used in  container 2
-
-        { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
-                          =>
-        { bblockC_i - X_i - X_j - bblockC_j 
+        Args:
+            * bblockC_i (Container) Buildingblock container 1 
+            * bblockC_j (Container) Buildingblock container 2 
+            * bbid_i   (str) Connecting atom bbid in container 1 
+            * n_i      (int) number of connection to used in  container 1 
+            * bbid_j   (str) Connecting atom bbid in container 2
+            * n_j      (int) number of connection to used in  container 2
+            
+        Returns:
+            * bbC_i     (Container) Buildingblock 
         
-        .. ToDo::
-            * change bbid_i to rsite_i
+        .. ::
+            
+            { bblockC_i - X_i - R_i } +  { R_j - X_j - bblockC_j }
+                                     \/
+                    { bblockC_i - X_i - X_j - bblockC_j 
             
         '''
         # Empty container checks

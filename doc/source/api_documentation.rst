@@ -103,7 +103,7 @@ Neighbor List
 Buildingblock
 -------------
 
-.. autoclass:: streamm.structures.buildingblock.Buildingblock
+.. automodule:: streamm.structures.buildingblock 
    :members:
    :show-inheritance:   
 
