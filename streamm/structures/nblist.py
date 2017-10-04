@@ -20,28 +20,46 @@ logger = logging.getLogger(__name__)
 import csv
               
 class NBlist(object):
-    """
-    Class for neighbor list.
-    
-    A neighbor list has two Instance variable:
-    * list (list): 
-    * index (list):
-    
-    Where the ``list`` is a list of all neighboring indexes in sequence.
-    The ``index`` is list of the location in ``list`` of the beginning of the neighbors sequence, such that index[2] tells us where in ``list`` the neighbors of particle 2 begin.
-    
+    """Class for neighbor list.
+
+    .. attribute:: list (list) 
+
+        list of all neighboring indexes in sequence
+        
+    .. attribute:: index (list) 
+        
+        list of the location in ``list`` of the beginning of the neighbors sequence
+        
     Example:
-    You have particles with indexes 0, 1, 2, 3 and 4. And the following bonds:
+    You have ethane with particle labels of ``C1``, ``H1``, ``H2``, ``H3``, ``C2``, ``H4``, ``H5`` and ``H6``\
+    with particle indexes of  0, 1, 2, 3, 4, 5, 6 and 7 respectively.
     
-    * 0 - 1
-    * 1 - 2
-    * 2 - 3
-    * 2 - 4
+    ::
+        
+           H1         H4
+             \       /
+        H2 -- C1 -- C2 -- H5
+             /       \ 
+           H3         H6
     
-    The ``list`` would be ``[1,0,2,1,3,4,2,2]`` and the ``index`` would be ``[0,1,3,6,7,8]``.
-    So if we want the neighbor indexes of particle ``2``,
-    we get the beginning position in ``list`` from ``index[2]`` to be 3 and the ending position in ``list``
-    for  ``index[2+1]-1`` to be 5. This gives us the neighbor list of particle ``1`` to be ``[1,3,4]``.
+    
+    
+    You would have the following bonds:
+    
+    * C1[0] - C2[4]
+    * C1[0] - H1[1]
+    * C1[0] - H2[2]
+    * C1[0] - H3[3]
+    * C2[4] - H4[5]
+    * C2[4] - H5[6]
+    * C2[4] - H6[7]
+
+    The ``list`` would be ``[1, 2, 3, 4, 0, 0, 0, 0, 5, 6, 7, 4, 4, 4]`` and the ``index`` would be ``[0, 4, 5, 6, 7, 11, 12, 13, 14]``.
+    So if we want the neighbor indexes of ``C2`` (particle ``4``),
+    we get the beginning position in ``list`` from ``index[4]`` to be 7 and the ending position in ``list``
+    for  ``index[7+1]-1`` to be 10. So from the ``index`` we know ``C2`` has the neighbors ``list[7:10]`` ([0, 5, 6, 7]),
+    which is ``C2``,``H4``,``H5`` and ``H6``. The last value of 14 in the ``index`` list
+    is to give the last position in the ``list`` for the last particle (``index[7+1]-1``). 
     """
     def __init__(self):
         self.list = []

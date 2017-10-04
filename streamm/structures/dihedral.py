@@ -22,14 +22,14 @@ class Dihedral(units.ObjectUnits):
     """Data structure for describing any 4-point associations of Particles
 
     Args:
-        pkey1   (int)   Index of Particle object in dihedral
-        pkey2   (int)   Index of Particle object in dihedral
-        pkey3   (int)   Index of Particle object in dihedral
-        pkey4   (int)   Index of Particle object in dihedral
+        * pkey1   (int)   Index of Particle object in dihedral
+        * pkey2   (int)   Index of Particle object in dihedral
+        * pkey3   (int)   Index of Particle object in dihedral
+        * pkey4   (int)   Index of Particle object in dihedral
         
 
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
                 
     """
 

@@ -22,13 +22,13 @@ class Improper(units.ObjectUnits):
     Data structure for describing any 4-point association of Particles
     
     Args:
-        pkey1   (int)   Dictionary key of Particle object in improper
-        pkey2   (int)   Dictionary key of Particle object in improper
-        pkey3   (int)   Dictionary key of Particle object in improper
-        pkey4   (int)   Dictionary key of Particle object in improper
+        * pkey1   (int)   Dictionary key of Particle object in improper
+        * pkey2   (int)   Dictionary key of Particle object in improper
+        * pkey3   (int)   Dictionary key of Particle object in improper
+        * pkey4   (int)   Dictionary key of Particle object in improper
 
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
                 
     """
 

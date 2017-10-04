@@ -24,11 +24,11 @@ class Bond(units.ObjectUnits):
     """Data structure for describing any 2-point association of Particles
 
     Args:
-        pkey1 (int): Index of Particle i.
-        pkey2 (int): Index of Particle i.
+        * pkey1 (int): Index of Particle i.
+        * pkey2 (int): Index of Particle i.
         
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
         
     .. attribute:: length (float)
 

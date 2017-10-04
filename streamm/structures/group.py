@@ -37,14 +37,11 @@ class Group(units.ObjectUnits):
     Sets of particles within a structureContainer
     
     Args:
-        strucC (structures.container.Container): Reference structure Container
+        * strucC (structures.container.Container): Reference structure Container
 
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
-                
-    .. TODO ::
-        * Check unit conversion of all properties
-        
+        * units_conf (dict): Dictionary of units for each attribute type
+              
     """
     
     @property 
@@ -139,7 +136,7 @@ class Group(units.ObjectUnits):
         Write the particles of the group to an xyz file
 
         Kwargs:
-            xyz_file    (str): xyz file tag
+            * xyz_file    (str): xyz file tag
         '''
         if( len(xyz_file) == 0 ):
             xyz_file = "%s.xyz"%(self.tag)
@@ -634,8 +631,8 @@ class Groups(units.ObjectUnits):
     Set of groups within a structure.containers.Container
     
     Args:
-        tag (str): Identifier  of collection  of groups
-        strucC (structures.container.Container): Reference structure Container
+        * tag (str): Identifier  of collection  of groups
+        * strucC (structures.container.Container): Reference structure Container
         
     .. TODO ::
         Chage Groups to GroupSet
@@ -692,11 +689,11 @@ class Groups(units.ObjectUnits):
         Create groups of mols or residues
 
         Args:
-            prop  (str): property key
-            tag (str): key for Groups object in groups dict
+            * prop  (str): property key
+            * tag   (str): key for Groups object in groups dict
             
         Kwargs:
-            particles_select  (list): list of particle keys to be included in groups
+            * particles_select  (list): list of particle keys to be included in groups
                                      defaults to all particles.keys if none are specified
                                      
         """
@@ -880,10 +877,10 @@ class Groups(units.ObjectUnits):
         Find pairs based on criteria
         
         Args:
-            list_i (list) list of particle index
-            list_j (list) list of particle index
-            mol_inter (Boolean) include inter-molecular connections
-            mol_intra (Boolean) include intra-molecular connections 
+            * list_i (list) list of particle index
+            * list_j (list) list of particle index
+            * mol_inter (Boolean) include inter-molecular connections
+            * mol_intra (Boolean) include intra-molecular connections 
         '''
         # 
         N_i = len(list_i)
@@ -946,14 +943,14 @@ class Groups(units.ObjectUnits):
         Create neighbor list of particles based on distance and element.covalent_radius  of each particle 
         
         Args:
-            radius_type (int)
+            * radius_type (int)
                     0 - element.covalent_radius
                     1 - element.vdw_radius
                     
-            radii_buffer (float) to multiply radii cut off
+            * radii_buffer (float) to multiply radii cut off
             
         Return:
-            NBlist (object) 
+            * NBlist (object) 
         """
 
         nblist_i = NBlist()
@@ -1023,7 +1020,7 @@ class Groups(units.ObjectUnits):
         Update instance values with new units
         
         Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
         
