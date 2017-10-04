@@ -43,17 +43,17 @@ class Project(CalculationRes):
     Project is a set of calculations
     
     Projects track:
-      file IO
-      simulations ran
-      computational resources used for each simulation
+      * file IO
+      * simulations ran
+      * computational resources used for each simulation
     
     Data for each action is stored in a json file
 
     Args:
-        tag (str): String identifier for object
+        * tag (str): String identifier for object
         
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
         
     '''
     def __init__(self,tag,unit_conf=units.unit_conf ):
@@ -147,10 +147,10 @@ class Project(CalculationRes):
         Add Calculation to the project
         
         Args:
-            calc_i (resource.CalculationRes): calculation object
+            * calc_i (resource.CalculationRes): calculation object
             
         Kwargs:
-            deepcopy (boolean): whether to make a deepcopy of the calculation
+            * deepcopy (boolean): whether to make a deepcopy of the calculation
             
         '''
         if( deepcopy ):

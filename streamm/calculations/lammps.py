@@ -93,10 +93,9 @@ class LAMMPS(CalculationRes):
         """
         Read Lammps data file
 
-        Arguments:
-            data_file  (str) data file
-        Return:
-            None
+        Args:
+            * data_file  (str) data file
+            
         """
 
         F = open(data_file , 'r' )
@@ -521,10 +520,9 @@ class LAMMPS(CalculationRes):
         """
         Read positions only from Lammps data file
 
-        Arguments:
-            data_file  (str) data file
-        Return:
-            None
+        Args:
+            * data_file  (str) data file
+            
         """
 
         F = open(data_file , 'r' )
@@ -794,7 +792,7 @@ class LAMMPS(CalculationRes):
         Read in input parameters from lammps in file
 
         Args:
-            in_file (str) lammps in file
+            * in_file (str) lammps in file
 
         """
         # Add new properties 
@@ -879,7 +877,7 @@ class LAMMPS(CalculationRes):
         Read in results from lammps log file
 
         Args:
-            log_file (str) lammps log file
+            * log_file (str) lammps log file
 
         """
 
@@ -1080,8 +1078,8 @@ class LAMMPS(CalculationRes):
         Read parameter file 
 
 
-        Arguments:
-            param_file  (str) parameter file
+        Args:
+            * param_file  (str) parameter file
 
         """
         debug = False

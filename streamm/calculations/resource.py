@@ -34,7 +34,12 @@ except:
 
 class Resource(object):
     '''
-    Data structure for a compute resource  
+    Data structure for a compute resource
+
+
+    Args:
+        * tag (str) unique id for project
+            
     '''
 
     def set_home(self,home_dir):
@@ -53,9 +58,6 @@ class Resource(object):
         '''
         Constructor for a general Resource object.
         
-        Input:
-            tag (str) unique id for project
-            
         '''
         
         self.tag = str(tag)
@@ -165,7 +167,7 @@ class CalculationRes(Calculation):
     then output files and output data will be compressed and moved to storage.
 
     Kwargs:
-        units_conf (dict): Dictionary of units for each attribute type
+        * units_conf (dict): Dictionary of units for each attribute type
 
     '''
     def __init__(self, tag ,unit_conf=units.unit_conf):
