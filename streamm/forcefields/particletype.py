@@ -75,16 +75,10 @@ class Particletype(units.ObjectUnits):
         self.gromacs_index = None 
     
     def __del__(self):
-        """
-        Destructor, clears structure memory and calls held container destructors
-        """
         del self.fftype1
         del self.lammps_index
         del self.gromacs_index
         
     def __str__(self):
-        """
-        'Magic' method for printng contents of container
-        """
         return " {} epsilon:{} sigma:{}".format(self.fftype1,self.epsilon,self.sigma)
 

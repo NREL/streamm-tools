@@ -92,11 +92,13 @@ class Bondtype(units.ObjectUnits):
         """
         set Harmonic parameters
 
-        E = kb( r - r0 )^2 
-
         Args:
-            r0 (float) distance 
-            kb (float) force constant
+            * r0 (float) distance 
+            * kb (float) force constant
+    
+        .. math::
+            E = kb( r - r_0 )^2 
+
             
         """
 

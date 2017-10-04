@@ -24,11 +24,11 @@ class Dihtype(units.ObjectUnits):
     Set of Dihedral angle parameters
 
     Args:
-         fftype1  (str)   Atom type 
-         fftype2  (str)   Atom type 
-         fftype3  (str)   Atom type 
-         fftype4  (str)   Atom type 
-         type    (str)   Bond type
+         * fftype1  (str)   Atom type 
+         * fftype2  (str)   Atom type 
+         * fftype3  (str)   Atom type 
+         * fftype4  (str)   Atom type 
+         * type    (str)   Bond type
          
     """
 
@@ -195,9 +195,6 @@ class Dihtype(units.ObjectUnits):
         self.gromacs_index = 0
 
     def __del__(self):
-        """
-        Destructor, clears object memory
-        """
         del self.fftype1
         del self.fftype2 
         del self.fftype3
@@ -209,10 +206,6 @@ class Dihtype(units.ObjectUnits):
         del self.gromacs_index 
 
     def __str__(self):
-        """
-        'Magic' method for printng contents
-        Delegates to __str__ method for contained objects
-        """
         strucStr =  " dihedral  %s - %s - %s - %s type %s "%(self.fftype1,self.fftype2,self.fftype3,self.fftype4,self.type)
         
         if( self.type ==  "harmonic" ):
@@ -232,13 +225,19 @@ class Dihtype(units.ObjectUnits):
         set MultiHarmonic parameters
         dihedral_style charmm
 
-        E = kb[ 1 - cos( mult theta - theat_s ) ]  gromacs
-        E = kb[ 1 - cos( n theta - d ) ]           lammps 
-
         Args:
-            mult     (float) 
-            kb     (float) force constant    kcal/mol
-            theat_s     (float) angle degrees 
+            * mult     (float) 
+            * kb     (float) force constant    kcal/mol
+            * theat_s     (float) angle degrees
+            
+        gromacs:
+        .. math::
+            E = kb[ 1 - cos( mult theta - theat_s ) ]  
+
+        lammps:
+        .. math::
+            E = kb[ 1 - cos( n theta - d ) ]            
+            
         """
 
         if isinstance(kb, float):
@@ -261,10 +260,10 @@ class Dihtype(units.ObjectUnits):
         set opls parameters
         
         Args:
-            k1     (float) force constant    kcal/mol
-            k2     (float) force constant    kcal/mol
-            k3     (float) force constant    kcal/mol
-            k4     (float) force constant    kcal/mol
+            * k1     (float) force constant    kcal/mol
+            * k2     (float) force constant    kcal/mol
+            * k3     (float) force constant    kcal/mol
+            * k4     (float) force constant    kcal/mol
 
         .. math::
             E = 1/2 k1[1+cos(theta)]+1/2 k2[1-cos(2 theta)]+1/2 k3[1+cos(3 theta)]+1/2 k4[1-cos(4 theta)]
@@ -360,7 +359,7 @@ class Dihtype(units.ObjectUnits):
         Update instance values with new units
         
         Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
         

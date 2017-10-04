@@ -242,7 +242,7 @@ class Parameters(units.ObjectUnits):
         Update instance values with new units
         
         Args:
-            new_unit_conf (dict): with unit type as the key and the new unit as the value
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
         # 

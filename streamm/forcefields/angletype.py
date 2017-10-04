@@ -96,8 +96,8 @@ class Angletype(units.ObjectUnits):
         set Harmonic angle parameters
 
         Args:
-            theta0 (float): angle           
-            kb     (float): force constant  
+            * theta0 (float): angle           
+            * kb     (float): force constant  
             
         .. math ::
             E = kb( theta - theta_0 )^2 

@@ -22,11 +22,11 @@ class Imptype(units.ObjectUnits):
     Set of improper dihedral angle parameters
 
     Args:
-         fftype1  (str)   Atom type 
-         fftype2  (str)   Atom type 
-         fftype3  (str)   Atom type 
-         fftype4  (str)   Atom type 
-         type    (str)   Bond type
+         * fftype1  (str)   Atom type 
+         * fftype2  (str)   Atom type 
+         * fftype3  (str)   Atom type 
+         * fftype4  (str)   Atom type 
+         * type    (str)   Bond type
          
     """
 
@@ -75,9 +75,6 @@ class Imptype(units.ObjectUnits):
         self.gromacs_index = 0 
 
     def __del__(self):
-        """
-        Destructor, clears object memory
-        """
         del self.fftype1
         del self.fftype2 
         del self.fftype3
@@ -87,10 +84,6 @@ class Imptype(units.ObjectUnits):
 
         
     def __str__(self):
-        """
-        'Magic' method for printng contents
-        Delegates to __str__ method for contained objects
-        """
         strucStr =  " improper  %s - %s - %s - %s type %s "%(self.fftype1,self.fftype2,self.fftype3,self.fftype4,self.type)
         
         if( self.type ==  "improper" ):
@@ -102,12 +95,13 @@ class Imptype(units.ObjectUnits):
     def setimp(self, e0, ke):
         """
         set Harmonic parameters
-
-        E = kb ( e_{lijk} - e0 )^2 
+        
+        .. math::
+            E = kb ( e_{lijk} - e_0 )^2 
 
         Args:
-            e0     (float) 
-            kb     (float) force constant    kcal/mol
+            * e0     (float) 
+            * kb     (float) force constant    (energy)
         """
 
         if isinstance(e0, float):
