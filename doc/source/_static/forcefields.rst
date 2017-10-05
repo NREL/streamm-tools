@@ -1,7 +1,3 @@
-.. _forcefields:
-
-forcefields
-===========
 
 This notebook imports the fundamental objects of the streamm.forcefields
 module and goes through the functionality of each
@@ -248,7 +244,7 @@ Add parameters to the container
           Bond parameters 2 
           Angle parameters 2 
           Dihedral parameters 1 
-          Imporper Dihedral parameters 0 
+          Improper Dihedral parameters 0 
     
 
 

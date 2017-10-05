@@ -1,8 +1,3 @@
-.. _templates:
-
-templates
-==========
-
 
 In this example, we will write out a NWChem input file based on a
 template
@@ -39,8 +34,8 @@ streamm-tools repo, the TEMPLATE\_DIR should look like this
 
 .. parsed-literal::
 
-    /Users/tkemper/Development/STREAMM/streamm-tools/examples
-    /Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/
+    /Users/rlarsen/Development/streamm-tools/examples
+    /Users/rlarsen/Development/streamm-tools/examples/../templates/
 
 
 If not please set the ``TEMPLATE_DIR`` variable to the location of the
@@ -61,6 +56,8 @@ Create a NWChem calculation object
 Read in the ethane structure we creating in the buildingblocks example.
 
 .. Note::
+
+::
 
     If you have not run the buildingblocks.ipynb example, please do so the create a `.xyz` file
 
@@ -87,7 +84,7 @@ Get the location of the template file
 
 .. parsed-literal::
 
-    /Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/nwchem.nw
+    /Users/rlarsen/Development/streamm-tools/examples/../templates/nwchem.nw
 
 
 Read in the template
@@ -95,6 +92,21 @@ Read in the template
 .. code:: python
 
     template_line = nwchem.read_lines(template_path)
+
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    AttributeError                            Traceback (most recent call last)
+
+    <ipython-input-15-f054b2c3cca3> in <module>()
+    ----> 1 template_line = nwchem.read_lines(template_path)
+    
+
+    AttributeError: 'NWChem' object has no attribute 'read_lines'
+
 
 .. code:: python
 

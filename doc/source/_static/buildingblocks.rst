@@ -1,8 +1,3 @@
-.. _buildingblocks:
-
-buildingblocks
-==============
-
 
 This notebook imports the fundamental objects of the
 streamm.buildingblocks module and goes through the functionality of each
@@ -78,8 +73,8 @@ methanes together to create alkyl chains of any length
 So let's set two of the hydrogens to be reactive sites (rsites).
 
 You can view the numerical order of the atoms in Avogadro by setting the
-label to "atom number," however, Avogadro labels atoms from 1 to N, while
-streamm uses 0 to N-1
+label to "atom number," however, Avogadro labels atoms from 1 to N,
+while streamm uses 0 to N-1
 
 We will choose the first two hydrogens and set their rsite variable to
 'RH'. It does not matter what this identifier is, as long as the same
@@ -164,6 +159,36 @@ for subsequent attachments.
 .. code:: python
 
     mol_m.tag = 'ethane'
+
+.. code:: python
+
+    for pk,p in mol_m.particles.iteritems():
+        print pk,p
+
+
+.. parsed-literal::
+
+    0 atom[0] C (C)
+    1 atom[1] H (H)
+    2 atom[2] H (H)
+    3 atom[3] H (H)
+    4 atom[4] C (C)
+    5 atom[5] H (H)
+    6 atom[6] H (H)
+    7 atom[7] H (H)
+
+
+.. code:: python
+
+    print mol_m.bonded_nblist.list 
+    print mol_m.bonded_nblist.index 
+
+
+.. parsed-literal::
+
+    [1, 2, 3, 4, 0, 0, 0, 0, 5, 6, 7, 4, 4, 4]
+    [0, 4, 5, 6, 7, 11, 12, 13, 14]
+
 
 .. code:: python
 

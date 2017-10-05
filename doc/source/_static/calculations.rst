@@ -1,7 +1,3 @@
-.. _calculations:
-
-calculations
-============
 
 .. code:: python
 
@@ -17,10 +13,10 @@ calculations, run them on local and remote resources and collect the
 output for analysis, thus facilitating high-throughput computational
 material design.
 
-To accomplish this, the directory structure is contained within a resource as
-a dictionary. Resources, structures, and forcefields are contained
-within a calculation object. Sets of calculations are contained within a
-project
+To accomplish this, the directory structure is contained within a
+resource as a dictionary. Resources, structures, and forcefields are
+contained within a calculation object. Sets of calculations are
+contained within a project
 
 So let's first create a resource object that we will use to set the
 directory locations of all the subsequent calculation objects
@@ -47,13 +43,13 @@ default
 
 .. parsed-literal::
 
-    {u'home': '/Users/tkemper/Development/STREAMM/streamm-tools/examples',
-     u'launch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch',
-     u'materials': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/materials',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch',
-     u'scripts': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scripts',
-     u'storage': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/storage',
-     u'templates': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/templates'}
+    {u'home': '/Users/rlarsen/Development/streamm-tools/examples',
+     u'launch': u'/Users/rlarsen/Development/streamm-tools/examples/scratch',
+     u'materials': u'/Users/rlarsen/Development/streamm-tools/examples/materials',
+     u'scratch': u'/Users/rlarsen/Development/streamm-tools/examples/scratch',
+     u'scripts': u'/Users/rlarsen/Development/streamm-tools/examples/scripts',
+     u'storage': u'/Users/rlarsen/Development/streamm-tools/examples/storage',
+     u'templates': u'/Users/rlarsen/Development/streamm-tools/examples/templates'}
 
 
 Let's create a new home directory called 'example\_proj'
@@ -77,13 +73,13 @@ Let's create a new home directory called 'example\_proj'
 
 .. parsed-literal::
 
-    {u'home': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj',
-     u'launch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch',
-     u'materials': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/materials',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch',
-     u'scripts': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scripts',
-     u'storage': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/storage',
-     u'templates': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/templates'}
+    {u'home': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj',
+     u'launch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch',
+     u'materials': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/materials',
+     u'scratch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch',
+     u'scripts': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scripts',
+     u'storage': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/storage',
+     u'templates': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/templates'}
 
 
 However, we want to use structures from our previous structures and
@@ -110,7 +106,7 @@ directory
 
 .. parsed-literal::
 
-    /Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/
+    /Users/rlarsen/Development/streamm-tools/examples/../templates/
 
 
 This also contains the properties dictionary, which can be used to write
@@ -169,13 +165,13 @@ Set the resource and all the directories
 
 .. parsed-literal::
 
-    {u'home': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj',
-     u'launch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_HF/',
-     u'materials': '/Users/tkemper/Development/STREAMM/streamm-tools/examples',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_HF/',
-     u'scripts': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scripts',
-     u'storage': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/storage/methane_HF/',
-     u'templates': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/'}
+    {u'home': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj',
+     u'launch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_HF/',
+     u'materials': '/Users/rlarsen/Development/streamm-tools/examples',
+     u'scratch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_HF/',
+     u'scripts': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scripts',
+     u'storage': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/storage/methane_HF/',
+     u'templates': u'/Users/rlarsen/Development/streamm-tools/examples/../templates/'}
 
 
 Make the calculation directories
@@ -214,7 +210,7 @@ Change to the scratch directory
 
 .. parsed-literal::
 
-    u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_HF/'
+    u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_HF/'
 
 
 .. code:: python
@@ -275,7 +271,7 @@ Make sure we are in the scratch directory
 
 .. parsed-literal::
 
-    '/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_HF'
+    '/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_HF'
 
 
 Load the template files into memory
@@ -390,13 +386,13 @@ Make directories
 
 .. parsed-literal::
 
-    {u'home': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj',
-     u'launch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_lmp/',
-     u'materials': '/Users/tkemper/Development/STREAMM/streamm-tools/examples',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scratch/methane_lmp/',
-     u'scripts': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/scripts',
-     u'storage': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/example_proj/storage/methane_lmp/',
-     u'templates': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/'}
+    {u'home': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj',
+     u'launch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_lmp/',
+     u'materials': '/Users/rlarsen/Development/streamm-tools/examples',
+     u'scratch': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scratch/methane_lmp/',
+     u'scripts': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/scripts',
+     u'storage': u'/Users/rlarsen/Development/streamm-tools/examples/example_proj/storage/methane_lmp/',
+     u'templates': u'/Users/rlarsen/Development/streamm-tools/examples/../templates/'}
 
 
 This takes an type and key to set the calc\_i.files[type][key]

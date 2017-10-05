@@ -1,7 +1,3 @@
-.. _structures:
-
-structures
-==========
 
 This notebook imports the fundamental objects of the streamm.structure
 module and goes through the functionality of each
@@ -489,8 +485,8 @@ angles and dihedrals
 A little easier than adding everything by hand
 
 Now let's set some groups. This is a little unnecessary for methane, but
-it will come in super handy if you have a large simulation of thousands of
-molecules.
+it will come in super handy if you have a large simulation of thousands
+of molecules.
 
 To do this we will set the residue variable for each particle.
 
