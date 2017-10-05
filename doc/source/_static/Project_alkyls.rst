@@ -1,3 +1,7 @@
+.. _Project_alkyls:
+
+Project_alkyls
+===============
 
 In this example we will create alkyl chains of various lengths, run
 quantum chemical analysis on each and then replicate them into a
