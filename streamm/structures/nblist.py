@@ -58,7 +58,7 @@ class NBlist(object):
     So if we want the neighbor indexes of ``C2`` (particle ``4``),
     we get the beginning position in ``list`` from ``index[4]`` to be 7 and the ending position in ``list``
     for  ``index[7+1]-1`` to be 10. So from the ``index`` we know ``C2`` has the neighbors ``list[7:10]`` ([0, 5, 6, 7]),
-    which is ``C2``, ``H4``, ``H5`` and ``H6``. The last value of 14 in the ``index`` list
+    which are ``C2``, ``H4``, ``H5`` and ``H6``. The last value of 14 in the ``index`` list
     is to give the last position in the ``list`` for the last particle (``index[7+1]-1``). 
     """
     def __init__(self):

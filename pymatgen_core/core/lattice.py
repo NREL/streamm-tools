@@ -188,12 +188,12 @@ class Lattice(units.ObjectUnits):
         """Set lattice with lattice constants.  
         
         Args:
-            constants[0]     (float): lattice constant a
-            constants[1]     (float): lattice constant b
-            constants[2]     (float): lattice constant c
-            constants[3]     (float): lattice angle alpha 
-            constants[4]     (float): lattice angle beta
-            constants[5]     (float): lattice angle gamma
+            * constants[0]     (float): lattice constant a
+            * constants[1]     (float): lattice constant b
+            * constants[2]     (float): lattice constant c
+            * constants[3]     (float): lattice angle alpha 
+            * constants[4]     (float): lattice angle beta
+            * constants[5]     (float): lattice angle gamma
             
         """
         
@@ -222,7 +222,7 @@ class Lattice(units.ObjectUnits):
         lattice vector.
 
         Args:
-            matrix: Sequence of numbers in any form. Examples of acceptable
+            * matrix: Sequence of numbers in any form. Examples of acceptable
                 input.
                 i) An actual numpy array.
                 ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -301,10 +301,10 @@ class Lattice(units.ObjectUnits):
         Translate fractional coordinates to real
         
         Args:
-            frac_o (numpy array): fraction coordinates
+            * frac_o (numpy array): fraction coordinates
             
         Returns:
-            pos_o (numpy array): real cartesian coordinates
+            * pos_o (numpy array): real cartesian coordinates
             
         '''
         pos_o = np.zeros(self.n_dim)
@@ -320,11 +320,11 @@ class Lattice(units.ObjectUnits):
         Difference between two positions
         
         Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j
+            * pos_i (list): cartesian coordinates [x,y,z] for position i
+            * pos_j (list): cartesian coordinates [x,y,z] for position j
 
         Returns:
-            dr_ij (list): cartesian vector [x,y,z] between position i and j
+            * dr_ij (list): cartesian vector [x,y,z] between position i and j
             
         If pbcs are set to true this calculates the fractional coordinates according to the
         inverse of the matrix multiplied by the position 
@@ -389,12 +389,12 @@ class Lattice(units.ObjectUnits):
         Difference between two positions
 
         Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j        
+            * pos_i (list): cartesian coordinates [x,y,z] for position i
+            * pos_j (list): cartesian coordinates [x,y,z] for position j        
 
         Returns:
-            dr_ij (list): cartesian vector [x,y,z] between position i and j
-            mag_dr_ij (float): magnitude of vector dr_ij
+            * dr_ij (list): cartesian vector [x,y,z] between position i and j
+            * mag_dr_ij (float): magnitude of vector dr_ij
             
         """
         
@@ -409,11 +409,11 @@ class Lattice(units.ObjectUnits):
         Normalized difference between two positions in cubic lattice
         
         Args:
-            pos_i (list): cartesian coordinates [x,y,z] for position i
-            pos_j (list): cartesian coordinates [x,y,z] for position j
+            * pos_i (list): cartesian coordinates [x,y,z] for position i
+            * pos_j (list): cartesian coordinates [x,y,z] for position j
             
         Returns:
-            dr_ij (list): normalized cartesian vector [x,y,z] between position i and j
+            * dr_ij (list): normalized cartesian vector [x,y,z] between position i and j
             
         '''
         dr_ij = self.d_pos(pos_i, pos_j)
@@ -426,14 +426,12 @@ class Lattice(units.ObjectUnits):
         Difference between two position lists in  cubic lattice
         
         Args:
-            pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
-            pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j        
+            * pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
+            * pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j        
 
         Returns:
-            npos_ij (m x n numpy array): array of cartesian vector [x,y,z] between position i and j
-            where the npos_ij[i][j] value is the difference between pos_i[i] and pos_j[j] 
-            mag_dr_ij (m x n numpy array): array of the magnitudes of vector dr_ij      
-            where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j]
+            * npos_ij (m x n numpy array): array of cartesian vector [x,y,z] between position i and j where the npos_ij[i][j] value is the difference between pos_i[i] and pos_j[j] 
+            * mag_dr_ij (m x n numpy array): array of the magnitudes of vector dr_ij where the mag_dr_ij[i][j] value is the distance between pos_i[i] and pos_j[j]
             
         """
         n_i = len(npos_i)
@@ -479,12 +477,12 @@ class Lattice(units.ObjectUnits):
         Difference between two position lists in  cubic lattice
 
         Args:
-            pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
-            pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j
+            * pos_i (list of lists): list of cartesian coordinates [x,y,z] for positions i
+            * pos_j (list of lists): list of cartesian coordinates [x,y,z] for positions j
             
         Returns:
-            True: if no overlap between particles was found
-            False: if overlap between particles was found
+            * True: if no overlap between particles was found
+            * False: if overlap between particles was found
             
         
         """
@@ -555,7 +553,7 @@ class Lattice(units.ObjectUnits):
         Increase size of lattice by certain fraction
 
         Args:
-            exlat_frac (float): fraction to increase lattice by
+            * exlat_frac (float): fraction to increase lattice by
             
         '''
         matrix_i = self.matrix
@@ -574,7 +572,7 @@ class Lattice(units.ObjectUnits):
         Set lattice to cubic with lattice constant
         
         Args:
-            len_o (float): Length of cubic lattice constant a
+            * len_o (float): Length of cubic lattice constant a
         
         '''
         matrix = np.zeros((self.n_dim, self.n_dim))

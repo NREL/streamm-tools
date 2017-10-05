@@ -35,12 +35,12 @@ class Testdihtypeharmonic(unittest.TestCase):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="harmonic")
         self.dihtype_i.d = 4.0
         self.dihtype_i.mult = 3.0
-        self.dihtype_i.theat_s = 45.0
+        self.dihtype_i.theta_s = 45.0
         self.dihtype_i.kb = 80.6
         
 
     def test_dihstr(self):
-        dih_str = ' dihedral  HC - CH - CH - HC type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theat_s = 45.000000 lammps index 0  gromcas index 0 '
+        dih_str = ' dihedral  HC - CH - CH - HC type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theta_s = 45.000000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
         
     @tearDown_streamm 
@@ -55,12 +55,12 @@ class Testdihtypemultiharmonic(unittest.TestCase):
         self.dihtype_i = dihtype.Dihtype("HC","CH","CH","HC",type="multiharmonic")
         self.dihtype_i.d = 4.0
         self.dihtype_i.mult = 3.0
-        self.dihtype_i.theat_s = 45.0
+        self.dihtype_i.theta_s = 45.0
         self.dihtype_i.kb = 80.6
         
 
     def test_dihstr(self):
-        dih_str = ' dihedral  HC - CH - CH - HC type multiharmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theat_s = 45.000000 lammps index 0  gromcas index 0 '
+        dih_str = ' dihedral  HC - CH - CH - HC type multiharmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theta_s = 45.000000 lammps index 0  gromcas index 0 '
         self.assertEqual(str(self.dihtype_i),dih_str)
         
     @tearDown_streamm 

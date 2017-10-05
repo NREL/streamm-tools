@@ -10,8 +10,6 @@ __version__ = "0.3"
 __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
-
-
 try:
     # Import pymatgen Class 
     import pymatgen_core.core.units as units 
@@ -28,7 +26,7 @@ class Dihtype(units.ObjectUnits):
          * fftype2  (str)   Atom type 
          * fftype3  (str)   Atom type 
          * fftype4  (str)   Atom type 
-         * type    (str)   Bond type
+         * type     (str)   Bond type
          
     """
 
@@ -233,12 +231,12 @@ class Dihtype(units.ObjectUnits):
         gromacs
         
         .. math::
-            E = kb[ 1 - cos( mult theta - theta_s ) ]  
+            E = kb[ 1 - cos( mult*theta - theta_s ) ]  
 
         lammps
         
         .. math::
-            E = kb[ 1 - cos( n theta - d ) ]            
+            E = kb[ 1 - cos( n*theta - d ) ]            
             
         """
 
@@ -268,7 +266,16 @@ class Dihtype(units.ObjectUnits):
             * k4     (float) force constant    kcal/mol
 
         .. math::
-            E = 1/2 k1[1+cos(theta)]+1/2 k2[1-cos(2 theta)]+1/2 k3[1+cos(3 theta)]+1/2 k4[1-cos(4 theta)]
+            E = 1/2k1[1+cos(theta)]
+
+        .. math::
+            +1/2k2[1-cos(2theta)]
+
+        .. math::
+            +1/2k3[1+cos(3theta)]
+
+        .. math::
+            +1/2k4[1-cos(4theta)]
 
         """
 
@@ -314,7 +321,7 @@ class Dihtype(units.ObjectUnits):
             C5     (float) force constant    kcal/mol
             
         .. math::
-            V_{rb}(theta) = \sum_n=0^5 C_n [ cos(theata - 180 )^n ]
+            V_{rb}(theta) = \sum_{n=0}^5 C_n [ cos(theta - 180 )^n ]
 
         """
 

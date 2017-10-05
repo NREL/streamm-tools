@@ -368,12 +368,9 @@ class Group(units.ObjectUnits):
                     /  
                    /    
             j----i  ----  dr_CC_s                        
-            
-            
         
         add to vector dr_CC between i-j scaled by cos(109.5) 
-        to get a vector hbond_0 which has an angle jiH0 of 109.5  
-           
+        to get a vector hbond_0 which has an angle j-i-H0 of 109.5  
 
         ::
             
@@ -386,7 +383,7 @@ class Group(units.ObjectUnits):
                           \       
                            H2      
                            
-         so dr_CC_s is the same as H0 
+        so dr_CC_s is the same as H0 
         
         ::
             
@@ -399,13 +396,13 @@ class Group(units.ObjectUnits):
                /    \                 
               /      \              
              H2       H1             
-             
-         H1 is at  2pi/3 from cros_ik_n and cros_jk
-         H2 is at -2pi/3 from cros_ik_n and cros_jk
+        
+        H1 is at  2pi/3 from cros_ik_n and cros_jk
+        H2 is at -2pi/3 from cros_ik_n and cros_jk
 
-         and cros_ijk_n is again scaled by sin(109.5)
+        and cros_ijk_n is again scaled by sin(109.5)
                        
-         """
+        """
         
         def hterm_Csp3(hb_length,r_i,r_ij_array):
             """
@@ -944,8 +941,8 @@ class Groups(units.ObjectUnits):
         
         Args:
             * radius_type (int)
-                    0 - element.covalent_radius
-                    1 - element.vdw_radius
+                * 0 - element.covalent_radius
+                * 1 - element.vdw_radius
                     
             * radii_buffer (float) to multiply radii cut off
             
