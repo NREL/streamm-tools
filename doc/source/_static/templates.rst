@@ -1,3 +1,8 @@
+.. _templates:
+
+templates
+===============
+
 
 In this example, we will write out a NWChem input file based on a
 template
