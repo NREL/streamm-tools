@@ -130,6 +130,12 @@ DERIVED_UNITS = {
       'nm^3':{'nm':3},
       'ang^3':{'ang':3}
     },
+    "length^2":{
+      'm^2':{"m":2},
+      'cm^2':{'cm':2},
+      'nm^2':{'nm':2},
+      'ang^2':{'ang':2}
+    },
     "density":{
         'kg_m^3':{"kg": 1, "m": -3},
         'g_cm^3':{"g": 1, "cm": -3},
@@ -1017,10 +1023,7 @@ class ObjectUnits(MSONable):
 
     Kwargs:
         * unit_conf (dict): Unit types with units used by this object
-            
-    .. TODO ::
-        Add length squared to DERIVED_UNITS
-        
+           
     '''
     
 

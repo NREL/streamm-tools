@@ -631,9 +631,6 @@ class Groups(units.ObjectUnits):
         * tag (str): Identifier  of collection  of groups
         * strucC (structures.container.Container): Reference structure Container
         
-    .. TODO ::
-        Chage Groups to GroupSet
-        
     """
     def __init__(self,tag,strucC,unit_conf=units.unit_conf):
 
