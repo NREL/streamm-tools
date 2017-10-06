@@ -1,0 +1,105 @@
+# LAMMPS input: minimization w/ full potential   
+     
+units 		real           
+boundary     p p p    
+newton          on  # use off for np>4
+
+atom_style    full    
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  opls
+improper_style  harmonic  
+
+pair_style      lj/cut/coul/long 15.0
+pair_modify     mix geometric  #  shift   yes
+kspace_style    pppm    1.0e-5
+
+read_data  <data_file>
+
+thermo_style    custom step temp pe etotal press vol lx ly lz ebond eangle edihed eimp evdwl  ecoul  elong  etail
+thermo          1000
+
+timestep        0.5
+
+restart 10000 npt1_restart
+fix     npt1  all npt temp 100 100 1000.0 iso 1.0 5.0 1000.0 
+dump    dump_npt1 all dcd 10000 npt1_dump.dcd
+
+run   50000 
+
+write_data npt1.data 
+unfix npt1
+undump dump_npt1
+
+
+restart 10000 npt2_restart
+fix     npt2  all npt temp 100 150 1000.0 iso 5.0 10.0 1000.0 
+dump    dump_npt2 all dcd 10000 npt2_dump.dcd
+
+run   50000 
+
+write_data npt2.data 
+unfix npt2
+undump dump_npt2
+
+restart 10000 npt3_restart
+fix     npt3  all npt temp  150 200 1000.0 iso 10.0 100.0 1000.0 
+dump    dump_npt3 all dcd 10000 npt3_dump.dcd
+
+run   50000 
+
+write_data npt3.data 
+unfix npt3
+undump dump_npt3
+
+restart 10000 npt4_restart
+fix     npt4  all npt temp  200 250 1000.0 iso 100.0 100.0 1000.0 
+dump    dump_npt4 all dcd 10000 npt4_dump.dcd
+
+run   50000 
+
+write_data npt4.data 
+unfix npt4
+undump dump_npt4
+
+
+restart 10000 npt5_restart
+fix     npt5  all npt temp  250 300 1000.0 iso 100.0 100.0 1000.0 
+dump    dump_npt4 all dcd 10000 npt5_dump.dcd
+
+run   50000 
+
+write_data npt5.data 
+unfix npt5
+undump dump_npt5
+
+
+
+timestep    0.5
+restart 10000 npt6_restart
+fix     npt6  all npt temp 300 600 1000.0 iso 100.0 100.0 1000.0 
+dump    dump_npt6 all dcd 10000 dump_npt6.dcd
+run     200000
+#run   500000
+write_data npt6.data 
+unfix npt6
+undump dump_npt6
+
+
+timestep    0.5
+restart 10000 npt7_restart
+fix     npt7  all npt temp 600 300.0 1000.0 iso 100.0 1.0 1000.0 
+dump    dump_npt7 all dcd 10000 dump_npt7.dcd
+run     200000
+write_data npt7.data 
+unfix npt7
+undump dump_npt7
+
+
+restart          1000 min8_restart
+timestep     0.1
+min_style     cg
+min_modify      dmax 0.1
+minimize      1.0e-3 1.0e-5 10000 100000
+
+write_data min8.data

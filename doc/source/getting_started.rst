@@ -1,214 +1,66 @@
 .. _getting_started:
 
-.. index:: regression tests, unit tests, test scripts, github
-
-*********************************
 Getting started
-*********************************
+***************
 
-.. _download-from-github:
+The streamm package includes modules to manipulate atomic structures,
+keep track of force field parameters and write input
+files for Quantum chemistry codes, such as
+`NWChem <http://www.nwchem-sw.org/index.php/Main_Page>`_
+and `Gaussian <http://gaussian.com/>`_ molecular dynamics codes
+such as `LAMMPS <http://lammps.sandia.gov/>`_.
 
-Clone Github repository 
-============================
+To get started we will first build ethane out of two methanes using the :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` object.
+While this is a simple example, it is meant to illustrate the functionality of the streamm code to construct organic structures form building block units.
+In practice, this functionality allows for the combinatorial creation and analysis millions of variations of organic structures.
 
-The STREAMM *tools* code is maintained in a Github repository at https://github.com/NREL/streamm-tools hosted by
-the National Renewable Energy Lab (NREL). The main STREAMM repo contains many projects that use the tools code as 
-well as the separate suite of unit/regression tests. The web based interface allows one to download the tools repo
-using the GUI. The tools repo can be downloaded using the linux command line ::
+To create a :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>`
+object representing methane, we will create carbon and hydrogen particle objects and add them to the methane object with the correct positions.
 
-     git clone https://github.com/NREL/streamm-tools.git
+.. code :: python 
 
-The tools repo contains the following directories and files
-
-- README.md  -- Repo notes
-- analysis   -- 3rd party codes used for post-processing
-- config.sh  -- Configuration script that sets PYTHONPATH and other needed environment variables
-- da_builder -- Donor-Acceptor builder source code
-- doc        -- Sphinx documentation and scripts for creating Python API from docstrings
-- examples   -- High-level specific examples using the tools/scripts and tools/src code (documented in /doc)
-- scripts    -- High-level drivers using tools/src code
-- src        -- Main classes implementing the STREAMM tools functionality
-
-..  
-   _install-tools:
-
-    Installation
-   ============================
-
-    The curent release of STREAMM *tools* is a pure python based code with
-    minimal dependencies. Therefore, no compolation is
-    necessary. 
-
-..  _configure-tools:
+    import streamm
+    methane = streamm.Buildingblock('methane')
+    C = streamm.Particle(symbol='C')
+    H = streamm.Particle(symbol='H')
+    methane.add_partpos(C,[0.0,0.0,0.0])
+    methane.add_partpos(H,[0.69,0.69,0.69])
+    methane.add_partpos(H,[-0.69,-0.69,0.69])
+    methane.add_partpos(H,[-0.69,0.69,-0.69])
+    methane.add_partpos(H,[0.69,-0.69,-0.69])
 
 
-Configure tools
-============================
+You could also use a molecular viewer such as `Avogadro <https://avogadro.cc/>`_ to create an organic structure, see the :ref:`read_xyz` :ref:`how_to` for more information. 
 
-The config.sh script is provided to set various environment variables
-and the PYTHONPATH required for the source code modules to run
-correctly. Before using STREAMM tools or running the tests execute ::
-
-    source config.sh
-
-This will set the correct environment for the current terminal
-session. To set permanently, note the output of the script and then
-set in your local environment. 
-
-
-.. _dependencies:
-
-Dependencies
-============================
-
-STREAMM is a purely python application and needs no external
-compilers other than python. 
-
-Python modules::
+Next, we need to define the connectivity of structure by guessing a
+:class:`neighbor list <streamm.structures.nblist.NBlist>` based on the
+`bonded_radius` of each :class:`Particle <streamm.structures.particle.Particle>` using the :func:`guess_nblist() <streamm.structures.structure.Structure.guess_nblist>` function. 
+    
+.. code :: python 
  
-   - boost.mpi
-   - copy
-   - datetime
-   - fileinput
-   - fnmatch
-   - glob
-   - json
-   - math
-   - matplotlib.pyplot
-   - mpiBase
-   - numpy
-   - optparse
-   - os
-   - os.path
-   - pickle
-   - platform
-   - random
-   - re
-   - shlex
-   - shutil
-   - socket
-   - string
-   - subprocess
-   - sys
-   - time
-   - traceback
-   - units
+    methane.bonded_nblist = methane.guess_nblist(0,radii_buffer=1.25)
+    
+Then we can label some hydrogens as substitutable sites (rsite), and run the :func:`find_rsites() <streamm.structures.buildingblock.Buildingblock.find_rsites>` function to update the `funcs` list of the
+:class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` object.
+
+.. code :: python 
+
+    methane.particles[1].rsite = 'RH'
+    methane.particles[2].rsite = 'RH'
+    methane.find_rsites()
+
+We labeled these sites as `RH`, but it does not really matter, as long as you pass these labels to the :func:`attach() <streamm.structures.buildingblock.attach>` function. 
+
+.. code :: python 
+
+    import streamm.structures.buildingblock as bb
+    ethane = bb.attach(methane,methane,'RH',0,'RH',1,tag='ethane')
 
 
-.. note::
+Then you can write an `.xyz` file to visualize your new :class:`streamm.Buildingblock <streamm.structures.buildingblock.Buildingblock>` using your favorite molecular viewing software.
 
-   Not all these modules need to be installed to utilize the STREAMM tool kit.
+.. code :: python
 
-Running tests
-========================
-
-The tests for the STREAMM tools are in a separate Github repository https://github.com/NREL/streamm-tools-tests hosted by the National
-Renewable Energy Lab (NREL). The tools repo can be downloaded using the linux command line ::
-
-     git clone https://github.com/NREL/streamm-tools-tests.git
-
-If the tools repo has been configured correctly the check.sh script
-can be used to run the units tests. The help info for check.sh is
-output from ::
-
-    check.sh
-
-To run a particular test ::
-
-    check.sh 'test-name.py'
-
-and to run all tests ::
-
-    check.sh all
-
-
-
-Test descriptions
-========================
-
-.. automodule:: test_angleContainer
-   :members: main
-
-.. automodule:: test_bondContainer
-   :members: main
-
-.. automodule:: test_checkTypes
-   :members: main
-
-.. automodule:: test_dihedralContainer
-   :members: main
-
-.. automodule:: test_dumpLammps
-   :members: main
-
-.. automodule:: test_periodictable
-   :members: main
-
-.. automodule:: test_ffparameters
-   :members: main
-
-.. automodule:: test_n2_mpiBase
-   :members: main
-
-.. automodule:: test_nX_mpiBase_splitData
-   :members: main
-
-.. automodule:: test_particleConstructors
-   :members: main
-
-.. automodule:: test_particleContainer
-   :members: main
-
-.. automodule:: test_particleSetInfo
-   :members: main
-
-.. automodule:: test_ptclContainerConstructor
-   :members: main
-
-.. automodule:: test_searchTags
-   :members: main
-
-.. automodule:: test_simulation
-   :members: main
-
-.. automodule:: test_strucAdd
-   :members: main
-
-.. automodule:: test_strucAdd2
-   :members: main
-
-.. automodule:: test_strucAddBig
-   :members: main
-
-.. automodule:: test_strucCompressID
-   :members: main
-
-.. automodule:: test_strucCompressIDWithAngles
-   :members: main
-
-.. automodule:: test_strucDumpSave
-   :members: main
-
-.. automodule:: test_strucEmpty
-   :members: main
-
-.. automodule:: test_strucEmpty2
-   :members: main
-
-.. automodule:: test_strucSetPtclPos
-   :members: main
-
-.. automodule:: test_strucWithAngles
-   :members: main
-
-.. automodule:: test_strucWithDihedrals
-   :members: main
-
-.. automodule:: test_subStructure
-   :members: main
-
-.. automodule:: test_subStructureWithAngles
-   :members: main
-
-.. automodule:: test_subStructureWithDihedrals
-   :members: main
+    ethane.write_xyz()
+    
+    

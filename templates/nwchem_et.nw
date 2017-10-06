@@ -1,0 +1,96 @@
+start test
+ geometry GEOMI units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <coord_i>end
+ geometry GEOMJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <coord_j>end
+ geometry GEOMIJ units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+ <coord_ij>end
+
+ BASIS 
+ * LIBRARY 6-31g 
+ end 
+ SET geometry  GEOMI 
+ CHARGE  0 
+ SCF 
+ NOPEN 0
+ UHF 
+ SINGLET
+ VECTORS INPUT atom OUTPUT GEOMI_0.movecs 
+ maxiter 100
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMI 
+ CHARGE  1 
+ SCF 
+ NOPEN 1 
+ UHF 
+ DOUBLET 
+ VECTORS INPUT atom OUTPUT GEOMI_1.movecs 
+ maxiter 100
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMJ 
+ CHARGE  0 
+ SCF 
+ NOPEN 0
+ UHF 
+ SINGLET 
+ VECTORS INPUT atom OUTPUT GEOMJ_0.movecs 
+ maxiter 100
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMJ 
+ CHARGE  1 
+ SCF 
+ NOPEN 1 
+ UHF 
+ DOUBLET 
+ VECTORS INPUT atom OUTPUT GEOMJ_1.movecs 
+ maxiter 100
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMIJ 
+ CHARGE  1 
+ SCF 
+ SYM OFF 
+ ADAPT OFF 
+ NOPEN 1 
+ UHF 
+ VECTORS INPUT FRAGMENT GEOMI_0.movecs GEOMJ_1.movecs OUTPUT GEOMI_0GEOMJ_1.movecs 
+ NOSCF 
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMIJ 
+ CHARGE  1 
+ SCF 
+ SYM OFF 
+ ADAPT OFF 
+ NOPEN 1 
+ UHF 
+ VECTORS INPUT FRAGMENT GEOMI_1.movecs GEOMJ_0.movecs OUTPUT GEOMI_1GEOMJ_0.movecs 
+ NOSCF 
+ maxiter 100
+ end 
+ TASK SCF 
+
+ SET geometry  GEOMIJ 
+ CHARGE  1 
+ ET 
+ VECTORS REACTANTS GEOMI_0GEOMJ_1.movecs 
+ VECTORS PRODUCTS GEOMI_1GEOMJ_0.movecs 
+ end 
+ TASK SCF ET 
+
+ SET geometry  GEOMIJ 
+ CHARGE  1 
+ ET 
+ VECTORS REACTANTS GEOMI_1GEOMJ_0.movecs 
+ VECTORS PRODUCTS GEOMI_0GEOMJ_1.movecs 
+ end 
+ TASK SCF ET 
+

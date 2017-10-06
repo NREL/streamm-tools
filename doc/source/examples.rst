@@ -1,63 +1,28 @@
-
 .. _examples:
 
-*************************
 Examples
-*************************
+********
 
-To run these examples your PATH needs to include `tools/da_builder/`
-and your PYTHONPATH needs to include `tools/src/`.  See :ref:`configure-tools <configure-tools>`
+The following examples are included in the `github repo <github.com/NREL/streamm-tools>`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
 
-Selected tools-tests
-========================================================
-These examples are closely related to regression tests in the tools-tests repo. Each of the selections below is available as
-an IPython notebook, so you may explore these examples further. After clicking on the example, there is a download link. Click on the
-download and drag the desired file to a location on your computer. The IPython web interface for a notebook can be started from
-the command line by e.g. ::
-
-   ipython notebook example_test.ipynb
+The lower case examples go through the basic functionality of each module.
 
 .. toctree::
-   :maxdepth: 1
-
-   example_particleContainer.rst
-   example_subStructure.rst
-   example_searchTags.rst
-   example_strucAdd.rst
-
-.. Removing this code since OPV-database description is out for release
-.. More complicated example with simulation objects
-.. ========================================================
-.. Functional/basis 'spamming' description (SCOTT)
-
-
-Molecular generation and replication 
-========================================================
-
-These examples create molecular structures files, and input files for
-`Gaussian <http://www.gaussian.com/>`_ , `GROMACS
-<http://www.gromacs.org/>`_  and `LAMMPS <http://lammps.sandia.gov/>`_
-by reading in reference structures from  the `BuildingBlocks`
-repository and reference force-field parameters from `conj.itp`.
-The `BuildingBlocks` repository can be cloned manually::
-
-    git clone https://github.com/NREL/streamm-BuildingBlocks
-
-(this will create a directory streamm-BuildingBlocks so if you clone manually you will need to alter the directory name/path in the examples below.) To avoid this, one can instead use ::
+    :maxdepth: 2
      
-     ./examples_setup.sh
+    _static/units.rst 
+    _static/lattice.rst
+    _static/structures.rst
+    _static/buildingblocks.rst
+    _static/forcefields.rst
+    _static/templates.rst
+    _static/calculations.rst
+    _static/resource.rst    
 
-which will also check that the `PATH` and `PYTHONPATH` enviromental variables were set correctly
-by the :ref:`configure-tools <configure-tools>` script. 
+The upper case examples go through more advanced workflows.
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 2
+     
+    _static/Project_alkyls.rst
 
-   benzene.rst
-   C60.rst
-   thiophene.rst
-   oligothiophene.rst
-   oligomethylthiophene.rst
-   P3HT.rst
-   replicateP3HT.rst
-   replicateP3HTC60benzene.rst

@@ -1,56 +1,123 @@
 .. highlight:: rst
 
-STREAMM (Simulation Toolkit for Renewable Energy and Advanced Materials Modeling)
-================================================================================================
+STREAMM
+#######
 
-Advanced materials are important for a number of cutting edge renewable energy applications.
-These applications include organic polymer photovoltaics, thermoelectrics and organic radical batteries
-to name a few.
-To optimize performance requires novel synthesis and device fabrication that spans a large parameter
-space, making it a challenge to make progress using only experimental investigation. Modeling and numerical
-simulation needs to be an integral part of the search for these critical materials.
+ The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM) is a python package that generates structures and input files for quantum chemical and molecular dynamics codes.
+ STREAMM does not directly conduct simulations rather it is meant to drive quantum chemical and molecular dynamics codes to allow for high-throughput computational analysis of materials.
+ The streamm package is written for `python2.7 <https://www.python.org/download/releases/2.7/>`_ and incorporates some of the core modules from the `pymatgen <http://pymatgen.org/>`_ code.
 
-The energy applications mentioned above combine a need to understand materials on a range of length and energy scales that
-requires a number of different kinds of simulation methodologies and codes. STREAMM is a framework of python modules
-that enables
 
-- data containers that allow transfer between quantum chemistry and molecular dynamics simulations
-- integration with analysis and visualization algorithms (both internal and third-party)
-- an object-oriented framework for extending the functionality to specific needs
+:STREAMM: Copyright (C) 2015, Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf.
+:Website: `<http://github.com/NREL/streamm-tools>`_
 
-.. The file db_interface.rst (and related links) have been stored in /misc for use in later releases
-.. The db_interface.rst file was included in the table of contents below
+Quick install
+*************
 
-*****************
+Install the python package with pip::
+
+    $ pip install streamm
+
+Access the streamm modules within python 
+
+.. code:: python
+
+    import streamm
+    
 Contents
-*****************
+********
 
 .. toctree::
-   :maxdepth: 2
-
-   getting_started.rst
-   framework_design.rst
-   examples.rst
-   applications.rst
-
-
-*****************
+    :maxdepth: 2
+     
+    installation_instructions.rst 
+    getting_started.rst
+    functionality.rst
+    examples.rst
+    how_to.rst
+    api_documentation.rst
+    publication_highlights.rst
+    
 Release Notes
-*****************
+*************
 
-- v1.0.0 -- August 28 2015 -- Initial release
+v0.3.2 -- October 2017
+========================
 
-- `NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
-  Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
+* Add pymatgen (https://github.com/materialsproject/pymatgen) core modules 
+* Split up modules into directories
+* Move functions dependent on mpi to util directory
+* Create tests for each module
 
-- Licensed under the Apache License, Version 2.0
+v0.3.0 -- August 2017
+======================
 
-********************
+* Update the structure of the code to allow `setup.py` installation 
+
+
+v0.2.0 -- August 28 2015 
+========================
+
+* Initial release
+
+`NREL <http://www.nrel.gov/>`_ is a National Laboratory of the U.S. Department of Energy,
+Office of Energy Efficiency and Renewable Energy, operated by the Alliance for Sustainable Energy, LLC.
+
+Licenses
+========
+
+Licensed under the Apache License, Version 2.0
+
+streamm license::
+    
+    Copyright 2015 Alliance for Sustainable Energy, LLC
+     
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at::
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    
+pymatgen license::
+    
+    The MIT License (MIT)
+    Copyright (c) 2011-2012 MIT & LBNL
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+    the Software, and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    
+The pymatgen license can also be found at `pymatgen license <http://pymatgen.org/#license>`_
+
+
 Referencing STREAMM
-********************
+*******************
 
 When referencing the STREAMM toolkit in publications, this website can be cited as::
 
   Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf. "STREAMM (Simulation Toolkit for
   Renewable Energy and Advanced Materials Modeling)," National Renewable Energy Lab, 21 Sept. 2015. <http://github.com/NREL/streamm-tools>.
-
+  
+  
+Also reference the Materials genome project code pymatgen::
+    
+    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier, Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A. Persson, Gerbrand Ceder. Python Materials Genomics (pymatgen) : A Robust, Open-Source Python Library for Materials Analysis. Computational Materials Science, 2013, 68, 314–319. doi:10.1016/j.commatsci.2012.10.028

@@ -1,0 +1,46 @@
+#!/bin/bash
+#PBS -A <allocation>
+#PBS -l walltime=<walltime>:00:00 # WALLTIME limit
+#PBS -l nodes=<nodes>:ppn=<ppn> # Number of nodes, put 16 processes on each
+#PBS -l pmem=1500
+##PBS -M <email> 
+#PBS -m e
+#PBS -N <tag>
+#PBS -q <queue>
+#PBS -l feature=<feature>
+
+NPROC=<nproc>
+
+scratch_dir=<scratch>
+cd $scratch_dir
+
+module purge;
+module load openmpi-gcc/1.7.3-4.8.2 python/2.7.8
+# module load mdanalysis/0.8.1
+
+# Load Gaussian module to set environment
+module load gaussian/g09_D.01
+
+SCRATCH=<scratch_dir>/GAUSSIAN-<tag>.$PBS_JOBID.src
+SCRATCH2=/dev/shm
+
+if [ -d $SCRATCH ]
+then
+   rm -rf $SCRATCH
+fi
+mkdir $SCRATCH
+
+
+export GAUSS_SCRDIR=$SCRATCH2
+ls -lah /dev/shm
+rm -rf /dev/shm/*
+
+echo "%NoSave" > header.text
+echo "%RWF=$SCRATCH2/,1500MB,$SCRATCH/,-1" >> header.text
+
+cp <input_com> body.text
+cat header.text  body.text  >  <input_com> 
+
+g09 < <input_com> >&  <tag>.log
+
+formchk <tag>.chk
