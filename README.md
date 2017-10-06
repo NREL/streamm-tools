@@ -9,7 +9,7 @@ INSTALL
 ===========
 
 
-pip intall
+pip install
 --------------
 
 To install the streamm package with pip run
