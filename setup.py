@@ -46,6 +46,8 @@ setup(
         '': ['templates/*.template'],
         'pymatgen_core/core': ['pymatgen_core/core/periodic_table.json']},
     include_package_data=True,
-    install_requiers=["ruamel.yaml>=0.15.6","monty>=0.9.6","numpy>=1.9","scipy>=0.14"]
+    install_requiers=["ruamel.yaml>=0.15.6","monty>=0.9.6","numpy>=1.9","scipy>=0.14"],
+    keywords=[ "NWChem", "gaussian", "LAMMPS", "MD", "materials", "project","electronic", "structure", "analysis", "coupling", "molecular","dynamics", "organic", "generator"
+                ,"high", "throughput", "combinatorial", "computational", "chemistry", "functionalization", "polymerization" ]
     ) 
 
