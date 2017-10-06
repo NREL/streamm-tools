@@ -41,7 +41,7 @@ Contents
 Release Notes
 *************
 
-v0.3.1 -- September 2017
+v0.3.2 -- October 2017
 ========================
 
 * Add pymatgen (https://github.com/materialsproject/pymatgen) core modules 
