@@ -15,7 +15,7 @@ except ImportError:
 
 setup(
     name='streamm',
-    version='0.3.1',
+    version='0.3.2',
     setup_requires=['setuptools>=18.0','pytest-runner',
                     "numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
