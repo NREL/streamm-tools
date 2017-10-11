@@ -13,9 +13,14 @@ try:
 except ImportError:
     from distutils.core import setup
 
+def readme():
+    with open('description.rst') as f:
+        return f.read()
+
+
 setup(
     name='streamm',
-    version='0.3.1',
+    version='0.3.5',
     setup_requires=['setuptools>=18.0','pytest-runner',
                     "numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
@@ -26,12 +31,17 @@ setup(
     url='http://streamm.nrel.gov',
     author='Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf',
     author_email='streamm@nrel.gov',
-    maintainer="Ross Larsen",
-    maintainer_email="streamm@nrel.gov",
+    maintainer="The National Renewable Energy Laboratory",
+    maintainer_email="organicelectronics@nrel.gov",
     license="Apache License, Version 2.0",
-    description="The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling (STREAMM)",
-    long_description="",
-    classifiers="",
+    description="The Simulation Toolkit for Renewable Energy and Advanced Materials Modeling",
+    long_description=readme(),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Scientific/Engineering :: Chemistry',
+        ],
     # 
     tests_require=['pytest'],
     # test_suite = ['streamm.structures.tests','streamm.forcefields.tests'],
