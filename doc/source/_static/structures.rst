@@ -1,7 +1,8 @@
 .. _structures:
-
+  
 structures
 ===============
+ 
 
 This notebook imports the fundamental objects of the streamm.structure
 module and goes through the functionality of each

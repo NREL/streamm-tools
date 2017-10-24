@@ -14,7 +14,7 @@ except ImportError:
     from distutils.core import setup
 
 def readme():
-    with open('description.rst') as f:
+    with open('description.txt') as f:
         return f.read()
 
 

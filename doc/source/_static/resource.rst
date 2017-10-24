@@ -1,7 +1,8 @@
 .. _resource:
-
+  
 resource
 ===============
+ 
 
 .. code:: python
 

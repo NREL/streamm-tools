@@ -1,7 +1,8 @@
 .. _lattice:
-
+  
 lattice
 ===============
+ 
 
 .. code:: python
 
