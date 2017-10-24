@@ -1,0 +1,4 @@
+ruamel.yaml>=0.15.6
+monty>=0.9.6
+numpy>=1.9
+scipy>=0.14
