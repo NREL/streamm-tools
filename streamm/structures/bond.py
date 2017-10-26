@@ -46,6 +46,14 @@ class Bond(units.ObjectUnits):
     def length(self,value):
         self._property['length'] = value
         
+    @property
+    def bondorder(self):
+        return self._property['bondorder']
+
+    @bondorder.setter
+    def bondorder(self,value):
+        self._property['bondorder'] = value
+        
           
     def __init__(self, pkey1, pkey2,unit_conf=units.unit_conf ):
         # init object's units dictionaries 
@@ -56,6 +64,8 @@ class Bond(units.ObjectUnits):
         
         self._property['length'] = 0.0 
         self._property_units['length'].append('length')
+
+        self._property['bondorder'] = 1
         
         # Force field
         self.param = None
@@ -65,6 +75,10 @@ class Bond(units.ObjectUnits):
         self.gromacs_index = 0 
 
 
+        #for bkey,bond_i in strucC.bonds.iteritems():
+        #    print ">set_bondorder ",bkey,bond_i.pkey1,bond_i.pkey2,bond_i.properties['bondorder'] 
+    #
+    
     def __del__(self):
         del self.pkey1
         del self.pkey2

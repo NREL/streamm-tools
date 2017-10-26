@@ -594,6 +594,7 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
         #
         # Create bond between  X_i - X_j
         bond_ij = Bond(Xp_i,Xp_j)
+        bond_ij.bondorder =  1 
         bbC_i.add_bond(bond_ij)
         #
         # Remake neighbor list based on updated bonds 
