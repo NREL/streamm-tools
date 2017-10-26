@@ -30,7 +30,7 @@ setup(
     # 
     url='http://streamm.nrel.gov',
     author='Dr. Scott W. Sides, Dr. Travis W. Kemper, Dr. Ross E. Larsen and Dr. Peter Graf',
-    author_email='streamm@nrel.gov',
+    author_email='organicelectronics@nrel.gov',
     maintainer="The National Renewable Energy Laboratory",
     maintainer_email="organicelectronics@nrel.gov",
     license="Apache License, Version 2.0",

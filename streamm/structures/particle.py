@@ -173,7 +173,7 @@ class Particle(units.ObjectUnits):
         else:
             self.nonbonded_radius = 2.5
             
-        logger.info("Particle[{}] has been set to C with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.mass,self.bonded_radius,self.nonbonded_radius))
+        logger.debug("Particle[{}] has been set to {} with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.symbol,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
         # upgrade in next revision 
         self.element.atomic_weight = self.element.atomic_mass

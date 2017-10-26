@@ -4,10 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Dr. Travis W. Kemper"
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3"
-__email__ = "streamm@nrel.gov"
+__version__ = "0.3.3"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
 
 """
@@ -90,12 +90,14 @@ class Buildingblock(Structure):
     """    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf):
         Structure.__init__(self, tag=tag, matrix=matrix,unit_conf=unit_conf )
-        # Reactive sites 
+        # Reactive sites
+        self.func_constraints = []
         self.n_func = int(0)
         self.funcs = {}   
         self.attachments = []
         
     def __del__(self):
+        del self.func_constraints
         del self.n_func
         del self.funcs
         del self.attachments
@@ -115,10 +117,10 @@ class Buildingblock(Structure):
         #
         self.n_func = 0
         for type,list in self.funcs.iteritems():
-            logger.info("Found  {} functionalizable sites with type {} ".format(len(list),type))
+            logger.debug("Found  {} functionalizable sites with type {} ".format(len(list),type))
             self.n_func += len(list)
         #       
-        logger.info("Found  {} functionalizable sites ".format(self.n_func))
+        logger.debug("Found  {} functionalizable sites ".format(self.n_func))
         #
         return
     

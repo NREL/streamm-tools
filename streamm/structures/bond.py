@@ -6,11 +6,12 @@
 This module defines the classes relating to bonds between atoms
 """
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Dr. Travis W. Kemper"
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3"
-__email__ = "streamm@nrel.gov"
+__version__ = "0.3.3"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
+
 
 import logging
 logger = logging.getLogger(__name__)

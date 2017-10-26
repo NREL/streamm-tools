@@ -443,9 +443,9 @@ class Structure(units.ObjectUnits):
         nblist_i.cnt = -1
         
         if( radius_type == 0 ):
-            logger.info("Guessing neighbor list using the covalent radius of the particles element ")
+            logger.debug("Guessing neighbor list using the covalent radius of the particles element ")
         elif( radius_type == 1 ):
-            logger.info("Guessing neighbor list using the Van der Waals radius of the particles element ")
+            logger.debug("Guessing neighbor list using the Van der Waals radius of the particles element ")
         else:
             error_msg = 'Argument "radius_type" needs to be an integer of 0 or 1'
             error_msg += "\n Returning Empty NBlist object "
@@ -472,7 +472,7 @@ class Structure(units.ObjectUnits):
                         radii_j = particle_j.nonbonded_radius
                     dr_cut = radii_i + radii_j
                     dr_cut = dr_cut*radii_buffer
-                    logger.info("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
+                    logger.debug("Particles  i_%d - j_%d dr %f cut %f "%(pkey_i,pkey_j,dist_matrix[pkey_i,pkey_j],dr_cut))
                     if( dist_matrix[pkey_i,pkey_j] <= dr_cut ):
                         nblist_i.cnt += 1
                         nblist_i.list.append(pkey_j)
@@ -767,7 +767,7 @@ class Structure(units.ObjectUnits):
             
         '''
         # Sum charges of particles to be removed into attachment points
-        logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
+        logger.debug(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
         self.particles[pkey_i].charge += self.particles[pkey_j].charge
         self.particles[pkey_j].charge = 0.0
                  
@@ -784,7 +784,7 @@ class Structure(units.ObjectUnits):
             
         '''
         # Sum charges of particles to be removed into attachment points
-        logger.info(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
+        logger.debug(" Summing {} with charge {} into particle {}".format(self.particles[pkey_j].symbol,self.particles[pkey_j].charge,pkey_i))
         #print " into ",self.particles[pkey_i].symbol,self.particles[pkey_i].charge
         self.particles[pkey_i]._property['charge']  += self.particles[pkey_j].charge
         self.particles[pkey_j]._property['charge']  = 0.0
@@ -894,16 +894,16 @@ class Structure(units.ObjectUnits):
             v_j[2] = sinprefix21*sin_xz*v_i[0] + cos_xz*v_i[2] 
             return v_j
             
-        logger.info(" Rotating particle {} around y-axis ".format(direction))
+        logger.debug(" Rotating particle {} around y-axis ".format(direction))
             
         
         if( self.n_particles > 0 ):
             cos_xz = np.cos(theta_xz)
             sin_xz = np.sin(theta_xz)
             # info statments 
-            logger.info("{}".format(direction))
-            logger.info("cos_xz {}".format(cos_xz))
-            logger.info("sin_xz {}".format(sin_xz))
+            logger.debug("{}".format(direction))
+            logger.debug("cos_xz {}".format(cos_xz))
+            logger.debug("sin_xz {}".format(sin_xz))
                 
             if( direction == "clockwise"  ):
                 sinprefix12 = 1.0
@@ -963,7 +963,7 @@ class Structure(units.ObjectUnits):
             return v_j
             
         
-        logger.info(" Rotating particle {} around z-axis ".format(direction))
+        logger.debug(" Rotating particle {} around z-axis ".format(direction))
 
         
         
@@ -971,9 +971,9 @@ class Structure(units.ObjectUnits):
             cos_xy = np.cos(theta_xy)
             sin_xy = np.sin(theta_xy)
             # info statments 
-            logger.info("{}".format(direction))
-            logger.info("cos_xy {}".format(cos_xy))
-            logger.info("sin_xy {}".format(sin_xy))
+            logger.debug("{}".format(direction))
+            logger.debug("cos_xy {}".format(cos_xy))
+            logger.debug("sin_xy {}".format(sin_xy))
                 
             if( direction == "clockwise"  ):
                 sinprefix12 = 1.0
@@ -1033,15 +1033,15 @@ class Structure(units.ObjectUnits):
             v_j[2] = sinprefix21*sin_yz*v_i[1] + cos_yz*v_i[2] 
             return v_j
             
-        logger.info(" Rotating particle {} around x-axis ".format(direction))
+        logger.debug(" Rotating particle {} around x-axis ".format(direction))
         
         if( self.n_particles > 0 ):
             cos_yz = np.cos(theta_yz)
             sin_yz = np.sin(theta_yz)
             # info statments 
-            logger.info("{}".format(direction))
-            logger.info("cos_yz {}".format(cos_yz))
-            logger.info("sin_yz {}".format(sin_yz))
+            logger.debug("{}".format(direction))
+            logger.debug("cos_yz {}".format(cos_yz))
+            logger.debug("sin_yz {}".format(sin_yz))
             
             if( direction == "clockwise"  ):
                 sinprefix12 = 1.0
@@ -1360,7 +1360,7 @@ class Structure(units.ObjectUnits):
                                 particle_i.mol = struc_add_cnt
                             struc_add_cnt += 1
                             strucC_new += structoadd
-                            logger.info( "Molecule %d/%d added "%(struc_add_cnt,n_i))
+                            logger.debug( "Molecule %d/%d added "%(struc_add_cnt,n_i))
                         if( struc_add_cnt == n_i ):
                             add_strucC = False
 
@@ -1393,7 +1393,7 @@ class Structure(units.ObjectUnits):
             log_line += "  n_lat 1 %f "%(n_lat[1])
             log_line += "  n_lat 2 %f "%(n_lat[2])
             log_line += "%d  expantions "%(exlat_cnt)
-            logger.info(log_line)
+            logger.debug(log_line)
                         
 
         return None
@@ -1625,7 +1625,7 @@ class Structure(units.ObjectUnits):
             return 
         
         # probabilityperpair = 1.0     # Probability per pair i-j 
-        logger.info("Finding %d x %d  pairs  "%(N_i,N_j))
+        logger.debug("Finding %d x %d  pairs  "%(N_i,N_j))
         
         pairvalue_ij =  np.zeros((N_i,N_j), dtype=np.float64)   # value assigned to each pair 
         # 
@@ -2157,31 +2157,31 @@ class Structure(units.ObjectUnits):
         
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         #
-        logger.info("Running update_units on particles ")
+        logger.debug("Running update_units on particles ")
         for pkey_i, particle_i  in self.particles.iteritems():
             particle_i.update_units(new_unit_conf)
             if( particle_i.param != None ):
                 particle_i.param.update_units(new_unit_conf)
         
-        logger.info("Running update_units on particles ")
+        logger.debug("Running update_units on particles ")
         for btkey_i,bond_i  in self.bonds.iteritems():
             bond_i.update_units(new_unit_conf)
             if( bond_i.param != None ):
                 bond_i.param.update_units(new_unit_conf)
             
-        logger.info("Running update_units on angles ")
+        logger.debug("Running update_units on angles ")
         for atkey_i,angle_i  in self.angles.iteritems():
             angle_i.update_units(new_unit_conf)
             if( angle_i.param != None ):
                 angle_i.param.update_units(new_unit_conf)
             
-        logger.info("Running update_units on dihedrals ")
+        logger.debug("Running update_units on dihedrals ")
         for dtkey_i, dih_i  in self.dihedrals.iteritems():    
             dih_i.update_units(new_unit_conf)
             if( dih_i.param != None ):
                 dih_i.param.update_units(new_unit_conf)
             
-        logger.info("Running update_units on impropers ")
+        logger.debug("Running update_units on impropers ")
         for itkey_i, imp_i  in self.impropers.iteritems():    
             imp_i.update_units(new_unit_conf)
             if( imp_i.param != None ):
