@@ -10,18 +10,63 @@ simulation cell for an MD simulation
 
 .. code:: python
 
-    from __future__ import division, unicode_literals
+    import os 
+    from pprint import pprint
+
+Check that output from other examples has been generated
 
 .. code:: python
 
-    import os 
-    from pprint import pprint
+    from pathlib2 import Path
+
+.. code:: python
+
+    need_files = ['methane.xyz']
+    for f in need_files:
+        path = Path(f)
+        if not path.is_file():
+            print("Need to run structures.ipynb")
+            os.system("jupyter nbconvert --to python  structures.ipynb")
+            os.system("python structures.py")
+
+.. code:: python
+
+    need_files = ['ethane.xyz']
+    for f in need_files:
+        path = Path(f)
+        if not path.is_file():
+            print("Need to run buildingblocks.ipynb")
+            os.system("jupyter nbconvert --to python  buildingblocks.ipynb")
+            os.system("python buildingblocks.py")
+
+
+.. parsed-literal::
+
+    Need to run buildingblocks.ipynb
+
+
+.. code:: python
+
+    need_files = ['oplsaa.pkl']
+    for f in need_files:
+        path = Path(f)
+        if not path.is_file():
+            print("Need to run forcefields.ipynb")
+            os.system("jupyter nbconvert --to python  forcefields.ipynb")
+            os.system("python forcefields.py")
+
+
+.. parsed-literal::
+
+    Need to run forcefields.ipynb
+
 
 .. code:: python
 
     import streamm
 
 Now let's create project and resource to keep track of our work
+
 
 .. code:: python
 
@@ -44,7 +89,7 @@ with the streamm git repository https://github.com/NREL/streamm-tools
 
 .. parsed-literal::
 
-    /Users/tkemper/Development/STREAMM/streamm-tools/examples/../templates/
+    /Users/tkemper/Development/streamm-tools/examples/../templates/
 
 
 Create the local directories that will store our files
@@ -435,7 +480,7 @@ Set the properties dictionary to desired calculation details
      u'pmem': 1500,
      u'ppn': 1,
      u'queue': u'batch',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch/nw_ethane_HF/',
+     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/nw_ethane_HF/',
      u'spin_mult': 1,
      u'task': u'SCF ',
      'uncompress': 'tar -xzf ',
@@ -610,7 +655,7 @@ Set the properties dictionary to desired calculation details
      u'pmem': 1500,
      u'ppn': 1,
      u'queue': u'batch',
-     u'scratch': u'/Users/tkemper/Development/STREAMM/streamm-tools/examples/scratch/gaus_ethane_HF/',
+     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/gaus_ethane_HF/',
      u'spin_mult': 1,
      'uncompress': 'tar -xzf ',
      u'walltime': 24}
@@ -1593,7 +1638,7 @@ Add template files to calculations
 
     file_type = 'templates'
     file_key = 'in'
-    file_name = "lammps_sp.in"
+    file_name = "lammps_spneut.in"
     from_dirkey = 'templates'
     to_dirkey = 'scratch'
     lmp_alkyl.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
@@ -1649,10 +1694,6 @@ Save json file in root directory
 
 Run bash script or submit to cluster
 
-.. code:: python
-
-    lmp_alkyl.run()
-
 Change to scratch directory
 
 .. code:: python
@@ -1661,6 +1702,10 @@ Change to scratch directory
     lmp_alkyl.check()
 
 Check the status of the calculation
+
+.. code:: python
+
+    lmp_alkyl.run()
 
 .. code:: python
 
