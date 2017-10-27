@@ -21,4 +21,4 @@ do
     
 done
 
-rm -rf *.data .dat *.xyz  *.json *.log *pkl *rst materials/ scratch/   scripts/   storage/ templates/
+rm -rf *.data *.dat *.xyz  *.json *.log *.pkl *.rst materials/ scratch/   scripts/   storage/ templates/
