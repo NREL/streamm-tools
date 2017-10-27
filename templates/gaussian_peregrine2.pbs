@@ -1,0 +1,70 @@
+#!/bin/bash
+#PBS -A <allocation>
+#PBS -l walltime=<walltime>:00:00 # WALLTIME limit
+#PBS -l nodes=<nodes>:ppn=<ppn> # Number of nodes, put 16 processes on each
+#PBS -l pmem=1500
+##PBS -M <email> 
+#PBS -m e
+#PBS -N <tag>
+#PBS -q <queue>
+#PBS -l feature=<feature>
+
+# Load Gaussian module to set environment
+module load gaussian
+
+# Set script variables
+INPUT_BASENAME=<tag> 
+INPUT_FILE=<input_com> 
+GAUSSIAN_EXEC=g09
+MEMSIZE=3GB
+SCRATCH=/scratch/$USER/gaussianScratch.$PBS_JOBID
+SCRATCH2=/dev/shm
+#
+# Check on editing input file. If scratch directories
+# are listed then file is used un-changed, if 3-line
+# header not present, then script prepends these lines
+# to the input file to be used in execution line
+#
+NUMRWFLINES=`grep "RWF" $INPUT_FILE |wc -l`
+if [ $NUMRWFLINES -eq 1 ]; then
+   echo "standard file found"
+   cp $INPUT_FILE infile
+else
+   echo "prepending lines to input file"
+   echo "%RWF=$SCRATCH2/,$MEMSIZE,$SCRATCH/,-1" > infile
+   echo "%NoSave" >> infile
+   # echo "%Chk=test.chk"  >> infile
+   # echo " "  >> infile
+   cat $INPUT_FILE >> infile
+fi
+
+#
+# Run gaussian Peregrine script (performs much of the Gaussian setup)
+g09_peregrine
+
+#
+# Set required Gaussian environment variables
+#
+if [ $PBS_NUM_NODES -gt 1 ]
+then
+   export GAUSS_LFLAGS='-vv -opt "Tsnet.Node.lindarsharg: ssh"'
+   export GAUSS_EXEDIR=$g09root/g09/linda-exe:$GAUSS_EXEDIR
+fi
+export GAUSS_SCRDIR=$SCRATCH2
+#
+# Gaussian needs scratch directories
+# Note: sometimes files may have been left behind in
+# on-node memory by other jobs that terminated incorrectly
+# so clean these to make sure there is enough space.
+#
+if [ -d $SCRATCH ]
+then
+   rm -rf $SCRATCH
+fi
+mkdir $SCRATCH
+rm -rf $SCRATCH2/*
+
+
+g09 < infile >&  <tag>.log
+
+formchk <tag>.chk
