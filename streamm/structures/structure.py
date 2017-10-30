@@ -1211,6 +1211,7 @@ class Structure(units.ObjectUnits):
             pkey1 = self.keyupdate[bond_other.pkey1]
             pkey2 = self.keyupdate[bond_other.pkey2]
             bond_i =Bond(pkey1,pkey2)
+            bond_i.bondorder = bond_other.bondorder 
             # NOteTK bond_i.properties = bond_other.properties
             self.add_bond(bond_i)
         #
