@@ -12,7 +12,7 @@ start test
  NOPEN 0
  <method> 
  SINGLET
- maxiter 100
+ maxiter <maxiter>
  end 
 
 ESP

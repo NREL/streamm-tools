@@ -100,6 +100,13 @@ class NWChem(CalculationRes):
         self.meta['software'] = 'nwchem'
         # String found in log file when simulation finishes
         self.properties['finish_str'] = 'Total times  cpu:'
+        # Set default properties
+        self.properties['basis'] = '6-31g'
+        self.properties['method'] = 'UHF'
+        self.properties['charge'] = 0
+        self.properties['maxiter'] = 100
+        self.properties['spin_mult'] = 1
+        self.properties['task'] = 'SCF'
         #
         self.et_list = []
         
