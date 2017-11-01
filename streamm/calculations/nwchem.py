@@ -120,7 +120,7 @@ class NWChem(CalculationRes):
 
         self.calctype = 'et'
         self.properties['calctype']  = 'SP'
-
+        logger.debug("task:{}".format( self.properties['task'] ))
         # self.converged = False
         self.et_list = []
         
@@ -192,14 +192,21 @@ class NWChem(CalculationRes):
 
 
                     if( len(col) > 3 ):
-                        if(  col[0]  == "Geometry" and col[1].replace('"', '').strip() == geom_name and col[2] == "->"  ):
-                            read_geom = False # True 
+                        # Geometry "geometry" -> "GEOM"
+                        if(  col[0]  == "Geometry" and col[2] == "->"  ):
+                            logger.debug("Reading Geometry")
+                            read_geom = True 
                             line_cnt = 0
+                            pk = 0
                     if( line_cnt >= 7 and read_geom and len(col) >= 5 ):
-                        # Need to update 
-                        ASYMB.append( col[1] )
-                        R.append( [float(col[3]),float(col[4]),float(col[5])] )
-
+                        # Need to update
+                        if(  self.strucC.particles[pk].symbol == col[1] ):
+                            self.strucC.positions[pk] = np.array([float(col[3]),float(col[4]),float(col[5])] )
+                        else:
+                            msg = "{} !=  {} in NWChem log file position will not be updated".format(self.strucC.particles[pk].symbol , col[1] )
+                            print(msg)
+                            logger.warning(msg)
+                        pk += 1 
                     if( read_geom and len(col) < 1 and line_cnt >= 7  ):
                         read_geom = False 
                         
@@ -244,7 +251,7 @@ class NWChem(CalculationRes):
                             
                     if( len(col)  >= 5  ):
                         if(  col[1]  == "Final" and col[3] == 'Molecular' and col[4] == 'Orbital' and col[5] == 'Analysis'  ):
-                            print "Checking MO Energies "
+                            logger.info(" - Checking MO Energies ")
                             if( col[2]  == "Alpha" ):
                                read_molorben_alpha = True # True 
                                cnt_molorben_alpha = 0
