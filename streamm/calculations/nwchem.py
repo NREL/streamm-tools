@@ -144,6 +144,7 @@ class NWChem(CalculationRes):
                 read_geom = False
                 read_molorben_alpha = False
                 read_molorben_beta = False
+                read_esp = False 
                 geom_name = "unknown"
                 
                 line_cnt = 0
@@ -190,7 +191,7 @@ class NWChem(CalculationRes):
                             et_ij = electrontransfer()
                             logger.debug(" Electron Transfer Calculation found on line {} ".format(line_cnt))
 
-
+                    # Geometry
                     if( len(col) > 3 ):
                         # Geometry "geometry" -> "GEOM"
                         if(  col[0]  == "Geometry" and col[2] == "->"  ):
@@ -208,7 +209,22 @@ class NWChem(CalculationRes):
                             logger.warning(msg)
                         pk += 1 
                     if( read_geom and len(col) < 1 and line_cnt >= 7  ):
-                        read_geom = False 
+                        read_geom = False
+                        
+                    # ESP 
+                    if( len(col) == 1 and col[0] == 'ESP' ):
+                        read_esp = True 
+                        esp_line_cnt = 0
+                        esp_pk = 0
+                        
+                    if( read_esp ):
+                        if( len(col) >= 6 ):
+                            self.strucC.particles[esp_pk].charge  = float(col[5])
+                            esp_pk += 1 
+                        else:
+                            if( esp_line_cnt > 2 ):
+                                read_esp = False 
+                        esp_line_cnt += 1
                         
                     if( read_molorben_alpha and len(col) >= 4 ):
                         if( col[0] == 'Vector' ):
