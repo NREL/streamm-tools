@@ -530,7 +530,7 @@ class Calculation(object):
                     try:
                         file_name = self.files[file_type][comp_key]
                         run_cp  = True 
-                        logger.info(file_type,self.files[file_type][comp_key])
+                        logger.info("{} {}".format(file_type,self.files[file_type][comp_key]))
                     except:
                         logging.warning("No commpressed files for file type %s with key %s "%(file_type,comp_key))
                     if( run_cp ):

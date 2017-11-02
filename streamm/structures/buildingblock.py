@@ -41,6 +41,13 @@ from streamm.structures.structure import Structure
 
 
 
+def read_pickle(self,tag):
+    '''    
+    Pickle object
+    '''
+    with open("%s.pkl"%(tag),'rb') as fl:
+        return pickle.load( fl )
+
 
 class Attachment(units.ObjectUnits):
     '''
@@ -101,7 +108,15 @@ class Buildingblock(Structure):
         del self.n_func
         del self.funcs
         del self.attachments
-        # 
+        #
+    def dump_pickle(self):
+        '''    
+        Write Pickle object 
+        '''
+        file_i = open("%s.pkl"%(self.tag),'w')
+        pickle.dump(self,file_i)
+        file_i.flush()
+        
     def find_rsites(self):
         '''
         Find dictionary of lists of particle indexes based on the rsites type

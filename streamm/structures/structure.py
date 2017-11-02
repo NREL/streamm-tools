@@ -51,7 +51,6 @@ def read_pickle(self,tag):
     '''
     with open("%s.pkl"%(tag),'rb') as fl:
         return pickle.load( fl )
-        
     
         
 class Replication(object):
