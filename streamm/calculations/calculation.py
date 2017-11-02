@@ -687,7 +687,7 @@ class Calculation(object):
                 elif( cnt_check > 1 ):
                     logger.warning(" %d  Bond parameters were found for bond type %s-%s "%(cnt_check,fftype_i,fftype_j))
                     for btyp_p, btypObj_p  in self.paramC.bondtypes.iteritems():
-                        logger.info(btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2      )              
+                        logger.info("{} {} {}".format( btyp_p ,btypObj_p.fftype1 ,btypObj_p.fftype2))
                     if( not use_last  ):
                         self.paramC = self.paramC_o
                         raise TypeError("Last parameter will not be used")
