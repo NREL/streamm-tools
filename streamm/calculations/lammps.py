@@ -557,7 +557,7 @@ class LAMMPS(CalculationRes):
                     matrix[2][1] = 0.0  
                     matrix[2][2] = float( col[1] ) - float( col[0] )
                     # Set lattice
-                    self.strucC.lat.set_matrix(matrix)
+                    self.strucC.lat.matrix = matrix
              
         #
         # Intialize read in boolean to off                    
@@ -578,7 +578,10 @@ class LAMMPS(CalculationRes):
                 
                 pkey_i = int( col[0]) - 1
                 # set position 
-                pos_i =  [ float(col[4]),float(col[5]),float(col[6])] 
+                pos_i =  [ float(col[4]),float(col[5]),float(col[6])]
+                
+                print pkey_i,pos_i
+                
                 self.strucC.positions[pkey_i] = pos_i
 
                 if( cnt_Atoms >=  self.strucC.n_particles ):

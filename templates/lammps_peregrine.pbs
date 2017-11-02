@@ -9,7 +9,6 @@
 #PBS -q <queue>
 #PBS -l feature=<feature>
 
-
 scratch_dir=<scratch>
 cd $scratch_dir
 

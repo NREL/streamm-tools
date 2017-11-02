@@ -903,7 +903,7 @@ class Calculation(object):
                         all_i = dtypObj_all.fftype2 
                         all_j = dtypObj_all.fftype3
                         all_l = dtypObj_all.fftype4
-
+                                                
                         if ( all_k == 'X' and  all_i == fftype_i and  all_j == fftype_j and all_l == 'X'   ):
                             copy_type = True
                         if ( all_l == 'X' and  all_j == fftype_i and   all_i == fftype_j  and all_k == 'X'   ):
