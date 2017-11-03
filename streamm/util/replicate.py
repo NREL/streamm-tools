@@ -75,6 +75,7 @@ def add_struc(strucC_i,other,n_i,seed,p=None,tag="blank"):
     
     if( rank == 0 ):            
         logging.info('Starting add_struc %s to %s with seed %d '%(other.tag,strucC_i.tag,seed))
+        logging.info(' into a simulation cell of size {} '.format(strucC_i.lat))
         
     random.seed(seed)
     #

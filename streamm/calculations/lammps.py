@@ -562,7 +562,7 @@ class LAMMPS(CalculationRes):
         #
         # Intialize read in boolean to off                    
         #
-        read_Atoms = False
+        read_Atoms = False 
         #
         # Read in data parameters 
         #
@@ -580,7 +580,6 @@ class LAMMPS(CalculationRes):
                 # set position 
                 pos_i =  [ float(col[4]),float(col[5]),float(col[6])]
                 
-                print pkey_i,pos_i
                 
                 self.strucC.positions[pkey_i] = pos_i
 
