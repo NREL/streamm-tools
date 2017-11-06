@@ -37,6 +37,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+'''
+TODO:
+
+move calculation related objects to calculation file
+
+'''
+
 def conv_float(fval_i):
     '''
     Convert a value to a float 

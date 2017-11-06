@@ -545,7 +545,11 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
             * n_j      (int) number of connection to used in  container 2
             
         Returns:
-            * bbC_i     (Container) Buildingblock 
+            * bbC_i     (Container) Buildingblock
+            
+            
+        TODO:
+            * Make Xn_i,Xn_j Kwargs 
         
         .. ::
             
@@ -562,8 +566,8 @@ def attach(bblockC_i,bblockC_j,bbid_i="R",n_i=0,bbid_j="R",n_j=0,tag="blank"):
             logger.debug("First structure empty will return the second structure ")
             return copy.deepcopy(bblockC_j)                 #   simply return unchanged current container
 
-        # If no tag for the new structure is provided c
-        # ombine the tag of i and j
+        # If no tag for the new structure is provided 
+        # combine the tag of i and j
         if( tag == "blank" ):
             tag = bblockC_i.tag +  bblockC_j.tag
         

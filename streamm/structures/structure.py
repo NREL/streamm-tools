@@ -275,7 +275,7 @@ class Structure(units.ObjectUnits):
         file_i = open("%s.pkl"%(self.tag),'w')
         pickle.dump(self,file_i)
         file_i.flush()
-
+       
     def add_particle(self, particle_i, deepcopy = True ):
         """
         Add 'Particle' object to this container and update n_particles accordingly 
@@ -2187,4 +2187,12 @@ class Structure(units.ObjectUnits):
             if( imp_i.param != None ):
                 imp_i.param.update_units(new_unit_conf)
         
-            
+ 
+    '''    
+    def export_json(self):
+        file_i = open("%s.pkl"%(self.tag),'w')
+        pickle.dump(self,file_i)
+        file_i.flush()
+    def import_json(self):
+    
+    '''            

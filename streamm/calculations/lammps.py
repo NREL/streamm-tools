@@ -11,7 +11,7 @@ __email__ = "streamm@nrel.gov"
 __status__ = "Beta"
 
 """
-Class data structures for GROMACS data
+Class data structures for LAMMPS data
 """
 
 import copy, sys, os, shutil, math
