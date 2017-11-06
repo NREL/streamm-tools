@@ -1012,7 +1012,6 @@ class Groups(units.ObjectUnits):
         del dr_matrix
         del dist_matrix
         return nblist_i
-        
 
     def dump_json(self):
         '''
@@ -1027,6 +1026,19 @@ class Groups(units.ObjectUnits):
         json.dump(json_data,f, indent=2)
         f.close()
         
+
+    def dump_json(self):
+        '''
+        Write group coordinates into an json file
+        '''
+        json_data = dict()
+                
+        for gkey,group_i in self.groups.iteritems():
+            json_data[gkey] = group_i.pkeys
+
+        f = open("groupset_%s.json"%(self.tag), 'w')
+        json.dump(json_data,f, indent=2)
+        f.close()        
         
     def update_units(self,new_unit_conf):
         '''

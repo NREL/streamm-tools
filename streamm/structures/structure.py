@@ -44,14 +44,6 @@ from streamm.structures.angle import Angle
 from streamm.structures.dihedral import Dihedral
 from streamm.structures.improper import Improper
 
-
-def read_pickle(self,tag):
-    '''    
-    Pickle object
-    '''
-    with open("%s.pkl"%(tag),'rb') as fl:
-        return pickle.load( fl )
-    
         
 class Replication(object):
     '''
@@ -254,6 +246,7 @@ class Structure(units.ObjectUnits):
         
     def __str__(self):
         return " %s"%(self.tag)
+    
     
     def print_properties(self):
         '''Print the structure properties

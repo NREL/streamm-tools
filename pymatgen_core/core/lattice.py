@@ -10,7 +10,8 @@ import warnings
 from six.moves import map, zip
 
 import random 
- 
+import json
+        
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
@@ -45,6 +46,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import pymatgen_core.core.units as units
+
 
 
 class Lattice(units.ObjectUnits):
@@ -255,7 +257,36 @@ class Lattice(units.ObjectUnits):
     def __del__(self):
         del self.n_dim
         del self.pbcs
+
         
+    def export_json(self,tag):
+        '''    
+        export object to json file 
+        '''
+        json_data = {}
+        json_data['unit_conf'] = self.unit_conf
+        json_data['matrix'] = [ ]
+        for x in self.matrix:
+            for y in x:
+                json_data['matrix'].append(y)
+        
+        json_data['pbcs'] = self.pbcs
+        
+        with open("%s_lat.json"%(tag),'wb') as fl:
+            json.dump(json_data,fl)
+
+    def import_json(self,tag):
+        '''    
+        Pickle object
+        '''
+        file_name = "%s_lat.json"%(tag)
+        print("Reading {}".format(file_name))
+        with open(file_name,'rb') as fl:
+            json_data = json.load(fl)
+            
+        self._unit_conf = json_data['unit_conf']
+        self.matrix  = json_data['matrix']
+        self.pbcs  = json_data['pbcs']
         
         
     def __format__(self, fmt_spec=''):
@@ -580,3 +611,5 @@ class Lattice(units.ObjectUnits):
             matrix[d][d] = len_o
         self.matrix = matrix        
                     
+
+        

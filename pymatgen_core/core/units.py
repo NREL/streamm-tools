@@ -13,6 +13,7 @@ from numbers import Number
 import numbers
 from functools import partial
 import copy
+import json
 
 from monty.json import MSONable
 
@@ -1056,5 +1057,6 @@ class ObjectUnits(MSONable):
         self._property,self._unit_conf = change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         
         
-            
+
+
             

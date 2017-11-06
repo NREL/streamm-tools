@@ -19,7 +19,7 @@ import copy
 import sys
 import pickle
 import csv
-
+import json 
 
 
 import logging
@@ -43,14 +43,14 @@ from streamm.structures.structure import Structure
 
 
 
-def read_pickle(self,tag):
+def load_pickle(self,tag):
     '''    
     Pickle object
     '''
     with open("%s.pkl"%(tag),'rb') as fl:
         return pickle.load( fl )
 
-
+    
 class Attachment(units.ObjectUnits):
     '''
     Object to recode the attachment of two building block objects
@@ -118,6 +118,42 @@ class Buildingblock(Structure):
         file_i = open("%s.pkl"%(self.tag),'w')
         pickle.dump(self,file_i)
         file_i.flush()
+        
+        
+    def export_json(self):
+        '''    
+        export object to json file 
+        '''
+        json_data = {}
+        json_data['unit_conf'] = self.unit_conf
+        json_data['matrix'] = [ ]
+        for x in self.matrix:
+            for y in x:
+                json_data['matrix'].append(y)
+                
+        self.lat.export_json(self.tag)
+        
+        json_data['pbcs'] = self.pbcs
+        
+        with open("%s_lat.json"%(tag),'wb') as fl:
+            json.dump(json_data,fl)
+
+    def import_json(self):
+        '''    
+        Pickle object
+        '''
+        
+        self.lat.import_json(self.tag)
+        
+        file_name = "%s_lat.json"%(tag)
+        print("Reading {}".format(file_name))
+        with open(file_name,'rb') as fl:
+            json_data = json.load(fl)
+            
+        self._unit_conf = json_data['unit_conf']
+        self.matrix  = json_data['matrix']
+        self.pbcs  = json_data['pbcs']
+        
         
     def find_rsites(self):
         '''
