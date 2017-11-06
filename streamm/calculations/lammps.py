@@ -42,11 +42,10 @@ class mdrun(object):
     '''
     def __init__(self, verbose=False):
 
-        self.properties = dict()
-        self.properties['timestep'] = 0.50  # Time step in fmsec
-        self.properties['n_steps'] = 0 # Total steps 
-        self.properties['n_frames'] = 0 # Total frames 
-        self.properties['dstep'] = 1 # step rate
+        self.timestep = 0.50  # Time step in fmsec
+        self.n_steps = 0 # Total steps 
+        self.n_frames = 0 # Total frames 
+        self.dstep = 1 # step rate
                 
         # Create dictionary of lists for time series data 
         self.timeseries = dict()
@@ -789,7 +788,7 @@ class LAMMPS(CalculationRes):
         F.close()
         
 
-    def proc_in(self,in_file,data2cply=True,verbose=False,debug=False):
+    def proc_in(self,in_file,data2cply=True):
         """
         Read in input parameters from lammps in file
 
@@ -800,7 +799,7 @@ class LAMMPS(CalculationRes):
         # Add new properties 
         self.properties['run_cnt'] = 0
         self.properties['run_list'] = []
-        
+        dump_cnt = 0 
         ref_struc = copy.deepcopy(self.strucC)
         
         f = open(in_file,'r')
@@ -815,16 +814,14 @@ class LAMMPS(CalculationRes):
             if( 'timestep' in line):
                 
                 timestep_i = float(col[1])
-                if( debug ):
-                    print ">analyze_in timestep" ,line,timestep_i
+                logger.debug("timestep:{}".format(timestep_i))
                 
             if( 'run' in line):
                 run_i = mdrun()
                 run_i.timestep =  timestep_i
                 run_i.n_steps = float(col[1])
                 
-                if( debug ):
-                    print ">analyze_in run" ,line,run_i.timestep,run_i.n_steps
+                logger.debug("run found with {} steps".format(run_i.n_steps))
                 
                 self.properties['run_list'].append(copy.deepcopy(run_i))
                 
@@ -835,40 +832,19 @@ class LAMMPS(CalculationRes):
                 
             if( 'write_data' in line):
                 output_file = str(col[1])
-                logger.info("Reading %s data file"%(output_file))
+                logger.info("LAMMPS .data file found {}".format(output_file))
                 self.add_file('output','data_%d'%(len(self.properties['run_list'])),output_file)
-                if( data2cply ):
-                    
-                    self.read_data(output_file)
-                    # Update particle properties with reference
-                    if( ref_struc.n_particles == self.strucC.n_particles ):
-                        # Set properties from cply file
-                        for pkey_i, particle_i in self.strucC.particles.iteritems():
-                            particle_i.properties =  ref_struc.particles[pkey_i].properties
-                    else:
-                        logger.warning(" Data file has %d particles and reference structure has %d particle "%(self.strucC.n_particles,ref_struc.n_particles))
-
-                        
-                    run_col = output_file.split('.')
-                    
-                    self.strucC.tag = run_col[0]
-                    self.strucC.write_xyz()
-                    self.add_file('output','xyz_%d'%(len(self.properties['run_list'])),"%s.xyz"%(self.strucC.tag))
-                    self.strucC.write_cply()
-                    self.add_file('output','cply_%d'%(len(self.properties['run_list'])),"%s.cply"%(self.strucC.tag))
-                
                 
             if( 'dump' in line and len(col) > 5 ):
-                if( col[3] == 'dcd' ):
-                    output_file = str(col[5])
-                    self.add_file('data','dcd_%d'%(len(self.properties['run_list'])),output_file)
-
+                output_file = str(col[5])
+                self.add_file('data','dump_%d'%(dump_cnt),output_file)
+                dump_cnt += 1
+                
             if( 'restart' in line and len(col)  ):
-                    output_file = "%s.*"%str(col[2])
-                    self.add_file('data','restart_%d'%(len(self.properties['run_list'])),output_file)
+                output_file = "%s.*"%str(col[2])
+                self.add_file('data','restart_%d'%(len(self.properties['run_list'])),output_file)
 
                 
-        # set run cnt for check()
         self.properties['run_cnt'] = len(self.properties['run_list'] )
         
         return 
@@ -882,49 +858,44 @@ class LAMMPS(CalculationRes):
             * log_file (str) lammps log file
 
         """
+        update_run = True
+        run_cnt_i = 0
 
+
+        logger.info("Reading log file {}".format(log_file))
         f = open(log_file,'r')
         log_lines = f.readlines()
         f.close()
 
-        update_run = False 
         if( len(self.properties['run_list'] ) > 0 ):
-            update_run = True
-            run_cnt_i = 0
+            logger.info("Using existing run_list with {} runs ".format(len(self.properties['run_list'])))
             run_i = self.properties['run_list'][run_cnt_i]
-            print ">  using mdrun with len %d "%(len(self.properties['run_list']))
         else:
+            logger.info("No runs found will create new run_list ")
             self.properties['run_list']  = []
             run_i = mdrun()
-        if( debug):
-            print ">analyze_log update_run",update_run
+            update_run = False
+            
         thermo_keywords = ['Step','Temp','PotEng','TotEng','Press','Volume']
         for line in log_lines:
-            # print "line:",line
-            # llow = line.lower()
-            col = line.split()
-  
+            col = line.split()  
             if( 'Loop time' in str(line) ):
-                print " Calc %s finished "%(run_cnt_i)
-                if( update_run and len(self.properties['run_list']) <= run_cnt_i):
-                    print "update_run ", len(self.properties['run_list']) , run_cnt_i
-                    run_i = self.properties['run_list'][run_cnt_i]
-                else:
-                    self.properties['run_list'].append(copy.deepcopy(run_i))
-                    run_i = mdrun()                    
+                logger.info(" Calc  {}/{} finished with {} frames".format(run_cnt_i+1,len(self.properties['run_list']),run_i.n_frames ))
                 run_cnt_i += 1
+                if( update_run and len(self.properties['run_list']) > run_cnt_i):
+                    run_i = self.properties['run_list'][run_cnt_i]
+                    logger.info(" update_run is on setting run_i to index {} with {} steps".format(run_cnt_i,run_i.n_steps))
+                else:
+                    run_i = mdrun()
+                    update_run = False 
 
             if( 'Step Temp PotEng TotEng Press Volume' not in line):
 
-                if( len(col) >= 17 and col[0] != 'thermo_style' ):
-                    print "> col ",run_i.properties['n_frames'],col
-                    
-                    if(  run_i.properties['n_frames']  == 2 ):
+                if( len(col) >= 17 and col[0] != 'thermo_style' ):                    
+                    if(  run_i.n_frames  == 2 ):
                         # Calculate dstep
-                        print  run_i.timeseries['step']
-                        run_i.properties['dstep']  =  run_i.timeseries['step'][1] -  run_i.timeseries['step'][0]
-                        if( debug):
-                            print ">LAMMPS.analyze_log run_i. dstep %f "%(run_i.properties['dstep'] )
+                        run_i.dstep =  run_i.timeseries['step'][1] -  run_i.timeseries['step'][0]
+                        logger.info("dstep %f "%(run_i.dstep ))
                     '''
                     elif(  run_i.properties['n_frames'] > 2 ):
                         # Test for new run 
@@ -946,19 +917,17 @@ class LAMMPS(CalculationRes):
                                 self.properties['run_list'].append(copy.deepcopy(run_i))
                                 run_i = mdrun()
                     '''
-                        
-                    if( debug ):
-                        print "> read_enline ",len(col),col
-                    
+                    # 
+                    # Add properties to timeseries
+                    # 
                     for prop_i in run_i.timeseries.keys():
                         i = run_i.prop_col[prop_i]
-                        run_i.timeseries[prop_i].append(float(col[i]))
+                        run_i.timeseries[prop_i].append(float(col[i]))        
+                    logger.debug("Frames:{}".format(run_i.n_frames ))
 
-                    run_i.properties['n_frames'] +=1
-                    print run_i.properties['n_frames'],"9823u ",run_i.timeseries['step']
-                  
+                    run_i.n_frames +=1
             else:
-                print " Adding thermo keys from line: %s "%(line)
+                logger.debug(" Adding thermo keys from line: %s "%(line))
                 # Add thermo keys to properties
                 llow = line.lower()
                 col = llow.split()
@@ -968,12 +937,13 @@ class LAMMPS(CalculationRes):
                     run_i.timeseries[prop_i] = []
                     run_i.prop_col[prop_i] = i
                     i += 1 
+    
+            #run_i.calc_time_list()
+            #run_i.calc_density_list(self.strucC.properties['mass'])
 
-        #run_i.calc_time_list()
-        #run_i.calc_density_list(self.strucC.properties['mass'])
-
-        if( not update_run ):
-            self.properties['run_list'].append(copy.deepcopy(run_i))
+            if( not update_run and  run_i.n_frames > 0 ):
+                logger.info("Adding new run with {} frames ".format(run_i.n_frames ))
+                self.properties['run_list'].append(copy.deepcopy(run_i))
 
     def analysis(self,output_key='log',data2cply=True):
         """
@@ -983,24 +953,27 @@ class LAMMPS(CalculationRes):
         in_key = 'in'
         try:
             in_file = self.files['input'][in_key]
+            logger.info("Reading input file {}".format(in_file))
             if( self.resource.meta['type'] == "ssh" ):
+                logger.debug("scp data from {}".format(self.resource.ssh['address']))
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
                 bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],in_file)
                 os.system(bash_command)
                 data2cply=False              
             self.proc_in(in_file,data2cply=data2cply)            
         except KeyError:
-            print "Calculation %s No output_file file  with key %s found"%(self.tag,in_key)
+            logger.warning("Calculation {} No output_file file  with key {} found".format(self.tag,in_key))
         # Find output_key file 
         try:
             output_file = self.files['output'][output_key]
+            logger.info("Reading output file {}".format(output_file))
             if( self.resource.meta['type'] == "ssh" ):
                 ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
                 bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
                 os.system(bash_command)                
             self.proc_log(output_file)            
         except KeyError:
-            print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+            logger.warning("Calculation %s No output_file file  with key %s found"%(self.tag,output_key))
         
         #self.write_dat(dat_file)
         #self.add_file(dat_file,'data')

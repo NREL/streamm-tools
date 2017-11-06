@@ -812,7 +812,7 @@ class Groups(units.ObjectUnits):
         for gkey,group_i in self.groups.iteritems():
             group_i.write_xyz()
 
-    def group_pbcs(self):
+    def group_pbcs(self,accuracy=4):
         """
         Apply PBC's to create whole groups 
 
@@ -820,11 +820,13 @@ class Groups(units.ObjectUnits):
 
         """
         for gkey,group_i in self.groups.iteritems():
-            # Make sure group has particles 
+            # Make sure group has particles
+        
             if( len( group_i.pkeys ) > 0 ):
                 # Get position of first particle in molecule
                 pid_o  = group_i.pkeys[0]
                 r_o = self.strucC.positions[pid_o]
+                logger.info("{}:r_o {} {} {} ".format(pid_o,r_o[0],r_o[1],r_o[2]))
                 # 
                 part_shifted = [False]*self.strucC.n_particles 
                 # 
@@ -834,26 +836,42 @@ class Groups(units.ObjectUnits):
                 #
                 # shift all atoms to be conected 
                 #
-                for pid_i in sorted(group_i.pkeys):
+                for pid_i in sorted(group_i.pkeys[1:]):
+                    logger.debug("Checking particle {}".format(pid_i))
                     particle_i = self.strucC.particles[pid_i]
                     a_mass_i = particle_i.mass
                     r_i = self.strucC.positions[pid_i]
-                    r_io = self.strucC.lat.d_pos(r_i,r_o)
+                    
+                    # Calculate distance with and without lattice
+                    r_io  = np.array(r_o) -  np.array(r_i)
+                    r_io_pbcs = self.strucC.lat.d_pos(r_i,r_o)
+                    # 
+                    
                     # sum center of mass
                     total_mass += a_mass_i
-                    
-                    shifted = False 
+                    logger.debug("total_mass {}".format(total_mass))
+                    # 
+                    shifted = False
                     for dim in range(self.strucC.lat.n_dim):
-                        shift_dim = round( r_io[dim]/  self.strucC.lat.matrix[dim][dim] )
-                        r_i[dim] = r_i[dim]  + self.strucC.lat.matrix[dim][dim] * shift_dim
-                        if( shift_dim != 0 ):
+                        if( round(r_io[dim],accuracy)  != round(r_io_pbcs[dim],accuracy) ):
+                            dr_d = r_io[dim]  - r_io_pbcs[dim] 
+                            logger.info("r_o {}".format(str(r_o)))
+                            logger.info("r_i {}".format(str(r_i)))
+                            logger.info("r_io {}".format(str(r_io)))
+                            logger.info("r_io_pbcs {}".format(str(r_io_pbcs)))
+                            logger.info("dr {}".format(str(dr_d)))
                             shifted = True 
+                            r_i[dim] +=  dr_d
+                            
                         r_mol_mass[dim] = r_mol_mass[dim]  + a_mass_i*r_i[dim] 
-
+                    
+                    logger.debug("r_i {}".format(str(r_i)))
+                    logger.debug("shifted:{}".format(shifted))
+                    
                     group_i.strucC.positions[pid_i] = r_i
                     r_o = r_i
                     pid_o = pid_i
-
+                
                 # Shift molecular center of mass into box 
                 for dim in range(self.strucC.lat.n_dim):
                     cent_mass_i = r_mol_mass[dim] /total_mass
@@ -865,7 +883,8 @@ class Groups(units.ObjectUnits):
                     for dim in range(self.strucC.lat.n_dim):
                         r_i[dim] = r_i[dim] - shift[dim] 
 
-
+        return
+    
     def find_pairs(self,list_i,list_j,mol_inter=False,mol_intra=False):
         '''
         Find pairs based on criteria
