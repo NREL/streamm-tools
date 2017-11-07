@@ -361,16 +361,77 @@ class Dihtype(units.ObjectUnits):
         self.k3 = -0.5*C3
         self.k4 = -0.25*C4
 
-        
+    
 
-    def update_units(self,new_unit_conf):
-        '''
-        Update instance values with new units
+    def export_json(self):
+        '''    
+        Export object to json
         
-        Args:
-            * new_unit_conf (dict): with unit type as the key and the new unit as the value
+        Returns:
+            * json_data (dict) json representation of the object
             
         '''
         
-        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
-                
+        json_data = {}
+        json_data['fftype1'] = self.fftype1
+        json_data['fftype2'] = self.fftype2
+        json_data['fftype3'] = self.fftype3
+        json_data['fftype4'] = self.fftype4
+        json_data['type'] = self.type
+        json_data['paths'] = self.paths
+        json_data['d'] = self.d
+        json_data['mult'] = self.mult
+        json_data['kb'] = self.kb
+        json_data['theta_s'] = self.theta_s
+        json_data['k1'] = self.k1
+        json_data['k2'] = self.k2
+        json_data['k3'] = self.k3
+        json_data['k4'] = self.k4
+        json_data['C0'] = self.C0
+        json_data['C1'] = self.C1
+        json_data['C2'] = self.C2
+        json_data['C3'] = self.C3
+        json_data['C4'] = self.C4
+        json_data['C5'] = self.C5
+        json_data['e0'] = self.e0
+        json_data['ke'] = self.ke
+        
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        
+        return json_data
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+                    
+        self.fftype1  =  json_data['fftype1']
+        self.fftype2  =  json_data['fftype2']
+        self.fftype3  =  json_data['fftype3']
+        self.fftype4  =  json_data['fftype4']
+        self.type  =  json_data['type']
+        self.paths  =  json_data['paths']
+        self.d  =  json_data['d']
+        self.mult  =  json_data['mult']
+        self.kb  =  json_data['kb']
+        self.theta_s  =  json_data['theta_s']
+        self.k1  =  json_data['k1']
+        self.k2  =  json_data['k2']
+        self.k3  =  json_data['k3']
+        self.k4  =  json_data['k4']
+        self.C0  =  json_data['C0']
+        self.C1  =  json_data['C1']
+        self.C2  =  json_data['C2']
+        self.C3  =  json_data['C3']
+        self.C4  =  json_data['C4']
+        self.C5  =  json_data['C5']
+        self.e0  =  json_data['e0']
+        self.ke  =  json_data['ke']
+
+
+                        

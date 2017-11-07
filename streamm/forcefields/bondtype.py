@@ -112,4 +112,42 @@ class Bondtype(units.ObjectUnits):
             self.kb = kb
         else:
             raise TypeError("2nd arg should be float")
-    
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['fftype1'] = self.fftype1
+        json_data['fftype2'] = self.fftype2
+        json_data['type'] = self.type
+        json_data['r0'] = self.r0
+        json_data['kb'] = self.kb
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        
+        return json_data
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        self.fftype1  =  json_data['fftype1']
+        self.fftype2  =  json_data['fftype2']
+        self.type  =  json_data['type']
+        self.r0  =  json_data['r0']
+        self.kb  =  json_data['kb']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']
+        
+ 

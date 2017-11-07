@@ -82,3 +82,37 @@ class Particletype(units.ObjectUnits):
     def __str__(self):
         return " {} epsilon:{} sigma:{}".format(self.fftype1,self.epsilon,self.sigma)
 
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['fftype1'] = self.fftype1
+        json_data['mass'] = self.mass
+        json_data['epsilon'] = self.epsilon
+        json_data['sigma'] = self.sigma
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        
+        return json_data
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        self.fftype1  =  json_data['fftype1']
+        self.mass  =  json_data['mass']
+        self.epsilon  =  json_data['epsilon']
+        self.sigma  =  json_data['sigma']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']

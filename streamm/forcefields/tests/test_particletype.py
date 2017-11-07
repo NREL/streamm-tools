@@ -44,6 +44,15 @@ class Test_FFparticle(unittest.TestCase):
         self.assertEqual(self.ff.epsilon,1.05)
         self.assertEqual(self.ff.sigma,3.25)
         
+
+    def test_save(self):
+        json_data = self.ff.export_json()
+        del self.ff
+        self.ff = particletype.Particletype("X")
+        self.ff.import_json(json_data)
+        self.assertEqual(self.ff.epsilon,1.05)
+        self.assertEqual(self.ff.sigma,3.25)
+                
     @tearDown_streamm 
     def tearDown(self):
         del self.ff 

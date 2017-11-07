@@ -977,9 +977,23 @@ class Save(unittest.TestCase):
         
     def test_json(self):
         json_data  = self.strucC.export_json()
+        n_p = self.strucC.n_particles
+        n_b = self.strucC.n_bonds
+        n_a = self.strucC.n_angles
+        n_d = self.strucC.n_dihedrals
+        n_i = self.strucC.n_impropers 
+        
         del self.strucC
         self.strucC = structure.Structure("save_struc")
         self.strucC.import_json(json_data)
+        
+        self.assertEqual(self.strucC.n_particles,n_p)
+        self.assertEqual(self.strucC.n_bonds,n_b)
+        self.assertEqual(self.strucC.n_angles,n_a)
+        self.assertEqual(self.strucC.n_dihedrals,n_d)
+        self.assertEqual(self.strucC.n_impropers,n_i)
+        
+        
         
     def tearDown(self):
         del self.strucC 

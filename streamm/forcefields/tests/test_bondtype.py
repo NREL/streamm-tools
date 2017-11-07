@@ -43,7 +43,18 @@ class Testbondtype(unittest.TestCase):
         self.bondtype_i.setharmonic(0.76,33.33)
         bond_str = ' bond  C - H type harmonic \n  harmonic r_0 = 0.760000 K = 33.330000 lammps index 0  gromacs index 0  '
         self.assertEqual(str(self.bondtype_i),bond_str)
+
+    def test_save(self):
+        json_data = self.bondtype_i.export_json()
+        del self.bondtype_i
+        self.bondtype_i = bondtype.Bondtype("X","X")
+        self.bondtype_i.import_json(json_data)
         
+        self.assertEqual(self.bondtype_i.fftype1,'C')
+        self.assertEqual(self.bondtype_i.fftype2,'H')
+        self.assertEqual(self.bondtype_i.type,'harmonic')
+        self.assertEqual(self.bondtype_i.r0,0.56)
+        self.assertEqual(self.bondtype_i.kb,24.023)
         
         
     @tearDown_streamm 

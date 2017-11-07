@@ -81,6 +81,7 @@ class Imptype(units.ObjectUnits):
         del self.fftype4
         del self.type
         del self.gromacs_index 
+        del self.lammps_index 
 
         
     def __str__(self):
@@ -113,4 +114,48 @@ class Imptype(units.ObjectUnits):
             self.ke = ke
         else:
             raise TypeError("2nd arg should be float")
+
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['fftype1'] = self.fftype1
+        json_data['fftype2'] = self.fftype2
+        json_data['fftype3'] = self.fftype3
+        json_data['fftype4'] = self.fftype4
+        json_data['type'] = self.type
+        json_data['e0'] = self.e0
+        json_data['pn'] = self.pn
+        json_data['ke'] = self.ke
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        
+        return json_data
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        # 
+        self.fftype1  =  json_data['fftype1']
+        self.fftype2  =  json_data['fftype2']
+        self.fftype3  =  json_data['fftype3']
+        self.fftype4  =  json_data['fftype4']
+        self.type  =  json_data['type']
+        self.e0  =  json_data['e0']
+        self.pn  =  json_data['pn']
+        self.ke  =  json_data['ke']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']
 

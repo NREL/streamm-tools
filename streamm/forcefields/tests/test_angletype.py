@@ -31,14 +31,29 @@ from streamm_testutil import *
 class Testangletype(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
-        self.angletype_i = angletype.Angletype("HC","CH","HC")
+        self.angletype_i = angletype.Angletype("HC","CH","S")
         self.angletype_i.theta0 = 120.0
         self.angletype_i.kb = 4.56
 
     def test_anglestr(self):
-        angle_str = ' angle  HC - CH - HC type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromacs index 0  '
+        angle_str = ' angle  HC - CH - S type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromacs index 0  '
         self.assertEqual(str(self.angletype_i),angle_str)
         
+
+    def test_save(self):
+        json_data = self.angletype_i.export_json()
+        del self.angletype_i
+        self.angletype_i = angletype.Angletype("X","X","X")
+        self.angletype_i.import_json(json_data)
+        
+        self.assertEqual(self.angletype_i.fftype1,'HC')
+        self.assertEqual(self.angletype_i.fftype2,'CH')
+        self.assertEqual(self.angletype_i.fftype3,'S')
+        self.assertEqual(self.angletype_i.type,'harmonic')
+        self.assertEqual(self.angletype_i.theta0,120.0)
+        self.assertEqual(self.angletype_i.kb,4.56)
+        
+                
     @tearDown_streamm 
     def tearDown(self):
         del self.angletype_i 

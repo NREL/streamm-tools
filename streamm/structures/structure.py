@@ -2108,7 +2108,7 @@ class Structure(units.ObjectUnits):
             * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
-        
+        # 
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         #
         logger.debug("Running update_units on particles ")
@@ -2179,7 +2179,7 @@ class Structure(units.ObjectUnits):
         # impropers
         json_data['impropers']  = {}
         for ik,i in self.impropers.iteritems():
-            json_data['impropers'][pk] = i.export_json()
+            json_data['impropers'][ik] = i.export_json()
         # Write file 
         if( write_file ):
             file_name = "{}_{}.json".format(self.tag,self.sufix)
@@ -2201,17 +2201,18 @@ class Structure(units.ObjectUnits):
         # 
         if( read_file ):
             file_name = "{}_{}.json".format(self.tag,self.sufix)
-            print("Reading {}".format(file_name))
+            logger.debug("Reading {}".format(file_name))
             with open(file_name,'rb') as fl:
                 json_data = json.load(fl)
-        #
+        # 
         logger.debug("Set object properties based on json")
-        
+        # 
         if( 'lat' in json_data.keys() ):
             self.lat.import_json(self.tag,json_data['lat'],read_file=False)
             
         if( 'particles' in json_data.keys() ):
             for pk,json_particle in sorted(json_data['particles'].iteritems()):
+                pk = int(pk)
                 particle_i = Particle()
                 particle_i.import_json(json_particle)
                 self.particles[pk] = copy.deepcopy(particle_i) 
@@ -2224,29 +2225,35 @@ class Structure(units.ObjectUnits):
                 
         if( 'bonds' in json_data.keys() ):
             for bk,json_bond in json_data['bonds'].iteritems():
+                bk = int(bk)
                 b = Bond(json_bond['pkey1'],json_bond['pkey2'])
                 b.import_json(json_bond)
-                self.bonds[bk] = copy.deepcopy(b) 
-
-
+                self.bonds[bk] = copy.deepcopy(b)
+                
         if( 'angles' in json_data.keys() ):
             for ak,json_angle in json_data['angles'].iteritems():
+                ak = int(ak)
                 a = Angle(json_angle['pkey1'],json_angle['pkey2'],json_angle['pkey3'])
                 a.import_json(json_angle)
                 self.angles[ak] = copy.deepcopy(a) 
                 
         if( 'dihedrals' in json_data.keys() ):
             for dk,json_dih in json_data['dihedrals'].iteritems():
+                dk = int(dk)
                 d = Dihedral(json_dih['pkey1'],json_dih['pkey2'],json_dih['pkey3'],json_dih['pkey4'])
                 d.import_json(json_dih)
                 self.dihedrals[dk] = copy.deepcopy(d) 
 
         if( 'impropers' in json_data.keys() ):
             for ik,json_imp in json_data['impropers'].iteritems():
-                i = DihedImproperral(json_imp['pkey1'],json_imp['pkey2'],json_imp['pkey3'],json_imp['pkey4'])
+                ik = int(ik)
+                i = Improper(json_imp['pkey1'],json_imp['pkey2'],json_imp['pkey3'],json_imp['pkey4'])
                 i.import_json(json_imp)
-                self.dihedrals[ik] = copy.deepcopy(i) 
-                
+                self.impropers[ik] = copy.deepcopy(i) 
+
+        # Remake neighbor list based on updated bonds 
+        self.bonded_nblist = NBlist() 
+        self.bonded_nblist = self.build_nblist()                
         #
         return 
         

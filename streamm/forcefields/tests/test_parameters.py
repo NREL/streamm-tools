@@ -55,7 +55,7 @@ class TestParameter(unittest.TestCase):
         self.particletype_i.sigma = 3.25
         self.paramC.add_particletype(self.particletype_i)
         particle_str.append(' C* epsilon:1.05 sigma:3.25')
-    	self.particletype_i = particletype.Particletype("HH")
+        self.particletype_i = particletype.Particletype("HH")
         self.particletype_i.epsilon = 0.75
         self.particletype_i.sigma = 3.15
         self.paramC.add_particletype(self.particletype_i)
@@ -116,7 +116,8 @@ class TestParameter(unittest.TestCase):
         self.dihtype_i.mult = 3.0
         self.dihtype_i.theat_s = 45.0
         self.dihtype_i.kb = 80.6
-        dih_str.append(' dihedral  HC - CH - CH - HC type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theat_s = 45.000000 lammps index 0  gromcas index 0 ')
+        self.paramC.add_dihtype(self.dihtype_i)
+        dih_str.append(' dihedral  H - C - Ir - H type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theta_s = 0.000000 lammps index 0  gromcas index 0 ')
         for dtkey_i, dihtype_i  in self.paramC.dihtypes.iteritems():
             self.assertEqual(str(dihtype_i),dih_str[dtkey_i])
             
@@ -127,7 +128,8 @@ class TestParameter(unittest.TestCase):
         self.imptype_i.e0 = 180.0
         self.imptype_i.ke = 67.3
         self.imptype_i.pn = 4.0
-        imp_str.append(' improper  Ir - C - C - C type harmonic \n  imp e0 = 180.000000 ke = 67.300000 lammps index 0  gromcas index 0 ')
+        self.paramC.add_imptype(self.imptype_i)
+        imp_str.append(' improper  Ir - C - C - C type harmonic ')
         for itkey_i, imptype_i  in self.paramC.imptypes.iteritems():    
             self.assertEqual(str(imptype_i),imp_str[itkey_i])
         
@@ -137,6 +139,125 @@ class TestParameter(unittest.TestCase):
         self.paramC = None
 
 
+class Save(unittest.TestCase):
+    def setUp(self):
+        self.paramC = parameters.Parameters('save1')
+
+        self.particletype_i = particletype.Particletype("Ir")
+        self.particletype_i.epsilon = 2.35
+        self.particletype_i.sigma = 4.15
+        self.paramC.add_particletype(self.particletype_i)
+        self.particletype_i = particletype.Particletype('C*')
+        self.particletype_i.epsilon = 1.05
+        self.particletype_i.sigma = 3.25
+        self.paramC.add_particletype(self.particletype_i)
+        self.particletype_i = particletype.Particletype("HH")
+        self.particletype_i.epsilon = 0.75
+        self.particletype_i.sigma = 3.15
+        self.paramC.add_particletype(self.particletype_i)
+        
+        
+        self.bondtype_i = bondtype.Bondtype("Ir","C")
+        self.bondtype_i.r0 = 1.02
+        self.bondtype_i.kb = 13.563
+        self.paramC.add_bondtype(self.bondtype_i)
+
+        self.bondtype_i = bondtype.Bondtype("C","C")
+        self.bondtype_i.r0 = 0.56
+        self.bondtype_i.kb = 24.023
+        self.paramC.add_bondtype(self.bondtype_i)
+
+        self.bondtype_i = bondtype.Bondtype("C","H")
+        self.bondtype_i.r0 = 0.43
+        self.bondtype_i.kb = 65.123
+        self.paramC.add_bondtype(self.bondtype_i)
+        
+        self.angletype_i = angletype.Angletype("H","C","H")
+        self.angletype_i.theta0 = 120.0
+        self.angletype_i.kb = 4.56
+        
+        self.angletype_i = angletype.Angletype("C","Ir","C")
+        self.angletype_i.theta0 = 90.0
+        self.angletype_i.kb = 2.86
+
+        self.angletype_i = angletype.Angletype("Ir","C","H")
+        self.angletype_i.theta0 = 120.0
+        self.angletype_i.kb = 1.73
+
+        self.dihtype_i = dihtype.Dihtype("H","C","Ir","H",type="harmonic")
+        self.dihtype_i.d = 4.0
+        self.dihtype_i.mult = 3.0
+        self.dihtype_i.theat_s = 45.0
+        self.dihtype_i.kb = 80.6
+            
+        
+        self.imptype_i = imptype.Imptype("Ir","C","C","C",type="harmonic")
+        self.imptype_i.e0 = 180.0
+        self.imptype_i.ke = 67.3
+        self.imptype_i.pn = 4.0
+        self.paramC.add_imptype(self.imptype_i)
+        
+    def test_json(self):
+        
+        n_p = self.paramC.n_particletypes
+        n_b = self.paramC.n_bondtypes
+        n_a = self.paramC.n_angletypes
+        n_d = self.paramC.n_dihtypes
+        n_i = self.paramC.n_imptypes 
+        
+        
+        json_data  = self.paramC.export_json(write_file=True)
+        
+        del self.paramC
+        
+        self.paramC = parameters.Parameters('save1')
+
+        self.paramC.import_json(json_data)
+        
+        self.assertEqual(self.paramC.n_particletypes,n_p)
+        self.assertEqual(self.paramC.n_bondtypes,n_b)
+        self.assertEqual(self.paramC.n_angletypes,n_a)
+        self.assertEqual(self.paramC.n_dihtypes,n_d)
+        self.assertEqual(self.paramC.n_imptypes,n_i)
+        
+        particle_str = []
+        particle_str.append(' Ir epsilon:2.35 sigma:4.15')
+        particle_str.append(' C* epsilon:1.05 sigma:3.25')
+        particle_str.append(' HH epsilon:0.75 sigma:3.15')
+        for particletkey_i, particletype_i  in self.paramC.particletypes.iteritems():
+            self.assertEqual(str(particletype_i),particle_str[particletkey_i])
+        
+        bond_str = []
+        bond_str.append(' bond  Ir - C type harmonic \n  harmonic r_0 = 1.020000 K = 13.563000 lammps index 0  gromacs index 0  ')
+        bond_str.append(' bond  C - C type harmonic \n  harmonic r_0 = 0.560000 K = 24.023000 lammps index 0  gromacs index 0  ')
+        bond_str.append(' bond  C - H type harmonic \n  harmonic r_0 = 0.430000 K = 65.123000 lammps index 0  gromacs index 0  ')
+        for btkey_i,bondtype_i  in self.paramC.bondtypes.iteritems():
+            self.assertEqual(str(bondtype_i),bond_str[btkey_i])
+
+        angle_str = []
+        angle_str.append(' angle  H - C - H type harmonic \n  harmonic theta_0 = 120.000000 K = 4.560000 lammps index 0  gromcas index 0  ')
+        angle_str.append(' angle  C - Ir - C type harmonic \n  harmonic theta_0 = 90.000000 K = 2.860000 lammps index 0  gromcas index 0  ')
+        angle_str.append(' angle  Ir - C - H type harmonic \n  harmonic theta_0 = 120.000000 K = 1.730000 lammps index 0  gromcas index 0  ')
+
+        for atkey_i,angletype_i  in self.paramC.angletypes.iteritems():
+            self.assertEqual(str(angletype_i),angle_str[atkey_i])
+        
+        dih_str = []
+        dih_str.append(' dihedral  H - C - Ir - H type harmonic \n  harmonic d = 4.000000 mult = 3.000000 K = 80.600000 theta_s = 0.000000 lammps index 0  gromcas index 0 ')
+        for dtkey_i, dihtype_i  in self.paramC.dihtypes.iteritems():
+            self.assertEqual(str(dihtype_i),dih_str[dtkey_i])
+        
+        imp_str = []
+        imp_str.append(' improper  Ir - C - C - C type harmonic ')
+        for itkey_i, imptype_i  in self.paramC.imptypes.iteritems():
+            self.assertEqual(str(imptype_i),imp_str[itkey_i])
+        
+        
+    def tearDown(self):
+        del self.paramC 
+                
+    
+    
 if __name__ == '__main__':
 
     unittest.main()    

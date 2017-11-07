@@ -116,3 +116,45 @@ class Angletype(units.ObjectUnits):
             print "2nd arg should be float"
             raise TypeError
 
+
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['fftype1'] = self.fftype1
+        json_data['fftype2'] = self.fftype2
+        json_data['fftype3'] = self.fftype3
+        json_data['type'] = self.type
+        json_data['theta0'] = self.theta0
+        json_data['kb'] = self.kb
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        
+        return json_data
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        self.fftype1  =  json_data['fftype1']
+        self.fftype2  =  json_data['fftype2']
+        self.fftype3  =  json_data['fftype3']
+        self.type  =  json_data['type']
+        self.theta0  =  json_data['theta0']
+        self.kb  =  json_data['kb']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']
+        
+        
