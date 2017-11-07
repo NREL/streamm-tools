@@ -289,11 +289,11 @@ class Structure(units.ObjectUnits):
         Add 'Particle' object to this container and update n_particles accordingly 
         """
         if isinstance(particle_i,Particle):
-            particle_i.index = self.n_particles 
+            index = self.n_particles 
             if( deepcopy ):
-                self.particles[particle_i.index] = copy.deepcopy(particle_i) # index 0 -> (N-1)
+                self.particles[index] = copy.deepcopy(particle_i) # index 0 -> (N-1)
             else:
-                self.particles[particle_i.index] = particle_i # index 0 -> (N-1)
+                self.particles[index] = particle_i # index 0 -> (N-1)
         else:
             raise TypeError("Attempting to add non-Particle type to container")
 
@@ -326,11 +326,11 @@ class Structure(units.ObjectUnits):
         Add 'Bond' object to bonds dict in this container and update n_bonds accordingly
         """
         if isinstance(bond_i,Bond):
-            bond_i.index = self.n_bonds 
+            index = self.n_bonds 
             if( deepcopy ):
-                self.bonds[bond_i.index] = copy.deepcopy(bond_i) # index 0 -> (N-1)
+                self.bonds[index] = copy.deepcopy(bond_i) # index 0 -> (N-1)
             else:
-                self.bonds[bond_i.index] = bond_i # index 0 -> (N-1)
+                self.bonds[index] = bond_i # index 0 -> (N-1)
         else:
             raise TypeError("Attempting to add non-Bond type to container")
 
@@ -340,11 +340,11 @@ class Structure(units.ObjectUnits):
         Add 'Angle' object to angles dict in this container and update n_angles accordingly
         """
         if isinstance(angle_i, Angle):
-            angle_i.index = self.n_angles  
+            index = self.n_angles  
             if( deepcopy ):
-                self.angles[angle_i.index] = copy.deepcopy(angle_i) # index 0 -> (N-1)
+                self.angles[index] = copy.deepcopy(angle_i) # index 0 -> (N-1)
             else:
-                self.angles[angle_i.index] = angle_i # index 0 -> (N-1)
+                self.angles[index] = angle_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Angle type to container"
             raise TypeError
@@ -355,11 +355,11 @@ class Structure(units.ObjectUnits):
         Add 'Dihedral' object to dihedrals dict in this container and update n_dihedrals accordingly
         """
         if isinstance(dihedral_i, Dihedral):
-            dihedral_i.index = self.n_dihedrals 
+            index = self.n_dihedrals 
             if( deepcopy ):
-                self.dihedrals[dihedral_i.index] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
+                self.dihedrals[index] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
             else:
-                self.dihedrals[dihedral_i.index] = dihedral_i # index 0 -> (N-1)
+                self.dihedrals[index] = dihedral_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Dihedral type to container"
             raise TypeError
@@ -370,11 +370,11 @@ class Structure(units.ObjectUnits):
         Add 'Improper' object to impropers dict in this container and update n_impropers accordingly
         """
         if isinstance(improper_i, Improper):
-            improper_i.index = self.n_impropers 
+            index = self.n_impropers 
             if( deepcopy ):
-                self.impropers[improper_i.index] = copy.deepcopy(improper_i) # index 0 -> (N-1)
+                self.impropers[index] = copy.deepcopy(improper_i) # index 0 -> (N-1)
             else:
-                self.impropers[improper_i.index] = improper_i # index 0 -> (N-1)
+                self.impropers[index] = improper_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Improper type to container"
             raise TypeError
