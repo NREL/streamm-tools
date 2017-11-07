@@ -29,29 +29,14 @@ except:
     
 
 from resource import Resource 
-from resource import CalculationRes
+from calculation import Calculation
+from calculation import MDrun
 
 
 import logging
 logger = logging.getLogger(__name__)
 
-
-class mdrun(object):
-    '''
-    Object to store the output of a single MD run 
-    '''
-    def __init__(self, verbose=False):
-
-        self.timestep = 0.50  # Time step in fmsec
-        self.n_steps = 0 # Total steps 
-        self.n_frames = 0 # Total frames 
-        self.dstep = 1 # step rate
-                
-        # Create dictionary of lists for time series data 
-        self.timeseries = dict()
-        self.prop_col  =  dict() # list of properties in column order
-          
-class LAMMPS(CalculationRes):
+class LAMMPS(Calculation):
     """
     Derived class implementing input/output methods for LAMMPS
     """
@@ -70,7 +55,7 @@ class LAMMPS(CalculationRes):
         unit_conf['time'] = 'ns'
         
         # Base class constructor is called
-        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
+        Calculation.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'lammps'
         self.properties['finish_str'] = 'Loop time of'
@@ -817,7 +802,7 @@ class LAMMPS(CalculationRes):
                 logger.debug("timestep:{}".format(timestep_i))
                 
             if( 'run' in line):
-                run_i = mdrun()
+                run_i = MDrun()
                 run_i.timestep =  timestep_i
                 run_i.n_steps = float(col[1])
                 
@@ -826,7 +811,7 @@ class LAMMPS(CalculationRes):
                 self.properties['run_list'].append(copy.deepcopy(run_i))
                 
             if( 'minimize' in line):
-                run_i = mdrun()
+                run_i = MDrun()
                 run_i.timestep =  timestep_i
                 self.properties['run_list'].append(copy.deepcopy(run_i))
                 
@@ -873,7 +858,7 @@ class LAMMPS(CalculationRes):
         else:
             logger.info("No runs found will create new run_list ")
             self.properties['run_list']  = []
-            run_i = mdrun()
+            run_i = MDrun()
             update_run = False
             
         thermo_keywords = ['Step','Temp','PotEng','TotEng','Press','Volume']
@@ -886,7 +871,7 @@ class LAMMPS(CalculationRes):
                     run_i = self.properties['run_list'][run_cnt_i]
                     logger.info(" update_run is on setting run_i to index {} with {} steps".format(run_cnt_i,run_i.n_steps))
                 else:
-                    run_i = mdrun()
+                    run_i = MDrun()
                     update_run = False 
 
             if( 'Step Temp PotEng TotEng Press Volume' not in line):
@@ -915,7 +900,7 @@ class LAMMPS(CalculationRes):
                                 run_i = self.properties['run_list'][run_cnt_i]
                             else:
                                 self.properties['run_list'].append(copy.deepcopy(run_i))
-                                run_i = mdrun()
+                                run_i = MDrun()
                     '''
                     # 
                     # Add properties to timeseries

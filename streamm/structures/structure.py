@@ -2157,6 +2157,8 @@ class Structure(units.ObjectUnits):
         json_data = {}
         # Lattice
         json_data['lat'] = self.lat.export_json(self.tag,write_file=False)
+        # unit_conf
+        json_data['unit_conf'] = self.unit_conf
         # particles
         json_data['particles']  = {}
         for pk,p in self.particles.iteritems():
@@ -2209,7 +2211,8 @@ class Structure(units.ObjectUnits):
         # 
         if( 'lat' in json_data.keys() ):
             self.lat.import_json(self.tag,json_data['lat'],read_file=False)
-            
+        else:
+            logger.warning('lat not in json ')
         if( 'particles' in json_data.keys() ):
             for pk,json_particle in sorted(json_data['particles'].iteritems()):
                 pk = int(pk)
@@ -2222,6 +2225,8 @@ class Structure(units.ObjectUnits):
                 z = json_particle['z']
                 pos_i = np.array([x,y,z])
                 self.add_position(pos_i)
+        else:
+            logger.warning('particles not in json ')
                 
         if( 'bonds' in json_data.keys() ):
             for bk,json_bond in json_data['bonds'].iteritems():
@@ -2229,6 +2234,8 @@ class Structure(units.ObjectUnits):
                 b = Bond(json_bond['pkey1'],json_bond['pkey2'])
                 b.import_json(json_bond)
                 self.bonds[bk] = copy.deepcopy(b)
+        else:
+            logger.warning('bonds not in json ')
                 
         if( 'angles' in json_data.keys() ):
             for ak,json_angle in json_data['angles'].iteritems():
@@ -2236,6 +2243,8 @@ class Structure(units.ObjectUnits):
                 a = Angle(json_angle['pkey1'],json_angle['pkey2'],json_angle['pkey3'])
                 a.import_json(json_angle)
                 self.angles[ak] = copy.deepcopy(a) 
+        else:
+            logger.warning('angles not in json ')
                 
         if( 'dihedrals' in json_data.keys() ):
             for dk,json_dih in json_data['dihedrals'].iteritems():
@@ -2243,6 +2252,8 @@ class Structure(units.ObjectUnits):
                 d = Dihedral(json_dih['pkey1'],json_dih['pkey2'],json_dih['pkey3'],json_dih['pkey4'])
                 d.import_json(json_dih)
                 self.dihedrals[dk] = copy.deepcopy(d) 
+        else:
+            logger.warning('dihedrals not in json ')
 
         if( 'impropers' in json_data.keys() ):
             for ik,json_imp in json_data['impropers'].iteritems():
@@ -2250,6 +2261,8 @@ class Structure(units.ObjectUnits):
                 i = Improper(json_imp['pkey1'],json_imp['pkey2'],json_imp['pkey3'],json_imp['pkey4'])
                 i.import_json(json_imp)
                 self.impropers[ik] = copy.deepcopy(i) 
+        else:
+            logger.warning('impropers not in json ')
 
         # Remake neighbor list based on updated bonds 
         self.bonded_nblist = NBlist() 

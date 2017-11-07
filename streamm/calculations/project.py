@@ -32,10 +32,10 @@ from streamm.calculations.nwchem import NWChem
 from streamm.calculations.gaussian import Gaussian
 from streamm.calculations.lammps import LAMMPS
 
-from streamm.calculations.resource import CalculationRes
+from streamm.calculations.calculation import Calculation
 
 
-class Project(CalculationRes):
+class Project(Calculation):
     '''
     Data structure for a project
     
@@ -61,9 +61,9 @@ class Project(CalculationRes):
                 # Store the units of each attribute type 
         self.unit_conf = unit_conf
 
-        CalculationRes.__init__(self,tag,unit_conf = unit_conf)
+        Calculation.__init__(self,tag,unit_conf = unit_conf)
         self.meta['software'] = 'streamm_proj'
-        self.prefix = 'proj'        
+        self.sufix = 'proj'        
         self.calculations = dict()
         self.resources = dict()
         
@@ -72,6 +72,7 @@ class Project(CalculationRes):
         CalculationRes.__del__(self)        
         del self.calculations
         del self.resources
+        del self.sufix 
 
 
     def dump_json(self):

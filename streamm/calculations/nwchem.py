@@ -31,18 +31,12 @@ except:
 import streamm.structures 
 #import streamm.calculations.resource as resource 
 from resource import Resource 
-from resource import CalculationRes
+from calculation import Calculation
+from calculation import ElectronTransfer
     
 import logging
 logger = logging.getLogger(__name__)
 
-
-'''
-TODO:
-
-move calculation related objects to calculation file
-
-'''
 
 def conv_float(fval_i):
     '''
@@ -57,35 +51,8 @@ def conv_float(fval_i):
         
     return val_i
 
-class electrontransfer(object):
-    """
-    Calculation of electron transfer between groups of particles
-    """
-    def __init__(self,  verbose=False):
-        """
-        Constructor for  class. 
-        """
-        self.producten = 0.0 
-        self.reactanten = 0.0 
-        self.productMO = ""
-        self.reactantMO = ""
-        self.V = 0.0
-        self.S = 0.0
-        self.cputime = ""
-
-    def __str__(self):
-        log_line = ""
-        log_line += "\n producten {}".format(self.producten)
-        log_line += "\n reactanten {}".format(self.reactanten)
-        log_line += "\n productMO {}".format(self.productMO)
-        log_line += "\n reactantMO {}".format(self.reactantMO)
-        log_line += "\n S {} H ".format(self.S)
-        log_line += "\n V {} H ".format(self.V)
-        log_line += "\n cputime {}".format(self.cputime)
-
-        return log_line
-                            
-class NWChem(CalculationRes):
+    
+class NWChem(Calculation):
     """
     Derived class implementing input/output methods Gaussian
     """
@@ -102,7 +69,7 @@ class NWChem(CalculationRes):
         unit_conf['time'] = 'ns'
         
         # Base class constructor is called
-        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
+        Calculation.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'nwchem'
         # String found in log file when simulation finishes
@@ -202,7 +169,7 @@ class NWChem(CalculationRes):
                     if( len(col) >= 3 and read_et == False ):
                         if(  col[0]  == "Electron" and  col[1]  == "Transfer"  and  col[2]  == "Calculation" ):
                             read_et = True
-                            et_ij = electrontransfer()
+                            et_ij = ElectronTransfer()
                             logger.debug(" Electron Transfer Calculation found on line {} ".format(line_cnt))
 
                     # Geometry

@@ -30,6 +30,7 @@ except:
 # Import streamm dependencies 
 from streamm.structures.buildingblock import Buildingblock
 from streamm.forcefields.parameters import Parameters
+from streamm.calculations.resource import Resource 
 
 
 import logging
@@ -37,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class Calculation(object):
+class Calculation(units.ObjectUnits):
     '''
     Data structure for a calculation where input files are read in
     and output files and data files are produced.
@@ -56,10 +57,6 @@ class Calculation(object):
     .. attribute:: data (dict)
     
         Calculation data
-        
-    .. attribute:: units (dict)
-    
-        Track the units used in calculation
         
     .. attribute:: meta (dict)
         
@@ -95,25 +92,27 @@ class Calculation(object):
         
     '''
     def __init__(self, tag,unit_conf=units.unit_conf ):
-        # Store the units of each attribute type 
-        self._unit_conf = unit_conf  
+        # init object's units dictionaries 
+        units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #         
         self.tag = str(tag)
-        
-        self.prefix = 'calc'
+        # 
+        self.sufix = 'calc'
         self.data = dict()
-
+        
+        # Structure 
         self.strucC = Buildingblock(unit_conf=unit_conf)
+        # Parameters 
         self.paramC = Parameters(unit_conf=unit_conf)
+        # Computational Resource used for calculation  
+        self.resource = Resource()        
         
         dt = datetime.fromtimestamp(time.time())
         self.meta = dict()
         self.meta['date'] = dt.isoformat()
         self.meta['status'] = 'written'
         self.meta['software'] = 'streamm_calc'
-        
-        self.units = unit_conf
-        
+                
         self.files = dict()
         self.files['input'] = dict()     
         self.files['templates'] = dict()
@@ -130,25 +129,24 @@ class Calculation(object):
         self.properties['uncompress'] =  "tar -xzf "
         self.properties['compress_sufix'] =  "tgz"
         self.properties['comp_key'] = 'compressed'
-        
-        self.references = dict()        
-        
-        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
+        #  Reference calculations
+        self.references = dict()
         
     def __del__(self):
         """
         Delete Calculation object
         """
-        del self.prefix
+        del self.sufix
         del self.tag
         del self.strucC
         del self.paramC
         del self.data
         del self.meta
-        del self.units        
         del self.files        
         del self.str        
         del self.properties        
+        del self.references
+        del self.resource
 
     def add_file(self,file_type,file_key,file_name):
         '''
@@ -274,57 +272,269 @@ class Calculation(object):
         Replace properties in string and write to file
         '''
         new_str = self.replace_prop(str_key)
-        
-        
+        #
         F = open(file_name,"w")
         F.write(new_str)
         F.close()
-
+        # 
         self.add_file(file_type,file_key,file_name)
+        #
 
-    def dump_json(self):
+    def push(self,file_type_list=[ 'output', 'data']):
         '''
-        Dump json file for reference 
+        Push input files to resource 
         '''
+        #
+        logger.info(" Resource type %s "%(self.resource.meta['type']))
+
+        if( self.meta['status'] == 'written' ):
+            if( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+                logger.info("runnning push function in %s "%(os.getcwd()))
+                #
+                # Scp compressed files over to resource 
+                #
+                from_dirkey = 'launch'
+                fromdir = self.dir[from_dirkey]
+                to_dirkey = 'scratch'
+                todir = self.dir[to_dirkey]
+                file_key = self.properties['comp_key']
+                for file_type in ['input','templates','scripts']:
+                    if( len(self.files[file_type]) ):
+                        
+                        logger.info("Compressing and copying %s files to scratch directory "%(file_type))
+                        self.compress_files(file_type)
+                        file_name = self.files[file_type][file_key]
+                        # self.cp_file(file_type,file_key,file_name,from_dirkey,to_dirkey)
+                        from_pathfile = os.path.join(fromdir,file_name)
+                        to_pathfile = os.path.join(todir,file_name)
+                        bash_command = "scp %s %s:%s"%(from_pathfile,ssh_id,todir)
+                        logger.info("COPY:{}".format(bash_command))
+                        os.system(bash_command)
+                        # Uncompress file 
+                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                        bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,todir,bash_command)
+                        os.system(bash_command)
+                    else:
+                        logger.info("No files of type %s set"%(file_type))
+            else:
+                logger.info(" Resource type %s does not need to push files created locally "%(self.resource.meta['type']))
+            #
+            # Copy reference simulation output over to scratch directory
+            #
+            file_key = self.properties['comp_key']
+            if( self.resource.meta['type'] == "ssh"  ):
+                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])
+            for ref_key,ref_calc in self.references.iteritems():
+                logger.info("Copying output of reference calculations %s"%(ref_key))
+                # file_type = 'output'
+                for file_type in file_type_list:
+                    
+                    try:
+                        file_name = ref_calc.files[file_type][file_key]
+                    except:
+                        logger.info("Fine type %s has no compressed files "%(file_type))
+                        file_name = ''
+                    if( len(file_name) > 0 ):
+                        # Copy compressed reference output to scratch directory 
+                        if( ref_calc.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
+                            bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                            os.system(bash_command)
+                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh" ):
+                            if( ref_calc.resource.ssh['address'] == self.resource.ssh['address'] ):
+                                # Copy on external resource 
+                                bash_command = "cp %s/%s %s"%(ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                                bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                                os.system(bash_command)                
+                            else:
+                                # Copy between resources 
+                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                                bash_command = "scp %s:%s/%s %s:%s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,ssh_id,self.dir['scratch'])
+                                os.system(bash_command)
+
+                        elif( ref_calc.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "local" ):
+                                # Copy between resources 
+                                ref_ssh_id = "%s@%s"%(ref_calc.resource.ssh['username'],ref_calc.resource.ssh['address'])
+                                bash_command = "scp %s:%s/%s %s"%(ref_ssh_id,ref_calc.dir['storage'],file_name,self.dir['scratch'])
+                                os.system(bash_command)                                            
+                        else:
+                            logger.info(" Copy from  type %s to type %s not set  "%(ref_calc.resource.meta['type'], self.resource.meta['type']))
+                        # Uncompress reference output 
+                        bash_command = "%s %s "%(self.properties['uncompress'],file_name)
+                        if( self.resource.meta['type'] == "ssh" ):
+                            bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.dir['scratch'],bash_command)
+                        # Run bash command
+                        os.system(bash_command)
+
+                
+                
+            '''
+            # Copy over reference output
+            #for ref_tag in self.files['reference']:
+            for ref_sim in self.references:
+                #ref_sim = load_json(ref_tag)
+                ref_compressed_output = "%s_output.%s"%(ref_sim.tag,ref_sim.compress_sufix)
+                if( ref_sim.resource.meta['type'] == "local" and self.resource.meta['type'] == "local"):
+                    bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
+                    os.system(bash_command)                
+                if( ref_sim.resource.meta['type'] == "ssh" and self.resource.meta['type'] == "ssh"):
+                    if( ref_sim.resource.meta['address'] == self.resource.meta['address'] ):
+                        bash_command = "cp %s/%s %s"%(ref_sim.meta['storage_dir'],ref_compressed_output,self.meta['scratch_dir'])
+                        bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                        os.system(bash_command)                
+                    else:
+                        logger.info("Can't transfer simulations between two extrernal resources :( ")
+                else:
+                    logger.info(" Resource type %s unknown "%(ref_sim.resource.meta['type']))
+                #
+                # Record compressedinputs
+                self.files['compressedinputs'].append(ref_compressed_output)            
+                         
+            os.chdir(self.meta['launch_dir'])
+            #
+            # Compress input files 
+            self.compress_input()
+            #
+            # Copy over input files 
+            if( self.resource.meta['type'] == "local" ):
+                bash_command = "cp %s %s"%(self.compressed_input,self.meta['scratch_dir'])
+                os.system(bash_command)                
+            elif( self.resource.meta['type'] == "ssh" ):
+                bash_command = "scp %s %s:%s"%(self.compressed_input,ssh_id,self.meta['scratch_dir'])
+                os.system(bash_command)
+            else:
+                logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
+            #
+            # Record compressedinputs
+            self.files['compressedinputs'].append(self.compressed_input)
+
+
+            if( self.resource.meta['type'] == "local" ):
+                # Change to scratch directory 
+                os.chdir(self.meta['scratch_dir'])
+                logger.debug("scratch_dir %s "%(self.meta['scratch_dir']))
+                # Uncompress input files
+
+                
+                
+                for file_i in self.files['compressedinputs']:
+                    bash_command = "%s %s "%(self.uncompress_method,file_i)
+                    # Run bash command
+                    os.system(bash_command)
+
+            elif( self.resource.meta['type'] == "ssh" ):
+                ssh_id = "%s@%s"%(self.resource.meta['username'],self.resource.meta['address'])                              
+                for file_i in self.files['compressedinputs']:
+                    bash_command = "%s %s "%(self.uncompress_method,file_i)
+                    bash_command = 'ssh %s \' cd %s ; %s \' '%(ssh_id,self.meta['scratch_dir'],bash_command)
+                    # Run bash command
+                    os.system(bash_command)
+            '''
+        
+        
+    def export_json(self,write_file=True):
+        '''    
+        Export particles to json
+        
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        #
         json_data = dict()
+        # unit_conf
+        json_data['unit_conf'] = self.unit_conf
+        # 
         json_data['meta'] = self.meta
-        json_data['units'] = self.units
         json_data['files'] = self.files
         json_data['data'] = self.data
+        json_data['dir'] = self.dir
         json_data['properties'] = self.properties
-        json_data['references'] = self.references
-        
-        # Update file in case tag has changed 
-        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
-        
-        f = open(self.files['data']['json'], 'w')
-        json.dump(json_data,f, indent=2)
-        f.close()
+        # Save tags of reference calculation
+        json_data['references'] = {}
+        for ref_key,ref_calc in self.references.iteritems(): 
+            json_data['references'][ref_key] = ref_calc.tag
+        #
+        struc_json = self.strucC.export_json()
+        param_json = self.paramC.export_json()
+        #
+        # Write file 
+        if( write_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            logger.debug("Writting {}".format(file_name))
+            with open(file_name,'wb') as fl:
+                json.dump(json_data,fl)
+        #
+        return json_data
 
-    def load_json(self):
-        '''
-        Load json file for reference 
-        '''
-        #
-        # Update file in case tag has changed
-        #
-        self.files['data']['json'] = "%s_%s.json"%(self.prefix,self.tag)
-        #
-        logger.info("Reading %s"%(self.files['data']['json']))
-        try:
-            with open(self.files['data']['json']) as f:            
-                json_data = json.load(f)
-                f.close()
-                
-                self.meta = json_data['meta']
-                self.units = json_data['units']
-                self.files = json_data['files']
-                self.data = json_data['data'] 
-                self.properties = json_data['properties'] 
-                self.references = json_data['references'] 
 
-        except IOError:
-            logger.warning(" File not found %s in %s "%(self.files['data']['json'],os.getcwd()))
+    def import_json(self,json_data={},read_file=True):
+        '''    
+        Export object to json
+        
+        Kwargs:
+            * json_lattice (dict) json representation of the object
+            * read_file (boolean) to read json from a file
+            
+        '''
+        # 
+        if( read_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            logger.debug("Reading {}".format(file_name))
+            with open(file_name,'rb') as fl:
+                json_data = json.load(fl)
+        # 
+        logger.debug("Set object properties based on json")
+        #
+        if( 'unit_conf' in json_data.keys() ):               
+            self.unit_conf = json_data['unit_conf']
+        else:
+            logger.warning('unit_conf not in json ')        
+        #
+        if( 'meta' in json_data.keys() ):               
+            self.meta = json_data['meta']
+        else:
+            logger.warning('meta not in json ')
+        #
+        if( 'files' in json_data.keys() ):               
+            self.files = json_data['files']
+        else:
+            logger.warning('meta not in json ')
+        #
+        if( 'data' in json_data.keys() ):               
+            self.data = json_data['data']
+        else:
+            logger.warning('data not in json ')
+        #
+        if( 'properties' in json_data.keys() ):               
+            self.properties = json_data['properties']
+        else:
+            logger.warning('properties not in json ')
+        #
+        #
+        if( 'dir' in json_data.keys() ):               
+            self.dir = json_data['dir']
+        else:
+            logger.warning('dir not in json ')
+        # 
+        if( 'references' in json_data.keys() ):
+            ref_tags = json_data['references']
+            for rekey,ref_tag in ref_tags:
+                ref_i = Calculation(ref_tag)
+                ref_i.load_json()
+                self.add_refcalc(ref_i)
+                logger.debug(" Need to set reference calculation type ")
+        else:
+            logger.warning('references not in json ')
+            
+        # Read in strucC and paramC
+        self.strucC.import_json()
+        self.paramC.import_json()
+        
+            
 
     def set_strucC(self,strucC_i):
         '''
@@ -497,6 +707,127 @@ class Calculation(object):
                     logger.info("No files of type %s present"%(file_type))
             self.meta['status'] = 'stored'
             
+
+    def make_dir(self):
+        '''
+        Check that needed directories exist 
+        '''
+        logger.debug("Creating directories for resource %s "%(self.tag))
+        
+        if( self.resource.meta['type'] == "local" ):
+            os.chdir(self.dir['home'])
+            for dkey,dir_i in self.dir.iteritems():
+                if ( not os.path.isdir(dir_i) ):
+                    logger.info("Making %s "%(dir_i))
+                    os.mkdir(dir_i)
+            os.chdir(self.dir['home'])
+        elif( self.resource.meta['type'] == "ssh" ):
+            # Create local directories 
+            os.chdir(self.dir['home'])
+            dkey = 'launch'
+            try:
+                dir_i = self.dir[dkey]
+                if ( not os.path.isdir(dir_i) ):
+                    logger.info("Making %s "%(dir_i))
+                    os.mkdir(dir_i)                
+            except:
+                logger.warning("%s directory not set "%(dkey))
+            # Create remote directories 
+            ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])#
+            for dkey in ['storage','scratch']:
+                try:
+                    dir_i = self.dir[dkey]
+                    # Create  directory
+                    bash_command = ' mkdir -p %s  '%(dir_i)
+                    bash_command = 'ssh %s \'  %s \' '%(ssh_id,bash_command)
+                    logger.debug("MAKEDIR:{}".format(bash_command))
+                    os.system(bash_command)                       
+                except:
+                    logger.warning("%s directory not set "%(dkey))
+                    
+                            
+    def set_resource(self,resource_i):
+        '''
+        Set resource for simulation 
+        '''
+        self.resource = resource_i
+        self.meta['resource'] = resource_i.tag
+        # Add resource properties to calculation properties
+        self.properties.update(resource_i.properties)
+        
+        # Set simulation directories based on resource
+        self.dir = copy.deepcopy(resource_i.dir)
+        # Set storage and scratch to have calculation directories 
+        self.dir['storage'] = '%s/%s/'%(resource_i.dir['storage'] ,self.tag)
+        self.dir['scratch'] = '%s/%s/'%(resource_i.dir['scratch'],self.tag)
+        self.dir['launch'] = '%s/%s/'%(resource_i.dir['launch'],self.tag)
+        
+        self.properties['scratch'] = self.dir['scratch'] 
+
+
+    def add_refcalc(self,ref_calc):
+        '''
+        Add reference calculation to current calculation
+        this will copy the output of the reference calculation
+        to the current calculation's scratch location to be used
+        by the current calculation
+        '''
+        self.references[ref_calc.tag] = ref_calc
+        
+    def get_cp_str(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
+        '''
+        Return bash command as string to copy a file
+        '''
+        cpfile = True
+        try:
+            fromdir = self.dir[from_dirkey]
+        except:
+            cpfile = False
+            logger.warning(" dir dictionary key %s not set for calculation %s files "%(from_dirkey,self.tag))
+        try:
+            todir = self.dir[to_dirkey]
+        except:
+            cpfile = False
+            logger.warning(" dir dictionary key %s not set for calculation %s files "%(to_dirkey,self.tag))
+        if( cpfile ):
+            from_pathfile = os.path.join(fromdir,file_name)
+            to_pathfile = os.path.join(todir,file_name)
+            return "cp %s %s "%(from_pathfile,to_pathfile)
+        else:
+            return ''
+        
+    def cp_file(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
+        '''
+        Add file to calculation with add_file and copy the file to a directory
+        '''
+        logger.info(" in cp_file {} {} {} {} {}".format(file_type,file_key,file_name,from_dirkey,to_dirkey))
+        
+        cpfile = True
+        try:
+            fromdir = self.dir[from_dirkey]
+        except:
+            cpfile = False
+            logger.info(" dir dictionary key %s not set for calculation %s files "%(from_dirkey,self.tag))
+        try:
+            todir = self.dir[to_dirkey]
+        except:
+            cpfile = False
+            logger.info(" dir dictionary key %s not set for calculation %s files "%(to_dirkey,self.tag))
+        if( cpfile ):
+            from_pathfile = os.path.join(fromdir,file_name)
+            to_pathfile = os.path.join(todir,file_name)
+            logger.info("copying %s to %s "%(from_pathfile,to_pathfile))
+            shutil.copyfile(from_pathfile,to_pathfile)
+             
+        self.add_file(file_type,file_key,file_name)
+        #
+    def compress_dirfiles(self,file_type,in_dirkey):
+        '''
+        Compress  files in directory
+        '''
+        os.chdir(self.dir[in_dirkey])
+        self.compress_files(file_type)
+        os.chdir(self.dir['home'])
 
     def pull(self,file_type_list=['output','data']):
         '''
@@ -1151,3 +1482,49 @@ class Calculation(object):
         self.paramC.update_units(new_unit_conf)
 
 
+
+
+class MDrun(object):
+    '''
+    Object to store the output of a single MD run 
+    '''
+    def __init__(self, verbose=False):
+
+        self.timestep = 0.50  # Time step in fmsec
+        self.n_steps = 0 # Total steps 
+        self.n_frames = 0 # Total frames 
+        self.dstep = 1 # step rate
+                
+        # Create dictionary of lists for time series data 
+        self.timeseries = dict()
+        self.prop_col  =  dict() # list of properties in column order
+          
+
+class ElectronTransfer(object):
+    """
+    Calculation of electron transfer between groups of particles
+    """
+    def __init__(self,  verbose=False):
+        """
+        Constructor for  class. 
+        """
+        self.producten = 0.0 
+        self.reactanten = 0.0 
+        self.productMO = ""
+        self.reactantMO = ""
+        self.V = 0.0
+        self.S = 0.0
+        self.cputime = ""
+
+    def __str__(self):
+        log_line = ""
+        log_line += "\n producten {}".format(self.producten)
+        log_line += "\n reactanten {}".format(self.reactanten)
+        log_line += "\n productMO {}".format(self.productMO)
+        log_line += "\n reactantMO {}".format(self.reactantMO)
+        log_line += "\n S {} H ".format(self.S)
+        log_line += "\n V {} H ".format(self.V)
+        log_line += "\n cputime {}".format(self.cputime)
+
+        return log_line
+                                  

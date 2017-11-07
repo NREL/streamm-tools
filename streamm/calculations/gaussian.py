@@ -22,7 +22,7 @@ import numpy as np
 from string import replace
 
 from resource import Resource 
-from resource import CalculationRes
+from calculation import Calculation
 
 try:
     # Import pymatgen Class 
@@ -35,7 +35,7 @@ except:
 import logging
 logger = logging.getLogger(__name__)
           
-class Gaussian(CalculationRes):
+class Gaussian(Calculation):
     """
     Derived class implementing input/output methods Gaussian
     """
@@ -51,7 +51,7 @@ class Gaussian(CalculationRes):
         unit_conf['charge'] = 'e'
         
         # Base class constructor is called
-        CalculationRes.__init__(self, tag,unit_conf=unit_conf)
+        Calculation.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'gaussian'
         # String found in log file when simulation finishes
