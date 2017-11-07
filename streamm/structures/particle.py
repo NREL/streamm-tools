@@ -189,7 +189,6 @@ class Particle(units.ObjectUnits):
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
         # 
-        self.index = None
         self.type = type
         self.label = label
         self.symbol = symbol
@@ -238,7 +237,6 @@ class Particle(units.ObjectUnits):
         self.gromacs_index = 0             
             
     def __del__(self):
-        del self.index 
         del self.type
         del self.label
         # 

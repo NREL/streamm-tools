@@ -36,7 +36,6 @@ class Angle(units.ObjectUnits):
     def __init__(self, pkey1, pkey2, pkey3,unit_conf=units.unit_conf):
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
-        self.index = None
         self.pkey1 = pkey1
         self.pkey2 = pkey2
         self.pkey3 = pkey3
@@ -52,7 +51,6 @@ class Angle(units.ObjectUnits):
         self.gromacs_index = 0             
             
     def __del__(self):
-        del self.index
         del self.pkey1
         del self.pkey2
         del self.pkey3
@@ -76,7 +74,6 @@ class Angle(units.ObjectUnits):
         '''
         
         json_data = {}
-        json_data['index'] = self.index
         json_data['pkey1'] = self.pkey1
         json_data['pkey2'] = self.pkey2
         json_data['pkey3'] = self.pkey3
@@ -96,7 +93,6 @@ class Angle(units.ObjectUnits):
             * json_data (dict) json representation of the object
             
         '''
-        self.index  =  json_data['index']
         self.pkey1  =  json_data['pkey1']
         self.pkey2  =  json_data['pkey2']
         self.pkey3  =  json_data['pkey3']
