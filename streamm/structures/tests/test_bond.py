@@ -33,11 +33,29 @@ class TestBond(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         self.bond_i = bond.Bond(0,1)
+        self.bond_i.bondorder = 2
+        self.bond_i.length = 1.35
     
     def test_str(self):
         bond_str = ' 0 - 1'
         self.assertEqual(str(self.bond_i),bond_str)
+        self.assertEqual(self.bond_i.pkey1,0)
+        self.assertEqual(self.bond_i.pkey2,1)
+        self.assertEqual(self.bond_i.bondorder,2)
+        self.assertEqual(self.bond_i.length,1.35)
+    
 
+    def test_save(self):
+        json_bond = self.bond_i.export_json()
+        del self.bond_i
+        self.bond_i = bond.Bond(4,4)
+        self.bond_i.import_json(json_bond)
+        self.assertEqual(self.bond_i.pkey1,0)
+        self.assertEqual(self.bond_i.pkey2,1)
+        self.assertEqual(self.bond_i.bondorder,2)
+    
+    
+            
     @tearDown_streamm 
     def tearDown(self):
         del self.bond_i 

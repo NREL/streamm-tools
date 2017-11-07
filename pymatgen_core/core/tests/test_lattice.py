@@ -11,7 +11,7 @@ import numpy as np
 
 import unittest #2 as unittest
 import numpy.testing.utils as nptu
-
+import copy 
 # from pymatgen.core.operations import SymmOp
 
 
@@ -376,6 +376,31 @@ class TestLattice(unittest.TestCase):
         del self.lat 
         self.lat = None
         
+
+class Save(unittest.TestCase):
+    def setUp(self):
+        matrix = [ 234.0,0.234,97234.0234,632.237,120,1230.234,0.2345,0.97,130 ]
+        self.lat = Lattice(matrix)
+        
+        self.lat.pbcs = [True,False,True]
+        
+    def test_json(self):
+        unit_conf = copy.deepcopy(self.lat.unit_conf)
+        pbcs = copy.deepcopy(self.lat.pbcs)
+        matrix_correct = copy.deepcopy(self.lat.matrix)
+        json_lattice = self.lat.export_json('test_json')
+        del self.lat
+        self.lat = Lattice()
+        self.lat.import_json('test_json')
+        
+        nptu.assert_almost_equal(self.lat.matrix,matrix_correct)
+        self.assertDictEqual(self.lat.unit_conf,unit_conf)
+        self.assertListEqual(self.lat.pbcs,pbcs)
+        
+    def tearDown(self):
+        del self.lat 
+        self.lat = None
+                
 if __name__ == '__main__':
     import unittest
     unittest.main()

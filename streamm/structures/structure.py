@@ -1670,33 +1670,30 @@ class Structure(units.ObjectUnits):
                     
         return 
 
-    def write_particles(self,particle_file,keys=[]):
-        '''
-        Write out bonds in csv file 
-        '''
-        if( len(keys) == 0 ):
-            # If list is not specified use all bonds
-            keys = self.particles.keys()
+    def export_json(self,write_file=True):
+        '''    
+        Export particles to json
         
-        if( len(keys) > 0 ):
-            fout = open(particle_file,'wb')
-            writer = csv.writer(fout,delimiter=str(','), quotechar=str('"'), quoting=csv.QUOTE_ALL)
-            header = ['key']
-            part_i = self.particles[0]
-            for prop_key in part_i.properties.keys():
-                header.append(prop_key)
-            writer.writerow(header)
-            for key_i in keys:
-                bond_i = self.bonds[key_i]
-                row_i = [key_i,bond_i.pkey1,bond_i.pkey2]
-                for prop_key,prop_val in bond_i.properties.iteritems():
-                    row_i.append(prop_val)                    
-                writer.writerow(row_i)
-            fout.close()
-        else:
-            logger.warning("Empty bond dictionary passed to write_bonds no file will be writen")
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_lattice (dict) json representation of the object
+            
+        '''
+        #
+        json_data = {}
+        # Lattice
+        json_data['lat'] = self.lat.export_json(self.tag,write_file=False)
+        # 
+        json_particles = {}
+        for pk,p in self.particles.iteritems():
+            json_particles[pk] = p.export_json()
+        json_data['particle'] = json_particles
+                
         return
-        
+    
+                
 # Bond manipulation 
     def bonded_bonds(self):
         """

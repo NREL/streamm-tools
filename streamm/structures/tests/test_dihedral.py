@@ -32,11 +32,28 @@ class TestDihedral(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         self.dih_i = dihedral.Dihedral(2,0,1,5)
+        self.dih_i.cosine  = 0.5468237
         
     def test_str(self):
         dih_str = ' 2 - 0 - 1 - 5'
         self.assertEqual(str(self.dih_i),dih_str)
+        self.assertEqual(self.dih_i.pkey1,2)
+        self.assertEqual(self.dih_i.pkey2,0)
+        self.assertEqual(self.dih_i.pkey3,1)
+        self.assertEqual(self.dih_i.pkey4,5)
+        self.assertEqual(self.dih_i.cosine,0.5468237)
 
+    def test_save(self):
+        json_data = self.dih_i.export_json()
+        del self.dih_i
+        self.dih_i = dihedral.Dihedral(0,0,0,0)
+        self.dih_i.import_json(json_data)
+        self.assertEqual(self.dih_i.pkey1,2)
+        self.assertEqual(self.dih_i.pkey2,0)
+        self.assertEqual(self.dih_i.pkey3,1)
+        self.assertEqual(self.dih_i.pkey4,5)
+        self.assertEqual(self.dih_i.cosine,0.5468237)
+        
     @tearDown_streamm 
     def tearDown(self):
         del self.dih_i 

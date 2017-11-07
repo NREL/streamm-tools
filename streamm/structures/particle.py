@@ -165,13 +165,13 @@ class Particle(units.ObjectUnits):
         #
         self.mass = float(self.element.atomic_mass) # amu 
         if( self.element.atomic_radius_calculated != None ):
-            self.bonded_radius = self.element.atomic_radius_calculated
+           self.bonded_radius = self.element.atomic_radius_calculated
         else:
-            self.nonbonded_radius = 1.5
+           self.nonbonded_radius = 1.5
         if( self.element.van_der_waals_radius != None ):
-            self.nonbonded_radius = self.element.van_der_waals_radius
+           self.nonbonded_radius = self.element.van_der_waals_radius
         else:
-            self.nonbonded_radius = 2.5
+           self.nonbonded_radius = 2.5
             
         logger.debug("Particle[{}] has been set to {} with mass:{} bonded_radius:{} nonbonded_radius:{}".format(self.index,self.symbol,self.mass,self.bonded_radius,self.nonbonded_radius))
         # Set values to be the same as mendeleev for easy
@@ -221,7 +221,7 @@ class Particle(units.ObjectUnits):
             self.set_element(symbol=symbol)
             logger.debug("No label is given using symbol as label")
             if( label == None  ):
-                self.label  = symbol
+               self.label  = symbol
             
         elif( label != None ):
             logger.debug("No symbol is given using label as symbol")
@@ -274,7 +274,68 @@ class Particle(units.ObjectUnits):
         property_msg += "\n nonbonded_radius:{} ({})".format(self.nonbonded_radius,self._unit_conf['length'])
         
         return property_msg
+    
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['type'] = self.type
+        json_data['label'] = self.label
+        json_data['symbol'] = self.symbol
+        json_data['mass'] = self.mass
+        json_data['charge'] = self.charge
+        json_data['bonded_radius'] = self.bonded_radius
+        json_data['nonbonded_radius'] = self.nonbonded_radius
+        #
+        json_data['mol'] = self.mol
+        json_data['ring'] = self.ring
+        json_data['residue'] = self.residue
+        json_data['resname'] = self.resname
+        json_data['qgroup'] = self.qgroup
+        json_data['paramkey'] = self.paramkey
+        json_data['param_index'] = self.param_index
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        json_data['rsite'] = self.rsite
+        
+        return json_data
+        
 
-                        
-                        
-                        
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        self.type  =          json_data['type'] 
+        self.label  =          json_data['label'] 
+        self.symbol  =          json_data['symbol']
+        # Set element 
+        self.set_element(symbol = self.symbol )
+        
+        self.mass  =          json_data['mass'] 
+        self.charge  =          json_data['charge'] 
+        self.bonded_radius  =          json_data['bonded_radius'] 
+        self.nonbonded_radius  =          json_data['nonbonded_radius'] 
+        self.mol  =          json_data['mol'] 
+        self.ring  =          json_data['ring'] 
+        self.residue  =          json_data['residue'] 
+        self.resname  =          json_data['resname'] 
+        self.qgroup  =          json_data['qgroup'] 
+        self.paramkey  =          json_data['paramkey'] 
+        self.param_index  =          json_data['param_index'] 
+        self.lammps_index  =          json_data['lammps_index'] 
+        self.gromacs_index  =          json_data['gromacs_index'] 
+        self.rsite  =          json_data['rsite'] 
+        
+        
+        

@@ -259,34 +259,60 @@ class Lattice(units.ObjectUnits):
         del self.pbcs
 
         
-    def export_json(self,tag):
+    def export_json(self,tag,write_file=True):
         '''    
-        export object to json file 
+        Export object to json
+        
+        Args:
+            * tag (str) ID of file to be written
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_lattice (dict) json representation of the object
+            
         '''
-        json_data = {}
-        json_data['unit_conf'] = self.unit_conf
-        json_data['matrix'] = [ ]
+        #
+        json_lattice = {}
+        json_lattice['unit_conf'] = self.unit_conf
+        json_lattice['matrix'] = [ ]
         for x in self.matrix:
             for y in x:
-                json_data['matrix'].append(y)
-        
-        json_data['pbcs'] = self.pbcs
-        
-        with open("%s_lat.json"%(tag),'wb') as fl:
-            json.dump(json_data,fl)
+                json_lattice['matrix'].append(y)
+        #
+        json_lattice['pbcs'] = self.pbcs
+        #
+        if( write_file ):
+            with open("%s_lat.json"%(tag),'wb') as fl:
+                json.dump(json_lattice,fl)
+        #
+        return json_lattice
 
-    def import_json(self,tag):
+    def import_json(self,tag,json_lattice={},read_file=True):
         '''    
-        Pickle object
-        '''
-        file_name = "%s_lat.json"%(tag)
-        print("Reading {}".format(file_name))
-        with open(file_name,'rb') as fl:
-            json_data = json.load(fl)
+        Export object to json
+        
+        Args:
+            * tag (str) ID of file to be read
             
-        self._unit_conf = json_data['unit_conf']
-        self.matrix  = json_data['matrix']
-        self.pbcs  = json_data['pbcs']
+        Kwargs:
+            * read_file (boolean) to read json from a file
+            * json_lattice (dict) json representation of the object
+            
+        '''
+        # 
+        if( read_file ):
+            file_name = "%s_lat.json"%(tag)
+            print("Reading {}".format(file_name))
+            with open(file_name,'rb') as fl:
+                json_lattice = json.load(fl)
+        #
+        logger.debug("Set object properties based on json") 
+        self._unit_conf = json_lattice['unit_conf']
+        self.matrix  = json_lattice['matrix']
+        self.pbcs  = json_lattice['pbcs']
+        #
+        return 
         
         
     def __format__(self, fmt_spec=''):

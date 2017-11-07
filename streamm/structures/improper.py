@@ -78,3 +78,42 @@ class Improper(units.ObjectUnits):
     def __str__(self):
         return " %s - %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3,self.pkey4 )
         
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['pkey1'] = self.pkey1
+        json_data['pkey2'] = self.pkey2
+        json_data['pkey3'] = self.pkey3
+        json_data['pkey4'] = self.pkey4
+        json_data['cosine'] = self.cosine
+        json_data['param_index'] = self.param_index
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        #         
+        return json_data
+        
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        self.pkey1  =  json_data['pkey1']
+        self.pkey2  =  json_data['pkey2']
+        self.pkey3  =  json_data['pkey3']
+        self.pkey4  =  json_data['pkey4']
+        self.cosine  =  json_data['cosine']
+        self.param_index  =  json_data['param_index']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']

@@ -32,11 +32,27 @@ class TestAngle(unittest.TestCase):
     @setUp_streamm 
     def setUp(self):
         self.angle_i = angle.Angle(2,0,1)
+        self.angle_i.cosine  = 0.888754
         
     def test_str(self):
         angle_str = ' 2 - 0 - 1'
         self.assertEqual(str(self.angle_i),angle_str)
+        self.assertEqual(self.angle_i.pkey1,2)
+        self.assertEqual(self.angle_i.pkey2,0)
+        self.assertEqual(self.angle_i.pkey3,1)
+        self.assertEqual(self.angle_i.cosine,0.888754)
 
+
+    def test_save(self):
+        json_data = self.angle_i.export_json()
+        del self.angle_i
+        self.angle_i = angle.Angle(0,0,0)
+        self.angle_i.import_json(json_data)
+        self.assertEqual(self.angle_i.pkey1,2)
+        self.assertEqual(self.angle_i.pkey2,0)
+        self.assertEqual(self.angle_i.pkey3,1)
+        self.assertEqual(self.angle_i.cosine,0.888754)
+    
     @tearDown_streamm 
     def tearDown(self):
         del self.angle_i 

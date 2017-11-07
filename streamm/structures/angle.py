@@ -32,9 +32,7 @@ class Angle(units.ObjectUnits):
         Cosine of the bond angle
         
     """
-
-                
-                    
+    
     def __init__(self, pkey1, pkey2, pkey3,unit_conf=units.unit_conf):
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
@@ -66,4 +64,41 @@ class Angle(units.ObjectUnits):
 
     def __str__(self):
         return " %s - %s - %s"%(self.pkey1,self.pkey2,self.pkey3)
+
+    def export_json(self):
+        '''    
+        Export object to json
+        
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        
+        json_data = {}
+        json_data['pkey1'] = self.pkey1
+        json_data['pkey2'] = self.pkey2
+        json_data['pkey3'] = self.pkey3
+        json_data['cosine'] = self.cosine
+        json_data['param_index'] = self.param_index
+        json_data['lammps_index'] = self.lammps_index
+        json_data['gromacs_index'] = self.gromacs_index
+        #         
+        return json_data
+        
+
+    def import_json(self,json_data):
+        '''    
+        Export object to json
+        
+        Args:
+            * json_data (dict) json representation of the object
+            
+        '''
+        self.pkey1  =  json_data['pkey1']
+        self.pkey2  =  json_data['pkey2']
+        self.pkey3  =  json_data['pkey3']
+        self.cosine  =  json_data['cosine']
+        self.param_index  =  json_data['param_index']
+        self.lammps_index  =  json_data['lammps_index']
+        self.gromacs_index  =  json_data['gromacs_index']
 

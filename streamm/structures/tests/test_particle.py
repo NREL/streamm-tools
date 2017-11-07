@@ -50,7 +50,16 @@ class TestParticle(unittest.TestCase):
         self.assertEqual(self.part.bonded_radius,0.48)
         self.assertEqual(self.part.nonbonded_radius,1.52)
         
-
+    def test_save(self):
+        self.part.set_element(symbol='S')
+        json_particle = self.part.export_json()
+        del self.part
+        self.part = particle.Particle(label="C137")
+        self.part.import_json(json_particle)
+        self.assertEqual(self.part.mass,32.065)
+        self.assertEqual(self.part.bonded_radius,0.88)
+        self.assertEqual(self.part.nonbonded_radius,1.8)
+        
     @tearDown_streamm 
     def tearDown(self):
         del self.part 

@@ -23,7 +23,7 @@ import os
 import numpy as np
 import random
 import numpy.testing.utils as nptu
-
+import copy
 
 import streamm.structures.structure as structure
         
@@ -933,6 +933,67 @@ class TestProximityCheck(unittest.TestCase):
         
         
 
+class Save(unittest.TestCase):
+    def setUp(self):
+        self.strucC = structure.Structure("save_struc")
+
+        matrix_i = self.strucC.lat.matrix
+        matrix_i[0][0] = 1000.0 
+        matrix_i[1][1] = 1000.0 
+        matrix_i[2][2] = 1000.0 
+        self.strucC.lat.matrix = matrix_i
+        self.strucC.lat.pbcs = [True,True,True]
+
+        symbols = ['C','C','C','C','S','H','H','H','H']
+        positions = [ ]
+        positions.append([-1.55498576,-1.91131218,-0.00081000])
+        positions.append([-0.17775976,-1.91131218,-0.00081000])
+        positions.append([0.34761524,-0.57904218,-0.00081000])
+        positions.append([-0.65884476,0.36101082,0.00000000])
+        positions.append([-2.16948076,-0.35614618,-0.00000800])
+        positions.append([-2.18966076,-2.79526518,-0.00132100])
+        positions.append([0.45389024,-2.80145418,-0.00106400])
+        positions.append([1.41682424,-0.35961818,-0.00138200])
+        positions.append([-0.51943676,1.44024682,0.00064700])
+        for i in range(len(symbols)):
+            pt_i = particle.Particle(symbol=symbols[i])
+            if( symbols[i] == 'C' ):
+                pt_i.charge = -0.75
+            elif(  symbols[i] == 'H' ):
+                pt_i.charge = 0.80
+            
+            pt_i.mol = 0
+            #pt_i.properties = periodictable.element_symbol()
+            pos_i = positions[i]
+            self.strucC.add_partpos(pt_i,pos_i)
+                
+        self.strucC.bonded_nblist = self.strucC.guess_nblist(0,radii_buffer=1.35)
+        self.strucC.bonded_bonds()
+        self.strucC.bonded_angles()
+        self.strucC.bonded_dih()
+        
+        
+
+        
+    def test_json(self):
+        unit_conf = copy.deepcopy(self.strucC.lat.unit_conf)
+        pbcs = copy.deepcopy(self.strucC.lat.pbcs)
+        matrix_correct = copy.deepcopy(self.strucC.lat.matrix)
+        self.strucC.lat.export_json('test_json')
+        
+        
+        
+        del self.strucC
+        self.strucC = structure.Structure("save_struc")
+        self.strucC.lat.import_json('test_json')
+        
+        nptu.assert_almost_equal(self.strucC.lat.matrix,matrix_correct)
+        self.assertDictEqual(self.strucC.lat.unit_conf,unit_conf)
+        self.assertListEqual(self.strucC.lat.pbcs,pbcs)
+        
+    def tearDown(self):
+        del self.strucC 
+                
     
 if __name__ == '__main__':
 
