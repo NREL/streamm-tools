@@ -236,11 +236,6 @@ class Structure(units.ObjectUnits):
         del self.dihedrals
         del self.impropers
         # Del counts 
-        del self.n_particles
-        del self.n_bonds
-        del self.n_angles
-        del self.n_dihedrals
-        del self.n_impropers
         del self.mol_max
         # Reference information 
         del self.name 
@@ -1070,15 +1065,10 @@ class Structure(units.ObjectUnits):
         # Re initialized container list's and counts 
         self.particles = dict()                               # Creates empty dict struc
         self._property['positions'] = []                                   # Creates empty array
-        self.n_particles = 0    
         self.bonds = dict()                               # Creates empty dict struc
         self.angles = dict()                                  # Creates empty dict struc
         self.dihedrals = dict()                                # Creates empty dict struc
         self.impropers = dict()                                # Creates empty dict struc
-        self.n_bonds = 0                                   # Creates empty array
-        self.n_angles = 0    
-        self.n_dihedrals = 0    
-        self.n_impropers = 0    
         # Add particles to container and track new keys 
         toPtclID = 0 
         for  pkey_i in particles_i.keys():
@@ -1677,7 +1667,6 @@ class Structure(units.ObjectUnits):
         Generate bonds from bonded neighbor list 
         """
         self.bonds = dict()                                   # Creates empty dict struc
-        self.n_bonds = 0    
         for pkey_i in self.particles.keys():
             for pkey_j in self.bonded_nblist.getnbs(pkey_i):
                 if( pkey_i < pkey_j ):
@@ -1780,7 +1769,6 @@ class Structure(units.ObjectUnits):
         Generate angles from bonded neighbor list 
         """
         self.angles = dict()
-        self.n_angles = 0    
         for pkey_i in self.particles.keys():
             nb_cnt_i = self.bonded_nblist.calc_nnab(pkey_i)
             if( nb_cnt_i >= 2 ):            
@@ -1901,7 +1889,6 @@ class Structure(units.ObjectUnits):
         Generate dihedrals from nbonded eighbor list 
         """
         self.dihedrals =dict()                                # Creates empty dict struc
-        self.n_dihedrals = 0    
         for pkey_i in self.particles.keys():
             for pkey_j in self.bonded_nblist.getnbs(pkey_i):
                 if( pkey_i < pkey_j ):
