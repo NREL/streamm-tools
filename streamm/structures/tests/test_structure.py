@@ -976,20 +976,10 @@ class Save(unittest.TestCase):
 
         
     def test_json(self):
-        unit_conf = copy.deepcopy(self.strucC.lat.unit_conf)
-        pbcs = copy.deepcopy(self.strucC.lat.pbcs)
-        matrix_correct = copy.deepcopy(self.strucC.lat.matrix)
-        self.strucC.lat.export_json('test_json')
-        
-        
-        
+        json_data  = self.strucC.export_json()
         del self.strucC
         self.strucC = structure.Structure("save_struc")
-        self.strucC.lat.import_json('test_json')
-        
-        nptu.assert_almost_equal(self.strucC.lat.matrix,matrix_correct)
-        self.assertDictEqual(self.strucC.lat.unit_conf,unit_conf)
-        self.assertListEqual(self.strucC.lat.pbcs,pbcs)
+        self.strucC.import_json(json_data)
         
     def tearDown(self):
         del self.strucC 

@@ -23,7 +23,8 @@ import copy
 import os
 import pickle
 import csv
-import math 
+import math
+import json
 from decimal import Decimal
 from datetime import datetime
 
@@ -156,8 +157,9 @@ class Structure(units.ObjectUnits):
 
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
-        
+        #
         self.tag = tag
+        self.sufix = 'struc'
         #
         self.lat = Lattice(matrix,unit_conf=unit_conf )                             # Creates lattice object for structure
         self.bonded_nblist = NBlist()                         # Creates nblist object for  bonded particles
@@ -214,6 +216,7 @@ class Structure(units.ObjectUnits):
         self.replications = []
         
     def __del__(self):
+        del self.sufix 
         del self.lat 
         del self.particles
         del self.bonds
@@ -1669,30 +1672,6 @@ class Structure(units.ObjectUnits):
                     self.prop_particles[prop_i].append(particle_i.properties[prop_i])
                     
         return 
-
-    def export_json(self,write_file=True):
-        '''    
-        Export particles to json
-        
-        Kwargs:
-            * write_file (boolean) to dump json to a file
-            
-        Returns:
-            * json_lattice (dict) json representation of the object
-            
-        '''
-        #
-        json_data = {}
-        # Lattice
-        json_data['lat'] = self.lat.export_json(self.tag,write_file=False)
-        # 
-        json_particles = {}
-        for pk,p in self.particles.iteritems():
-            json_particles[pk] = p.export_json()
-        json_data['particle'] = json_particles
-                
-        return
-    
                 
 # Bond manipulation 
     def bonded_bonds(self):
@@ -2178,11 +2157,110 @@ class Structure(units.ObjectUnits):
                 imp_i.param.update_units(new_unit_conf)
         
  
-    '''    
-    def export_json(self):
-        file_i = open("%s.pkl"%(self.tag),'w')
-        pickle.dump(self,file_i)
-        file_i.flush()
-    def import_json(self):
+    def export_json(self,write_file=True):
+        '''    
+        Export particles to json
+        
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        #
+        json_data = {}
+        # Lattice
+        json_data['lat'] = self.lat.export_json(self.tag,write_file=False)
+        # particles
+        json_data['particles']  = {}
+        for pk,p in self.particles.iteritems():
+            json_data['particles'][pk] = p.export_json()
+            json_data['particles'][pk]['x'] = self.positions[pk][0]
+            json_data['particles'][pk]['y'] = self.positions[pk][1]
+            json_data['particles'][pk]['z'] = self.positions[pk][2]
+        # bonds
+        json_data['bonds']  = {}
+        for bk,b in self.bonds.iteritems():
+            json_data['bonds'][bk] = b.export_json()
+        # angles
+        json_data['angles']  = {}
+        for ak,a in self.angles.iteritems():
+            json_data['angles'][ak] = a.export_json()
+        # dihedrals
+        json_data['dihedrals']  = {}
+        for dk,d in self.dihedrals.iteritems():
+            json_data['dihedrals'][dk] = d.export_json()
+        # impropers
+        json_data['impropers']  = {}
+        for ik,i in self.impropers.iteritems():
+            json_data['impropers'][pk] = i.export_json()
+        # Write file 
+        if( write_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            logger.debug("Writting {}".format(file_name))
+            with open(file_name,'wb') as fl:
+                json.dump(json_data,fl)
+
+        return json_data
     
-    '''            
+    def import_json(self,json_data={},read_file=True):
+        '''    
+        Export object to json
+        
+        Kwargs:
+            * json_lattice (dict) json representation of the object
+            * read_file (boolean) to read json from a file
+            
+        '''
+        # 
+        if( read_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            print("Reading {}".format(file_name))
+            with open(file_name,'rb') as fl:
+                json_data = json.load(fl)
+        #
+        logger.debug("Set object properties based on json")
+        
+        if( 'lat' in json_data.keys() ):
+            self.lat.import_json(self.tag,json_data['lat'],read_file=False)
+            
+        if( 'particles' in json_data.keys() ):
+            for pk,json_particle in json_data['particles'].iteritems():
+                x = json_particle['x']
+                y = json_particle['y']
+                z = json_particle['z']
+                pos_i = np.array([x,y,z])
+                p = Particle()
+                p.import_json(json_particle)
+                self.add_partpos(p,pos_i,deepcopy = True)
+                
+        if( 'bonds' in json_data.keys() ):
+            for bk,json_bond in json_data['bonds'].iteritems():
+                b = Bond(json_bond['pkey1'],json_bond['pkey2'])
+                b.import_json(json_bond)
+                self.add_bond(b,deepcopy = True)
+
+
+        if( 'angles' in json_data.keys() ):
+            for ak,json_angle in json_data['angles'].iteritems():
+                a = Angle(json_angle['pkey1'],json_angle['pkey2'],json_angle['pkey3'])
+                a.import_json(json_angle)
+                self.add_angle(a,deepcopy = True)
+                
+        if( 'dihedrals' in json_data.keys() ):
+            for dk,json_dih in json_data['dihedrals'].iteritems():
+                d = Dihedral(json_dih['pkey1'],json_dih['pkey2'],json_dih['pkey3'],json_dih['pkey4'])
+                d.import_json(json_dih)
+                self.add_dihedral(d,deepcopy = True)
+
+        if( 'impropers' in json_data.keys() ):
+            for ik,json_imp in json_data['impropers'].iteritems():
+                i = DihedImproperral(json_imp['pkey1'],json_imp['pkey2'],json_imp['pkey3'],json_imp['pkey4'])
+                i.import_json(json_imp)
+                self.add_improper(i,deepcopy = True)
+                      
+        #
+        return 
+        
+        
