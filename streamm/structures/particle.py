@@ -188,6 +188,8 @@ class Particle(units.ObjectUnits):
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         #
         logger.debug("Particle created type:{} label:{} symbol:{}".format(type,label,symbol))
+        # 
+        self.index = None
         self.type = type
         self.label = label
         self.symbol = symbol
@@ -208,7 +210,6 @@ class Particle(units.ObjectUnits):
         self.residue  = 0
         self.resname  = "RES"
         self.qgroup   = 0
-        self.index    = None
         #   
         # Reactive site type
         self.rsite = '' 
@@ -237,6 +238,7 @@ class Particle(units.ObjectUnits):
         self.gromacs_index = 0             
             
     def __del__(self):
+        del self.index 
         del self.type
         del self.label
         # 

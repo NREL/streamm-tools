@@ -59,6 +59,8 @@ class Bond(units.ObjectUnits):
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
         
+        self.index = None
+        
         self.pkey1 = pkey1
         self.pkey2 = pkey2
         
@@ -80,6 +82,7 @@ class Bond(units.ObjectUnits):
     #
     
     def __del__(self):
+        del self.index
         del self.pkey1
         del self.pkey2
         del self.param
@@ -101,6 +104,7 @@ class Bond(units.ObjectUnits):
         '''
         
         json_data = {}
+        json_data['index'] = self.index
         json_data['pkey1'] = self.pkey1
         json_data['pkey2'] = self.pkey2
         json_data['length'] = self.length
@@ -122,9 +126,10 @@ class Bond(units.ObjectUnits):
             
         '''
                 
-        self.length  =  json_data['length']
+        self.index  =  json_data['index']
         self.pkey1  =  json_data['pkey1']
         self.pkey2  =  json_data['pkey2']
+        self.length  =  json_data['length']
         self.param_index  =  json_data['param_index']
         self.lammps_index  =  json_data['lammps_index']
         self.gromacs_index  =  json_data['gromacs_index']

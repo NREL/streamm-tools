@@ -153,6 +153,24 @@ class Structure(units.ObjectUnits):
     def positions(self):
         return self._property['positions']
     
+    # 
+    @property
+    def n_particles(self):
+        return len(self.particles)
+    @property
+    def n_bonds(self):
+        return len(self.bonds)
+    @property
+    def n_angles(self):
+        return len(self.angles)
+    @property
+    def n_dihedrals(self):
+        return len(self.dihedrals)
+    @property
+    def n_impropers(self):
+        return len(self.impropers)
+        
+    
     def __init__(self,tag=str("blank"),matrix=[100.0,0.0,0.0,0.0,100.0,0.0,0.0,0.0,100.0],unit_conf=units.unit_conf ):
 
         # init object's units dictionaries 
@@ -170,13 +188,7 @@ class Structure(units.ObjectUnits):
         self.angles = dict()                                  # Creates empty dict struc
         self.dihedrals = dict()                                # Creates empty dict struc
         self.impropers = dict()                                # Creates empty dict struc
-        # Int count of the length of each dictionary
-        #   mostly for internal use 
-        self.n_particles = 0    
-        self.n_bonds = 0    
-        self.n_angles = 0    
-        self.n_dihedrals = 0    
-        self.n_impropers = 0
+
         # NoteTK this should be n_mol 
         self.mol_max = 0 
         #   
@@ -277,14 +289,11 @@ class Structure(units.ObjectUnits):
         Add 'Particle' object to this container and update n_particles accordingly 
         """
         if isinstance(particle_i,Particle):
-            self.n_particles = len(self.particles)
             particle_i.index = self.n_particles 
             if( deepcopy ):
-                self.particles[self.n_particles] = copy.deepcopy(particle_i) # index 0 -> (N-1)
+                self.particles[particle_i.index] = copy.deepcopy(particle_i) # index 0 -> (N-1)
             else:
-                self.particles[self.n_particles] = particle_i # index 0 -> (N-1)
-                
-            self.n_particles = len(self.particles)
+                self.particles[particle_i.index] = particle_i # index 0 -> (N-1)
         else:
             raise TypeError("Attempting to add non-Particle type to container")
 
@@ -301,7 +310,7 @@ class Structure(units.ObjectUnits):
                 self._property['positions'] =  np.array([pos_i])
 
         else:
-            print "Attempting to add non-%d-dimension position to container"%(n_dim)
+            print "Attempting to add non-%d-dimension position to container"%(self.lat.n_dim)
             raise TypeError
 
     def add_partpos(self, particle_i, pos_i, deepcopy = True):
@@ -317,14 +326,11 @@ class Structure(units.ObjectUnits):
         Add 'Bond' object to bonds dict in this container and update n_bonds accordingly
         """
         if isinstance(bond_i,Bond):
-            self.n_bonds = len(self.bonds)
             bond_i.index = self.n_bonds 
             if( deepcopy ):
-                self.bonds[self.n_bonds] = copy.deepcopy(bond_i) # index 0 -> (N-1)
+                self.bonds[bond_i.index] = copy.deepcopy(bond_i) # index 0 -> (N-1)
             else:
-                self.bonds[self.n_bonds] = bond_i # index 0 -> (N-1)
-                
-            self.n_bonds = len(self.bonds)
+                self.bonds[bond_i.index] = bond_i # index 0 -> (N-1)
         else:
             raise TypeError("Attempting to add non-Bond type to container")
 
@@ -334,14 +340,11 @@ class Structure(units.ObjectUnits):
         Add 'Angle' object to angles dict in this container and update n_angles accordingly
         """
         if isinstance(angle_i, Angle):
-            self.n_angles = len(self.angles)
             angle_i.index = self.n_angles  
             if( deepcopy ):
-                self.angles[self.n_angles] = copy.deepcopy(angle_i) # index 0 -> (N-1)
+                self.angles[angle_i.index] = copy.deepcopy(angle_i) # index 0 -> (N-1)
             else:
-                self.angles[self.n_angles] = angle_i # index 0 -> (N-1)
-                
-            self.n_angles = len(self.angles)
+                self.angles[angle_i.index] = angle_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Angle type to container"
             raise TypeError
@@ -352,13 +355,11 @@ class Structure(units.ObjectUnits):
         Add 'Dihedral' object to dihedrals dict in this container and update n_dihedrals accordingly
         """
         if isinstance(dihedral_i, Dihedral):
-            self.n_dihedrals = len(self.dihedrals)
             dihedral_i.index = self.n_dihedrals 
             if( deepcopy ):
-                self.dihedrals[self.n_dihedrals] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
+                self.dihedrals[dihedral_i.index] = copy.deepcopy(dihedral_i) # index 0 -> (N-1)
             else:
-                self.dihedrals[self.n_dihedrals] = dihedral_i # index 0 -> (N-1)
-            self.n_dihedrals = len(self.dihedrals)
+                self.dihedrals[dihedral_i.index] = dihedral_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Dihedral type to container"
             raise TypeError
@@ -369,14 +370,11 @@ class Structure(units.ObjectUnits):
         Add 'Improper' object to impropers dict in this container and update n_impropers accordingly
         """
         if isinstance(improper_i, Improper):
-            self.n_impropers = len(self.impropers)
             improper_i.index = self.n_impropers 
             if( deepcopy ):
-                self.impropers[self.n_impropers] = copy.deepcopy(improper_i) # index 0 -> (N-1)
+                self.impropers[improper_i.index] = copy.deepcopy(improper_i) # index 0 -> (N-1)
             else:
-                self.impropers[self.n_impropers] = improper_i # index 0 -> (N-1)
-                
-            self.n_impropers = len(self.impropers)
+                self.impropers[improper_i.index] = improper_i # index 0 -> (N-1)
         else:
             print "Attempting to add non-Improper type to container"
             raise TypeError
@@ -2226,40 +2224,42 @@ class Structure(units.ObjectUnits):
             self.lat.import_json(self.tag,json_data['lat'],read_file=False)
             
         if( 'particles' in json_data.keys() ):
-            for pk,json_particle in json_data['particles'].iteritems():
+            for pk,json_particle in sorted(json_data['particles'].iteritems()):
+                particle_i = Particle()
+                particle_i.import_json(json_particle)
+                self.particles[pk] = copy.deepcopy(particle_i) 
+                # Add position 
                 x = json_particle['x']
                 y = json_particle['y']
                 z = json_particle['z']
                 pos_i = np.array([x,y,z])
-                p = Particle()
-                p.import_json(json_particle)
-                self.add_partpos(p,pos_i,deepcopy = True)
+                self.add_position(pos_i)
                 
         if( 'bonds' in json_data.keys() ):
             for bk,json_bond in json_data['bonds'].iteritems():
                 b = Bond(json_bond['pkey1'],json_bond['pkey2'])
                 b.import_json(json_bond)
-                self.add_bond(b,deepcopy = True)
+                self.bonds[bk] = copy.deepcopy(b) 
 
 
         if( 'angles' in json_data.keys() ):
             for ak,json_angle in json_data['angles'].iteritems():
                 a = Angle(json_angle['pkey1'],json_angle['pkey2'],json_angle['pkey3'])
                 a.import_json(json_angle)
-                self.add_angle(a,deepcopy = True)
+                self.angles[ak] = copy.deepcopy(a) 
                 
         if( 'dihedrals' in json_data.keys() ):
             for dk,json_dih in json_data['dihedrals'].iteritems():
                 d = Dihedral(json_dih['pkey1'],json_dih['pkey2'],json_dih['pkey3'],json_dih['pkey4'])
                 d.import_json(json_dih)
-                self.add_dihedral(d,deepcopy = True)
+                self.dihedrals[dk] = copy.deepcopy(d) 
 
         if( 'impropers' in json_data.keys() ):
             for ik,json_imp in json_data['impropers'].iteritems():
                 i = DihedImproperral(json_imp['pkey1'],json_imp['pkey2'],json_imp['pkey3'],json_imp['pkey4'])
                 i.import_json(json_imp)
-                self.add_improper(i,deepcopy = True)
-                      
+                self.dihedrals[ik] = copy.deepcopy(i) 
+                
         #
         return 
         
