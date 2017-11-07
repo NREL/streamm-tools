@@ -65,7 +65,7 @@ class LAMMPS(Calculation):
         Destructor, clears object memory
         """
         # Call base class destructor
-        CalculationRes.__del__(self)
+        Calculation.__del__(self)
 
     def read_data(self, data_file,
         btype = "harmonic",

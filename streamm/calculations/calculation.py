@@ -106,6 +106,7 @@ class Calculation(units.ObjectUnits):
         self.paramC = Parameters(unit_conf=unit_conf)
         # Computational Resource used for calculation  
         self.resource = Resource()        
+        self.dir = {}
         
         dt = datetime.fromtimestamp(time.time())
         self.meta = dict()
@@ -119,10 +120,9 @@ class Calculation(units.ObjectUnits):
         self.files['scripts'] = dict()
         self.files['output'] = dict()
         self.files['data'] = dict()
-        
-        
+        #
         self.str = dict()
-
+        # 
         self.properties = dict()        
         # Add compression properties
         self.properties['compress'] =  "tar -czf "
@@ -142,6 +142,7 @@ class Calculation(units.ObjectUnits):
         del self.paramC
         del self.data
         del self.meta
+        del self.dir
         del self.files        
         del self.str        
         del self.properties        
@@ -431,109 +432,7 @@ class Calculation(units.ObjectUnits):
                     os.system(bash_command)
             '''
         
-        
-    def export_json(self,write_file=True):
-        '''    
-        Export particles to json
-        
-        Kwargs:
-            * write_file (boolean) to dump json to a file
-            
-        Returns:
-            * json_data (dict) json representation of the object
-            
-        '''
-        #
-        json_data = dict()
-        # unit_conf
-        json_data['unit_conf'] = self.unit_conf
-        # 
-        json_data['meta'] = self.meta
-        json_data['files'] = self.files
-        json_data['data'] = self.data
-        json_data['dir'] = self.dir
-        json_data['properties'] = self.properties
-        # Save tags of reference calculation
-        json_data['references'] = {}
-        for ref_key,ref_calc in self.references.iteritems(): 
-            json_data['references'][ref_key] = ref_calc.tag
-        #
-        struc_json = self.strucC.export_json()
-        param_json = self.paramC.export_json()
-        #
-        # Write file 
-        if( write_file ):
-            file_name = "{}_{}.json".format(self.tag,self.sufix)
-            logger.debug("Writting {}".format(file_name))
-            with open(file_name,'wb') as fl:
-                json.dump(json_data,fl)
-        #
-        return json_data
 
-
-    def import_json(self,json_data={},read_file=True):
-        '''    
-        Export object to json
-        
-        Kwargs:
-            * json_lattice (dict) json representation of the object
-            * read_file (boolean) to read json from a file
-            
-        '''
-        # 
-        if( read_file ):
-            file_name = "{}_{}.json".format(self.tag,self.sufix)
-            logger.debug("Reading {}".format(file_name))
-            with open(file_name,'rb') as fl:
-                json_data = json.load(fl)
-        # 
-        logger.debug("Set object properties based on json")
-        #
-        if( 'unit_conf' in json_data.keys() ):               
-            self.unit_conf = json_data['unit_conf']
-        else:
-            logger.warning('unit_conf not in json ')        
-        #
-        if( 'meta' in json_data.keys() ):               
-            self.meta = json_data['meta']
-        else:
-            logger.warning('meta not in json ')
-        #
-        if( 'files' in json_data.keys() ):               
-            self.files = json_data['files']
-        else:
-            logger.warning('meta not in json ')
-        #
-        if( 'data' in json_data.keys() ):               
-            self.data = json_data['data']
-        else:
-            logger.warning('data not in json ')
-        #
-        if( 'properties' in json_data.keys() ):               
-            self.properties = json_data['properties']
-        else:
-            logger.warning('properties not in json ')
-        #
-        #
-        if( 'dir' in json_data.keys() ):               
-            self.dir = json_data['dir']
-        else:
-            logger.warning('dir not in json ')
-        # 
-        if( 'references' in json_data.keys() ):
-            ref_tags = json_data['references']
-            for rekey,ref_tag in ref_tags:
-                ref_i = Calculation(ref_tag)
-                ref_i.load_json()
-                self.add_refcalc(ref_i)
-                logger.debug(" Need to set reference calculation type ")
-        else:
-            logger.warning('references not in json ')
-            
-        # Read in strucC and paramC
-        self.strucC.import_json()
-        self.paramC.import_json()
-        
             
 
     def set_strucC(self,strucC_i):
@@ -1477,12 +1376,135 @@ class Calculation(units.ObjectUnits):
             * new_unit_conf (dict): with unit type as the key and the new unit as the value
             
         '''
-        
+        # 
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        #         
         self.strucC.update_units(new_unit_conf)
         self.paramC.update_units(new_unit_conf)
+        
+    def export_json(self,write_file=True):
+        '''    
+        Export particles to json
+        
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_data (dict) json representation of the object
+            
+        '''
+        #
+        json_data = dict()
+        # unit_conf
+        json_data['unit_conf'] = self.unit_conf
+        # 
+        json_data['meta'] = self.meta
+        json_data['files'] = self.files
+        json_data['data'] = self.data
+        json_data['dir'] = self.dir
+        json_data['properties'] = self.properties
+        # Save tags of reference calculation
+        json_data['references'] = {}
+        for ref_key,ref_calc in self.references.iteritems(): 
+            json_data['references'][ref_key] = ref_calc.tag
+        # Save tags of resouces calculation
+        json_data['resource'] = self.resource.tag
+        #
+        json_data['strucC'] = self.strucC.tag
+        struc_json = self.strucC.export_json()
+        json_data['paramC'] = self.paramC.tag
+        param_json = self.paramC.export_json()
+        #
+        # Write file 
+        if( write_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            logger.debug("Writting {}".format(file_name))
+            with open(file_name,'wb') as fl:
+                json.dump(json_data,fl)
+        #
+        return json_data
 
 
+    def import_json(self,json_data={},read_file=True):
+        '''    
+        Export object to json
+        
+        Kwargs:
+            * json_lattice (dict) json representation of the object
+            * read_file (boolean) to read json from a file
+            
+        '''
+        # 
+        if( read_file ):
+            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            logger.debug("Reading {}".format(file_name))
+            with open(file_name,'rb') as fl:
+                json_data = json.load(fl)
+        # 
+        logger.debug("Set object properties based on json")
+        #
+        if( 'unit_conf' in json_data.keys() ):               
+            self.update_units(json_data['unit_conf'])
+        else:
+            logger.warning('unit_conf not in json ')        
+        #
+        if( 'meta' in json_data.keys() ):               
+            self.meta = json_data['meta']
+        else:
+            logger.warning('meta not in json ')
+        #
+        if( 'files' in json_data.keys() ):               
+            self.files = json_data['files']
+        else:
+            logger.warning('meta not in json ')
+        #
+        if( 'data' in json_data.keys() ):               
+            self.data = json_data['data']
+        else:
+            logger.warning('data not in json ')
+        #
+        if( 'properties' in json_data.keys() ):               
+            self.properties = json_data['properties']
+        else:
+            logger.warning('properties not in json ')
+        # 
+        if( 'dir' in json_data.keys() ):               
+            self.dir = json_data['dir']
+        else:
+            logger.warning('dir not in json ')
+        # 
+        if( 'references' in json_data.keys() ):
+            ref_tags = json_data['references']
+            for rekey,ref_tag in ref_tags:
+                ref_i = Calculation(ref_tag)
+                ref_i.load_json()
+                self.add_refcalc(ref_i)
+                logger.debug(" Need to set reference calculation type ")
+        else:
+            logger.warning('references not in json ')
+            
 
+        if( 'resource' in json_data.keys() ):
+            # Read in objects 
+            self.resource.tag = json_data['resource']
+            self.resource.import_json()
+        else:
+            logger.warning('resource not in json ')
+            
+        if( 'strucC' in json_data.keys() ):
+            # Read in objects 
+            self.strucC.tag = json_data['strucC']
+            self.strucC.import_json()
+        else:
+            logger.warning('strucC not in json ')
+            
+        if( 'paramC' in json_data.keys() ):
+            # Read in objects 
+            self.paramC.tag = json_data['paramC']
+            self.paramC.import_json()
+        else:
+            logger.warning('paramC not in json ')
+            
 
 class MDrun(object):
     '''

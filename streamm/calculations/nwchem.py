@@ -89,7 +89,7 @@ class NWChem(Calculation):
         Destructor, clears object memory
         """
         # Call base class destructor
-        CalculationRes.__del__(self)
+        Calculation.__del__(self)
         
 
     def proc_log(self,log_file):

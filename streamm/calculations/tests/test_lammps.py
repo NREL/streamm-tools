@@ -183,7 +183,7 @@ class Test_Thiophene(unittest.TestCase):
         self.res_tag = 'local'  # Change this to remote to run the calculations remotely 
         self.res_i = Resource(self.res_tag )
         self.res_i.dir['templates'] = TEMPLATE_PATH
-        self.res_i.dump_json()
+        self.res_i.export_json()
         self.res_i.make_dir()
 
 
@@ -226,7 +226,7 @@ class Test_Thiophene(unittest.TestCase):
         self.calc_i.replacewrite_prop('run','scripts','run','%s.sh'%(self.calc_i.tag))
 
         os.chdir(self.calc_i.dir['home'])
-        self.calc_i.dump_json()
+        self.calc_i.export_json()
         
         os.chdir(self.calc_i.dir['scratch'])
         self.calc_i.check()
@@ -238,11 +238,11 @@ class Test_Thiophene(unittest.TestCase):
         os.chdir(self.calc_i.dir['home'])
 
     def test_writejson(self):
-        self.calc_i.dump_json()
+        self.calc_i.export_json()
         tag_i = self.calc_i.tag
         del self.calc_i
         self.calc_i = LAMMPS(tag_i)
-        self.calc_i.load_json()
+        self.calc_i.import_json()
         # Clean up files 
 
 

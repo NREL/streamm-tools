@@ -157,7 +157,7 @@ class TestProject(unittest.TestCase):
         self.calc_i.replacewrite_prop('run','scripts','run','%s.sh'%(self.calc_i.tag))
 
         os.chdir(self.calc_i.dir['home'])
-        self.calc_i.dump_json()
+        self.calc_i.export_json()
         
     
         #------------------------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ class TestProject(unittest.TestCase):
         self.calc_i.replacewrite_prop('run','scripts','run','%s.sh'%(self.calc_i.tag))
 
         os.chdir(self.calc_i.dir['home'])
-        self.calc_i.dump_json()
+        self.calc_i.export_json()
     
         #------------------------------------------------------------------------------------------------
         self.calc_i = self.proj_i.calculations['gaussian_thiophene_SP']
@@ -329,7 +329,7 @@ class TestProject(unittest.TestCase):
         self.calc_i.replacewrite_prop('run','scripts','run','%s.sh'%(self.calc_i.tag))
 
         os.chdir(self.calc_i.dir['home'])
-        self.calc_i.dump_json()
+        self.calc_i.export_json()
         
         
         
@@ -340,11 +340,11 @@ class TestProject(unittest.TestCase):
 
 
     def test_writejson(self):
-        self.proj_i.dump_json()
+        self.proj_i.export_json()
         tag_i = self.proj_i.tag
         del self.proj_i
         self.proj_i = Project(tag_i)
-        self.proj_i.load_json()
+        self.proj_i.import_json()
         # Clean up files 
 
     
