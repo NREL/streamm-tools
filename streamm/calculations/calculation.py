@@ -1409,6 +1409,7 @@ class Calculation(units.ObjectUnits):
             json_data['references'][ref_key] = ref_calc.tag
         # Save tags of resouces calculation
         json_data['resource'] = self.resource.tag
+        self.resource.export_json()
         #
         json_data['strucC'] = self.strucC.tag
         struc_json = self.strucC.export_json()
