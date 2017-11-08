@@ -14,10 +14,10 @@ __status__ = "Beta"
 
 import copy, sys, os, shutil, math
 import time, datetime
+from datetime import datetime
 import json
 import numpy as np
 from string import replace
-from datetime import datetime
 
 try:
     # Import pymatgen Class 
@@ -1443,10 +1443,11 @@ class Calculation(units.ObjectUnits):
         # 
         logger.debug("Set object properties based on json")
         #
+        # Read in Unit config 
         if( 'unit_conf' in json_data.keys() ):               
-            self.update_units(json_data['unit_conf'])
+            self._unit_conf = json_data['unit_conf']
         else:
-            logger.warning('unit_conf not in json ')        
+            logger.warning('unit_conf not in json ')
         #
         if( 'meta' in json_data.keys() ):               
             self.meta = json_data['meta']
@@ -1505,7 +1506,9 @@ class Calculation(units.ObjectUnits):
         else:
             logger.warning('paramC not in json ')
             
-
+        #
+        return
+    
 class MDrun(object):
     '''
     Object to store the output of a single MD run 

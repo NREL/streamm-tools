@@ -331,13 +331,7 @@ class TestProject(unittest.TestCase):
         os.chdir(self.calc_i.dir['home'])
         self.calc_i.export_json()
         
-        
-        
-        
         del self.calc_i         
-    
-
-
 
     def test_writejson(self):
         self.proj_i.export_json()

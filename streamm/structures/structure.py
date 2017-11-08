@@ -2208,7 +2208,14 @@ class Structure(units.ObjectUnits):
                 json_data = json.load(fl)
         # 
         logger.debug("Set object properties based on json")
-        # 
+        #
+
+        # Read in Unit config 
+        if( 'unit_conf' in json_data.keys() ):               
+            self._unit_conf = json_data['unit_conf']
+        else:
+            logger.warning('unit_conf not in json ')
+        #
         if( 'lat' in json_data.keys() ):
             self.lat.import_json(self.tag,json_data['lat'],read_file=False)
         else:

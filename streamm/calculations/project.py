@@ -211,8 +211,6 @@ class Project():
         #
         return json_data
 
-
-
     def import_json(self,json_data={},read_file=True):
         '''    
         Export object to json
