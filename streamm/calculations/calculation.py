@@ -1420,7 +1420,7 @@ class Calculation(units.ObjectUnits):
             file_name = "{}_{}.json".format(self.tag,self.sufix)
             logger.debug("Writting {}".format(file_name))
             with open(file_name,'wb') as fl:
-                json.dump(json_data,fl)
+                json.dump(json_data,fl,indent = 2)
         #
         return json_data
 

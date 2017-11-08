@@ -616,7 +616,7 @@ class Lattice(units.ObjectUnits):
         #
         if( write_file ):
             with open("%s_lat.json"%(tag),'wb') as fl:
-                json.dump(json_data,fl)
+                json.dump(json_data,fl,indent = 2)
         #
         return json_data
 

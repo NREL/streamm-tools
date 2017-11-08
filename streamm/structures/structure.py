@@ -262,6 +262,7 @@ class Structure(units.ObjectUnits):
         '''Print the structure properties
         
         '''
+        property_msg = " tag:{} ".format(self.tag)
         property_msg = " n_particles:{} ".format(self.n_particles)
         property_msg += "\n n_bonds:{}".format(self.n_bonds)
         property_msg += "\n n_angles:{}".format(self.n_angles)
@@ -470,6 +471,7 @@ class Structure(units.ObjectUnits):
         # Clear list from memory 
         del dr_matrix
         del dist_matrix
+        # 
         return nblist_i
 
     def getSubStructure(self,pkeys,tag="blank"):
@@ -2111,13 +2113,16 @@ class Structure(units.ObjectUnits):
         # 
         self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
         #
+        logger.debug("Running update_units on lattice ")
+        self.lat.update_units(new_unit_conf)        
+        #
         logger.debug("Running update_units on particles ")
         for pkey_i, particle_i  in self.particles.iteritems():
             particle_i.update_units(new_unit_conf)
             if( particle_i.param != None ):
                 particle_i.param.update_units(new_unit_conf)
         
-        logger.debug("Running update_units on particles ")
+        logger.debug("Running update_units on bonds ")
         for btkey_i,bond_i  in self.bonds.iteritems():
             bond_i.update_units(new_unit_conf)
             if( bond_i.param != None ):
@@ -2187,7 +2192,7 @@ class Structure(units.ObjectUnits):
             file_name = "{}_{}.json".format(self.tag,self.sufix)
             logger.debug("Writting {}".format(file_name))
             with open(file_name,'wb') as fl:
-                json.dump(json_data,fl)
+                json.dump(json_data,fl,indent = 2)
 
         return json_data
     
@@ -2220,6 +2225,7 @@ class Structure(units.ObjectUnits):
             self.lat.import_json(self.tag,json_data['lat'],read_file=False)
         else:
             logger.warning('lat not in json ')
+        #
         if( 'particles' in json_data.keys() ):
             for pk,json_particle in sorted(json_data['particles'].iteritems()):
                 pk = int(pk)
