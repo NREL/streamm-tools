@@ -56,7 +56,7 @@ class Project():
     '''
     def __init__(self,tag):
         
-        self.sufix = 'proj'        
+        self.suffix = 'proj'        
         self.tag = str(tag)
         
         self.meta = {}
@@ -74,7 +74,7 @@ class Project():
         del self.meta
         del self.calculations
         del self.resources
-        del self.sufix 
+        del self.suffix 
 
 
     def add_calc(self,calc_i,deepcopy = False ):
@@ -204,7 +204,7 @@ class Project():
         #
         # Write file 
         if( write_file ):
-            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            file_name = "{}_{}.json".format(self.tag,self.suffix)
             logger.debug("Writting {}".format(file_name))
             with open(file_name,'wb') as fl:
                 json.dump(json_data,fl,indent = 2)
@@ -223,7 +223,7 @@ class Project():
         
         # 
         if( read_file ):
-            file_name = "{}_{}.json".format(self.tag,self.sufix)
+            file_name = "{}_{}.json".format(self.tag,self.suffix)
             logger.debug("Reading {}".format(file_name))
             with open(file_name,'rb') as fl:
                 json_data = json.load(fl)
