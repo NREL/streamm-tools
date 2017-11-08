@@ -226,6 +226,7 @@ class Save(unittest.TestCase):
         particle_str.append(' HH epsilon:0.75 sigma:3.15')
         for particletkey_i, particletype_i  in self.paramC.particletypes.iteritems():
             self.assertEqual(str(particletype_i),particle_str[particletkey_i])
+            # print particletype_i.
         
         bond_str = []
         bond_str.append(' bond  Ir - C type harmonic \n  harmonic r_0 = 1.020000 K = 13.563000 lammps index 0  gromacs index 0  ')

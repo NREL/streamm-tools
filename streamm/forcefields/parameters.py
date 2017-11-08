@@ -293,6 +293,8 @@ class Parameters(units.ObjectUnits):
         json_data['genpairs'] = self.genpairs
         json_data['fudgeLJ'] = self.fudgeLJ
         json_data['fudgeQQ'] = self.fudgeQQ
+        # unit_conf
+        json_data['unit_conf'] = self.unit_conf        
         # particles
         json_data['particletypes']  = {}
         for pk,p in self.particletypes.iteritems():
@@ -346,6 +348,12 @@ class Parameters(units.ObjectUnits):
         self.fudgeLJ  =  json_data['fudgeLJ']
         self.fudgeQQ  =  json_data['fudgeQQ']
 
+        # Read in Unit config 
+        if( 'unit_conf' in json_data.keys() ):               
+            self._unit_conf = json_data['unit_conf']
+        else:
+            logger.warning('unit_conf not in json ')
+        #
         if( 'particletypes' in json_data.keys() ):
             for pk,json_particletype in sorted(json_data['particletypes'].iteritems()):
                 pk = int(pk)

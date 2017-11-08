@@ -136,6 +136,9 @@ class Angletype(units.ObjectUnits):
         json_data['kb'] = self.kb
         json_data['lammps_index'] = self.lammps_index
         json_data['gromacs_index'] = self.gromacs_index
+        # unit_conf
+        json_data['unit_conf'] = self.unit_conf
+        
         
         return json_data
 
@@ -157,4 +160,11 @@ class Angletype(units.ObjectUnits):
         self.lammps_index  =  json_data['lammps_index']
         self.gromacs_index  =  json_data['gromacs_index']
         
+
+        # Read in Unit config 
+        if( 'unit_conf' in json_data.keys() ):               
+            self._unit_conf = json_data['unit_conf']
+        else:
+            logger.warning('unit_conf not in json ')
         
+                
