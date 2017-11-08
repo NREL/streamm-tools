@@ -58,6 +58,7 @@ class LAMMPS(Calculation):
         Calculation.__init__(self, tag,unit_conf=unit_conf)
 
         self.meta['software'] = 'lammps'
+        self.run_list = []
         self.properties['finish_str'] = 'Loop time of'
         #
     def __del__(self):
@@ -66,6 +67,9 @@ class LAMMPS(Calculation):
         """
         # Call base class destructor
         Calculation.__del__(self)
+        
+        del self.run_list
+        
 
     def read_data(self, data_file,
         btype = "harmonic",
@@ -783,7 +787,7 @@ class LAMMPS(Calculation):
         """
         # Add new properties 
         self.properties['run_cnt'] = 0
-        self.properties['run_list'] = []
+        self.run_list = []
         dump_cnt = 0 
         ref_struc = copy.deepcopy(self.strucC)
         
@@ -808,17 +812,17 @@ class LAMMPS(Calculation):
                 
                 logger.debug("run found with {} steps".format(run_i.n_steps))
                 
-                self.properties['run_list'].append(copy.deepcopy(run_i))
+                self.run_list.append(copy.deepcopy(run_i))
                 
             if( 'minimize' in line):
                 run_i = MDrun()
                 run_i.timestep =  timestep_i
-                self.properties['run_list'].append(copy.deepcopy(run_i))
+                self.run_list.append(copy.deepcopy(run_i))
                 
             if( 'write_data' in line):
                 output_file = str(col[1])
                 logger.info("LAMMPS .data file found {}".format(output_file))
-                self.add_file('output','data_%d'%(len(self.properties['run_list'])),output_file)
+                self.add_file('output','data_%d'%(len(self.run_list)),output_file)
                 
             if( 'dump' in line and len(col) > 5 ):
                 output_file = str(col[5])
@@ -827,10 +831,10 @@ class LAMMPS(Calculation):
                 
             if( 'restart' in line and len(col)  ):
                 output_file = "%s.*"%str(col[2])
-                self.add_file('data','restart_%d'%(len(self.properties['run_list'])),output_file)
+                self.add_file('data','restart_%d'%(len(self.run_list)),output_file)
 
                 
-        self.properties['run_cnt'] = len(self.properties['run_list'] )
+        self.properties['run_cnt'] = len(self.run_list )
         
         return 
         
@@ -852,12 +856,12 @@ class LAMMPS(Calculation):
         log_lines = f.readlines()
         f.close()
 
-        if( len(self.properties['run_list'] ) > 0 ):
-            logger.info("Using existing run_list with {} runs ".format(len(self.properties['run_list'])))
-            run_i = self.properties['run_list'][run_cnt_i]
+        if( len(self.run_list ) > 0 ):
+            logger.info("Using existing run_list with {} runs ".format(len(self.run_list)))
+            run_i = self.run_list[run_cnt_i]
         else:
             logger.info("No runs found will create new run_list ")
-            self.properties['run_list']  = []
+            self.run_list  = []
             run_i = MDrun()
             update_run = False
             
@@ -865,10 +869,10 @@ class LAMMPS(Calculation):
         for line in log_lines:
             col = line.split()  
             if( 'Loop time' in str(line) ):
-                logger.info(" Calc  {}/{} finished with {} frames".format(run_cnt_i+1,len(self.properties['run_list']),run_i.n_frames ))
+                logger.info(" Calc  {}/{} finished with {} frames".format(run_cnt_i+1,len(self.run_list),run_i.n_frames ))
                 run_cnt_i += 1
-                if( update_run and len(self.properties['run_list']) > run_cnt_i):
-                    run_i = self.properties['run_list'][run_cnt_i]
+                if( update_run and len(self.run_list) > run_cnt_i):
+                    run_i = self.run_list[run_cnt_i]
                     logger.info(" update_run is on setting run_i to index {} with {} steps".format(run_cnt_i,run_i.n_steps))
                 else:
                     run_i = MDrun()
@@ -897,9 +901,9 @@ class LAMMPS(Calculation):
                             print "> LAMMPS.proc_log  new run found"
                             if( update_run ):
                                 run_cnt_i += 1
-                                run_i = self.properties['run_list'][run_cnt_i]
+                                run_i = self.run_list[run_cnt_i]
                             else:
-                                self.properties['run_list'].append(copy.deepcopy(run_i))
+                                self.run_list.append(copy.deepcopy(run_i))
                                 run_i = MDrun()
                     '''
                     # 
@@ -928,7 +932,7 @@ class LAMMPS(Calculation):
 
             if( not update_run and  run_i.n_frames > 0 ):
                 logger.info("Adding new run with {} frames ".format(run_i.n_frames ))
-                self.properties['run_list'].append(copy.deepcopy(run_i))
+                self.run_list.append(copy.deepcopy(run_i))
 
     def analysis(self,output_key='log',data2cply=True):
         """
