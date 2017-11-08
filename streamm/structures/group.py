@@ -636,7 +636,7 @@ class Groups(units.ObjectUnits):
 
         # init object's units dictionaries 
         units.ObjectUnits.__init__(self,unit_conf=unit_conf)
-                
+        self.suffix = 'groups'
         # Set pointer for easy reference
         self.strucC = strucC
         # 
@@ -660,6 +660,7 @@ class Groups(units.ObjectUnits):
         self.dr_pi_pj = [] 
         
     def __del__(self):
+        del self.suffix 
         del self.tag 
         del self.groups
         del self.group_nblist
@@ -1013,32 +1014,70 @@ class Groups(units.ObjectUnits):
         del dist_matrix
         return nblist_i
 
-    def dump_json(self):
-        '''
-        Write group coordinates into an json file
-        '''
-        json_data = dict()
-                
-        for gkey,group_i in self.groups.iteritems():
-            json_data[gkey] = group_i.pkeys
-
-        f = open("groupset_%s.json"%(self.tag), 'w')
-        json.dump(json_data,f, indent=2)
-        f.close()
+    def export_json(self,write_file=True):
+        '''    
+        Export particles to json
         
-
-    def dump_json(self):
+        Kwargs:
+            * write_file (boolean) to dump json to a file
+            
+        Returns:
+            * json_data (dict) json representation of the object
+            
         '''
-        Write group coordinates into an json file
-        '''
-        json_data = dict()
-                
+        #
+        json_data = {}
+        #
+        json_data['struc'] = self.strucC.tag
+        self.strucC.export_json()
+        #
+        json_data['groups'] = {}
+        #
         for gkey,group_i in self.groups.iteritems():
-            json_data[gkey] = group_i.pkeys
-
-        f = open("groupset_%s.json"%(self.tag), 'w')
-        json.dump(json_data,f, indent=2)
-        f.close()        
+            json_data['groups'][gkey] = group_i.pkeys
+        # 
+        # Write file
+        # 
+        if( write_file ):
+            file_name = "{}_{}.json".format(self.tag,self.suffix)
+            logger.debug("Writting {}".format(file_name))
+            with open(file_name,'wb') as fl:
+                json.dump(json_data,fl,indent = 2)
+        #
+        return json_data
+        #
+    def import_json(self,json_data={},read_file=True):
+        '''    
+        Export object to json
+        
+        Kwargs:
+            * json_lattice (dict) json representation of the object
+            * read_file (boolean) to read json from a file
+            
+        '''
+        # 
+        if( read_file ):
+            file_name = "{}_{}.json".format(self.tag,self.suffix)
+            logger.debug("Reading {}".format(file_name))
+            with open(file_name,'rb') as fl:
+                json_data = json.load(fl)
+        # 
+        logger.debug("Set object properties based on json")
+        #
+        if( 'struc' in json_data.keys() ):
+            self.strucC.tag = json_data['struc'] 
+            self.strucC.import_json()
+        else:
+            logger.warning('struc not in json ')
+        #
+        if( 'groups' in json_data.keys() ):
+            self.groups = {}
+            for gkey,pkeys in json_data['groups'].iteritems():
+                group_i = Group(self.strucC)
+                group_i.pkeys = pkeys
+                self.groups[gkey] = group_i
+        else:
+            logger.warning('groups not in json ')
         
     def update_units(self,new_unit_conf):
         '''

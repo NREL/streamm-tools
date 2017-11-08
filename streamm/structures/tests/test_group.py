@@ -102,6 +102,7 @@ class TestGroupsProps(unittest.TestCase):
         
         group_tag = 'mol'
         groupContainer_i = group.Groups(group_tag,self.strucC )
+        print "TAG",groupContainer_i.tag 
         groupContainer_i.group_prop('mol',group_tag)
         
         self.assertEqual(str(len(groupContainer_i.groups)),str(10))
@@ -131,11 +132,14 @@ class TestGroupsProps(unittest.TestCase):
             
         groupContainer_i.group_pbcs()
 
-        # Note TKos.chdir(os.path.dirname(__file__))
         groupContainer_i.write_cm_xyz()
         groupContainer_i.write_xyzs()
-        groupContainer_i.dump_json()
-
+        g_json = groupContainer_i.export_json()
+        del groupContainer_i
+        groupContainer_i = group.Groups(group_tag,self.strucC )
+        groupContainer_i.import_json()
+        self.assertEqual(len(groupContainer_i.groups),10)
+        
         
     def test_groupres(self):
         group_tag = 'residue'
@@ -169,8 +173,10 @@ class TestGroupsProps(unittest.TestCase):
         # NoteTK os.chdir(os.path.dirname(__file__))
         groupContainer_i.write_cm_xyz()
         groupContainer_i.write_xyzs()
-        groupContainer_i.dump_json()
-        
+        g_json = groupContainer_i.export_json()
+
+
+                
     @tearDown_streamm 
     def tearDown(self):
         del self.th         
