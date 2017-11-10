@@ -130,7 +130,14 @@ class Group(units.ObjectUnits):
         del self.bonded_nblist
         del self.nonbonded_nblist
         
+    def write_coord(self):
+        """
+        Write coordinates into string 
+        """
+        coord = ''.join([" %5s %16.8f %16.8f %16.8f \n"%(self.strucC.particles[pkey_i].symbol,self.strucC.positions[pkey_i][0],self.strucC.positions[pkey_i][1],self.strucC.positions[pkey_i][2] ) for pkey_i in self.pkeys ])
 
+        return coord
+    
     def write_xyz(self, xyz_file=''):
         '''
         Write the particles of the group to an xyz file
