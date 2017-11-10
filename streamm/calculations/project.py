@@ -34,7 +34,7 @@ from streamm.calculations.gaussian import Gaussian
 from streamm.calculations.lammps import LAMMPS
 from streamm.calculations.calculation import Calculation
 
-class Project():
+class Project(Calculation):
     '''
     Data structure for a project
     
@@ -54,14 +54,14 @@ class Project():
         * units_conf (dict): Dictionary of units for each attribute type
         
     '''
-    def __init__(self,tag):
+    def __init__(self,tag,unit_conf=unit_conf):
         
         self.suffix = 'proj'        
         self.tag = str(tag)
         
-        self.meta = {}
+        # Base class constructor is called
+        Calculation.__init__(self, tag,unit_conf=unit_conf)
         
-        self.dir = {}
         self.calculations = dict()
         self.resources = dict()
                 
@@ -176,6 +176,21 @@ class Project():
 
 
 
+    def update_units(self,new_unit_conf):
+        '''
+        Update instance values with new units
+        
+        Args:
+            * new_unit_conf (dict): with unit type as the key and the new unit as the value
+            
+        '''
+        # 
+        self._property,self._unit_conf = units.change_properties_units(self._unit_conf,new_unit_conf,self._property_units,self._property)
+        #
+        for ck,calc in self.calculations.iteritems():
+            self.calc.update_units(new_unit_conf)
+        
+        
     def export_json(self,write_file=True):
         '''    
         Export particles to json
