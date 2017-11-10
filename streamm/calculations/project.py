@@ -54,7 +54,7 @@ class Project(Calculation):
         * units_conf (dict): Dictionary of units for each attribute type
         
     '''
-    def __init__(self,tag,unit_conf=unit_conf):
+    def __init__(self,tag,unit_conf=units.unit_conf):
         
         self.suffix = 'proj'        
         self.tag = str(tag)
