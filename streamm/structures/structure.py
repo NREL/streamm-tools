@@ -2227,7 +2227,10 @@ class Structure(units.ObjectUnits):
             logger.warning('lat not in json ')
         #
         if( 'particles' in json_data.keys() ):
-            for pk,json_particle in sorted(json_data['particles'].iteritems()):
+            # 
+            keys = sorted(json_data['particles'].keys(), key=lambda k: int(k))
+            for pk in keys:
+                json_particle = json_data['particles'][pk]
                 pk = int(pk)
                 particle_i = Particle()
                 particle_i.import_json(json_particle)
