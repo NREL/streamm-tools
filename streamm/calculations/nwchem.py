@@ -176,8 +176,11 @@ class NWChem(Calculation):
                     if( len(col) > 3 ):
                         # Geometry "geometry" -> "GEOM"
                         if(  col[0]  == "Geometry" and col[2] == "->"  ):
-                            logger.debug("Reading Geometry")
-                            read_geom = True 
+                            if( self.strucC.n_particles > 0 ):
+                                logger.debug("Reading Geometry")
+                                read_geom = True
+                            else:
+                                logger.warning('Calculation has empty structure  ')
                             line_cnt = 0
                             pk = 0
                     if( line_cnt >= 7 and read_geom and len(col) >= 5 ):
@@ -279,16 +282,29 @@ class NWChem(Calculation):
         """
         Read in results from NWChem 
         """
-        # Find output_key file 
+        # Find output_key file
+        
+        import os.path
+        
+
         try:
             output_file = self.files['output'][output_key]
-            if( self.resource.meta['type'] == "ssh" ):
-                ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
-                bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
-                os.system(bash_command)                
-            self.proc_log(output_file)            
         except KeyError:
             print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+            return 
+            
+        if( not os.path.isfile(output_file) and self.resource.meta['type'] == "ssh" ):
+            print("File {} not found will try to download ".format(output_file))
+            ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
+            bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
+            os.system(bash_command)
+            
+        if( os.path.isfile(output_file)  ):
+            print("Running analysis on  {}".format(output_file))
+            self.proc_log(output_file)
+        else:
+            print("File {} not found ".format(output_file))
+
         
     def load_json(self):
         '''
