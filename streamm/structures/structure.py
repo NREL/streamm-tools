@@ -2289,84 +2289,166 @@ class Structure(units.ObjectUnits):
     def __eq__(self,other):
         '''Check if two structure objects are equal
         '''
-        print "Checking "
     
         if( self.n_particles != other.n_particles ):
-            print("n_particles {} != {}".format(self.n_particles,other.n_particles))
+            logger.warning("n_particles {} != {}".format(self.n_particles,other.n_particles))
             return False 
         if( self.n_bonds != other.n_bonds ):
-            print("n_bonds {} != {}".format(self.n_bonds,other.n_bonds))
+            logger.warning("n_bonds {} != {}".format(self.n_bonds,other.n_bonds))
             return False 
         if( self.n_angles != other.n_angles ):
-            print("n_angles {} != {}".format(self.n_angles,other.n_angles))
+            logger.warning("n_angles {} != {}".format(self.n_angles,other.n_angles))
             return False 
         if( self.n_dihedrals != other.n_dihedrals ):
-            print("n_dihedrals {} != {}".format(self.n_dihedrals,other.n_dihedrals))
+            logger.warning("n_dihedrals {} != {}".format(self.n_dihedrals,other.n_dihedrals))
             return False 
         if( self.n_impropers != other.n_impropers ):
-            print("n_impropers {} != {}".format(self.n_impropers,other.n_impropers))
+            logger.warning("n_impropers {} != {}".format(self.n_impropers,other.n_impropers))
             return False 
     
         for k in self.particles.keys():
             if( self.particles[k].symbol !=  other.particles[k].symbol ):
-                print("particle {} symbol {} != {}".format(k,self.particles[k].symbol, other.particles[k].symbol))
+                logger.warning("particle {} symbol {} != {}".format(k,self.particles[k].symbol, other.particles[k].symbol))
                 return False 
             if( self.particles[k].mass !=  other.particles[k].mass ):
-                print("particle {} mass {} != {}".format(k,self.particles[k].mass, other.particles[k].mass))
+                logger.warning("particle {} mass {} != {}".format(k,self.particles[k].mass, other.particles[k].mass))
                 return False 
             for d in range(self.lat.n_dim):
                 if( self.positions[k][d] !=  other.positions[k][d] ):
-                    print("particle {} positions[{}] {} != {}".format(k,d,self.positions[k][d],other.positions[k][d]))
+                    logger.warning("particle {} positions[{}] {} != {}".format(k,d,self.positions[k][d],other.positions[k][d]))
                     return False 
     
         for k in self.bonds.keys():
             if( self.bonds[k].pkey1 !=  other.bonds[k].pkey1 ):
-                print("bonds {} pkey1 {} != {}".format(k,self.bonds[k].pkey1, other.bonds[k].pkey1))
+                logger.warning("bonds {} pkey1 {} != {}".format(k,self.bonds[k].pkey1, other.bonds[k].pkey1))
                 return False 
             if( self.bonds[k].pkey2 !=  other.bonds[k].pkey2 ):
-                print("bonds {} pkey2 {} != {}".format(k,self.bonds[k].pkey2, other.bonds[k].pkey2))
+                logger.warning("bonds {} pkey2 {} != {}".format(k,self.bonds[k].pkey2, other.bonds[k].pkey2))
                 return False 
     
     
         for k in self.angles.keys():
             if( self.angles[k].pkey1 !=  other.angles[k].pkey1 ):
-                print("angles {} pkey1 {} != {}".format(k,self.angles[k].pkey1, other.angles[k].pkey1))
+                logger.warning("angles {} pkey1 {} != {}".format(k,self.angles[k].pkey1, other.angles[k].pkey1))
                 return False 
             if( self.angles[k].pkey2 !=  other.angles[k].pkey2 ):
-                print("angles {} pkey2 {} != {}".format(k,self.angles[k].pkey2, other.angles[k].pkey2))
+                logger.warning("angles {} pkey2 {} != {}".format(k,self.angles[k].pkey2, other.angles[k].pkey2))
                 return False 
             if( self.angles[k].pkey3 !=  other.angles[k].pkey3 ):
-                print("angles {} pkey3 {} != {}".format(k,self.angles[k].pkey3, other.angles[k].pkey3))
+                logger.warning("angles {} pkey3 {} != {}".format(k,self.angles[k].pkey3, other.angles[k].pkey3))
                 return False 
     
         for k in self.dihedrals.keys():
             if( self.dihedrals[k].pkey1 !=  other.dihedrals[k].pkey1 ):
-                print("dihedrals {} pkey1 {} != {}".format(k,self.dihedrals[k].pkey1, other.dihedrals[k].pkey1))
+                logger.warning("dihedrals {} pkey1 {} != {}".format(k,self.dihedrals[k].pkey1, other.dihedrals[k].pkey1))
                 return False 
             if( self.dihedrals[k].pkey2 !=  other.dihedrals[k].pkey2 ):
-                print("dihedrals {} pkey2 {} != {}".format(k,self.dihedrals[k].pkey2, other.dihedrals[k].pkey2))
+                logger.warning("dihedrals {} pkey2 {} != {}".format(k,self.dihedrals[k].pkey2, other.dihedrals[k].pkey2))
                 return False 
             if( self.dihedrals[k].pkey3 !=  other.dihedrals[k].pkey3 ):
-                print("dihedrals {} pkey3 {} != {}".format(k,self.dihedrals[k].pkey3, other.dihedrals[k].pkey3))
+                logger.warning("dihedrals {} pkey3 {} != {}".format(k,self.dihedrals[k].pkey3, other.dihedrals[k].pkey3))
                 return False 
             if( self.dihedrals[k].pkey4 !=  other.dihedrals[k].pkey4 ):
-                print("dihedrals {} pkey4 {} != {}".format(k,self.dihedrals[k].pkey4, other.dihedrals[k].pkey4))
+                logger.warning("dihedrals {} pkey4 {} != {}".format(k,self.dihedrals[k].pkey4, other.dihedrals[k].pkey4))
                 return False 
         # 
         for k in self.impropers.keys():
             if( self.impropers[k].pkey1 !=  other.impropers[k].pkey1 ):
-                print("impropers {} pkey1 {} != {}".format(k,self.impropers[k].pkey1, other.impropers[k].pkey1))
+                logger.warning("impropers {} pkey1 {} != {}".format(k,self.impropers[k].pkey1, other.impropers[k].pkey1))
                 return False 
             if( self.impropers[k].pkey2 !=  other.impropers[k].pkey2 ):
-                print("impropers {} pkey2 {} != {}".format(k,self.impropers[k].pkey2, other.impropers[k].pkey2))
+                logger.warning("impropers {} pkey2 {} != {}".format(k,self.impropers[k].pkey2, other.impropers[k].pkey2))
                 return False 
             if( self.impropers[k].pkey3 !=  other.impropers[k].pkey3 ):
-                print("impropers {} pkey3 {} != {}".format(k,self.impropers[k].pkey3, other.impropers[k].pkey3))
+                logger.warning("impropers {} pkey3 {} != {}".format(k,self.impropers[k].pkey3, other.impropers[k].pkey3))
                 return False 
             if( self.impropers[k].pkey4 !=  other.impropers[k].pkey4 ):
-                print("impropers {} pkey4 {} != {}".format(k,self.impropers[k].pkey4, other.impropers[k].pkey4))
+                logger.warning("impropers {} pkey4 {} != {}".format(k,self.impropers[k].pkey4, other.impropers[k].pkey4))
                 return False 
         #
         return True
+    
+            
+    def __ne__(self,other):
+        '''Check if two structure objects are not equal
+        '''
+    
+        if( self.n_particles != other.n_particles ):
+            logger.warning("n_particles {} != {}".format(self.n_particles,other.n_particles))
+            return True
+        if( self.n_bonds != other.n_bonds ):
+            logger.warning("n_bonds {} != {}".format(self.n_bonds,other.n_bonds))
+            return True
+        if( self.n_angles != other.n_angles ):
+            logger.warning("n_angles {} != {}".format(self.n_angles,other.n_angles))
+            return True
+        if( self.n_dihedrals != other.n_dihedrals ):
+            logger.warning("n_dihedrals {} != {}".format(self.n_dihedrals,other.n_dihedrals))
+            return True
+        if( self.n_impropers != other.n_impropers ):
+            logger.warning("n_impropers {} != {}".format(self.n_impropers,other.n_impropers))
+            return True
+    
+        for k in self.particles.keys():
+            if( self.particles[k].symbol !=  other.particles[k].symbol ):
+                logger.warning("particle {} symbol {} != {}".format(k,self.particles[k].symbol, other.particles[k].symbol))
+                return True
+            if( self.particles[k].mass !=  other.particles[k].mass ):
+                logger.warning("particle {} mass {} != {}".format(k,self.particles[k].mass, other.particles[k].mass))
+                return True
+            for d in range(self.lat.n_dim):
+                if( self.positions[k][d] !=  other.positions[k][d] ):
+                    logger.warning("particle {} positions[{}] {} != {}".format(k,d,self.positions[k][d],other.positions[k][d]))
+                    return True
+    
+        for k in self.bonds.keys():
+            if( self.bonds[k].pkey1 !=  other.bonds[k].pkey1 ):
+                logger.warning("bonds {} pkey1 {} != {}".format(k,self.bonds[k].pkey1, other.bonds[k].pkey1))
+                return True
+            if( self.bonds[k].pkey2 !=  other.bonds[k].pkey2 ):
+                logger.warning("bonds {} pkey2 {} != {}".format(k,self.bonds[k].pkey2, other.bonds[k].pkey2))
+                return True
+    
+    
+        for k in self.angles.keys():
+            if( self.angles[k].pkey1 !=  other.angles[k].pkey1 ):
+                logger.warning("angles {} pkey1 {} != {}".format(k,self.angles[k].pkey1, other.angles[k].pkey1))
+                return True
+            if( self.angles[k].pkey2 !=  other.angles[k].pkey2 ):
+                logger.warning("angles {} pkey2 {} != {}".format(k,self.angles[k].pkey2, other.angles[k].pkey2))
+                return True
+            if( self.angles[k].pkey3 !=  other.angles[k].pkey3 ):
+                logger.warning("angles {} pkey3 {} != {}".format(k,self.angles[k].pkey3, other.angles[k].pkey3))
+                return True
+    
+        for k in self.dihedrals.keys():
+            if( self.dihedrals[k].pkey1 !=  other.dihedrals[k].pkey1 ):
+                logger.warning("dihedrals {} pkey1 {} != {}".format(k,self.dihedrals[k].pkey1, other.dihedrals[k].pkey1))
+                return True
+            if( self.dihedrals[k].pkey2 !=  other.dihedrals[k].pkey2 ):
+                logger.warning("dihedrals {} pkey2 {} != {}".format(k,self.dihedrals[k].pkey2, other.dihedrals[k].pkey2))
+                return True
+            if( self.dihedrals[k].pkey3 !=  other.dihedrals[k].pkey3 ):
+                logger.warning("dihedrals {} pkey3 {} != {}".format(k,self.dihedrals[k].pkey3, other.dihedrals[k].pkey3))
+                return True
+            if( self.dihedrals[k].pkey4 !=  other.dihedrals[k].pkey4 ):
+                logger.warning("dihedrals {} pkey4 {} != {}".format(k,self.dihedrals[k].pkey4, other.dihedrals[k].pkey4))
+                return True
+        # 
+        for k in self.impropers.keys():
+            if( self.impropers[k].pkey1 !=  other.impropers[k].pkey1 ):
+                logger.warning("impropers {} pkey1 {} != {}".format(k,self.impropers[k].pkey1, other.impropers[k].pkey1))
+                return True
+            if( self.impropers[k].pkey2 !=  other.impropers[k].pkey2 ):
+                logger.warning("impropers {} pkey2 {} != {}".format(k,self.impropers[k].pkey2, other.impropers[k].pkey2))
+                return True
+            if( self.impropers[k].pkey3 !=  other.impropers[k].pkey3 ):
+                logger.warning("impropers {} pkey3 {} != {}".format(k,self.impropers[k].pkey3, other.impropers[k].pkey3))
+                return True
+            if( self.impropers[k].pkey4 !=  other.impropers[k].pkey4 ):
+                logger.warning("impropers {} pkey4 {} != {}".format(k,self.impropers[k].pkey4, other.impropers[k].pkey4))
+                return True
+        #
+        return False
     
             
