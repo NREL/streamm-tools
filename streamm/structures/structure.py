@@ -2286,9 +2286,10 @@ class Structure(units.ObjectUnits):
         #
         return 
             
-    def __equ__(self,other):
+    def __eq__(self,other):
         '''Check if two structure objects are equal
         '''
+        print "Checking "
     
         if( self.n_particles != other.n_particles ):
             print("n_particles {} != {}".format(self.n_particles,other.n_particles))
@@ -2338,7 +2339,6 @@ class Structure(units.ObjectUnits):
                 print("angles {} pkey3 {} != {}".format(k,self.angles[k].pkey3, other.angles[k].pkey3))
                 return False 
     
-    
         for k in self.dihedrals.keys():
             if( self.dihedrals[k].pkey1 !=  other.dihedrals[k].pkey1 ):
                 print("dihedrals {} pkey1 {} != {}".format(k,self.dihedrals[k].pkey1, other.dihedrals[k].pkey1))
@@ -2366,7 +2366,7 @@ class Structure(units.ObjectUnits):
             if( self.impropers[k].pkey4 !=  other.impropers[k].pkey4 ):
                 print("impropers {} pkey4 {} != {}".format(k,self.impropers[k].pkey4, other.impropers[k].pkey4))
                 return False 
-        # 
+        #
         return True
     
             
