@@ -977,9 +977,6 @@ class Save(unittest.TestCase):
         self.strucC.bonded_angles()
         self.strucC.bonded_dih()
         
-        
-
-        
     def test_json(self):
         json_data  = self.strucC.export_json()
         n_p = self.strucC.n_particles
