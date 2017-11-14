@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -A <allocation>
+#PBS -l walltime=<walltime>:00:00 # WALLTIME limit
+#PBS -l nodes=<nodes>:ppn=<ppn> # Number of nodes, put 16 processes on each
+#PBS -l pmem=1500
+#PBS -M <e-mail>
+#PBS -m e
+#PBS -N <tag>
+#PBS -q <queue>
+#PBS -l feature=<feature>
+
+
+scratch_dir=<scratch>
+cd $scratch_dir
+
+module purge;
+module load conda
+#module load openmpi-gcc/1.7.3-4.8.2
+#module load mdanalysis/0.8.1
+#conda create -n testopenbabel -c bioconda python=2 openbabel psycopg2
+# conda create -n  chempy  -c bioconda python=2 openbabel psycopg2 luigi numpy scipy pandas 
+
+source  activate chempy
+
+# python -c "import pybel,openbabel"
+
+<streamm_command>
+
+source deactivate
+
