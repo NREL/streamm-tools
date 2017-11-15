@@ -1784,38 +1784,42 @@ bbPHTh_1_json = bbPHTh_1.export_json()
 
 pHTh_x = streamm.Buildingblock()
 
+pHTh_x.tag = 'p3HTx50'
 
-# In[231]:
+def replicate(pHTh_x,bbPHTh_1,res_local):
+    '''Replciate structure '''
+    pHTh_x.lat.matrix = [ 200.,0.,0., 0.,200.,0.,  0.,0.,200.]
 
-pHTh_x.lat.matrix = [ 200.,0.,0., 0.,200.,0.,  0.,0.,200.]
+    pHTh_x.lat.pbcs = [False,False,False]
 
+    seed = 394572
 
-# In[232]:
+    # Randomly place oligomers into the simulation cell
 
-pHTh_x.lat.pbcs = [False,False,False]
+    pHTh_x = streamm.add_struc(pHTh_x,bbPHTh_1,50,seed)
 
+    pHTh_x.lat.pbcs = [True,True,True]
 
-# In[233]:
+    os.chdir(res_local.dir['materials']) 
+    pHTh_x.write_xyz()
+    pHTh_json = pHTh_x.export_json() 
+    
+    return pHTh_x
 
-seed = 394572
+need_files = ['p3HTx50_struc.json']
+read_p3HTx50 = True 
+for f in need_files:
+    path = Path(f)
+    if not path.is_file():
+        print("Need to run replicate")
+        pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
+        read_p3HTx50 = False
 
-
-# Randomly place oligomers into the simulation cell
-
-# In[234]:
-
-pHTh_x = streamm.add_struc(pHTh_x,bbPHTh_1,50,seed)
-
-
-# In[235]:
-
+if( read_p3HTx50 ):
+    pHTh_x.import_json()
+    
 print pHTh_x.n_particles
 print pHTh_x.lat.matrix
-
-
-# In[236]:
-
-pHTh_x.lat.pbcs = [True,True,True]
 
 
 # Check grouping 
@@ -1834,18 +1838,6 @@ print len(groupset_i.groups)
 # In[239]:
 
 groupset_i.strucC.lat.pbcs
-
-
-# In[240]:
-
-pHTh_x.tag = 'p3HTx50'
-
-
-# In[241]:
-
-os.chdir(res_local.dir['materials']) 
-pHTh_x.write_xyz()
-pHTh_json = pHTh_x.export_json() 
 
 
 # Run a heat cool cycle with NPT to create a solid phase representation of p3HT
@@ -2215,24 +2207,23 @@ et_json = mol_et_equ0.export_json()
 
 
 # Now we have to wait for all of these calculations to finish
-
-# In[ ]:
+import sys 
 
 calcsrunning = True 
 while( calcsrunning ):
     calcsrunning = False 
     n_running = 0 
     for k,calc_i in mol_et_equ0.calculations.iteritems():
+        os.chdir(calc_i.dir['launch'])
         calc_i.check()
-
-
         if( calc_i.meta['status'] == 'finished' ):
             n_running += 1
         else:
             calcsrunning = True 
+    sys.stdout.write("progress: {}/{} \r".format(n_running,len(mol_et_equ0.calculations)))
+    sys.stdout.flush()
 
-
-    print("{}/{}".format(n_running,len(mol_et_equ0.calculations)))
+    time.sleep(status_refresh)
 
 
 # Just calculated the inter-molecular electronic coupling between P3ht
