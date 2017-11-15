@@ -6,10 +6,13 @@
 Class data structures for calculation data
 """
 
-__author__ = "Travis W. Kemper"
-__version__ = "0.3"
-__email__ = "travis.kemper.w@gmail.com"
+__author__ = "Travis W. Kemper, Ph.D."
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3.4"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
+
+
 
 
 import copy, sys, os, shutil, math
