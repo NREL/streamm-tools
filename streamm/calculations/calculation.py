@@ -538,7 +538,6 @@ class Calculation(units.ObjectUnits):
         log_lines = f.readlines()
         f.close()
         for line in log_lines:
-            # logger.info("line:",line
             llow = line.lower()
             if( 'file:' in  llow):
                 col = line.split()
@@ -571,7 +570,7 @@ class Calculation(units.ObjectUnits):
                 os.system(bash_command)                
             self.proc_log(output_file)            
             
-        
+        return 
         
     def store(self,file_type_list=['input','scripts','output','data']):
         '''
@@ -609,6 +608,7 @@ class Calculation(units.ObjectUnits):
                     logger.info("No files of type %s present"%(file_type))
             self.meta['status'] = 'stored'
             
+        return 
 
     def make_dir(self):
         '''
@@ -647,7 +647,8 @@ class Calculation(units.ObjectUnits):
                 except:
                     logger.warning("%s directory not set "%(dkey))
                     
-                            
+        return 
+
     def set_resource(self,resource_i):
         '''
         Set resource for simulation 
@@ -666,6 +667,7 @@ class Calculation(units.ObjectUnits):
         
         self.properties['scratch'] = self.dir['scratch'] 
 
+        return 
 
     def add_refcalc(self,ref_calc):
         '''
@@ -675,6 +677,8 @@ class Calculation(units.ObjectUnits):
         by the current calculation
         '''
         self.references[ref_calc.tag] = ref_calc
+        
+        return 
         
     def get_cp_str(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
         '''
@@ -697,6 +701,7 @@ class Calculation(units.ObjectUnits):
             return "cp %s %s "%(from_pathfile,to_pathfile)
         else:
             return ''
+        
         
     def cp_file(self,file_type,file_key,file_name,from_dirkey,to_dirkey):
         '''
@@ -779,6 +784,7 @@ class Calculation(units.ObjectUnits):
             else:
                 logger.info(" Resource type %s unknown "%(self.resource.meta['type']))
             
+        return 
 
     def set_ffparam(self):
         '''
@@ -1384,6 +1390,8 @@ class Calculation(units.ObjectUnits):
         #         
         self.strucC.update_units(new_unit_conf)
         self.paramC.update_units(new_unit_conf)
+        
+        return 
         
     def export_json(self,write_file=True):
         '''    
