@@ -47,8 +47,8 @@ Structures Module
 
 .. index:: Structure
 
-Structure
----------
+Structure Components 
+----------------------
 
 .. autoclass:: streamm.structures.particle.Particle
    :members:
@@ -121,6 +121,11 @@ Buildingblock
 Forcefields Module
 ==================
 
+.. index:: Forcefields
+
+Forcefield Components 
+----------------------
+
 .. index:: particletype
 
 .. autoclass:: streamm.forcefields.particletype.Particletype
@@ -170,32 +175,25 @@ Parameter Container
 Calculations Module
 ===================
 
+Calculation
+-----------
+
 .. autoclass:: streamm.calculations.calculation.Calculation
    :members:
    :show-inheritance:   
    
+.. autoclass:: streamm.calculations.calculation.MDrun
+   :members:
+   :show-inheritance:   
+   
+
+.. autoclass:: streamm.calculations.calculation.ElectronTransfer
+   :members:
+   :show-inheritance:   
 
 .. index:: resource
 
-Resource
---------
 
-.. autoclass:: streamm.calculations.resource.Resource
-   :members:
-   :show-inheritance:   
-
-
-.. autoclass:: streamm.calculations.resource.Calculation
-   :members:
-   :show-inheritance:   
-
-Project
---------
-
-.. autoclass:: streamm.calculations.project.Project
-   :members:
-   :show-inheritance:
-   
 
 .. index:: gaussian
 
@@ -216,6 +214,7 @@ NWChem
    :members:
    :show-inheritance:   
       
+      
 .. index:: lammps
 
 LAMMPS
@@ -225,10 +224,21 @@ LAMMPS
    :members:
    :show-inheritance:
    
-.. index:: project
-      
-      
 
+Resource
+--------
+
+.. autoclass:: streamm.calculations.resource.Resource
+   :members:
+   :show-inheritance:   
+
+Project
+--------
+
+.. autoclass:: streamm.calculations.project.Project
+   :members:
+   :show-inheritance:
+      
 .. index:: mpi
 
 MPI Module

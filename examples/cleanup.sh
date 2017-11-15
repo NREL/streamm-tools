@@ -5,6 +5,15 @@ do
     jupyter nbconvert --to rst $f
 done
 
+for f in *.rst
+do
+    echo $f 
+    mv $f temp.rst
+    sed 's/ipython2/python/g'  temp.rst > $f
+done
+
+
+
 
 
 for f in *.rst 
@@ -15,7 +24,7 @@ do
     echo "  "  >> header.txt
 
     echo "$tag"  >> header.txt
-    echo "==============="  >> header.txt
+    echo "==================="  >> header.txt
     echo " "  >> header.txt
     cat header.txt $f  > ../doc/source/_static/$f
     
