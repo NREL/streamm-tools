@@ -72,7 +72,7 @@ class NBlist(object):
         del self.cnt
         
     def __str__(self):
-        return " NBlist of {} particle with {} connections".format(len(self.index)-1,len(self.list))
+        return " NBlist of {} particles with {} connections".format(len(self.index)-1,len(self.list))
     
 
     def calc_nnab(self,key_i):
