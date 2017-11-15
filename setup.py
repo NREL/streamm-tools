@@ -20,7 +20,7 @@ def readme():
 
 setup(
     name='streamm',
-    version='0.3.3',
+    version='0.3.4',
     setup_requires=['setuptools>=18.0','pytest-runner',
                     "numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",

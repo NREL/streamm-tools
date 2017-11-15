@@ -11,13 +11,11 @@ __email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
 
 import logging
-# logging.getLogger(__name__).addHandler(logging.NullHandler())
 formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s-%(message)s')
 logging.basicConfig(filename='streamm.log',level=logging.INFO)
 
 
 __all__ = ['buildingblocks','calculations','structures','forcefields','mpi','util']
-#__all__ = []
 
 from structures import Buildingblock
 from structures import Particle
