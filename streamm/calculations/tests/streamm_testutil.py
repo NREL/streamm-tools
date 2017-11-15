@@ -35,7 +35,7 @@ def tearDown_streamm(func):
         for calc_dir_name in ['materials','storage','scripts','scratch','templates']:
             dir_path = os.path.join(TEST_DIR,calc_dir_name)
             if( os.path.isdir(calc_dir_name) ):
-                shutil.rmtree(dir_path)
+                shutil.rmtree(dir_path,ignore_errors=True)
 
         for sufix in ["*.json","*.log","*.xyz","*.csv","*.pkl"]:
             files = glob.glob(sufix)
