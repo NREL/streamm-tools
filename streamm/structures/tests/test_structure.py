@@ -4,10 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Travis W. Kemper, Ph.D."
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3"
-__email__ = "streamm@nrel.gov"
+__version__ = "0.3.4"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
 
 
@@ -16,7 +16,9 @@ Unit tests for the particles module
 '''
 
 import logging
-logger = logging.getLogger(__name__)
+#from testfixtures import LogCapture
+# logger = logging.getLogger(__name__)
+
 
 import unittest
 import os
@@ -934,7 +936,11 @@ class TestProximityCheck(unittest.TestCase):
         
 
 class Save(unittest.TestCase):
+    logging.basicConfig(filename='{}.log'.format('struc_Save'),level=logging.DEBUG)
+
+
     def setUp(self):
+        
         self.strucC = structure.Structure("save_struc")
 
         matrix_i = self.strucC.lat.matrix
@@ -972,9 +978,6 @@ class Save(unittest.TestCase):
         self.strucC.bonded_angles()
         self.strucC.bonded_dih()
         
-        
-
-        
     def test_json(self):
         json_data  = self.strucC.export_json()
         n_p = self.strucC.n_particles
@@ -983,26 +986,12 @@ class Save(unittest.TestCase):
         n_d = self.strucC.n_dihedrals
         n_i = self.strucC.n_impropers 
         
-        self.strucCi = structure.Structure("save_struc")
-        self.strucCi.import_json(json_data)
+        other = structure.Structure("save_struc")
+        other.import_json(json_data)
         
-        self.assertEqual(self.strucCi.n_particles,n_p)
-        self.assertEqual(self.strucCi.n_bonds,n_b)
-        self.assertEqual(self.strucCi.n_angles,n_a)
-        self.assertEqual(self.strucCi.n_dihedrals,n_d)
-        self.assertEqual(self.strucCi.n_impropers,n_i)
-        for pk in range(self.strucC.n_particles):
-            self.assertEqual(str(self.strucC.particles[pk]),str(self.strucCi.particles[pk]))
-            self.assertEqual(self.strucC.particles[pk].mass,self.strucCi.particles[pk].mass )
-            nptu.assert_almost_equal(self.strucC.positions[pk],self.strucCi.positions[pk])
-        for key in range(self.strucC.n_bonds):
-            self.assertEqual(str(self.strucC.bonds[key]),str(self.strucCi.bonds[key]))
-        for key in range(self.strucC.n_dihedrals):
-            self.assertEqual(str(self.strucC.dihedrals[key]),str(self.strucCi.dihedrals[key]))
-        for key in range(self.strucC.n_impropers):
-            self.assertEqual(str(self.strucC.impropers[key]),str(self.strucCi.impropers[key]))
-
+        self.assertEqual(other,self.strucC)
         
+        del other
         
     def tearDown(self):
         del self.strucC 

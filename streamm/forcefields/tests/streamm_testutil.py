@@ -4,12 +4,11 @@
 
 from __future__ import unicode_literals
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Travis W. Kemper, Ph.D."
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3"
-__email__ = "streamm@nrel.gov"
+__version__ = "0.3.4"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
-
 
 import shutil
 import os
@@ -35,7 +34,7 @@ def tearDown_streamm(func):
         for calc_dir_name in ['materials','storage','scripts','scratch']:
             dir_path = os.path.join(TEST_DIR,calc_dir_name)
             if( os.path.isdir(dir_path) ):
-                shutil.rmtree(dir_path)
+                shutil.rmtree(dir_path,ignore_errors=True)
 
         for sufix in ["*.json","*.log","*.xyz","*.csv","*.pkl"]:
             files = glob.glob(sufix)

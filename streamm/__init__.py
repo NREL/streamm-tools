@@ -4,20 +4,18 @@
 
 from __future__ import unicode_literals
 
-__author__ = "Dr. Travis W. Kemper"
+__author__ = "Travis W. Kemper, Scott Sides, Ross Larsen"
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 __email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
 
 import logging
-# logging.getLogger(__name__).addHandler(logging.NullHandler())
 formatter = logging.Formatter('%(asctime)s - %(name)s -%(levelname)s-%(message)s')
 logging.basicConfig(filename='streamm.log',level=logging.INFO)
 
 
 __all__ = ['buildingblocks','calculations','structures','forcefields','mpi','util']
-#__all__ = []
 
 from structures import Buildingblock
 from structures import Particle

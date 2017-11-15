@@ -4,6 +4,11 @@
 
 from __future__ import division, unicode_literals
 
+__author__ = "Travis W. Kemper, Ph.D."
+__copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
+__version__ = "0.3.4"
+__email__ = "organicelectronics@nrel.gov"
+__status__ = "Beta"
 
 '''
 Unit tests for the particles module
@@ -53,7 +58,7 @@ class Test_NBlist(unittest.TestCase):
         self.nblist.index = [0, 3, 6, 9, 12, 15, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 34, 35, 37, 38]
         
     def test_str(self):
-        self.assertEqual(str(self.nblist)," NBlist of 19 particle with 38 connections")
+        self.assertEqual(str(self.nblist)," NBlist of 19 particles with 38 connections")
                 
     def test_getnbs(self):
         self.sub_check = []

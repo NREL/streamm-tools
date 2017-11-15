@@ -6,10 +6,10 @@
 This module defines the classes relating to general particles 
 """
 
-__author__ = "Travis W. Kemper, Scott Sides"
+__author__ = "Travis W. Kemper, Ph.D."
 __copyright__ = "Copyright 2015, Alliance for Sustainable Energy, LLC"
-__version__ = "0.3"
-__email__ = "streamm@nrel.gov"
+__version__ = "0.3.4"
+__email__ = "organicelectronics@nrel.gov"
 __status__ = "Beta"
 
 import logging
