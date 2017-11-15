@@ -1,7 +1,7 @@
 .. _structures_example:
   
 structures_example
-===================
+========================
  
 
 This notebook imports the fundamental objects of the streamm.structure

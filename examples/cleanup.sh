@@ -24,7 +24,7 @@ do
     echo "  "  >> header.txt
 
     echo "$tag"  >> header.txt
-    echo "==================="  >> header.txt
+    echo "========================"  >> header.txt
     echo " "  >> header.txt
     cat header.txt $f  > ../doc/source/_static/$f
     

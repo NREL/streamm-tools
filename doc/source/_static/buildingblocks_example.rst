@@ -1,38 +1,38 @@
 .. _buildingblocks_example:
   
 buildingblocks_example
-===============
+========================
  
 
 This notebook imports the fundamental objects of the
 streamm.buildingblocks module and goes through the functionality of each
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.structures.buildingblock as bb
 
-.. code:: ipython2
+.. code:: python
 
     import math
 
-.. code:: ipython2
+.. code:: python
 
     from pathlib2 import Path
     import os
 
 Create a Buildingblock object with tag methane
 
-.. code:: ipython2
+.. code:: python
 
     mol_i = bb.Buildingblock('methane')
 
-.. code:: ipython2
+.. code:: python
 
     print(mol_i.print_properties())
 
 If methane.xyz is not around run the structures example
 
-.. code:: ipython2
+.. code:: python
 
     need_files = ['methane.xyz']
     for f in need_files:
@@ -42,23 +42,23 @@ If methane.xyz is not around run the structures example
             os.system("jupyter nbconvert --to python  structures_example.ipynb")
             os.system("python structures_example.py")
 
-.. code:: ipython2
+.. code:: python
 
     mol_i.read_xyz()
 
-.. code:: ipython2
+.. code:: python
 
     mol_i.bonded_nblist = mol_i.guess_nblist(0,radii_buffer=1.25)
 
 Check that all the particles have been read in
 
-.. code:: ipython2
+.. code:: python
 
     print mol_i.n_particles
 
 Check that the neighbor list was set correctly
 
-.. code:: ipython2
+.. code:: python
 
     print mol_i.bonded_nblist
 
@@ -80,35 +80,35 @@ identifier is passed to the attach() function later. Also, if the
 identifiers are not unique, the order in which it appears in the
 particles list will also be used.
 
-.. code:: ipython2
+.. code:: python
 
     mol_i.particles[1].rsite = 'RH'
 
-.. code:: ipython2
+.. code:: python
 
     mol_i.particles[2].rsite = 'RH'
 
 Now use the find_rsites() function to create the dictionary of lists to
 be used by the attach() function
 
-.. code:: ipython2
+.. code:: python
 
     mol_i.find_rsites()
 
-.. code:: ipython2
+.. code:: python
 
     print mol_i.show_rsites()
 
 Pass the molecule to the attach function and set the rsite id’s and the
 list positions of the rsites
 
-.. code:: ipython2
+.. code:: python
 
     mol_j = bb.attach(mol_i,mol_i,'RH',0,'RH',1,tag='ethane')
 
 Write the .xyz to file to be viewed with a molecular viewer.
 
-.. code:: ipython2
+.. code:: python
 
     mol_j.write_xyz()
 
@@ -118,13 +118,13 @@ rather than staggered.
 We can avoid this by using the prepattach() function to orient the
 molecule and remove the reactive site
 
-.. code:: ipython2
+.. code:: python
 
     mol_k = mol_i.prepattach('RH',0,dir=-1,yangle=90.0)
 
 Then apply a shift to set the bond length
 
-.. code:: ipython2
+.. code:: python
 
     CC_bl = mol_i.particles[0].bonded_radius*2.0
     mol_k.shift_pos([CC_bl,0.0,0.0])
@@ -133,83 +133,83 @@ Then apply a rotation to set the conformation to staggered. Use a 180.0
 degree rotation to place the reactive site in the correct orientation
 for subsequent attachments.
 
-.. code:: ipython2
+.. code:: python
 
     angle_rad = 180.0*math.pi/180.0 
     mol_k.rotate_yz(angle_rad)
 
-.. code:: ipython2
+.. code:: python
 
     mol_l = mol_i.prepattach('RH',1,dir=1)
 
-.. code:: ipython2
+.. code:: python
 
     mol_m = bb.attachprep(mol_k,mol_l)
 
-.. code:: ipython2
+.. code:: python
 
     mol_m.tag = 'ethane'
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in mol_m.particles.iteritems():
         print pk,p
 
-.. code:: ipython2
+.. code:: python
 
     print mol_m.bonded_nblist.list 
     print mol_m.bonded_nblist.index 
 
-.. code:: ipython2
+.. code:: python
 
     mol_m.write_xyz()
 
-.. code:: ipython2
+.. code:: python
 
     print mol_m.show_rsites()
 
-.. code:: ipython2
+.. code:: python
 
     mol_m.bonded_bonds()
     mol_m.bonded_angles()
     mol_m.bonded_dih()
 
-.. code:: ipython2
+.. code:: python
 
     mol_json = mol_m.export_json()
 
 Attachments can also be done in a loop
 
-.. code:: ipython2
+.. code:: python
 
     alkly_n = (12-1)/2 # Number of ethanes to add to get a dodecyl 
 
-.. code:: ipython2
+.. code:: python
 
     print alkly_n
 
-.. code:: ipython2
+.. code:: python
 
     mol_n = mol_m 
 
-.. code:: ipython2
+.. code:: python
 
     mol_n.find_rsites()
 
-.. code:: ipython2
+.. code:: python
 
     print mol_n.show_rsites()
 
-.. code:: ipython2
+.. code:: python
 
     for i in range(alkly_n):
         mol_n = bb.attach(mol_n,mol_m,'RH',1,'RH',0)
 
-.. code:: ipython2
+.. code:: python
 
     mol_n.tag = 'dodecyl'
 
-.. code:: ipython2
+.. code:: python
 
     mol_n.write_xyz()
 

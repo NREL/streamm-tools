@@ -1,14 +1,14 @@
 .. _lattice_example:
   
 lattice_example
-===============
+========================
  
 
-.. code:: ipython2
+.. code:: python
 
     from pprint import pprint
 
-.. code:: ipython2
+.. code:: python
 
     import logging
     logging.basicConfig(filename='lattice_example.log',level=logging.DEBUG)
@@ -16,15 +16,15 @@ lattice_example
 The ``lattice`` object keeps track of the lattice used in ``Structure``
 object
 
-.. code:: ipython2
+.. code:: python
 
     import pymatgen_core.core.lattice as lattice
 
-.. code:: ipython2
+.. code:: python
 
     lat = lattice.Lattice()
 
-.. code:: ipython2
+.. code:: python
 
     print lat
     print lat.unit_conf['length']
@@ -42,7 +42,7 @@ The default size of the lattice is 100.0 angstroms
 
 The lattice also has lattice constants
 
-.. code:: ipython2
+.. code:: python
 
     print lat.constants
     print lat.unit_conf['length']
@@ -60,16 +60,16 @@ We can calculate the distance between two points in the lattice
 
 Let’s turn on periodic boundary conditions
 
-.. code:: ipython2
+.. code:: python
 
     lat.pbcs = [True,True,True]
 
-.. code:: ipython2
+.. code:: python
 
     pos_i = [25.0,25.0,25.0]
     pos_j = [-50.0,25.0,25.0]
 
-.. code:: ipython2
+.. code:: python
 
     dr_ij = lat.d_pos(pos_i,pos_j)
     print dr_ij
@@ -82,7 +82,7 @@ Let’s turn on periodic boundary conditions
 
 If we want a tuple of the vector and the magnitude we can use
 
-.. code:: ipython2
+.. code:: python
 
     dr_ij,mag_dr_ij =  lat.delta_pos(pos_i,pos_j)
     print dr_ij,mag_dr_ij
@@ -95,11 +95,11 @@ If we want a tuple of the vector and the magnitude we can use
 
 We can also turn pbcs off and calculate the distance
 
-.. code:: ipython2
+.. code:: python
 
     lat.pbcs = [False,False,False]
 
-.. code:: ipython2
+.. code:: python
 
     print lat.delta_pos(pos_i,pos_j)
 
@@ -112,11 +112,11 @@ We can also turn pbcs off and calculate the distance
 The size of the lattice can be changed using the ``matrix`` or the
 ``constants`` ``setter``
 
-.. code:: ipython2
+.. code:: python
 
     lat.matrix = [ 12,0,0,0,12,0,0,0,12 ]
 
-.. code:: ipython2
+.. code:: python
 
     print lat.matrix
     print lat.constants
@@ -134,11 +134,11 @@ The size of the lattice can be changed using the ``matrix`` or the
 
 To set to a triclinic lattice
 
-.. code:: ipython2
+.. code:: python
 
     lat.constants = [ 12,8,15,60.0,120.0,80.0 ]
 
-.. code:: ipython2
+.. code:: python
 
     print lat.matrix
     print lat.constants
@@ -156,11 +156,11 @@ To set to a triclinic lattice
 
 Let’s turn pbcs’s back on and calculate the distance
 
-.. code:: ipython2
+.. code:: python
 
     lat.pbcs = [True,True,True]
 
-.. code:: ipython2
+.. code:: python
 
     print pos_i,pos_j
 
@@ -170,7 +170,7 @@ Let’s turn pbcs’s back on and calculate the distance
     [25.0, 25.0, 25.0] [-50.0, 25.0, 25.0]
 
 
-.. code:: ipython2
+.. code:: python
 
     dr_ij,mag_dr_ij =  lat.delta_pos(pos_i,pos_j)
     print dr_ij,mag_dr_ij
@@ -183,11 +183,11 @@ Let’s turn pbcs’s back on and calculate the distance
 
 Change the units to ``nm``
 
-.. code:: ipython2
+.. code:: python
 
     lat.update_units({'length':'nm'})
 
-.. code:: ipython2
+.. code:: python
 
     print lat.matrix
     print lat.constants
@@ -205,11 +205,11 @@ Change the units to ``nm``
 
 If you need your angles in radians
 
-.. code:: ipython2
+.. code:: python
 
     lat.update_units({'angle':'radian'})
 
-.. code:: ipython2
+.. code:: python
 
     print lat.matrix
     print lat.constants
@@ -227,25 +227,25 @@ If you need your angles in radians
 
 We can export the lattice object as json object and dump it into a file
 
-.. code:: ipython2
+.. code:: python
 
     lat_json = lat.export_json('lat_ex',write_file=True)
 
 Delete the lattice object
 
-.. code:: ipython2
+.. code:: python
 
     del lat
 
 Create a new blank object
 
-.. code:: ipython2
+.. code:: python
 
     lat = lattice.Lattice()
 
 And read in the file to get the properties of the lattice back
 
-.. code:: ipython2
+.. code:: python
 
     lat.import_json('lat_ex',read_file=True)
 
@@ -257,7 +257,7 @@ And read in the file to get the properties of the lattice back
 
 Handy for saving or exporting to javascript
 
-.. code:: ipython2
+.. code:: python
 
     print lat.matrix
     print lat.constants

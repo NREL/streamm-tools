@@ -1,7 +1,7 @@
 .. _units_example:
   
 units_example
-===============
+========================
  
 
 .. code:: python

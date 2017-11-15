@@ -1,7 +1,7 @@
 .. _P3HT_ET:
   
 P3HT_ET
-===============
+========================
  
 
 In this example we run through a simplified procedure to calculate the
@@ -15,60 +15,60 @@ simulation cell \* Anneal the system with LAMMPS \* Calculate the
 inter-molecular electronic coupling using NWChem’s electron transfer
 module
 
-.. code:: ipython2
+.. code:: python
 
     import os 
     from pprint import pprint
 
-.. code:: ipython2
+.. code:: python
 
     from pathlib2 import Path
     import os
 
-.. code:: ipython2
+.. code:: python
 
     import csv 
 
-.. code:: ipython2
+.. code:: python
 
     import numpy as np
     import decimal
     import copy
 
-.. code:: ipython2
+.. code:: python
 
     import matplotlib
     import matplotlib.pyplot as plt
 
-.. code:: ipython2
+.. code:: python
 
     %matplotlib inline
 
-.. code:: ipython2
+.. code:: python
 
     import time
 
 Set wait time to check if calculation has finished
 
-.. code:: ipython2
+.. code:: python
 
     status_refresh = 1
 
-.. code:: ipython2
+.. code:: python
 
     import streamm
 
 In this getting started example we will calculate the coupling between
 P3HT oligomers
 
-.. code:: ipython2
+.. code:: python
 
     import logging
     logging.basicConfig(filename='p3ht_et.log',level=logging.DEBUG)
 
 Load Resource objects from Resource example
 
-.. code:: ipython2
+.. code:: python
 
     need_files = ['local_res.json','remote_res.json']
     for f in need_files:
@@ -78,43 +78,43 @@ Load Resource objects from Resource example
             os.system("jupyter nbconvert --to python  resource_example.ipynb")
             os.system("python resource_example.py")
 
-.. code:: ipython2
+.. code:: python
 
     res_local = streamm.Resource('local')
 
 The calc resource can be changed to local or remote host resouce
 
-.. code:: ipython2
+.. code:: python
 
     res_calc = streamm.Resource('remote')
 
-.. code:: ipython2
+.. code:: python
 
     res_local.import_json()
     res_calc.import_json()
 
 Create needed directories
 
-.. code:: ipython2
+.. code:: python
 
     res_local.make_dir() 
     res_calc.make_dir() 
 
 Now let’s create project and resource to keep track of our work
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = streamm.Project('P3HT_ET')
 
 Set the directory structure for the project
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.set_resource(res_local)
 
 Explicitly create a thiophene molecule
 
-.. code:: ipython2
+.. code:: python
 
     bbTh = streamm.Buildingblock('thiophene')
     symbols = ['C','C','C','C','S','H','H','H','H']
@@ -135,7 +135,7 @@ Explicitly create a thiophene molecule
 
 Set the names of the terminal sites to be joined later
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.particles[5].rsite = 'termcap'
     bbTh.particles[6].rsite = 'funccap'
@@ -143,7 +143,7 @@ Set the names of the terminal sites to be joined later
 
 Set some properties of the molecule to keep track of the parts
 
-.. code:: ipython2
+.. code:: python
 
     c_cnt =1
     h_cnt =1
@@ -170,7 +170,7 @@ Set some properties of the molecule to keep track of the parts
 
 Set the force-field type and guess some reasonable charges
 
-.. code:: ipython2
+.. code:: python
 
     for pkey_i, particle_i  in bbTh.particles.iteritems():
         if( particle_i.symbol == 'C' ):
@@ -185,7 +185,7 @@ Set the force-field type and guess some reasonable charges
 
 Check molecule is neutral
 
-.. code:: ipython2
+.. code:: python
 
     total_charge = 0.0
     for pkey_i, particle_i  in bbTh.particles.iteritems():
@@ -196,7 +196,7 @@ Optimize structure with NWChem
 
 But let’s put it in a function this time
 
-.. code:: ipython2
+.. code:: python
 
     def nw_opt(project_i,bb_i,res_i):
         '''Optimize a streamm Buildingblock object with nwchem 
@@ -248,61 +248,61 @@ But let’s put it in a function this time
         # 
         return project_i 
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = nw_opt(p3ht_et,bbTh,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i = p3ht_et.calculations['nw_opt_thiophene_calc_0']
 
 Check status unit finished
 
-.. code:: ipython2
+.. code:: python
 
     while( nwchem_i.meta['status'] != 'finished'):
         nwchem_i.check()
         time.sleep(status_refresh)    
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.meta['status']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(nwchem_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.analysis()
 
 Print energies, just for fun
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.properties['energy'],nwchem_i.unit_conf['energy']
 
 Check that the positions of the structure have been optimized
 
-.. code:: ipython2
+.. code:: python
 
     print bbTh.positions
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.unit_conf['length']
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.strucC.positions
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.strucC.unit_conf['length']
 
 Update positions with optimized geometry
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbTh.particles.iteritems():
         bbTh.positions[pk] = nwchem_i.strucC.positions[pk]
@@ -310,7 +310,7 @@ Update positions with optimized geometry
 
 Store the results in a tar ball in the storage directory
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.store()
 
@@ -318,7 +318,7 @@ Now let us calculate the ESP charges to use in our forcefield
 
 Again let’s make it a function
 
-.. code:: ipython2
+.. code:: python
 
     def nw_esp(project_i,bb_i,res_i):
         '''Calculate ESP charges of a streamm Buildingblock object with nwchem 
@@ -375,25 +375,25 @@ Again let’s make it a function
         
         
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = nw_esp(p3ht_et,bbTh,res_calc)
 
 Check status until finished
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i = p3ht_et.calculations['nw_esp_thiophene_calc_1']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(nwchem_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( nwchem_i.meta['status'] != 'finished'):
         nwchem_i.check()
@@ -401,13 +401,13 @@ Check status until finished
 
 Run analysis to get the ESP charges
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.analysis()
 
 Check the new charges
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.strucC.calc_charge()
     print nwchem_i.strucC.charge
@@ -415,7 +415,7 @@ Check the new charges
 A little extra charge can cause problems with our MD simulation so, if
 our total is not zero let’s round and set to neutral
 
-.. code:: ipython2
+.. code:: python
 
     def charges_round_neutral(strucC,ndigits = 4  ):
         total_charge = 0.0 
@@ -431,22 +431,22 @@ our total is not zero let’s round and set to neutral
         #
         print strucC.charge
 
-.. code:: ipython2
+.. code:: python
 
     if( abs(nwchem_i.strucC.charge) > 1.0e-16 ):
         charges_round_neutral(nwchem_i.strucC)
 
 Update the charges of the Buildingblock
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.tag += '_HFesp'
 
-.. code:: ipython2
+.. code:: python
 
     print bbTh.tag
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbTh.particles.iteritems():
         p.charge = nwchem_i.strucC.particles[pk].charge
@@ -454,18 +454,18 @@ Update the charges of the Buildingblock
 
 Store the results
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.store()
 
 Create the neighbor list and use it to set the bonds, bond angles and
 dihedrals for the force-field model
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.bonded_nblist = bbTh.guess_nblist(0,radii_buffer=1.35)
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.bonded_bonds()
     bbTh.bonded_angles()
@@ -473,7 +473,7 @@ dihedrals for the force-field model
 
 Store an object of the Buildingblock
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     th_json = bbTh.export_json()
@@ -481,11 +481,11 @@ Store an object of the Buildingblock
 Let us optimize the structure with the oplsaa force-field to check the
 parameters
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['home']) 
 
-.. code:: ipython2
+.. code:: python
 
     need_files = ['oplsaa_param.json']
     for f in need_files:
@@ -495,87 +495,87 @@ parameters
             os.system("jupyter nbconvert --to python  forcefields_example.ipynb")
             os.system("python forcefields_example.py")
 
-.. code:: ipython2
+.. code:: python
 
     oplsaa = streamm.Parameters('oplsaa')
 
-.. code:: ipython2
+.. code:: python
 
     oplsaa.import_json(read_file=True)
 
-.. code:: ipython2
+.. code:: python
 
     print oplsaa
 
-.. code:: ipython2
+.. code:: python
 
     print oplsaa.unit_conf['energy']
 
 We need to add the conjugated carbons, hydrogen and sulfur atom types
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.forcefields.particletype as particletype
 
-.. code:: ipython2
+.. code:: python
 
     import pymatgen_core.core.periodic_table as periodic_table
 
 Set some parameters from J. Am. Chem. Soc., 1996, 118 (45), pp
 11225–11236
 
-.. code:: ipython2
+.. code:: python
 
     CA = particletype.Particletype('CA')
     HA = particletype.Particletype('HA')
 
-.. code:: ipython2
+.. code:: python
 
     CA.update_units(oplsaa.unit_conf)
     HA.update_units(oplsaa.unit_conf)
 
-.. code:: ipython2
+.. code:: python
 
     CA.epsilon = 0.070 # kcal/mol
     CA.sigma = 3.55 # Angstroms 
 
-.. code:: ipython2
+.. code:: python
 
     HA.epsilon = 0.030 # kcal/mol
     HA.sigma = 2.42 # Angstroms 
 
-.. code:: ipython2
+.. code:: python
 
     CA.mass =  periodic_table.Element['C'].atomic_mass.real
     HA.mass =  periodic_table.Element['H'].atomic_mass.real
 
-.. code:: ipython2
+.. code:: python
 
     print CA,HA
 
-.. code:: ipython2
+.. code:: python
 
     S = particletype.Particletype('S')
 
-.. code:: ipython2
+.. code:: python
 
     S.update_units(oplsaa.unit_conf)
 
 Set some parameters from J. Am. Chem. Soc., 1996, 118 (45), pp
 11225–11236
 
-.. code:: ipython2
+.. code:: python
 
     S.epsilon = 0.25 # kcal/mol
     S.sigma = 3.55 # Angstroms 
 
-.. code:: ipython2
+.. code:: python
 
     S.mass =  periodic_table.Element['S'].atomic_mass.real
 
 Add to forcefield parameters container
 
-.. code:: ipython2
+.. code:: python
 
     oplsaa.add_particletype(CA)
     oplsaa.add_particletype(HA)
@@ -583,100 +583,100 @@ Add to forcefield parameters container
 
 Set the bond stretching parameters
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.forcefields.bondtype as bondtype
 
-.. code:: ipython2
+.. code:: python
 
     bt_i = bondtype.Bondtype('CA','HA',unit_conf=oplsaa.unit_conf)
     bt_i.setharmonic(1.080,367.0)
     oplsaa.add_bondtype(bt_i)
 
-.. code:: ipython2
+.. code:: python
 
     bt_i = bondtype.Bondtype('CA','CA',unit_conf=oplsaa.unit_conf)
     bt_i.setharmonic(1.400,469.0)
     oplsaa.add_bondtype(bt_i)
 
-.. code:: ipython2
+.. code:: python
 
     bt_i = bondtype.Bondtype('S','CA',unit_conf=oplsaa.unit_conf)
     bt_i.setharmonic(1.71,250.0)
     oplsaa.add_bondtype(bt_i)
 
-.. code:: ipython2
+.. code:: python
 
     for btk,bt in oplsaa.bondtypes.iteritems():
         print btk,bt
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.forcefields.angletype as angletype
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CA','CA','CA',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(120.0,63.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CA','CA','HA',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(120.0,35.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CA','S','CA',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(92.2,70.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('S','CA','HA',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(120.0,35.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('S','CA','CA',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(111.0,70.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     for atk,at in oplsaa.angletypes.iteritems():
         print atk,at
 
 Set some reasonable dihedral parameters
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.forcefields.dihtype as dihtype
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('X','CA','CA','X',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,1.812532,0.0,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('X','S','CA','X',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,2.416710,0.0,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('S','CA','CA','HA',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,1.812532,0.0,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     for dk,d in oplsaa.dihtypes.iteritems():
         print dk,d 
@@ -684,7 +684,7 @@ Set some reasonable dihedral parameters
 Let us make an MD simulation of just the monomer to check that our
 parameters are okay
 
-.. code:: ipython2
+.. code:: python
 
     def lmp_run(project_i,bb_i,param_i,res_i,md_type = 'min'):
         # Create LAMMPS calculation object 
@@ -737,23 +737,23 @@ parameters are okay
         # 
         return project_i     
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,bbTh,oplsaa,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_min_thiophene_HFesp_calc_2']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
@@ -761,54 +761,54 @@ parameters are okay
 
 Run analysis of .in and .log files
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     run_i= lmp_i.run_list[0]
     print run_i.timeseries['toteng']
 
 Energy decreased and nothing exploded so that’s good
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
 Read in data file positions
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_1']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.write_xyz()
 
 We will use the oplsaa optimized structure as the initial structure
 since we will be running MD
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.tag += '_oplsaa'
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbTh.particles.iteritems():
         bbTh.positions[pk] = lmp_i.strucC.positions[pk]
@@ -816,7 +816,7 @@ since we will be running MD
 
 Save the Buildingblock and force-field
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     bbTh.write_xyz()
@@ -828,7 +828,7 @@ procedure for hexane
 
 Build hexane
 
-.. code:: ipython2
+.. code:: python
 
     bbHex = streamm.Buildingblock('hexane')
     symbols = ['C','H','H','H','C','H','H','C','H','H','C','H','H','C','H','H','C','H','H','H']
@@ -858,12 +858,12 @@ Build hexane
         pos_i = positions[i]
         bbHex.add_partpos(pt_i,pos_i)
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.particles[0].rsite = 'rg'
     bbHex.particles[1].rsite = 'rgcap'
 
-.. code:: ipython2
+.. code:: python
 
     c_cnt =1
     h_cnt =1
@@ -881,7 +881,7 @@ Build hexane
 
 Set the parameter keys and some reasonable atomic charges
 
-.. code:: ipython2
+.. code:: python
 
     for pkey_i, particle_i  in bbHex.particles.iteritems():
                 if( particle_i.symbol == 'C' ):
@@ -893,14 +893,14 @@ Set the parameter keys and some reasonable atomic charges
                     particle_i.charge = 0.06
                 print pkey_i, particle_i.symbol,particle_i.charge
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.particles[0].charge  = -0.18
     bbHex.particles[16].charge  = -0.18
 
 Check that the molecule is neutral
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.calc_charge()
     print bbHex.charge
@@ -910,27 +910,27 @@ Now let us optimize and calculate ESP charges for hexane
 
 Optimize structure with NWChem
 
-.. code:: ipython2
+.. code:: python
 
     print p3ht_et.calculations.keys()
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = nw_opt(p3ht_et,bbHex,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i = p3ht_et.calculations['nw_opt_hexane_calc_3']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(nwchem_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( nwchem_i.meta['status'] != 'finished'):
         nwchem_i.check()
@@ -938,31 +938,31 @@ Optimize structure with NWChem
 
 Get the calculation from the project object
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.analysis()
 
 Print energies
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.properties['alpha_energies'][10:20]
     print nwchem_i.properties['energy']
 
 Check that the positions of the structure have been optimized
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbHex.particles.iteritems():
         print pk,p.symbol,bbHex.positions[pk]
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.strucC.positions
 
 Update positions in Buildingblock object
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbHex.particles.iteritems():
         bbHex.positions[pk] = nwchem_i.strucC.positions[pk]
@@ -970,41 +970,41 @@ Update positions in Buildingblock object
 
 Store the results in a tar ball in the storage directory
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.store()
 
 Now let us calculate the ESP charges to use in our forcefield
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = nw_esp(p3ht_et,bbHex,res_calc)
 
 Check status unit finished
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i = p3ht_et.calculations['nw_esp_hexane_calc_4']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(nwchem_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( nwchem_i.meta['status'] != 'finished'):
         nwchem_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.strucC.calc_charge()
     print nwchem_i.strucC.charge
@@ -1012,46 +1012,46 @@ Check status unit finished
 Hum a little extra charge can cause problems with our MD simulation so
 let’s round and set to neutral
 
-.. code:: ipython2
+.. code:: python
 
     if( abs(nwchem_i.strucC.charge) > 1.0e-16 ):
         charges_round_neutral(nwchem_i.strucC)
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in nwchem_i.strucC.particles.iteritems():
         print pk,p.symbol,p.charge
 
 Print energies
 
-.. code:: ipython2
+.. code:: python
 
     print nwchem_i.properties['energy'],nwchem_i.unit_conf['energy']
 
 Update the charges of the Buildingblock
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbHex.particles.iteritems():
         p.charge = nwchem_i.strucC.particles[pk].charge
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.tag += '_HFesp'
 
 Store the results
 
-.. code:: ipython2
+.. code:: python
 
     nwchem_i.store()
 
 First we need to identify the bonding within the Buildingblock
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.bonded_nblist = bbHex.guess_nblist(0,radii_buffer=1.35)
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.bonded_bonds()
     bbHex.bonded_angles()
@@ -1059,39 +1059,39 @@ First we need to identify the bonding within the Buildingblock
 
 Add the need parameters the oplsaa parameter container
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CT','CT','CT',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(109.50,40.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CT','CT','CT',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(109.50,40.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CT','CT','HC',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(109.50,50.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('CT','CT','CT','CT',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.433341,-0.016667,0.066668,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('HC','CT','CT','CT',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,-0.0,0.1,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('HC','CT','CT','HC',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
@@ -1100,76 +1100,76 @@ Add the need parameters the oplsaa parameter container
 
 Run an oplsaa minimization to get the minimized structure
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,bbHex,oplsaa,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_min_hexane_HFesp_calc_5']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     run_i= lmp_i.run_list[0]
     print run_i.timeseries['toteng']
 
 Energy decreased and nothing exploded so that’s good
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
 Read in data file positions
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_1']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.write_xyz()
 
 We will use the oplsaa optimized structure as the initial structure
 since we will be running MD
 
-.. code:: ipython2
+.. code:: python
 
     bbHex.tag += '_oplsaa'
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in bbHex.particles.iteritems():
         bbHex.positions[pk] = lmp_i.strucC.positions[pk]
@@ -1177,47 +1177,47 @@ since we will be running MD
 
 Save the Buildingblock and force-field
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     bbHex.write_xyz()
     bbhex_json = bbHex.export_json() 
     oplsaa_json = oplsaa.export_json()
 
-.. code:: ipython2
+.. code:: python
 
     print bbHex.tag,bbTh.tag
 
 So let us make some P3HT oligomers
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
 
-.. code:: ipython2
+.. code:: python
 
     bbTh.find_rsites()
     bbHex.find_rsites()
 
-.. code:: ipython2
+.. code:: python
 
     print(bbTh.show_rsites())
 
-.. code:: ipython2
+.. code:: python
 
     print(bbHex.show_rsites())
 
-.. code:: ipython2
+.. code:: python
 
     import streamm.structures.buildingblock as bb
 
-.. code:: ipython2
+.. code:: python
 
     ht = bb.attach(bbTh,bbHex,'funccap',0,'rgcap',0,tag='3-hexyl-thiophene')
 
 Update bond angles and dihedrals after Buildingblock join
 
-.. code:: ipython2
+.. code:: python
 
     ht.bonded_bonds()
     ht.bonded_angles()
@@ -1225,25 +1225,25 @@ Update bond angles and dihedrals after Buildingblock join
 
 Check that the molecule looks good
 
-.. code:: ipython2
+.. code:: python
 
     ht.write_xyz()
 
 Check the charges of the removed hydrogens got summed onto the
 functionalized carbons correctly
 
-.. code:: ipython2
+.. code:: python
 
     ht.calc_charge()
     ht.charge
 
-.. code:: ipython2
+.. code:: python
 
     print(ht.show_rsites())
 
 Add inter thiophene hexane parameters
 
-.. code:: ipython2
+.. code:: python
 
     bt_i = bondtype.Bondtype('CT','CA',unit_conf=oplsaa.unit_conf)
     bt_i.setharmonic(1.51,317.0)
@@ -1251,7 +1251,7 @@ Add inter thiophene hexane parameters
 
 Bond angle parameters
 
-.. code:: ipython2
+.. code:: python
 
     bat_i = angletype.Angletype('CA','CA','CT',unit_conf=oplsaa.unit_conf)
     bat_i.setharmonic(120.0,70.0)
@@ -1272,7 +1272,7 @@ Bond angle parameters
     bat_i.setharmonic(114.0,63.0)
     oplsaa.add_angletype(bat_i)
 
-.. code:: ipython2
+.. code:: python
 
     for atk,at in oplsaa.angletypes.iteritems():
         print atk,at
@@ -1280,107 +1280,107 @@ Bond angle parameters
 Note: The inter-ring torsional is not consider as a separate set of
 parameters for the simplicity of this example
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('HC','CT','CT','CA',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,-0.0,0.1,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('CT','CT','CT','CA',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.433341,-0.016667,0.066668,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('HC','CT','CA','CA',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,-0.0,0.1,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     dih_i = dihtype.Dihtype('CT','CT','CA','CA',unit_conf=oplsaa.unit_conf)
     dih_i.type ='opls'
     dih_i.setopls(0.0,-0.0,0.0,0.0)
     oplsaa.add_dihtype(dih_i)
 
-.. code:: ipython2
+.. code:: python
 
     for dk,d in oplsaa.dihtypes.iteritems():
         print dk,d 
 
 Run an oplsaa minimization to get the minimized structure
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,ht,oplsaa,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_min_3-hexyl-thiophene_calc_6']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     run_i= lmp_i.run_list[0]
     print run_i.timeseries['toteng']
 
 Energy decreased and nothing exploded so that’s good
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
 Read in data file positions
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_1']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
 We will use the oplsaa optimized structure as the initial structure
 since we will be running MD
 
-.. code:: ipython2
+.. code:: python
 
     ht.tag += '_oplsaa'
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in ht.particles.iteritems():
         ht.positions[pk] = lmp_i.strucC.positions[pk]
@@ -1388,7 +1388,7 @@ since we will be running MD
 
 Save the Buildingblock and force-field
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     ht.write_xyz()
@@ -1397,17 +1397,17 @@ Save the Buildingblock and force-field
 
 Okay we have the monomer, so let’s make a pentamer
 
-.. code:: ipython2
+.. code:: python
 
     penta_ht = copy.deepcopy(ht)
 
-.. code:: ipython2
+.. code:: python
 
     # We could use prepattach to change the tacticity 
     # penta_ht = ht.prepattach('termcap',0,dir=-1,yangle=180.0)
     # See buildingblock example 
 
-.. code:: ipython2
+.. code:: python
 
     for n in range(4):
         penta_ht = bb.attach(penta_ht,ht,'termcap',1,'termcap',0,tag='penta_3-hexyl-thiophene')
@@ -1415,12 +1415,12 @@ Okay we have the monomer, so let’s make a pentamer
 Check the charges of the removed hydrogens got summed onto the
 functionalized carbons correctly
 
-.. code:: ipython2
+.. code:: python
 
     penta_ht.calc_charge()
     penta_ht.charge
 
-.. code:: ipython2
+.. code:: python
 
     penta_ht.write_xyz()
 
@@ -1428,88 +1428,88 @@ Well it’s cis, but we can run some high temperature MD to randomize that
 
 Update bond angles and dihedrals after Buildingblock join
 
-.. code:: ipython2
+.. code:: python
 
     penta_ht.bonded_bonds()
     penta_ht.bonded_angles()
     penta_ht.bonded_dih()
 
-.. code:: ipython2
+.. code:: python
 
     print penta_ht.print_properties()
 
 Run an oplsaa minimization to get the minimized structure
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,penta_ht,oplsaa,res_calc)
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_min_penta_3-hexyl-thiophene_calc_7']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     run_i= lmp_i.run_list[0]
     print run_i.timeseries['toteng']
 
 Energy decreased and nothing exploded so that’s good
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
 Read in data file positions
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_1']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.write_xyz()
 
 We will use the oplsaa optimized structure as the initial structure
 since we will be running MD
 
-.. code:: ipython2
+.. code:: python
 
     penta_ht.tag += '_oplsaa'
 
-.. code:: ipython2
+.. code:: python
 
     for pk,p in penta_ht.particles.iteritems():
         penta_ht.positions[pk] = lmp_i.strucC.positions[pk]
@@ -1517,11 +1517,11 @@ since we will be running MD
 
 Save the Buildingblock and force-field
 
-.. code:: ipython2
+.. code:: python
 
     oplsaa.tag += '_p3ht'
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     penta_ht.write_xyz()
@@ -1530,87 +1530,87 @@ Save the Buildingblock and force-field
 
 Cool let’s run some MD
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,penta_ht,oplsaa,res_calc,md_type='nvt')
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_nvt_penta_3-hexyl-thiophene_oplsaa_calc_8']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     run_i= lmp_i.run_list[0]
     print run_i.timeseries['toteng']
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
 Read in data file positions
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_3']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.write_xyz()
 
 Awesome! We have a randomized pentamer, so let’s save that as new
 Buildingblock
 
-.. code:: ipython2
+.. code:: python
 
     bbPHTh_1 = copy.deepcopy(lmp_i.strucC)
 
-.. code:: ipython2
+.. code:: python
 
     print bbPHTh_1
 
-.. code:: ipython2
+.. code:: python
 
     print bbPHTh_1.n_particles
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(p3ht_et.dir['home'])
     p3ht_et.export_json()
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(res_local.dir['materials']) 
     bbPHTh_1.write_xyz()
@@ -1620,15 +1620,15 @@ Now let’s replicate the oligomer 50 times to create a low density system
 
 Increase the box size
 
-.. code:: ipython2
+.. code:: python
 
     pHTh_x = streamm.Buildingblock()
 
-.. code:: ipython2
+.. code:: python
 
     pHTh_x.tag = 'p3HTx50'
 
-.. code:: ipython2
+.. code:: python
 
     def replicate(pHTh_x,bbPHTh_1,res_local):
         '''Replciate structure '''
@@ -1650,7 +1650,7 @@ Increase the box size
         
         return pHTh_x
 
-.. code:: ipython2
+.. code:: python
 
     need_files = ['p3HTx50_struc.json']
     read_p3HTx50 = True 
@@ -1661,68 +1661,68 @@ Increase the box size
             pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
             read_p3HTx50 = False
 
-.. code:: ipython2
+.. code:: python
 
     if( read_p3HTx50 ):
         pHTh_x.import_json()
         
 
-.. code:: ipython2
+.. code:: python
 
     print pHTh_x.n_particles
     print pHTh_x.lat.matrix
 
 Check grouping
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i = streamm.Groups('mol',pHTh_x)
     groupset_i.group_prop('mol','oligomers')
 
-.. code:: ipython2
+.. code:: python
 
     print len(groupset_i.groups)
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.strucC.lat.pbcs
 
 Run a heat cool cycle with NPT to create a solid phase representation of
 p3HT
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et = lmp_run(p3ht_et,pHTh_x,oplsaa,res_calc,md_type = 'equ0')
 
-.. code:: ipython2
+.. code:: python
 
     p3ht_et.check()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i = p3ht_et.calculations['lmp_equ0_p3HTx50_calc_9']
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(lmp_i.dir['launch'])
 
-.. code:: ipython2
+.. code:: python
 
     while( lmp_i.meta['status'] != 'finished'):
         lmp_i.check()
         time.sleep(status_refresh)
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.analysis()
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.properties['run_cnt']
 
 Plot the time series data from the MD runs
 
-.. code:: ipython2
+.. code:: python
 
     def plot_mdrun(lmp_i):
     
@@ -1746,7 +1746,7 @@ Plot the time series data from the MD runs
     
 
 
-.. code:: ipython2
+.. code:: python
 
     plot_mdrun(lmp_i)
 
@@ -1755,68 +1755,68 @@ Cool the volume is decreasing
 Note:: If you want to collapse the system entirely you will have to run
 a slower cooling cycle
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.store()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.pull()
 
 Read in data file output and update positions
 
-.. code:: ipython2
+.. code:: python
 
     datafn = lmp_i.files['output']['data_3']
     print datafn
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.read_data_pos(datafn)
 
-.. code:: ipython2
+.. code:: python
 
     print lmp_i.strucC.lat.matrix
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.tag += '_equ0'
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.write_xyz()
 
-.. code:: ipython2
+.. code:: python
 
     lmp_i.strucC.calc_center_mass()
 
-.. code:: ipython2
+.. code:: python
 
     struc_i = lmp_i.strucC
 
-.. code:: ipython2
+.. code:: python
 
     struc_json = struc_i.export_json()
 
 Let us create a new project to hold all the ET calculations we need to
 do for each pair of groups
 
-.. code:: ipython2
+.. code:: python
 
     mol_et_equ0 = streamm.Project('mol_et_equ0')
 
-.. code:: ipython2
+.. code:: python
 
     mol_et_equ0.set_resource(res_local)
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(mol_et_equ0.dir['materials'])
 
 If we need to restart the project here all we have to do is load in the
 structure
 
-.. code:: ipython2
+.. code:: python
 
     try:
         print  struc_i
@@ -1824,54 +1824,54 @@ structure
         struc_i = streamm.Buildingblock('p3HTx50_equ0')
         struc_i.import_json()
 
-.. code:: ipython2
+.. code:: python
 
     struc_i.write_xyz('t1.xyz')
 
 Create groups out of the molecules
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i = streamm.Groups('mol',struc_i)
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.group_prop('mol','oligomers')
 
-.. code:: ipython2
+.. code:: python
 
     print len(groupset_i.groups)
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.strucC.lat.pbcs = [True,True,True]
 
-.. code:: ipython2
+.. code:: python
 
     print groupset_i.strucC.lat.pbcs
 
-.. code:: ipython2
+.. code:: python
 
     print groupset_i.strucC.lat.matrix
 
 Apply periodic boundaries to all the groups, so the molecules are not
 split across pbc’s
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.group_pbcs()
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.strucC.write_xyz('groups.xyz')
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.calc_cent_mass()
     groupset_i.calc_radius()
     # groupset_i.calc_dl()
 
-.. code:: ipython2
+.. code:: python
 
     print groupset_i.strucC.lat
     print len(groupset_i.cent_mass)
@@ -1879,21 +1879,21 @@ split across pbc’s
 
 Save the structure we are creating our pairs from
 
-.. code:: ipython2
+.. code:: python
 
     gmol_json = groupset_i.strucC.export_json()
 
 Create a neighbor list of groups
 
-.. code:: ipython2
+.. code:: python
 
     groupset_i.group_nblist.radii_nblist(groupset_i.strucC.lat,groupset_i.cent_mass,groupset_i.radius,radii_buffer=0.500)
 
-.. code:: ipython2
+.. code:: python
 
     print groupset_i.group_nblist
 
-.. code:: ipython2
+.. code:: python
 
     g_nbs = []
     for gk_i,g_i in groupset_i.groups.iteritems():
@@ -1901,14 +1901,14 @@ Create a neighbor list of groups
             g_nbs.append(n_nbs)
     g_nbs = np.array(g_nbs)    
 
-.. code:: ipython2
+.. code:: python
 
     print g_nbs.min(),g_nbs.mean(),g_nbs.max()
 
 Loop over each group, shift the group to the center of the simulation
 cell and write an .xyz file that includes the neighbors of the group.
 
-.. code:: ipython2
+.. code:: python
 
     for gk_i,g_i in groupset_i.groups.iteritems():
             list_i = copy.deepcopy(g_i.pkeys)
@@ -1927,7 +1927,7 @@ transfer
 
 First create a list of unique pairs
 
-.. code:: ipython2
+.. code:: python
 
     et_pairs = {}
     et_pairs['i'] = []
@@ -1942,25 +1942,25 @@ First create a list of unique pairs
 
 Convert the dictionary to a pandas Dataframe
 
-.. code:: ipython2
+.. code:: python
 
     import pandas as pd
 
-.. code:: ipython2
+.. code:: python
 
     et_df = pd.DataFrame(et_pairs)
 
-.. code:: ipython2
+.. code:: python
 
     et_df.columns
 
 Save that in a local file
 
-.. code:: ipython2
+.. code:: python
 
     et_df.to_csv('et_pairs.csv',sep=',')
 
-.. code:: ipython2
+.. code:: python
 
     et_fn = 'et_pairs.csv'
     try:
@@ -1968,7 +1968,7 @@ Save that in a local file
     except:
         et_df = pd.read_csv(et_fn)
 
-.. code:: ipython2
+.. code:: python
 
     def nw_et(project_i,res_i,groupset_i,gk_i,gk_j,run_calc = True):
     
@@ -2021,11 +2021,11 @@ Save that in a local file
 
 Loop over all the pairs and create NWChem ET input files
 
-.. code:: ipython2
+.. code:: python
 
     et_df['calc_id'] = None
 
-.. code:: ipython2
+.. code:: python
 
     for k,pair_i in et_df.iterrows():
         gk_i = pair_i['i']
@@ -2035,22 +2035,22 @@ Loop over all the pairs and create NWChem ET input files
         # Add calculation to project
         mol_et_equ0.add_calc(nwchem_et,deepcopy = True)    
 
-.. code:: ipython2
+.. code:: python
 
     et_df.head()
 
-.. code:: ipython2
+.. code:: python
 
     os.chdir(mol_et_equ0.dir['home'])
     et_json = mol_et_equ0.export_json()
 
 Now we have to wait for all of these calculations to finish
 
-.. code:: ipython2
+.. code:: python
 
     import sys 
 
-.. code:: ipython2
+.. code:: python
 
     calcsrunning = True 
     while( calcsrunning ):
@@ -2070,20 +2070,20 @@ Now we have to wait for all of these calculations to finish
 
 Run analysis on the results
 
-.. code:: ipython2
+.. code:: python
 
     et_df['S_ij'] = None
     et_df['S_ji'] = None
     et_df['V_ij'] = None
     et_df['V_ji'] = None
 
-.. code:: ipython2
+.. code:: python
 
     for k,calc_i in mol_et_equ0.calculations.iteritems():
         calc_i.meta['status'] = 'written'
 
 
-.. code:: ipython2
+.. code:: python
 
     for k,calc_i in mol_et_equ0.calculations.iteritems():
         calc_i.check()
@@ -2107,29 +2107,29 @@ Run analysis on the results
             calc_i.store()
 
 
-.. code:: ipython2
+.. code:: python
 
     et_df
 
-.. code:: ipython2
+.. code:: python
 
     et_c1 = et_df.replace([np.inf], np.nan)
 
-.. code:: ipython2
+.. code:: python
 
     et_c1.dropna()
 
-.. code:: ipython2
+.. code:: python
 
     print et_c1['V_ij'].min(),et_c1['V_ij'].mean(),et_c1['V_ij'].max()
 
 We can take a look at the histogram of magnitudes of V_ij
 
-.. code:: ipython2
+.. code:: python
 
     et_c1['log_V_ij'] = np.log10(et_c1['V_ij'])
 
-.. code:: ipython2
+.. code:: python
 
     et_c1['log_V_ij'].plot.hist(bins=30,alpha=1.0)
 

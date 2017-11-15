@@ -1,7 +1,7 @@
 .. _templates_example:
   
 templates_example
-===============
+========================
  
 
 In this example, we will write out a NWChem input file based on a
@@ -50,11 +50,9 @@ Create a NWChem calculation object
 
 Read in the ethane structure we creating in the buildingblocks example.
 
-.. Note::
+Note::
 
-::
-
-    If you have not run the buildingblocks_example.ipynb example, please do so the create a `.json` file
+    If you have not run the buildingblocks_example.ipynb example, please do so to create a `ethane_struc.json` file
 
 .. code:: python
 
