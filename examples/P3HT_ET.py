@@ -1810,7 +1810,7 @@ for f in need_files:
     path = Path(f)
     if not path.is_file():
         print("Need to run replicate")
-         pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
+        pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
         read_p3HTx50 = False
 
 if( read_p3HTx50 ):
