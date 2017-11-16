@@ -9,11 +9,11 @@ inter-molecular electronic coupling energies between
 penta-3-hexylthiophene
 
 Procedure::
-    
-    * Generate models of thiophene and hexane based on based on quantum chemistry data from NWChem
-    * Use streamm to create a 3-hexylthiophene pentamer
-    * Replicate the pentamer into a periodic simulation cell
-    * Anneal the system with LAMMPS
+
+    * Generate models of thiophene and hexane based on based on quantum chemistry data from NWChem 
+    * Use streamm to create a 3-hexylthiophene pentamer 
+    * Replicate the pentamer into a periodic simulation cell 
+    * Anneal the system with LAMMPS 
     * Calculate the inter-molecular electronic coupling using NWChem’s electron transfer module
 
 .. code:: python
@@ -2749,7 +2749,7 @@ Increase the box size
         path = Path(f)
         if not path.is_file():
             print("Need to run replicate")
-             pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
+            pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
             read_p3HTx50 = False
 
 .. code:: python
