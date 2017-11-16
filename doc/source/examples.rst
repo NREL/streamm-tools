@@ -21,11 +21,27 @@ The lower case examples go through the basic functionality of each module.
     _static/nwchem_example.rst
 
 The upper case examples go through more advanced workflows.
-
-.. toctree::
-    :maxdepth: 2
-     
-    _static/Project_alkyls.rst
-    _static/Methane_Remote.rst
-    _static/P3HT_ET.rst
-
+    
+    Create alkyl chains and analyze using quantum chemical methods and run a MD simulation
+    
+    .. toctree::
+        :maxdepth: 2
+         
+        _static/Project_alkyls.rst
+        
+    Calculate the electronic properties of methane with NWChem and the structural properties with LAMMPS using a external resource
+    
+    .. toctree::
+        :maxdepth: 2
+    
+        _static/Methane_Remote.rst
+        
+        
+    Run a simplified procedure to calculate the inter-molecular electronic coupling energies between penta-3-hexylthiophene
+    
+    .. toctree::
+        :maxdepth: 2
+        
+        _static/P3HT_ET.rst
+        
+        

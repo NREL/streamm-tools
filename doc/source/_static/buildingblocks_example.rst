@@ -30,6 +30,16 @@ Create a Buildingblock object with tag methane
 
     print(mol_i.print_properties())
 
+
+.. parsed-literal::
+
+     n_particles:0 
+     n_bonds:0
+     n_angles:0
+     n_dihedrals:0
+     n_impropers:0
+
+
 If methane.xyz is not around run the structures example
 
 .. code:: python
@@ -56,11 +66,23 @@ Check that all the particles have been read in
 
     print mol_i.n_particles
 
+
+.. parsed-literal::
+
+    5
+
+
 Check that the neighbor list was set correctly
 
 .. code:: python
 
     print mol_i.bonded_nblist
+
+
+.. parsed-literal::
+
+     NBlist of 5 particles with 8 connections
+
 
 Looks good, you should have the geometry of a methane molecule with a
 C-H bond length of 1.2 Angstroms
@@ -98,6 +120,14 @@ be used by the attach() function
 .. code:: python
 
     print mol_i.show_rsites()
+
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom H (H) index:2 n_bonds:1] 
+    
+
 
 Pass the molecule to the attach function and set the rsite id’s and the
 list positions of the rsites
@@ -155,10 +185,30 @@ for subsequent attachments.
     for pk,p in mol_m.particles.iteritems():
         print pk,p
 
+
+.. parsed-literal::
+
+    0 atom C (C)
+    1 atom H (H)
+    2 atom H (H)
+    3 atom H (H)
+    4 atom C (C)
+    5 atom H (H)
+    6 atom H (H)
+    7 atom H (H)
+
+
 .. code:: python
 
     print mol_m.bonded_nblist.list 
     print mol_m.bonded_nblist.index 
+
+
+.. parsed-literal::
+
+    [1, 2, 3, 4, 0, 0, 0, 0, 5, 6, 7, 4, 4, 4]
+    [0, 4, 5, 6, 7, 11, 12, 13, 14]
+
 
 .. code:: python
 
@@ -167,6 +217,14 @@ for subsequent attachments.
 .. code:: python
 
     print mol_m.show_rsites()
+
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom H (H) index:5 n_bonds:1] 
+    
+
 
 .. code:: python
 
@@ -188,6 +246,12 @@ Attachments can also be done in a loop
 
     print alkly_n
 
+
+.. parsed-literal::
+
+    5
+
+
 .. code:: python
 
     mol_n = mol_m 
@@ -199,6 +263,14 @@ Attachments can also be done in a loop
 .. code:: python
 
     print mol_n.show_rsites()
+
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom H (H) index:5 n_bonds:1] 
+    
+
 
 .. code:: python
 

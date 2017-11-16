@@ -52,6 +52,12 @@ Check that we have our units set right
 
     print CT.unit_conf['energy'],CT.unit_conf['length']
 
+
+.. parsed-literal::
+
+    Ha ang
+
+
 Our potential is in kCal/mol (``kCalmol``) so let’s get the unit
 dictionary and create our own default
 
@@ -70,6 +76,35 @@ dictionary and create our own default
 .. code:: python
 
     pprint(oplsaa_unit_conf)
+
+
+.. parsed-literal::
+
+    {u'amount': u'atom',
+     u'angle': u'degree',
+     u'capacitance': u'F',
+     u'charge': u'e',
+     u'conductance': u'S',
+     u'current': u'A',
+     u'density': u'amu_nm^3',
+     u'electric_dipole_moment': u'D',
+     u'emf': u'V',
+     u'energy': 'kCalmol',
+     u'force': u'GN',
+     u'frequency': u'Hz',
+     u'harm_bond_coeff': u'kCalmolsqang',
+     u'intensity': u'cd',
+     u'length': u'ang',
+     u'magnetic_flux': u'Wb',
+     u'mass': u'amu',
+     u'memory': u'Kb',
+     u'power': u'GW',
+     u'pressure': u'KPa',
+     u'resistance': u'ohm',
+     u'temperature': u'K',
+     u'time': u'ns',
+     u'volume': u'nm^3'}
+
 
 .. code:: python
 
@@ -118,6 +153,13 @@ Set the bond stretching parameters
 
     print C_H
 
+
+.. parsed-literal::
+
+     bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0  
+
+
 .. code:: python
 
     C_C = bondtype.Bondtype('CT','CT',unit_conf=oplsaa_unit_conf)
@@ -138,6 +180,13 @@ Set the bond stretching parameters
 .. code:: python
 
     print H_C_H
+
+
+.. parsed-literal::
+
+     angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0  
+
 
 .. code:: python
 
@@ -200,29 +249,105 @@ Add parameters to the container
 
     print paramC
 
+
+.. parsed-literal::
+
+    
+        Parameters 
+          LJ parameters 2 
+          Bond parameters 2 
+          Angle parameters 2 
+          Dihedral parameters 1 
+          Improper Dihedral parameters 0 
+    
+
+
 .. code:: python
 
     for ptkey,pt in paramC.particletypes.iteritems():
         print ptkey,pt,pt.unit_conf['energy'],pt.unit_conf['length']
         
 
+
+.. parsed-literal::
+
+    0  CT epsilon:0.066 sigma:3.5 kCalmol ang
+    1  HC epsilon:0.03 sigma:2.5 kCalmol ang
+
+
 .. code:: python
 
     for btkey,bt in paramC.bondtypes.iteritems():
         print btkey,bt,bt.unit_conf['harm_bond_coeff'],pt.unit_conf['length']
+
+
+.. parsed-literal::
+
+    0  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   kCalmolsqang ang
+    1  bond  CT - CT type harmonic 
+      harmonic r_0 = 1.530000 K = 268.000000 lammps index 0  gromacs index 0   kCalmolsqang ang
+
 
 .. code:: python
 
     for atkey,at in paramC.angletypes.iteritems():
         print atkey,at,at.unit_conf['energy'],at.unit_conf['length']
 
+
+.. parsed-literal::
+
+    0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   kCalmol ang
+    1  angle  HC - CT - CT type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   kCalmol ang
+
+
 .. code:: python
 
     print paramC.tag
 
+
+.. parsed-literal::
+
+    oplsaa
+
+
 .. code:: python
 
     paramC.unit_conf
+
+
+
+
+.. parsed-literal::
+
+    {u'amount': u'atom',
+     u'angle': u'degree',
+     u'capacitance': u'F',
+     u'charge': u'e',
+     u'conductance': u'S',
+     u'current': u'A',
+     u'density': u'amu_nm^3',
+     u'electric_dipole_moment': u'D',
+     u'emf': u'V',
+     u'energy': 'kCalmol',
+     u'force': u'GN',
+     u'frequency': u'Hz',
+     u'harm_bond_coeff': u'kCalmolsqang',
+     u'intensity': u'cd',
+     u'length': u'ang',
+     u'magnetic_flux': u'Wb',
+     u'mass': u'amu',
+     u'memory': u'Kb',
+     u'power': u'GW',
+     u'pressure': u'KPa',
+     u'resistance': u'ohm',
+     u'temperature': u'K',
+     u'time': u'ns',
+     u'volume': u'nm^3'}
+
+
 
 We can dump a pickle file
 
@@ -264,6 +389,16 @@ Read in ethane .json file from the structures example
 
     print(mol_i.print_properties())
 
+
+.. parsed-literal::
+
+     n_particles:8 
+     n_bonds:7
+     n_angles:12
+     n_dihedrals:9
+     n_impropers:0
+
+
 Let’s set the ``paramkey`` for each particle based on the symbol.
 
 .. code:: python
@@ -277,6 +412,27 @@ Let’s set the ``paramkey`` for each particle based on the symbol.
         print p.paramkey ,mol_i.bonded_nblist.calc_nnab(pk)
 
 
+
+.. parsed-literal::
+
+    C
+    CA 4
+    H
+    HA 1
+    H
+    HA 1
+    H
+    HA 1
+    C
+    CA 4
+    H
+    HA 1
+    H
+    HA 1
+    H
+    HA 1
+
+
 This is a bit redundant, but we can think of a more complex molecule
 where we could use the number of neighbors to write a more complex
 routine
@@ -284,6 +440,12 @@ routine
 .. code:: python
 
     print mol_i.n_particles
+
+
+.. parsed-literal::
+
+    8
+
 
 Now we can set the particles, bonds, bond angles and dihedrals of the
 molecule to have parameters
@@ -336,6 +498,82 @@ Now we can set the bond types
     for ak,a in mol_i.dihedrals.iteritems():
         print a,a.param, a.param_index     
 
+
+.. parsed-literal::
+
+    Particles 
+    atom C (C)  CT epsilon:0.066 sigma:3.5 0
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom C (C)  CT epsilon:0.066 sigma:3.5 0
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    
+     Bonds 
+     0 - 1  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 2  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 3  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 4  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 5  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 6  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 7  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+    
+     Bond angles 
+     2 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     3 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     3 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 3  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     5 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     6 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     6 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 6  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+    
+     Dihedrals 
+     1 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+
+
 Now our molecule has forcefield parameters for all the interactions
 
 Now let’s say we want to use a software package like GROMACS that used
@@ -359,6 +597,35 @@ kJ/mol instead of kCal/mol
 
     pprint(gromacs_unit_conf)
 
+
+.. parsed-literal::
+
+    {u'amount': u'atom',
+     u'angle': u'degree',
+     u'capacitance': u'F',
+     u'charge': u'e',
+     u'conductance': u'S',
+     u'current': u'A',
+     u'density': u'amu_nm^3',
+     u'electric_dipole_moment': u'D',
+     u'emf': u'V',
+     u'energy': 'kJmol',
+     u'force': u'GN',
+     u'frequency': u'Hz',
+     u'harm_bond_coeff': 'kJmolsqnm',
+     u'intensity': u'cd',
+     u'length': 'nm',
+     u'magnetic_flux': u'Wb',
+     u'mass': u'amu',
+     u'memory': u'Kb',
+     u'power': u'GW',
+     u'pressure': u'KPa',
+     u'resistance': u'ohm',
+     u'temperature': u'K',
+     u'time': u'ns',
+     u'volume': u'nm^3'}
+
+
 .. code:: python
 
     mol_i.update_units(gromacs_unit_conf)
@@ -378,6 +645,82 @@ kJ/mol instead of kCal/mol
     for ak,a in mol_i.dihedrals.iteritems():
         print a,a.param, a.param_index      
 
+
+.. parsed-literal::
+
+    Particles 
+    atom C (C)  CT epsilon:0.276144 sigma:0.35 0
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    atom C (C)  CT epsilon:0.276144 sigma:0.35 0
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    atom H (H)  HC epsilon:0.12552 sigma:0.25 1
+    
+     Bonds 
+     0 - 1  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     0 - 2  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     0 - 3  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     0 - 4  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     4 - 5  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     4 - 6  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+     4 - 7  bond  CT - HC type harmonic 
+      harmonic r_0 = 0.108000 K = 153552.800000 lammps index 0  gromacs index 0   0
+    
+     Bond angles 
+     2 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     3 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     4 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     3 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     4 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     4 - 0 - 3  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     5 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     6 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     7 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     6 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     7 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+     7 - 4 - 6  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 156.900000 lammps index 0  gromacs index 0   0
+    
+     Dihedrals 
+     1 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 1.255200 k4 = 0.000000 lammps index 0  gromcas index 0  0
+
+
 .. code:: python
 
     mol_i.update_units(oplsaa_unit_conf)
@@ -396,5 +739,81 @@ kJ/mol instead of kCal/mol
     print "\n Dihedrals "
     for ak,a in mol_i.dihedrals.iteritems():
         print a,a.param, a.param_index      
+
+
+.. parsed-literal::
+
+    Particles 
+    atom C (C)  CT epsilon:0.066 sigma:3.5 0
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom C (C)  CT epsilon:0.066 sigma:3.5 0
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    atom H (H)  HC epsilon:0.03 sigma:2.5 1
+    
+     Bonds 
+     0 - 1  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 2  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 3  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     0 - 4  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 5  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 6  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+     4 - 7  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   0
+    
+     Bond angles 
+     2 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     3 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 1  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     3 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 2  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     4 - 0 - 3  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     5 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     6 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     6 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 5  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+     7 - 4 - 6  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   0
+    
+     Dihedrals 
+     1 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     1 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     2 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 5  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 6  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+     3 - 0 - 4 - 7  dihedral  HC - CT - CT - HC type opls 
+      k1 = 0.000000 k2 = 0.000000 k3 = 0.300000 k4 = 0.000000 lammps index 0  gromcas index 0  0
+
 
 Sweet as, bro!

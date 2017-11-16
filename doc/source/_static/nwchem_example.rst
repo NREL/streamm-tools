@@ -63,6 +63,12 @@ with the streamm git repository https://github.com/NREL/streamm-tools
 
     print res_local.dir['templates']
 
+
+.. parsed-literal::
+
+    /Users/tkemper/Development/streamm-tools/examples/../templates/
+
+
 Create the local directories that will store our files
 
 .. code:: python
@@ -89,6 +95,16 @@ example
 .. code:: python
 
     print ethane.print_properties()
+
+
+.. parsed-literal::
+
+     n_particles:8 
+     n_bonds:7
+     n_angles:12
+     n_dihedrals:9
+     n_impropers:0
+
 
 Set the paramkeys so we can identify force field parameters later on
 
@@ -123,6 +139,14 @@ Run ``find_rsites()`` to populate ``func`` list
 
     print ethane.show_rsites()
 
+
+.. parsed-literal::
+
+    rsite:RH[ paticle:atom H (H) index:1 n_bonds:1] 
+    rsite:RH[ paticle:atom H (H) index:5 n_bonds:1] 
+    
+
+
 .. code:: python
 
     import copy
@@ -153,6 +177,12 @@ Then attach 3 more ethanes to make an octane
 .. code:: python
 
     print octane.n_particles
+
+
+.. parsed-literal::
+
+    26
+
 
 .. code:: python
 
@@ -254,6 +284,33 @@ Set the properties dictionary to desired calculation details
 
     pprint(nwchem_octane.properties)
 
+
+.. parsed-literal::
+
+    {u'allocation': u'',
+     u'basis': '6-31g',
+     u'charge': 0,
+     'comp_key': 'compressed',
+     'compress': 'tar -czf ',
+     'compress_sufix': 'tgz',
+     'coord': u'     C       4.02000000       0.00000000       3.79009235 \n     H       5.21999999      -0.00000000       3.79009235 \n     H       3.62000000       0.97979589       4.35577777 \n     H       3.62000000      -0.97979589       4.35577777 \n     C       3.57333333       0.00000000       2.52672823 \n     H       3.97333333      -0.97979589       1.96104281 \n     H       3.97333333       0.97979589       1.96104281 \n     C       2.23333333       0.00000000       2.52672823 \n     H       1.83333334       0.97979589       3.09241365 \n     H       1.83333334      -0.97979589       3.09241365 \n     C       1.78666667       0.00000000       1.26336412 \n     H       2.18666666      -0.97979589       0.69767869 \n     H       2.18666666       0.97979589       0.69767869 \n     C       0.44666667       0.00000000       1.26336412 \n     H       0.04666667       0.97979589       1.82904954 \n     H       0.04666667      -0.97979589       1.82904954 \n     C       0.00000000       0.00000000       0.00000000 \n     H       0.40000000      -0.97979589      -0.56568542 \n     H       0.40000000       0.97979589      -0.56568542 \n     C      -1.34000000       0.00000000       0.00000000 \n     H      -1.74000000       0.97979589       0.56568542 \n     H      -1.74000000      -0.97979589       0.56568542 \n     C      -1.78666667       0.00000000      -1.26336412 \n     H      -2.98666666       0.00000000      -1.26336412 \n     H      -1.38666667      -0.97979589      -1.82904954 \n     H      -1.38666667       0.97979589      -1.82904954 \n',
+     u'exe_command': u'./',
+     u'feature': u'24core',
+     u'finish_str': u'Total times  cpu:',
+     u'maxiter': 100,
+     u'method': 'UHF',
+     u'nodes': 1,
+     u'nproc': 1,
+     u'pmem': 1500,
+     u'ppn': 1,
+     u'queue': u'batch',
+     'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/nw_octane_OPT/',
+     u'spin_mult': 1,
+     u'task': 'SCF optimize',
+     'uncompress': 'tar -xzf ',
+     u'walltime': 24}
+
+
 Replace the keys in the template strings and write the input files
 
 .. code:: python
@@ -283,11 +340,30 @@ Change back to the root directory and write a json file
     os.chdir(nwchem_example.dir['home'])
     nwchem_example.export_json()
 
+
+
+
+.. parsed-literal::
+
+    {u'calculations': {'nw_octane_OPT': u'nwchem'},
+     u'meta': {'date': '2017-11-15T16:56:54.736823',
+      'software': u'streamm_proj',
+      'status': 'written'},
+     u'resources': ['local']}
+
+
+
 Change back to scratch
 
 .. code:: python
 
     print nwchem_example.dir['scratch']
+
+
+.. parsed-literal::
+
+    /Users/tkemper/Development/streamm-tools/examples
+
 
 .. code:: python
 
@@ -299,6 +375,12 @@ Run the bash script for the calculation or submit the job to the cluster
 
     print nwchem_octane.tag
 
+
+.. parsed-literal::
+
+    nw_octane_OPT
+
+
 .. code:: python
 
     nwchem_octane.run()
@@ -309,11 +391,23 @@ Check the status of all the calculations in the project
 
     nwchem_example.check()
 
+
+.. parsed-literal::
+
+    Calculation nw_octane_OPT has status written
+
+
 Run the analysis
 
 .. code:: python
 
     nwchem_octane.analysis()
+
+
+.. parsed-literal::
+
+    File nw_octane_OPT.log not found 
+
 
 Tar and zip the results and copy them to a storage location
 
@@ -327,3 +421,17 @@ Save json in home directory
 
     os.chdir(nwchem_example.dir['home'])
     nwchem_example.export_json()
+
+
+
+
+.. parsed-literal::
+
+    {u'calculations': {'nw_octane_OPT': u'nwchem'},
+     u'meta': {'date': '2017-11-15T16:56:54.736823',
+      'software': u'streamm_proj',
+      'status': 'written'},
+     u'resources': ['local']}
+
+
+

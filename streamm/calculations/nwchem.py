@@ -145,7 +145,7 @@ class NWChem(Calculation):
                             if(  col[0]  == "MO" and  col[1]  == "vectors" and  col[3]  == "reactants:" ):
                                 et_ij.reactantMO = str(col[4])                                
                             if(  col[0]  == "Reactants/Products" and  col[1]  == "overlap" ):                            
-                                et_ij.S = conv_float(col[4]) # float( replace(str(col[4]),"D","e") )
+                                et_ij.S = conv_float(col[4]) 
                                 
                         if( len(col) >= 6 ):
                                 
@@ -159,7 +159,6 @@ class NWChem(Calculation):
                                 et_ij.producten = float(col[5])
 
                             if(  col[0]  == "Electron" and  col[1]  == "Transfer"  and  col[2]  == "Coupling"  and  col[3]  == "Energy" ):                            
-                                #et_ij.V = float( replace(str(col[5]),"D","e") )                                
                                 et_ij.V = float( col[5] )
                             if(  col[0]  == "Task" and  col[1]  == "times"  and  col[1]  == "times" ):
                                 read_et = False

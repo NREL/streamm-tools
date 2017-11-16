@@ -103,7 +103,7 @@ Neighbor List
 Structure Container
 -------------------
 
-.. automodule:: streamm.structures.structure 
+.. autoclass:: streamm.structures.structure.Structure
    :members:
    :show-inheritance:   
 
@@ -111,7 +111,7 @@ Structure Container
 Buildingblock
 -------------
 
-.. automodule:: streamm.structures.buildingblock 
+.. autoclass:: streamm.structures.buildingblock.Buildingblock
    :members:
    :show-inheritance:   
 

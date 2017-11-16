@@ -65,6 +65,18 @@ default
 
     pprint(res_i.dir)
 
+
+.. parsed-literal::
+
+    {u'home': '/Users/tkemper/Development/streamm-tools/examples',
+     u'launch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
+     u'materials': u'/Users/tkemper/Development/streamm-tools/examples/materials',
+     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
+     u'scripts': u'/Users/tkemper/Development/streamm-tools/examples/scripts',
+     u'storage': u'/Users/tkemper/Development/streamm-tools/examples/storage',
+     u'templates': u'/Users/tkemper/Development/streamm-tools/examples/templates'}
+
+
 .. code:: python
 
     EXAMPLE_DIR = res_i.dir['home']
@@ -90,12 +102,32 @@ directory
 
     print res_i.dir['templates']
 
+
+.. parsed-literal::
+
+    /Users/tkemper/Development/streamm-tools/examples/../templates/
+
+
 This also contains the properties dictionary, which can be used to write
 .pbs scripts on clusters
 
 .. code:: python
 
     pprint(res_i.properties)
+
+
+.. parsed-literal::
+
+    {u'allocation': u'',
+     u'exe_command': u'./',
+     u'feature': u'24core',
+     u'nodes': 1,
+     u'nproc': 1,
+     u'pmem': 1500,
+     u'ppn': 1,
+     u'queue': u'batch',
+     u'walltime': 24}
+
 
 By default the resource type is ‘local’; however, setting type to ‘ssh’
 will invoke an scp command when copying files
@@ -128,6 +160,18 @@ Set the resource and all the directories
 .. code:: python
 
     pprint(calc_i.dir)
+
+
+.. parsed-literal::
+
+    {u'home': '/Users/tkemper/Development/streamm-tools/examples',
+     u'launch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_HF/',
+     u'materials': '/Users/tkemper/Development/streamm-tools/examples',
+     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_HF/',
+     u'scripts': u'/Users/tkemper/Development/streamm-tools/examples/scripts',
+     u'storage': u'/Users/tkemper/Development/streamm-tools/examples/storage/ethane_HF/',
+     u'templates': '/Users/tkemper/Development/streamm-tools/examples/../templates/'}
+
 
 Make the calculation directories
 
@@ -165,6 +209,12 @@ Change to the scratch directory
 
     pprint(calc_i.dir['scratch'])
 
+
+.. parsed-literal::
+
+    u'/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_HF/'
+
+
 .. code:: python
 
     os.chdir(calc_i.dir['scratch'])
@@ -179,6 +229,16 @@ Read in methane ``.json`` file from the structures example
 .. code:: python
 
     print(calc_i.strucC.print_properties())
+
+
+.. parsed-literal::
+
+     n_particles:8 
+     n_bonds:7
+     n_angles:12
+     n_dihedrals:9
+     n_impropers:0
+
 
 Now that we have a structure and parameters for each interaction we can
 create an input file for a simulation
@@ -214,6 +274,12 @@ Make sure we are in the scratch directory
 .. code:: python
 
     pprint(os.getcwd())
+
+
+.. parsed-literal::
+
+    '/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_HF'
+
 
 Load the template files into memory
 
@@ -267,6 +333,12 @@ Check the status
 
     pprint("Calculation:{} has status:{}".format(calc_i.tag,calc_i.meta['status']))
 
+
+.. parsed-literal::
+
+    'Calculation:ethane_HF has status:written'
+
+
 If you have gaussian installed on your machine and g09 in your PATH you
 can run the bash script
 
@@ -318,6 +390,18 @@ Make directories
 
     pprint(calc_j.dir)
 
+
+.. parsed-literal::
+
+    {u'home': '/Users/tkemper/Development/streamm-tools/examples',
+     u'launch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_lmp/',
+     u'materials': '/Users/tkemper/Development/streamm-tools/examples',
+     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch/ethane_lmp/',
+     u'scripts': u'/Users/tkemper/Development/streamm-tools/examples/scripts',
+     u'storage': u'/Users/tkemper/Development/streamm-tools/examples/storage/ethane_lmp/',
+     u'templates': '/Users/tkemper/Development/streamm-tools/examples/../templates/'}
+
+
 This takes an type and key to set the calc_i.files[type][key] dictionary
 
 .. code:: python
@@ -343,6 +427,16 @@ Read in the ethane .json file from the structures example
 .. code:: python
 
     print(calc_j.strucC.print_properties())
+
+
+.. parsed-literal::
+
+     n_particles:8 
+     n_bonds:7
+     n_angles:12
+     n_dihedrals:9
+     n_impropers:0
+
 
 Set the forcefield particletypes
 
@@ -381,20 +475,58 @@ Copy the forcefield parameter .json file to scratch and read it in
 
     print calc_j.paramC
 
+
+.. parsed-literal::
+
+    
+        Parameters 
+          LJ parameters 2 
+          Bond parameters 2 
+          Angle parameters 2 
+          Dihedral parameters 1 
+          Improper Dihedral parameters 0 
+    
+
+
 .. code:: python
 
     for ptkey,pt in calc_j.paramC.particletypes.iteritems():
         print ptkey,pt,pt.unit_conf['energy'],pt.unit_conf['length']
+
+
+.. parsed-literal::
+
+    0  CT epsilon:0.066 sigma:3.5 kCalmol ang
+    1  HC epsilon:0.03 sigma:2.5 kCalmol ang
+
 
 .. code:: python
 
     for btkey,bt in calc_j.paramC.bondtypes.iteritems():
         print btkey,bt,bt.unit_conf['harm_bond_coeff'],pt.unit_conf['length']
 
+
+.. parsed-literal::
+
+    0  bond  CT - HC type harmonic 
+      harmonic r_0 = 1.080000 K = 367.000000 lammps index 0  gromacs index 0   kCalmolsqang ang
+    1  bond  CT - CT type harmonic 
+      harmonic r_0 = 1.530000 K = 268.000000 lammps index 0  gromacs index 0   kCalmolsqang ang
+
+
 .. code:: python
 
     for atkey,at in calc_j.paramC.angletypes.iteritems():
         print atkey,at,at.unit_conf['energy'],at.unit_conf['length']
+
+
+.. parsed-literal::
+
+    0  angle  HC - CT - HC type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   kCalmol ang
+    1  angle  HC - CT - CT type harmonic 
+      harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   kCalmol ang
+
 
 Use the set_ffparam() function to iterate through the structure
 container and set parameters based on ``paramkeys``
@@ -479,6 +611,12 @@ the calculation
 
     pprint("Calculation:{} has status:{}".format(calc_j.tag,calc_j.meta['status']))
 
+
+.. parsed-literal::
+
+    'Calculation:ethane_lmp has status:written'
+
+
 So now we have two calculations, let’s put them in a project so we can
 operate on them both at the same time
 
@@ -505,11 +643,25 @@ Now we can check the status of each calculation with a single command
 
     proj_i.check()
 
+
+.. parsed-literal::
+
+    Calculation ethane_lmp has status written
+    Calculation ethane_HF has status written
+
+
 We can run each simulation
 
 .. code:: python
 
     proj_i.run()
+
+
+.. parsed-literal::
+
+    /Users/tkemper/Development/streamm-tools/examples/scratch/ethane_lmp
+    /Users/tkemper/Development/streamm-tools/examples/scratch/ethane_HF
+
 
 We can tar up the results and copy the tar files to a storage location
 
@@ -523,6 +675,19 @@ And dump the details of the project to a json file
 
     os.chdir(calc_i.dir['home'])
     proj_i.export_json()
+
+
+
+
+.. parsed-literal::
+
+    {u'calculations': {'ethane_HF': u'gaussian', 'ethane_lmp': u'lammps'},
+     u'meta': {'date': '2017-11-15T16:56:11.237667',
+      'software': u'streamm_proj',
+      'status': 'written'},
+     u'resources': []}
+
+
 
 .. code:: python
 
@@ -539,5 +704,12 @@ And dump the details of the project to a json file
 .. code:: python
 
     proj_i.check()
+
+
+.. parsed-literal::
+
+    Calculation ethane_lmp has status written
+    Calculation ethane_HF has status written
+
 
 Neat-O!

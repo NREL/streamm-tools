@@ -26,12 +26,7 @@ streamm-tools repo, the TEMPLATE_DIR should look like this
 .. code:: python
 
     EXAMPLE_DIR = os.getcwd()
-    
-    print(EXAMPLE_DIR)
-    
     TEMPLATE_DIR =  os.path.join(EXAMPLE_DIR,'..','templates','')
-    
-    print(TEMPLATE_DIR)
 
 If not please set the ``TEMPLATE_DIR`` variable to the location of the
 templates
@@ -50,7 +45,9 @@ Create a NWChem calculation object
 
 Read in the ethane structure we creating in the buildingblocks example.
 
-Note::
+Note:
+
+::
 
     If you have not run the buildingblocks_example.ipynb example, please do so to create a `ethane_struc.json` file
 
@@ -64,19 +61,33 @@ Note::
             os.system("jupyter nbconvert --to python  buildingblocks_example.ipynb")
             os.system("python buildingblocks_example.py")
 
+
+.. parsed-literal::
+
+    Need to run buildingblocks_example.ipynb
+
+
 .. code:: python
 
     nwchem.strucC.tag = 'ethane'
     nwchem.strucC.import_json()
     print nwchem.strucC.print_properties()
 
+
+.. parsed-literal::
+
+     n_particles:8 
+     n_bonds:7
+     n_angles:12
+     n_dihedrals:9
+     n_impropers:0
+
+
 Get the location of the template file
 
 .. code:: python
 
     template_path =  os.path.join(TEMPLATE_DIR,temlate_file)
-    
-    print template_path
 
 Read in the template
 
@@ -87,6 +98,30 @@ Read in the template
 .. code:: python
 
     print template_line
+
+
+.. parsed-literal::
+
+    start test
+     geometry GEOM units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+    <coord>end
+    
+    
+     BASIS 
+     * LIBRARY <basis>
+     end 
+     SET geometry  GEOM 
+     CHARGE  <charge>
+     SCF 
+     NOPEN 0
+     <method> 
+     SINGLET
+     maxiter <maxiter> 
+     end 
+     TASK <task>
+    
+    
+
 
 Set the properties dictionary to contain the information for our
 calculation
@@ -106,6 +141,38 @@ Do a string replace of the dictionary keys to create an input string
 
     input_str = nwchem.replace_keys(template_line,nwchem.properties)
     print input_str
+
+
+.. parsed-literal::
+
+    start test
+     geometry GEOM units angstroms NOCENTER NOAUTOZ NOAUTOSYM
+         C       1.34000000      -0.00000000       0.00000000 
+         H       1.74000000      -0.00000000      -1.13137084 
+         H       1.74000000       0.97979589       0.56568542 
+         H       1.74000000      -0.97979589       0.56568542 
+         C       0.00000000       0.00000000       0.00000000 
+         H      -0.40000000       0.00000000       1.13137084 
+         H      -0.40000000      -0.97979589      -0.56568542 
+         H      -0.40000000       0.97979589      -0.56568542 
+    end
+    
+    
+     BASIS 
+     * LIBRARY 6-31g
+     end 
+     SET geometry  GEOM 
+     CHARGE  0
+     SCF 
+     NOPEN 0
+     UHF 
+     SINGLET
+     maxiter 100 
+     end 
+     TASK SCF 
+    
+    
+
 
 .. code:: python
 
