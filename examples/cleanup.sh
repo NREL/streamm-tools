@@ -30,4 +30,4 @@ do
     
 done
 
-rm -rf *.data *.dat *.xyz  *.json *.log *.pkl *.rst *nw *.in *.py *csv *tgz materials/ scratch/   scripts/   storage/ templates/
+rm -rf *.data *.dat *.xyz  *.json *.log *.pkl *.rst *nw *.in  *csv *tgz materials/ scratch/   scripts/   storage/ templates/

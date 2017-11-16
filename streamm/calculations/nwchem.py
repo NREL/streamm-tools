@@ -290,20 +290,20 @@ class NWChem(Calculation):
         try:
             output_file = self.files['output'][output_key]
         except KeyError:
-            print "Calculation %s No output_file file  with key %s found"%(self.tag,output_key)
+            logger.info("Calculation %s No output_file file  with key %s found"%(self.tag,output_key))
             return 
             
         if( not os.path.isfile(output_file) and self.resource.meta['type'] == "ssh" ):
-            print("File {} not found will try to download ".format(output_file))
+            logger.info("File {} not found will try to download ".format(output_file))
             ssh_id = "%s@%s"%(self.resource.ssh['username'],self.resource.ssh['address'])                              
             bash_command = "scp  %s:%s%s  ./ "%(ssh_id,self.dir['scratch'],output_file)
             os.system(bash_command)
             
         if( os.path.isfile(output_file)  ):
-            print("Running analysis on  {}".format(output_file))
+            logger.info("Running analysis on  {}".format(output_file))
             self.proc_log(output_file)
         else:
-            print("File {} not found ".format(output_file))
+            logger.info("File {} not found ".format(output_file))
 
         
     def load_json(self):
@@ -328,9 +328,9 @@ class NWChem(Calculation):
                     res_tag = json_data['meta']['resource']
                 except:
                     res_tag = ''
-                    print "No resource found "
+                    logger.warning("No resource found ")
                 if( len(res_tag) > 0 ):
-                    print "Resource tag found %s "%(res_tag)
+                    logger.warning("Resource tag found %s "%(res_tag))
                     resource_i = Resource(str(res_tag))
                     resource_i.load_json()
                     self.resource = resource_i
@@ -342,14 +342,13 @@ class NWChem(Calculation):
                         ref_i = Calculation(ref_tag)
                         ref_i.load_json()
                         self.add_refcalc(ref_i)
-                        print " Need to set reference calculation type "
+                        logger.warning( " Need to set reference calculation type ")
                 except:
-                    print "No references found "
+                    logger.warning( "No references found ")
                     
 
 
         except IOError:
             logger.warning(" File not found %s in %s "%(json_file,os.getcwd()))
-            print " File not found %s in %s "%(json_file,os.getcwd())
 
             
