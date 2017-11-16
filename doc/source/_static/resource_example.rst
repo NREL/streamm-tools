@@ -35,13 +35,13 @@ This reads in the current directory as the root directory for a project
 
 .. parsed-literal::
 
-    {u'home': '/Users/tkemper/Development/streamm-tools/examples',
-     u'launch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
-     u'materials': u'/Users/tkemper/Development/streamm-tools/examples/materials',
-     u'scratch': u'/Users/tkemper/Development/streamm-tools/examples/scratch',
-     u'scripts': u'/Users/tkemper/Development/streamm-tools/examples/scripts',
-     u'storage': u'/Users/tkemper/Development/streamm-tools/examples/storage',
-     u'templates': '/Users/tkemper/Development/streamm-tools/examples/../templates/'}
+    {u'home': '/Users/my_username/Development/streamm-tools/examples',
+     u'launch': u'/Users/my_username/Development/streamm-tools/examples/scratch',
+     u'materials': u'/Users/my_username/Development/streamm-tools/examples/materials',
+     u'scratch': u'/Users/my_username/Development/streamm-tools/examples/scratch',
+     u'scripts': u'/Users/my_username/Development/streamm-tools/examples/scripts',
+     u'storage': u'/Users/my_username/Development/streamm-tools/examples/storage',
+     u'templates': '/Users/my_username/Development/streamm-tools/examples/../templates/'}
 
 
 These directories can be created using the make_dir() function
