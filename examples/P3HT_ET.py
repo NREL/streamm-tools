@@ -1784,8 +1784,6 @@ bbPHTh_1_json = bbPHTh_1.export_json()
 
 pHTh_x = streamm.Buildingblock()
 
-pHTh_x.tag = 'p3HTx50'
-
 def replicate(pHTh_x,bbPHTh_1,res_local):
     '''Replciate structure '''
     pHTh_x.lat.matrix = [ 200.,0.,0., 0.,200.,0.,  0.,0.,200.]
@@ -1797,25 +1795,26 @@ def replicate(pHTh_x,bbPHTh_1,res_local):
     # Randomly place oligomers into the simulation cell
 
     pHTh_x = streamm.add_struc(pHTh_x,bbPHTh_1,50,seed)
-
+    pHTh_x.tag = 'p3HTx50'
     pHTh_x.lat.pbcs = [True,True,True]
 
-    os.chdir(res_local.dir['materials']) 
+    os.chdir(res_local.dir['materials'])
     pHTh_x.write_xyz()
-    pHTh_json = pHTh_x.export_json() 
-    
+    pHTh_json = pHTh_x.export_json()
+
     return pHTh_x
 
 need_files = ['p3HTx50_struc.json']
-read_p3HTx50 = True 
+read_p3HTx50 = True
 for f in need_files:
     path = Path(f)
     if not path.is_file():
         print("Need to run replicate")
-        pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
+         pHTh_x = replicate(pHTh_x,bbPHTh_1,res_local)
         read_p3HTx50 = False
 
 if( read_p3HTx50 ):
+    pHTh_x.tag = 'p3HTx50'
     pHTh_x.import_json()
     
 print pHTh_x.n_particles
