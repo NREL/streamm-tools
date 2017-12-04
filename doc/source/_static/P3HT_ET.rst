@@ -8,12 +8,12 @@ In this example, we will run through a simplified procedure to calculate
 the inter-molecular electronic coupling energies between
 penta-3-hexylthiophene
 
-Procedure: \* Generate models of thiophene and hexane based on based on
-quantum chemistry data from NWChem \* Use streamm to create a
-3-hexylthiophene pentamer \* Replicate the pentamer into a periodic
-simulation cell \* Anneal the system with LAMMPS \* Calculate the
-inter-molecular electronic coupling using NWChem's electron transfer
-module
+Procedure:
+
+* Generate models of thiophene and hexane based on based on quantum chemistry data from NWChem
+* Use streamm to create a 3-hexylthiophene pentamer \* Replicate the pentamer into a periodic simulation cell
+* Anneal the system with LAMMPS
+* Calculate the inter-molecular electronic coupling using NWChem's electron transfer module
 
 .. code:: python
 
