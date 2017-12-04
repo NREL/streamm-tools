@@ -8,13 +8,12 @@ In this example we run through a simplified procedure to calculate the
 inter-molecular electronic coupling energies between
 penta-3-hexylthiophene
 
-Procedure::
-
-    * Generate models of thiophene and hexane based on based on quantum chemistry data from NWChem 
-    * Use streamm to create a 3-hexylthiophene pentamer 
-    * Replicate the pentamer into a periodic simulation cell 
-    * Anneal the system with LAMMPS 
-    * Calculate the inter-molecular electronic coupling using NWChem’s electron transfer module
+Procedure: \* Generate models of thiophene and hexane based on based on
+quantum chemistry data from NWChem \* Use streamm to create a
+3-hexylthiophene pentamer \* Replicate the pentamer into a periodic
+simulation cell \* Anneal the system with LAMMPS \* Calculate the
+inter-molecular electronic coupling using NWChem's electron transfer
+module
 
 .. code:: python
 
@@ -101,7 +100,7 @@ Create needed directories
     res_local.make_dir() 
     res_calc.make_dir() 
 
-Now let’s create project and resource to keep track of our work
+Now let's create project and resource to keep track of our work
 
 .. code:: python
 
@@ -201,7 +200,7 @@ Check molecule is neutral
 
 Optimize structure with NWChem
 
-But let’s put it in a function this time
+But let's put it in a function this time
 
 .. code:: python
 
@@ -447,7 +446,7 @@ Store the results in a tar ball in the storage directory
 
 Now let us calculate the ESP charges to use in our forcefield
 
-Again let’s make it a function
+Again let's make it a function
 
 .. code:: python
 
@@ -617,7 +616,7 @@ Check the new charges
 
 
 A little extra charge can cause problems with our MD simulation so, if
-our total is not zero let’s round and set to neutral
+our total is not zero let's round and set to neutral
 
 .. code:: python
 
@@ -1080,7 +1079,7 @@ Run analysis of .in and .log files
     [15.543773, 7.7375745]
 
 
-Energy decreased and nothing exploded so that’s good
+Energy decreased and nothing exploded so that's good
 
 .. code:: python
 
@@ -1161,7 +1160,7 @@ Save the Buildingblock and force-field
     th_json = bbTh.export_json() 
     oplsaa_json = oplsaa.export_json()
 
-Okay now that we have a handle on thiophene let’s follow the same
+Okay now that we have a handle on thiophene let's follow the same
 procedure for hexane
 
 Build hexane
@@ -1608,7 +1607,7 @@ Check the new charges
 
 
 Hum a little extra charge can cause problems with our MD simulation so
-let’s round and set to neutral
+let's round and set to neutral
 
 .. code:: python
 
@@ -1771,7 +1770,7 @@ Run an oplsaa minimization to get the minimized structure
     [0.31363118, -2.1660767]
 
 
-Energy decreased and nothing exploded so that’s good
+Energy decreased and nothing exploded so that's good
 
 .. code:: python
 
@@ -2144,7 +2143,7 @@ Run an oplsaa minimization to get the minimized structure
     [21.641193, 7.4142365]
 
 
-Energy decreased and nothing exploded so that’s good
+Energy decreased and nothing exploded so that's good
 
 .. code:: python
 
@@ -2239,7 +2238,7 @@ Save the Buildingblock and force-field
     ht_json = ht.export_json() 
     ht_json = oplsaa.export_json()
 
-Okay we have the monomer, so let’s make a pentamer
+Okay we have the monomer, so let's make a pentamer
 
 .. code:: python
 
@@ -2277,7 +2276,7 @@ functionalized carbons correctly
 
     penta_ht.write_xyz()
 
-Well it’s cis, but we can run some high temperature MD to randomize that
+Well it's cis, but we can run some high temperature MD to randomize that
 
 Update bond angles and dihedrals after Buildingblock join
 
@@ -2353,7 +2352,7 @@ Run an oplsaa minimization to get the minimized structure
     [226.63649, 63.618098]
 
 
-Energy decreased and nothing exploded so that’s good
+Energy decreased and nothing exploded so that's good
 
 .. code:: python
 
@@ -2556,7 +2555,7 @@ Save the Buildingblock and force-field
     penta_ht_json = penta_ht.export_json() 
     oplsaa_json = oplsaa.export_json()
 
-Cool let’s run some MD
+Cool let's run some MD
 
 .. code:: python
 
@@ -2652,7 +2651,7 @@ Read in data file output and update positions
 
     lmp_i.strucC.write_xyz()
 
-Awesome! We have a randomized pentamer, so let’s save that as new
+Awesome! We have a randomized pentamer, so let's save that as new
 Buildingblock
 
 .. code:: python
@@ -2711,7 +2710,7 @@ Buildingblock
     bbPHTh_1.write_xyz()
     bbPHTh_1_json = bbPHTh_1.export_json() 
 
-Now let’s replicate the oligomer 50 times to create a low density system
+Now let's replicate the oligomer 50 times to create a low density system
 
 Increase the box size
 
@@ -3058,7 +3057,7 @@ Create groups out of the molecules
 
 
 Apply periodic boundaries to all the groups, so the molecules are not
-split across pbc’s
+split across pbc's
 
 .. code:: python
 
@@ -3346,7 +3345,7 @@ Loop over all the pairs and create NWChem ET input files
     for k,pair_i in et_df.iterrows():
         gk_i = pair_i['i']
         gk_j = pair_i['j']
-        nwchem_et = nw_et(mol_et_equ0,res_calc,groupset_i,gk_i,gk_j,run_calc = False)
+        nwchem_et = nw_et(mol_et_equ0,res_calc,groupset_i,gk_i,gk_j)
         # Add calculation to project
         mol_et_equ0.add_calc(nwchem_et,deepcopy = True)    
         # Add the tag to the Dataframe 
@@ -3467,8 +3466,8 @@ Now we have to wait for all of these calculations to finish
 
 Run analysis on the results
 
-S_ij is the Reactants/Products overlap between group i and group j and
-V_ij is the Electron Transfer Coupling Energy between groups i and j.
+S\_ij is the Reactants/Products overlap between group i and group j and
+V\_ij is the Electron Transfer Coupling Energy between groups i and j.
 
 .. code:: python
 
@@ -4928,7 +4927,7 @@ Remove ``inf`` and ``NaN`` values
     2.37e-08 9.37995884615e-05 0.0010632199
 
 
-We can take a look at the histogram of magnitudes of V_ij
+We can take a look at the histogram of magnitudes of V\_ij
 
 .. code:: python
 
@@ -4955,5 +4954,5 @@ Just calculated the inter-molecular electronic coupling between P3ht
 
 Boom!
 
-There is a stripped down python version of this example (P3HT_ET.py)
+There is a stripped down python version of this example (P3HT\_ET.py)
 that will run the calculations on external resource

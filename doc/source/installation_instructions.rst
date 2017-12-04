@@ -13,12 +13,12 @@ To install the streamm package with pip run::
 
     $ pip install streamm
 
-This will create an egg file and place it in your package managment directory of the default version of python on your machine.
+This will create an egg file and place it in your package management  directory of the default version of python on your machine.
 
 Github
 ======
 
-You can also install the streamm package from souce by cloning the `Github <https://github.com/>`_ repo::
+You can also install the streamm package from source  by cloning the `Github <https://github.com/>`_ repo::
 
     $ git clone https://github.com/NREL/streamm-tools
     

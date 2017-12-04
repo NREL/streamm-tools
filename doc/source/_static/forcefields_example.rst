@@ -43,7 +43,7 @@ Set some parameters from J. Am. Chem. Soc., 1996, 118 (45), pp
 
 http://pubs.acs.org/doi/suppl/10.1021/ja9621760/suppl_file/ja11225.pdf
 
-In general you should pick a force field that has been shown to work
+In general, you should pick a force field that has been shown to work
 well for your system and set up the parameters
 
 Check that we have our units set right
@@ -450,7 +450,7 @@ routine
 Now we can set the particles, bonds, bond angles and dihedrals of the
 molecule to have parameters
 
-First lets set the particle types
+First let's set the particle types
 
 .. code:: python
 

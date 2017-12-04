@@ -492,7 +492,7 @@ def shiftprep(bblockC_i,bblockC_j):
 def attachprep(bbC_i,bbC_j):
     '''Concatenate two building block containers that had prepattach already ran on them.
 
-    This is handy for batch attachments to not repeat the intial steps in the attach function
+    This is handy for batch attachments to not repeat the initial steps in the attach function
     
     Args:
         * bblockC_i (Container) Buildingblock container 1

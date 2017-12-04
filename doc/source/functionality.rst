@@ -9,7 +9,7 @@ NWChem input file
 STREAMM creates input files by replacing ``keys`` in a template with the
 values of the same ``keys`` of the ``properties`` dictionary
 of the :class:`Calculation <streamm.calculations.calculation.Calculation>`. 
-Accordingly, we first need some basic templates provided in the Gitbub
+Accordingly, we first need some basic templates provided in the Github
 repository http://github.com/NREL/streamm-tools.
 If you are running this example in the examples directory in the
 streamm-tools repository, the ``TEMPLATE_DIR`` should look like this

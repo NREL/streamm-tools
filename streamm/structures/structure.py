@@ -1888,7 +1888,7 @@ class Structure(units.ObjectUnits):
                             
     def bonded_dih(self):
         """
-        Generate dihedrals from nbonded eighbor list 
+        Generate dihedrals from nbonded neighbor list 
         """
         self.dihedrals =dict()                                # Creates empty dict struc
         for pkey_i in self.particles.keys():

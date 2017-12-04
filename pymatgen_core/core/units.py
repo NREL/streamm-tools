@@ -783,7 +783,7 @@ def _my_partial(func, *args, **kwargs):
 
 Volume = partial(FloatWithUnit, unit_type="volume")
 """
-A float with an volue unit.
+A float with an volume unit.
 
 Args:
     val (float): Value
@@ -793,7 +793,7 @@ Args:
 
 Density = partial(FloatWithUnit, unit_type="density")
 """
-A float with an density unit.
+A float with a density unit.
 
 Args:
     val (float): Value

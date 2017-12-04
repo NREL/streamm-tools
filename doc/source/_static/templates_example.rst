@@ -43,7 +43,7 @@ Create a NWChem calculation object
 
     nwchem = streamm.NWChem('ethane_nw_sp')
 
-Read in the ethane structure we creating in the buildingblocks example.
+Read in the ethane structure we are creating in the buildingblocks example.
 
 Note:
 

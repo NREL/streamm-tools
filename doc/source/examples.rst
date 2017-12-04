@@ -5,7 +5,7 @@ Examples
 
 The following examples are included in the `github repo <github.com/NREL/streamm-tools>`_ in the examples directory as `jupyter notebooks <http://jupyter.org/>`_.
 
-The lower case examples go through the basic functionality of each module.
+The lower-case examples go through the basic functionality of each module.
 
 .. toctree::
     :maxdepth: 2
@@ -20,7 +20,7 @@ The lower case examples go through the basic functionality of each module.
     _static/calculations_example.rst
     _static/nwchem_example.rst
 
-The upper case examples go through more advanced workflows.
+The upper-case examples go through more advanced workflows.
     
     Create alkyl chains and analyze using quantum chemical methods and run a MD simulation
     
@@ -29,7 +29,7 @@ The upper case examples go through more advanced workflows.
          
         _static/Project_alkyls.rst
         
-    Calculate the electronic properties of methane with NWChem and the structural properties with LAMMPS using a external resource
+    Calculate the electronic properties of methane with `NWChem <http://www.nwchem-sw.org/index.php/Main_Page>`_ and the structural properties with `LAMMPS <http://lammps.sandia.gov/>`_ using an external resource
     
     .. toctree::
         :maxdepth: 2
