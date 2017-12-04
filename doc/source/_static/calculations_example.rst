@@ -20,7 +20,7 @@ resource as a dictionary. Resources, structures, and forcefields are
 contained within a calculation object. Sets of calculations are
 contained within a project
 
-So let’s first create a resource object that we will use to set the
+So let's first create a resource object that we will use to set the
 directory locations of all the subsequent calculation objects
 
 .. code:: python
@@ -82,7 +82,7 @@ default
     EXAMPLE_DIR = res_i.dir['home']
 
 However, we want to use structures from our previous structures and
-forcefields examples, so let’s set the materials directory to examples/
+forcefields examples, so let's set the materials directory to examples/
 
 .. code:: python
 
@@ -91,7 +91,7 @@ forcefields examples, so let’s set the materials directory to examples/
 To write out input files we will use the templates provided in the
 streamm package
 
-Set the template dir dictionary entry to the location of templates
+Set the template ``dir`` dictionary entry to the location of templates
 directory
 
 .. code:: python
@@ -129,7 +129,7 @@ This also contains the properties dictionary, which can be used to write
      u'walltime': 24}
 
 
-By default the resource type is ‘local’; however, setting type to ‘ssh’
+By default the resource type is 'local'; however, setting type to 'ssh'
 will invoke an scp command when copying files
 
 Okay create the directories we need for our calculation
@@ -179,16 +179,17 @@ Make the calculation directories
 
     calc_i.make_dir()
 
-Let’s assign a structure to this calculation
+Let's assign a structure to this calculation
 
 First copy the .xyz file from the materials directory to our scratch
-directory using the cp_file() function.
+directory using the cp\_file() function.
 
 .. code:: python
 
     os.chdir(calc_i.dir['home'])
 
-This takes an type and key to set the calc_i.files[type][key] dictionary
+This takes an type and key to set the calc\_i.files[type][key]
+dictionary
 
 .. code:: python
 
@@ -243,7 +244,7 @@ Read in methane ``.json`` file from the structures example
 Now that we have a structure and parameters for each interaction we can
 create an input file for a simulation
 
-Get the bash run script for Gaussian. By setting the file_key to run,
+Get the bash run script for Gaussian. By setting the file\_key to run,
 this will be the script that executed when the run() function is called
 
 .. code:: python
@@ -298,14 +299,14 @@ want
     calc_i.properties['spin_mult'] = 1
     calc_i.properties['coord'] = calc_i.strucC.write_coord()
 
-Replace the strings in the files[‘input’][‘com’]
+Replace the strings in the files['input']['com']
 
 .. code:: python
 
     calc_i.replacewrite_prop('com','input','com','%s.com'%(calc_i.tag))
 
 Add the name of the .com file to the properties, and replace the strings
-in the files[‘input’][‘run’]
+in the files['input']['run']
 
 .. code:: python
 
@@ -364,7 +365,7 @@ Then compress the results and copy them to storage
 
     calc_i.store()
 
-Next we can follow a similar procedure to run a LAMMPS MD simulation
+Next, we can follow a similar procedure to run a LAMMPS MD simulation
 
 .. code:: python
 
@@ -402,7 +403,8 @@ Make directories
      u'templates': '/Users/tkemper/Development/streamm-tools/examples/../templates/'}
 
 
-This takes an type and key to set the calc_i.files[type][key] dictionary
+This takes an type and key to set the calc\_i.files[type][key]
+dictionary
 
 .. code:: python
 
@@ -528,7 +530,7 @@ Copy the forcefield parameter .json file to scratch and read it in
       harmonic theta_0 = 110.700000 K = 37.500000 lammps index 0  gromacs index 0   kCalmol ang
 
 
-Use the set_ffparam() function to iterate through the structure
+Use the set\_ffparam() function to iterate through the structure
 container and set parameters based on ``paramkeys``
 
 .. code:: python
@@ -538,7 +540,7 @@ container and set parameters based on ``paramkeys``
 Now we have a structure that has forcefield parameters for each
 particle, bond and bond angle
 
-Let’s get the input file template
+Let's get the input file template
 
 .. code:: python
 
@@ -617,7 +619,7 @@ the calculation
     'Calculation:ethane_lmp has status:written'
 
 
-So now we have two calculations, let’s put them in a project so we can
+So now we have two calculations, let's put them in a project so we can
 operate on them both at the same time
 
 .. code:: python

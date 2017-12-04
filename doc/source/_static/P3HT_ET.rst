@@ -4,8 +4,8 @@ P3HT_ET
 ========================
  
 
-In this example we run through a simplified procedure to calculate the
-inter-molecular electronic coupling energies between
+In this example, we will run through a simplified procedure to calculate
+the inter-molecular electronic coupling energies between
 penta-3-hexylthiophene
 
 Procedure: \* Generate models of thiophene and hexane based on based on
@@ -168,7 +168,7 @@ Set some properties of the molecule to keep track of the parts
             h_cnt +=1 
 
 
-Set the force-field type and guess some reasonable charges
+Set the forcefield type and guess some reasonable charges
 
 .. code:: python
 
@@ -683,7 +683,7 @@ Update the charges of the Buildingblock
 
 
 Create the neighbor list and use it to set the bonds, bond angles and
-dihedrals for the force-field model
+dihedrals for the forcefield model
 
 .. code:: python
 
@@ -702,7 +702,7 @@ Store an object of the Buildingblock
     os.chdir(res_local.dir['materials']) 
     th_json = bbTh.export_json()
 
-Let us optimize the structure with the oplsaa force-field to check the
+Let us optimize the structure with the oplsaa forcefield to check the
 parameters
 
 .. code:: python
@@ -990,7 +990,7 @@ parameters are okay
         # Set parameter container 
         lmp_i.paramC = param_i
         lmp_i.set_strucC(bb_i)
-        # Set force-field parameters 
+        # Set forcefield parameters 
         lmp_i.set_ffparam()
         # Set resource to local
         lmp_i.set_resource(res_i)
@@ -1151,7 +1151,7 @@ since we will be running MD
     8 H [ -4.66214626e-01   1.45428691e+00   9.88545095e-04]
 
 
-Save the Buildingblock and force-field
+Save the Buildingblock and forcefield
 
 .. code:: python
 
@@ -1667,7 +1667,7 @@ Update the charges of the Buildingblock
 
     bbHex.tag += '_HFesp'
 
-First we need to identify the bonding within the Buildingblock
+First, we need to identify the bonding within the Buildingblock
 
 .. code:: python
 
@@ -1853,7 +1853,7 @@ since we will be running MD
     19 H [-0.06764303  1.08658157 -0.8852923 ]
 
 
-Save the Buildingblock and force-field
+Save the Buildingblock and forcefield
 
 .. code:: python
 
@@ -1872,7 +1872,7 @@ Save the Buildingblock and force-field
     hexane_HFesp_oplsaa thiophene_HFesp_oplsaa
 
 
-So let us make some P3HT oligomers
+So, let us make some P3HT oligomers
 
 .. code:: python
 
@@ -2229,7 +2229,7 @@ since we will be running MD
     26 H [-5.52727906 -4.91013854 -0.88473   ]
 
 
-Save the Buildingblock and force-field
+Save the Buildingblock and forcefield
 
 .. code:: python
 
@@ -2542,7 +2542,7 @@ since we will be running MD
     126 H [-4.27295649  8.44664045 -0.88117706]
 
 
-Save the Buildingblock and force-field
+Save the Buildingblock and forcefield
 
 .. code:: python
 
@@ -4955,4 +4955,4 @@ Just calculated the inter-molecular electronic coupling between P3ht
 Boom!
 
 There is a stripped down python version of this example (P3HT\_ET.py)
-that will run the calculations on external resource
+that will run the calculations on an external resource.

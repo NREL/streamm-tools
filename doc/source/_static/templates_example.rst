@@ -21,7 +21,7 @@ First, we need to set the location of the templates directory cloned
 from http://github.com/NREL/streamm-tools
 
 If you are running this example in the examples directory in the
-streamm-tools repo, the TEMPLATE_DIR should look like this
+streamm-tools repo, the TEMPLATE\_DIR should look like this
 
 .. code:: python
 
@@ -43,7 +43,8 @@ Create a NWChem calculation object
 
     nwchem = streamm.NWChem('ethane_nw_sp')
 
-Read in the ethane structure we are creating in the buildingblocks example.
+Read in the ethane structure we are creating in the buildingblocks
+example.
 
 Note:
 

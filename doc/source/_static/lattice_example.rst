@@ -58,7 +58,7 @@ Which are returned as [a,b,c,alpha,beta,gamma]
 
 We can calculate the distance between two points in the lattice
 
-Let’s turn on periodic boundary conditions
+Let's turn on periodic boundary conditions
 
 .. code:: python
 
@@ -154,7 +154,7 @@ To set to a triclinic lattice
     ang
 
 
-Let’s turn pbcs’s back on and calculate the distance
+Let's turn pbcs's back on and calculate the distance
 
 .. code:: python
 

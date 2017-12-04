@@ -12,9 +12,9 @@ do
     sed 's/ipython2/python/g'  temp.rst > $f
 done
 
-
-
-
+rm getting_started.rst 
+rm temp.rst
+rm resource_peregrine.rst
 
 for f in *.rst 
 do

@@ -25,13 +25,13 @@ module and goes through the functionality of each
 
     import streamm.forcefields.particletype as particletype
 
-Let’s start with an ethane molecule from the
-buildingblocks_example.ipynb example
+Let's start with an ethane molecule from the
+buildingblocks\_example.ipynb example
 
 We have an sp3 carbon bonded to hydrogens
 
-Let’s create the force field parameters object for a ‘CT’ carbon and an
-‘HC’ hydrogen
+Let's create the force field parameters object for a 'CT' carbon and an
+'HC' hydrogen
 
 .. code:: python
 
@@ -41,9 +41,9 @@ Let’s create the force field parameters object for a ‘CT’ carbon and an
 Set some parameters from J. Am. Chem. Soc., 1996, 118 (45), pp
 11225–11236
 
-http://pubs.acs.org/doi/suppl/10.1021/ja9621760/suppl_file/ja11225.pdf
+http://pubs.acs.org/doi/suppl/10.1021/ja9621760/suppl\_file/ja11225.pdf
 
-In general, you should pick a force field that has been shown to work
+In general you should pick a force field that has been shown to work
 well for your system and set up the parameters
 
 Check that we have our units set right
@@ -58,7 +58,7 @@ Check that we have our units set right
     Ha ang
 
 
-Our potential is in kCal/mol (``kCalmol``) so let’s get the unit
+Our potential is in kCal/mol (``kCalmol``) so let's get the unit
 dictionary and create our own default
 
 .. code:: python
@@ -211,7 +211,7 @@ Now we need a dihedral potential for the HC-CT-CT-HC dihedral
 
     H_C_C_H.setopls(0.0,0.0,0.3,0.0)
 
-Let’s create a parameter container to keep track of our parameters
+Let's create a parameter container to keep track of our parameters
 
 .. code:: python
 
@@ -399,7 +399,7 @@ Read in ethane .json file from the structures example
      n_impropers:0
 
 
-Let’s set the ``paramkey`` for each particle based on the symbol.
+Let's set the ``paramkey`` for each particle based on the symbol.
 
 .. code:: python
 
@@ -450,7 +450,7 @@ routine
 Now we can set the particles, bonds, bond angles and dihedrals of the
 molecule to have parameters
 
-First let's set the particle types
+First lets set the particle types
 
 .. code:: python
 
@@ -576,7 +576,7 @@ Now we can set the bond types
 
 Now our molecule has forcefield parameters for all the interactions
 
-Now let’s say we want to use a software package like GROMACS that used
+Now let's say we want to use a software package like GROMACS that used
 kJ/mol instead of kCal/mol
 
 .. code:: python

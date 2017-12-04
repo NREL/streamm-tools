@@ -90,14 +90,14 @@ C-H bond length of 1.2 Angstroms
 We want to use the functionality of the buildingblock object to join two
 methanes together to create alkyl chains of any length
 
-So let’s set two of the hydrogens to be reactive sites (rsites).
+So let's set two of the hydrogens to be reactive sites (rsites).
 
 You can view the numerical order of the atoms in Avogadro by setting the
-label to “atom number,” however, Avogadro labels atoms from 1 to N,
+label to "atom number," however, Avogadro labels atoms from 1 to N,
 while streamm uses 0 to N-1
 
 We will choose the first two hydrogens and set their rsite variable to
-‘RH’. It does not matter what this identifier is, as long as the same
+'RH'. It does not matter what this identifier is, as long as the same
 identifier is passed to the attach() function later. Also, if the
 identifiers are not unique, the order in which it appears in the
 particles list will also be used.
@@ -110,7 +110,7 @@ particles list will also be used.
 
     mol_i.particles[2].rsite = 'RH'
 
-Now use the find_rsites() function to create the dictionary of lists to
+Now use the find\_rsites() function to create the dictionary of lists to
 be used by the attach() function
 
 .. code:: python
@@ -129,7 +129,7 @@ be used by the attach() function
     
 
 
-Pass the molecule to the attach function and set the rsite id’s and the
+Pass the molecule to the attach function and set the rsite id's and the
 list positions of the rsites
 
 .. code:: python

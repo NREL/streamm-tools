@@ -39,7 +39,7 @@ Check that output from other examples has been generated
 
     import streamm
 
-Now let’s create project and resource to keep track of our work
+Now let's create project and resource to keep track of our work
 
 .. code:: python
 
@@ -81,8 +81,8 @@ Tell the project about our directories
 
     nwchem_example.set_resource(res_local)
 
-Read in the ethane structure created in the buildingblocks_example.ipynb
-example
+Read in the ethane structure created in the
+buildingblocks\_example.ipynb example
 
 .. code:: python
 
@@ -122,7 +122,7 @@ Set the paramkeys so we can identify force field parameters later on
         p.residue = 1
         p.resname = 'ETH'
 
-Set ``rsite``\ ’s to hydrogens to be replaced during join
+Set ``rsite``'s to hydrogens to be replaced during join
 
 .. code:: python
 

@@ -20,13 +20,13 @@ is doing, if we feel like it.
     import logging
     logging.basicConfig(filename='structures_example.log',level=logging.INFO)
 
-Let’s start with the Particle object
+Let's start with the Particle object
 
 .. code:: python
 
     from streamm.structures.particle import Particle
 
-Create a particle object with label ‘C1’
+Create a particle object with label 'C1'
 
 .. code:: python
 
@@ -48,7 +48,7 @@ Assign the carbon element to the particle
 
     p_i.set_element('C')
 
-Let’s oxidize the carbon just to make the charge non-zero
+Let's oxidize the carbon just to make the charge non-zero
 
 .. code:: python
 
@@ -74,7 +74,7 @@ Check that the element properties were set to the particle
 
 Say we want to change the units to SI
 
-Let’s look at the current units of the particle instance
+Let's look at the current units of the particle instance
 
 .. code:: python
 
@@ -136,7 +136,7 @@ Create a dictionary with new units
      nonbonded_radius:1.7e-10 (m)
 
 
-That’s cool, but we should stick with the default units, so let’s change
+That's cool, but we should stick with the default units, so let's change
 them back
 
 .. code:: python
@@ -159,7 +159,7 @@ them back
      nonbonded_radius:1.7 (ang)
 
 
-Let’s create another particle and set the element to hydrogen
+Let's create another particle and set the element to hydrogen
 
 .. code:: python
 
@@ -181,7 +181,7 @@ Let’s create another particle and set the element to hydrogen
      nonbonded_radius:1.2 (ang)
 
 
-Let’s make an empty structure container
+Let's make an empty structure container
 
 .. code:: python
 
@@ -191,7 +191,7 @@ Let’s make an empty structure container
 
     mol_i = Structure('methane')
 
-Now let’s construct a molecule
+Now let's construct a molecule
 
 We can add the carbon at the origin using the ``add_partpos()``
 function.
@@ -287,7 +287,7 @@ Add hydrogens
 
 
 We can add the subsequent hydrogens using the same particle object since
-add_partpos makes a deepcopy of the object when adding to the structure
+add\_partpos makes a deepcopy of the object when adding to the structure
 container
 
 .. code:: python
@@ -340,7 +340,7 @@ function.
     4 atom H (H)
 
 
-Hum, let’s fix the labels of the hydrogens…
+Hum, let's fix the labels of the hydrogens...
 
 .. code:: python
 
@@ -380,7 +380,7 @@ Looks good, you should have the geometry of a methane molecule with a
 C-H bond length of 1.2 Angstroms
 
 However, we have not told streamm about the bonds. There are a few ways
-to do this, let’s do it explicitly with the Bond object fist.
+to do this, let's do it explicitly with the Bond object fist.
 
 .. code:: python
 
@@ -409,9 +409,9 @@ Now add the bond to the bonds dictionary in the structure container
 
 
 Neat, but adding all the bonds, bond angles and dihedrals explicitly
-would be pretty tedious, so let’s use some functions to do that.
+would be pretty tedious, so let's use some functions to do that.
 
-First, let’s guess the ``bonded_nblist`` of the molecule based on the
+First, let's guess the ``bonded_nblist`` of the molecule based on the
 ``bonded_radius`` of each particle (atom)
 
 .. code:: python
@@ -428,7 +428,7 @@ First, let’s guess the ``bonded_nblist`` of the molecule based on the
      NBlist of 5 particles with 8 connections
 
 
-Let’s take a look at the neighbor lists ``list`` and ``index`` instance
+Let's take a look at the neighbor lists ``list`` and ``index`` instance
 variables
 
 .. code:: python
@@ -444,7 +444,7 @@ variables
 
 
 Looking at the ``index`` for particle 0, we get that it has neighbors in
-the ``list`` from 0:3 (index[0]:index[0+1]-1). Therefore we know
+the ``list`` from 0:3 (index[0]:index[0+1]-1). Therefore, we know
 particle 0 has [1, 2, 3, 4] for neighbors.
 
 .. code:: python
@@ -509,7 +509,7 @@ We can reload the molecule as another instance of the Structure object
 
     mol_test.import_json()
 
-Then we can use the structure’s **eq** and **ne** functions to make sure
+Then we can use the structure's **eq** and **ne** functions to make sure
 they are the same
 
 .. code:: python
@@ -527,7 +527,7 @@ they are the same
     Molecules equal
 
 
-Now let’s set some groups. This is a little unnecessary for methane, but
+Now let's set some groups. This is a little unnecessary for methane, but
 it will come in super handy if you have a large simulation of thousands
 of molecules.
 
@@ -586,13 +586,13 @@ Find groups based on residue variable
 
 
 Looks good. We have two groups in the group container, the first with
-the carbon particle index 0 and the rest are the hyrdogens.
+the carbon particle index 0 and the rest are the hydrogens.
 
 .. code:: python
 
     res_json = groups_i.export_json()
 
-Now let’s change the units
+Now let's change the units
 
 .. code:: python
 

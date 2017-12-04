@@ -27,7 +27,7 @@ LAMMPS
 
     import streamm
 
-Now let’s create project and resource to keep track of our work
+Now let's create project and resource to keep track of our work
 
 .. code:: python
 
@@ -118,7 +118,7 @@ Create .xyz file using a molecular viewer, such as Avogadro
     
 
 
-Looks good let’s set up some calculations
+Looks good let's set up some calculations
 
 .. code:: python
 
@@ -142,7 +142,7 @@ Looks good let’s set up some calculations
     g_methane_HF
 
 
-Let’s use the remote resource to run this calculation
+Let's use the remote resource to run this calculation
 
 .. code:: python
 
@@ -276,9 +276,9 @@ Save details in .json files
 
     calc_i.run()
 
-Cool. While that is in the queue let’s setup some more jobs
+Cool. While that is in the queue let's setup some more jobs
 
-Let’s also run a NWChem calculation
+Let's also run a NWChem calculation
 
 .. code:: python
 
@@ -436,7 +436,7 @@ Save details in .json files
 
     nwchem_i.run()
 
-Okay we have a couple calculations now, so let’s check their status
+Okay we have a couple calculations now, so let's check their status
 
 .. code:: python
 
@@ -517,7 +517,7 @@ Download the compressed output files
 
 Neat!
 
-Now let’s optimize the structure and calculate the ESP charges
+Now let's optimize the structure and calculate the ESP charges
 
 .. code:: python
 

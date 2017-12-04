@@ -44,7 +44,7 @@ This reads in the current directory as the root directory for a project
      u'templates': '/Users/my_username/Development/streamm-tools/examples/../templates/'}
 
 
-These directories can be created using the make_dir() function
+These directories can be created using the make\_dir() function
 
 .. code:: python
 
@@ -89,8 +89,8 @@ resource
     remote.dir['templates'] = local.dir['templates']
 
 If you are running on a remote resource you can decide whether to set
-the properties[‘exe_command’] to ``qsub`` to submit the calculation to a
-queuing system or ``./`` to run the calculation on the same node the
+the properties['exe\_command'] to ``qsub`` to submit the calculation to
+a queuing system or ``./`` to run the calculation on the same node the
 script is running on.
 
 .. code:: python

@@ -4,7 +4,7 @@ Project_alkyls
 ========================
  
 
-In this example we will create alkyl chains of various lengths, run
+In this example, we will create alkyl chains of various lengths, run
 quantum chemical analysis on each and then replicate them into a
 simulation cell for an MD simulation
 
@@ -53,7 +53,7 @@ Check that output from other examples has been generated
 
     import streamm
 
-Now let’s create project and resource to keep track of our work
+Now let's create project and resource to keep track of our work
 
 .. code:: python
 
@@ -91,7 +91,7 @@ Tell the project about our directories
 
     alkyl_example.set_resource(res_local)
 
-Read in the methane.xyz file created in the structure_example.ipynb
+Read in the methane.xyz file created in the structure\_example.ipynb
 example
 
 .. code:: python
@@ -179,7 +179,7 @@ Set some ``rsites`` to be able to join molecules together
     
 
 
-Read in ethane.xyz from the buildinblock_example.ipynb example
+Read in ethane.xyz from the buildinblock\_example.ipynb example
 
 .. code:: python
 
@@ -215,7 +215,7 @@ Guess bonded neighbor list based on ``bonded_radii``
      n_impropers:0
 
 
-Set the ``paramkey``\ ’s as described in the force field example
+Set the ``paramkey``'s as described in the force field example
 
 .. code:: python
 
@@ -233,7 +233,7 @@ Set the ``resname`` of each particle to ``ETH``
         p.residue = 1
         p.resname = 'ETH'
 
-Set ``rsite``\ ’s to hydrogens to be replaced during join
+Set ``rsite``'s to hydrogens to be replaced during join
 
 .. code:: python
 
@@ -300,7 +300,7 @@ Rename the residue and resname for octane
 
     octane.write_xyz()
 
-Print new ``rsite``\ ’s
+Print new ``rsite``'s
 
 .. code:: python
 
@@ -821,11 +821,11 @@ Run the ``add_struc()`` function to create 10 randomly placed
 
 
 The ``add_struc()`` function randomly places each molecule in a space
-defined by the lattice of the lmp_alkyl.strucC, then randomly rotates
+defined by the lattice of the lmp\_alkyl.strucC, then randomly rotates
 it.
 
 Then the function checks to make sure it does not overlap any other
-particles that are already in the lmp_alkyl.strucC.
+particles that are already in the lmp\_alkyl.strucC.
 
 If an overlap is found a new position and rotation is chosen until the
 max placements are exceeded, then the entire system is cleared, and the
@@ -1657,7 +1657,7 @@ Create groups out of the molecules
     groupset_i = streamm.Groups('mol',lmp_alkyl.strucC)
     groupset_i.group_prop('mol','group_mol')
 
-Caculate the ceneter of mass, radius and asphericity of each group
+Calculate the center of mass, radius and asphericity of each group
 
 .. code:: python
 
@@ -1702,7 +1702,7 @@ Create a neighbor list of groups
     groupset_i.group_nblist.radii_nblist(groupset_i.strucC.lat,groupset_i.cent_mass,groupset_i.radius,radii_buffer=5.25)
 
 Apply periodic boundaries to all the groups, so the molecules are not
-split across pbc’s
+split across pbc's
 
 .. code:: python
 
