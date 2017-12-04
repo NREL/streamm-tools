@@ -43,7 +43,7 @@ The package is open-source and can be forked and modified from the repository (g
 Release Notes
 ======================
 
-v0.3.4 -- September 2017
+v0.3.4 -- December 2017
 ----------------------------
 
 * Add P3HT electronic coupling example

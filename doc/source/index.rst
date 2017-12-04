@@ -41,11 +41,12 @@ Contents
 Release Notes
 *************
 
-v0.3.3 -- December 2017
-========================
+v0.3.4 -- December 2017
+----------------------------
 
-* Add P3HT_ET example
-* Add json export and import functionality 
+* Add P3HT electronic coupling example
+* Add export_json/import_json functions to objects
+* Cleanup template names
 
 v0.3.2 -- October 2017
 ========================
