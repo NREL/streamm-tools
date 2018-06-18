@@ -1,12 +1,16 @@
 Change log
 ==========
 
+v0.3.6 -- December 2017
+----------------------------
+* Clean up example notebooks
+
 v0.3.4 -- December 2017
 ----------------------------
 
 * Add P3HT electronic coupling example
 * Add export_json/import_json functions to objects
-* Cleanup template names
+* Clean up template names
 
 v0.3.2 -- October 2017
 ========================
