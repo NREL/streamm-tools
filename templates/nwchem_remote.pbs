@@ -16,9 +16,11 @@ scratch_dir=<scratch>
 cd $scratch_dir
 
 module purge;
+module use /nopt/nrel/apps/modules/default/modulefiles 
 module load conda/5.0 
-module load openmpi-gcc/1.7.3-4.8.2-notorque
-module load nwchem
+module load openmpi-intel/1.6.4-13.1.1
+#module load openmpi-gcc/1.7.3-4.8.2
+module load  nwchem/6.3
 
 export NWCHEM_BASIS_LIBRARY=/home/tkemper/nwchem/basis/libraries/
 
